@@ -185,11 +185,28 @@ Decisions:
   definitions are plain `def`s. Structural recursion is not used even
   where it would work, so every group has the same proof principle. M1
   used explicit fuel; no fuel remains. Never `partial`.
-- **Relations are emitted in both encodings** from one pass: an
-  inductive `Prop` with one constructor per rule for proofs (from M2), and
-  an executable `Option`-returning function `R.run` from the inputs the
-  hint names to the outputs (M1), linked by a generated theorem
-  `R.run i = some o → R i o` (M2).
+- **Relations are emitted in both encodings** from one compilation of
+  the rule paths: the executable function `R.run` from the inputs the
+  hint names to the outputs (M1), and an inductive `R : args → Prop` in
+  notation order with one constructor per rule path (M2). The
+  constructor's implicit arguments are the variables the path binds; its
+  hypotheses are the path's statements in the same A-normal form as the
+  run function (a hoisted call is `f args = some (.ok x)`, an `if` is
+  `e = true`, a rule premise is the relation applied, an iterated premise
+  is a pointwise fact along the zip of its lists); pure bindings and
+  pattern matches are substituted. Each relation gets the theorem
+  `R.run_sound : R.run i = some (.ok o) → R i o`, proved by the generic
+  tactic `run_sound` (`P4SpecTec/Tactic/RunSound.lean`): a symbolic
+  execution of the run function with the `Eval.run_*` lemmas, the
+  induction hypotheses of `partial_correctness` for the group's members,
+  the earlier `run_sound` theorems for other relations, and the
+  constructor of the rule path taken. A recursive group's theorem comes
+  from Lean's `mutual_partial_correctness` through `run_sound_group`,
+  which matches the principle's conjuncts to the generated statement by
+  their function, since Lean orders the members of a group in its own
+  way. Every generated theorem is followed by `#audit_axioms`
+  (`P4SpecTec/Tactic/Audit.lean`), which fails on any axiom outside
+  `propext`, `Classical.choice` and `Quot.sound`.
 - **Externs and builtins become fields of a generated class.** Target
   instances are ports of upstream's OCaml target code. Every extern call
   in generated code goes through this one interface, so a free-monad
@@ -322,8 +339,10 @@ here is a bug.
 | Equality on generated types is equality of their IL values | `deriving BEq` on nested inductives is opaque; value equality is upstream's `Value.eq` | `Codegen/Types.lean`, `Prelude/Value.lean` |
 | In the IL mirror, `iterexp`, `iterprem` and `typorigin'` are named inductives, EL hints are raw JSON, `Bigint.t` is `Nat`/`Int`, the polymorphic-variant unions are flat inductives | the kernel rejects a pair holding a list of a type being declared; the EL is not mirrored; Lean has no bigint or open unions | `IL/Ast.lean` |
 | Failures upstream reports as OCaml exceptions or `assert false` (division and modulus by zero, `^`, a failed downcast, a pattern shape that does not match, an optionality mismatch) are `Fail.err` in the executable encoding, the kind upstream never backtracks over | Lean has no exceptions; none of these is reachable on the guarded AL, and `err` is the nearest kind | `Codegen/Exp.lean`, `Prelude/Num.lean`, `Prelude/Eval.lean` |
-| Each relation emitted twice, `Prop` (M2) and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean` |
-| Iterated premises encoded as `∀ x ∈ xs, …` and definitional `Forall₂`, not nested inductive predicates (M2) | Lean's kernel does not support nested inductive predicates with indices (lean4#1964) | `Codegen/Rels.lean`, `Prelude/Iter.lean` |
+| Each relation emitted twice, `Prop` and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean`, `Codegen/Props.lean` |
+| In the `Prop` encoding an iterated premise is `∀ elems collected, (elems, collected) ∈ List.zip lists tmp → …` with the length equation beside it; its relation-free facts sit under `∃` for their temporaries, each relation fact is an implication from those facts, and the ∀-bound names are the spec's | the kernel rejects a relation under `∃`, `∧` or `∨` inside its own constructors ("nested inductive datatypes parameters cannot contain local variables") and accepts it under `∀` and `→` | `Codegen/Props.lean` |
+| A `does not hold` premise is `R'.run args = some (.error Fail.unmatch)` in the `Prop` encoding; an `else` group carries no negation of the other groups | a relation cannot occur negatively in its own definition; the executable encoding orders the `else` group last and keeps the meaning | `Codegen/Props.lean` |
+| A temporary the spec does not name (the collected list of an iteration, a hoisted call whose result is matched by a pattern) is a constructor argument named `tmp_n` | the AL has no name for it | `Codegen/Props.lean` |
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
 | Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
@@ -348,6 +367,7 @@ applies instead, each documented in the module that implements it.
 | Tables (`table dec`) | a function by cases over the rows |
 | Builtins (`builtin dec`) | a wrapper around the port of the same OCaml file under `Interface/Builtin/`; sets and maps unwrapped to element lists; `print_` uses the hint-free printer, and codegen rejects a spec with `print` hints |
 | Values of generated types | `ToValue` (structural) and `OfValue fuel` (decoder) instances per type, for programs, printing and equality |
+| Relation, `Prop` encoding | `inductive R : args → Prop`, one constructor per rule path named by `Names.ruleName` (`rule<k>` when the spec names neither group nor rule), implicit arguments for the path's variables with the types the AL notes give, hypotheses in statement order; `R.run_sound` per relation, `<first>.run_sound_group` per recursive group, `#audit_axioms` after each |
 
 ### 5.5 Test sources (all from upstream)
 
@@ -415,10 +435,13 @@ p4-spectec-lean/
 │   │   ├── Types.lean            # TypD → inductive / structure / abbrev, ToValue/OfValue, subtype bridges
 │   │   ├── Exp.lean              # expressions, patterns, premises in A-normal form
 │   │   ├── Funcs.lean            # FuncDecD, BuiltinDecD, TableDecD → def; the Externs class
-│   │   ├── Rels.lean             # RelD → run function (Prop encoding at M2)
+│   │   ├── Rels.lean             # RelD → run function
+│   │   ├── Props.lean            # RelD → Prop inductive, run-soundness theorems, audits (M2)
 │   │   ├── Emit.lean             # the plan: groups, module assignment, module text
 │   │   └── Main.lean             # `lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]`
-│   ├── Tactic/                   # M2
+│   ├── Tactic/                   # the proof side (M2)
+│   │   ├── RunSound.lean         # run_sound, run_sound_group: symbolic execution against the Prop
+│   │   └── Audit.lean            # #audit_axioms
 ├── P4SpecTecTest/                # test-only: decode test, the differential runner (Diff/NanoP4Run.lean)
 │
 ├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it

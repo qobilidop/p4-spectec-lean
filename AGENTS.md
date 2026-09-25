@@ -121,10 +121,12 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   (codegen, prelude, P4Lib) follows Lean style: `lowerCamelCase` for
   definitions and theorems, `UpperCamelCase` for types and namespaces.
 - **Tests** are `#guard` and `#guard_msgs` files under `P4SpecTecTest/`,
-  built by `lake test`. Every advertised theorem, and every generated
-  validation theorem, is followed by a `#guard_msgs in #print axioms`
-  check naming its exact axiom set. `native_decide` is not used in
-  proofs: it adds the `Lean.ofReduceBool` axiom, which the audit rejects.
+  built by `lake test`. Every advertised theorem is followed by a
+  `#guard_msgs in #print axioms` check naming its exact axiom set; every
+  generated theorem by `#audit_axioms`, which fails on any axiom outside
+  `propext`, `Classical.choice` and `Quot.sound`. `native_decide` is not
+  used in proofs: it adds the `Lean.ofReduceBool` axiom, which the audit
+  rejects.
 - **Generated code** carries a grep-able first line naming the generator
   and its input, and a fixed preamble of options. Generated modules live
   in their own library so a default build can skip them.

@@ -43,10 +43,62 @@ structure Ctx where
   /-- Names of extern functions and relations, called through `Externs`. -/
   externs : List String := []
 
+/-- The fallback of a refutable pattern: upstream's `assign_exp` error. -/
+def noMatch : Option String := some "throw Fail.err"
+
+/-- A statement of a `do` block, structured so that the `Prop` encoding
+(`Codegen/Props.lean`) can read what it binds, at which type, and what it
+means; `render` prints it for the executable encoding. -/
+inductive Stmt where
+  /-- `let x ← ExceptT.mk f`: a call, `f : Option (Except Fail ty)`. -/
+  | call (x : String) (ty : Term) (f : Term)
+  /-- `let x ← Eval.err? o`: an `Option ty` whose `none` is an error. -/
+  | opt (x : String) (ty : Term) (o : Term)
+  /-- `let x ← m` with `m` the lifted call of the relation `id` on `ins`
+  (`R.run`, or the `Externs` field when `extern`): a rule premise; `x` is
+  `_` for a `holds` premise. -/
+  | rel (x : String) (ty : Term) (id : String) (ins : List Term) (extern : Bool) (m : Term)
+  /-- `let _ ← Eval.notHold m`, `m` the lifted call of the relation `id`. -/
+  | notHold (id : String) (ins : List Term) (extern : Bool) (m : Term)
+  /-- `let _ ← Eval.check b`. -/
+  | check (b : Term)
+  /-- `have x := v`. -/
+  | have_ (x : String) (v : Term)
+  /-- `let pat := v`, with `| throw Fail.err` when refutable, binding the
+  variables `vars` (with their types); `patTerm` is the pattern as a term. -/
+  | letPat (pat : Format) (patTerm : Term) (vars : List (String × Term)) (v : Term)
+      (refutable : Bool)
+  /-- `let x ← List.mapM (fun binder => do body; pure result) z`: the element
+  variables `elems` range over the zipped lists `z`, and `result` (a tuple
+  of inner variables, of type `resTy`) is collected into `x : List resTy`. -/
+  | mapM (x : String) (resTy : Term) (binder : Format) (elems : List (String × Term))
+      (body : List Stmt) (result : Term) (z : Term)
+  /-- `let x ← m` for any other monadic term (option iterations). -/
+  | bind (x : String) (ty : Term) (m : Term)
+
+/-- A `do` block from rendered statements and a final pure result. -/
+def doOfRendered (stmts : List Format) (result : Term) : Term :=
+  if stmts.isEmpty then .call "pure" [result]
+  else .paren (.doBlock (stmts ++ [Format.text "pure " ++ result.arg]))
+
+/-- Print a statement. -/
+partial def Stmt.render : Stmt → Format
+  | .call x _ f => Term.bindStmt x (.call "ExceptT.mk" [f])
+  | .opt x _ o => Term.bindStmt x (.call "Eval.err?" [o])
+  | .rel x _ _ _ _ m => Term.bindStmt x m
+  | .notHold _ _ _ m => Term.bindStmt "_" (.call "Eval.notHold" [m])
+  | .check b => Format.text "let _ ← Eval.check " ++ b.arg
+  | .have_ x v => Term.haveStmt x v
+  | .letPat pat _ _ v refutable => Term.letStmt pat v (if refutable then noMatch else none)
+  | .mapM x _ binder _ body result z =>
+    Term.bindStmt x
+      (Term.call "List.mapM" [.lamF binder (doOfRendered (body.map render) result), z])
+  | .bind x _ m => Term.bindStmt x m
+
 /-- The statements hoisted so far and the temporary counter. -/
 structure St where
   /-- Statements of the current block, in order. -/
-  stmts : Array Format := #[]
+  stmts : Array Stmt := #[]
   /-- The next temporary. -/
   tmp : Nat := 0
 
@@ -60,10 +112,10 @@ def fresh : CgM String := do
   pure s!"{(← read).tmpPrefix}{st.tmp}"
 
 /-- Emit a statement into the current block. -/
-def emit (f : Format) : CgM Unit := modify fun st => { st with stmts := st.stmts.push f }
+def emit (s : Stmt) : CgM Unit := modify fun st => { st with stmts := st.stmts.push s }
 
 /-- Run a compilation in a fresh block and return its result and statements. -/
-def subBlock {α : Type} (m : CgM α) : CgM (α × List Format) := do
+def subBlock {α : Type} (m : CgM α) : CgM (α × List Stmt) := do
   let saved := (← get).stmts
   modify fun st => { st with stmts := #[] }
   let a ← m
@@ -72,13 +124,11 @@ def subBlock {α : Type} (m : CgM α) : CgM (α × List Format) := do
   pure (a, stmts.toList)
 
 /-- A `do` block from statements and a final pure result. -/
-def doOf (stmts : List Format) (result : Term) : Term :=
-  if stmts.isEmpty then .call "pure" [result]
-  else .paren (.doBlock (stmts ++ [Format.text "pure " ++ result.arg]))
+def doOf (stmts : List Stmt) (result : Term) : Term := doOfRendered (stmts.map Stmt.render) result
 
 /-- A `do` block from statements and a final monadic term. -/
-def doOfM (stmts : List Format) (result : Term) : Term :=
-  if stmts.isEmpty then result else .paren (.doBlock (stmts ++ [result.fmt]))
+def doOfM (stmts : List Stmt) (result : Term) : Term :=
+  if stmts.isEmpty then result else .paren (.doBlock (stmts.map Stmt.render ++ [result.fmt]))
 
 /-- `a <|> b <|> ...`, sequential choice (`Eval.orElse` through the `OrElse`
 instance of `Eval`); a mismatch for no alternatives. -/
@@ -95,6 +145,11 @@ def resolve (t : typ') : CgM typ' := do pure ((← read).env.resolve t)
 
 /-- The Lean type of a spec type. -/
 def typOf (t : typ') : CgM Term := do pure (typTerm (← read).env [] t)
+
+/-- The type of an iteration variable: its base type under its dimensions
+(`Typ.Make.iterate`). -/
+def varTyp (w : Lang.Il.var) : typ' :=
+  w.iters.foldl (fun t i => .IterT (mkPhrase t) i) w.typ.it
 
 /-- The variant a resolved type names, with its cases and constructor names. -/
 def variantOf (t : typ') : CgM (Option (String × List typcase × List String)) := do
@@ -141,9 +196,6 @@ partial def iterVar? (e : exp) : Option (String × List iter) :=
 /-- The Lean name of a variable. -/
 def var (id : String) (iters : List iter) : Term := .atom (Names.varName id iters)
 
-/-- The fallback of a refutable pattern: upstream's `assign_exp` error. -/
-def noMatch : Option String := some "throw Fail.err"
-
 /-- The zipped list of several bound lists, and the binder destructuring it. -/
 def zipped (lists : List Term) (names : List String) : Term × String :=
   match lists, names with
@@ -162,9 +214,15 @@ def zipBinder (pat : String) (types : List Term) : Format :=
 
 /-- Bind `o` to the projection `proj` of every element of the list `t`; a
 single variable needs no projection. -/
-def unzipStmt (o t proj : String) : Format :=
-  if proj.isEmpty then Term.haveStmt o (.atom t)
-  else Term.haveStmt o (Term.call "List.map" [.atom s!"(·{proj})", .atom t])
+def unzipStmt (o t proj : String) : Stmt :=
+  if proj.isEmpty then .have_ o (.atom t)
+  else .have_ o (Term.call "List.map" [.atom s!"(·{proj})", .atom t])
+
+/-- The tuple type of several types; `Unit` for none. -/
+def tupleType : List Term → Term
+  | [] => .atom "Unit"
+  | [t] => t
+  | ts => ⟨Format.joinSep (ts.map (·.arg)) " × ", false⟩
 
 /-- The projections of a tuple of `n` components, for unzipping. -/
 def projections (n : Nat) : List String :=
@@ -214,7 +272,7 @@ partial def castDown (sub sup : typ') (x : Term) : CgM Term := do
       let parts ← ((ss.zip ts).zip names).mapM fun ((a, b), n) => castDown a.it b.it (.atom n)
       let stmts := (names.zip parts).map fun (n, p) => Format.text s!"let {n} ← " ++ p.fmt
       pure (.paren (.matchOn x [(Format.text (Term.tuple (names.map Term.atom)).fmt.pretty,
-        doOf stmts (.tuple (names.map Term.atom)))]))
+        doOfRendered stmts (.tuple (names.map Term.atom)))]))
     | .IterT s .List, .IterT t .List =>
       let inner ← castDown s.it t.it (.atom "a")
       pure (.call "List.mapM" [.lam ["a"] inner, x])
@@ -289,11 +347,11 @@ partial def compileExp (e : exp) : CgM Term := do
     | .SubOp, .NatT => pure (.call "Num.natSub" [l, r])
     | .SubOp, _ => pure (.binop "-" l r)
     | .MulOp, _ => pure (.binop "*" l r)
-    | .DivOp, .NatT => hoistErr (.call "Num.natDiv?" [l, r])
-    | .DivOp, _ => hoistErr (.call "Num.intDiv?" [l, r])
-    | .ModOp, .NatT => hoistErr (.call "Num.natMod?" [l, r])
-    | .ModOp, _ => hoistErr (.call "Num.intMod?" [l, r])
-    | .PowOp, _ => hoistErr (.call "Num.pow?" [l, r])
+    | .DivOp, .NatT => hoistErr (← typOf e.note) (.call "Num.natDiv?" [l, r])
+    | .DivOp, _ => hoistErr (← typOf e.note) (.call "Num.intDiv?" [l, r])
+    | .ModOp, .NatT => hoistErr (← typOf e.note) (.call "Num.natMod?" [l, r])
+    | .ModOp, _ => hoistErr (← typOf e.note) (.call "Num.intMod?" [l, r])
+    | .PowOp, _ => hoistErr (← typOf e.note) (.call "Num.pow?" [l, r])
   | .CmpE op _ a b =>
     let l ← compileExp a
     let r ← compileExp b
@@ -310,7 +368,7 @@ partial def compileExp (e : exp) : CgM Term := do
   | .DownCastE typ a =>
     let t ← compileExp a
     let m ← castDown typ.it a.note t
-    hoistErr m
+    hoistErr (← typOf e.note) m
   | .SubE a typ _ =>
     let t ← compileExp a
     isSub typ.it a.note t
@@ -356,16 +414,16 @@ partial def compileExp (e : exp) : CgM Term := do
     let tb ← compileExp b
     let ti ← compileExp i
     match env.resolve b.note, env.resolve i.note with
-    | .TextT, _ => hoistErr (.call "Iter.idxText" [tb, ti])
-    | _, .NumT .IntT => hoistErr (.call "Iter.idxInt" [tb, ti])
-    | _, _ => hoistErr (.call "Iter.idx" [tb, ti])
+    | .TextT, _ => hoistErr (← typOf e.note) (.call "Iter.idxText" [tb, ti])
+    | _, .NumT .IntT => hoistErr (← typOf e.note) (.call "Iter.idxInt" [tb, ti])
+    | _, _ => hoistErr (← typOf e.note) (.call "Iter.idx" [tb, ti])
   | .SliceE b l h =>
     let tb ← compileExp b
     let tl ← compileExp l
     let th ← compileExp h
     match env.resolve b.note with
-    | .TextT => hoistErr (.call "Iter.sliceText" [tb, tl, th])
-    | _ => hoistErr (.call "Iter.slice" [tb, tl, th])
+    | .TextT => hoistErr (← typOf e.note) (.call "Iter.sliceText" [tb, tl, th])
+    | _ => hoistErr (← typOf e.note) (.call "Iter.slice" [tb, tl, th])
   | .UpdE b p f =>
     let tb ← compileExp b
     let tf ← compileExp f
@@ -385,20 +443,25 @@ partial def compileExp (e : exp) : CgM Term := do
       | .DefA d => pure (.atom (Names.funcName d.it))
     let f := if ctx.externs.contains i.it then env.q ("Externs." ++ Names.funcName i.it)
       else env.q (Names.funcName i.it)
-    hoist (.call "ExceptT.mk" [.call f (named ++ argTerms)])
+    let t ← fresh
+    emit (.call t (← typOf e.note) (.call f (named ++ argTerms)))
+    pure (.atom t)
   | .IterE inner ie =>
     match iterVar? e with
     | some (i, is) => pure (var i is)
     | none => compileIter inner ie.iter ie.vars
 
-/-- Hoist an `Eval` term into a temporary. -/
-partial def hoist (m : Term) : CgM Term := do
+/-- Hoist an `Eval` term into a temporary of type `ty`. -/
+partial def hoist (ty : Term) (m : Term) : CgM Term := do
   let t ← fresh
-  emit (Term.bindStmt t m)
+  emit (.bind t ty m)
   pure (.atom t)
 
 /-- Hoist an `Option` term whose `none` is an error (`Eval.err?`). -/
-partial def hoistErr (m : Term) : CgM Term := hoist (.call "Eval.err?" [m])
+partial def hoistErr (ty : Term) (m : Term) : CgM Term := do
+  let t ← fresh
+  emit (.opt t ty m)
+  pure (.atom t)
 
 /-- The field chain of a dotted path, innermost first; `none` for indexing. -/
 partial def dotPath (p : path) : Option (List String) :=
@@ -411,7 +474,7 @@ partial def dotPath (p : path) : Option (List String) :=
 partial def compileIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) : CgM Term := do
   let inners := vars.map fun v => Names.varName v.id.it v.iters
   let outers := vars.map fun v => var v.id.it (v.iters ++ [iter])
-  let types ← vars.mapM fun v => typOf v.typ.it
+  let types ← vars.mapM fun v => typOf (varTyp v)
   let (body, stmts) ← subBlock (compileExp inner)
   match iter with
   | .List =>
@@ -420,7 +483,10 @@ partial def compileIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) : 
       let (z, pat) := zipped outers inners
       let b := zipBinder pat types
       if stmts.isEmpty then pure (.call "List.map" [.lamF b body, z])
-      else hoist (.call "List.mapM" [.lamF b (doOf stmts body), z])
+      else
+        let t ← fresh
+        emit (.mapM t (← typOf inner.note) b (inners.zip types) stmts body z)
+        pure (.atom t)
   | .Opt =>
     if vars.isEmpty then pure (.call "some" [body])
     else if stmts.isEmpty then
@@ -428,11 +494,11 @@ partial def compileIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) : 
       | [o], [n] => pure (.call "Option.map" [.lam [n] body, o])
       | _, _ =>
         let binds := (inners.zip outers).map fun (n, o) => Format.text s!"let {n} ← " ++ o.fmt
-        pure (doOf binds body)
+        pure (doOfRendered binds body)
     else
       let somePat := "(" ++ ", ".intercalate (inners.map fun n => s!"some {n}") ++ ")"
       let nonePat := "(" ++ ", ".intercalate (inners.map fun _ => "none") ++ ")"
-      hoist (.paren (.matchOn (.tuple outers) [
+      hoist (← typOf (.IterT (mkPhrase inner.note) .Opt)) (.paren (.matchOn (.tuple outers) [
         (Format.text somePat, doOf stmts (.call "some" [body])),
         (Format.text nonePat, .atom "pure none"),
         (Format.text "_", .atom "throw Fail.err")]))
@@ -446,54 +512,65 @@ mutual
 /-- Bind the pattern `p` to the term `v`: statements. -/
 partial def assign (p : exp) (v : Term) : CgM Unit := do
   match iterVar? p with
-  | some (i, is) => emit (Term.haveStmt (Names.varName i is) v)
+  | some (i, is) => emit (.have_ (Names.varName i is) v)
   | none =>
   match p.it with
-  | .VarE i => emit (Term.haveStmt (Names.varName i.it []) v)
+  | .VarE i => emit (.have_ (Names.varName i.it []) v)
   | .TupleE ps =>
-    let (names, todo) ← binders ps
-    emit (Term.letStmt (Term.tuple (names.map Term.atom)).fmt v)
+    let (vars, todo) ← binders ps
+    let names := vars.map (·.1)
+    emit (.letPat (Term.tuple (names.map Term.atom)).fmt (Term.tuple (names.map Term.atom)) vars v
+      false)
     for (q, n) in todo do assign q (.atom n)
   | .CaseE notexp =>
     let (ctor, refutable) ← ctorFor p.note (Mixfix.to_mixop notexp)
-    let (names, todo) ← binders (Mixfix.args notexp)
+    let (vars, todo) ← binders (Mixfix.args notexp)
+    let names := vars.map (·.1)
     -- the dotted form: `let C a := v` would define a local function `C`
     let dotted := "." ++ (ctor.splitOn ".").getLast!
-    emit (Term.letStmt (Term.patApp dotted names) v (if refutable then noMatch else none))
+    emit (.letPat (Term.patApp dotted names) (.call ctor (names.map Term.atom)) vars v refutable)
     for (q, n) in todo do assign q (.atom n)
   | .StrE fields =>
-    let (names, todo) ← binders (fields.map (·.2))
-    emit (Term.letStmt (Format.text ("⟨" ++ ", ".intercalate names ++ "⟩")) v)
+    let (vars, todo) ← binders (fields.map (·.2))
+    let names := vars.map (·.1)
+    let anon := Format.text ("⟨" ++ ", ".intercalate names ++ "⟩")
+    emit (.letPat anon (.atomicRaw anon) vars v false)
     for (q, n) in todo do assign q (.atom n)
   | .OptE (some q) =>
-    let (names, todo) ← binders [q]
-    emit (Term.letStmt (Format.text s!"some {names.head!}") v noMatch)
+    let (vars, todo) ← binders [q]
+    let n := vars.head!.1
+    emit (.letPat (Format.text s!"some {n}") (.call "some" [.atom n]) vars v true)
     for (q, n) in todo do assign q (.atom n)
-  | .OptE none => emit (Term.letStmt (Format.text "none") v noMatch)
+  | .OptE none => emit (.letPat (Format.text "none") (.atom "none") [] v true)
   | .ListE ps =>
-    let (names, todo) ← binders ps
-    emit (Term.letStmt (Term.list (names.map Term.atom)).fmt v noMatch)
+    let (vars, todo) ← binders ps
+    let names := vars.map (·.1)
+    emit (.letPat (Term.list (names.map Term.atom)).fmt (Term.list (names.map Term.atom)) vars v
+      true)
     for (q, n) in todo do assign q (.atom n)
   | .ConsE h t =>
-    let (names, todo) ← binders [h, t]
-    emit (Term.letStmt (Format.text s!"{names[0]!} :: {names[1]!}") v noMatch)
+    let (vars, todo) ← binders [h, t]
+    let names := vars.map (·.1)
+    emit (.letPat (Format.text s!"{names[0]!} :: {names[1]!}")
+      (.binop "::" (.atom names[0]!) (.atom names[1]!)) vars v true)
     for (q, n) in todo do assign q (.atom n)
   | .IterE inner ie => assignIter inner ie.iter ie.vars v
   | _ => fail s!"unsupported pattern"
 
-/-- Binder names for sub-patterns: variables bind directly, anything else
-gets a temporary to be matched afterwards. -/
-partial def binders (ps : List exp) : CgM (List String × List (exp × String)) := do
-  let mut names : List String := []
+/-- Binder names for sub-patterns, with their types: variables bind
+directly, anything else gets a temporary to be matched afterwards. -/
+partial def binders (ps : List exp) : CgM (List (String × Term) × List (exp × String)) := do
+  let mut vars : List (String × Term) := []
   let mut todo : List (exp × String) := []
   for q in ps do
+    let ty ← typOf q.note
     match iterVar? q with
-    | some (i, is) => names := names ++ [Names.varName i is]
+    | some (i, is) => vars := vars ++ [(Names.varName i is, ty)]
     | none =>
       let t ← fresh
-      names := names ++ [t]
+      vars := vars ++ [(t, ty)]
       todo := todo ++ [(q, t)]
-  pure (names, todo)
+  pure (vars, todo)
 
 /-- Bind an iterated pattern: match every element and collect the
 variables' bindings into lists (or options). Mirrors `assign_iter_exp`. -/
@@ -501,6 +578,7 @@ partial def assignIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) (v 
     CgM Unit := do
   let inners := vars.map fun w => Names.varName w.id.it w.iters
   let outers := vars.map fun w => Names.varName w.id.it (w.iters ++ [iter])
+  let innerTypes ← vars.mapM fun w => typOf (varTyp w)
   let ((), stmts) ← subBlock (assign inner (.atom "elem"))
   let result := Term.tuple (inners.map Term.atom)
   let elemTy ← typOf inner.note
@@ -508,34 +586,46 @@ partial def assignIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) (v 
   let t ← fresh
   match iter with
   | .List =>
-    emit (Term.bindStmt t (Term.call "List.mapM" [.lamF elem (doOf stmts result), v]))
+    emit (.mapM t (tupleType innerTypes) elem [("elem", elemTy)] stmts result v)
     for (o, proj) in outers.zip (projections outers.length) do
       emit (unzipStmt o t proj)
   | .Opt =>
     let someRes := Term.tuple (inners.map fun n => Term.call "some" [.atom n])
     let noneRes := Term.tuple (inners.map fun _ => Term.atom "none")
-    emit (Term.bindStmt t (Term.paren (.matchOn v [
-      (Format.text "none", .call "pure" [noneRes]),
-      (Format.text "some elem", doOf stmts someRes)])))
+    emit (.bind t (tupleType (innerTypes.map fun ty => Term.call "Option" [ty]))
+      (Term.paren (.matchOn v [
+        (Format.text "none", .call "pure" [noneRes]),
+        (Format.text "some elem", doOf stmts someRes)])))
     for (o, proj) in outers.zip (projections outers.length) do
-      emit (Term.haveStmt o (.atom s!"{t}{proj}"))
+      emit (.have_ o (.atom s!"{t}{proj}"))
 
 end
 
 /-! ## Premises -/
 
-/-- The call of a relation's run function on input terms. -/
-def relCall (id : String) (ins : List Term) : CgM Term := do
+/-- The lifted call of a relation's run function on input terms, and
+whether the relation is extern. -/
+def relCall (id : String) (ins : List Term) : CgM (Term × Bool) := do
   let ctx ← read
-  let f := if ctx.externs.contains id then ctx.env.q ("Externs." ++ Names.relName id)
+  let extern := ctx.externs.contains id
+  let f := if extern then ctx.env.q ("Externs." ++ Names.relName id)
     else ctx.env.q (Names.relName id ++ ".run")
-  pure (.call "ExceptT.mk" [.call f ins])
+  pure (.call "ExceptT.mk" [.call f ins], extern)
 
 /-- Split a relation's arguments into inputs and outputs by the hint. -/
 def splitArgs {α : Type} (inputs : List Nat) (args : List α) : List α × List α :=
   let indexed := args.zipIdx
   (indexed.filter (fun (_, i) => inputs.contains i) |>.map (·.1),
    indexed.filter (fun (_, i) => !inputs.contains i) |>.map (·.1))
+
+/-- The type of a relation's outputs, as a tuple. -/
+def relOutType (id : String) : CgM Term := do
+  let env := (← read).env
+  match env.rels.get? id with
+  | some info =>
+    let (_, outs) := splitArgs info.inputs info.args
+    pure (tupleType (← outs.mapM typOf))
+  | none => fail s!"unknown relation {id}"
 
 mutual
 
@@ -545,30 +635,33 @@ partial def compilePrem (p : prem) : CgM Unit := do
   | .RulePr i notexp inputs =>
     let (ins, outs) := splitArgs (inputs.map (·.toNat)) (Mixfix.args notexp)
     let inTerms ← ins.mapM compileExp
-    let call ← relCall i.it inTerms
+    let (call, extern) ← relCall i.it inTerms
+    let ty ← relOutType i.it
     match outs with
-    | [] => emit (Term.bindStmt "_" call)
+    | [] => emit (.rel "_" ty i.it inTerms extern call)
     | [o] =>
       let t ← fresh
-      emit (Term.bindStmt t call)
+      emit (.rel t ty i.it inTerms extern call)
       assign o (.atom t)
     | os =>
       let t ← fresh
-      emit (Term.bindStmt t call)
-      let (names, todo) ← binders os
-      emit (Term.letStmt (Term.tuple (names.map Term.atom)).fmt (.atom t))
+      emit (.rel t ty i.it inTerms extern call)
+      let (vars, todo) ← binders os
+      let names := vars.map (·.1)
+      emit (.letPat (Term.tuple (names.map Term.atom)).fmt (Term.tuple (names.map Term.atom)) vars
+        (.atom t) false)
       for (q, n) in todo do assign q (.atom n)
   | .IfPr e =>
     let t ← compileExp e
-    emit (Format.text "let _ ← Eval.check " ++ t.arg)
+    emit (.check t)
   | .IfHoldPr i notexp =>
     let inTerms ← (Mixfix.args notexp).mapM compileExp
-    let call ← relCall i.it inTerms
-    emit (Term.bindStmt "_" call)
+    let (call, extern) ← relCall i.it inTerms
+    emit (.rel "_" (.atom "Unit") i.it inTerms extern call)
   | .IfNotHoldPr i notexp =>
     let inTerms ← (Mixfix.args notexp).mapM compileExp
-    let call ← relCall i.it inTerms
-    emit (Term.bindStmt "_" (.call "Eval.notHold" [call]))
+    let (call, extern) ← relCall i.it inTerms
+    emit (.notHold i.it inTerms extern call)
   | .LetPr l r =>
     let t ← compileExp r
     assign l t
@@ -582,18 +675,19 @@ partial def iterPrem (q : prem) (iter : iter) (bound bind : List Lang.Il.var) : 
   let boundOut := bound.map fun w => var w.id.it (w.iters ++ [iter])
   let bindIn := bind.map fun w => Names.varName w.id.it w.iters
   let bindOut := bind.map fun w => Names.varName w.id.it (w.iters ++ [iter])
-  let boundTypes ← bound.mapM fun w => typOf w.typ.it
+  let boundTypes ← bound.mapM fun w => typOf (varTyp w)
+  let bindTypes ← bind.mapM fun w => typOf (varTyp w)
   let ((), stmts) ← subBlock (compilePrem q)
   let result := Term.tuple (bindIn.map Term.atom)
   let t ← fresh
   match iter with
   | .List =>
     if bound.isEmpty then
-      for o in bindOut do emit (Term.haveStmt o (.atom "[]"))
+      for o in bindOut do emit (.have_ o (.atom "[]"))
     else
       let (z, pat) := zipped boundOut boundIn
       let b := zipBinder pat boundTypes
-      emit (Term.bindStmt t (Term.call "List.mapM" [.lamF b (doOf stmts result), z]))
+      emit (.mapM t (tupleType bindTypes) b (boundIn.zip boundTypes) stmts result z)
       for (o, proj) in bindOut.zip (projections bindOut.length) do
         emit (unzipStmt o t proj)
   | .Opt =>
@@ -602,16 +696,17 @@ partial def iterPrem (q : prem) (iter : iter) (bound bind : List Lang.Il.var) : 
     if bound.isEmpty then
       -- `sub_opt ctx []` is `Some ctx`: the premise runs once and binds `some`
       for st in stmts do emit st
-      for (o, n) in bindOut.zip bindIn do emit (Term.haveStmt o (.atom s!"some {n}"))
+      for (o, n) in bindOut.zip bindIn do emit (.have_ o (.atom s!"some {n}"))
     else
       let somePat := "(" ++ ", ".intercalate (boundIn.map fun n => s!"some {n}") ++ ")"
       let nonePat := "(" ++ ", ".intercalate (boundIn.map fun _ => "none") ++ ")"
       let arms := [(Format.text somePat, doOf stmts someRes),
         (Format.text nonePat, Term.call "pure" [noneRes])] ++
         (if bound.length > 1 then [(Format.text "_", Term.atom "throw Fail.err")] else [])
-      emit (Term.bindStmt t (Term.paren (.matchOn (.tuple boundOut) arms)))
+      emit (.bind t (tupleType (bindTypes.map fun ty => Term.call "Option" [ty]))
+        (Term.paren (.matchOn (.tuple boundOut) arms)))
       for (o, proj) in bindOut.zip (projections bindOut.length) do
-        emit (Term.haveStmt o (.atom s!"{t}{proj}"))
+        emit (.have_ o (.atom s!"{t}{proj}"))
 
 end
 

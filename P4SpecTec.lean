@@ -6,6 +6,7 @@ import P4SpecTec.Codegen.Funcs
 import P4SpecTec.Codegen.Graph
 import P4SpecTec.Codegen.Keywords
 import P4SpecTec.Codegen.Names
+import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Types
 import P4SpecTec.Domain.Atom
@@ -31,6 +32,8 @@ import P4SpecTec.Prelude.Iter
 import P4SpecTec.Prelude.Num
 import P4SpecTec.Prelude.Value
 import P4SpecTec.Runtime.Value.Value
+import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Util.Source
 import P4SpecTec.Util.Yojson
 

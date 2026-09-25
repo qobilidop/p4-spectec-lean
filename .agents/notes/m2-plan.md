@@ -57,7 +57,15 @@ checkpoint that makes them.
 - Non-recursive definitions are plain `def`s (no `partial_fixpoint`).
 - Rung 2 must still give 78 of 78; `nano-p4-run` drops its fuel logic.
 
-## Phase B: `Prop` encoding, run-soundness, inversion, axiom audit
+## Phase B: `Prop` encoding, run-soundness, axiom audit (done 2026-09-25)
+
+What was built differs from the sketch below in three ways: hypotheses
+are unnamed arrows, iterated premises quantify the collected variables
+by the spec's names instead of `y = result`, and `#audit_axioms` replaces
+the exact-set `#guard_msgs`. Inversion lemmas are not generated: `cases`
+on the inductive is the inversion principle, and a separate statement
+would only restate the constructors. Details are in the design (4.1,
+5.3, 5.4) and decisions ("Generated code", "Verification").
 
 - Per relation `R` with inputs `I` and outputs `O`: `inductive R : I → O →
   Prop`, one constructor per rule path named by `Names.ruleName`, in

@@ -61,7 +61,7 @@ def clauseTerm (c : clause) : CgM Term := do
     for (a, n) in args.zip (paramNames args.length) do
       match a.it with
       | .ExpA pat => assign pat (.atom n)
-      | .DefA d => emit (Term.haveStmt (Names.funcName d.it) (.atom n))
+      | .DefA d => emit (.have_ (Names.funcName d.it) (.atom n))
     for p in prems do compilePrem p
   let (res, stmts2) ← subBlock (compileExp out)
   pure (doOf (stmts ++ stmts2) res)

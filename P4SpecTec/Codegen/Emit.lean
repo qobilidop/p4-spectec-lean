@@ -1,13 +1,15 @@
 import P4SpecTec.Codegen.Rels
+import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Graph
 
 /-!
 The plan and the modules: definitions are grouped into recursion groups
 (types, then subtype bridges, then the `Externs` class, then functions and
-relations), every group is assigned to the module of the last spec file
-it or its dependencies come from, and one module is written per spec
-file that has something to say, in spec order, each importing the
-previous. Design section 4.1 and the deviation "a recursive group
+relations, each followed by the `Prop` encoding of its relations and
+their run-soundness theorems), every group is assigned to the module of
+the last spec file it or its dependencies come from, and one module is
+written per spec file that has something to say, in spec order, each
+importing the previous. Design section 4.1 and the deviation "a recursive group
 spanning files is emitted in the module of the last file".
 -/
 
@@ -207,6 +209,8 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
         | none => false) then "tmp__" else "tmp_"
     let ctx := { ctxBase with tmpPrefix }
     let mut decls : List Format := []
+    let mut props : List Format := []
+    let mut members : List Props.Member := []
     for id in group do
       let some d := defById.get? id | throw s!"unknown definition {id}"
       let f ← match d.it with
@@ -220,7 +224,13 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
           relDecl ctx recursive ext i.it nottyp (inputs.map (·.toNat)) groups eg
         | _ => throw s!"unexpected definition kind for {id}"
       decls := decls ++ [f]
-    let text := if recursive then mutualBlock decls else joinDecls decls
+      if let .RelD i nottyp inputs groups eg _ := d.it then
+        props := props ++
+          [← Props.relInductive ctx ext i.it nottyp (inputs.map (·.toNat)) groups eg]
+      members := members ++ [← Props.memberOf ctx d]
+    let theorems := Props.groupTheorems ext recursive members
+    let text := joinDecls ([if recursive then mutualBlock decls else joinDecls decls] ++
+      (if props.isEmpty then [] else [mutualBlock props]) ++ theorems)
     let u : Unit :=
       { id := "F:" ++ ",".intercalate group, file := file, decls := text, externs := ext }
     units := units ++ [u]
@@ -247,7 +257,8 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     let path := "/".intercalate (components.map fun c =>
       if c.startsWith "«" then String.ofList (c.toList.drop 1 |>.dropLast) else c)
     let body := units.filter (·.file == i)
-    let imports := "import P4SpecTec.Prelude\n" ++ (match prev with
+    let imports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
+      "import P4SpecTec.Tactic.Audit\n" ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
     let text := headerLine lib exportPath file ++ "\n" ++ imports ++ "\n" ++
