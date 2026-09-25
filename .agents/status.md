@@ -18,7 +18,7 @@ kernel-checks, and agrees with upstream on the whole Nano-P4 corpus. The
 | Deep embedding | `P4SpecTec/IL/Ast.lean`, `P4SpecTec/AL/Ast.lean` and their JSON decoders mirror `il/ast.ml`, `al/ast.ml`; `scripts/check-mirror.py` checks constructor lists and order | this branch |
 | Prelude | values, comparison and printing, `ToValue`/`OfValue`, numerics, iteration helpers, ports of every builtin file under `interface/builtin/` | this branch |
 | Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations (executable), `Externs` class, per-file modules, `--check`/`--update` | this branch |
-| Generated | `NanoP4Spec/`, 28 modules, 13.5k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations | this branch |
+| Generated | `NanoP4Spec/`, 28 modules named after the spec files, 13.5k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations | this branch |
 | Rung 2 | `test/diff/run.py`: 78 of 78 programs agree with upstream's `Program_ok` verdict (32 positive, 21 negative, 25 exercises) | this branch |
 | Timing | `docs/timing-nano-p4.md`: 12.5 s over 28 modules; `Syntax` 3.1 s is the largest | this branch |
 

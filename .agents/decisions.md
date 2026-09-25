@@ -179,8 +179,12 @@ settles is not repeated here.
   parameters, `«x*»` for iterated variables, and every reference to a
   generated type, constructor, function or relation qualified with the
   library name, because spec variables are conventionally named after
-  their types and would shadow them. Later changes are breaking (design
-  section 9). (2026-09-25)
+  their types and would shadow them. A generated module is named after its
+  spec file verbatim (`NanoP4Spec.«3.2-bits»` from `3.2-bits.watsup`,
+  directories as components), so listings sort in spec order and no
+  mapping is needed; the quoted imports are confined to generated files
+  and the library root. Later changes are breaking (design section 9).
+  (2026-09-25; module naming decided with the user the same day)
 - **An `extern syntax` is `ExternValue`** (JSON the target owns, as
   `ExternV` upstream) and **`extern dec`/`extern relation` are fields of a
   generated class `Externs`**, an instance-implicit binder on every

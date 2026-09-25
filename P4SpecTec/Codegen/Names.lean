@@ -23,9 +23,11 @@ invertible rule (design section 2.1), no renaming for taste.
 - A struct field is its atom's name: `TYPE`.
 - A name that is a Lean token, or is not a Lean identifier, is quoted with
   `«»`. The token list is `Keywords.lean`, generated from Lean itself.
-- A spec file `5.00-typing-context.watsup` is the module `TypingContext`:
-  the numeric prefix is dropped and the dash-separated words are
-  capitalised.
+- A spec file is the module of the same name: `3.2-bits.watsup` under the
+  spec root is `NanoP4Spec/3.2-bits.lean`, module `NanoP4Spec.«3.2-bits»`;
+  a file in a subdirectory keeps the directory as a component. Every
+  component is quoted when it is not an identifier. The tree of generated
+  files is the tree of spec files.
 -/
 
 namespace P4SpecTec.Codegen.Names
@@ -110,19 +112,32 @@ def varName (id : String) (iters : List iter) : String :=
 def ruleName (group path : String) : String :=
   escape (if group == path || group == "" then path else group ++ "/" ++ path)
 
-/-- The module name of a spec file. -/
-def moduleName (file : String) : String :=
-  let base := (file.splitOn "/").getLast!
-  let base := if base.endsWith ".watsup" then String.ofList (base.toList.take (base.length - 7))
-    else base
-  let body := String.ofList (base.toList.dropWhile fun c => c.isDigit || c == '.')
-  let body := if body.startsWith "-" then String.ofList (body.toList.drop 1) else body
-  String.join ((body.splitOn "-").map capitalize)
+/-- The module components of a spec file relative to the spec root: the
+path components verbatim, without the `.watsup` extension, each quoted
+when it is not an identifier. -/
+def moduleComponents (file : String) (specRoot : String) : List String :=
+  let rel := if file.startsWith specRoot then String.ofList (file.toList.drop specRoot.length)
+    else file
+  let rel := if rel.endsWith ".watsup" then String.ofList (rel.toList.take (rel.length - 7))
+    else rel
+  (rel.splitOn "/").filter (· != "") |>.map escape
+
+/-- The module name of a spec file, dotted. -/
+def moduleName (file : String) (specRoot : String) : String :=
+  ".".intercalate (moduleComponents file specRoot)
+
+/-- The common directory prefix of the spec files, with its trailing slash. -/
+def specRoot (files : List String) : String :=
+  match files with
+  | [] => ""
+  | f :: fs =>
+    let dir (p : String) : List String := (p.splitOn "/").dropLast
+    let common := fs.foldl (fun acc p => commonPrefix acc (dir p)) (dir f)
+    if common.isEmpty then "" else "/".intercalate common ++ "/"
 where
-  /-- Capitalise the first character. -/
-  capitalize (s : String) : String :=
-    match s.toList with
-    | [] => ""
-    | c :: cs => String.ofList (c.toUpper :: cs)
+  /-- The longest common prefix of two lists. -/
+  commonPrefix : List String → List String → List String
+    | a :: as, b :: bs => if a == b then a :: commonPrefix as bs else []
+    | _, _ => []
 
 end P4SpecTec.Codegen.Names

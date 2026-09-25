@@ -210,27 +210,30 @@ def plan (env : Env) (spec : AL.spec) : Except String (List Unit × List String)
       needsExt := needsExt.insert id ext
   pure (units, files)
 
-/-- The module name of a file index. -/
-def moduleOf (files : List String) (i : Nat) : String := Names.moduleName (files.getD i "")
 
 /-- Generate every output file of a library. -/
 def generate (lib exportPath : String) (spec : AL.spec) : Except String (List Output) := do
   let env := Env.ofSpec lib spec
   let (units, files) ← plan env spec
   let used := (units.map (·.file)).eraseDups.mergeSort (· ≤ ·)
+  let specRoot := Names.specRoot files
   let mut outs : List Output := []
   let mut prev : Option String := none
   let mut modules : List String := []
   for i in used do
     let file := files.getD i ""
-    let module := moduleOf files i
+    let components := Names.moduleComponents file specRoot
+    let module := ".".intercalate components
+    -- the file path uses the unquoted components: Lake maps `«3.2-bits»` to `3.2-bits.lean`
+    let path := "/".intercalate (components.map fun c =>
+      if c.startsWith "«" then String.ofList (c.toList.drop 1 |>.dropLast) else c)
     let body := units.filter (·.file == i)
     let imports := "import P4SpecTec.Prelude\n" ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
     let text := headerLine lib exportPath file ++ "\n" ++ imports ++ "\n" ++
       preamble lib module file ++ render (joinDecls (body.map (·.decls))) ++ s!"\n\nend {lib}\n"
-    outs := outs ++ [{ path := s!"{lib}/{module}.lean", text }]
+    outs := outs ++ [{ path := s!"{lib}/{path}.lean", text }]
     prev := some module
     modules := modules ++ [module]
   let root := headerLine lib exportPath "all files" ++ "\n" ++

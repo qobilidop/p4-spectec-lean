@@ -2,7 +2,7 @@
 -- source: exports/nano-p4.al.json, upstream/nano-p4-spec/0-stdlib.watsup
 import P4SpecTec.Prelude
 
-/-! # NanoP4Spec.Stdlib
+/-! # NanoP4Spec.«0-stdlib»
 
 The rendering of `upstream/nano-p4-spec/0-stdlib.watsup`.
 Generated: every definition here mirrors one definition of that file, in

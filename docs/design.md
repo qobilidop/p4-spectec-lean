@@ -65,8 +65,10 @@ proof effort only on what is left. Concretely:
 - **Builtins and targets mirror their OCaml files**, one Lean file per
   file under `interface/builtin/` and `backend-sim/<target>/`.
 - **Generated modules mirror upstream spec files**, one Lean file per
-  `.watsup` file, in the same order, so a reviewer diffs
-  `5.10-typing-statement.watsup` against `P4Spec/Typing/Statement.lean`.
+  `.watsup` file with the same name and directory, so a reviewer diffs
+  `5-typing/5.10-typing-statement.watsup` against
+  `P4Spec/5-typing/5.10-typing-statement.lean` (module
+  `P4Spec.«5-typing».«5.10-typing-statement»`).
 - **Generated names derive from spec names by one documented, invertible
   rule.** No renaming for taste.
 - **Codegen output is boring on purpose.** No IL-to-IL rewriting passes,
@@ -410,7 +412,7 @@ p4-spectec-lean/
 │   ├── Tactic/                   # M2
 ├── P4SpecTecTest/                # test-only: decode test, the differential runner (Diff/NanoP4Run.lean)
 │
-├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file
+├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it
 ├── P4Spec/                       # GENERATED at M3; Targets/ hand-written, mirrors backend-sim/<target>/
 │
 ├── P4Lib/                        # M4; independent of the generated spec
