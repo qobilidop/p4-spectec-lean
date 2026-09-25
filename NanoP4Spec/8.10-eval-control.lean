@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«8.09-eval-parser»
 
 /-! # NanoP4Spec.«8.10-eval-control»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -110,6 +111,170 @@ theorem ControlLocalDecl_eval.run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDecl_eval.run_sound
 
+def ControlLocalDecl_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ControlLocalDecl_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "controlLocalDeclaration" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          "variableDeclaration"
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "controlLocalDeclaration" []))
+                 (Q.e (.VarE (Q.i "variableDeclaration")) (Q.varT "variableDeclaration" [])))
+              (Q.varT "controlLocalDeclaration" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "controlLocalDeclaration")) (Q.varT "controlLocalDeclaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e
+                          (.VarE (Q.i "controlLocalDeclaration"))
+                          (Q.varT "controlLocalDeclaration" []))
+                       (Q.t (Q.varT "variableDeclaration" []))
+                       (.MixopSC [.Seq [.Arg (), .Arg (), .Arg (), .Atom (Q.a (.Operator ";"))]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "variableDeclaration")) (Q.varT "variableDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "variableDeclaration" []))
+                       (Q.e
+                          (.VarE (Q.i "controlLocalDeclaration"))
+                          (Q.varT "controlLocalDeclaration" [])))
+                    (Q.varT "variableDeclaration" [])))])
+          [Q.rp
+             "variableDeclaration"
+             [Q.pr
+                (.RulePr
+                   (Q.i "VarDecl_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "variableDeclaration"))
+                               (Q.varT "variableDeclaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]],
+        Q.rg
+          "tableDeclaration"
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "controlLocalDeclaration" []))
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Atom (Q.a (.Keyword "TABLE")),
+                           .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                           .Brack
+                             (Q.a .LBrace)
+                             (.Arg
+                                (Q.e (.VarE (Q.i "tableProperties")) (Q.varT "tableProperties" [])))
+                             (Q.a .RBrace)]))
+                    (Q.varT "tableDeclaration" [])))
+              (Q.varT "controlLocalDeclaration" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "controlLocalDeclaration")) (Q.varT "controlLocalDeclaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e
+                          (.VarE (Q.i "controlLocalDeclaration"))
+                          (Q.varT "controlLocalDeclaration" []))
+                       (Q.t (Q.varT "tableDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "TABLE")),
+                              .Arg (),
+                              .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Atom (Q.a (.Keyword "TABLE")),
+                           .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                           .Brack
+                             (Q.a .LBrace)
+                             (.Arg
+                                (Q.e (.VarE (Q.i "tableProperties")) (Q.varT "tableProperties" [])))
+                             (Q.a .RBrace)]))
+                    (Q.varT "tableDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "tableDeclaration" []))
+                       (Q.e
+                          (.VarE (Q.i "controlLocalDeclaration"))
+                          (Q.varT "controlLocalDeclaration" [])))
+                    (Q.varT "tableDeclaration" [])))])
+          [Q.rp
+             "tableDeclaration"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "tableValue")) (Q.varT "tableValue" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "TABLE")),
+                             .Arg (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])),
+                             .Arg
+                               (Q.e
+                                  (.VarE (Q.i "tableProperties"))
+                                  (Q.varT "tableProperties" []))]))
+                      (Q.varT "tableValue" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_var_e")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "value" []))
+                                     (Q.e (.VarE (Q.i "tableValue")) (Q.varT "tableValue" [])))
+                                  (Q.varT "value" [])))])
+                      (Q.varT "evalContext" [])))]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def ControlLocalDecls_eval.run
         (p0 : NanoP4Spec.evalContext)
         (p1 : List NanoP4Spec.controlLocalDeclaration)
@@ -185,6 +350,196 @@ theorem ControlLocalDecls_eval.run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDecls_eval.run_sound
 
+def ControlLocalDecls_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ControlLocalDecls_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "controlLocalDeclaration")) (Q.varT "controlLocalDeclaration" []))
+                 (.mk
+                    .List
+                    [Q.v
+                       "controlLocalDeclaration"
+                       (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                       []]))
+              (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)],
+           [Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "controlLocalDeclaration")) (Q.varT "controlLocalDeclaration" []))
+                 (.mk
+                    .List
+                    [Q.v
+                       "controlLocalDeclaration"
+                       (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                       []]))
+              (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)],
+           [])
+          [Q.rp
+             "nil"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                   (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "controlLocalDeclaration"))
+                                  (Q.varT "controlLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "controlLocalDeclaration"
+                                     (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+                         (Q.e
+                            (.ListE [])
+                            (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)))
+                      .BoolT))]
+             [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])],
+           Q.rp
+             "cons"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))
+                   (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "controlLocalDeclaration'"))
+                            (Q.varT "controlLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "controlLocalDeclaration'"
+                               (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "controlLocalDeclaration"))
+                            (Q.varT "controlLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "controlLocalDeclaration"
+                               (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "controlLocalDeclaration'"))
+                                  (Q.varT "controlLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "controlLocalDeclaration'"
+                                     (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+                         (.ListP .Cons))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.ConsE
+                         (Q.e
+                            (.VarE (Q.i "controlLocalDeclaration_h"))
+                            (Q.varT "controlLocalDeclaration" []))
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "controlLocalDeclaration_t"))
+                                  (Q.varT "controlLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "controlLocalDeclaration_t"
+                                     (Q.varT "controlLocalDeclaration" [])
+                                     []]))
+                            (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)))
+                      (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "controlLocalDeclaration'"))
+                            (Q.varT "controlLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "controlLocalDeclaration'"
+                               (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ControlLocalDecl_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "controlLocalDeclaration_h"))
+                               (Q.varT "controlLocalDeclaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "ControlLocalDecls_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.VarE (Q.i "controlLocalDeclaration_t"))
+                                     (Q.varT "controlLocalDeclaration" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "controlLocalDeclaration_t"
+                                        (Q.varT "controlLocalDeclaration" [])
+                                        []]))
+                               (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def ControlLocalDeclList_eval.run
         (p0 : NanoP4Spec.evalContext)
         (p1 : NanoP4Spec.controlLocalDeclarationList)
@@ -226,5 +581,82 @@ theorem ControlLocalDeclList_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDeclList_eval.run_sound
+
+def ControlLocalDeclList_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ControlLocalDeclList_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "controlLocalDeclarationList" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.VarE (Q.i "controlLocalDeclarationList"))
+              (Q.varT "controlLocalDeclarationList" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.VarE (Q.i "controlLocalDeclarationList"))
+              (Q.varT "controlLocalDeclarationList" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "controlLocalDeclaration"))
+                            (Q.varT "controlLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "controlLocalDeclaration"
+                               (Q.varT "controlLocalDeclaration" [])
+                               []]))
+                      (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_controlLocalDeclarationList")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.VarE (Q.i "controlLocalDeclarationList"))
+                                  (Q.varT "controlLocalDeclarationList" [])))])
+                      (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ControlLocalDecls_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.VarE (Q.i "controlLocalDeclaration"))
+                                     (Q.varT "controlLocalDeclaration" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "controlLocalDeclaration"
+                                        (Q.varT "controlLocalDeclaration" [])
+                                        []]))
+                               (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
 
 end NanoP4Spec

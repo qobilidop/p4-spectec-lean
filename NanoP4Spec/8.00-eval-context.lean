@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«7.1-load-declaration»
 
 /-! # NanoP4Spec.«8.00-eval-context»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -145,6 +146,22 @@ def «$empty_frame» : Option (Except Fail NanoP4Spec.frame) :=
            ExceptT.mk (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.value))
        pure tmp_0)
 
+def «$empty_frame».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "empty_frame")
+       []
+       []
+       (Q.t (Q.varT "frame" []))
+       [Q.cl
+          []
+          (Q.e
+             (.CallE (Q.i "empty_map") [Q.t (Q.varT "id" []), Q.t (Q.varT "value" [])] [])
+             (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "value" [])]))
+          []]
+       none
+       [])
+
 def «$make_evalContext» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.loadContext)
     : Option (Except Fail NanoP4Spec.evalContext) :=
   ExceptT.run
@@ -179,6 +196,189 @@ def «$make_evalContext» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.loadC
               BLOCK := blockEvalLayer,
               LOCAL := localEvalLayer, } : NanoP4Spec.evalContext)
        pure EC)
+
+def «$make_evalContext».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "make_evalContext")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "loadContext" [])))]
+       (Q.t (Q.varT "evalContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])))]
+          (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserDeclarationIR'")) (Q.varT "parserDeclarationIR" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "parserDeclarationIR'"
+                            (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt))
+                (Q.e
+                   (.DotE
+                      (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                      (Q.a (.Keyword "PARSER")))
+                   (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "parserDeclarationIR'"))
+                               (Q.varT "parserDeclarationIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v
+                                  "parserDeclarationIR'"
+                                  (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE
+                      (some
+                         (Q.e
+                            (.VarE (Q.i "parserDeclarationIR"))
+                            (Q.varT "parserDeclarationIR" []))))
+                   (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserDeclarationIR'")) (Q.varT "parserDeclarationIR" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "parserDeclarationIR'"
+                            (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "controlDeclarationIR'")) (Q.varT "controlDeclarationIR" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "controlDeclarationIR'"
+                            (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))
+                (Q.e
+                   (.DotE
+                      (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                      (Q.a (.Keyword "CONTROL")))
+                   (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "controlDeclarationIR'"))
+                               (Q.varT "controlDeclarationIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v
+                                  "controlDeclarationIR'"
+                                  (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE
+                      (some
+                         (Q.e
+                            (.VarE (Q.i "controlDeclarationIR"))
+                            (Q.varT "controlDeclarationIR" []))))
+                   (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "controlDeclarationIR'")) (Q.varT "controlDeclarationIR" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "controlDeclarationIR'"
+                            (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "globalEvalLayer")) (Q.varT "globalEvalLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "TYPE"),
+                        Q.e
+                          (.DotE
+                             (Q.e
+                                (.DotE
+                                   (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                                   (Q.a (.Keyword "GLOBAL")))
+                                (Q.varT "globalTypingLayer" []))
+                             (Q.a (.Keyword "TYPE")))
+                          (Q.varT "typeDefEnv" [])),
+                       (Q.a (.Keyword "CALLABLE"),
+                        Q.e
+                          (.DotE
+                             (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                             (Q.a (.Keyword "CALLABLE")))
+                          (Q.varT "callableDefEnv" [])),
+                       (Q.a (.Keyword "FRAME"),
+                        Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" [])),
+                       (Q.a (.Keyword "PARSER"),
+                        Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" [])),
+                       (Q.a (.Keyword "CONTROL"),
+                        Q.e
+                          (.VarE (Q.i "controlDeclarationIR"))
+                          (Q.varT "controlDeclarationIR" []))])
+                   (Q.varT "globalEvalLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "blockEvalLayer")) (Q.varT "blockEvalLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAME"),
+                        Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" []))])
+                   (Q.varT "blockEvalLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "localEvalLayer")) (Q.varT "localEvalLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAMES"),
+                        Q.e
+                          (.ListE [Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" [])])
+                          (.IterT (Q.t (Q.varT "frame" [])) .List))])
+                   (Q.varT "localEvalLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "GLOBAL"),
+                        Q.e (.VarE (Q.i "globalEvalLayer")) (Q.varT "globalEvalLayer" [])),
+                       (Q.a (.Keyword "BLOCK"),
+                        Q.e (.VarE (Q.i "blockEvalLayer")) (Q.varT "blockEvalLayer" [])),
+                       (Q.a (.Keyword "LOCAL"),
+                        Q.e (.VarE (Q.i "localEvalLayer")) (Q.varT "localEvalLayer" []))])
+                   (Q.varT "evalContext" [])))]]
+       none
+       [])
 
 def «$inherit_e» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext)
     : Option (Except Fail NanoP4Spec.evalContext) :=
@@ -219,6 +419,98 @@ def «$inherit_e» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext)
             | NanoP4Spec.scope.LOCAL => true
             | _ => false)
          pure EC)))
+
+def «$inherit_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "inherit_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))), Q.pm (.ExpP (Q.t (Q.varT "evalContext" [])))]
+       (Q.t (Q.varT "evalContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.e (.VarE (Q.i "blockEvalLayer")) (Q.varT "blockEvalLayer" [])))
+                   (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "LOCAL")))
+                   (Q.varT "localEvalLayer" []))
+                (Q.e (.VarE (Q.i "localEvalLayer")) (Q.varT "localEvalLayer" [])))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "GLOBAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "blockEvalLayer")) (Q.varT "blockEvalLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAME"),
+                        Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" []))])
+                   (Q.varT "blockEvalLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "localEvalLayer")) (Q.varT "localEvalLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAMES"),
+                        Q.e
+                          (.ListE [Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" [])])
+                          (.IterT (Q.t (Q.varT "frame" [])) .List))])
+                   (Q.varT "localEvalLayer" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "LOCAL")))
+                   (Q.varT "localEvalLayer" []))
+                (Q.e (.VarE (Q.i "localEvalLayer")) (Q.varT "localEvalLayer" [])))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "localEvalLayer")) (Q.varT "localEvalLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAMES"),
+                        Q.e
+                          (.ListE [Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" [])])
+                          (.IterT (Q.t (Q.varT "frame" [])) .List))])
+                   (Q.varT "localEvalLayer" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT))]]
+       none
+       [])
 
 def «$find_var_e» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : NanoP4Spec.nameIR)
     : Option (Except Fail NanoP4Spec.value) :=
@@ -318,6 +610,307 @@ def «$find_var_e» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : 
            pure tmp_6)))))
   partial_fixpoint
 
+def «$find_var_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_var_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "evalContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "nameIR" [])))]
+       (Q.t (Q.varT "value" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))]
+          (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "GLOBAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                            (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))]
+          (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                            (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_var_e")
+                []
+                [Q.ar (.ExpA (Q.e (.CaseE (.Atom (Q.a (.Keyword "GLOBAL")))) (Q.varT "scope" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.OptE none) (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                      (Q.e
+                         (.CallE
+                            (Q.i "find_map")
+                            [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         (.IterT (Q.t (Q.varT "value" [])) .Opt)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))]
+          (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (Q.varT "frame" []) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_maps")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                                  (.mk .List [Q.v "frame" (Q.varT "frame" []) []]))
+                               (.IterT (Q.t (Q.varT "frame" [])) .List))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                            (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (.mk .Opt [Q.v "value'" (.IterT (Q.t (Q.varT "value" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "value" [])) .Opt)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_var_e")
+                []
+                [Q.ar (.ExpA (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (Q.varT "frame" []) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.OptE none) (.IterT (Q.t (Q.varT "value" [])) .Opt))
+                      (Q.e
+                         (.CallE
+                            (Q.i "find_maps")
+                            [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                                        (.mk .List [Q.v "frame" (Q.varT "frame" []) []]))
+                                     (.IterT (Q.t (Q.varT "frame" [])) .List))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         (.IterT (Q.t (Q.varT "value" [])) .Opt)))
+                   .BoolT))]]
+       none
+       [])
+
 def «$add_var_e»
         (p0 : NanoP4Spec.scope)
         (p1 : NanoP4Spec.evalContext)
@@ -408,6 +1001,284 @@ def «$add_var_e»
              { EC with
                LOCAL.FRAMES := frame_h' :: «frame_t*», }
          pure EC')))
+
+def «$add_var_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "add_var_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "evalContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "nameIR" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "value" [])))]
+       (Q.t (Q.varT "evalContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "GLOBAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "nameIR" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                        [Q.ar
+                                           (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "GLOBAL")))
+                               (Q.varT "globalEvalLayer" []))
+                            (Q.a (.Keyword "FRAME")))
+                         (Q.varT "frame" []))
+                      (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" [])))
+                   (Q.varT "evalContext" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "nameIR" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                        [Q.ar
+                                           (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "BLOCK")))
+                               (Q.varT "blockEvalLayer" []))
+                            (Q.a (.Keyword "FRAME")))
+                         (Q.varT "frame" []))
+                      (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" [])))
+                   (Q.varT "evalContext" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "nameIR" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame_h'")) (Q.varT "frame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localEvalLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (Q.e
+                         (.ConsE
+                            (Q.e (.VarE (Q.i "frame_h'")) (Q.varT "frame" []))
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                                  (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                               (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (Q.varT "evalContext" [])))]]
+       none
+       [])
 
 def «$update_var_e»
         (p0 : NanoP4Spec.scope)
@@ -548,6 +1419,477 @@ def «$update_var_e»
               LOCAL.FRAMES := frame_h :: EC_pop'.LOCAL.FRAMES, }))))))
   partial_fixpoint
 
+def «$update_var_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "update_var_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "evalContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "nameIR" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "value" [])))]
+       (Q.t (Q.varT "evalContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))
+                (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" [])))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "GLOBAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CallE
+                      (Q.i "in_set")
+                      [Q.t (Q.varT "nameIR" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "dom_map")
+                                  [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" [])))])
+                               (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "update_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))
+                (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" [])))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CallE
+                      (Q.i "in_set")
+                      [Q.t (Q.varT "nameIR" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "dom_map")
+                                  [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" [])))])
+                               (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame'")) (Q.varT "frame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "update_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "update_var_e")
+                []
+                [Q.ar (.ExpA (Q.e (.CaseE (.Atom (Q.a (.Keyword "GLOBAL")))) (Q.varT "scope" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockEvalLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "frame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "nameIR" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                        [Q.ar
+                                           (.ExpA (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         .BoolT))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "update_var_e")
+                []
+                [Q.ar (.ExpA (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.ListE []) (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (Q.e
+                         (.DotE
+                            (Q.e
+                               (.DotE
+                                  (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localEvalLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "frame_h'")) (Q.varT "frame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List)))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CallE
+                      (Q.i "in_set")
+                      [Q.t (Q.varT "nameIR" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "dom_map")
+                                  [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" [])))])
+                               (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "frame_h'")) (Q.varT "frame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "update_map")
+                      [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC_pop'")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))
+                      (Q.e
+                         (.DotE
+                            (Q.e
+                               (.DotE
+                                  (Q.e (.VarE (Q.i "EC_pop'")) (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localEvalLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List)))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "nameIR" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "nameIR" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "EC_pop")) (Q.varT "evalContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localEvalLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (Q.varT "evalContext" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "EC_pop'")) (Q.varT "evalContext" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "update_var_e")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e (.CaseE (.Atom (Q.a (.Keyword "LOCAL")))) (Q.varT "scope" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_pop")) (Q.varT "evalContext" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (Q.varT "evalContext" [])))]]
+       none
+       [])
+
 def «$find_callableDef_e» (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.callableId)
     : Option (Except Fail NanoP4Spec.callableDef) :=
   ExceptT.run
@@ -565,6 +1907,74 @@ def «$find_callableDef_e» (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.calla
        let _ ← Eval.check (Option.isSome callableDef'?)
        let some callableDef := callableDef'? | throw Fail.err
        pure callableDef)
+
+def «$find_callableDef_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_callableDef_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "evalContext" []))), Q.pm (.ExpP (Q.t (Q.varT "callableId" [])))]
+       (Q.t (Q.varT "callableDef" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))]
+          (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v "callableDef'" (.IterT (Q.t (Q.varT "callableDef" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.DotE
+                                  (Q.e
+                                     (.DotE
+                                        (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                                        (Q.a (.Keyword "GLOBAL")))
+                                     (Q.varT "globalEvalLayer" []))
+                                  (Q.a (.Keyword "CALLABLE")))
+                               (Q.varT "callableDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                            (.mk
+                               .Opt
+                               [Q.v
+                                  "callableDef'"
+                                  (.IterT (Q.t (Q.varT "callableDef" [])) .Opt)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" []))))
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v "callableDef'" (.IterT (Q.t (Q.varT "callableDef" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt)))]]
+       none
+       [])
 
 def «$find_typeDef_e» (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.typeId)
     : Option (Except Fail NanoP4Spec.typeDefIR) :=
@@ -584,6 +1994,67 @@ def «$find_typeDef_e» (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.typeId)
        let some typeDefIR := typeDefIR'? | throw Fail.err
        pure typeDefIR)
 
+def «$find_typeDef_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_typeDef_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "evalContext" []))), Q.pm (.ExpP (Q.t (Q.varT "typeId" [])))]
+       (Q.t (Q.varT "typeDefIR" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))]
+          (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeDefIR'")) (Q.varT "typeDefIR" []))
+                      (.mk .Opt [Q.v "typeDefIR'" (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.DotE
+                                  (Q.e
+                                     (.DotE
+                                        (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                                        (Q.a (.Keyword "GLOBAL")))
+                                     (Q.varT "globalEvalLayer" []))
+                                  (Q.a (.Keyword "TYPE")))
+                               (Q.varT "typeDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))])
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "typeDefIR'")) (Q.varT "typeDefIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v "typeDefIR'" (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" []))))
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeDefIR'")) (Q.varT "typeDefIR" []))
+                      (.mk .Opt [Q.v "typeDefIR'" (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt)))]]
+       none
+       [])
+
 def «$enter_e» (p0 : NanoP4Spec.evalContext) : Option (Except Fail NanoP4Spec.evalContext) :=
   ExceptT.run
     (do
@@ -591,6 +2062,43 @@ def «$enter_e» (p0 : NanoP4Spec.evalContext) : Option (Except Fail NanoP4Spec.
        let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
        pure { EC with
          LOCAL.FRAMES := tmp_0 :: EC.LOCAL.FRAMES, })
+
+def «$enter_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "enter_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "evalContext" [])))]
+       (Q.t (Q.varT "evalContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.ConsE
+                      (Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" []))
+                      (Q.e
+                         (.DotE
+                            (Q.e
+                               (.DotE
+                                  (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localEvalLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List)))
+             (Q.varT "evalContext" []))
+          []]
+       none
+       [])
 
 def «$exit_e» (p0 : NanoP4Spec.evalContext) : Option (Except Fail NanoP4Spec.evalContext) :=
   ExceptT.run
@@ -601,5 +2109,76 @@ def «$exit_e» (p0 : NanoP4Spec.evalContext) : Option (Except Fail NanoP4Spec.e
        let frame_h :: «frame_t*» := «frame*» | throw Fail.err
        pure { EC with
          LOCAL.FRAMES := «frame_t*», })
+
+def «$exit_e».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "exit_e")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "evalContext" [])))]
+       (Q.t (Q.varT "evalContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "evalContext" [])) (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List)))
+             (Q.varT "evalContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localEvalLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "frame_h")) (Q.varT "frame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "frame_t")) (Q.varT "frame" []))
+                            (.mk .List [Q.v "frame_t" (Q.varT "frame" []) []]))
+                         (.IterT (Q.t (Q.varT "frame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "frame")) (Q.varT "frame" []))
+                      (.mk .List [Q.v "frame" (.IterT (Q.t (Q.varT "frame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "frame" [])) .List)))]]
+       none
+       [])
 
 end NanoP4Spec

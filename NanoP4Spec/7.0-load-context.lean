@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«5.13-typing-call-convention»
 
 /-! # NanoP4Spec.«7.0-load-context»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -395,6 +396,25 @@ def «$empty_callableDefEnv»
              (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.callableId) (τV := NanoP4Spec.callableDef))
        pure tmp_0)
 
+def «$empty_callableDefEnv».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "empty_callableDefEnv")
+       []
+       []
+       (Q.t (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]))
+       [Q.cl
+          []
+          (Q.e
+             (.CallE
+                (Q.i "empty_map")
+                [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]
+                [])
+             (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]))
+          []]
+       none
+       [])
+
 def «$make_loadContext» (p0 : NanoP4Spec.typingContext)
     : Option (Except Fail NanoP4Spec.loadContext) :=
   ExceptT.run
@@ -409,6 +429,45 @@ def «$make_loadContext» (p0 : NanoP4Spec.typingContext)
               CONTROL := (none : Option
                  NanoP4Spec.controlDeclarationIR), } : NanoP4Spec.globalLoadLayer)
        pure LC)
+
+def «$make_loadContext».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "make_loadContext")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" [])))]
+       (Q.t (Q.varT "loadContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" [])))]
+          (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "CALLABLE_TYPE"),
+                        Q.e
+                          (.DotE
+                             (Q.e
+                                (.DotE
+                                   (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                                   (Q.a (.Keyword "GLOBAL")))
+                                (Q.varT "globalTypingLayer" []))
+                             (Q.a (.Keyword "CALLABLE")))
+                          (Q.varT "callableTypeDefEnv" [])),
+                       (Q.a (.Keyword "CALLABLE"),
+                        Q.e
+                          (.CallE (Q.i "empty_callableDefEnv") [] [])
+                          (Q.varT
+                             "map"
+                             [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])])),
+                       (Q.a (.Keyword "PARSER"),
+                        Q.e (.OptE none) (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt)),
+                       (Q.a (.Keyword "CONTROL"),
+                        Q.e (.OptE none) (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))])
+                   (Q.varT "globalLoadLayer" [])))]]
+       none
+       [])
 
 def «$find_callableDef_l» (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.callableId)
     : Option (Except Fail NanoP4Spec.callableDef) :=
@@ -427,6 +486,70 @@ def «$find_callableDef_l» (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.calla
        let _ ← Eval.check (Option.isSome callableDef'?)
        let some callableDef := callableDef'? | throw Fail.err
        pure callableDef)
+
+def «$find_callableDef_l».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_callableDef_l")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "loadContext" []))), Q.pm (.ExpP (Q.t (Q.varT "callableId" [])))]
+       (Q.t (Q.varT "callableDef" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))]
+          (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v "callableDef'" (.IterT (Q.t (Q.varT "callableDef" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.DotE
+                                  (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                                  (Q.a (.Keyword "CALLABLE")))
+                               (Q.varT "callableDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                            (.mk
+                               .Opt
+                               [Q.v
+                                  "callableDef'"
+                                  (.IterT (Q.t (Q.varT "callableDef" [])) .Opt)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" []))))
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v "callableDef'" (.IterT (Q.t (Q.varT "callableDef" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "callableDef" [])) .Opt)))]]
+       none
+       [])
 
 def «$add_callableDef_l»
         (p0 : NanoP4Spec.loadContext)
@@ -461,6 +584,81 @@ def «$add_callableDef_l»
              CALLABLE := callableDefEnv', }
        pure LC')
 
+def «$add_callableDef_l».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "add_callableDef_l")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "loadContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "callableId" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "callableDef" [])))]
+       (Q.t (Q.varT "loadContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" [])))]
+          (Q.e (.VarE (Q.i "LC'")) (Q.varT "loadContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "callableDefEnv")) (Q.varT "callableDefEnv" []))
+                (Q.e
+                   (.DotE
+                      (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                      (Q.a (.Keyword "CALLABLE")))
+                   (Q.varT "callableDefEnv" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "callableId" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "callableId" []),
+                                         Q.t (Q.varT "callableDef" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e
+                                                 (.VarE (Q.i "callableDefEnv"))
+                                                 (Q.varT "callableDefEnv" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "callableId" [])]))),
+                             Q.ar
+                               (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "callableDefEnv'")) (Q.varT "callableDefEnv" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]
+                      [Q.ar
+                         (.ExpA (Q.e (.VarE (Q.i "callableDefEnv")) (Q.varT "callableDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "LC'")) (Q.varT "loadContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "loadContext" [])) (Q.a (.Keyword "CALLABLE")))
+                         (Q.varT "callableDefEnv" []))
+                      (Q.e (.VarE (Q.i "callableDefEnv'")) (Q.varT "callableDefEnv" [])))
+                   (Q.varT "loadContext" [])))]]
+       none
+       [])
+
 def «$find_callableTypeDef_l» (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.callableId)
     : Option (Except Fail NanoP4Spec.callableTypeDef) :=
   ExceptT.run
@@ -478,5 +676,76 @@ def «$find_callableTypeDef_l» (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.c
        let _ ← Eval.check (Option.isSome callableTypeDef'?)
        let some callableTypeDef := callableTypeDef'? | throw Fail.err
        pure callableTypeDef)
+
+def «$find_callableTypeDef_l».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_callableTypeDef_l")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "loadContext" []))), Q.pm (.ExpP (Q.t (Q.varT "callableId" [])))]
+       (Q.t (Q.varT "callableTypeDef" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))]
+          (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableTypeDef'")) (Q.varT "callableTypeDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "callableTypeDef'"
+                            (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.DotE
+                                  (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                                  (Q.a (.Keyword "CALLABLE_TYPE")))
+                               (Q.varT "callableTypeDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "callableTypeDef'")) (Q.varT "callableTypeDef" []))
+                            (.mk
+                               .Opt
+                               [Q.v
+                                  "callableTypeDef'"
+                                  (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE
+                      (some (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))))
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableTypeDef'")) (Q.varT "callableTypeDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "callableTypeDef'"
+                            (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)))]]
+       none
+       [])
 
 end NanoP4Spec

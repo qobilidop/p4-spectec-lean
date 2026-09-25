@@ -1,5 +1,6 @@
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Props
+import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Graph
 
 /-!
@@ -57,7 +58,7 @@ def preamble (lib module file : String) : String :=
     "order, by the encodings of `docs/design.md`.\n-/\n\n",
     "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
     "set_option autoImplicit false\nset_option maxHeartbeats 1000000\n\n",
-    "open P4SpecTec P4SpecTec.Prelude\n\n",
+    "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
     s!"namespace {lib}\n\n"]
 
 /-- The types named by casts inside an expression. -/
@@ -229,8 +230,15 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
           [← Props.relInductive ctx ext i.it nottyp (inputs.map (·.toNat)) groups eg]
       members := members ++ [← Props.memberOf ctx d]
     let theorems := Props.groupTheorems ext recursive members
+    -- the quoted definitions, for the refinement theorems (rung 3)
+    let quoted := group.filterMap fun id => match defById.get? id with
+      | some d => match d.it with
+        | .RelD i .. => some (Reify.quoted (Names.relName i.it) d)
+        | .FuncDecD i .. | .TableDecD i .. => some (Reify.quoted (Names.funcName i.it) d)
+        | _ => none
+      | none => none
     let text := joinDecls ([if recursive then mutualBlock decls else joinDecls decls] ++
-      (if props.isEmpty then [] else [mutualBlock props]) ++ theorems)
+      (if props.isEmpty then [] else [mutualBlock props]) ++ theorems ++ quoted)
     let u : Unit :=
       { id := "F:" ++ ",".intercalate group, file := file, decls := text, externs := ext }
     units := units ++ [u]
@@ -258,7 +266,7 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
       if c.startsWith "«" then String.ofList (c.toList.drop 1 |>.dropLast) else c)
     let body := units.filter (·.file == i)
     let imports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
-      "import P4SpecTec.Tactic.Audit\n" ++ (match prev with
+      "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Refine.Quote\n" ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
     let text := headerLine lib exportPath file ++ "\n" ++ imports ++ "\n" ++

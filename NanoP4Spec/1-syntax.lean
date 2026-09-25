@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«0-stdlib»
 
 /-! # NanoP4Spec.«1-syntax»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -5209,6 +5210,73 @@ def «$flatten_nameList» (p0 : NanoP4Spec.nameList) : Option (Except Fail (List
         pure (tmp_1 ++ [name])))
   partial_fixpoint
 
+def «$flatten_nameList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_nameList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "nameList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "name" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" [])))]
+          (Q.e
+             (.ListE [Q.e (.VarE (Q.i "name")) (Q.varT "name" [])])
+             (.IterT (Q.t (Q.varT "name" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" []))
+                      (Q.t (Q.varT "name" []))
+                      (.MixopSC
+                         [.Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Atom (Q.a (.Keyword "KEY")),
+                          .Atom (Q.a (.Keyword "ACTIONS")),
+                          .Atom (Q.a (.Keyword "STATE"))]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "name")) (Q.varT "name" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "name" []))
+                      (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" [])))
+                   (Q.varT "name" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "nameList'")) (Q.varT "nameList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_nameList")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" [])))])
+                   (.IterT (Q.t (Q.varT "name" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "name")) (Q.varT "name" [])])
+                   (.IterT (Q.t (Q.varT "name" [])) .List)))
+             (.IterT (Q.t (Q.varT "name" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "nameList'")) (Q.varT "nameList" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ",")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" [])),
+                          .Atom (Q.a (.Operator ",")),
+                          .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" []))]))
+                   (Q.varT "nameList" []))
+                (Q.e (.VarE (Q.i "nameList'")) (Q.varT "nameList" [])))]]
+       none
+       [])
+
 def «$flatten_parameterList» (p0 : NanoP4Spec.parameterList)
     : Option (Except Fail (List NanoP4Spec.parameter)) :=
   ExceptT.run
@@ -5239,6 +5307,109 @@ def «$flatten_parameterList» (p0 : NanoP4Spec.parameterList)
                   (NanoP4Spec.nonEmptyParameterList.to_parameterList nonEmptyParameterList))
          pure (tmp_2 ++ [parameter]))))
   partial_fixpoint
+
+def «$flatten_parameterList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_parameterList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "parameterList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "parameter" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "parameter" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))]
+          (Q.e
+             (.ListE [Q.e (.VarE (Q.i "parameter")) (Q.varT "parameter" [])])
+             (.IterT (Q.t (Q.varT "parameter" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" []))
+                      (Q.t (Q.varT "parameter" []))
+                      (.MixopSC [.Seq [.Arg (), .Arg (), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "parameter")) (Q.varT "parameter" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "parameter" []))
+                      (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))
+                   (Q.varT "parameter" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_parameterList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE
+                                  (Q.t (Q.varT "parameterList" []))
+                                  (Q.e
+                                     (.VarE (Q.i "nonEmptyParameterList"))
+                                     (Q.varT "nonEmptyParameterList" [])))
+                               (Q.varT "parameterList" [])))])
+                   (.IterT (Q.t (Q.varT "parameter" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "parameter")) (Q.varT "parameter" [])])
+                   (.IterT (Q.t (Q.varT "parameter" [])) .List)))
+             (.IterT (Q.t (Q.varT "parameter" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" []))
+                      (Q.t (Q.varT "nonEmptyParameterList" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Arg (), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Operator ",")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "nonEmptyParameterList'")) (Q.varT "nonEmptyParameterList" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "nonEmptyParameterList" []))
+                      (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))
+                   (Q.varT "nonEmptyParameterList" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "nonEmptyParameterList'"))
+                         (Q.varT "nonEmptyParameterList" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ",")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e
+                               (.VarE (Q.i "nonEmptyParameterList"))
+                               (Q.varT "nonEmptyParameterList" [])),
+                          .Atom (Q.a (.Operator ",")),
+                          .Arg (Q.e (.VarE (Q.i "parameter")) (Q.varT "parameter" []))]))
+                   (Q.varT "nonEmptyParameterList" []))
+                (Q.e (.VarE (Q.i "nonEmptyParameterList'")) (Q.varT "nonEmptyParameterList" [])))]]
+       none
+       [])
 
 def «$flatten_argumentList» (p0 : NanoP4Spec.argumentList)
     : Option (Except Fail (List NanoP4Spec.argument)) :=
@@ -5271,6 +5442,134 @@ def «$flatten_argumentList» (p0 : NanoP4Spec.argumentList)
          pure (tmp_2 ++ [argument]))))
   partial_fixpoint
 
+def «$flatten_argumentList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_argumentList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "argumentList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "argument" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "argument" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))]
+          (Q.e
+             (.ListE [Q.e (.VarE (Q.i "argument")) (Q.varT "argument" [])])
+             (.IterT (Q.t (Q.varT "argument" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" []))
+                      (Q.t (Q.varT "argument" []))
+                      (.MixopSC
+                         [.Atom (Q.a (.Keyword "TRUE")),
+                          .Atom (Q.a (.Keyword "FALSE")),
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()],
+                          .Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Atom (Q.a (.Keyword "KEY")),
+                          .Atom (Q.a (.Keyword "ACTIONS")),
+                          .Atom (Q.a (.Keyword "STATE")),
+                          .Seq [.Arg (), .Arg ()],
+                          .Seq [.Arg (), .Arg (), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Operator ".")), .Arg ()],
+                          .Seq [.Arg (), .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)],
+                          .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "argument" []))
+                      (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))
+                   (Q.varT "argument" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_argumentList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE
+                                  (Q.t (Q.varT "argumentList" []))
+                                  (Q.e
+                                     (.VarE (Q.i "argumentListNonEmpty"))
+                                     (Q.varT "argumentListNonEmpty" [])))
+                               (Q.varT "argumentList" [])))])
+                   (.IterT (Q.t (Q.varT "argument" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "argument")) (Q.varT "argument" [])])
+                   (.IterT (Q.t (Q.varT "argument" [])) .List)))
+             (.IterT (Q.t (Q.varT "argument" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" []))
+                      (Q.t (Q.varT "argumentListNonEmpty" []))
+                      (.MixopSC
+                         [.Atom (Q.a (.Keyword "TRUE")),
+                          .Atom (Q.a (.Keyword "FALSE")),
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()],
+                          .Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Atom (Q.a (.Keyword "KEY")),
+                          .Atom (Q.a (.Keyword "ACTIONS")),
+                          .Atom (Q.a (.Keyword "STATE")),
+                          .Seq [.Arg (), .Arg ()],
+                          .Seq [.Arg (), .Arg (), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Operator ".")), .Arg ()],
+                          .Seq [.Arg (), .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)],
+                          .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                          .Seq [.Arg (), .Atom (Q.a (.Operator ",")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "argumentListNonEmpty'")) (Q.varT "argumentListNonEmpty" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "argumentListNonEmpty" []))
+                      (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))
+                   (Q.varT "argumentListNonEmpty" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "argumentListNonEmpty'")) (Q.varT "argumentListNonEmpty" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ",")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e
+                               (.VarE (Q.i "argumentListNonEmpty"))
+                               (Q.varT "argumentListNonEmpty" [])),
+                          .Atom (Q.a (.Operator ",")),
+                          .Arg (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))]))
+                   (Q.varT "argumentListNonEmpty" []))
+                (Q.e (.VarE (Q.i "argumentListNonEmpty'")) (Q.varT "argumentListNonEmpty" [])))]]
+       none
+       [])
+
 def «$flatten_statementList» (p0 : NanoP4Spec.statementList)
     : Option (Except Fail (List NanoP4Spec.statement)) :=
   ExceptT.run
@@ -5290,6 +5589,57 @@ def «$flatten_statementList» (p0 : NanoP4Spec.statementList)
         pure (tmp_0 ++ [statement])))
   partial_fixpoint
 
+def «$flatten_statementList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_statementList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "statementList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "statement" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "statementList")) (Q.varT "statementList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "statement" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "statementList")) (Q.varT "statementList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "statementList'")) (Q.varT "statementList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_statementList")
+                      []
+                      [Q.ar
+                         (.ExpA (Q.e (.VarE (Q.i "statementList")) (Q.varT "statementList" [])))])
+                   (.IterT (Q.t (Q.varT "statement" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "statement")) (Q.varT "statement" [])])
+                   (.IterT (Q.t (Q.varT "statement" [])) .List)))
+             (.IterT (Q.t (Q.varT "statement" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "statementList'")) (Q.varT "statementList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "statementList")) (Q.varT "statementList" [])),
+                          .Arg (Q.e (.VarE (Q.i "statement")) (Q.varT "statement" []))]))
+                   (Q.varT "statementList" []))
+                (Q.e (.VarE (Q.i "statementList'")) (Q.varT "statementList" [])))]]
+       none
+       [])
+
 def «$flatten_typeFieldList» (p0 : NanoP4Spec.typeFieldList)
     : Option (Except Fail (List NanoP4Spec.typeField)) :=
   ExceptT.run
@@ -5308,6 +5658,57 @@ def «$flatten_typeFieldList» (p0 : NanoP4Spec.typeFieldList)
         let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_typeFieldList» typeFieldList)
         pure (tmp_0 ++ [typeField])))
   partial_fixpoint
+
+def «$flatten_typeFieldList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_typeFieldList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typeFieldList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "typeField" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFieldList")) (Q.varT "typeFieldList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "typeField" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "typeFieldList")) (Q.varT "typeFieldList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFieldList'")) (Q.varT "typeFieldList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_typeFieldList")
+                      []
+                      [Q.ar
+                         (.ExpA (Q.e (.VarE (Q.i "typeFieldList")) (Q.varT "typeFieldList" [])))])
+                   (.IterT (Q.t (Q.varT "typeField" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "typeField")) (Q.varT "typeField" [])])
+                   (.IterT (Q.t (Q.varT "typeField" [])) .List)))
+             (.IterT (Q.t (Q.varT "typeField" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "typeFieldList'")) (Q.varT "typeFieldList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "typeFieldList")) (Q.varT "typeFieldList" [])),
+                          .Arg (Q.e (.VarE (Q.i "typeField")) (Q.varT "typeField" []))]))
+                   (Q.varT "typeFieldList" []))
+                (Q.e (.VarE (Q.i "typeFieldList'")) (Q.varT "typeFieldList" [])))]]
+       none
+       [])
 
 def «$flatten_externMethodPrototypeList» (p0 : NanoP4Spec.externMethodPrototypeList)
     : Option (Except Fail (List NanoP4Spec.externMethodPrototype)) :=
@@ -5330,6 +5731,83 @@ def «$flatten_externMethodPrototypeList» (p0 : NanoP4Spec.externMethodPrototyp
         pure (tmp_0 ++ [externMethodPrototype])))
   partial_fixpoint
 
+def «$flatten_externMethodPrototypeList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_externMethodPrototypeList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "externMethodPrototypeList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "externMethodPrototype" [])) .List))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.VarE (Q.i "externMethodPrototypeList"))
+                   (Q.varT "externMethodPrototypeList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "externMethodPrototype" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "externMethodPrototypeList"))
+                         (Q.varT "externMethodPrototypeList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.VarE (Q.i "externMethodPrototypeList'"))
+                   (Q.varT "externMethodPrototypeList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_externMethodPrototypeList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.VarE (Q.i "externMethodPrototypeList"))
+                               (Q.varT "externMethodPrototypeList" [])))])
+                   (.IterT (Q.t (Q.varT "externMethodPrototype" [])) .List))
+                (Q.e
+                   (.ListE
+                      [Q.e
+                         (.VarE (Q.i "externMethodPrototype"))
+                         (Q.varT "externMethodPrototype" [])])
+                   (.IterT (Q.t (Q.varT "externMethodPrototype" [])) .List)))
+             (.IterT (Q.t (Q.varT "externMethodPrototype" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "externMethodPrototypeList'"))
+                         (Q.varT "externMethodPrototypeList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e
+                               (.VarE (Q.i "externMethodPrototypeList"))
+                               (Q.varT "externMethodPrototypeList" [])),
+                          .Arg
+                            (Q.e
+                               (.VarE (Q.i "externMethodPrototype"))
+                               (Q.varT "externMethodPrototype" []))]))
+                   (Q.varT "externMethodPrototypeList" []))
+                (Q.e
+                   (.VarE (Q.i "externMethodPrototypeList'"))
+                   (Q.varT "externMethodPrototypeList" [])))]]
+       none
+       [])
+
 def «$flatten_selectCaseList» (p0 : NanoP4Spec.selectCaseList)
     : Option (Except Fail (List NanoP4Spec.selectCase)) :=
   ExceptT.run
@@ -5349,6 +5827,57 @@ def «$flatten_selectCaseList» (p0 : NanoP4Spec.selectCaseList)
         pure (tmp_0 ++ [selectCase])))
   partial_fixpoint
 
+def «$flatten_selectCaseList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_selectCaseList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "selectCaseList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "selectCaseList'")) (Q.varT "selectCaseList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_selectCaseList")
+                      []
+                      [Q.ar
+                         (.ExpA (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))])
+                   (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" [])])
+                   (.IterT (Q.t (Q.varT "selectCase" [])) .List)))
+             (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "selectCaseList'")) (Q.varT "selectCaseList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])),
+                          .Arg (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))]))
+                   (Q.varT "selectCaseList" []))
+                (Q.e (.VarE (Q.i "selectCaseList'")) (Q.varT "selectCaseList" [])))]]
+       none
+       [])
+
 def «$flatten_parserStateList» (p0 : NanoP4Spec.parserStateList)
     : Option (Except Fail (List NanoP4Spec.parserState)) :=
   ExceptT.run
@@ -5367,6 +5896,73 @@ def «$flatten_parserStateList» (p0 : NanoP4Spec.parserStateList)
         let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_parserStateList» parserStateList)
         pure (tmp_1 ++ [parserState])))
   partial_fixpoint
+
+def «$flatten_parserStateList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_parserStateList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "parserStateList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "parserState" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "parserStateList")) (Q.varT "parserStateList" [])))]
+          (Q.e
+             (.ListE [Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" [])])
+             (.IterT (Q.t (Q.varT "parserState" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "parserStateList")) (Q.varT "parserStateList" []))
+                      (Q.t (Q.varT "parserState" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "STATE")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Seq [.Arg (), .Arg ()]) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "parserState" []))
+                      (Q.e (.VarE (Q.i "parserStateList")) (Q.varT "parserStateList" [])))
+                   (Q.varT "parserState" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "parserStateList'")) (Q.varT "parserStateList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_parserStateList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e (.VarE (Q.i "parserStateList")) (Q.varT "parserStateList" [])))])
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" [])])
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List)))
+             (.IterT (Q.t (Q.varT "parserState" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "parserStateList'")) (Q.varT "parserStateList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "parserStateList")) (Q.varT "parserStateList" [])),
+                          .Arg (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))]))
+                   (Q.varT "parserStateList" []))
+                (Q.e (.VarE (Q.i "parserStateList'")) (Q.varT "parserStateList" [])))]]
+       none
+       [])
 
 def «$flatten_parserLocalDeclarationList» (p0 : NanoP4Spec.parserLocalDeclarationList)
     : Option (Except Fail (List NanoP4Spec.parserLocalDeclaration)) :=
@@ -5389,6 +5985,83 @@ def «$flatten_parserLocalDeclarationList» (p0 : NanoP4Spec.parserLocalDeclarat
         pure (tmp_0 ++ [parserLocalDeclaration])))
   partial_fixpoint
 
+def «$flatten_parserLocalDeclarationList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_parserLocalDeclarationList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "parserLocalDeclarationList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.VarE (Q.i "parserLocalDeclarationList"))
+                   (Q.varT "parserLocalDeclarationList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "parserLocalDeclarationList"))
+                         (Q.varT "parserLocalDeclarationList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.VarE (Q.i "parserLocalDeclarationList'"))
+                   (Q.varT "parserLocalDeclarationList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_parserLocalDeclarationList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.VarE (Q.i "parserLocalDeclarationList"))
+                               (Q.varT "parserLocalDeclarationList" [])))])
+                   (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                (Q.e
+                   (.ListE
+                      [Q.e
+                         (.VarE (Q.i "parserLocalDeclaration"))
+                         (Q.varT "parserLocalDeclaration" [])])
+                   (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+             (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "parserLocalDeclarationList'"))
+                         (Q.varT "parserLocalDeclarationList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e
+                               (.VarE (Q.i "parserLocalDeclarationList"))
+                               (Q.varT "parserLocalDeclarationList" [])),
+                          .Arg
+                            (Q.e
+                               (.VarE (Q.i "parserLocalDeclaration"))
+                               (Q.varT "parserLocalDeclaration" []))]))
+                   (Q.varT "parserLocalDeclarationList" []))
+                (Q.e
+                   (.VarE (Q.i "parserLocalDeclarationList'"))
+                   (Q.varT "parserLocalDeclarationList" [])))]]
+       none
+       [])
+
 def «$flatten_tableActionList» (p0 : NanoP4Spec.tableActionList)
     : Option (Except Fail (List NanoP4Spec.tableAction)) :=
   ExceptT.run
@@ -5408,6 +6081,69 @@ def «$flatten_tableActionList» (p0 : NanoP4Spec.tableActionList)
         pure (tmp_1 ++ [tableAction])))
   partial_fixpoint
 
+def «$flatten_tableActionList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_tableActionList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "tableActionList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "tableAction" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "tableActionList")) (Q.varT "tableActionList" [])))]
+          (Q.e
+             (.ListE [Q.e (.VarE (Q.i "tableAction")) (Q.varT "tableAction" [])])
+             (.IterT (Q.t (Q.varT "tableAction" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "tableActionList")) (Q.varT "tableActionList" []))
+                      (Q.t (Q.varT "tableAction" []))
+                      (.MixopSC [.Seq [.Arg (), .Atom (Q.a (.Operator ";"))]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "tableAction")) (Q.varT "tableAction" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "tableAction" []))
+                      (Q.e (.VarE (Q.i "tableActionList")) (Q.varT "tableActionList" [])))
+                   (Q.varT "tableAction" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "tableActionList'")) (Q.varT "tableActionList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_tableActionList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e (.VarE (Q.i "tableActionList")) (Q.varT "tableActionList" [])))])
+                   (.IterT (Q.t (Q.varT "tableAction" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "tableAction")) (Q.varT "tableAction" [])])
+                   (.IterT (Q.t (Q.varT "tableAction" [])) .List)))
+             (.IterT (Q.t (Q.varT "tableAction" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "tableActionList'")) (Q.varT "tableActionList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "tableActionList")) (Q.varT "tableActionList" [])),
+                          .Arg (Q.e (.VarE (Q.i "tableAction")) (Q.varT "tableAction" []))]))
+                   (Q.varT "tableActionList" []))
+                (Q.e (.VarE (Q.i "tableActionList'")) (Q.varT "tableActionList" [])))]]
+       none
+       [])
+
 def «$flatten_tableEntryList» (p0 : NanoP4Spec.tableEntryList)
     : Option (Except Fail (List NanoP4Spec.tableEntry)) :=
   ExceptT.run
@@ -5426,6 +6162,57 @@ def «$flatten_tableEntryList» (p0 : NanoP4Spec.tableEntryList)
         let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_tableEntryList» tableEntryList)
         pure (tmp_0 ++ [tableEntry])))
   partial_fixpoint
+
+def «$flatten_tableEntryList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_tableEntryList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "tableEntryList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "tableEntry" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "tableEntryList")) (Q.varT "tableEntryList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "tableEntry" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "tableEntryList")) (Q.varT "tableEntryList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "tableEntryList'")) (Q.varT "tableEntryList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_tableEntryList")
+                      []
+                      [Q.ar
+                         (.ExpA (Q.e (.VarE (Q.i "tableEntryList")) (Q.varT "tableEntryList" [])))])
+                   (.IterT (Q.t (Q.varT "tableEntry" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "tableEntry")) (Q.varT "tableEntry" [])])
+                   (.IterT (Q.t (Q.varT "tableEntry" [])) .List)))
+             (.IterT (Q.t (Q.varT "tableEntry" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "tableEntryList'")) (Q.varT "tableEntryList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "tableEntryList")) (Q.varT "tableEntryList" [])),
+                          .Arg (Q.e (.VarE (Q.i "tableEntry")) (Q.varT "tableEntry" []))]))
+                   (Q.varT "tableEntryList" []))
+                (Q.e (.VarE (Q.i "tableEntryList'")) (Q.varT "tableEntryList" [])))]]
+       none
+       [])
 
 def «$flatten_controlLocalDeclarationList» (p0 : NanoP4Spec.controlLocalDeclarationList)
     : Option (Except Fail (List NanoP4Spec.controlLocalDeclaration)) :=
@@ -5449,6 +6236,83 @@ def «$flatten_controlLocalDeclarationList» (p0 : NanoP4Spec.controlLocalDeclar
         pure (tmp_0 ++ [controlLocalDeclaration])))
   partial_fixpoint
 
+def «$flatten_controlLocalDeclarationList».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_controlLocalDeclarationList")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "controlLocalDeclarationList" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.VarE (Q.i "controlLocalDeclarationList"))
+                   (Q.varT "controlLocalDeclarationList" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "controlLocalDeclarationList"))
+                         (Q.varT "controlLocalDeclarationList" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.VarE (Q.i "controlLocalDeclarationList'"))
+                   (Q.varT "controlLocalDeclarationList" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_controlLocalDeclarationList")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.VarE (Q.i "controlLocalDeclarationList"))
+                               (Q.varT "controlLocalDeclarationList" [])))])
+                   (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+                (Q.e
+                   (.ListE
+                      [Q.e
+                         (.VarE (Q.i "controlLocalDeclaration"))
+                         (Q.varT "controlLocalDeclaration" [])])
+                   (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List)))
+             (.IterT (Q.t (Q.varT "controlLocalDeclaration" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.VarE (Q.i "controlLocalDeclarationList'"))
+                         (Q.varT "controlLocalDeclarationList" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e
+                               (.VarE (Q.i "controlLocalDeclarationList"))
+                               (Q.varT "controlLocalDeclarationList" [])),
+                          .Arg
+                            (Q.e
+                               (.VarE (Q.i "controlLocalDeclaration"))
+                               (Q.varT "controlLocalDeclaration" []))]))
+                   (Q.varT "controlLocalDeclarationList" []))
+                (Q.e
+                   (.VarE (Q.i "controlLocalDeclarationList'"))
+                   (Q.varT "controlLocalDeclarationList" [])))]]
+       none
+       [])
+
 def «$flatten_program» (p0 : NanoP4Spec.program)
     : Option (Except Fail (List NanoP4Spec.declaration)) :=
   ExceptT.run
@@ -5467,5 +6331,55 @@ def «$flatten_program» (p0 : NanoP4Spec.program)
         let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_program» program)
         pure (tmp_0 ++ [declaration])))
   partial_fixpoint
+
+def «$flatten_program».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "flatten_program")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "program" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "declaration" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "program")) (Q.varT "program" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "declaration" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "program")) (Q.varT "program" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "program'")) (Q.varT "program" [])))]
+          (Q.e
+             (.CatE
+                (Q.e
+                   (.CallE
+                      (Q.i "flatten_program")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "program")) (Q.varT "program" [])))])
+                   (.IterT (Q.t (Q.varT "declaration" [])) .List))
+                (Q.e
+                   (.ListE [Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])])
+                   (.IterT (Q.t (Q.varT "declaration" [])) .List)))
+             (.IterT (Q.t (Q.varT "declaration" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "program'")) (Q.varT "program" []))
+                      (.CaseP (.Seq [.Arg (), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "program")) (Q.varT "program" [])),
+                          .Arg (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))]))
+                   (Q.varT "program" []))
+                (Q.e (.VarE (Q.i "program'")) (Q.varT "program" [])))]]
+       none
+       [])
 
 end NanoP4Spec

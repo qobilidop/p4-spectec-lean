@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«5.09-typing-parser»
 
 /-! # NanoP4Spec.«5.11-typing-table»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -50,6 +51,276 @@ def «$split_dataplane_parameters» (p0 : List NanoP4Spec.parameterIR)
          pure (parameterIR_h :: «parameterIR_data*», «parameterIR_control*»))))
   partial_fixpoint
 
+def «$split_dataplane_parameters».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "split_dataplane_parameters")
+       []
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))]
+       (Q.t
+          (.TupleT
+             [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+              Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)]))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                      (.mk
+                         .List
+                         [Q.v "parameterIR" (.IterT (Q.t (Q.varT "parameterIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e (.ListE []) (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                 Q.e (.ListE []) (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])
+             (.TupleT
+                [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                 Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "parameterIR"
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                      (.mk
+                         .List
+                         [Q.v "parameterIR" (.IterT (Q.t (Q.varT "parameterIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR_data")) (Q.varT "parameterIR" []))
+                      (.mk .List [Q.v "parameterIR_data" (Q.varT "parameterIR" []) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                 Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "parameterIR_h")) (Q.varT "parameterIR" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_control")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_control" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])
+             (.TupleT
+                [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                 Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "parameterIR"
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "parameterIR_h")) (Q.varT "parameterIR" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_t")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_t" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                      (.mk
+                         .List
+                         [Q.v "parameterIR" (.IterT (Q.t (Q.varT "parameterIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" [])),
+                          .Arg (Q.e (.VarE (Q.i "_typeIR")) (Q.varT "typeIR" [])),
+                          .Arg (Q.e (.VarE (Q.i "_nameIR")) (Q.varT "nameIR" []))]))
+                   (Q.varT "parameterIR" []))
+                (Q.e (.VarE (Q.i "parameterIR_h")) (Q.varT "parameterIR" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" []))
+                      (.CaseP (.Atom (Q.a (.Tag "EMPTY")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_data")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_data" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_control")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_control" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)]))
+                (Q.e
+                   (.CallE
+                      (Q.i "split_dataplane_parameters")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "parameterIR_t")) (Q.varT "parameterIR" []))
+                                  (.mk .List [Q.v "parameterIR_t" (Q.varT "parameterIR" []) []]))
+                               (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                      (.mk
+                         .List
+                         [Q.v "parameterIR" (.IterT (Q.t (Q.varT "parameterIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "parameterIR_h")) (Q.varT "parameterIR" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_data")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_data" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                 Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR_control")) (Q.varT "parameterIR" []))
+                      (.mk .List [Q.v "parameterIR_control" (Q.varT "parameterIR" []) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])
+             (.TupleT
+                [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                 Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "parameterIR"
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "parameterIR_h")) (Q.varT "parameterIR" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_t")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_t" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                      (.mk
+                         .List
+                         [Q.v "parameterIR" (.IterT (Q.t (Q.varT "parameterIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parameterIR" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" [])),
+                          .Arg (Q.e (.VarE (Q.i "_typeIR")) (Q.varT "typeIR" [])),
+                          .Arg (Q.e (.VarE (Q.i "_nameIR")) (Q.varT "nameIR" []))]))
+                   (Q.varT "parameterIR" []))
+                (Q.e (.VarE (Q.i "parameterIR_h")) (Q.varT "parameterIR" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .NeOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" []))
+                      (Q.e (.CaseE (.Atom (Q.a (.Tag "EMPTY")))) (Q.varT "direction" [])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_data")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_data" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parameterIR_control")) (Q.varT "parameterIR" []))
+                            (.mk .List [Q.v "parameterIR_control" (Q.varT "parameterIR" []) []]))
+                         (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)]))
+                (Q.e
+                   (.CallE
+                      (Q.i "split_dataplane_parameters")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "parameterIR_t")) (Q.varT "parameterIR" []))
+                                  (.mk .List [Q.v "parameterIR_t" (Q.varT "parameterIR" []) []]))
+                               (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)])))]]
+       none
+       [])
+
 def «$find_action'» (p0 : List NanoP4Spec.matchAction) (p1 : NanoP4Spec.callableId)
     : Option (Except Fail (Option
        ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) :=
@@ -78,6 +349,262 @@ def «$find_action'» (p0 : List NanoP4Spec.matchAction) (p1 : NanoP4Spec.callab
          pure tmp_0)))
   partial_fixpoint
 
+def «$find_action'».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_action'")
+       []
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+        Q.pm (.ExpP (Q.t (Q.varT "callableId" [])))]
+       (Q.t
+          (.IterT
+             (Q.t
+                (.TupleT
+                   [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                    Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))
+             .Opt))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                      (.mk
+                         .List
+                         [Q.v "matchAction" (.IterT (Q.t (Q.varT "matchAction" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))]
+          (Q.e
+             (.OptE none)
+             (.IterT
+                (Q.t
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))
+                .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "matchAction"
+                                  (.IterT (Q.t (Q.varT "matchAction" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                      (.mk
+                         .List
+                         [Q.v "matchAction" (.IterT (Q.t (Q.varT "matchAction" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId_target")) (Q.varT "callableId" [])))]
+          (Q.e
+             (.OptE
+                (some
+                   (Q.e
+                      (.TupleE
+                         [Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                               (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                            (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                          Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" []))
+                               (.mk .List [Q.v "argumentIR" (Q.varT "argumentIR" []) []]))
+                            (.IterT (Q.t (Q.varT "argumentIR" [])) .List)])
+                      (.TupleT
+                         [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                          Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))))
+             (.IterT
+                (Q.t
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))
+                .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "matchAction"
+                                  (.IterT (Q.t (Q.varT "matchAction" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "matchAction_h")) (Q.varT "matchAction" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "matchAction_t")) (Q.varT "matchAction" []))
+                            (.mk .List [Q.v "matchAction_t" (Q.varT "matchAction" []) []]))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List)))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                      (.mk
+                         .List
+                         [Q.v "matchAction" (.IterT (Q.t (Q.varT "matchAction" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])),
+                          .Brack
+                            (Q.a .LParen)
+                            (.Seq
+                               [.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)),
+                                .Atom (Q.a (.Operator "@")),
+                                .Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" []))
+                                        (.mk .List [Q.v "argumentIR" (Q.varT "argumentIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "argumentIR" [])) .List))])
+                            (Q.a .RParen)]))
+                   (Q.varT "matchAction" []))
+                (Q.e (.VarE (Q.i "matchAction_h")) (Q.varT "matchAction" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))
+                      (Q.e (.VarE (Q.i "callableId_target")) (Q.varT "callableId" [])))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                      (.mk
+                         .List
+                         [Q.v "matchAction" (.IterT (Q.t (Q.varT "matchAction" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId_target")) (Q.varT "callableId" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_action'")
+                []
+                [Q.ar
+                   (.ExpA
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "matchAction_t")) (Q.varT "matchAction" []))
+                            (.mk .List [Q.v "matchAction_t" (Q.varT "matchAction" []) []]))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId_target")) (Q.varT "callableId" [])))])
+             (.IterT
+                (Q.t
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))
+                .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "matchAction"
+                                  (.IterT (Q.t (Q.varT "matchAction" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "matchAction_h")) (Q.varT "matchAction" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "matchAction_t")) (Q.varT "matchAction" []))
+                            (.mk .List [Q.v "matchAction_t" (Q.varT "matchAction" []) []]))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List)))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "matchAction")) (Q.varT "matchAction" []))
+                      (.mk
+                         .List
+                         [Q.v "matchAction" (.IterT (Q.t (Q.varT "matchAction" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])),
+                          .Brack
+                            (Q.a .LParen)
+                            (.Seq
+                               [.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)),
+                                .Atom (Q.a (.Operator "@")),
+                                .Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" []))
+                                        (.mk .List [Q.v "argumentIR" (Q.varT "argumentIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "argumentIR" [])) .List))])
+                            (Q.a .RParen)]))
+                   (Q.varT "matchAction" []))
+                (Q.e (.VarE (Q.i "matchAction_h")) (Q.varT "matchAction" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .NeOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))
+                      (Q.e (.VarE (Q.i "callableId_target")) (Q.varT "callableId" [])))
+                   .BoolT))]]
+       none
+       [])
+
 def «$find_action» (p0 : NanoP4Spec.tableContext) (p1 : NanoP4Spec.callableId)
     : Option (Except Fail (Option
        ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) :=
@@ -87,5 +614,43 @@ def «$find_action» (p0 : NanoP4Spec.tableContext) (p1 : NanoP4Spec.callableId)
        have callableId := p1
        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$find_action'» TBLC.ACTIONS callableId)
        pure tmp_0)
+
+def «$find_action».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_action")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "tableContext" []))), Q.pm (.ExpP (Q.t (Q.varT "callableId" [])))]
+       (Q.t
+          (.IterT
+             (Q.t
+                (.TupleT
+                   [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                    Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))
+             .Opt))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TBLC")) (Q.varT "tableContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_action'")
+                []
+                [Q.ar
+                   (.ExpA
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TBLC")) (Q.varT "tableContext" []))
+                            (Q.a (.Keyword "ACTIONS")))
+                         (.IterT (Q.t (Q.varT "matchAction" [])) .List))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+             (.IterT
+                (Q.t
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List),
+                       Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]))
+                .Opt))
+          []]
+       none
+       [])
 
 end NanoP4Spec

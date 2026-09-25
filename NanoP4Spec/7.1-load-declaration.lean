@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«7.0-load-context»
 
 /-! # NanoP4Spec.«7.1-load-declaration»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -375,6 +376,911 @@ theorem Decl_load.run_sound
 
 #audit_axioms NanoP4Spec.Decl_load.run_sound
 
+def Decl_load.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Decl_load")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "loadContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "declaration" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "loadContext" []))))))
+       [0, 1]
+       [Q.rg
+          "instantiation"
+          ([Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Arg
+                             (Q.e
+                                (.UpCastE
+                                   (Q.t (Q.varT "type" []))
+                                   (Q.e
+                                      (.CaseE
+                                         (.Seq
+                                            [.Atom (Q.a (.Tag "TID")),
+                                             .Arg
+                                               (Q.e
+                                                  (.VarE (Q.i "typeId_target"))
+                                                  (Q.varT "typeId" []))]))
+                                      (Q.varT "typeIdentifier" [])))
+                                (Q.varT "type" [])),
+                           .Brack
+                             (Q.a .LParen)
+                             (.Arg (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))
+                             (Q.a .RParen),
+                           .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                           .Atom (Q.a (.Operator ";"))]))
+                    (Q.varT "instantiation" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "instantiation" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Arg (),
+                              .Atom (Q.a (.Operator ";"))]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Arg (Q.e (.VarE (Q.i "type")) (Q.varT "type" [])),
+                           .Brack
+                             (Q.a .LParen)
+                             (.Arg (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))
+                             (Q.a .RParen),
+                           .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                           .Atom (Q.a (.Operator ";"))]))
+                    (Q.varT "instantiation" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "instantiation" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "instantiation" []))),
+            Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "type")) (Q.varT "type" []))
+                       (Q.t (Q.varT "typeIdentifier" []))
+                       (.MixopSC [.Seq [.Atom (Q.a (.Tag "TID")), .Arg ()]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Atom (Q.a (.Tag "TID")),
+                           .Arg (Q.e (.VarE (Q.i "typeId_target")) (Q.varT "typeId" []))]))
+                    (Q.varT "typeIdentifier" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "typeIdentifier" []))
+                       (Q.e (.VarE (Q.i "type")) (Q.varT "type" [])))
+                    (Q.varT "typeIdentifier" [])))])
+          [Q.rp
+             "instantiation"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                         (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_argumentList")
+                         []
+                         [Q.ar
+                            (.ExpA (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))])
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .LtOp
+                         .BoolT
+                         (Q.e (.NumE (.Nat 0)) (.NumT .NatT))
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                                     (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                                  (.IterT (Q.t (Q.varT "argument" [])) .List)))
+                            (.NumT .NatT)))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))
+                   (Q.e
+                      (.IdxE
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                               (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                            (.IterT (Q.t (Q.varT "argument" [])) .List))
+                         (Q.e (.NumE (.Nat 0)) (.NumT .NatT)))
+                      (Q.varT "argument" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))
+                         (Q.t (Q.varT "callExpression" []))
+                         (.MixopSC [.Seq [.Arg (), .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Tag "TID")),
+                                         .Arg
+                                           (Q.e
+                                              (.VarE (Q.i "callableId_parser"))
+                                              (Q.varT "callableId" []))]))
+                                  (Q.varT "typeIdentifier" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg (Q.e (.VarE (Q.i "_argumentList")) (Q.varT "argumentList" [])))
+                               (Q.a .RParen)]))
+                      (Q.varT "callExpression" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "callExpression" []))
+                         (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                      (Q.varT "callExpression" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "find_callableDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e (.VarE (Q.i "callableId_parser")) (Q.varT "callableId" [])))])
+                      (Q.varT "callableDef" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" []))
+                         (Q.t (Q.varT "parserDeclarationIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "PARSER")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                                .Brack (Q.a .LBrace) (.Seq [.Arg (), .Arg ()]) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "parserDeclarationIR" []))
+                         (Q.e (.VarE (Q.i "callableDef")) (Q.varT "callableDef" [])))
+                      (Q.varT "parserDeclarationIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .LtOp
+                         .BoolT
+                         (Q.e (.NumE (.Nat 1)) (.NumT .NatT))
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                                     (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                                  (.IterT (Q.t (Q.varT "argument" [])) .List)))
+                            (.NumT .NatT)))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" []))
+                   (Q.e
+                      (.IdxE
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                               (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                            (.IterT (Q.t (Q.varT "argument" [])) .List))
+                         (Q.e (.NumE (.Nat 1)) (.NumT .NatT)))
+                      (Q.varT "argument" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" []))
+                         (Q.t (Q.varT "callExpression" []))
+                         (.MixopSC [.Seq [.Arg (), .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Tag "TID")),
+                                         .Arg
+                                           (Q.e
+                                              (.VarE (Q.i "callableId_control"))
+                                              (Q.varT "callableId" []))]))
+                                  (Q.varT "typeIdentifier" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "_argumentList'")) (Q.varT "argumentList" [])))
+                               (Q.a .RParen)]))
+                      (Q.varT "callExpression" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "callExpression" []))
+                         (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" [])))
+                      (Q.varT "callExpression" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "find_callableDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e (.VarE (Q.i "callableId_control")) (Q.varT "callableId" [])))])
+                      (Q.varT "callableDef" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" []))
+                         (Q.t (Q.varT "controlDeclarationIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "CONTROL")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                                .Brack
+                                  (Q.a .LBrace)
+                                  (.Seq [.Arg (), .Atom (Q.a (.Keyword "APPLY")), .Arg ()])
+                                  (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "controlDeclarationIR")) (Q.varT "controlDeclarationIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "controlDeclarationIR" []))
+                         (Q.e (.VarE (Q.i "callableDef'")) (Q.varT "callableDef" [])))
+                      (Q.varT "controlDeclarationIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" []))
+                   (Q.e
+                      (.UpdE
+                         (Q.e
+                            (.UpdE
+                               (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))
+                               (Q.pa
+                                  (.DotP
+                                     (Q.pa .RootP (Q.varT "loadContext" []))
+                                     (Q.a (.Keyword "PARSER")))
+                                  (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt))
+                               (Q.e
+                                  (.OptE
+                                     (some
+                                        (Q.e
+                                           (.VarE (Q.i "parserDeclarationIR"))
+                                           (Q.varT "parserDeclarationIR" []))))
+                                  (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt)))
+                            (Q.varT "loadContext" []))
+                         (Q.pa
+                            (.DotP
+                               (Q.pa .RootP (Q.varT "loadContext" []))
+                               (Q.a (.Keyword "CONTROL")))
+                            (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))
+                         (Q.e
+                            (.OptE
+                               (some
+                                  (Q.e
+                                     (.VarE (Q.i "controlDeclarationIR"))
+                                     (Q.varT "controlDeclarationIR" []))))
+                            (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt)))
+                      (Q.varT "loadContext" [])))]
+             [Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" [])]],
+        Q.rg
+          "actionDeclaration"
+          ([Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e (.VarE (Q.i "actionDeclaration")) (Q.varT "actionDeclaration" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "actionDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "ACTION")),
+                              .Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Arg ()]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "actionDeclaration")) (Q.varT "actionDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "actionDeclaration" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "actionDeclaration" [])))])
+          [Q.rp
+             "actionDeclaration"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "ACTION")),
+                             .Arg (Q.e (.VarE (Q.i "name_action")) (Q.varT "name" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "_parameterList")) (Q.varT "parameterList" [])))
+                               (Q.a .RParen),
+                             .Arg
+                               (Q.e (.VarE (Q.i "blockStatement")) (Q.varT "blockStatement" []))]))
+                      (Q.varT "actionDeclaration" []))
+                   (Q.e (.VarE (Q.i "actionDeclaration")) (Q.varT "actionDeclaration" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name_action")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "find_callableTypeDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                      (Q.varT "callableTypeDef" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                         (.CaseP (.Seq [.Atom (Q.a (.Keyword "ACTION")), .Arg ()])))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "ACTION")),
+                             .Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                     (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List))]))
+                      (Q.varT "callableTypeDef" []))
+                   (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "actionDeclarationIR")) (Q.varT "actionDeclarationIR" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "ACTION")),
+                             .Arg (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen),
+                             .Arg
+                               (Q.e (.VarE (Q.i "blockStatement")) (Q.varT "blockStatement" []))]))
+                      (Q.varT "actionDeclarationIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_callableDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "callableDef" []))
+                                     (Q.e
+                                        (.VarE (Q.i "actionDeclarationIR"))
+                                        (Q.varT "actionDeclarationIR" [])))
+                                  (Q.varT "callableDef" [])))])
+                      (Q.varT "loadContext" [])))]
+             [Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" [])]],
+        Q.rg
+          "matchKindDeclaration"
+          ([Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                           .Brack
+                             (Q.a .LBrace)
+                             (.Arg (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" [])))
+                             (Q.a .RBrace)]))
+                    (Q.varT "matchKindDeclaration" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "matchKindDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                              .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                           .Brack
+                             (Q.a .LBrace)
+                             (.Arg (Q.e (.VarE (Q.i "nameList")) (Q.varT "nameList" [])))
+                             (Q.a .RBrace)]))
+                    (Q.varT "matchKindDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "matchKindDeclaration" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "matchKindDeclaration" [])))])
+          [Q.rp "matchKindDeclaration" [] [Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])]],
+        Q.rg
+          "externDeclaration"
+          ([Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e (.VarE (Q.i "externDeclaration")) (Q.varT "externDeclaration" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "externDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "EXTERN")),
+                              .Arg (),
+                              .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "externDeclaration")) (Q.varT "externDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "externDeclaration" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "externDeclaration" [])))])
+          [Q.rp "externDeclaration" [] [Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])]],
+        Q.rg
+          "parserDeclaration"
+          ([Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e (.VarE (Q.i "parserDeclaration")) (Q.varT "parserDeclaration" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "parserDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "PARSER")),
+                              .Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Brack (Q.a .LBrace) (.Seq [.Arg (), .Arg ()]) (Q.a .RBrace)]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "parserDeclaration")) (Q.varT "parserDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "parserDeclaration" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "parserDeclaration" [])))])
+          [Q.rp
+             "parserDeclaration"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PARSER")),
+                             .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Seq
+                                  [.Arg
+                                     (Q.e
+                                        (.VarE (Q.i "parserLocalDeclarationList"))
+                                        (Q.varT "parserLocalDeclarationList" [])),
+                                   .Arg
+                                     (Q.e
+                                        (.VarE (Q.i "parserStateList"))
+                                        (Q.varT "parserStateList" []))])
+                               (Q.a .RBrace)]))
+                      (Q.varT "parserDeclaration" []))
+                   (Q.e (.VarE (Q.i "parserDeclaration")) (Q.varT "parserDeclaration" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "find_callableTypeDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                      (Q.varT "callableTypeDef" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                         (.CaseP (.Seq [.Atom (Q.a (.Keyword "PARSER")), .Arg ()])))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PARSER")),
+                             .Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                     (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List))]))
+                      (Q.varT "callableTypeDef" []))
+                   (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PARSER")),
+                             .Arg (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Seq
+                                  [.Arg
+                                     (Q.e
+                                        (.VarE (Q.i "parserLocalDeclarationList"))
+                                        (Q.varT "parserLocalDeclarationList" [])),
+                                   .Arg
+                                     (Q.e
+                                        (.VarE (Q.i "parserStateList"))
+                                        (Q.varT "parserStateList" []))])
+                               (Q.a .RBrace)]))
+                      (Q.varT "parserDeclarationIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_callableDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "callableDef" []))
+                                     (Q.e
+                                        (.VarE (Q.i "parserDeclarationIR"))
+                                        (Q.varT "parserDeclarationIR" [])))
+                                  (Q.varT "callableDef" [])))])
+                      (Q.varT "loadContext" [])))]
+             [Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" [])]],
+        Q.rg
+          "controlDeclaration"
+          ([Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e (.VarE (Q.i "controlDeclaration")) (Q.varT "controlDeclaration" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "controlDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "CONTROL")),
+                              .Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Brack
+                                (Q.a .LBrace)
+                                (.Seq [.Arg (), .Atom (Q.a (.Keyword "APPLY")), .Arg ()])
+                                (Q.a .RBrace)]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "controlDeclaration")) (Q.varT "controlDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "controlDeclaration" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "controlDeclaration" [])))])
+          [Q.rp
+             "controlDeclaration"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "CONTROL")),
+                             .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "parameterList")) (Q.varT "parameterList" [])))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Seq
+                                  [.Arg
+                                     (Q.e
+                                        (.VarE (Q.i "controlLocalDeclarationList"))
+                                        (Q.varT "controlLocalDeclarationList" [])),
+                                   .Atom (Q.a (.Keyword "APPLY")),
+                                   .Arg
+                                     (Q.e (.VarE (Q.i "controlBody")) (Q.varT "controlBody" []))])
+                               (Q.a .RBrace)]))
+                      (Q.varT "controlDeclaration" []))
+                   (Q.e (.VarE (Q.i "controlDeclaration")) (Q.varT "controlDeclaration" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "find_callableTypeDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                      (Q.varT "callableTypeDef" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                         (.CaseP (.Seq [.Atom (Q.a (.Keyword "CONTROL")), .Arg ()])))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "CONTROL")),
+                             .Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                     (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List))]))
+                      (Q.varT "callableTypeDef" []))
+                   (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "controlDeclarationIR")) (Q.varT "controlDeclarationIR" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "CONTROL")),
+                             .Arg (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Seq
+                                  [.Arg
+                                     (Q.e
+                                        (.VarE (Q.i "controlLocalDeclarationList"))
+                                        (Q.varT "controlLocalDeclarationList" [])),
+                                   .Atom (Q.a (.Keyword "APPLY")),
+                                   .Arg
+                                     (Q.e (.VarE (Q.i "controlBody")) (Q.varT "controlBody" []))])
+                               (Q.a .RBrace)]))
+                      (Q.varT "controlDeclarationIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_callableDef_l")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "callableDef" []))
+                                     (Q.e
+                                        (.VarE (Q.i "controlDeclarationIR"))
+                                        (Q.varT "controlDeclarationIR" [])))
+                                  (Q.varT "callableDef" [])))])
+                      (Q.varT "loadContext" [])))]
+             [Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" [])]],
+        Q.rg
+          "typeDeclaration"
+          ([Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "declaration" []))
+                 (Q.e (.VarE (Q.i "typeDeclaration")) (Q.varT "typeDeclaration" [])))
+              (Q.varT "declaration" [])],
+           [Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []),
+            Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                       (Q.t (Q.varT "typeDeclaration" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "STRUCT")),
+                              .Arg (),
+                              .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)],
+                           .Seq
+                             [.Atom (Q.a (.Keyword "HEADER")),
+                              .Arg (),
+                              .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)],
+                           .Seq
+                             [.Atom (Q.a (.Keyword "PARSER")),
+                              .Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Atom (Q.a (.Operator ";"))],
+                           .Seq
+                             [.Atom (Q.a (.Keyword "CONTROL")),
+                              .Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Atom (Q.a (.Operator ";"))],
+                           .Seq
+                             [.Atom (Q.a (.Keyword "PACKAGE")),
+                              .Arg (),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Atom (Q.a (.Operator ";"))]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "typeDeclaration")) (Q.varT "typeDeclaration" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "typeDeclaration" []))
+                       (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" [])))
+                    (Q.varT "typeDeclaration" [])))])
+          [Q.rp "typeDeclaration" [] [Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])]]]
+       none
+       [])
+
 def Decls_load.run (p0 : NanoP4Spec.loadContext) (p1 : List NanoP4Spec.declaration)
     : Option (Except Fail NanoP4Spec.loadContext) :=
   ExceptT.run
@@ -434,6 +1340,138 @@ theorem Decls_load.run_sound
 
 #audit_axioms NanoP4Spec.Decls_load.run_sound
 
+def Decls_load.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Decls_load")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "loadContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (.IterT (Q.t (Q.varT "declaration" [])) .List)))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "loadContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                 (.mk .List [Q.v "declaration" (.IterT (Q.t (Q.varT "declaration" [])) .List) []]))
+              (.IterT (Q.t (Q.varT "declaration" [])) .List)],
+           [Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                 (.mk .List [Q.v "declaration" (.IterT (Q.t (Q.varT "declaration" [])) .List) []]))
+              (.IterT (Q.t (Q.varT "declaration" [])) .List)],
+           [])
+          [Q.rp
+             "nil"
+             [Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "declaration"
+                                     (.IterT (Q.t (Q.varT "declaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "declaration" [])) .List))
+                         (Q.e (.ListE []) (.IterT (Q.t (Q.varT "declaration" [])) .List)))
+                      .BoolT))]
+             [Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" [])],
+           Q.rp
+             "cons"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "declaration'")) (Q.varT "declaration" []))
+                         (.mk
+                            .List
+                            [Q.v "declaration'" (.IterT (Q.t (Q.varT "declaration" [])) .List) []]))
+                      (.IterT (Q.t (Q.varT "declaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                         (.mk
+                            .List
+                            [Q.v "declaration" (.IterT (Q.t (Q.varT "declaration" [])) .List) []]))
+                      (.IterT (Q.t (Q.varT "declaration" [])) .List))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "declaration'")) (Q.varT "declaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "declaration'"
+                                     (.IterT (Q.t (Q.varT "declaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "declaration" [])) .List))
+                         (.ListP .Cons))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.ConsE
+                         (Q.e (.VarE (Q.i "declaration_h")) (Q.varT "declaration" []))
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "declaration_t")) (Q.varT "declaration" []))
+                               (.mk .List [Q.v "declaration_t" (Q.varT "declaration" []) []]))
+                            (.IterT (Q.t (Q.varT "declaration" [])) .List)))
+                      (.IterT (Q.t (Q.varT "declaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "declaration'")) (Q.varT "declaration" []))
+                         (.mk
+                            .List
+                            [Q.v "declaration'" (.IterT (Q.t (Q.varT "declaration" [])) .List) []]))
+                      (.IterT (Q.t (Q.varT "declaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Decl_load")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "LC_0")) (Q.varT "loadContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "declaration_h")) (Q.varT "declaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "Decls_load")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "LC_1")) (Q.varT "loadContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "declaration_t")) (Q.varT "declaration" []))
+                                  (.mk .List [Q.v "declaration_t" (Q.varT "declaration" []) []]))
+                               (.IterT (Q.t (Q.varT "declaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "LC_2")) (Q.varT "loadContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "LC_2")) (Q.varT "loadContext" [])]]]
+       none
+       [])
+
 def Program_load.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.program)
     : Option (Except Fail NanoP4Spec.loadContext) :=
   ExceptT.run
@@ -472,5 +1510,69 @@ theorem Program_load.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Program_load.run_sound
+
+def Program_load.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Program_load")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "typingContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "program" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "loadContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "program")) (Q.varT "program" [])],
+           [Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "program")) (Q.varT "program" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                         (.mk .List [Q.v "declaration" (Q.varT "declaration" []) []]))
+                      (.IterT (Q.t (Q.varT "declaration" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_program")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "program")) (Q.varT "program" [])))])
+                      (.IterT (Q.t (Q.varT "declaration" [])) .List))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "make_loadContext")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" [])))])
+                      (Q.varT "loadContext" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Decls_load")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "declaration")) (Q.varT "declaration" []))
+                                  (.mk .List [Q.v "declaration" (Q.varT "declaration" []) []]))
+                               (.IterT (Q.t (Q.varT "declaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "LC'")) (Q.varT "loadContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "LC'")) (Q.varT "loadContext" [])]]]
+       none
+       [])
 
 end NanoP4Spec

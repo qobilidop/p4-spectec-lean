@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«1-syntax»
 
 /-! # NanoP4Spec.«2.0-domain»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -121,5 +122,24 @@ def «$id» (p0 : NanoP4Spec.name) : Option (Except Fail String) :=
        have name := p0
        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$print_» (τX := NanoP4Spec.name) name)
        pure tmp_0)
+
+def «$id».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "id")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "name" [])))]
+       (Q.t .TextT)
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "print_")
+                [Q.t (Q.varT "name" [])]
+                [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+             .TextT)
+          []]
+       none
+       [])
 
 end NanoP4Spec

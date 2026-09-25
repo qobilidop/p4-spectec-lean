@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«3.2-bits»
 
 /-! # NanoP4Spec.«5.00-typing-context»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -336,6 +337,22 @@ def «$empty_typeDefEnv»
              (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.typeId) (τV := NanoP4Spec.typeDefIR))
        pure tmp_0)
 
+def «$empty_typeDefEnv».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "empty_typeDefEnv")
+       []
+       []
+       (Q.t (Q.varT "map" [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]))
+       [Q.cl
+          []
+          (Q.e
+             (.CallE (Q.i "empty_map") [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])] [])
+             (Q.varT "map" [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]))
+          []]
+       none
+       [])
+
 def «$params_of_callableTypeDef» (p0 : NanoP4Spec.callableTypeDef)
     : Option (Except Fail (List NanoP4Spec.parameterIR)) :=
   ExceptT.run
@@ -361,6 +378,100 @@ def «$params_of_callableTypeDef» (p0 : NanoP4Spec.callableTypeDef)
          let .CONTROL «parameterIR*» := callableTypeDef | throw Fail.err
          pure «parameterIR*»)))
 
+def «$params_of_callableTypeDef».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "params_of_callableTypeDef")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "callableTypeDef" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))]
+          (Q.e
+             (.IterE
+                (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+             (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                      (.CaseP (.Seq [.Atom (Q.a (.Keyword "ACTION")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "ACTION")),
+                          .Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                  (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                               (.IterT (Q.t (Q.varT "parameterIR" [])) .List))]))
+                   (Q.varT "callableTypeDef" []))
+                (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))]
+          (Q.e
+             (.IterE
+                (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+             (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                      (.CaseP (.Seq [.Atom (Q.a (.Keyword "PARSER")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "PARSER")),
+                          .Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                  (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                               (.IterT (Q.t (Q.varT "parameterIR" [])) .List))]))
+                   (Q.varT "callableTypeDef" []))
+                (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))]
+          (Q.e
+             (.IterE
+                (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+             (.IterT (Q.t (Q.varT "parameterIR" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+                      (.CaseP (.Seq [.Atom (Q.a (.Keyword "CONTROL")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "CONTROL")),
+                          .Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "parameterIR")) (Q.varT "parameterIR" []))
+                                  (.mk .List [Q.v "parameterIR" (Q.varT "parameterIR" []) []]))
+                               (.IterT (Q.t (Q.varT "parameterIR" [])) .List))]))
+                   (Q.varT "callableTypeDef" []))
+                (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))]]
+       none
+       [])
+
 def «$empty_callableTypeDefEnv»
     : Option (Except Fail (NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableTypeDef)) :=
   ExceptT.run
@@ -372,12 +483,47 @@ def «$empty_callableTypeDefEnv»
                 (τV := NanoP4Spec.callableTypeDef))
        pure tmp_0)
 
+def «$empty_callableTypeDefEnv».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "empty_callableTypeDefEnv")
+       []
+       []
+       (Q.t (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]))
+       [Q.cl
+          []
+          (Q.e
+             (.CallE
+                (Q.i "empty_map")
+                [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]
+                [])
+             (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]))
+          []]
+       none
+       [])
+
 def «$empty_typeFrame» : Option (Except Fail (NanoP4Spec.map NanoP4Spec.id NanoP4Spec.varTypeIR)) :=
   ExceptT.run
     (do
        let tmp_0 ←
            ExceptT.mk (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR))
        pure tmp_0)
+
+def «$empty_typeFrame».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "empty_typeFrame")
+       []
+       []
+       (Q.t (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))
+       [Q.cl
+          []
+          (Q.e
+             (.CallE (Q.i "empty_map") [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])] [])
+             (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))
+          []]
+       none
+       [])
 
 def «$empty_typingContext» : Option (Except Fail NanoP4Spec.typingContext) :=
   ExceptT.run
@@ -405,6 +551,77 @@ def «$empty_typingContext» : Option (Except Fail NanoP4Spec.typingContext) :=
               LOCAL := localTypingLayer, } : NanoP4Spec.typingContext)
        pure TC)
 
+def «$empty_typingContext».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "empty_typingContext")
+       []
+       []
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          []
+          (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "globalTypingLayer")) (Q.varT "globalTypingLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "TYPE"),
+                        Q.e
+                          (.CallE (Q.i "empty_typeDefEnv") [] [])
+                          (Q.varT "map" [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])])),
+                       (Q.a (.Keyword "CALLABLE"),
+                        Q.e
+                          (.CallE (Q.i "empty_callableTypeDefEnv") [] [])
+                          (Q.varT
+                             "map"
+                             [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])])),
+                       (Q.a (.Keyword "FRAME"),
+                        Q.e
+                          (.CallE (Q.i "empty_typeFrame") [] [])
+                          (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))])
+                   (Q.varT "globalTypingLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "blockTypingLayer")) (Q.varT "blockTypingLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAME"),
+                        Q.e
+                          (.CallE (Q.i "empty_typeFrame") [] [])
+                          (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))])
+                   (Q.varT "blockTypingLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "localTypingLayer")) (Q.varT "localTypingLayer" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "FRAMES"),
+                        Q.e
+                          (.ListE
+                             [Q.e
+                                (.CallE (Q.i "empty_typeFrame") [] [])
+                                (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])])])
+                          (.IterT
+                             (Q.t
+                                (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))
+                             .List))])
+                   (Q.varT "localTypingLayer" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.StrE
+                      [(Q.a (.Keyword "GLOBAL"),
+                        Q.e (.VarE (Q.i "globalTypingLayer")) (Q.varT "globalTypingLayer" [])),
+                       (Q.a (.Keyword "BLOCK"),
+                        Q.e (.VarE (Q.i "blockTypingLayer")) (Q.varT "blockTypingLayer" [])),
+                       (Q.a (.Keyword "LOCAL"),
+                        Q.e (.VarE (Q.i "localTypingLayer")) (Q.varT "localTypingLayer" []))])
+                   (Q.varT "typingContext" [])))]]
+       none
+       [])
+
 def «$enter_t» (p0 : NanoP4Spec.typingContext) : Option (Except Fail NanoP4Spec.typingContext) :=
   ExceptT.run
     (do
@@ -412,6 +629,47 @@ def «$enter_t» (p0 : NanoP4Spec.typingContext) : Option (Except Fail NanoP4Spe
        let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_typeFrame»
        pure { TC with
          LOCAL.FRAMES := tmp_0 :: TC.LOCAL.FRAMES, })
+
+def «$enter_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "enter_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" [])))]
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "typingContext" [])) (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localTypingLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.CallE (Q.i "empty_typeFrame") [] [])
+                         (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))
+                      (Q.e
+                         (.DotE
+                            (Q.e
+                               (.DotE
+                                  (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localTypingLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))
+                   (.IterT
+                      (Q.t (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))
+                      .List)))
+             (Q.varT "typingContext" []))
+          []]
+       none
+       [])
 
 def «$exit_t» (p0 : NanoP4Spec.typingContext) : Option (Except Fail NanoP4Spec.typingContext) :=
   ExceptT.run
@@ -422,6 +680,79 @@ def «$exit_t» (p0 : NanoP4Spec.typingContext) : Option (Except Fail NanoP4Spec
        let typeFrame_h :: «typeFrame_t*» := «typeFrame*» | throw Fail.err
        pure { TC with
          LOCAL.FRAMES := «typeFrame_t*», })
+
+def «$exit_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "exit_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" [])))]
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" [])))]
+          (Q.e
+             (.UpdE
+                (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                (Q.pa
+                   (.DotP
+                      (Q.pa
+                         (.DotP (Q.pa .RootP (Q.varT "typingContext" [])) (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localTypingLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame_t")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame_t" (Q.varT "typeFrame" []) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))
+             (Q.varT "typingContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame" (.IterT (Q.t (Q.varT "typeFrame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localTypingLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                            (.mk
+                               .List
+                               [Q.v "typeFrame" (.IterT (Q.t (Q.varT "typeFrame" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "typeFrame_h")) (Q.varT "typeFrame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "typeFrame_t")) (Q.varT "typeFrame" []))
+                            (.mk .List [Q.v "typeFrame_t" (Q.varT "typeFrame" []) []]))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame" (.IterT (Q.t (Q.varT "typeFrame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))]]
+       none
+       [])
 
 def «$add_var_t»
         (p0 : NanoP4Spec.scope)
@@ -517,6 +848,294 @@ def «$add_var_t»
                LOCAL.FRAMES := typeFrame_h' :: «typeFrame_t*», }
          pure TC')))
 
+def «$add_var_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "add_var_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "id" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "varTypeIR" [])))]
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))]
+          (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "GLOBAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalTypingLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "typeFrame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "id" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e
+                                                 (.VarE (Q.i "typeFrame"))
+                                                 (Q.varT "typeFrame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "id" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame'")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "typingContext" []))
+                                  (Q.a (.Keyword "GLOBAL")))
+                               (Q.varT "globalTypingLayer" []))
+                            (Q.a (.Keyword "FRAME")))
+                         (Q.varT "typeFrame" []))
+                      (Q.e (.VarE (Q.i "typeFrame'")) (Q.varT "typeFrame" [])))
+                   (Q.varT "typingContext" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))]
+          (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockTypingLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "typeFrame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "id" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e
+                                                 (.VarE (Q.i "typeFrame"))
+                                                 (Q.varT "typeFrame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "id" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame'")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "typingContext" []))
+                                  (Q.a (.Keyword "BLOCK")))
+                               (Q.varT "blockTypingLayer" []))
+                            (Q.a (.Keyword "FRAME")))
+                         (Q.varT "typeFrame" []))
+                      (Q.e (.VarE (Q.i "typeFrame'")) (Q.varT "typeFrame" [])))
+                   (Q.varT "typingContext" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))]
+          (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame" (.IterT (Q.t (Q.varT "typeFrame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localTypingLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                            (.mk
+                               .List
+                               [Q.v "typeFrame" (.IterT (Q.t (Q.varT "typeFrame" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "typeFrame_h")) (Q.varT "typeFrame" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "typeFrame_t")) (Q.varT "typeFrame" []))
+                            (.mk .List [Q.v "typeFrame_t" (Q.varT "typeFrame" []) []]))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame" (.IterT (Q.t (Q.varT "typeFrame" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "id" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e
+                                                 (.VarE (Q.i "typeFrame_h"))
+                                                 (Q.varT "typeFrame" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "id" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame_h'")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFrame_h")) (Q.varT "typeFrame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "typingContext" []))
+                                  (Q.a (.Keyword "LOCAL")))
+                               (Q.varT "localTypingLayer" []))
+                            (Q.a (.Keyword "FRAMES")))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                      (Q.e
+                         (.ConsE
+                            (Q.e (.VarE (Q.i "typeFrame_h'")) (Q.varT "typeFrame" []))
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "typeFrame_t")) (Q.varT "typeFrame" []))
+                                  (.mk .List [Q.v "typeFrame_t" (Q.varT "typeFrame" []) []]))
+                               (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))
+                         (.IterT (Q.t (Q.varT "typeFrame" [])) .List)))
+                   (Q.varT "typingContext" [])))]]
+       none
+       [])
+
 def «$add_vars_t»
         (p0 : NanoP4Spec.scope)
         (p1 : NanoP4Spec.typingContext)
@@ -547,6 +1166,171 @@ def «$add_vars_t»
         have TC'' := tmp_1
         pure TC''))
   partial_fixpoint
+
+def «$add_vars_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "add_vars_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))),
+        Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "id" [])) .List))),
+        Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "varTypeIR" [])) .List)))]
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))
+                      (.mk .List [Q.v "id" (.IterT (Q.t (Q.varT "id" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "id" [])) .List))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+                      (.mk .List [Q.v "varTypeIR" (.IterT (Q.t (Q.varT "varTypeIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .List)))]
+          (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))
+                            (.mk .List [Q.v "id" (.IterT (Q.t (Q.varT "id" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "id" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+                            (.mk
+                               .List
+                               [Q.v "varTypeIR" (.IterT (Q.t (Q.varT "varTypeIR" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))
+                      (.mk .List [Q.v "id" (.IterT (Q.t (Q.varT "id" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "id" [])) .List))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+                      (.mk .List [Q.v "varTypeIR" (.IterT (Q.t (Q.varT "varTypeIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .List)))]
+          (Q.e (.VarE (Q.i "TC''")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))
+                            (.mk .List [Q.v "id" (.IterT (Q.t (Q.varT "id" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "id" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "id_h")) (Q.varT "id" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "id_t")) (Q.varT "id" []))
+                            (.mk .List [Q.v "id_t" (Q.varT "id" []) []]))
+                         (.IterT (Q.t (Q.varT "id" [])) .List)))
+                   (.IterT (Q.t (Q.varT "id" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))
+                      (.mk .List [Q.v "id" (.IterT (Q.t (Q.varT "id" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "id" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+                            (.mk
+                               .List
+                               [Q.v "varTypeIR" (.IterT (Q.t (Q.varT "varTypeIR" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "varTypeIR_h")) (Q.varT "varTypeIR" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "varTypeIR_t")) (Q.varT "varTypeIR" []))
+                            (.mk .List [Q.v "varTypeIR_t" (Q.varT "varTypeIR" []) []]))
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .List)))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+                      (.mk .List [Q.v "varTypeIR" (.IterT (Q.t (Q.varT "varTypeIR" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_var_t")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id_h")) (Q.varT "id" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR_h")) (Q.varT "varTypeIR" [])))])
+                   (Q.varT "typingContext" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC''")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_vars_t")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "id_t")) (Q.varT "id" []))
+                                  (.mk .List [Q.v "id_t" (Q.varT "id" []) []]))
+                               (.IterT (Q.t (Q.varT "id" [])) .List))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "varTypeIR_t")) (Q.varT "varTypeIR" []))
+                                  (.mk .List [Q.v "varTypeIR_t" (Q.varT "varTypeIR" []) []]))
+                               (.IterT (Q.t (Q.varT "varTypeIR" [])) .List)))])
+                   (Q.varT "typingContext" [])))]]
+       none
+       [])
 
 def «$add_callableDef_t»
         (p0 : NanoP4Spec.typingContext)
@@ -581,6 +1365,98 @@ def «$add_callableDef_t»
              GLOBAL.CALLABLE := callableTypeDefEnv', }
        pure TC')
 
+def «$add_callableDef_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "add_callableDef_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "callableId" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "callableTypeDef" [])))]
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))]
+          (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "callableTypeDefEnv")) (Q.varT "callableTypeDefEnv" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalTypingLayer" []))
+                      (Q.a (.Keyword "CALLABLE")))
+                   (Q.varT "callableTypeDefEnv" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "callableId" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "callableId" []),
+                                         Q.t (Q.varT "callableTypeDef" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e
+                                                 (.VarE (Q.i "callableTypeDefEnv"))
+                                                 (Q.varT "callableTypeDefEnv" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "callableId" [])]))),
+                             Q.ar
+                               (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "callableTypeDefEnv'")) (Q.varT "callableTypeDefEnv" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.VarE (Q.i "callableTypeDefEnv"))
+                               (Q.varT "callableTypeDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" []))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" [])))])
+                   (Q.varT
+                      "map"
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "typingContext" []))
+                                  (Q.a (.Keyword "GLOBAL")))
+                               (Q.varT "globalTypingLayer" []))
+                            (Q.a (.Keyword "CALLABLE")))
+                         (Q.varT "callableTypeDefEnv" []))
+                      (Q.e (.VarE (Q.i "callableTypeDefEnv'")) (Q.varT "callableTypeDefEnv" [])))
+                   (Q.varT "typingContext" [])))]]
+       none
+       [])
+
 def «$add_typeDef_t»
         (p0 : NanoP4Spec.typingContext)
         (p1 : NanoP4Spec.typeId)
@@ -613,6 +1489,88 @@ def «$add_typeDef_t»
            { TC with
              GLOBAL.TYPE := typeDefEnv', }
        pure TC')
+
+def «$add_typeDef_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "add_typeDef_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "typeId" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "typeDefIR" [])))]
+       (Q.t (Q.varT "typingContext" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" [])))]
+          (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+          [Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeDefEnv")) (Q.varT "typeDefEnv" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalTypingLayer" []))
+                      (Q.a (.Keyword "TYPE")))
+                   (Q.varT "typeDefEnv" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "in_set")
+                            [Q.t (Q.varT "typeId" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "dom_map")
+                                        [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e
+                                                 (.VarE (Q.i "typeDefEnv"))
+                                                 (Q.varT "typeDefEnv" [])))])
+                                     (Q.varT "set" [Q.t (Q.varT "typeId" [])]))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))])
+                         .BoolT))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeDefEnv'")) (Q.varT "typeDefEnv" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "add_map")
+                      [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeDefEnv")) (Q.varT "typeDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" [])))])
+                   (Q.varT "map" [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" []))
+                (Q.e
+                   (.UpdE
+                      (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                      (Q.pa
+                         (.DotP
+                            (Q.pa
+                               (.DotP
+                                  (Q.pa .RootP (Q.varT "typingContext" []))
+                                  (Q.a (.Keyword "GLOBAL")))
+                               (Q.varT "globalTypingLayer" []))
+                            (Q.a (.Keyword "TYPE")))
+                         (Q.varT "typeDefEnv" []))
+                      (Q.e (.VarE (Q.i "typeDefEnv'")) (Q.varT "typeDefEnv" [])))
+                   (Q.varT "typingContext" [])))]]
+       none
+       [])
 
 def «$find_var_t» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.typingContext) (p2 : NanoP4Spec.id)
     : Option (Except Fail NanoP4Spec.varTypeIR) :=
@@ -712,6 +1670,313 @@ def «$find_var_t» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.typingContext) (p2 
            pure tmp_6)))))
   partial_fixpoint
 
+def «$find_var_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_var_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "scope" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "id" [])))]
+       (Q.t (Q.varT "varTypeIR" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))]
+          (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "GLOBAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "GLOBAL")))
+                         (Q.varT "globalTypingLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "typeFrame" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                      (.mk .Opt [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                      (.mk .Opt [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))]
+          (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockTypingLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "typeFrame" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                      (.mk .Opt [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                      (.mk .Opt [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_var_t")
+                []
+                [Q.ar (.ExpA (Q.e (.CaseE (.Atom (Q.a (.Keyword "GLOBAL")))) (Q.varT "scope" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+             (Q.varT "varTypeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "BLOCK")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "BLOCK")))
+                         (Q.varT "blockTypingLayer" []))
+                      (Q.a (.Keyword "FRAME")))
+                   (Q.varT "typeFrame" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.OptE none) (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                      (Q.e
+                         (.CallE
+                            (Q.i "find_map")
+                            [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))]
+          (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame" (Q.varT "typeFrame" []) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localTypingLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                      (.mk .Opt [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_maps")
+                      [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                                  (.mk .List [Q.v "typeFrame" (Q.varT "typeFrame" []) []]))
+                               (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "varTypeIR'")) (Q.varT "varTypeIR" []))
+                      (.mk .Opt [Q.v "varTypeIR'" (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_var_t")
+                []
+                [Q.ar (.ExpA (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+             (Q.varT "varTypeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))
+                      (.CaseP (.Atom (Q.a (.Keyword "LOCAL")))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                      (.mk .List [Q.v "typeFrame" (Q.varT "typeFrame" []) []]))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))
+                (Q.e
+                   (.DotE
+                      (Q.e
+                         (.DotE
+                            (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                            (Q.a (.Keyword "LOCAL")))
+                         (Q.varT "localTypingLayer" []))
+                      (Q.a (.Keyword "FRAMES")))
+                   (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.OptE none) (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt))
+                      (Q.e
+                         (.CallE
+                            (Q.i "find_maps")
+                            [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "typeFrame")) (Q.varT "typeFrame" []))
+                                        (.mk .List [Q.v "typeFrame" (Q.varT "typeFrame" []) []]))
+                                     (.IterT (Q.t (Q.varT "typeFrame" [])) .List))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])))])
+                         (.IterT (Q.t (Q.varT "varTypeIR" [])) .Opt)))
+                   .BoolT))]]
+       none
+       [])
+
 def «$find_typeDef_t» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.typeId)
     : Option (Except Fail NanoP4Spec.typeDefIR) :=
   ExceptT.run
@@ -729,6 +1994,67 @@ def «$find_typeDef_t» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.typeId)
        let _ ← Eval.check (Option.isSome typeDefIR'?)
        let some typeDefIR := typeDefIR'? | throw Fail.err
        pure typeDefIR)
+
+def «$find_typeDef_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_typeDef_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))), Q.pm (.ExpP (Q.t (Q.varT "typeId" [])))]
+       (Q.t (Q.varT "typeDefIR" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))]
+          (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeDefIR'")) (Q.varT "typeDefIR" []))
+                      (.mk .Opt [Q.v "typeDefIR'" (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.DotE
+                                  (Q.e
+                                     (.DotE
+                                        (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                                        (Q.a (.Keyword "GLOBAL")))
+                                     (Q.varT "globalTypingLayer" []))
+                                  (Q.a (.Keyword "TYPE")))
+                               (Q.varT "typeDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))])
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "typeDefIR'")) (Q.varT "typeDefIR" []))
+                            (.mk
+                               .Opt
+                               [Q.v "typeDefIR'" (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt) []]))
+                         (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE (some (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" []))))
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "typeDefIR'")) (Q.varT "typeDefIR" []))
+                      (.mk .Opt [Q.v "typeDefIR'" (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt) []]))
+                   (.IterT (Q.t (Q.varT "typeDefIR" [])) .Opt)))]]
+       none
+       [])
 
 def «$find_callableTypeDef_t» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.callableId)
     : Option (Except Fail NanoP4Spec.callableTypeDef) :=
@@ -748,6 +2074,81 @@ def «$find_callableTypeDef_t» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec
        let some callableTypeDef := callableTypeDef'? | throw Fail.err
        pure callableTypeDef)
 
+def «$find_callableTypeDef_t».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_callableTypeDef_t")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typingContext" []))), Q.pm (.ExpP (Q.t (Q.varT "callableId" [])))]
+       (Q.t (Q.varT "callableTypeDef" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))]
+          (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableTypeDef'")) (Q.varT "callableTypeDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "callableTypeDef'"
+                            (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))
+                (Q.e
+                   (.CallE
+                      (Q.i "find_map")
+                      [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.DotE
+                                  (Q.e
+                                     (.DotE
+                                        (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))
+                                        (Q.a (.Keyword "GLOBAL")))
+                                     (Q.varT "globalTypingLayer" []))
+                                  (Q.a (.Keyword "CALLABLE")))
+                               (Q.varT "callableTypeDefEnv" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "callableId")) (Q.varT "callableId" [])))])
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "callableTypeDef'")) (Q.varT "callableTypeDef" []))
+                            (.mk
+                               .Opt
+                               [Q.v
+                                  "callableTypeDef'"
+                                  (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))
+                      (.OptP .Some))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.OptE
+                      (some (Q.e (.VarE (Q.i "callableTypeDef")) (Q.varT "callableTypeDef" []))))
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "callableTypeDef'")) (Q.varT "callableTypeDef" []))
+                      (.mk
+                         .Opt
+                         [Q.v
+                            "callableTypeDef'"
+                            (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)
+                            []]))
+                   (.IterT (Q.t (Q.varT "callableTypeDef" [])) .Opt)))]]
+       none
+       [])
+
 def «$typeIR_of_typeDefIR» (p0 : NanoP4Spec.typeDefIR) : Option (Except Fail NanoP4Spec.typeIR) :=
   ExceptT.run
     ((do
@@ -762,5 +2163,82 @@ def «$typeIR_of_typeDefIR» (p0 : NanoP4Spec.typeDefIR) : Option (Except Fail N
         let tmp_1 ← Eval.err? (NanoP4Spec.typeDefIR.of_objectTypeDefIR typeDefIR)
         have objectTypeDefIR := tmp_1
         pure (NanoP4Spec.objectTypeDefIR.to_typeIR objectTypeDefIR)))
+
+def «$typeIR_of_typeDefIR».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "typeIR_of_typeDefIR")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "typeDefIR" [])))]
+       (Q.t (Q.varT "typeIR" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "typeIR" []))
+                (Q.e (.VarE (Q.i "dataTypeIR")) (Q.varT "dataTypeIR" [])))
+             (Q.varT "typeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" []))
+                      (Q.t (Q.varT "dataTypeIR" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)],
+                          .Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "dataTypeIR")) (Q.varT "dataTypeIR" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "dataTypeIR" []))
+                      (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" [])))
+                   (Q.varT "dataTypeIR" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "typeIR" []))
+                (Q.e (.VarE (Q.i "objectTypeDefIR")) (Q.varT "objectTypeDefIR" [])))
+             (Q.varT "typeIR" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" []))
+                      (Q.t (Q.varT "objectTypeDefIR" []))
+                      (.MixopSC
+                         [.Seq [.Atom (Q.a (.Keyword "EXTERN")), .Arg (), .Arg ()],
+                          .Seq
+                            [.Atom (Q.a (.Keyword "PARSER")),
+                             .Arg (),
+                             .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)],
+                          .Seq
+                            [.Atom (Q.a (.Keyword "CONTROL")),
+                             .Arg (),
+                             .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)],
+                          .Seq
+                            [.Atom (Q.a (.Keyword "PACKAGE")),
+                             .Arg (),
+                             .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "objectTypeDefIR")) (Q.varT "objectTypeDefIR" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "objectTypeDefIR" []))
+                      (Q.e (.VarE (Q.i "typeDefIR")) (Q.varT "typeDefIR" [])))
+                   (Q.varT "objectTypeDefIR" [])))]]
+       none
+       [])
 
 end NanoP4Spec

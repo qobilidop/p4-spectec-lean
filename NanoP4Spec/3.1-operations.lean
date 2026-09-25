@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«3.0-value»
 
 /-! # NanoP4Spec.«3.1-operations»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -156,6 +157,494 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
                 | _ => false)
              let .S w i := integerLiteral | throw Fail.err
              pure (NanoP4Spec.integerLiteral.to_value (NanoP4Spec.integerLiteral.S w i)))))))))
+
+def «$un_op».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "un_op")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "unop" []))), Q.pm (.ExpP (Q.t (Q.varT "value" [])))]
+       (Q.t (Q.varT "value" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg (Q.e (.UnE .NotOp .BoolT (Q.e (.VarE (Q.i "b")) .BoolT)) .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "!")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "~")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.BinE
+                      .SubOp
+                      .IntT
+                      (Q.e
+                         (.BinE
+                            .SubOp
+                            .IntT
+                            (Q.e
+                               (.CallE
+                                  (Q.i "pow2")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))])
+                               (.NumT .IntT))
+                            (Q.e (.VarE (Q.i "i")) (.NumT .IntT)))
+                         (.NumT .IntT))
+                      (Q.e
+                         (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.NumE (.Nat 1)) (.NumT .NatT)))
+                         (.NumT .IntT)))
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "~")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UnE
+                                  .MinusOp
+                                  .IntT
+                                  (Q.e
+                                     (.BinE
+                                        .AddOp
+                                        .IntT
+                                        (Q.e (.VarE (Q.i "i")) (.NumT .IntT))
+                                        (Q.e
+                                           (.UpCastE
+                                              (Q.t (.NumT .IntT))
+                                              (Q.e (.NumE (.Nat 1)) (.NumT .NatT)))
+                                           (.NumT .IntT)))
+                                     (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "-")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.BinE
+                      .SubOp
+                      .IntT
+                      (Q.e
+                         (.CallE
+                            (Q.i "pow2")
+                            []
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))])
+                         (.NumT .IntT))
+                      (Q.e (.VarE (Q.i "i")) (.NumT .IntT)))
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "-")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bitstr_to_int")
+                                  []
+                                  [Q.ar
+                                     (.ExpA
+                                        (Q.e
+                                           (.UpCastE
+                                              (Q.t (.NumT .IntT))
+                                              (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                                           (.NumT .IntT))),
+                                   Q.ar
+                                     (.ExpA
+                                        (Q.e
+                                           (.UnE
+                                              .MinusOp
+                                              .IntT
+                                              (Q.e (.VarE (Q.i "i")) (.NumT .IntT)))
+                                           (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "+")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "unop")) (Q.varT "unop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "+")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" [])))]]
+       none
+       [])
 
 def «$bin_eq» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.value) : Option (Except Fail Bool) :=
   ExceptT.run
@@ -314,6 +803,848 @@ def «$bin_eq» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.value) : Option (Except
               tmp_22) &&
              tmp_23)))))))
   partial_fixpoint
+
+def «$bin_eq».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "bin_eq")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "value" []))), Q.pm (.ExpP (Q.t (Q.varT "value" [])))]
+       (Q.t .BoolT)
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.CmpE .EqOp .BoolT (Q.e (.VarE (Q.i "b_a")) .BoolT) (Q.e (.VarE (Q.i "b_b")) .BoolT))
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_a")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_b")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.CmpE
+                .EqOp
+                .BoolT
+                (Q.e (.VarE (Q.i "id_a")) (Q.varT "id" []))
+                (Q.e (.VarE (Q.i "id_b")) (Q.varT "id" [])))
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "matchKindValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                             .Atom (Q.a (.Operator ".")),
+                             .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                          .Atom (Q.a (.Operator ".")),
+                          .Arg (Q.e (.VarE (Q.i "id_a")) (Q.varT "id" []))]))
+                   (Q.varT "matchKindValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "matchKindValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "matchKindValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "matchKindValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                             .Atom (Q.a (.Operator ".")),
+                             .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                          .Atom (Q.a (.Operator ".")),
+                          .Arg (Q.e (.VarE (Q.i "id_b")) (Q.varT "id" []))]))
+                   (Q.varT "matchKindValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "matchKindValue" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "matchKindValue" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.BinE
+                .AndOp
+                .BoolT
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w_a")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w_b")) (.NumT .NatT)))
+                   .BoolT)
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "i_a")) (.NumT .IntT))
+                      (Q.e (.VarE (Q.i "i_b")) (.NumT .IntT)))
+                   .BoolT))
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w_a")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_a")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w_b")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_b")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.BinE
+                .AndOp
+                .BoolT
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w_a")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w_b")) (.NumT .NatT)))
+                   .BoolT)
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "i_a")) (.NumT .IntT))
+                      (Q.e (.VarE (Q.i "i_b")) (.NumT .IntT)))
+                   .BoolT))
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w_a")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_a")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w_b")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_b")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.BinE
+                .AndOp
+                .BoolT
+                (Q.e
+                   (.BinE
+                      .AndOp
+                      .BoolT
+                      (Q.e
+                         (.BinE
+                            .AndOp
+                            .BoolT
+                            (Q.e
+                               (.CmpE
+                                  .EqOp
+                                  .BoolT
+                                  (Q.e (.VarE (Q.i "typeId_a")) (Q.varT "typeId" []))
+                                  (Q.e (.VarE (Q.i "typeId_b")) (Q.varT "typeId" [])))
+                               .BoolT)
+                            (Q.e
+                               (.CmpE
+                                  .EqOp
+                                  .BoolT
+                                  (Q.e
+                                     (.LenE
+                                        (Q.e
+                                           (.IterE
+                                              (Q.e
+                                                 (.VarE (Q.i "fieldValue_a"))
+                                                 (Q.varT "fieldValue" []))
+                                              (.mk
+                                                 .List
+                                                 [Q.v "fieldValue_a" (Q.varT "fieldValue" []) []]))
+                                           (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                                     (.NumT .NatT))
+                                  (Q.e
+                                     (.LenE
+                                        (Q.e
+                                           (.IterE
+                                              (Q.e
+                                                 (.VarE (Q.i "fieldValue_b"))
+                                                 (Q.varT "fieldValue" []))
+                                              (.mk
+                                                 .List
+                                                 [Q.v "fieldValue_b" (Q.varT "fieldValue" []) []]))
+                                           (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                                     (.NumT .NatT)))
+                               .BoolT))
+                         .BoolT)
+                      (Q.e
+                         (.CallE
+                            (Q.i "forall_")
+                            []
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.CallE
+                                              (Q.i "bin_eq")
+                                              []
+                                              [Q.ar
+                                                 (.ExpA
+                                                    (Q.e
+                                                       (.VarE (Q.i "value_field_a"))
+                                                       (Q.varT "value" []))),
+                                               Q.ar
+                                                 (.ExpA
+                                                    (Q.e
+                                                       (.VarE (Q.i "value_field_b"))
+                                                       (Q.varT "value" [])))])
+                                           .BoolT)
+                                        (.mk
+                                           .List
+                                           [Q.v "value_field_a" (Q.varT "value" []) [],
+                                            Q.v "value_field_b" (Q.varT "value" []) []]))
+                                     (.IterT (Q.t .BoolT) .List)))])
+                         .BoolT))
+                   .BoolT)
+                (Q.e
+                   (.CallE
+                      (Q.i "forall_")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.CmpE
+                                        .EqOp
+                                        .BoolT
+                                        (Q.e (.VarE (Q.i "nameIR_field_a")) (Q.varT "nameIR" []))
+                                        (Q.e (.VarE (Q.i "nameIR_field_b")) (Q.varT "nameIR" [])))
+                                     .BoolT)
+                                  (.mk
+                                     .List
+                                     [Q.v "nameIR_field_a" (Q.varT "nameIR" []) [],
+                                      Q.v "nameIR_field_b" (Q.varT "nameIR" []) []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   .BoolT))
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "structValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "STRUCT")),
+                          .Arg (Q.e (.VarE (Q.i "typeId_a")) (Q.varT "typeId" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue_a")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue_a" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                            (Q.a .RBrace)]))
+                   (Q.varT "structValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "structValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "structValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "structValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "STRUCT")),
+                          .Arg (Q.e (.VarE (Q.i "typeId_b")) (Q.varT "typeId" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue_b")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue_b" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                            (Q.a .RBrace)]))
+                   (Q.varT "structValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "structValue" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "structValue" []))),
+           Q.pr
+             (.IterPr
+                (Q.pr
+                   (.LetPr
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value_field_a")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "nameIR_field_a")) (Q.varT "nameIR" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e (.VarE (Q.i "fieldValue_a")) (Q.varT "fieldValue" []))))
+                (.mk
+                   .List
+                   [Q.v "fieldValue_a" (Q.varT "fieldValue" []) []]
+                   [Q.v "nameIR_field_a" (Q.varT "nameIR" []) [],
+                    Q.v "value_field_a" (Q.varT "value" []) []])),
+           Q.pr
+             (.IterPr
+                (Q.pr
+                   (.LetPr
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value_field_b")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "nameIR_field_b")) (Q.varT "nameIR" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e (.VarE (Q.i "fieldValue_b")) (Q.varT "fieldValue" []))))
+                (.mk
+                   .List
+                   [Q.v "fieldValue_b" (Q.varT "fieldValue" []) []]
+                   [Q.v "nameIR_field_b" (Q.varT "nameIR" []) [],
+                    Q.v "value_field_b" (Q.varT "value" []) []])),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "value_field_a")) (Q.varT "value" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "value_field_a"
+                                        (.IterT (Q.t (Q.varT "value" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "value" [])) .List)))
+                         (.NumT .NatT))
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "value_field_b")) (Q.varT "value" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "value_field_b"
+                                        (.IterT (Q.t (Q.varT "value" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "value" [])) .List)))
+                         (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "nameIR_field_a")) (Q.varT "nameIR" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "nameIR_field_a"
+                                        (.IterT (Q.t (Q.varT "nameIR" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                         (.NumT .NatT))
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "nameIR_field_b")) (Q.varT "nameIR" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "nameIR_field_b"
+                                        (.IterT (Q.t (Q.varT "nameIR" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                         (.NumT .NatT)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.BinE
+                .AndOp
+                .BoolT
+                (Q.e
+                   (.BinE
+                      .AndOp
+                      .BoolT
+                      (Q.e
+                         (.BinE
+                            .AndOp
+                            .BoolT
+                            (Q.e
+                               (.CmpE
+                                  .EqOp
+                                  .BoolT
+                                  (Q.e (.VarE (Q.i "typeId_a")) (Q.varT "typeId" []))
+                                  (Q.e (.VarE (Q.i "typeId_b")) (Q.varT "typeId" [])))
+                               .BoolT)
+                            (Q.e
+                               (.CmpE
+                                  .EqOp
+                                  .BoolT
+                                  (Q.e
+                                     (.LenE
+                                        (Q.e
+                                           (.IterE
+                                              (Q.e
+                                                 (.VarE (Q.i "fieldValue_a"))
+                                                 (Q.varT "fieldValue" []))
+                                              (.mk
+                                                 .List
+                                                 [Q.v "fieldValue_a" (Q.varT "fieldValue" []) []]))
+                                           (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                                     (.NumT .NatT))
+                                  (Q.e
+                                     (.LenE
+                                        (Q.e
+                                           (.IterE
+                                              (Q.e
+                                                 (.VarE (Q.i "fieldValue_b"))
+                                                 (Q.varT "fieldValue" []))
+                                              (.mk
+                                                 .List
+                                                 [Q.v "fieldValue_b" (Q.varT "fieldValue" []) []]))
+                                           (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                                     (.NumT .NatT)))
+                               .BoolT))
+                         .BoolT)
+                      (Q.e
+                         (.CallE
+                            (Q.i "forall_")
+                            []
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.CallE
+                                              (Q.i "bin_eq")
+                                              []
+                                              [Q.ar
+                                                 (.ExpA
+                                                    (Q.e
+                                                       (.VarE (Q.i "value_field_a"))
+                                                       (Q.varT "value" []))),
+                                               Q.ar
+                                                 (.ExpA
+                                                    (Q.e
+                                                       (.VarE (Q.i "value_field_b"))
+                                                       (Q.varT "value" [])))])
+                                           .BoolT)
+                                        (.mk
+                                           .List
+                                           [Q.v "value_field_a" (Q.varT "value" []) [],
+                                            Q.v "value_field_b" (Q.varT "value" []) []]))
+                                     (.IterT (Q.t .BoolT) .List)))])
+                         .BoolT))
+                   .BoolT)
+                (Q.e
+                   (.CallE
+                      (Q.i "forall_")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.CmpE
+                                        .EqOp
+                                        .BoolT
+                                        (Q.e (.VarE (Q.i "nameIR_field_a")) (Q.varT "nameIR" []))
+                                        (Q.e (.VarE (Q.i "nameIR_field_b")) (Q.varT "nameIR" [])))
+                                     .BoolT)
+                                  (.mk
+                                     .List
+                                     [Q.v "nameIR_field_a" (Q.varT "nameIR" []) [],
+                                      Q.v "nameIR_field_b" (Q.varT "nameIR" []) []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   .BoolT))
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "headerValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "HEADER")),
+                          .Arg (Q.e (.VarE (Q.i "typeId_a")) (Q.varT "typeId" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue_a")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue_a" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                            (Q.a .RBrace)]))
+                   (Q.varT "headerValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "headerValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "headerValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "headerValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "HEADER")),
+                          .Arg (Q.e (.VarE (Q.i "typeId_b")) (Q.varT "typeId" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue_b")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue_b" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                            (Q.a .RBrace)]))
+                   (Q.varT "headerValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "headerValue" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "headerValue" []))),
+           Q.pr
+             (.IterPr
+                (Q.pr
+                   (.LetPr
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value_field_a")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "nameIR_field_a")) (Q.varT "nameIR" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e (.VarE (Q.i "fieldValue_a")) (Q.varT "fieldValue" []))))
+                (.mk
+                   .List
+                   [Q.v "fieldValue_a" (Q.varT "fieldValue" []) []]
+                   [Q.v "nameIR_field_a" (Q.varT "nameIR" []) [],
+                    Q.v "value_field_a" (Q.varT "value" []) []])),
+           Q.pr
+             (.IterPr
+                (Q.pr
+                   (.LetPr
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value_field_b")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "nameIR_field_b")) (Q.varT "nameIR" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e (.VarE (Q.i "fieldValue_b")) (Q.varT "fieldValue" []))))
+                (.mk
+                   .List
+                   [Q.v "fieldValue_b" (Q.varT "fieldValue" []) []]
+                   [Q.v "nameIR_field_b" (Q.varT "nameIR" []) [],
+                    Q.v "value_field_b" (Q.varT "value" []) []])),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "value_field_a")) (Q.varT "value" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "value_field_a"
+                                        (.IterT (Q.t (Q.varT "value" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "value" [])) .List)))
+                         (.NumT .NatT))
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "value_field_b")) (Q.varT "value" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "value_field_b"
+                                        (.IterT (Q.t (Q.varT "value" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "value" [])) .List)))
+                         (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "nameIR_field_a")) (Q.varT "nameIR" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "nameIR_field_a"
+                                        (.IterT (Q.t (Q.varT "nameIR" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                         (.NumT .NatT))
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "nameIR_field_b")) (Q.varT "nameIR" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "nameIR_field_b"
+                                        (.IterT (Q.t (Q.varT "nameIR" [])) .List)
+                                        []]))
+                               (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                         (.NumT .NatT)))
+                   .BoolT))]]
+       none
+       [])
 
 def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec.value)
     : Option (Except Fail NanoP4Spec.value) :=
@@ -988,5 +2319,3208 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                                 let ._B b_r := tmp_99
                                 pure (NanoP4Spec.boolValue.to_value
                                    (NanoP4Spec.boolValue._B (b_l || b_r)))))))))))))))))))))))))))))
+
+def «$bin_op».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "bin_op")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "binop" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "value" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "value" [])))]
+       (Q.t (Q.varT "value" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "+")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .AddOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "+")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .AddOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "-")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .SubOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "-")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .SubOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "-")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .SubOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "-")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .SubOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "*")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .MulOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "*")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.BinE
+                                  .MulOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .LeOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "<=")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .LeOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "<=")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .GeOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator ">=")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .GeOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator ">=")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .LtOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "<")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .LtOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "<")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .GtOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator ">")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CmpE
+                                  .GtOp
+                                  .IntT
+                                  (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                                  (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator ">")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value_l")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value_r")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bin_eq")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "value_l")) (Q.varT "value" []))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "value_r")) (Q.varT "value" [])))])
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "==")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value_l")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value_r")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.UnE
+                                  .NotOp
+                                  .BoolT
+                                  (Q.e
+                                     (.CallE
+                                        (Q.i "bin_eq")
+                                        []
+                                        [Q.ar
+                                           (.ExpA
+                                              (Q.e (.VarE (Q.i "value_l")) (Q.varT "value" []))),
+                                         Q.ar
+                                           (.ExpA
+                                              (Q.e (.VarE (Q.i "value_r")) (Q.varT "value" [])))])
+                                     .BoolT))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "!=")))))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "&")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "band")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "&")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "band")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "^")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bxor")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "^")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bxor")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "|")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bor")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "|")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral'")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w'")) (.NumT .NatT)))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "bitstr_to_int")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r")) (.NumT .IntT)))])
+                   (.NumT .IntT))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bor")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "i_l'")) (.NumT .IntT))),
+                                   Q.ar (.ExpA (Q.e (.VarE (Q.i "i_r'")) (.NumT .IntT)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.BinE
+                                  .AndOp
+                                  .BoolT
+                                  (Q.e (.VarE (Q.i "b_l")) .BoolT)
+                                  (Q.e (.VarE (Q.i "b_r")) .BoolT))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "&&")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_l")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_r")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "value" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Tag "B")),
+                          .Arg
+                            (Q.e
+                               (.BinE
+                                  .OrOp
+                                  .BoolT
+                                  (Q.e (.VarE (Q.i "b_l")) .BoolT)
+                                  (Q.e (.VarE (Q.i "b_r")) .BoolT))
+                               .BoolT)]))
+                   (Q.varT "boolValue" [])))
+             (Q.varT "value" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "binop")) (Q.varT "binop" []))
+                      (.CaseP (.Atom (Q.a (.Operator "||")))))
+                   .BoolT)),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_l")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_r")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" [])))]]
+       none
+       [])
 
 end NanoP4Spec

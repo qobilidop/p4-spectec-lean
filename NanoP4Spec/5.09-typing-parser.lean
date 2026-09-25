@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«5.08-typing-declaration»
 
 /-! # NanoP4Spec.«5.09-typing-parser»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -53,6 +54,48 @@ theorem ParserLocalDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDecl_ok.run_sound
+
+def ParserLocalDecl_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserLocalDecl_ok")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "typingContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "parserLocalDeclaration" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "typingContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "variableDeclaration")) (Q.varT "variableDeclaration" [])],
+           [Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "variableDeclaration")) (Q.varT "variableDeclaration" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.RulePr
+                   (Q.i "VarDecl_ok")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "variableDeclaration"))
+                               (Q.varT "variableDeclaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])]]]
+       none
+       [])
 
 def ParserLocalDecls_ok.run
         (p0 : NanoP4Spec.typingContext)
@@ -126,6 +169,188 @@ theorem ParserLocalDecls_ok.run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDecls_ok.run_sound
 
+def ParserLocalDecls_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserLocalDecls_ok")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "typingContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "typingContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "parserLocalDeclaration")) (Q.varT "parserLocalDeclaration" []))
+                 (.mk
+                    .List
+                    [Q.v
+                       "parserLocalDeclaration"
+                       (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                       []]))
+              (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)],
+           [Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "parserLocalDeclaration")) (Q.varT "parserLocalDeclaration" []))
+                 (.mk
+                    .List
+                    [Q.v
+                       "parserLocalDeclaration"
+                       (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                       []]))
+              (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)],
+           [])
+          [Q.rp
+             "nil"
+             [Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclaration"))
+                                  (Q.varT "parserLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "parserLocalDeclaration"
+                                     (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                         (Q.e
+                            (.ListE [])
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                      .BoolT))]
+             [Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" [])],
+           Q.rp
+             "cons"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration'"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "parserLocalDeclaration'"
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "parserLocalDeclaration"
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclaration'"))
+                                  (Q.varT "parserLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "parserLocalDeclaration'"
+                                     (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                         (.ListP .Cons))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.ConsE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration_h"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclaration_t"))
+                                  (Q.varT "parserLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "parserLocalDeclaration_t"
+                                     (Q.varT "parserLocalDeclaration" [])
+                                     []]))
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration'"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "parserLocalDeclaration'"
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserLocalDecl_ok")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "parserLocalDeclaration_h"))
+                               (Q.varT "parserLocalDeclaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserLocalDecls_ok")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.VarE (Q.i "parserLocalDeclaration_t"))
+                                     (Q.varT "parserLocalDeclaration" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "parserLocalDeclaration_t"
+                                        (Q.varT "parserLocalDeclaration" [])
+                                        []]))
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "TC_2")) (Q.varT "typingContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "TC_2")) (Q.varT "typingContext" [])]]]
+       none
+       [])
+
 def ParserLocalDeclList_ok.run
         (p0 : NanoP4Spec.typingContext)
         (p1 : NanoP4Spec.parserLocalDeclarationList)
@@ -166,5 +391,79 @@ theorem ParserLocalDeclList_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDeclList_ok.run_sound
+
+def ParserLocalDeclList_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserLocalDeclList_ok")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "typingContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "typingContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.VarE (Q.i "parserLocalDeclarationList"))
+              (Q.varT "parserLocalDeclarationList" [])],
+           [Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.VarE (Q.i "parserLocalDeclarationList"))
+              (Q.varT "parserLocalDeclarationList" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v "parserLocalDeclaration" (Q.varT "parserLocalDeclaration" []) []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_parserLocalDeclarationList")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclarationList"))
+                                  (Q.varT "parserLocalDeclarationList" [])))])
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserLocalDecls_ok")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.VarE (Q.i "parserLocalDeclaration"))
+                                     (Q.varT "parserLocalDeclaration" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "parserLocalDeclaration"
+                                        (Q.varT "parserLocalDeclaration" [])
+                                        []]))
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])]]]
+       none
+       [])
 
 end NanoP4Spec

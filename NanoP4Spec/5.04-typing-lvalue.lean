@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«5.02-typing-type»
 
 /-! # NanoP4Spec.«5.04-typing-lvalue»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -47,6 +48,93 @@ def «$expression_is_lvalue» (p0 : NanoP4Spec.expression) : Option (Except Fail
           pure false))))
   partial_fixpoint
 
+def «$expression_is_lvalue».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "expression_is_lvalue")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "expression" [])))]
+       (Q.t .BoolT)
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))]
+          (Q.e (.BoolE true) .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))
+                      (Q.t (Q.varT "referenceExpression" []))
+                      (.MixopSC
+                         [.Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Atom (Q.a (.Keyword "KEY")),
+                          .Atom (Q.a (.Keyword "ACTIONS")),
+                          .Atom (Q.a (.Keyword "STATE"))]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "referenceExpression" []))
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                   (Q.varT "referenceExpression" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))]
+          (Q.e (.BoolE true) .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))
+                      (Q.t (Q.varT "memberAccessExpression" []))
+                      (.MixopSC [.Seq [.Arg (), .Atom (Q.a (.Operator ".")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "memberAccessExpression")) (Q.varT "memberAccessExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "memberAccessExpression" []))
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                   (Q.varT "memberAccessExpression" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "expression_is_lvalue")
+                []
+                [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))])
+             .BoolT)
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" []))
+                      (Q.t (Q.varT "parenthesizedExpression" []))
+                      (.MixopSC [.Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Brack
+                         (Q.a .LParen)
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .RParen)))
+                   (Q.varT "parenthesizedExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "parenthesizedExpression" []))
+                      (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" [])))
+                   (Q.varT "parenthesizedExpression" [])))]]
+       (some
+          (Q.cl
+             [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))]
+             (Q.e (.BoolE false) .BoolT)
+             []))
+       [])
+
 def «$expression_of_lvalue» (p0 : NanoP4Spec.lvalue) : Option (Except Fail NanoP4Spec.expression) :=
   ExceptT.run
     ((do
@@ -75,6 +163,118 @@ def «$expression_of_lvalue» (p0 : NanoP4Spec.lvalue) : Option (Except Fail Nan
             (NanoP4Spec.parenthesizedExpression.lparen_rparen tmp_2)))))
   partial_fixpoint
 
+def «$expression_of_lvalue».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "expression_of_lvalue")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "lvalue" [])))]
+       (Q.t (Q.varT "expression" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "expression" []))
+                (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" [])))
+             (Q.varT "expression" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" []))
+                      (Q.t (Q.varT "referenceExpression" []))
+                      (.MixopSC
+                         [.Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Atom (Q.a (.Keyword "KEY")),
+                          .Atom (Q.a (.Keyword "ACTIONS")),
+                          .Atom (Q.a (.Keyword "STATE"))]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "referenceExpression" []))
+                      (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))
+                   (Q.varT "referenceExpression" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "expression" []))
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e
+                               (.CallE
+                                  (Q.i "expression_of_lvalue")
+                                  []
+                                  [Q.ar
+                                     (.ExpA
+                                        (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])))])
+                               (Q.varT "expression" [])),
+                          .Atom (Q.a (.Operator ".")),
+                          .Arg (Q.e (.VarE (Q.i "member")) (Q.varT "member" []))]))
+                   (Q.varT "memberAccessExpression" [])))
+             (Q.varT "expression" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ".")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])),
+                          .Atom (Q.a (.Operator ".")),
+                          .Arg (Q.e (.VarE (Q.i "member")) (Q.varT "member" []))]))
+                   (Q.varT "lvalue" []))
+                (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "lvalue'")) (Q.varT "lvalue" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "expression" []))
+                (Q.e
+                   (.CaseE
+                      (.Brack
+                         (Q.a .LParen)
+                         (.Arg
+                            (Q.e
+                               (.CallE
+                                  (Q.i "expression_of_lvalue")
+                                  []
+                                  [Q.ar (.ExpA (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))])
+                               (Q.varT "expression" [])))
+                         (Q.a .RParen)))
+                   (Q.varT "parenthesizedExpression" [])))
+             (Q.varT "expression" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "lvalue'")) (Q.varT "lvalue" []))
+                      (.CaseP (.Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Brack
+                         (Q.a .LParen)
+                         (.Arg (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))
+                         (Q.a .RParen)))
+                   (Q.varT "lvalue" []))
+                (Q.e (.VarE (Q.i "lvalue'")) (Q.varT "lvalue" [])))]]
+       none
+       [])
+
 def «$lvalue_of_expression» (p0 : NanoP4Spec.expression) : Option (Except Fail NanoP4Spec.lvalue) :=
   ExceptT.run
     ((do
@@ -98,5 +298,123 @@ def «$lvalue_of_expression» (p0 : NanoP4Spec.expression) : Option (Except Fail
          let tmp_4 ← ExceptT.mk (NanoP4Spec.«$lvalue_of_expression» expression)
          pure (NanoP4Spec.lvalue.lparen_rparen tmp_4))))
   partial_fixpoint
+
+def «$lvalue_of_expression».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "lvalue_of_expression")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "expression" [])))]
+       (Q.t (Q.varT "lvalue" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))]
+          (Q.e
+             (.UpCastE
+                (Q.t (Q.varT "lvalue" []))
+                (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" [])))
+             (Q.varT "lvalue" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))
+                      (Q.t (Q.varT "referenceExpression" []))
+                      (.MixopSC
+                         [.Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Atom (Q.a (.Keyword "KEY")),
+                          .Atom (Q.a (.Keyword "ACTIONS")),
+                          .Atom (Q.a (.Keyword "STATE"))]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "referenceExpression" []))
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                   (Q.varT "referenceExpression" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))]
+          (Q.e
+             (.CaseE
+                (.Seq
+                   [.Arg
+                      (Q.e
+                         (.CallE
+                            (Q.i "lvalue_of_expression")
+                            []
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.VarE (Q.i "memberAccessBase"))
+                                     (Q.varT "memberAccessBase" [])))])
+                         (Q.varT "lvalue" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.e (.VarE (Q.i "member")) (Q.varT "member" []))]))
+             (Q.varT "lvalue" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))
+                      (Q.t (Q.varT "memberAccessExpression" []))
+                      (.MixopSC [.Seq [.Arg (), .Atom (Q.a (.Operator ".")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg
+                            (Q.e (.VarE (Q.i "memberAccessBase")) (Q.varT "memberAccessBase" [])),
+                          .Atom (Q.a (.Operator ".")),
+                          .Arg (Q.e (.VarE (Q.i "member")) (Q.varT "member" []))]))
+                   (Q.varT "memberAccessExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "memberAccessExpression" []))
+                      (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                   (Q.varT "memberAccessExpression" [])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" [])))]
+          (Q.e
+             (.CaseE
+                (.Brack
+                   (Q.a .LParen)
+                   (.Arg
+                      (Q.e
+                         (.CallE
+                            (Q.i "lvalue_of_expression")
+                            []
+                            [Q.ar
+                               (.ExpA (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))])
+                         (Q.varT "lvalue" [])))
+                   (Q.a .RParen)))
+             (Q.varT "lvalue" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" []))
+                      (Q.t (Q.varT "parenthesizedExpression" []))
+                      (.MixopSC [.Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Brack
+                         (Q.a .LParen)
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .RParen)))
+                   (Q.varT "parenthesizedExpression" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "parenthesizedExpression" []))
+                      (Q.e (.VarE (Q.i "expression'")) (Q.varT "expression" [])))
+                   (Q.varT "parenthesizedExpression" [])))]]
+       none
+       [])
 
 end NanoP4Spec

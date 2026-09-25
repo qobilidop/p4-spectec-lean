@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«3.1-operations»
 
 /-! # NanoP4Spec.«3.2-bits»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -169,6 +170,765 @@ def «$write_value_fields_from_bits'» (p0 : List NanoP4Spec.fieldValue) (p1 : N
 
 end
 
+def «$write_value_from_bits'».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "write_value_from_bits'")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "value" []))), Q.pm (.ExpP (Q.t (Q.varT "bits" [])))]
+       (Q.t (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.UpCastE
+                      (Q.t (Q.varT "value" []))
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                                .Atom (Q.a (.Keyword "W")),
+                                .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                         (Q.varT "integerLiteral" [])))
+                   (Q.varT "value" []),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_t")) .BoolT) (.mk .List [Q.v "b_t" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "W")),
+                          .Arg (Q.e (.VarE (Q.i "_i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_h")) .BoolT) (.mk .List [Q.v "b_h" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List))
+                (Q.e
+                   (.SliceE
+                      (Q.e
+                         (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List))
+                      (Q.e (.NumE (.Nat 0)) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                   (.IterT (Q.t .BoolT) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.BinE
+                      .SubOp
+                      .IntT
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b")) .BoolT)
+                                  (.mk .List [Q.v "b" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))
+                         (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                   (.NumT .IntT))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                      (Q.t (.NumT .NatT))
+                      (.RecurseSC (Q.t (.NumT .NatT))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "n_t")) (.NumT .NatT))
+                (Q.e
+                   (.DownCastE (Q.t (.NumT .NatT)) (Q.e (.VarE (Q.i "i'")) (.NumT .IntT)))
+                   (.NumT .NatT))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_t")) .BoolT) (.mk .List [Q.v "b_t" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List))
+                (Q.e
+                   (.SliceE
+                      (Q.e
+                         (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List))
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "n_t")) (.NumT .NatT)))
+                   (.IterT (Q.t .BoolT) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bits_to_int_unsigned")
+                                  []
+                                  [Q.ar
+                                     (.ExpA
+                                        (Q.e
+                                           (.IterE
+                                              (Q.e (.VarE (Q.i "b_h")) .BoolT)
+                                              (.mk .List [Q.v "b_h" .BoolT []]))
+                                           (.IterT (Q.t .BoolT) .List)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.UpCastE
+                      (Q.t (Q.varT "value" []))
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                                .Atom (Q.a (.Keyword "S")),
+                                .Arg (Q.e (.VarE (Q.i "i")) (.NumT .IntT))]))
+                         (Q.varT "integerLiteral" [])))
+                   (Q.varT "value" []),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_t")) .BoolT) (.mk .List [Q.v "b_t" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (.MixopSC
+                         [.Seq [.Arg (), .Atom (Q.a (.Keyword "W")), .Arg ()],
+                          .Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "integerLiteral" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))
+                      (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Keyword "S")), .Arg ()])))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "w")) (.NumT .NatT)),
+                          .Atom (Q.a (.Keyword "S")),
+                          .Arg (Q.e (.VarE (Q.i "_i")) (.NumT .IntT))]))
+                   (Q.varT "integerLiteral" []))
+                (Q.e (.VarE (Q.i "integerLiteral")) (Q.varT "integerLiteral" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_h")) .BoolT) (.mk .List [Q.v "b_h" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List))
+                (Q.e
+                   (.SliceE
+                      (Q.e
+                         (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List))
+                      (Q.e (.NumE (.Nat 0)) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                   (.IterT (Q.t .BoolT) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                (Q.e
+                   (.BinE
+                      .SubOp
+                      .IntT
+                      (Q.e
+                         (.LenE
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b")) .BoolT)
+                                  (.mk .List [Q.v "b" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))
+                         (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                   (.NumT .IntT))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "i'")) (.NumT .IntT))
+                      (Q.t (.NumT .NatT))
+                      (.RecurseSC (Q.t (.NumT .NatT))))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "n_t")) (.NumT .NatT))
+                (Q.e
+                   (.DownCastE (Q.t (.NumT .NatT)) (Q.e (.VarE (Q.i "i'")) (.NumT .IntT)))
+                   (.NumT .NatT))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_t")) .BoolT) (.mk .List [Q.v "b_t" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List))
+                (Q.e
+                   (.SliceE
+                      (Q.e
+                         (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List))
+                      (Q.e (.VarE (Q.i "w")) (.NumT .NatT))
+                      (Q.e (.VarE (Q.i "n_t")) (.NumT .NatT)))
+                   (.IterT (Q.t .BoolT) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e (.VarE (Q.i "i")) (.NumT .IntT))
+                (Q.e
+                   (.CallE
+                      (Q.i "int_to_bitstr")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.UpCastE (Q.t (.NumT .IntT)) (Q.e (.VarE (Q.i "w")) (.NumT .NatT)))
+                               (.NumT .IntT))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.CallE
+                                  (Q.i "bits_to_int_signed")
+                                  []
+                                  [Q.ar
+                                     (.ExpA
+                                        (Q.e
+                                           (.IterE
+                                              (Q.e (.VarE (Q.i "b_h")) .BoolT)
+                                              (.mk .List [Q.v "b_h" .BoolT []]))
+                                           (.IterT (Q.t .BoolT) .List)))])
+                               (.NumT .IntT)))])
+                   (.NumT .IntT)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "b")) .BoolT)
+                      (.mk .List [Q.v "b" (.IterT (Q.t .BoolT) .List) []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.UpCastE
+                      (Q.t (Q.varT "value" []))
+                      (Q.e
+                         (.CaseE
+                            (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "b_h")) .BoolT)]))
+                         (Q.varT "boolValue" [])))
+                   (Q.varT "value" []),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_t")) .BoolT) (.mk .List [Q.v "b_t" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "boolValue" []))
+                      (.MixopSC [.Seq [.Atom (Q.a (.Tag "B")), .Arg ()]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.VarE (Q.i "_b")) .BoolT)]))
+                   (Q.varT "boolValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "boolValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "boolValue" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "b")) .BoolT)
+                            (.mk .List [Q.v "b" (.IterT (Q.t .BoolT) .List) []]))
+                         (.IterT (Q.t .BoolT) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "b_h")) .BoolT)
+                      (Q.e
+                         (.IterE (Q.e (.VarE (Q.i "b_t")) .BoolT) (.mk .List [Q.v "b_t" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List)))
+                   (.IterT (Q.t .BoolT) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "b")) .BoolT)
+                      (.mk .List [Q.v "b" (.IterT (Q.t .BoolT) .List) []]))
+                   (.IterT (Q.t .BoolT) .List)))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.UpCastE
+                      (Q.t (Q.varT "value" []))
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Atom (Q.a (.Keyword "STRUCT")),
+                                .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                                .Brack
+                                  (Q.a .LBrace)
+                                  (.Arg
+                                     (Q.e
+                                        (.IterE
+                                           (Q.e
+                                              (.VarE (Q.i "fieldValue'"))
+                                              (Q.varT "fieldValue" []))
+                                           (.mk
+                                              .List
+                                              [Q.v "fieldValue'" (Q.varT "fieldValue" []) []]))
+                                        (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                                  (Q.a .RBrace)]))
+                         (Q.varT "structValue" [])))
+                   (Q.varT "value" []),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_rest")) .BoolT) (.mk .List [Q.v "b_rest" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "structValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "STRUCT")),
+                          .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                            (Q.a .RBrace)]))
+                   (Q.varT "structValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "structValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "structValue" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue'")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue'" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "b_rest")) .BoolT)
+                            (.mk .List [Q.v "b_rest" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List)])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.t (.IterT (Q.t .BoolT) .List)]))
+                (Q.e
+                   (.CallE
+                      (Q.i "write_value_fields_from_bits'")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                  (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                               (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b")) .BoolT)
+                                  (.mk .List [Q.v "b" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.t (Q.varT "bits" [])])))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.UpCastE
+                      (Q.t (Q.varT "value" []))
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Atom (Q.a (.Keyword "HEADER")),
+                                .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                                .Brack
+                                  (Q.a .LBrace)
+                                  (.Arg
+                                     (Q.e
+                                        (.IterE
+                                           (Q.e
+                                              (.VarE (Q.i "fieldValue'"))
+                                              (Q.varT "fieldValue" []))
+                                           (.mk
+                                              .List
+                                              [Q.v "fieldValue'" (Q.varT "fieldValue" []) []]))
+                                        (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                                  (Q.a .RBrace)]))
+                         (Q.varT "headerValue" [])))
+                   (Q.varT "value" []),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_rest")) .BoolT) (.mk .List [Q.v "b_rest" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.SubE
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                      (Q.t (Q.varT "headerValue" []))
+                      (.MixopSC
+                         [.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (),
+                             .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "HEADER")),
+                          .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Arg
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                            (Q.a .RBrace)]))
+                   (Q.varT "headerValue" []))
+                (Q.e
+                   (.DownCastE
+                      (Q.t (Q.varT "headerValue" []))
+                      (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))
+                   (Q.varT "headerValue" []))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue'")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue'" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "b_rest")) .BoolT)
+                            (.mk .List [Q.v "b_rest" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List)])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.t (.IterT (Q.t .BoolT) .List)]))
+                (Q.e
+                   (.CallE
+                      (Q.i "write_value_fields_from_bits'")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                  (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                               (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b")) .BoolT)
+                                  (.mk .List [Q.v "b" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.t (Q.varT "bits" [])])))]]
+       none
+       [])
+
+def «$write_value_fields_from_bits'».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "write_value_fields_from_bits'")
+       []
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+        Q.pm (.ExpP (Q.t (Q.varT "bits" [])))]
+       (Q.t (.TupleT [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List), Q.t (Q.varT "bits" [])]))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e (.ListE []) (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                            (.mk
+                               .List
+                               [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e
+             (.TupleE
+                [Q.e
+                   (.ConsE
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue_t'")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue_t'" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                 Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b_rest")) .BoolT) (.mk .List [Q.v "b_rest" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)])
+             (.TupleT [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List), Q.t (Q.varT "bits" [])]))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                            (.mk
+                               .List
+                               [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "id")) (Q.varT "id" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue_t")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue_t" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e (.VarE (Q.i "value'")) (Q.varT "value" []),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "b_mid")) .BoolT)
+                            (.mk .List [Q.v "b_mid" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List)])
+                   (.TupleT [Q.t (Q.varT "value" []), Q.t (.IterT (Q.t .BoolT) .List)]))
+                (Q.e
+                   (.CallE
+                      (Q.i "write_value_from_bits'")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b")) .BoolT)
+                                  (.mk .List [Q.v "b" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue_t'")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue_t'" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "b_rest")) .BoolT)
+                            (.mk .List [Q.v "b_rest" .BoolT []]))
+                         (.IterT (Q.t .BoolT) .List)])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.t (.IterT (Q.t .BoolT) .List)]))
+                (Q.e
+                   (.CallE
+                      (Q.i "write_value_fields_from_bits'")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "fieldValue_t")) (Q.varT "fieldValue" []))
+                                  (.mk .List [Q.v "fieldValue_t" (Q.varT "fieldValue" []) []]))
+                               (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b_mid")) .BoolT)
+                                  (.mk .List [Q.v "b_mid" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   (.TupleT
+                      [Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List),
+                       Q.t (Q.varT "bits" [])])))]]
+       none
+       [])
+
 def «$write_value_from_bits» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
     : Option (Except Fail NanoP4Spec.value) :=
   ExceptT.run
@@ -179,5 +939,58 @@ def «$write_value_from_bits» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
        let (value', «bit*») := tmp_0
        let _ ← Eval.check (List.isEmpty «bit*»)
        pure value')
+
+def «$write_value_from_bits».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "write_value_from_bits")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "value" []))), Q.pm (.ExpP (Q.t (Q.varT "bits" [])))]
+       (Q.t (Q.varT "value" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE (Q.e (.VarE (Q.i "b")) .BoolT) (.mk .List [Q.v "b" .BoolT []]))
+                   (.IterT (Q.t .BoolT) .List)))]
+          (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+          [Q.pr
+             (.LetPr
+                (Q.e
+                   (.TupleE
+                      [Q.e (.VarE (Q.i "value'")) (Q.varT "value" []),
+                       Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "bit")) (Q.varT "bit" []))
+                            (.mk .List [Q.v "bit" (.IterT (Q.t (Q.varT "bit" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "bit" [])) .List)])
+                   (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))
+                (Q.e
+                   (.CallE
+                      (Q.i "write_value_from_bits'")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                       Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "b")) .BoolT)
+                                  (.mk .List [Q.v "b" .BoolT []]))
+                               (.IterT (Q.t .BoolT) .List)))])
+                   (.TupleT [Q.t (Q.varT "value" []), Q.t (Q.varT "bits" [])]))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "bit")) (Q.varT "bit" []))
+                            (.mk .List [Q.v "bit" (.IterT (Q.t (Q.varT "bit" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "bit" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))]]
+       none
+       [])
 
 end NanoP4Spec

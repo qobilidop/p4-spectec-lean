@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«8.10-eval-control»
 
 /-! # NanoP4Spec.«8.11-eval-table»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -55,6 +56,65 @@ theorem TableKey_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.TableKey_eval.run_sound
+
+def TableKey_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "TableKey_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "tableKey" [])))
+                (Q.a .Colon)
+                (.Arg (Q.t (Q.varT "value" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e
+              (.CaseE
+                 (.Brack
+                    (Q.a .LBrace)
+                    (.Seq
+                       [.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])),
+                        .Atom (Q.a (.Operator ":")),
+                        .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                        .Atom (Q.a (.Operator ";"))])
+                    (Q.a .RBrace)))
+              (Q.varT "tableKey" [])],
+           [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e
+              (.CaseE
+                 (.Brack
+                    (Q.a .LBrace)
+                    (.Seq
+                       [.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])),
+                        .Atom (Q.a (.Operator ":")),
+                        .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                        .Atom (Q.a (.Operator ";"))])
+                    (Q.a .RBrace)))
+              (Q.varT "tableKey" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.RulePr
+                   (Q.i "Expr_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "LOCAL")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "value")) (Q.varT "value" [])]]]
+       none
+       [])
 
 def «$match_entry_value»
         (p0 : NanoP4Spec.value)
@@ -112,5 +172,367 @@ def «$match_entry_value»
                      (List.zip «tableActionReference_t*» «value_t*»)))
          pure tmp_8)))
   partial_fixpoint
+
+def «$match_entry_value».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "match_entry_value")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "value" []))),
+        Q.pm
+          (.ExpP
+             (Q.t
+                (.IterT
+                   (Q.t (.TupleT [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                   .List)))]
+       (Q.t (.IterT (Q.t (Q.varT "tableActionReference" [])) .Opt))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(tableActionReference, value)"))
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(tableActionReference, value)"
+                            (.IterT
+                               (Q.t
+                                  (.TupleT
+                                     [Q.t (Q.varT "tableActionReference" []),
+                                      Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List)))]
+          (Q.e (.OptE none) (.IterT (Q.t (Q.varT "tableActionReference" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "(tableActionReference, value)"))
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "(tableActionReference, value)"
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT
+                                           [Q.t (Q.varT "tableActionReference" []),
+                                            Q.t (Q.varT "value" [])]))
+                                     .List)
+                                  []]))
+                         (.IterT
+                            (Q.t
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(tableActionReference, value)"))
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(tableActionReference, value)"
+                            (.IterT
+                               (Q.t
+                                  (.TupleT
+                                     [Q.t (Q.varT "tableActionReference" []),
+                                      Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List)))]
+          (Q.e
+             (.OptE
+                (some
+                   (Q.e (.VarE (Q.i "tableActionReference_h")) (Q.varT "tableActionReference" []))))
+             (.IterT (Q.t (Q.varT "tableActionReference" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "(tableActionReference, value)"))
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "(tableActionReference, value)"
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT
+                                           [Q.t (Q.varT "tableActionReference" []),
+                                            Q.t (Q.varT "value" [])]))
+                                     .List)
+                                  []]))
+                         (.IterT
+                            (Q.t
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.TupleE
+                            [Q.e
+                               (.VarE (Q.i "tableActionReference_h"))
+                               (Q.varT "tableActionReference" []),
+                             Q.e (.VarE (Q.i "value_h")) (Q.varT "value" [])])
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.TupleE
+                                  [Q.e
+                                     (.VarE (Q.i "tableActionReference_t"))
+                                     (Q.varT "tableActionReference" []),
+                                   Q.e (.VarE (Q.i "value_t")) (Q.varT "value" [])])
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v "tableActionReference_t" (Q.varT "tableActionReference" []) [],
+                                Q.v "value_t" (Q.varT "value" []) []]))
+                         (.IterT
+                            (Q.t
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            .List)))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List))
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(tableActionReference, value)"))
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(tableActionReference, value)"
+                            (.IterT
+                               (Q.t
+                                  (.TupleT
+                                     [Q.t (Q.varT "tableActionReference" []),
+                                      Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CallE
+                      (Q.i "bin_eq")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value_h")) (Q.varT "value" [])))])
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(tableActionReference, value)"))
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(tableActionReference, value)"
+                            (.IterT
+                               (Q.t
+                                  (.TupleT
+                                     [Q.t (Q.varT "tableActionReference" []),
+                                      Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List)))]
+          (Q.e
+             (.CallE
+                (Q.i "match_entry_value")
+                []
+                [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                 Q.ar
+                   (.ExpA
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.TupleE
+                                  [Q.e
+                                     (.VarE (Q.i "tableActionReference_t"))
+                                     (Q.varT "tableActionReference" []),
+                                   Q.e (.VarE (Q.i "value_t")) (Q.varT "value" [])])
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v "tableActionReference_t" (Q.varT "tableActionReference" []) [],
+                                Q.v "value_t" (Q.varT "value" []) []]))
+                         (.IterT
+                            (Q.t
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            .List)))])
+             (.IterT (Q.t (Q.varT "tableActionReference" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "(tableActionReference, value)"))
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "(tableActionReference, value)"
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT
+                                           [Q.t (Q.varT "tableActionReference" []),
+                                            Q.t (Q.varT "value" [])]))
+                                     .List)
+                                  []]))
+                         (.IterT
+                            (Q.t
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.TupleE
+                            [Q.e
+                               (.VarE (Q.i "tableActionReference_h"))
+                               (Q.varT "tableActionReference" []),
+                             Q.e (.VarE (Q.i "value_h")) (Q.varT "value" [])])
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.TupleE
+                                  [Q.e
+                                     (.VarE (Q.i "tableActionReference_t"))
+                                     (Q.varT "tableActionReference" []),
+                                   Q.e (.VarE (Q.i "value_t")) (Q.varT "value" [])])
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v "tableActionReference_t" (Q.varT "tableActionReference" []) [],
+                                Q.v "value_t" (Q.varT "value" []) []]))
+                         (.IterT
+                            (Q.t
+                               (.TupleT
+                                  [Q.t (Q.varT "tableActionReference" []),
+                                   Q.t (Q.varT "value" [])]))
+                            .List)))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List))
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(tableActionReference, value)"))
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(tableActionReference, value)"
+                            (.IterT
+                               (Q.t
+                                  (.TupleT
+                                     [Q.t (Q.varT "tableActionReference" []),
+                                      Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t
+                         (.TupleT
+                            [Q.t (Q.varT "tableActionReference" []), Q.t (Q.varT "value" [])]))
+                      .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "bin_eq")
+                            []
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "value_h")) (Q.varT "value" [])))])
+                         .BoolT))
+                   .BoolT))]]
+       none
+       [])
 
 end NanoP4Spec

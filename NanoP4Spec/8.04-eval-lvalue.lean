@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«8.01-eval-relation»
 
 /-! # NanoP4Spec.«8.04-eval-lvalue»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -53,6 +54,199 @@ def «$update_fieldValue»
          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$update_fieldValue» «fieldValue_t*» nameIR value)
          pure ((NanoP4Spec.fieldValue.semi value_field_h nameIR_field_h) :: tmp_2))))
   partial_fixpoint
+
+def «$update_fieldValue».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "update_fieldValue")
+       []
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+        Q.pm (.ExpP (Q.t (Q.varT "nameIR" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "value" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e (.ListE []) (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                            (.mk
+                               .List
+                               [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.ConsE
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])),
+                          .Arg (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])),
+                          .Atom (Q.a (.Operator ";"))]))
+                   (Q.varT "fieldValue" []))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue_t")) (Q.varT "fieldValue" []))
+                      (.mk .List [Q.v "fieldValue_t" (Q.varT "fieldValue" []) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+             (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                            (.mk
+                               .List
+                               [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value_field_h")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "nameIR_field_h")) (Q.varT "nameIR" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue_t")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue_t" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "nameIR_field_h")) (Q.varT "nameIR" []))
+                      (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))]
+          (Q.e
+             (.ConsE
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "value_field_h")) (Q.varT "value" [])),
+                          .Arg (Q.e (.VarE (Q.i "nameIR_field_h")) (Q.varT "nameIR" [])),
+                          .Atom (Q.a (.Operator ";"))]))
+                   (Q.varT "fieldValue" []))
+                (Q.e
+                   (.CallE
+                      (Q.i "update_fieldValue")
+                      []
+                      [Q.ar
+                         (.ExpA
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "fieldValue_t")) (Q.varT "fieldValue" []))
+                                  (.mk .List [Q.v "fieldValue_t" (Q.varT "fieldValue" []) []]))
+                               (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+             (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                            (.mk
+                               .List
+                               [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.CaseE
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "value_field_h")) (Q.varT "value" [])),
+                                .Arg (Q.e (.VarE (Q.i "nameIR_field_h")) (Q.varT "nameIR" [])),
+                                .Atom (Q.a (.Operator ";"))]))
+                         (Q.varT "fieldValue" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "fieldValue_t")) (Q.varT "fieldValue" []))
+                            (.mk .List [Q.v "fieldValue_t" (Q.varT "fieldValue" []) []]))
+                         (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                      (.mk
+                         .List
+                         [Q.v "fieldValue" (.IterT (Q.t (Q.varT "fieldValue" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .NeOp
+                      .BoolT
+                      (Q.e (.VarE (Q.i "nameIR_field_h")) (Q.varT "nameIR" []))
+                      (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))
+                   .BoolT))]]
+       none
+       [])
 
 def Lvalue_write.run
         (p0 : NanoP4Spec.scope)
@@ -262,5 +456,430 @@ theorem Lvalue_write.run_sound
   fun h => NanoP4Spec.Lvalue_write.run_sound_group p0 p1 p2 p3 _ h o rfl
 
 #audit_axioms NanoP4Spec.Lvalue_write.run_sound
+
+def Lvalue_write.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Lvalue_write")
+       (Q.nt
+          (.Infix
+             (.Seq [.Arg (Q.t (Q.varT "scope" [])), .Arg (Q.t (Q.varT "evalContext" []))])
+             (Q.a .Turnstile)
+             (.Infix
+                (.Infix
+                   (.Arg (Q.t (Q.varT "lvalue" [])))
+                   (Q.a .ColonEq)
+                   (.Arg (Q.t (Q.varT "value" []))))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1, 2, 3]
+       [Q.rg
+          "referenceExpression"
+          ([Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "lvalue" []))
+                 (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" [])))
+              (Q.varT "lvalue" []),
+            Q.e (.VarE (Q.i "value")) (Q.varT "value" [])],
+           [Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" []),
+            Q.e (.VarE (Q.i "value")) (Q.varT "value" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" []))
+                       (Q.t (Q.varT "referenceExpression" []))
+                       (.MixopSC
+                          [.Seq [.Atom (Q.a (.Tag "ID")), .Arg ()],
+                           .Atom (Q.a (.Keyword "APPLY")),
+                           .Atom (Q.a (.Keyword "KEY")),
+                           .Atom (Q.a (.Keyword "ACTIONS")),
+                           .Atom (Q.a (.Keyword "STATE"))]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "referenceExpression")) (Q.varT "referenceExpression" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "referenceExpression" []))
+                       (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))
+                    (Q.varT "referenceExpression" [])))])
+          [Q.rp
+             "referenceExpression"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.VarE (Q.i "referenceExpression"))
+                                  (Q.varT "referenceExpression" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "update_var_e")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                      (Q.varT "evalContext" [])))]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]],
+        Q.rg
+          "memberAccess"
+          ([Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])),
+                     .Atom (Q.a (.Operator ".")),
+                     .Arg (Q.e (.VarE (Q.i "member")) (Q.varT "member" []))]))
+              (Q.varT "lvalue" []),
+            Q.e (.VarE (Q.i "value")) (Q.varT "value" [])],
+           [Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" []),
+            Q.e (.VarE (Q.i "value")) (Q.varT "value" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.MatchE
+                       (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" []))
+                       (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ".")), .Arg ()])))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])),
+                           .Atom (Q.a (.Operator ".")),
+                           .Arg (Q.e (.VarE (Q.i "member")) (Q.varT "member" []))]))
+                    (Q.varT "lvalue" []))
+                 (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))])
+          [Q.rp
+             "struct"
+             [Q.pr
+                (.RulePr
+                   (Q.i "Lvalue_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "value_base")) (Q.varT "value" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                   (Q.e (.VarE (Q.i "value_base")) (Q.varT "value" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                         (Q.t (Q.varT "structValue" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "STRUCT")),
+                                .Arg (),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                        (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "structValue" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "structValue" []))
+                         (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                      (Q.varT "structValue" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "member")) (Q.varT "member" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "fieldValue_update")) (Q.varT "fieldValue" []))
+                         (.mk .List [Q.v "fieldValue_update" (Q.varT "fieldValue" []) []]))
+                      (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "update_fieldValue")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                      (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "structValue_base_update")) (Q.varT "structValue" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "fieldValue_update"))
+                                           (Q.varT "fieldValue" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "fieldValue_update" (Q.varT "fieldValue" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "structValue" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Lvalue_write")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])))
+                            (Q.a .ColonEq)
+                            (.Arg
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "value" []))
+                                     (Q.e
+                                        (.VarE (Q.i "structValue_base_update"))
+                                        (Q.varT "structValue" [])))
+                                  (Q.varT "value" []))))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2, 3])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])],
+           Q.rp
+             "header"
+             [Q.pr
+                (.RulePr
+                   (Q.i "Lvalue_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "value_base")) (Q.varT "value" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                   (Q.e (.VarE (Q.i "value_base")) (Q.varT "value" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "value'")) (Q.varT "value" []))
+                         (Q.t (Q.varT "headerValue" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "HEADER")),
+                                .Arg (),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                        (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "headerValue" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "headerValue" []))
+                         (Q.e (.VarE (Q.i "value'")) (Q.varT "value" [])))
+                      (Q.varT "headerValue" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "member")) (Q.varT "member" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "fieldValue_update")) (Q.varT "fieldValue" []))
+                         (.mk .List [Q.v "fieldValue_update" (Q.varT "fieldValue" []) []]))
+                      (.IterT (Q.t (Q.varT "fieldValue" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "update_fieldValue")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "fieldValue")) (Q.varT "fieldValue" []))
+                                     (.mk .List [Q.v "fieldValue" (Q.varT "fieldValue" []) []]))
+                                  (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                      (.IterT (Q.t (Q.varT "fieldValue" [])) .List))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "headerValue_base_update")) (Q.varT "headerValue" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "fieldValue_update"))
+                                           (Q.varT "fieldValue" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "fieldValue_update" (Q.varT "fieldValue" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "headerValue" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Lvalue_write")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "lvalue_base")) (Q.varT "lvalue" [])))
+                            (Q.a .ColonEq)
+                            (.Arg
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "value" []))
+                                     (Q.e
+                                        (.VarE (Q.i "headerValue_base_update"))
+                                        (Q.varT "headerValue" [])))
+                                  (Q.varT "value" []))))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2, 3])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]],
+        Q.rg
+          "parenthesized"
+          ([Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.CaseE
+                 (.Brack
+                    (Q.a .LParen)
+                    (.Arg (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))
+                    (Q.a .RParen)))
+              (Q.varT "lvalue" []),
+            Q.e (.VarE (Q.i "value")) (Q.varT "value" [])],
+           [Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "lvalue'")) (Q.varT "lvalue" []),
+            Q.e (.VarE (Q.i "value")) (Q.varT "value" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.MatchE
+                       (Q.e (.VarE (Q.i "lvalue'")) (Q.varT "lvalue" []))
+                       (.CaseP (.Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen))))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Brack
+                          (Q.a .LParen)
+                          (.Arg (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))
+                          (Q.a .RParen)))
+                    (Q.varT "lvalue" []))
+                 (Q.e (.VarE (Q.i "lvalue'")) (Q.varT "lvalue" [])))])
+          [Q.rp
+             "parenthesized"
+             [Q.pr
+                (.RulePr
+                   (Q.i "Lvalue_write")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "lvalue")) (Q.varT "lvalue" [])))
+                            (Q.a .ColonEq)
+                            (.Arg (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2, 3])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
 
 end NanoP4Spec

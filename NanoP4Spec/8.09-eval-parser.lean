@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«8.04-eval-lvalue»
 
 /-! # NanoP4Spec.«8.09-eval-parser»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -54,6 +55,48 @@ theorem ParserLocalDecl_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDecl_eval.run_sound
+
+def ParserLocalDecl_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserLocalDecl_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "parserLocalDeclaration" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "variableDeclaration")) (Q.varT "variableDeclaration" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "variableDeclaration")) (Q.varT "variableDeclaration" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.RulePr
+                   (Q.i "VarDecl_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "BLOCK")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "variableDeclaration"))
+                               (Q.varT "variableDeclaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
 
 def ParserLocalDecls_eval.run
         (p0 : NanoP4Spec.evalContext)
@@ -129,6 +172,196 @@ theorem ParserLocalDecls_eval.run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDecls_eval.run_sound
 
+def ParserLocalDecls_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserLocalDecls_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "parserLocalDeclaration")) (Q.varT "parserLocalDeclaration" []))
+                 (.mk
+                    .List
+                    [Q.v
+                       "parserLocalDeclaration"
+                       (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                       []]))
+              (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)],
+           [Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "parserLocalDeclaration")) (Q.varT "parserLocalDeclaration" []))
+                 (.mk
+                    .List
+                    [Q.v
+                       "parserLocalDeclaration"
+                       (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                       []]))
+              (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)],
+           [])
+          [Q.rp
+             "nil"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                   (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclaration"))
+                                  (Q.varT "parserLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "parserLocalDeclaration"
+                                     (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                         (Q.e
+                            (.ListE [])
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                      .BoolT))]
+             [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])],
+           Q.rp
+             "cons"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))
+                   (Q.e (.VarE (Q.i "EC'")) (Q.varT "evalContext" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration'"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "parserLocalDeclaration'"
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "parserLocalDeclaration"
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclaration'"))
+                                  (Q.varT "parserLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "parserLocalDeclaration'"
+                                     (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                                     []]))
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                         (.ListP .Cons))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.ConsE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration_h"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (Q.e
+                            (.IterE
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclaration_t"))
+                                  (Q.varT "parserLocalDeclaration" []))
+                               (.mk
+                                  .List
+                                  [Q.v
+                                     "parserLocalDeclaration_t"
+                                     (Q.varT "parserLocalDeclaration" [])
+                                     []]))
+                            (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration'"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v
+                               "parserLocalDeclaration'"
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)
+                               []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserLocalDecl_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "parserLocalDeclaration_h"))
+                               (Q.varT "parserLocalDeclaration" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserLocalDecls_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.VarE (Q.i "parserLocalDeclaration_t"))
+                                     (Q.varT "parserLocalDeclaration" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "parserLocalDeclaration_t"
+                                        (Q.varT "parserLocalDeclaration" [])
+                                        []]))
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def ParserLocalDeclList_eval.run
         (p0 : NanoP4Spec.evalContext)
         (p1 : NanoP4Spec.parserLocalDeclarationList)
@@ -171,6 +404,80 @@ theorem ParserLocalDeclList_eval.run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDeclList_eval.run_sound
 
+def ParserLocalDeclList_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserLocalDeclList_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.VarE (Q.i "parserLocalDeclarationList"))
+              (Q.varT "parserLocalDeclarationList" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e
+              (.VarE (Q.i "parserLocalDeclarationList"))
+              (Q.varT "parserLocalDeclarationList" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e
+                            (.VarE (Q.i "parserLocalDeclaration"))
+                            (Q.varT "parserLocalDeclaration" []))
+                         (.mk
+                            .List
+                            [Q.v "parserLocalDeclaration" (Q.varT "parserLocalDeclaration" []) []]))
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_parserLocalDeclarationList")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.VarE (Q.i "parserLocalDeclarationList"))
+                                  (Q.varT "parserLocalDeclarationList" [])))])
+                      (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserLocalDecls_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e
+                                     (.VarE (Q.i "parserLocalDeclaration"))
+                                     (Q.varT "parserLocalDeclaration" []))
+                                  (.mk
+                                     .List
+                                     [Q.v
+                                        "parserLocalDeclaration"
+                                        (Q.varT "parserLocalDeclaration" [])
+                                        []]))
+                               (.IterT (Q.t (Q.varT "parserLocalDeclaration" [])) .List)))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def «$find_parserState» (p0 : List NanoP4Spec.parserState) (p1 : NanoP4Spec.nameIR)
     : Option (Except Fail (Option NanoP4Spec.parserState)) :=
   ExceptT.run
@@ -199,6 +506,217 @@ def «$find_parserState» (p0 : List NanoP4Spec.parserState) (p1 : NanoP4Spec.na
          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$find_parserState» «parserState_t*» nameIR_target)
          pure tmp_2)))
   partial_fixpoint
+
+def «$find_parserState».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "find_parserState")
+       []
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+        Q.pm (.ExpP (Q.t (Q.varT "nameIR" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "parserState" [])) .Opt))
+       [Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                      (.mk
+                         .List
+                         [Q.v "parserState" (.IterT (Q.t (Q.varT "parserState" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])))]
+          (Q.e (.OptE none) (.IterT (Q.t (Q.varT "parserState" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "parserState"
+                                  (.IterT (Q.t (Q.varT "parserState" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parserState" [])) .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                      (.mk
+                         .List
+                         [Q.v "parserState" (.IterT (Q.t (Q.varT "parserState" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR_target")) (Q.varT "nameIR" [])))]
+          (Q.e
+             (.OptE (some (Q.e (.VarE (Q.i "parserState_h")) (Q.varT "parserState" []))))
+             (.IterT (Q.t (Q.varT "parserState" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "parserState"
+                                  (.IterT (Q.t (Q.varT "parserState" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parserState" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "parserState_h")) (Q.varT "parserState" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parserState_t")) (Q.varT "parserState" []))
+                            (.mk .List [Q.v "parserState_t" (Q.varT "parserState" []) []]))
+                         (.IterT (Q.t (Q.varT "parserState" [])) .List)))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                      (.mk
+                         .List
+                         [Q.v "parserState" (.IterT (Q.t (Q.varT "parserState" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "STATE")),
+                          .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Seq
+                               [.Arg
+                                  (Q.e (.VarE (Q.i "_statementList")) (Q.varT "statementList" [])),
+                                .Arg
+                                  (Q.e
+                                     (.VarE (Q.i "_transitionStatement"))
+                                     (Q.varT "transitionStatement" []))])
+                            (Q.a .RBrace)]))
+                   (Q.varT "parserState" []))
+                (Q.e (.VarE (Q.i "parserState_h")) (Q.varT "parserState" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "id")
+                            []
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                         .TextT)
+                      (Q.e (.VarE (Q.i "nameIR_target")) (Q.varT "nameIR" [])))
+                   .BoolT))],
+        Q.cl
+          [Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                      (.mk
+                         .List
+                         [Q.v "parserState" (.IterT (Q.t (Q.varT "parserState" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+           Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR_target")) (Q.varT "nameIR" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "find_parserState")
+                []
+                [Q.ar
+                   (.ExpA
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parserState_t")) (Q.varT "parserState" []))
+                            (.mk .List [Q.v "parserState_t" (Q.varT "parserState" []) []]))
+                         (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+                 Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR_target")) (Q.varT "nameIR" [])))])
+             (.IterT (Q.t (Q.varT "parserState" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "parserState"
+                                  (.IterT (Q.t (Q.varT "parserState" [])) .List)
+                                  []]))
+                         (.IterT (Q.t (Q.varT "parserState" [])) .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e (.VarE (Q.i "parserState_h")) (Q.varT "parserState" []))
+                      (Q.e
+                         (.IterE
+                            (Q.e (.VarE (Q.i "parserState_t")) (Q.varT "parserState" []))
+                            (.mk .List [Q.v "parserState_t" (Q.varT "parserState" []) []]))
+                         (.IterT (Q.t (Q.varT "parserState" [])) .List)))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e (.VarE (Q.i "parserState")) (Q.varT "parserState" []))
+                      (.mk
+                         .List
+                         [Q.v "parserState" (.IterT (Q.t (Q.varT "parserState" [])) .List) []]))
+                   (.IterT (Q.t (Q.varT "parserState" [])) .List))),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.CaseE
+                      (.Seq
+                         [.Atom (Q.a (.Keyword "STATE")),
+                          .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                          .Brack
+                            (Q.a .LBrace)
+                            (.Seq
+                               [.Arg
+                                  (Q.e (.VarE (Q.i "_statementList")) (Q.varT "statementList" [])),
+                                .Arg
+                                  (Q.e
+                                     (.VarE (Q.i "_transitionStatement"))
+                                     (Q.varT "transitionStatement" []))])
+                            (Q.a .RBrace)]))
+                   (Q.varT "parserState" []))
+                (Q.e (.VarE (Q.i "parserState_h")) (Q.varT "parserState" []))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .NeOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "id")
+                            []
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                         .TextT)
+                      (Q.e (.VarE (Q.i "nameIR_target")) (Q.varT "nameIR" [])))
+                   .BoolT))]]
+       none
+       [])
 
 def «$match_case_value» (p0 : NanoP4Spec.value) (p1 : List (NanoP4Spec.name × NanoP4Spec.value))
     : Option (Except Fail (Option NanoP4Spec.name)) :=
@@ -253,6 +771,278 @@ def «$match_case_value» (p0 : NanoP4Spec.value) (p1 : List (NanoP4Spec.name ×
                      (List.zip «name_case_t*» «value_case_t*»)))
          pure tmp_8)))
   partial_fixpoint
+
+def «$match_case_value».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "match_case_value")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "value" []))),
+        Q.pm
+          (.ExpP
+             (Q.t
+                (.IterT (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])])) .List)))]
+       (Q.t (.IterT (Q.t (Q.varT "name" [])) .Opt))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(name, value)"))
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(name, value)"
+                            (.IterT
+                               (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      .List)))]
+          (Q.e (.OptE none) (.IterT (Q.t (Q.varT "name" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "(name, value)"))
+                               (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "(name, value)"
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                     .List)
+                                  []]))
+                         (.IterT
+                            (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            .List))
+                      (.ListP .Nil))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(name, value)"))
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(name, value)"
+                            (.IterT
+                               (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      .List)))]
+          (Q.e
+             (.OptE (some (Q.e (.VarE (Q.i "name_case_h")) (Q.varT "name" []))))
+             (.IterT (Q.t (Q.varT "name" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "(name, value)"))
+                               (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "(name, value)"
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                     .List)
+                                  []]))
+                         (.IterT
+                            (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.TupleE
+                            [Q.e (.VarE (Q.i "name_case_h")) (Q.varT "name" []),
+                             Q.e (.VarE (Q.i "value_case_h")) (Q.varT "value" [])])
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.TupleE
+                                  [Q.e (.VarE (Q.i "name_case_t")) (Q.varT "name" []),
+                                   Q.e (.VarE (Q.i "value_case_t")) (Q.varT "value" [])])
+                               (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v "name_case_t" (Q.varT "name" []) [],
+                                Q.v "value_case_t" (Q.varT "value" []) []]))
+                         (.IterT
+                            (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            .List)))
+                   (.IterT (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(name, value)"))
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(name, value)"
+                            (.IterT
+                               (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.CallE
+                      (Q.i "bin_eq")
+                      []
+                      [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                       Q.ar (.ExpA (Q.e (.VarE (Q.i "value_case_h")) (Q.varT "value" [])))])
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+           Q.ar
+             (.ExpA
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(name, value)"))
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(name, value)"
+                            (.IterT
+                               (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      .List)))]
+          (Q.e
+             (.CallE
+                (Q.i "match_case_value")
+                []
+                [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                 Q.ar
+                   (.ExpA
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.TupleE
+                                  [Q.e (.VarE (Q.i "name_case_t")) (Q.varT "name" []),
+                                   Q.e (.VarE (Q.i "value_case_t")) (Q.varT "value" [])])
+                               (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v "name_case_t" (Q.varT "name" []) [],
+                                Q.v "value_case_t" (Q.varT "value" []) []]))
+                         (.IterT
+                            (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            .List)))])
+             (.IterT (Q.t (Q.varT "name" [])) .Opt))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.MatchE
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.VarE (Q.i "(name, value)"))
+                               (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v
+                                  "(name, value)"
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                     .List)
+                                  []]))
+                         (.IterT
+                            (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            .List))
+                      (.ListP .Cons))
+                   .BoolT)),
+           Q.pr
+             (.LetPr
+                (Q.e
+                   (.ConsE
+                      (Q.e
+                         (.TupleE
+                            [Q.e (.VarE (Q.i "name_case_h")) (Q.varT "name" []),
+                             Q.e (.VarE (Q.i "value_case_h")) (Q.varT "value" [])])
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (Q.e
+                         (.IterE
+                            (Q.e
+                               (.TupleE
+                                  [Q.e (.VarE (Q.i "name_case_t")) (Q.varT "name" []),
+                                   Q.e (.VarE (Q.i "value_case_t")) (Q.varT "value" [])])
+                               (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            (.mk
+                               .List
+                               [Q.v "name_case_t" (Q.varT "name" []) [],
+                                Q.v "value_case_t" (Q.varT "value" []) []]))
+                         (.IterT
+                            (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                            .List)))
+                   (.IterT (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])])) .List))
+                (Q.e
+                   (.IterE
+                      (Q.e
+                         (.VarE (Q.i "(name, value)"))
+                         (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      (.mk
+                         .List
+                         [Q.v
+                            "(name, value)"
+                            (.IterT
+                               (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                               .List)
+                            []]))
+                   (.IterT
+                      (Q.t (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                      .List))),
+           Q.pr
+             (.IfPr
+                (Q.e
+                   (.UnE
+                      .NotOp
+                      .BoolT
+                      (Q.e
+                         (.CallE
+                            (Q.i "bin_eq")
+                            []
+                            [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "value_case_h")) (Q.varT "value" [])))])
+                         .BoolT))
+                   .BoolT))]]
+       none
+       [])
 
 mutual
 
@@ -552,5 +1342,524 @@ theorem ParserSelect_eval.run_sound
   fun h => NanoP4Spec.ParserTransition_eval.run_sound_group.2 p0 p1 _ h o rfl
 
 #audit_axioms NanoP4Spec.ParserSelect_eval.run_sound
+
+def ParserTransition_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserTransition_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "transitionStatement" [])))
+                (Q.a .Colon)
+                (.Arg (Q.t (Q.varT "transitionResult" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Atom (Q.a (.Keyword "TRANSITION")),
+                     .Arg (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))]))
+              (Q.varT "transitionStatement" [])],
+           [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Atom (Q.a (.Keyword "TRANSITION")),
+                     .Arg (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))]))
+              (Q.varT "transitionStatement" [])],
+           [])
+          [Q.rp
+             "accept"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                         (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ";"))])))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                             .Atom (Q.a (.Operator ";"))]))
+                      (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.CallE
+                               (Q.i "id")
+                               []
+                               [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                            .TextT)
+                         (Q.e (.TextE "accept") .TextT))
+                      .BoolT))]
+             [Q.e (.CaseE (.Atom (Q.a (.Keyword "ACCEPT")))) (Q.varT "transitionResult" [])],
+           Q.rp
+             "reject"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                         (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ";"))])))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                             .Atom (Q.a (.Operator ";"))]))
+                      (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.CallE
+                               (Q.i "id")
+                               []
+                               [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                            .TextT)
+                         (Q.e (.TextE "reject") .TextT))
+                      .BoolT))]
+             [Q.e (.CaseE (.Atom (Q.a (.Keyword "REJECT")))) (Q.varT "transitionResult" [])],
+           Q.rp
+             "state"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                         (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ";"))])))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                             .Atom (Q.a (.Operator ";"))]))
+                      (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.BinE
+                         .AndOp
+                         .BoolT
+                         (Q.e
+                            (.CmpE
+                               .NeOp
+                               .BoolT
+                               (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                               (Q.e (.TextE "accept") .TextT))
+                            .BoolT)
+                         (Q.e
+                            (.CmpE
+                               .NeOp
+                               .BoolT
+                               (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                               (Q.e (.TextE "reject") .TextT))
+                            .BoolT))
+                      .BoolT))]
+             [Q.e
+                (.CaseE
+                   (.Seq
+                      [.Atom (Q.a (.Keyword "STATE")),
+                       .Arg (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))]))
+                (Q.varT "transitionResult" [])],
+           Q.rp
+             "selectExpression"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                   (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" []))
+                         (Q.t (Q.varT "selectExpression" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "SELECT")),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "selectExpression" []))
+                         (Q.e (.VarE (Q.i "stateExpression'")) (Q.varT "stateExpression" [])))
+                      (Q.varT "selectExpression" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserSelect_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" [])))
+                         (Q.a .Colon)
+                         (.Arg
+                            (Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" [])]]]
+       none
+       [])
+
+def ParserSelect_eval.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserSelect_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "selectExpression" [])))
+                (Q.a .Colon)
+                (.Arg (Q.t (Q.varT "transitionResult" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" [])],
+           [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" [])],
+           [])
+          [Q.rp
+             "match"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "SELECT")),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))
+                               (Q.a .RBrace)]))
+                      (Q.varT "selectExpression" []))
+                   (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Expr_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "LOCAL")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))
+                         (.mk .List [Q.v "selectCase" (Q.varT "selectCase" []) []]))
+                      (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_selectCaseList")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))])
+                      (.IterT (Q.t (Q.varT "selectCase" [])) .List))),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.LetPr
+                         (Q.e
+                            (.CaseE
+                               (.Seq
+                                  [.Arg
+                                     (Q.e (.VarE (Q.i "expression_case")) (Q.varT "expression" [])),
+                                   .Atom (Q.a (.Operator ":")),
+                                   .Arg (Q.e (.VarE (Q.i "name_case")) (Q.varT "name" [])),
+                                   .Atom (Q.a (.Operator ";"))]))
+                            (Q.varT "selectCase" []))
+                         (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))))
+                   (.mk
+                      .List
+                      [Q.v "selectCase" (Q.varT "selectCase" []) []]
+                      [Q.v "expression_case" (Q.varT "expression" []) [],
+                       Q.v "name_case" (Q.varT "name" []) []])),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.RulePr
+                         (Q.i "Expr_eval")
+                         (.Infix
+                            (.Seq
+                               [.Arg
+                                  (Q.e
+                                     (.CaseE (.Atom (Q.a (.Keyword "LOCAL"))))
+                                     (Q.varT "scope" [])),
+                                .Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))])
+                            (Q.a .Turnstile)
+                            (.Infix
+                               (.Arg (Q.e (.VarE (Q.i "expression_case")) (Q.varT "expression" [])))
+                               (Q.a .Colon)
+                               (.Arg (Q.e (.VarE (Q.i "value_case")) (Q.varT "value" [])))))
+                         [0, 1, 2]))
+                   (.mk
+                      .List
+                      [Q.v "expression_case" (Q.varT "expression" []) []]
+                      [Q.v "value_case" (Q.varT "value" []) []])),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "name")) (Q.varT "name" []))
+                         (.mk .Opt [Q.v "name" (.IterT (Q.t (Q.varT "name" [])) .Opt) []]))
+                      (.IterT (Q.t (Q.varT "name" [])) .Opt))
+                   (Q.e
+                      (.CallE
+                         (Q.i "match_case_value")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                          Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.IterE
+                                     (Q.e
+                                        (.TupleE
+                                           [Q.e (.VarE (Q.i "name_case")) (Q.varT "name" []),
+                                            Q.e (.VarE (Q.i "value_case")) (Q.varT "value" [])])
+                                        (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                     (.mk
+                                        .List
+                                        [Q.v "name_case" (Q.varT "name" []) [],
+                                         Q.v "value_case" (Q.varT "value" []) []]))
+                                  (.IterT
+                                     (Q.t
+                                        (.TupleT [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                     .List)))])
+                      (.IterT (Q.t (Q.varT "name" [])) .Opt))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "name")) (Q.varT "name" []))
+                               (.mk .Opt [Q.v "name" (.IterT (Q.t (Q.varT "name" [])) .Opt) []]))
+                            (.IterT (Q.t (Q.varT "name" [])) .Opt))
+                         (.OptP .Some))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.OptE (some (Q.e (.VarE (Q.i "name_match")) (Q.varT "name" []))))
+                      (.IterT (Q.t (Q.varT "name" [])) .Opt))
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "name")) (Q.varT "name" []))
+                         (.mk .Opt [Q.v "name" (.IterT (Q.t (Q.varT "name" [])) .Opt) []]))
+                      (.IterT (Q.t (Q.varT "name" [])) .Opt))),
+              Q.pr
+                (.RulePr
+                   (Q.i "ParserTransition_eval")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.CaseE
+                                  (.Seq
+                                     [.Atom (Q.a (.Keyword "TRANSITION")),
+                                      .Arg
+                                        (Q.e
+                                           (.CaseE
+                                              (.Seq
+                                                 [.Arg
+                                                    (Q.e
+                                                       (.VarE (Q.i "name_match"))
+                                                       (Q.varT "name" [])),
+                                                  .Atom (Q.a (.Operator ";"))]))
+                                           (Q.varT "stateExpression" []))]))
+                               (Q.varT "transitionStatement" [])))
+                         (Q.a .Colon)
+                         (.Arg
+                            (Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" [])))))
+                   [0, 1])]
+             [Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" [])],
+           Q.rp
+             "no-match"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "SELECT")),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))
+                               (Q.a .RBrace)]))
+                      (Q.varT "selectExpression" []))
+                   (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Expr_eval")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "LOCAL")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))
+                         (.mk .List [Q.v "selectCase" (Q.varT "selectCase" []) []]))
+                      (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_selectCaseList")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))])
+                      (.IterT (Q.t (Q.varT "selectCase" [])) .List))),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.LetPr
+                         (Q.e
+                            (.CaseE
+                               (.Seq
+                                  [.Arg
+                                     (Q.e (.VarE (Q.i "expression_case")) (Q.varT "expression" [])),
+                                   .Atom (Q.a (.Operator ":")),
+                                   .Arg (Q.e (.VarE (Q.i "name_case")) (Q.varT "name" [])),
+                                   .Atom (Q.a (.Operator ";"))]))
+                            (Q.varT "selectCase" []))
+                         (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))))
+                   (.mk
+                      .List
+                      [Q.v "selectCase" (Q.varT "selectCase" []) []]
+                      [Q.v "expression_case" (Q.varT "expression" []) [],
+                       Q.v "name_case" (Q.varT "name" []) []])),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.RulePr
+                         (Q.i "Expr_eval")
+                         (.Infix
+                            (.Seq
+                               [.Arg
+                                  (Q.e
+                                     (.CaseE (.Atom (Q.a (.Keyword "LOCAL"))))
+                                     (Q.varT "scope" [])),
+                                .Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))])
+                            (Q.a .Turnstile)
+                            (.Infix
+                               (.Arg (Q.e (.VarE (Q.i "expression_case")) (Q.varT "expression" [])))
+                               (Q.a .Colon)
+                               (.Arg (Q.e (.VarE (Q.i "value_case")) (Q.varT "value" [])))))
+                         [0, 1, 2]))
+                   (.mk
+                      .List
+                      [Q.v "expression_case" (Q.varT "expression" []) []]
+                      [Q.v "value_case" (Q.varT "value" []) []])),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e (.OptE none) (.IterT (Q.t (Q.varT "name" [])) .Opt))
+                         (Q.e
+                            (.CallE
+                               (Q.i "match_case_value")
+                               []
+                               [Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))),
+                                Q.ar
+                                  (.ExpA
+                                     (Q.e
+                                        (.IterE
+                                           (Q.e
+                                              (.TupleE
+                                                 [Q.e (.VarE (Q.i "name_case")) (Q.varT "name" []),
+                                                  Q.e
+                                                    (.VarE (Q.i "value_case"))
+                                                    (Q.varT "value" [])])
+                                              (.TupleT
+                                                 [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                           (.mk
+                                              .List
+                                              [Q.v "name_case" (Q.varT "name" []) [],
+                                               Q.v "value_case" (Q.varT "value" []) []]))
+                                        (.IterT
+                                           (Q.t
+                                              (.TupleT
+                                                 [Q.t (Q.varT "name" []), Q.t (Q.varT "value" [])]))
+                                           .List)))])
+                            (.IterT (Q.t (Q.varT "name" [])) .Opt)))
+                      .BoolT))]
+             [Q.e (.CaseE (.Atom (Q.a (.Keyword "REJECT")))) (Q.varT "transitionResult" [])]]]
+       none
+       [])
 
 end NanoP4Spec

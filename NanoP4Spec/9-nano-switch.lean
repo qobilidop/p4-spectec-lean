@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«8.14-eval-convention»
 
 /-! # NanoP4Spec.«9-nano-switch»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -93,6 +94,59 @@ theorem Var_init.run_sound
 
 #audit_axioms NanoP4Spec.Var_init.run_sound
 
+def Var_init.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Var_init")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Seq [.Arg (Q.t (Q.varT "typeIR" [])), .Arg (Q.t (Q.varT "nameIR" []))])
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1, 2]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "value")) (Q.varT "value" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "default")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))])
+                      (Q.varT "value" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_var_e")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
+                                  (Q.varT "scope" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "value")) (Q.varT "value" [])))])
+                      (Q.varT "evalContext" [])))]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def NanoSwitch_init.run (p0 : NanoP4Spec.program) : Option (Except Fail NanoP4Spec.evalContext) :=
   ExceptT.run
     (do
@@ -124,6 +178,62 @@ theorem NanoSwitch_init.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_init.run_sound
+
+def NanoSwitch_init.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "NanoSwitch_init")
+       (Q.nt
+          (.Infix
+             (.Seq [])
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "program" [])))
+                (Q.a .Colon)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "program")) (Q.varT "program" [])],
+           [Q.e (.VarE (Q.i "program")) (Q.varT "program" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.RulePr
+                   (Q.i "Program_ok")
+                   (.Infix
+                      (.Seq [])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "program")) (Q.varT "program" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" [])))))
+                   [0]),
+              Q.pr
+                (.RulePr
+                   (Q.i "Program_load")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "program")) (Q.varT "program" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "make_evalContext")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "LC")) (Q.varT "loadContext" [])))])
+                      (Q.varT "evalContext" [])))]
+             [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])]]]
+       none
+       [])
 
 def NanoSwitch_setup.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectState)
     : Option (Except Fail NanoP4Spec.evalContext) :=
@@ -204,6 +314,134 @@ theorem NanoSwitch_setup.run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_setup.run_sound
 
+def NanoSwitch_setup.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "NanoSwitch_setup")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "objectState" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "packetValue")) (Q.varT "packetValue" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PACKET")),
+                             .Arg (Q.e (.TextE "packet_in") .TextT),
+                             .Arg
+                               (Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" []))]))
+                      (Q.varT "packetValue" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))
+                   (Q.e
+                      (.UpdE
+                         (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []))
+                         (Q.pa
+                            (.DotP
+                               (Q.pa
+                                  (.DotP
+                                     (Q.pa .RootP (Q.varT "evalContext" []))
+                                     (Q.a (.Keyword "GLOBAL")))
+                                  (Q.varT "globalEvalLayer" []))
+                               (Q.a (.Keyword "FRAME")))
+                            (Q.varT "frame" []))
+                         (Q.e (.CallE (Q.i "empty_frame") [] []) (Q.varT "frame" [])))
+                      (Q.varT "evalContext" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_var_e")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
+                                  (Q.varT "scope" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))),
+                          Q.ar (.ExpA (Q.e (.TextE "packet_in") .TextT)),
+                          Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "value" []))
+                                     (Q.e (.VarE (Q.i "packetValue")) (Q.varT "packetValue" [])))
+                                  (Q.varT "value" [])))])
+                      (Q.varT "evalContext" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR_header")) (Q.varT "typeIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "typeIR_of_typeDefIR")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.CallE
+                                     (Q.i "find_typeDef_e")
+                                     []
+                                     [Q.ar
+                                        (.ExpA
+                                           (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))),
+                                      Q.ar (.ExpA (Q.e (.TextE "Header") .TextT))])
+                                  (Q.varT "typeDefIR" [])))])
+                      (Q.varT "typeIR" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Var_init")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Seq
+                            [.Arg (Q.e (.VarE (Q.i "typeIR_header")) (Q.varT "typeIR" [])),
+                             .Arg (Q.e (.TextE "hdr") .TextT)])
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_3")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.RulePr
+                   (Q.i "Var_init")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_3")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Seq
+                            [.Arg
+                               (Q.e
+                                  (.UpCastE
+                                     (Q.t (Q.varT "typeIR" []))
+                                     (Q.e
+                                        (.CaseE (.Atom (Q.a (.Keyword "BOOL"))))
+                                        (Q.varT "baseTypeIR" [])))
+                                  (Q.varT "typeIR" [])),
+                             .Arg (Q.e (.TextE "accept") .TextT)])
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_4")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "EC_4")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def «$nanoswitch_forwarding» (p0 : NanoP4Spec.evalContext)
     : Option (Except Fail NanoP4Spec.forwardingDecision) :=
   ExceptT.run
@@ -218,6 +456,76 @@ def «$nanoswitch_forwarding» (p0 : NanoP4Spec.evalContext)
         let _ ← Eval.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false)) ==
          tmp_1)
         pure NanoP4Spec.forwardingDecision.DROP))
+
+def «$nanoswitch_forwarding».al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "nanoswitch_forwarding")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "evalContext" [])))]
+       (Q.t (Q.varT "forwardingDecision" []))
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e (.CaseE (.Atom (Q.a (.Keyword "FORWARD")))) (Q.varT "forwardingDecision" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.UpCastE
+                            (Q.t (Q.varT "value" []))
+                            (Q.e
+                               (.CaseE
+                                  (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.BoolE true) .BoolT)]))
+                               (Q.varT "boolValue" [])))
+                         (Q.varT "value" []))
+                      (Q.e
+                         (.CallE
+                            (Q.i "find_var_e")
+                            []
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
+                                     (Q.varT "scope" []))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+                             Q.ar (.ExpA (Q.e (.TextE "accept") .TextT))])
+                         (Q.varT "value" [])))
+                   .BoolT))],
+        Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))]
+          (Q.e (.CaseE (.Atom (Q.a (.Keyword "DROP")))) (Q.varT "forwardingDecision" []))
+          [Q.pr
+             (.IfPr
+                (Q.e
+                   (.CmpE
+                      .EqOp
+                      .BoolT
+                      (Q.e
+                         (.UpCastE
+                            (Q.t (Q.varT "value" []))
+                            (Q.e
+                               (.CaseE
+                                  (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.e (.BoolE false) .BoolT)]))
+                               (Q.varT "boolValue" [])))
+                         (Q.varT "value" []))
+                      (Q.e
+                         (.CallE
+                            (Q.i "find_var_e")
+                            []
+                            [Q.ar
+                               (.ExpA
+                                  (Q.e
+                                     (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
+                                     (Q.varT "scope" []))),
+                             Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
+                             Q.ar (.ExpA (Q.e (.TextE "accept") .TextT))])
+                         (Q.varT "value" [])))
+                   .BoolT))]]
+       none
+       [])
 
 def NanoSwitch_parse.run [Externs]
         (p0 : NanoP4Spec.evalContext)
@@ -264,6 +572,93 @@ theorem NanoSwitch_parse.run_sound [Externs]
 
 #audit_axioms NanoP4Spec.NanoSwitch_parse.run_sound
 
+def NanoSwitch_parse.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "NanoSwitch_parse")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Infix
+                   (.Arg (Q.t (Q.varT "parserDeclarationIR" [])))
+                   (Q.a .Colon)
+                   (.Arg (Q.t (Q.varT "transitionResult" []))))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                         (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))
+                   (Q.e
+                      (.ListE
+                         [Q.e
+                            (.UpCastE
+                               (Q.t (Q.varT "expression" []))
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Tag "ID")),
+                                         .Arg (Q.e (.TextE "packet_in") .TextT)]))
+                                  (Q.varT "identifier" [])))
+                            (Q.varT "expression" []),
+                          Q.e
+                            (.UpCastE
+                               (Q.t (Q.varT "expression" []))
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Tag "ID")),
+                                         .Arg (Q.e (.TextE "hdr") .TextT)]))
+                                  (Q.varT "identifier" [])))
+                            (Q.varT "expression" [])])
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Parser_apply")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])),
+                          .Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                                  (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                               (.IterT (Q.t (Q.varT "argument" [])) .List))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Infix
+                            (.Arg
+                               (Q.e
+                                  (.VarE (Q.i "parserDeclarationIR"))
+                                  (Q.varT "parserDeclarationIR" [])))
+                            (Q.a .Colon)
+                            (.Arg
+                               (Q.e
+                                  (.VarE (Q.i "transitionResult"))
+                                  (Q.varT "transitionResult" []))))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" []),
+              Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
+
 def NanoSwitch_filter.run [Externs]
         (p0 : NanoP4Spec.evalContext)
         (p1 : NanoP4Spec.controlDeclarationIR)
@@ -305,6 +700,83 @@ theorem NanoSwitch_filter.run_sound [Externs]
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_filter.run_sound
+
+def NanoSwitch_filter.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "NanoSwitch_filter")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "controlDeclarationIR" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "controlDeclarationIR")) (Q.varT "controlDeclarationIR" [])],
+           [Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "controlDeclarationIR")) (Q.varT "controlDeclarationIR" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                         (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))
+                   (Q.e
+                      (.ListE
+                         [Q.e
+                            (.UpCastE
+                               (Q.t (Q.varT "expression" []))
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Tag "ID")),
+                                         .Arg (Q.e (.TextE "hdr") .TextT)]))
+                                  (Q.varT "identifier" [])))
+                            (Q.varT "expression" []),
+                          Q.e
+                            (.UpCastE
+                               (Q.t (Q.varT "expression" []))
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Tag "ID")),
+                                         .Arg (Q.e (.TextE "accept") .TextT)]))
+                                  (Q.varT "identifier" [])))
+                            (Q.varT "expression" [])])
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Control_apply")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])),
+                          .Arg
+                            (Q.e
+                               (.IterE
+                                  (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                                  (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                               (.IterT (Q.t (Q.varT "argument" [])) .List))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "controlDeclarationIR"))
+                               (Q.varT "controlDeclarationIR" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1, 2])]
+             [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
+       none
+       [])
 
 def NanoSwitch_drive.run [Externs] (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectState)
     : Option (Except Fail (NanoP4Spec.forwardingDecision × NanoP4Spec.evalContext)) :=
@@ -384,5 +856,186 @@ theorem NanoSwitch_drive.run_sound [Externs]
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_drive.run_sound
+
+def NanoSwitch_drive.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "NanoSwitch_drive")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Infix
+                   (.Arg (Q.t (Q.varT "objectState" [])))
+                   (Q.a .Colon)
+                   (.Arg (Q.t (Q.varT "forwardingDecision" []))))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" [])],
+           [Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []),
+            Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" [])],
+           [])
+          [Q.rp
+             "drop-on-reject"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" []))
+                   (Q.e
+                      (.DotE
+                         (Q.e
+                            (.DotE
+                               (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                               (Q.a (.Keyword "GLOBAL")))
+                            (Q.varT "globalEvalLayer" []))
+                         (Q.a (.Keyword "PARSER")))
+                      (Q.varT "parserDeclarationIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "controlDeclarationIR")) (Q.varT "controlDeclarationIR" []))
+                   (Q.e
+                      (.DotE
+                         (Q.e
+                            (.DotE
+                               (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                               (Q.a (.Keyword "GLOBAL")))
+                            (Q.varT "globalEvalLayer" []))
+                         (Q.a (.Keyword "CONTROL")))
+                      (Q.varT "controlDeclarationIR" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "NanoSwitch_setup")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "NanoSwitch_parse")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Infix
+                            (.Arg
+                               (Q.e
+                                  (.VarE (Q.i "parserDeclarationIR"))
+                                  (Q.varT "parserDeclarationIR" [])))
+                            (Q.a .Colon)
+                            (.Arg
+                               (Q.e
+                                  (.VarE (Q.i "transitionResult"))
+                                  (Q.varT "transitionResult" []))))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" []))
+                         (.CaseP (.Atom (Q.a (.Keyword "REJECT")))))
+                      .BoolT))]
+             [Q.e (.CaseE (.Atom (Q.a (.Keyword "DROP")))) (Q.varT "forwardingDecision" []),
+              Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])],
+           Q.rp
+             "filter"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "parserDeclarationIR")) (Q.varT "parserDeclarationIR" []))
+                   (Q.e
+                      (.DotE
+                         (Q.e
+                            (.DotE
+                               (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                               (Q.a (.Keyword "GLOBAL")))
+                            (Q.varT "globalEvalLayer" []))
+                         (Q.a (.Keyword "PARSER")))
+                      (Q.varT "parserDeclarationIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "controlDeclarationIR")) (Q.varT "controlDeclarationIR" []))
+                   (Q.e
+                      (.DotE
+                         (Q.e
+                            (.DotE
+                               (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))
+                               (Q.a (.Keyword "GLOBAL")))
+                            (Q.varT "globalEvalLayer" []))
+                         (Q.a (.Keyword "CONTROL")))
+                      (Q.varT "controlDeclarationIR" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "NanoSwitch_setup")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "NanoSwitch_parse")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_0")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Infix
+                            (.Arg
+                               (Q.e
+                                  (.VarE (Q.i "parserDeclarationIR"))
+                                  (Q.varT "parserDeclarationIR" [])))
+                            (Q.a .Colon)
+                            (.Arg
+                               (Q.e
+                                  (.VarE (Q.i "transitionResult"))
+                                  (Q.varT "transitionResult" []))))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MatchE
+                         (Q.e (.VarE (Q.i "transitionResult")) (Q.varT "transitionResult" []))
+                         (.CaseP (.Atom (Q.a (.Keyword "ACCEPT")))))
+                      .BoolT)),
+              Q.pr
+                (.RulePr
+                   (Q.i "NanoSwitch_filter")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg
+                            (Q.e
+                               (.VarE (Q.i "controlDeclarationIR"))
+                               (Q.varT "controlDeclarationIR" [])))
+                         (Q.a .Tilesturn)
+                         (.Arg (Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])))))
+                   [0, 1]),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "forwardingDecision")) (Q.varT "forwardingDecision" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "nanoswitch_forwarding")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])))])
+                      (Q.varT "forwardingDecision" [])))]
+             [Q.e (.VarE (Q.i "forwardingDecision")) (Q.varT "forwardingDecision" []),
+              Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])]]]
+       none
+       [])
 
 end NanoP4Spec

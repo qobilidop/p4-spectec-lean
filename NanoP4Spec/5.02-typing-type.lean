@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«5.01-typing-relation»
 
 /-! # NanoP4Spec.«5.02-typing-type»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -358,6 +359,873 @@ theorem ParameterType_eq.run_sound
 
 #audit_axioms NanoP4Spec.ParameterType_eq.run_sound
 
+def Type_eq.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Type_eq")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "typeIR" [])))
+             (Q.a .Tilde2)
+             (.Arg (Q.t (Q.varT "typeIR" [])))))
+       [0, 1]
+       [Q.rg
+          "baseTypeIR"
+          ([Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "typeIR" []))
+                 (Q.e (.VarE (Q.i "baseTypeIR")) (Q.varT "baseTypeIR" [])))
+              (Q.varT "typeIR" []),
+            Q.e
+              (.UpCastE
+                 (Q.t (Q.varT "typeIR" []))
+                 (Q.e (.VarE (Q.i "baseTypeIR")) (Q.varT "baseTypeIR" [])))
+              (Q.varT "typeIR" [])],
+           [Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))
+                       (Q.t (Q.varT "baseTypeIR" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "INT")),
+                              .Brack (Q.a .LAngle) (.Arg ()) (Q.a .RAngle)],
+                           .Seq
+                             [.Atom (Q.a (.Keyword "BIT")),
+                              .Brack (Q.a .LAngle) (.Arg ()) (Q.a .RAngle)],
+                           .Atom (Q.a (.Keyword "BOOL")),
+                           .Atom (Q.a (.Keyword "MATCH_KIND"))]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "baseTypeIR")) (Q.varT "baseTypeIR" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "baseTypeIR" []))
+                       (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))
+                    (Q.varT "baseTypeIR" []))),
+            Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))
+                       (Q.t (Q.varT "baseTypeIR" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "INT")),
+                              .Brack (Q.a .LAngle) (.Arg ()) (Q.a .RAngle)],
+                           .Seq
+                             [.Atom (Q.a (.Keyword "BIT")),
+                              .Brack (Q.a .LAngle) (.Arg ()) (Q.a .RAngle)],
+                           .Atom (Q.a (.Keyword "BOOL")),
+                           .Atom (Q.a (.Keyword "MATCH_KIND"))]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "baseTypeIR'")) (Q.varT "baseTypeIR" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "baseTypeIR" []))
+                       (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])))
+                    (Q.varT "baseTypeIR" []))),
+            Q.pr
+              (.IfPr
+                 (Q.e
+                    (.CmpE
+                       .EqOp
+                       .BoolT
+                       (Q.e (.VarE (Q.i "baseTypeIR")) (Q.varT "baseTypeIR" []))
+                       (Q.e (.VarE (Q.i "baseTypeIR'")) (Q.varT "baseTypeIR" [])))
+                    .BoolT))])
+          [Q.rp "baseTypeIR" [] []],
+        Q.rg
+          "dataTypeIR"
+          ([Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])],
+           [Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])],
+           [])
+          [Q.rp
+             "structTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "structTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "STRUCT")),
+                                .Arg (),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "_fieldTypeIR")) (Q.varT "fieldTypeIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "_fieldTypeIR" (Q.varT "fieldTypeIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "structTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "structTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "structTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "structTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "STRUCT")),
+                                .Arg (),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "STRUCT")),
+                             .Arg (Q.e (.VarE (Q.i "typeId'")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "_fieldTypeIR'"))
+                                           (Q.varT "fieldTypeIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "_fieldTypeIR'" (Q.varT "fieldTypeIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "structTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "structTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" [])))
+                      (Q.varT "structTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e (.VarE (Q.i "typeId'")) (Q.varT "typeId" []))
+                         (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))
+                      .BoolT))]
+             [],
+           Q.rp
+             "headerTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "headerTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "HEADER")),
+                                .Arg (),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e (.VarE (Q.i "_fieldTypeIR")) (Q.varT "fieldTypeIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "_fieldTypeIR" (Q.varT "fieldTypeIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "headerTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "headerTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "headerTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "headerTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "HEADER")),
+                                .Arg (),
+                                .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "HEADER")),
+                             .Arg (Q.e (.VarE (Q.i "typeId'")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "_fieldTypeIR'"))
+                                           (Q.varT "fieldTypeIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "_fieldTypeIR'" (Q.varT "fieldTypeIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                               (Q.a .RBrace)]))
+                      (Q.varT "headerTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "headerTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" [])))
+                      (Q.varT "headerTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e (.VarE (Q.i "typeId'")) (Q.varT "typeId" []))
+                         (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))
+                      .BoolT))]
+             []],
+        Q.rg
+          "objectTypeIR"
+          ([Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])],
+           [Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []),
+            Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])],
+           [])
+          [Q.rp
+             "externObjectTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "externObjectTypeIR" []))
+                         (.MixopSC [.Seq [.Atom (Q.a (.Keyword "EXTERN")), .Arg (), .Arg ()]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "EXTERN")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])),
+                             .Arg
+                               (Q.e
+                                  (.VarE (Q.i "_externMethodTypeDefEnv"))
+                                  (Q.varT "externMethodTypeDefEnv" []))]))
+                      (Q.varT "externObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "externObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "externObjectTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "externObjectTypeIR" []))
+                         (.MixopSC [.Seq [.Atom (Q.a (.Keyword "EXTERN")), .Arg (), .Arg ()]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "EXTERN")),
+                             .Arg (Q.e (.VarE (Q.i "typeId'")) (Q.varT "typeId" [])),
+                             .Arg
+                               (Q.e
+                                  (.VarE (Q.i "_externMethodTypeDefEnv'"))
+                                  (Q.varT "externMethodTypeDefEnv" []))]))
+                      (Q.varT "externObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "externObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" [])))
+                      (Q.varT "externObjectTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e (.VarE (Q.i "typeId'")) (Q.varT "typeId" []))
+                         (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" [])))
+                      .BoolT))]
+             [],
+           Q.rp
+             "parserObjectTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "parserObjectTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "PARSER")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PARSER")),
+                             .Arg (Q.e (.VarE (Q.i "_typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "parameterIR_a"))
+                                           (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR_a" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen)]))
+                      (Q.varT "parserObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "parserObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "parserObjectTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "parserObjectTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "PARSER")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PARSER")),
+                             .Arg (Q.e (.VarE (Q.i "_typeId'")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "parameterIR_b"))
+                                           (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR_b" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen)]))
+                      (Q.varT "parserObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "parserObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" [])))
+                      (Q.varT "parserObjectTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR_a")) (Q.varT "parameterIR" []))
+                                     (.mk
+                                        .List
+                                        [Q.v
+                                           "parameterIR_a"
+                                           (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                           []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                            (.NumT .NatT))
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR_b")) (Q.varT "parameterIR" []))
+                                     (.mk
+                                        .List
+                                        [Q.v
+                                           "parameterIR_b"
+                                           (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                           []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                            (.NumT .NatT)))
+                      .BoolT)),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.IfHoldPr
+                         (Q.i "ParameterType_eq")
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "parameterIR_a")) (Q.varT "parameterIR" [])))
+                            (Q.a .Tilde2)
+                            (.Arg (Q.e (.VarE (Q.i "parameterIR_b")) (Q.varT "parameterIR" []))))))
+                   (.mk
+                      .List
+                      [Q.v "parameterIR_a" (Q.varT "parameterIR" []) [],
+                       Q.v "parameterIR_b" (Q.varT "parameterIR" []) []]
+                      []))]
+             [],
+           Q.rp
+             "controlObjectTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "controlObjectTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "CONTROL")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "CONTROL")),
+                             .Arg (Q.e (.VarE (Q.i "_typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "parameterIR_a"))
+                                           (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR_a" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen)]))
+                      (Q.varT "controlObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "controlObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "controlObjectTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "controlObjectTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "CONTROL")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "CONTROL")),
+                             .Arg (Q.e (.VarE (Q.i "_typeId'")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "parameterIR_b"))
+                                           (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR_b" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen)]))
+                      (Q.varT "controlObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "controlObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" [])))
+                      (Q.varT "controlObjectTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR_a")) (Q.varT "parameterIR" []))
+                                     (.mk
+                                        .List
+                                        [Q.v
+                                           "parameterIR_a"
+                                           (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                           []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                            (.NumT .NatT))
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR_b")) (Q.varT "parameterIR" []))
+                                     (.mk
+                                        .List
+                                        [Q.v
+                                           "parameterIR_b"
+                                           (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                           []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                            (.NumT .NatT)))
+                      .BoolT)),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.IfHoldPr
+                         (Q.i "ParameterType_eq")
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "parameterIR_a")) (Q.varT "parameterIR" [])))
+                            (Q.a .Tilde2)
+                            (.Arg (Q.e (.VarE (Q.i "parameterIR_b")) (Q.varT "parameterIR" []))))))
+                   (.mk
+                      .List
+                      [Q.v "parameterIR_a" (Q.varT "parameterIR" []) [],
+                       Q.v "parameterIR_b" (Q.varT "parameterIR" []) []]
+                      []))]
+             [],
+           Q.rp
+             "packageObjectTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "packageObjectTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "PACKAGE")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PACKAGE")),
+                             .Arg (Q.e (.VarE (Q.i "_typeId")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "parameterIR_a"))
+                                           (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR_a" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen)]))
+                      (Q.varT "packageObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "packageObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "packageObjectTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "packageObjectTypeIR" []))
+                         (.MixopSC
+                            [.Seq
+                               [.Atom (Q.a (.Keyword "PACKAGE")),
+                                .Arg (),
+                                .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen)]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "PACKAGE")),
+                             .Arg (Q.e (.VarE (Q.i "_typeId'")) (Q.varT "typeId" [])),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg
+                                  (Q.e
+                                     (.IterE
+                                        (Q.e
+                                           (.VarE (Q.i "parameterIR_b"))
+                                           (Q.varT "parameterIR" []))
+                                        (.mk
+                                           .List
+                                           [Q.v "parameterIR_b" (Q.varT "parameterIR" []) []]))
+                                     (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                               (Q.a .RParen)]))
+                      (Q.varT "packageObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "packageObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR'''")) (Q.varT "typeIR" [])))
+                      (Q.varT "packageObjectTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR_a")) (Q.varT "parameterIR" []))
+                                     (.mk
+                                        .List
+                                        [Q.v
+                                           "parameterIR_a"
+                                           (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                           []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                            (.NumT .NatT))
+                         (Q.e
+                            (.LenE
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "parameterIR_b")) (Q.varT "parameterIR" []))
+                                     (.mk
+                                        .List
+                                        [Q.v
+                                           "parameterIR_b"
+                                           (.IterT (Q.t (Q.varT "parameterIR" [])) .List)
+                                           []]))
+                                  (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                            (.NumT .NatT)))
+                      .BoolT)),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.IfHoldPr
+                         (Q.i "ParameterType_eq")
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "parameterIR_a")) (Q.varT "parameterIR" [])))
+                            (Q.a .Tilde2)
+                            (.Arg (Q.e (.VarE (Q.i "parameterIR_b")) (Q.varT "parameterIR" []))))))
+                   (.mk
+                      .List
+                      [Q.v "parameterIR_a" (Q.varT "parameterIR" []) [],
+                       Q.v "parameterIR_b" (Q.varT "parameterIR" []) []]
+                      []))]
+             [],
+           Q.rp
+             "tableObjectTypeIR"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                   (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.SubE
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" []))
+                         (Q.t (Q.varT "tableObjectTypeIR" []))
+                         (.MixopSC [.Seq [.Atom (Q.a (.Keyword "TABLE")), .Arg ()]]))
+                      .BoolT)),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "TABLE")),
+                             .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" []))]))
+                      (Q.varT "tableObjectTypeIR" []))
+                   (Q.e
+                      (.DownCastE
+                         (Q.t (Q.varT "tableObjectTypeIR" []))
+                         (Q.e (.VarE (Q.i "typeIR''")) (Q.varT "typeIR" [])))
+                      (Q.varT "tableObjectTypeIR" []))),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CmpE
+                         .EqOp
+                         .BoolT
+                         (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))
+                         (Q.e
+                            (.UpCastE
+                               (Q.t (Q.varT "typeIR" []))
+                               (Q.e
+                                  (.CaseE
+                                     (.Seq
+                                        [.Atom (Q.a (.Keyword "TABLE")),
+                                         .Arg (Q.e (.VarE (Q.i "typeId")) (Q.varT "typeId" []))]))
+                                  (Q.varT "tableObjectTypeIR" [])))
+                            (Q.varT "typeIR" [])))
+                      .BoolT))]
+             []]]
+       none
+       [])
+
+def ParameterType_eq.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParameterType_eq")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "parameterIR" [])))
+             (Q.a .Tilde2)
+             (.Arg (Q.t (Q.varT "parameterIR" [])))))
+       [0, 1]
+       [Q.rg
+          ""
+          ([Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" [])),
+                     .Arg (Q.e (.VarE (Q.i "typeIR_a")) (Q.varT "typeIR" [])),
+                     .Arg (Q.e (.VarE (Q.i "_nameIR")) (Q.varT "nameIR" []))]))
+              (Q.varT "parameterIR" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" [])),
+                     .Arg (Q.e (.VarE (Q.i "typeIR_b")) (Q.varT "typeIR" [])),
+                     .Arg (Q.e (.VarE (Q.i "_nameIR'")) (Q.varT "nameIR" []))]))
+              (Q.varT "parameterIR" [])],
+           [Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" [])),
+                     .Arg (Q.e (.VarE (Q.i "typeIR_a")) (Q.varT "typeIR" [])),
+                     .Arg (Q.e (.VarE (Q.i "_nameIR")) (Q.varT "nameIR" []))]))
+              (Q.varT "parameterIR" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "direction'")) (Q.varT "direction" [])),
+                     .Arg (Q.e (.VarE (Q.i "typeIR_b")) (Q.varT "typeIR" [])),
+                     .Arg (Q.e (.VarE (Q.i "_nameIR'")) (Q.varT "nameIR" []))]))
+              (Q.varT "parameterIR" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.CmpE
+                       .EqOp
+                       .BoolT
+                       (Q.e (.VarE (Q.i "direction")) (Q.varT "direction" []))
+                       (Q.e (.VarE (Q.i "direction'")) (Q.varT "direction" [])))
+                    .BoolT))])
+          [Q.rp
+             ""
+             [Q.pr
+                (.IfHoldPr
+                   (Q.i "Type_eq")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "typeIR_a")) (Q.varT "typeIR" [])))
+                      (Q.a .Tilde2)
+                      (.Arg (Q.e (.VarE (Q.i "typeIR_b")) (Q.varT "typeIR" [])))))]
+             []]]
+       none
+       [])
+
 def VarDecl_ok.run
         (p0 : NanoP4Spec.scope)
         (p1 : NanoP4Spec.typingContext)
@@ -422,6 +1290,124 @@ theorem VarDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.VarDecl_ok.run_sound
+
+def VarDecl_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "VarDecl_ok")
+       (Q.nt
+          (.Infix
+             (.Seq [.Arg (Q.t (Q.varT "scope" [])), .Arg (Q.t (Q.varT "typingContext" []))])
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "variableDeclaration" [])))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "typingContext" []))))))
+       [0, 1, 2]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "type")) (Q.varT "type" [])),
+                     .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                     .Arg
+                       (Q.e
+                          (.CaseE
+                             (.Seq
+                                [.Atom (Q.a (.Operator "=")),
+                                 .Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))]))
+                          (Q.varT "initializer" [])),
+                     .Atom (Q.a (.Operator ";"))]))
+              (Q.varT "variableDeclaration" [])],
+           [Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Arg (Q.e (.VarE (Q.i "type")) (Q.varT "type" [])),
+                     .Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                     .Arg
+                       (Q.e
+                          (.CaseE
+                             (.Seq
+                                [.Atom (Q.a (.Operator "=")),
+                                 .Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" []))]))
+                          (Q.varT "initializer" [])),
+                     .Atom (Q.a (.Operator ";"))]))
+              (Q.varT "variableDeclaration" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.RulePr
+                   (Q.i "Type_ok")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" [])))
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "type")) (Q.varT "type" [])))
+                         (Q.a .SqArrow)
+                         (.Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))))
+                   [0, 1]),
+              Q.pr
+                (.RulePr
+                   (Q.i "Expr_ok")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.IfHoldPr
+                   (Q.i "Type_eq")
+                   (.Infix
+                      (.Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))
+                      (Q.a .Tilde2)
+                      (.Arg (Q.e (.VarE (Q.i "typeIR'")) (Q.varT "typeIR" []))))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg
+                               (Q.e
+                                  (.CaseE (.Atom (Q.a (.Keyword "INOUT"))))
+                                  (Q.varT "direction" [])),
+                             .Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))]))
+                      (Q.varT "varTypeIR" []))),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "add_var_t")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "id")) (Q.varT "id" []))),
+                          Q.ar (.ExpA (Q.e (.VarE (Q.i "varTypeIR")) (Q.varT "varTypeIR" [])))])
+                      (Q.varT "typingContext" [])))]
+             [Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])]]]
+       none
+       [])
 
 def ParserTransition_ok.run
         (p0 : NanoP4Spec.typingContext)
@@ -578,5 +1564,288 @@ theorem ParserTransition_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserTransition_ok.run_sound
+
+def ParserTransition_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ParserTransition_ok")
+       (Q.nt
+          (.Infix
+             (.Seq
+                [.Arg (Q.t (Q.varT "typingContext" [])),
+                 .Arg (Q.t (.IterT (Q.t (Q.varT "nameIR" [])) .List))])
+             (Q.a .Turnstile)
+             (.Arg (Q.t (Q.varT "transitionStatement" [])))))
+       [0, 1, 2]
+       [Q.rg
+          "name"
+          ([Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
+                 (.mk .List [Q.v "nameIR_state" (Q.varT "nameIR" []) []]))
+              (.IterT (Q.t (Q.varT "nameIR" [])) .List),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Atom (Q.a (.Keyword "TRANSITION")),
+                     .Arg
+                       (Q.e
+                          (.CaseE
+                             (.Seq
+                                [.Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                                 .Atom (Q.a (.Operator ";"))]))
+                          (Q.varT "stateExpression" []))]))
+              (Q.varT "transitionStatement" [])],
+           [Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
+                 (.mk .List [Q.v "nameIR_state" (Q.varT "nameIR" []) []]))
+              (.IterT (Q.t (Q.varT "nameIR" [])) .List),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Atom (Q.a (.Keyword "TRANSITION")),
+                     .Arg (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))]))
+              (Q.varT "transitionStatement" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.MatchE
+                       (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))
+                       (.CaseP (.Seq [.Arg (), .Atom (Q.a (.Operator ";"))])))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e
+                    (.CaseE
+                       (.Seq
+                          [.Arg (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])),
+                           .Atom (Q.a (.Operator ";"))]))
+                    (Q.varT "stateExpression" []))
+                 (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" [])))])
+          [Q.rp
+             "name"
+             [Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                   (Q.e
+                      (.CallE
+                         (Q.i "id")
+                         []
+                         [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+                      .TextT)),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.MemE
+                         (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
+                         (Q.e
+                            (.IterE
+                               (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
+                               (.mk .List [Q.v "nameIR_state" (Q.varT "nameIR" []) []]))
+                            (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                      .BoolT))]
+             []],
+        Q.rg
+          "expression"
+          ([Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
+                 (.mk .List [Q.v "nameIR_state" (Q.varT "nameIR" []) []]))
+              (.IterT (Q.t (Q.varT "nameIR" [])) .List),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Atom (Q.a (.Keyword "TRANSITION")),
+                     .Arg
+                       (Q.e
+                          (.UpCastE
+                             (Q.t (Q.varT "stateExpression" []))
+                             (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" [])))
+                          (Q.varT "stateExpression" []))]))
+              (Q.varT "transitionStatement" [])],
+           [Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []),
+            Q.e
+              (.IterE
+                 (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
+                 (.mk .List [Q.v "nameIR_state" (Q.varT "nameIR" []) []]))
+              (.IterT (Q.t (Q.varT "nameIR" [])) .List),
+            Q.e
+              (.CaseE
+                 (.Seq
+                    [.Atom (Q.a (.Keyword "TRANSITION")),
+                     .Arg (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))]))
+              (Q.varT "transitionStatement" [])],
+           [Q.pr
+              (.IfPr
+                 (Q.e
+                    (.SubE
+                       (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" []))
+                       (Q.t (Q.varT "selectExpression" []))
+                       (.MixopSC
+                          [.Seq
+                             [.Atom (Q.a (.Keyword "SELECT")),
+                              .Brack (Q.a .LParen) (.Arg ()) (Q.a .RParen),
+                              .Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)]]))
+                    .BoolT)),
+            Q.pr
+              (.LetPr
+                 (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" []))
+                 (Q.e
+                    (.DownCastE
+                       (Q.t (Q.varT "selectExpression" []))
+                       (Q.e (.VarE (Q.i "stateExpression")) (Q.varT "stateExpression" [])))
+                    (Q.varT "selectExpression" [])))])
+          [Q.rp
+             "expression"
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Atom (Q.a (.Keyword "SELECT")),
+                             .Brack
+                               (Q.a .LParen)
+                               (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                               (Q.a .RParen),
+                             .Brack
+                               (Q.a .LBrace)
+                               (.Arg
+                                  (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))
+                               (Q.a .RBrace)]))
+                      (Q.varT "selectExpression" []))
+                   (Q.e (.VarE (Q.i "selectExpression")) (Q.varT "selectExpression" []))),
+              Q.pr
+                (.RulePr
+                   (Q.i "Expr_ok")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.CaseE (.Atom (Q.a (.Keyword "LOCAL")))) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))
+                         (.mk .List [Q.v "selectCase" (Q.varT "selectCase" []) []]))
+                      (.IterT (Q.t (Q.varT "selectCase" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_selectCaseList")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e (.VarE (Q.i "selectCaseList")) (Q.varT "selectCaseList" [])))])
+                      (.IterT (Q.t (Q.varT "selectCase" [])) .List))),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.LetPr
+                         (Q.e
+                            (.CaseE
+                               (.Seq
+                                  [.Arg
+                                     (Q.e (.VarE (Q.i "expression_case")) (Q.varT "expression" [])),
+                                   .Atom (Q.a (.Operator ":")),
+                                   .Arg (Q.e (.VarE (Q.i "name_case")) (Q.varT "name" [])),
+                                   .Atom (Q.a (.Operator ";"))]))
+                            (Q.varT "selectCase" []))
+                         (Q.e (.VarE (Q.i "selectCase")) (Q.varT "selectCase" []))))
+                   (.mk
+                      .List
+                      [Q.v "selectCase" (Q.varT "selectCase" []) []]
+                      [Q.v "expression_case" (Q.varT "expression" []) [],
+                       Q.v "name_case" (Q.varT "name" []) []])),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.RulePr
+                         (Q.i "Expr_ok")
+                         (.Infix
+                            (.Seq
+                               [.Arg
+                                  (Q.e
+                                     (.CaseE (.Atom (Q.a (.Keyword "LOCAL"))))
+                                     (Q.varT "scope" [])),
+                                .Arg (Q.e (.VarE (Q.i "TC_0")) (Q.varT "typingContext" []))])
+                            (Q.a .Turnstile)
+                            (.Infix
+                               (.Arg (Q.e (.VarE (Q.i "expression_case")) (Q.varT "expression" [])))
+                               (Q.a .Colon)
+                               (.Arg (Q.e (.VarE (Q.i "typeIR_case")) (Q.varT "typeIR" [])))))
+                         [0, 1, 2]))
+                   (.mk
+                      .List
+                      [Q.v "expression_case" (Q.varT "expression" []) []]
+                      [Q.v "typeIR_case" (Q.varT "typeIR" []) []])),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.IfHoldPr
+                         (Q.i "Type_eq")
+                         (.Infix
+                            (.Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))
+                            (Q.a .Tilde2)
+                            (.Arg (Q.e (.VarE (Q.i "typeIR_case")) (Q.varT "typeIR" []))))))
+                   (.mk .List [Q.v "typeIR_case" (Q.varT "typeIR" []) []] [])),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.LetPr
+                         (Q.e (.VarE (Q.i "nameIR_case")) (Q.varT "nameIR" []))
+                         (Q.e
+                            (.CallE
+                               (Q.i "id")
+                               []
+                               [Q.ar (.ExpA (Q.e (.VarE (Q.i "name_case")) (Q.varT "name" [])))])
+                            .TextT)))
+                   (.mk
+                      .List
+                      [Q.v "name_case" (Q.varT "name" []) []]
+                      [Q.v "nameIR_case" (Q.varT "nameIR" []) []])),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.LetPr
+                         (Q.e (.VarE (Q.i "b_contains")) .BoolT)
+                         (Q.e
+                            (.MemE
+                               (Q.e (.VarE (Q.i "nameIR_case")) (Q.varT "nameIR" []))
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
+                                     (.mk .List [Q.v "nameIR_state" (Q.varT "nameIR" []) []]))
+                                  (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                            .BoolT)))
+                   (.mk
+                      .List
+                      [Q.v "nameIR_case" (Q.varT "nameIR" []) []]
+                      [Q.v "b_contains" .BoolT []])),
+              Q.pr
+                (.IfPr
+                   (Q.e
+                      (.CallE
+                         (Q.i "forall_")
+                         []
+                         [Q.ar
+                            (.ExpA
+                               (Q.e
+                                  (.IterE
+                                     (Q.e (.VarE (Q.i "b_contains")) .BoolT)
+                                     (.mk .List [Q.v "b_contains" .BoolT []]))
+                                  (.IterT (Q.t .BoolT) .List)))])
+                      .BoolT))]
+             []]]
+       none
+       [])
 
 end NanoP4Spec

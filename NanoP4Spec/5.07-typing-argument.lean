@@ -3,6 +3,7 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Refine.Quote
 import NanoP4Spec.«5.06-typing-parameter»
 
 /-! # NanoP4Spec.«5.07-typing-argument»
@@ -17,7 +18,7 @@ set_option linter.unusedVariables false
 set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
-open P4SpecTec P4SpecTec.Prelude
+open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
@@ -59,6 +60,57 @@ theorem Argument_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Argument_ok.run_sound
+
+def Argument_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "Argument_ok")
+       (Q.nt
+          (.Infix
+             (.Seq [.Arg (Q.t (Q.varT "scope" [])), .Arg (Q.t (Q.varT "typingContext" []))])
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "argument" [])))
+                (Q.a .Colon)
+                (.Arg (Q.t (Q.varT "argumentIR" []))))))
+       [0, 1, 2]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])],
+           [Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.RulePr
+                   (Q.i "Expr_ok")
+                   (.Infix
+                      (.Seq
+                         [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                          .Arg (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))])
+                      (Q.a .Turnstile)
+                      (.Infix
+                         (.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])))
+                         (Q.a .Colon)
+                         (.Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" [])))))
+                   [0, 1, 2]),
+              Q.pr
+                (.LetPr
+                   (Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" []))
+                   (Q.e
+                      (.CaseE
+                         (.Seq
+                            [.Arg (Q.e (.VarE (Q.i "expression")) (Q.varT "expression" [])),
+                             .Atom (Q.a (.Operator "#")),
+                             .Arg (Q.e (.VarE (Q.i "typeIR")) (Q.varT "typeIR" []))]))
+                      (Q.varT "argumentIR" [])))]
+             [Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" [])]]]
+       none
+       [])
 
 def ArgumentList_ok.run
         (p0 : NanoP4Spec.scope)
@@ -114,5 +166,70 @@ theorem ArgumentList_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ArgumentList_ok.run_sound
+
+def ArgumentList_ok.al : Lang.Al.def :=
+  Q.d
+    (.RelD
+       (Q.i "ArgumentList_ok")
+       (Q.nt
+          (.Infix
+             (.Seq [.Arg (Q.t (Q.varT "scope" [])), .Arg (Q.t (Q.varT "typingContext" []))])
+             (Q.a .Turnstile)
+             (.Infix
+                (.Arg (Q.t (Q.varT "argumentList" [])))
+                (Q.a .Colon)
+                (.Arg (Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List))))))
+       [0, 1, 2]
+       [Q.rg
+          ""
+          ([Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])],
+           [Q.e (.VarE (Q.i "scope")) (Q.varT "scope" []),
+            Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []),
+            Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])],
+           [])
+          [Q.rp
+             ""
+             [Q.pr
+                (.LetPr
+                   (Q.e
+                      (.IterE
+                         (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" []))
+                         (.mk .List [Q.v "argument" (Q.varT "argument" []) []]))
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))
+                   (Q.e
+                      (.CallE
+                         (Q.i "flatten_argumentList")
+                         []
+                         [Q.ar
+                            (.ExpA (Q.e (.VarE (Q.i "argumentList")) (Q.varT "argumentList" [])))])
+                      (.IterT (Q.t (Q.varT "argument" [])) .List))),
+              Q.pr
+                (.IterPr
+                   (Q.pr
+                      (.RulePr
+                         (Q.i "Argument_ok")
+                         (.Infix
+                            (.Seq
+                               [.Arg (Q.e (.VarE (Q.i "scope")) (Q.varT "scope" [])),
+                                .Arg (Q.e (.VarE (Q.i "TC")) (Q.varT "typingContext" []))])
+                            (Q.a .Turnstile)
+                            (.Infix
+                               (.Arg (Q.e (.VarE (Q.i "argument")) (Q.varT "argument" [])))
+                               (Q.a .Colon)
+                               (.Arg (Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" [])))))
+                         [0, 1, 2]))
+                   (.mk
+                      .List
+                      [Q.v "argument" (Q.varT "argument" []) []]
+                      [Q.v "argumentIR" (Q.varT "argumentIR" []) []]))]
+             [Q.e
+                (.IterE
+                   (Q.e (.VarE (Q.i "argumentIR")) (Q.varT "argumentIR" []))
+                   (.mk .List [Q.v "argumentIR" (Q.varT "argumentIR" []) []]))
+                (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]]]
+       none
+       [])
 
 end NanoP4Spec
