@@ -59,3 +59,13 @@ root = "P4SpecTecTest.Diff.NanoP4Run.Main"
 [[lean_exe]]
 name = "nano-p4-interp"
 root = "P4SpecTecTest.Diff.NanoP4Interp.Main"
+
+# The compiled quoted AST must match the current export, modulo regions/hints.
+[[lean_exe]]
+name = "check-quotes"
+root = "P4SpecTecTest.Quote.Main"
+
+# Read-only emission probes and dependency census, including unsupported specs.
+[[lean_exe]]
+name = "p4spectec-census"
+root = "P4SpecTecTest.Census.Main"

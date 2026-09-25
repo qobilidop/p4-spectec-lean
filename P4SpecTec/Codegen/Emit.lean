@@ -141,8 +141,20 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     throw s!"print hints are not supported yet (design 5.4); found on {withPrint}"
   let files := (spec.map Env.fileOf).eraseDups
   let fileIdx (f : String) : Nat := (files.idxOf? f).getD 0
+  -- Spec namespaces overlap: Nano-P4 has a type `id` and a function `$id`.
+  -- A metavariable may also share a name. Keep type and callable lookups separate.
+  let typeDefById : Std.HashMap String Lang.Al.def :=
+    Std.HashMap.ofList (spec.filterMap fun d => match d.it with
+      | .TypD i .. | .ExternTypD i .. => some (i.it, d)
+      | _ => none)
   let defById : Std.HashMap String Lang.Al.def :=
-    Std.HashMap.ofList (spec.map fun d => (d.it.id.it, d))
+    Std.HashMap.ofList (spec.filterMap fun d => match d.it with
+      | .RelD i .. | .ExternRelD i .. | .FuncDecD i .. | .BuiltinDecD i ..
+      | .TableDecD i .. | .ExternDecD i .. => some (i.it, d)
+      | _ => none)
+  let typeFile (id : String) : Nat := match typeDefById.get? id with
+    | some d => fileIdx (Env.fileOf d)
+    | none => 0
   let defFile (id : String) : Nat := match defById.get? id with
     | some d => fileIdx (Env.fileOf d)
     | none => 0
@@ -171,7 +183,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     let recursive := Graph.isRecursive group typeDeps
     let unfold := if recursive then [Types.unfoldAll] else []
     let depFiles := group.flatMap fun id => (typeDeps id).map fun d => typeUnitFile.getD d 0
-    let file := (group.map defFile ++ depFiles).foldl max 0
+    let file := (group.map typeFile ++ depFiles).foldl max 0
     let externDecls := externTypes.map fun tid =>
       Format.text s!"abbrev {Names.typeName tid} : Type := ExternValue"
     let decls := if recursive then
@@ -186,7 +198,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     else joinDecls (members.map fun (tid, tparams, dt) => typeDecl env [] tid tparams dt)
     let encoders := if members.isEmpty then []
       else [toValueDecls env members, ofValueDecls env members]
-    let quotedTypes := group.filterMap fun id => match defById.get? id with
+    let quotedTypes := group.filterMap fun id => match typeDefById.get? id with
       | some d => some (Reify.quoted (Names.typeName id) d)
       | none => none
     let unitIdx := units.length

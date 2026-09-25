@@ -36,24 +36,7 @@ def id.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.id
 
 instance : OfValue NanoP4Spec.id := ⟨NanoP4Spec.id.ofValue⟩
 
-def id.al : Lang.Al.def :=
-  Q.d
-    (.FuncDecD
-       (Q.i "id")
-       []
-       [Q.pm (.ExpP (Q.t (Q.varT "name" [])))]
-       (Q.t .TextT)
-       [Q.cl
-          [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))]
-          (Q.e
-             (.CallE
-                (Q.i "print_")
-                [Q.t (Q.varT "name" [])]
-                [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
-             .TextT)
-          []]
-       none
-       [])
+def id.al : Lang.Al.def := Q.d (.TypD (Q.i "id") [] (Q.dt (.PlainT (Q.t .TextT))) [])
 
 abbrev callableId : Type := String
 

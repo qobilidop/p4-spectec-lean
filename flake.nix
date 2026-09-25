@@ -1,5 +1,5 @@
 {
-  description = "p4-spectec-lean: P4-SpecTec IL to Lean 4";
+  description = "p4-spectec-lean: P4-SpecTec AL to Lean 4";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -56,6 +56,7 @@
               pkg-config
               gnumake
               git
+              python3
             ]);
           };
         });

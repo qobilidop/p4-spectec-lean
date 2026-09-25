@@ -9,6 +9,10 @@ result
 # Scratch output: logs, differential replays, emitted Lean
 .artifacts/
 
+# Working inputs; lossless gzip snapshots and checksums are committed.
+/exports/p4.al.json
+/exports/nano-p4.al.json
+
 # Python
 __pycache__/
 *.pyc

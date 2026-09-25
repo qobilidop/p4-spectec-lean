@@ -20,6 +20,7 @@ Verified on leanprover/lean4:v4.34.1 (2026-09-25) while building the code genera
 - `Lean.Parser.getTokenTable env |>.values` lists tokens; run the extraction from an `#eval` in a file that imports all of `Lean` (`importModules` in a `--run` main sees fewer).
 - API drift: `String.drop`/`dropEnd` return `String.Slice`; `String.get`/`String.mk`/`List.asString` deprecated (use `String.ofList`); core `Int` has `Int.not` but no `land`/`lor`/`xor`; `Lean.Json.compress` needs `import Lean.Data.Json.Printer`; `Json.getObjVal?` replaces map lookups.
 - A binder named `at` or a field named `at` needs `«at»`; a pattern variable named `id` is ambiguous when a namespace defines `id`.
+- Deriving `ToJson` for the IL mutual AST block fails on this toolchain: a recursive `subcheck` call targets the `typ'` helper. The independent quotation test uses derived `BEq` instead; nested-inductive opacity is harmless for an executable check.
 
 ## Writing tactics
 

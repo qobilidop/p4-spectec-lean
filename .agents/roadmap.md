@@ -26,8 +26,6 @@ Rung 3 beyond M2's fragment (the M3 work order, in order of payoff):
   against the generated bridges); then indexing, slicing, membership,
   type parameters, externs. The first relation to enter the fragment
   exercises the relation form of the statement in the build.
-- A decode-erase-compare test of the quoted spec (`NanoP4Spec.spec`)
-  against the export, so that quoting is checked rather than read.
 - `Match.sub_`, `Match.check'` and `Subst.subst_typ_inner` answer
   something at fuel zero instead of diverging (the class of wart fixed in
   `is_iter_var_exp`); recursion on size, as there, before casts enter the

@@ -124,6 +124,35 @@ settles is not repeated here.
 
 ## Generated code
 
+- **M3A is reconnaissance, not completion of full-P4 generation.** The
+  user authorized the full export, capability census, independent quoted
+  AST check and a concrete plan for the rest of M3. `P4Spec.lean` remains
+  a placeholder until the generator accepts the unchanged full export.
+  The subsequent phases and exit criteria are in
+  `.agents/notes/full-p4-reconnaissance.md`. Reason: separate rendering barriers,
+  interpreter fidelity, target behavior and proof coverage so progress
+  cannot be mistaken for the thesis's all-definition claim. (2026-09-25)
+- **Spec directory enumeration belongs to upstream.** `export-spec.sh`
+  passes the directory directly; upstream traverses recursively in sorted
+  order and excludes `include/`. Reason: full P4 is sectioned, Nano-P4 is
+  flat, and upstream already defines a deterministic policy. Nano-P4's
+  export remains byte-identical. (2026-09-25)
+- **Commit spec AL snapshots as deterministic gzip with a raw SHA-256.**
+  User approved replacing the proposed 93.83 MiB JSON with a 2.61 MiB
+  lossless snapshot before its first commit. `spec-snapshot.py` packs
+  without a timestamp or filename and verifies before unpacking the
+  ignored working JSON; the gate does this without OCaml. No regions or
+  hints are erased. Nano-P4 migrates forward to 244,303 compressed bytes,
+  preserving its original JSON bytes and published history. Rewriting
+  history would save only its 268,720-byte Git object, not 8.11 MiB.
+  The gate rejects tracked/indexed files over 5 MiB, with no exceptions.
+  Reason:
+  preserve the self-contained frontend/Lean contract without nearing
+  GitHub's 100 MiB file limit or requiring LFS. Compressed files lose
+  ordinary text diffs and still accumulate history; revisit at upstream
+  bumps if size or churn warrants external checksum-pinned artifacts.
+  Confidence: high for this checkpoint, medium long term. (2026-09-25)
+
 - **The compiler consumes the AL (`algo -json`), not the IL.** The AL is
   the IL after upstream's algo pass: binding analysis rewrites every rule
   and clause so that patterns are single-level, subtype injections are
@@ -257,6 +286,26 @@ settles is not repeated here.
   partiality is `Option` with side conditions. (2026-09-25)
 
 ## Verification
+
+- **Check the compiled quoted spec independently on every gate run.**
+  `check-quotes` decodes the current Nano-P4 export and compares it with
+  `NanoP4Spec.spec` using derived AST equality, with test-only instances
+  ignoring regions and hint lists. Source `VarD` entries are omitted,
+  like `Ctx.init`; type notes and all other fields and ordering remain.
+  Reason: comparing reifier output to itself cannot catch a bad quote,
+  and a cached `#eval` cannot notice a changed external JSON file. The
+  check caught the existing type `id`/function `$id` lookup collision;
+  separate maps now preserve type quotations and source placement.
+  This is a test of quoting, not a kernel proof, and extends to full P4
+  once its generated library builds. (2026-09-25)
+- **The full-P4 census is checked but is not a successful compilation.**
+  `p4spectec-census` probes individual emitters, so every component gets
+  its own first diagnostic despite earlier global failures. The checked
+  report includes raw type recursion separately from the generator's
+  mutual-wrapper choice; type text estimates follow the generator's alias
+  unfolding rules. Reason: actual emitter diagnostics are useful for work
+  ordering, while successful text emission and syntactic proof eligibility
+  establish neither elaboration nor correctness. (2026-09-25)
 
 - **Rung 3 is proof-producing translation, and the theorem is a
   type-indexed refinement, not equality.** Per IL type a value relation
