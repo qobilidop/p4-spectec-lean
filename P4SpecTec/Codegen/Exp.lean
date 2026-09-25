@@ -28,8 +28,8 @@ namespace P4SpecTec.Codegen.Exp
 open Std (Format)
 open P4SpecTec.Util.Source
 open P4SpecTec.Domain
-open P4SpecTec.IL
-open P4SpecTec.AL
+open P4SpecTec.Lang.Il
+open P4SpecTec.Lang.Al
 open P4SpecTec.Codegen.Types
 
 /-- What the compiler knows while compiling one definition. -/
@@ -154,6 +154,12 @@ def zipBinder (pat : String) (types : List Term) : Format :=
     | ts => Format.joinSep (ts.map (·.arg)) " × "
   Term.binder (Format.text pat) ty
 
+/-- Bind `o` to the projection `proj` of every element of the list `t`; a
+single variable needs no projection. -/
+def unzipStmt (o t proj : String) : Format :=
+  if proj.isEmpty then Term.letStmt (Format.text o) (.atom t)
+  else Term.letStmt (Format.text o) (Term.call "List.map" [.atom s!"(·{proj})", .atom t])
+
 /-- The projections of a tuple of `n` components, for unzipping. -/
 def projections (n : Nat) : List String :=
   (List.range n).map fun i =>
@@ -264,7 +270,7 @@ partial def compileExp (e : exp) : CgM Term := do
     let l ← compileExp a
     let r ← compileExp b
     -- the operand kind decides, as `Num.bin` does: `optyp` names the result
-    let optyp : IL.optyp := match env.resolve a.note with
+    let optyp : Lang.Il.optyp := match env.resolve a.note with
       | .NumT .NatT => .NatT
       | .NumT .IntT => .IntT
       | _ => optyp
@@ -277,12 +283,11 @@ partial def compileExp (e : exp) : CgM Term := do
     | .SubOp, .NatT => pure (.call "Num.natSub" [l, r])
     | .SubOp, _ => pure (.binop "-" l r)
     | .MulOp, _ => pure (.binop "*" l r)
-    | .DivOp, .NatT => pure (.binop "/" l r)
-    | .DivOp, _ => pure (.call "Num.intDiv" [l, r])
-    | .ModOp, .NatT => pure (.binop "%" l r)
-    | .ModOp, _ => pure (.call "Num.intMod" [l, r])
-    | .PowOp, .NatT => pure (.binop "^" l r)
-    | .PowOp, _ => pure (.call "Num.intPow" [l, r])
+    | .DivOp, .NatT => hoist (.call "Num.natDiv?" [l, r])
+    | .DivOp, _ => hoist (.call "Num.intDiv?" [l, r])
+    | .ModOp, .NatT => hoist (.call "Num.natMod?" [l, r])
+    | .ModOp, _ => hoist (.call "Num.intMod?" [l, r])
+    | .PowOp, _ => hoist (.call "Num.pow?" [l, r])
   | .CmpE op _ a b =>
     let l ← compileExp a
     let r ← compileExp b
@@ -394,7 +399,7 @@ partial def dotPath (p : path) : Option (List String) :=
   | _ => none
 
 /-- An iterated expression over its variables. -/
-partial def compileIter (inner : exp) (iter : iter) (vars : List IL.var) : CgM Term := do
+partial def compileIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) : CgM Term := do
   let inners := vars.map fun v => Names.varName v.id.it v.iters
   let outers := vars.map fun v => var v.id.it (v.iters ++ [iter])
   let types ← vars.mapM fun v => typOf v.typ.it
@@ -483,7 +488,8 @@ partial def binders (ps : List exp) : CgM (List String × List (exp × String)) 
 
 /-- Bind an iterated pattern: match every element and collect the
 variables' bindings into lists (or options). Mirrors `assign_iter_exp`. -/
-partial def assignIter (inner : exp) (iter : iter) (vars : List IL.var) (v : Term) : CgM Unit := do
+partial def assignIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) (v : Term) :
+    CgM Unit := do
   let inners := vars.map fun w => Names.varName w.id.it w.iters
   let outers := vars.map fun w => Names.varName w.id.it (w.iters ++ [iter])
   let ((), stmts) ← subBlock (assign inner (.atom "elem"))
@@ -495,7 +501,7 @@ partial def assignIter (inner : exp) (iter : iter) (vars : List IL.var) (v : Ter
   | .List =>
     emit (Term.bindStmt t (Term.call "List.mapM" [.lamF elem (doOf stmts result), v]))
     for (o, proj) in outers.zip (projections outers.length) do
-      emit (Term.letStmt (Format.text o) (Term.call "List.map" [.atom s!"(·{proj})", .atom t]))
+      emit (unzipStmt o t proj)
   | .Opt =>
     let someRes := Term.tuple (inners.map fun n => Term.call "some" [.atom n])
     let noneRes := Term.tuple (inners.map fun _ => Term.atom "none")
@@ -562,7 +568,7 @@ partial def compilePrem (p : prem) : CgM Unit := do
 
 /-- An iterated premise: run the premise per batch of bound values and
 collect the binding variables. Mirrors `eval_iter_prem`. -/
-partial def iterPrem (q : prem) (iter : iter) (bound bind : List IL.var) : CgM Unit := do
+partial def iterPrem (q : prem) (iter : iter) (bound bind : List Lang.Il.var) : CgM Unit := do
   let boundIn := bound.map fun w => Names.varName w.id.it w.iters
   let boundOut := bound.map fun w => var w.id.it (w.iters ++ [iter])
   let bindIn := bind.map fun w => Names.varName w.id.it w.iters
@@ -580,12 +586,14 @@ partial def iterPrem (q : prem) (iter : iter) (bound bind : List IL.var) : CgM U
       let b := zipBinder pat boundTypes
       emit (Term.bindStmt t (Term.call "List.mapM" [.lamF b (doOf stmts result), z]))
       for (o, proj) in bindOut.zip (projections bindOut.length) do
-        emit (Term.letStmt (Format.text o) (Term.call "List.map" [.atom s!"(·{proj})", .atom t]))
+        emit (unzipStmt o t proj)
   | .Opt =>
     let someRes := Term.tuple (bindIn.map fun n => Term.call "some" [.atom n])
     let noneRes := Term.tuple (bindIn.map fun _ => Term.atom "none")
     if bound.isEmpty then
-      for o in bindOut do emit (Format.text s!"let {o} := none")
+      -- `sub_opt ctx []` is `Some ctx`: the premise runs once and binds `some`
+      for st in stmts do emit st
+      for (o, n) in bindOut.zip bindIn do emit (Format.text s!"let {o} := some {n}")
     else
       let somePat := "(" ++ ", ".intercalate (boundIn.map fun n => s!"some {n}") ++ ")"
       let nonePat := "(" ++ ", ".intercalate (boundIn.map fun _ => "none") ++ ")"
@@ -658,10 +666,10 @@ partial def expsOfPrem (p : prem) : List exp :=
   | .IterPr q _ => expsOfPrem q
 
 /-- The expressions of a definition. -/
-def expsOfDef (d : AL.def) : List exp :=
+def expsOfDef (d : Lang.Al.def) : List exp :=
   match d.it with
   | .RelD _ _ _ groups eg _ =>
-    let ofGroup (g : AL.rulegroup) : List exp :=
+    let ofGroup (g : Lang.Al.rulegroup) : List exp :=
       let (_, (sig, ins, prems), paths) := g.it
       sig ++ ins ++ prems.flatMap expsOfPrem ++
         paths.flatMap fun (_, ps, outs) => ps.flatMap expsOfPrem ++ outs
@@ -695,12 +703,12 @@ partial def callsOfPrem (p : prem) : List String :=
     (match p.it with | .IterPr q _ => callsOfPrem q | _ => [])
 
 /-- The relations and functions a definition calls. -/
-def callsOfDef (d : AL.def) : List String :=
+def callsOfDef (d : Lang.Al.def) : List String :=
   let ofExp := callsOfExp
   let ofPrem := callsOfPrem
   match d.it with
   | .RelD _ _ _ groups eg _ =>
-    let ofGroup (g : AL.rulegroup) : List String :=
+    let ofGroup (g : Lang.Al.rulegroup) : List String :=
       let (_, (_, _, prems), paths) := g.it
       prems.flatMap ofPrem ++
         paths.flatMap fun (_, ps, outs) => ps.flatMap ofPrem ++ outs.flatMap ofExp

@@ -1,4 +1,4 @@
-import P4SpecTec.AL.Json
+import P4SpecTec.Lang.Al.Json
 import P4SpecTec.Codegen.Emit
 
 /-!
@@ -43,7 +43,7 @@ def main (argv : List String) : IO UInt32 := do
     IO.eprintln "usage: p4spectec-gen <export.al.json> --lib <Lib>"
     IO.eprintln "                     [--out DIR] [--update|--check]"
     return 2
-  let spec ← AL.Json.readSpec args.exportPath
+  let spec ← Lang.Al.Json.readSpec args.exportPath
   let outs ← match Codegen.Emit.generate args.lib args.exportPath spec with
     | .ok o => pure o
     | .error e => do IO.eprintln s!"p4spectec-gen: {e}"; return 1

@@ -4,7 +4,7 @@ Numbers: natural numbers and integers, and their operators. Mirrors
 `Int`.
 -/
 
-namespace P4SpecTec.Xl.Num
+namespace P4SpecTec.Lang.Xl.Num
 
 /-- A number. Mirrors `Num.t` (`` `Nat `` and `` `Int ``). -/
 inductive t where
@@ -73,4 +73,4 @@ def string_of_num : t → String
   | .Nat n => toString n
   | .Int i => (if i ≥ 0 then "+" else "-") ++ toString i.natAbs
 
-end P4SpecTec.Xl.Num
+end P4SpecTec.Lang.Xl.Num

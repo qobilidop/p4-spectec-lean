@@ -5,7 +5,7 @@ Text builtins. Mirrors `p4spec/lib/interface/builtin/texts.ml`, function
 for function, on `String`.
 -/
 
-namespace P4SpecTec.Prelude.Builtins.Texts
+namespace P4SpecTec.Builtin.Texts
 
 /-- `dec $text_to_int(text) : int`; `none` where `Bigint.of_string` raises. -/
 def text_to_int (s : String) : Option Int := s.toInt?
@@ -29,4 +29,4 @@ def strip_suffix (s suffix : String) : Option String :=
 /-- `dec $strip_all_whitespace(text) : text`: removes spaces. -/
 def strip_all_whitespace (s : String) : String := "".intercalate (s.splitOn " ")
 
-end P4SpecTec.Prelude.Builtins.Texts
+end P4SpecTec.Builtin.Texts

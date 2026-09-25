@@ -86,6 +86,15 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   structure, mirror it exactly. Every module that mirrors an upstream
   file says which in its header. Deviations forced by Lean go in the
   named list in the design, nowhere else.
+- **File naming, by provenance.** A module that mirrors upstream OCaml
+  sits at the OCaml file's path under `p4spec/lib/`, capitalised
+  (`P4SpecTec/Lang/Il/Ast.lean` mirrors `lang/il/ast.ml`,
+  `Interface/Builtin/Texts.lean` mirrors `interface/builtin/texts.ml`);
+  `scripts/check-mirror.py` derives the pairs from the paths, and a module
+  of our own under those roots says "not a mirror". A generated module is
+  named after its spec file verbatim (`NanoP4Spec/3.2-bits.lean`). Our
+  own code follows Lean conventions (`Codegen/Emit.lean`, `Prelude/`),
+  scripts and documents kebab-case.
 - **The Lean package and namespace are `P4SpecTec`.** `SpecTec` alone
   names the Wasm-DSL project and is not used here.
 - **Every external input is pinned**: P4-SpecTec by commit (the

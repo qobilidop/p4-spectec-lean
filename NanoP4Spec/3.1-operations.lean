@@ -16,30 +16,29 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
 def «$bitstr_to_int» (fuel : Nat) (p0 : Int) (p1 : Int) : Option Int :=
-  Builtins.Numerics.bitstr_to_int p0 p1
+  Builtin.Numerics.bitstr_to_int p0 p1
 
 def «$int_to_bitstr» (fuel : Nat) (p0 : Int) (p1 : Int) : Option Int :=
-  Builtins.Numerics.int_to_bitstr p0 p1
+  Builtin.Numerics.int_to_bitstr p0 p1
 
 def «$pow2» (fuel : Nat) (p0 : Nat) : Option Int :=
-  pure (Builtins.Numerics.pow2 (Int.ofNat p0))
+  pure (Builtin.Numerics.pow2 (Int.ofNat p0))
 
 def «$bneg» (fuel : Nat) (p0 : Int) : Option Int :=
-  pure (Builtins.Numerics.bneg p0)
+  pure (Builtin.Numerics.bneg p0)
 
 def «$band» (fuel : Nat) (p0 : Int) (p1 : Int) : Option Int :=
-  pure (Builtins.Numerics.band p0 p1)
+  pure (Builtin.Numerics.band p0 p1)
 
 def «$bxor» (fuel : Nat) (p0 : Int) (p1 : Int) : Option Int :=
-  pure (Builtins.Numerics.bxor p0 p1)
+  pure (Builtin.Numerics.bxor p0 p1)
 
 def «$bor» (fuel : Nat) (p0 : Int) (p1 : Int) : Option Int :=
-  pure (Builtins.Numerics.bor p0 p1)
+  pure (Builtin.Numerics.bor p0 p1)
 
 def «$un_op»
     (fuel : Nat)

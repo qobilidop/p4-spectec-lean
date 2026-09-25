@@ -1,20 +1,25 @@
-import P4SpecTec.Util.Json
-import P4SpecTec.IL.Ast
+import P4SpecTec.Util.Yojson
+import P4SpecTec.Lang.Il.Ast
 
 /-!
-JSON decoders for the IL, one per type of `P4SpecTec.IL.Ast`, following
+Not a mirror: this module is ours, placed beside the module whose values it
+decodes.
+
+Not a mirror: this module is our own, placed beside the module it decodes.
+
+JSON decoders for the IL, one per type of `P4SpecTec.Lang.Il.Ast`, following
 the `[@@deriving yojson]` encoding of `p4spec/lib/lang/il/ast.ml` and the
 hand-written `Mixfix.mixop_to_yojson`. The decoders are `partial` because
 they recurse through `Lean.Json`, which is not a structural argument; they
 are not part of the generated code or of any proof.
 -/
 
-namespace P4SpecTec.IL.Json
+namespace P4SpecTec.Lang.Il.Json
 
 open Lean (Json)
 open P4SpecTec.Util.Source
-open P4SpecTec.Util.Json
-open P4SpecTec.Xl
+open P4SpecTec.Util.Yojson
+open P4SpecTec.Lang.Xl
 open P4SpecTec.Domain
 
 /-- Decode `Num.t`. -/
@@ -391,4 +396,4 @@ def «def» : D «def» := phrase def'
 /-- Decode `spec`. -/
 def spec : D spec := list «def»
 
-end P4SpecTec.IL.Json
+end P4SpecTec.Lang.Il.Json

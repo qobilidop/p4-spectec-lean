@@ -1,4 +1,4 @@
-import P4SpecTec.IL.Ast
+import P4SpecTec.Lang.Il.Ast
 
 /-!
 The AL (algorithmic language) abstract syntax. Mirrors
@@ -9,10 +9,10 @@ consumes AL, the output of upstream's `algo` pass (binding analysis and
 guard insertion), which is what the AL interpreter runs.
 -/
 
-namespace P4SpecTec.AL
+namespace P4SpecTec.Lang.Al
 
 open P4SpecTec.Util.Source
-open P4SpecTec.IL
+open P4SpecTec.Lang.Il
 
 /- Rules -/
 
@@ -85,4 +85,4 @@ def def'.id : def' → id
   | .ExternTypD id _ | .TypD id .. | .VarD id .. | .ExternRelD id .. | .RelD id ..
   | .ExternDecD id .. | .BuiltinDecD id .. | .TableDecD id .. | .FuncDecD id .. => id
 
-end P4SpecTec.AL
+end P4SpecTec.Lang.Al

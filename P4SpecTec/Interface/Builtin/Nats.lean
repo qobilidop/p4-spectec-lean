@@ -2,7 +2,7 @@
 Natural-number builtins. Mirrors `p4spec/lib/interface/builtin/nats.ml`.
 -/
 
-namespace P4SpecTec.Prelude.Builtins.Nats
+namespace P4SpecTec.Builtin.Nats
 
 /-- `dec $sum_nat(nat*) : nat`. -/
 def sum_nat (ns : List Nat) : Nat := ns.sum
@@ -13,4 +13,4 @@ def max_nat (ns : List Nat) : Option Nat := ns.max?
 /-- `dec $min_nat(nat*) : nat`; `none` on the empty list, where upstream errors. -/
 def min_nat (ns : List Nat) : Option Nat := ns.min?
 
-end P4SpecTec.Prelude.Builtins.Nats
+end P4SpecTec.Builtin.Nats

@@ -2,11 +2,13 @@
 """Mirror checks: a Lean module that mirrors an upstream OCaml file declares
 the same constructors in the same order (design section 2.1).
 
-Each pair below names an OCaml file of the pinned P4-SpecTec and the Lean
-module that mirrors it. Constructors are read from type declarations only:
-OCaml `type`/`and` blocks, Lean `inductive` blocks. The OCaml sequence must
-be a subsequence of the Lean one (the Lean file may add helper inductives,
-and flattens the polymorphic-variant unions). Exit 0 is the verdict.
+The pairs are derived from the paths: a Lean module under a mirrored root
+mirrors the OCaml file at the same path, lower-cased, under p4spec/lib/, or
+declares itself "not a mirror". Constructors are read from type declarations only:
+OCaml `type`/`and` blocks, Lean `inductive` blocks. For every OCaml type
+with constructors, the Lean inductive of the same name must list the same
+constructors in the same order; a polymorphic-variant union is compared
+against the flattened Lean inductive. Exit 0 is the verdict.
 """
 import pathlib
 import re
@@ -18,14 +20,21 @@ UP = ROOT / "upstream" / "p4-spectec" / "p4spec" / "lib"
 # Types internal to an OCaml function's implementation, not mirrored.
 SKIP = {"domain/mixfix.ml": {"atom_internal"}}
 
-PAIRS = [
-    ("lang/il/ast.ml", "P4SpecTec/IL/Ast.lean"),
-    ("lang/al/ast.ml", "P4SpecTec/AL/Ast.lean"),
-    ("domain/atom.ml", "P4SpecTec/Domain/Atom.lean"),
-    ("domain/mixfix.ml", "P4SpecTec/Domain/Mixfix.lean"),
-    ("lang/xl/num.ml", "P4SpecTec/Xl/Num.lean"),
-    ("lang/xl/bool.ml", "P4SpecTec/Xl/Bool.lean"),
-]
+# Roots under P4SpecTec/ whose modules mirror upstream: a module's path,
+# lower-cased, is the OCaml file under p4spec/lib/ (Lang/Il/Ast.lean is
+# lang/il/ast.ml). A module there with no such file must say "not a mirror"
+# in its docstring.
+MIRROR_ROOTS = ["Lang", "Domain", "Util", "Interface", "Runtime"]
+
+
+def pairs():
+    out = []
+    for root_name in MIRROR_ROOTS:
+        for lean in sorted((ROOT / "P4SpecTec" / root_name).rglob("*.lean")):
+            rel = lean.relative_to(ROOT / "P4SpecTec")
+            ml = "/".join(c.lower() for c in rel.with_suffix("").parts) + ".ml"
+            out.append((ml, str(lean.relative_to(ROOT))))
+    return out
 
 
 def ocaml_types(text):
@@ -37,9 +46,9 @@ def ocaml_types(text):
         stripped = line.strip()
         if stripped.startswith("(*"):
             continue
-        m = re.match(r"(?:type|and)\s+(?:\([^)]*\)\s+|'[a-z]\s+)?([a-z_][A-Za-z0-9_']*)", stripped)
-        if m:
-            name = m.group(1)
+        m = re.match(r"(type|and)\s+(?:\([^)]*\)\s+|'[a-z]\s+)?([a-z_][A-Za-z0-9_']*)", stripped)
+        if m and (m.group(1) == "type" or name):   # `and` continues a type block only
+            name = m.group(2)
         elif re.match(r"(let|module|exception|val)\b", stripped):
             name = None
         if not name:
@@ -93,7 +102,14 @@ def lean_types(text):
 
 def main():
     fail = 0
-    for ml, lean in PAIRS:
+    for ml, lean in pairs():
+        text = (ROOT / lean).read_text()
+        if not (UP / ml).exists():
+            if "not a mirror" in text.lower():
+                continue
+            fail = 1
+            print(f"[check-mirror] {lean} has no upstream {ml} and does not say 'not a mirror'")
+            continue
         a = expand_unions(ocaml_types((UP / ml).read_text()))
         b = lean_types((ROOT / lean).read_text())
         bad = []

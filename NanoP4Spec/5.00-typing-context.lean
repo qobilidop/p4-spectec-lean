@@ -16,18 +16,17 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
 abbrev typeDefEnv : Type := NanoP4Spec.map NanoP4Spec.typeId NanoP4Spec.typeDefIR
 
-def typeDefEnv.toValue (x : NanoP4Spec.typeDefEnv) : IL.value := ToValue.toValue x
+def typeDefEnv.toValue (x : NanoP4Spec.typeDefEnv) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.typeDefEnv := ⟨NanoP4Spec.typeDefEnv.toValue⟩
 instance : BEq NanoP4Spec.typeDefEnv := ⟨valueEq⟩
 
-def typeDefEnv.ofValue : Nat → IL.value → Option NanoP4Spec.typeDefEnv
+def typeDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDefEnv
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -38,35 +37,44 @@ inductive callableTypeDef where
   | PARSER (parameterIR : List NanoP4Spec.parameterIR)
   | CONTROL (parameterIR : List NanoP4Spec.parameterIR)
 
-def callableTypeDef.toValue : NanoP4Spec.callableTypeDef → IL.value
-  | .ACTION x0 => Value.case (Value.varT
-     "callableTypeDef") (.Seq
-     [(.Atom (Value.atom (.Keyword "ACTION"))), (.Arg (ToValue.toValue x0))])
-  | .PARSER x0 => Value.case (Value.varT
-     "callableTypeDef") (.Seq
-     [(.Atom (Value.atom (.Keyword "PARSER"))), (.Arg (ToValue.toValue x0))])
-  | .CONTROL x0 => Value.case (Value.varT
-     "callableTypeDef") (.Seq
-     [(.Atom (Value.atom (.Keyword "CONTROL"))), (.Arg (ToValue.toValue x0))])
+def callableTypeDef.toValue : NanoP4Spec.callableTypeDef → Lang.Il.value
+  | .ACTION x0 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callableTypeDef")
+        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))), (.Arg (ToValue.toValue x0))])
+  | .PARSER x0 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callableTypeDef")
+        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))), (.Arg (ToValue.toValue x0))])
+  | .CONTROL x0 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callableTypeDef")
+        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))), (.Arg (ToValue.toValue x0))])
 
 instance : ToValue NanoP4Spec.callableTypeDef := ⟨NanoP4Spec.callableTypeDef.toValue⟩
 instance : BEq NanoP4Spec.callableTypeDef := ⟨valueEq⟩
 
-def callableTypeDef.ofValue : Nat → IL.value → Option NanoP4Spec.callableTypeDef
+def callableTypeDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableTypeDef
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0] :=
-             Value.caseArgs c (.Seq [(.Atom (Value.atom (.Keyword "ACTION"))), (.Arg ())]) | none
+             Prelude.Value.caseArgs
+               c
+               (.Seq [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))), (.Arg ())]) | none
          pure (NanoP4Spec.callableTypeDef.ACTION (← OfValue.ofValue fuel a0))) <|>
       ((do
           let some [a0] :=
-              Value.caseArgs c (.Seq [(.Atom (Value.atom (.Keyword "PARSER"))), (.Arg ())]) | none
+              Prelude.Value.caseArgs
+                c
+                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))), (.Arg ())]) | none
           pure (NanoP4Spec.callableTypeDef.PARSER (← OfValue.ofValue fuel a0))) <|>
        (do
           let some [a0] :=
-              Value.caseArgs c (.Seq [(.Atom (Value.atom (.Keyword "CONTROL"))), (.Arg ())]) | none
+              Prelude.Value.caseArgs
+                c
+                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))), (.Arg ())]) | none
           pure (NanoP4Spec.callableTypeDef.CONTROL (← OfValue.ofValue fuel a0))))
     | _ => none
 
@@ -74,12 +82,13 @@ instance : OfValue NanoP4Spec.callableTypeDef := ⟨NanoP4Spec.callableTypeDef.o
 
 abbrev callableTypeDefEnv : Type := NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableTypeDef
 
-def callableTypeDefEnv.toValue (x : NanoP4Spec.callableTypeDefEnv) : IL.value := ToValue.toValue x
+def callableTypeDefEnv.toValue (x : NanoP4Spec.callableTypeDefEnv) : Lang.Il.value :=
+  ToValue.toValue x
 
 instance : ToValue NanoP4Spec.callableTypeDefEnv := ⟨NanoP4Spec.callableTypeDefEnv.toValue⟩
 instance : BEq NanoP4Spec.callableTypeDefEnv := ⟨valueEq⟩
 
-def callableTypeDefEnv.ofValue : Nat → IL.value → Option NanoP4Spec.callableTypeDefEnv
+def callableTypeDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableTypeDefEnv
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -88,19 +97,21 @@ instance : OfValue NanoP4Spec.callableTypeDefEnv := ⟨NanoP4Spec.callableTypeDe
 inductive varTypeIR where
   | mk (direction : NanoP4Spec.direction) (typeIR : NanoP4Spec.typeIR)
 
-def varTypeIR.toValue : NanoP4Spec.varTypeIR → IL.value
-  | .mk x0 x1 => Value.case (Value.varT
-     "varTypeIR") (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1))])
+def varTypeIR.toValue : NanoP4Spec.varTypeIR → Lang.Il.value
+  | .mk x0 x1 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "varTypeIR")
+        (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1))])
 
 instance : ToValue NanoP4Spec.varTypeIR := ⟨NanoP4Spec.varTypeIR.toValue⟩
 instance : BEq NanoP4Spec.varTypeIR := ⟨valueEq⟩
 
-def varTypeIR.ofValue : Nat → IL.value → Option NanoP4Spec.varTypeIR
+def varTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.varTypeIR
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
-         let some [a0, a1] := Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
+         let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.varTypeIR.mk (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
     | _ => none
 
@@ -108,12 +119,12 @@ instance : OfValue NanoP4Spec.varTypeIR := ⟨NanoP4Spec.varTypeIR.ofValue⟩
 
 abbrev typeFrame : Type := NanoP4Spec.map NanoP4Spec.id NanoP4Spec.varTypeIR
 
-def typeFrame.toValue (x : NanoP4Spec.typeFrame) : IL.value := ToValue.toValue x
+def typeFrame.toValue (x : NanoP4Spec.typeFrame) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.typeFrame := ⟨NanoP4Spec.typeFrame.toValue⟩
 instance : BEq NanoP4Spec.typeFrame := ⟨valueEq⟩
 
-def typeFrame.ofValue : Nat → IL.value → Option NanoP4Spec.typeFrame
+def typeFrame.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeFrame
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -124,16 +135,18 @@ structure globalTypingLayer where
   CALLABLE : NanoP4Spec.callableTypeDefEnv
   FRAME : NanoP4Spec.typeFrame
 
-def globalTypingLayer.toValue : NanoP4Spec.globalTypingLayer → IL.value
-  | ⟨x0, x1, x2⟩ => Value.str (Value.varT
-     "globalTypingLayer") [("TYPE", ToValue.toValue x0),
-   ("CALLABLE", ToValue.toValue x1),
-   ("FRAME", ToValue.toValue x2)]
+def globalTypingLayer.toValue : NanoP4Spec.globalTypingLayer → Lang.Il.value
+  | ⟨x0, x1, x2⟩ =>
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "globalTypingLayer")
+        [("TYPE", ToValue.toValue x0),
+         ("CALLABLE", ToValue.toValue x1),
+         ("FRAME", ToValue.toValue x2)]
 
 instance : ToValue NanoP4Spec.globalTypingLayer := ⟨NanoP4Spec.globalTypingLayer.toValue⟩
 instance : BEq NanoP4Spec.globalTypingLayer := ⟨valueEq⟩
 
-def globalTypingLayer.ofValue : Nat → IL.value → Option NanoP4Spec.globalTypingLayer
+def globalTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.globalTypingLayer
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2)] =>
@@ -148,13 +161,14 @@ instance : OfValue NanoP4Spec.globalTypingLayer := ⟨NanoP4Spec.globalTypingLay
 structure blockTypingLayer where
   FRAME : NanoP4Spec.typeFrame
 
-def blockTypingLayer.toValue : NanoP4Spec.blockTypingLayer → IL.value
-  | ⟨x0⟩ => Value.str (Value.varT "blockTypingLayer") [("FRAME", ToValue.toValue x0)]
+def blockTypingLayer.toValue : NanoP4Spec.blockTypingLayer → Lang.Il.value
+  | ⟨x0⟩ =>
+      Runtime.Value.Make.str (Prelude.Value.varT "blockTypingLayer") [("FRAME", ToValue.toValue x0)]
 
 instance : ToValue NanoP4Spec.blockTypingLayer := ⟨NanoP4Spec.blockTypingLayer.toValue⟩
 instance : BEq NanoP4Spec.blockTypingLayer := ⟨valueEq⟩
 
-def blockTypingLayer.ofValue : Nat → IL.value → Option NanoP4Spec.blockTypingLayer
+def blockTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.blockTypingLayer
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0)] =>
@@ -167,13 +181,16 @@ instance : OfValue NanoP4Spec.blockTypingLayer := ⟨NanoP4Spec.blockTypingLayer
 structure localTypingLayer where
   FRAMES : List NanoP4Spec.typeFrame
 
-def localTypingLayer.toValue : NanoP4Spec.localTypingLayer → IL.value
-  | ⟨x0⟩ => Value.str (Value.varT "localTypingLayer") [("FRAMES", ToValue.toValue x0)]
+def localTypingLayer.toValue : NanoP4Spec.localTypingLayer → Lang.Il.value
+  | ⟨x0⟩ =>
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "localTypingLayer")
+        [("FRAMES", ToValue.toValue x0)]
 
 instance : ToValue NanoP4Spec.localTypingLayer := ⟨NanoP4Spec.localTypingLayer.toValue⟩
 instance : BEq NanoP4Spec.localTypingLayer := ⟨valueEq⟩
 
-def localTypingLayer.ofValue : Nat → IL.value → Option NanoP4Spec.localTypingLayer
+def localTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.localTypingLayer
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0)] =>
@@ -188,16 +205,18 @@ structure typingContext where
   BLOCK : NanoP4Spec.blockTypingLayer
   LOCAL : NanoP4Spec.localTypingLayer
 
-def typingContext.toValue : NanoP4Spec.typingContext → IL.value
-  | ⟨x0, x1, x2⟩ => Value.str (Value.varT
-     "typingContext") [("GLOBAL", ToValue.toValue x0),
-   ("BLOCK", ToValue.toValue x1),
-   ("LOCAL", ToValue.toValue x2)]
+def typingContext.toValue : NanoP4Spec.typingContext → Lang.Il.value
+  | ⟨x0, x1, x2⟩ =>
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "typingContext")
+        [("GLOBAL", ToValue.toValue x0),
+         ("BLOCK", ToValue.toValue x1),
+         ("LOCAL", ToValue.toValue x2)]
 
 instance : ToValue NanoP4Spec.typingContext := ⟨NanoP4Spec.typingContext.toValue⟩
 instance : BEq NanoP4Spec.typingContext := ⟨valueEq⟩
 
-def typingContext.ofValue : Nat → IL.value → Option NanoP4Spec.typingContext
+def typingContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typingContext
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2)] =>
@@ -212,25 +231,27 @@ instance : OfValue NanoP4Spec.typingContext := ⟨NanoP4Spec.typingContext.ofVal
 inductive matchKey where
   | colon (typeIR : NanoP4Spec.typeIR) (nameIR : NanoP4Spec.nameIR)
 
-def matchKey.toValue : NanoP4Spec.matchKey → IL.value
-  | .colon x0 x1 => Value.case (Value.varT
-     "matchKey") (.Seq
-     [(.Arg (ToValue.toValue x0)),
-      (.Atom (Value.atom (.Operator ":"))),
-      (.Arg (ToValue.toValue x1))])
+def matchKey.toValue : NanoP4Spec.matchKey → Lang.Il.value
+  | .colon x0 x1 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "matchKey")
+        (.Seq
+           [(.Arg (ToValue.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator ":"))),
+            (.Arg (ToValue.toValue x1))])
 
 instance : ToValue NanoP4Spec.matchKey := ⟨NanoP4Spec.matchKey.toValue⟩
 instance : BEq NanoP4Spec.matchKey := ⟨valueEq⟩
 
-def matchKey.ofValue : Nat → IL.value → Option NanoP4Spec.matchKey
+def matchKey.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchKey
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
-               (.Seq [(.Arg ()), (.Atom (Value.atom (.Operator ":"))), (.Arg ())]) | none
+               (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ":"))), (.Arg ())]) | none
          pure (NanoP4Spec.matchKey.colon (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
     | _ => none
 
@@ -242,35 +263,37 @@ inductive matchAction where
       (parameterIR : List NanoP4Spec.parameterIR)
       (argumentIR : List NanoP4Spec.argumentIR)
 
-def matchAction.toValue : NanoP4Spec.matchAction → IL.value
-  | .lparen_at_rparen x0 x1 x2 => Value.case (Value.varT
-     "matchAction") (.Seq
-     [(.Arg (ToValue.toValue x0)),
-      (.Brack
-         (Value.atom .LParen)
-         (.Seq
-            [(.Arg (ToValue.toValue x1)),
-             (.Atom (Value.atom (.Operator "@"))),
-             (.Arg (ToValue.toValue x2))])
-         (Value.atom .RParen))])
+def matchAction.toValue : NanoP4Spec.matchAction → Lang.Il.value
+  | .lparen_at_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "matchAction")
+        (.Seq
+           [(.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Seq
+                  [(.Arg (ToValue.toValue x1)),
+                   (.Atom (Prelude.Value.atom (.Operator "@"))),
+                   (.Arg (ToValue.toValue x2))])
+               (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.matchAction := ⟨NanoP4Spec.matchAction.toValue⟩
 instance : BEq NanoP4Spec.matchAction := ⟨valueEq⟩
 
-def matchAction.ofValue : Nat → IL.value → Option NanoP4Spec.matchAction
+def matchAction.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchAction
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
                   [(.Arg ()),
                    (.Brack
-                      (Value.atom .LParen)
-                      (.Seq [(.Arg ()), (.Atom (Value.atom (.Operator "@"))), (.Arg ())])
-                      (Value.atom .RParen))]) | none
+                      (Prelude.Value.atom .LParen)
+                      (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator "@"))), (.Arg ())])
+                      (Prelude.Value.atom .RParen))]) | none
          pure (NanoP4Spec.matchAction.lparen_at_rparen
             (← OfValue.ofValue fuel a0)
             (← OfValue.ofValue fuel a1)
@@ -283,14 +306,16 @@ structure tableContext where
   KEY : NanoP4Spec.matchKey
   ACTIONS : List NanoP4Spec.matchAction
 
-def tableContext.toValue : NanoP4Spec.tableContext → IL.value
-  | ⟨x0, x1⟩ => Value.str (Value.varT
-     "tableContext") [("KEY", ToValue.toValue x0), ("ACTIONS", ToValue.toValue x1)]
+def tableContext.toValue : NanoP4Spec.tableContext → Lang.Il.value
+  | ⟨x0, x1⟩ =>
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "tableContext")
+        [("KEY", ToValue.toValue x0), ("ACTIONS", ToValue.toValue x1)]
 
 instance : ToValue NanoP4Spec.tableContext := ⟨NanoP4Spec.tableContext.toValue⟩
 instance : BEq NanoP4Spec.tableContext := ⟨valueEq⟩
 
-def tableContext.ofValue : Nat → IL.value → Option NanoP4Spec.tableContext
+def tableContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableContext
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1)] =>

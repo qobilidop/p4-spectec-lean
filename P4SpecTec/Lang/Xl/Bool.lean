@@ -2,7 +2,7 @@
 Booleans and their operators. Mirrors `p4spec/lib/lang/xl/bool.ml`.
 -/
 
-namespace P4SpecTec.Xl.Bool
+namespace P4SpecTec.Lang.Xl.Bool
 
 /-- Mirrors `Bool.t` (`` `BoolT ``). -/
 inductive t where
@@ -42,4 +42,4 @@ inductive cmpop where
   | NeOp
   deriving BEq, Repr, Inhabited
 
-end P4SpecTec.Xl.Bool
+end P4SpecTec.Lang.Xl.Bool

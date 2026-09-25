@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -338,7 +337,7 @@ def ParserStateList_ok.run
                     let nameIR_state := tmp_2
                     pure nameIR_state))
               «name*»
-        let «nameIR_state*» := List.map (·) tmp_3
+        let «nameIR_state*» := tmp_3
         let tmp_4 ← NanoP4Spec.«$distinct_» (τK := NanoP4Spec.nameIR) fuel «nameIR_state*»
         let _ ← Iter.check tmp_4
         let _ ← Iter.check (List.elem "start" «nameIR_state*»)
@@ -420,7 +419,7 @@ def TableAction_ok.run
                     let argumentIR := tmp_7
                     pure argumentIR))
               «argument*»
-        let «argumentIR*» := List.map (·) tmp_8
+        let «argumentIR*» := tmp_8
         let tmp_9 ← NanoP4Spec.«$find_callableTypeDef_t» fuel TC callableId
         let callableTypeDef := tmp_9
         let _ ← Iter.check (match callableTypeDef with
@@ -813,7 +812,7 @@ def Decl_ok.run
                       let id := tmp_11
                       pure id))
                 «name*»
-          let «id*» := List.map (·) tmp_12
+          let «id*» := tmp_12
           let tmp_13 ← NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) fuel «id*»
           let _ ← Iter.check tmp_13
           let tmp_14 ←

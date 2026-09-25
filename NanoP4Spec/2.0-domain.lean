@@ -16,18 +16,17 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
 abbrev id : Type := String
 
-def id.toValue (x : NanoP4Spec.id) : IL.value := ToValue.toValue x
+def id.toValue (x : NanoP4Spec.id) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.id := ⟨NanoP4Spec.id.toValue⟩
 instance : BEq NanoP4Spec.id := ⟨valueEq⟩
 
-def id.ofValue : Nat → IL.value → Option NanoP4Spec.id
+def id.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.id
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -35,12 +34,12 @@ instance : OfValue NanoP4Spec.id := ⟨NanoP4Spec.id.ofValue⟩
 
 abbrev callableId : Type := String
 
-def callableId.toValue (x : NanoP4Spec.callableId) : IL.value := ToValue.toValue x
+def callableId.toValue (x : NanoP4Spec.callableId) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.callableId := ⟨NanoP4Spec.callableId.toValue⟩
 instance : BEq NanoP4Spec.callableId := ⟨valueEq⟩
 
-def callableId.ofValue : Nat → IL.value → Option NanoP4Spec.callableId
+def callableId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableId
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -48,12 +47,12 @@ instance : OfValue NanoP4Spec.callableId := ⟨NanoP4Spec.callableId.ofValue⟩
 
 abbrev nameIR : Type := String
 
-def nameIR.toValue (x : NanoP4Spec.nameIR) : IL.value := ToValue.toValue x
+def nameIR.toValue (x : NanoP4Spec.nameIR) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.nameIR := ⟨NanoP4Spec.nameIR.toValue⟩
 instance : BEq NanoP4Spec.nameIR := ⟨valueEq⟩
 
-def nameIR.ofValue : Nat → IL.value → Option NanoP4Spec.nameIR
+def nameIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nameIR
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -64,26 +63,38 @@ inductive scope where
   | BLOCK
   | LOCAL
 
-def scope.toValue : NanoP4Spec.scope → IL.value
-  | .GLOBAL => Value.case (Value.varT "scope") (.Atom (Value.atom (.Keyword "GLOBAL")))
-  | .BLOCK => Value.case (Value.varT "scope") (.Atom (Value.atom (.Keyword "BLOCK")))
-  | .LOCAL => Value.case (Value.varT "scope") (.Atom (Value.atom (.Keyword "LOCAL")))
+def scope.toValue : NanoP4Spec.scope → Lang.Il.value
+  | .GLOBAL =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "scope")
+        (.Atom (Prelude.Value.atom (.Keyword "GLOBAL")))
+  | .BLOCK =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "scope")
+        (.Atom (Prelude.Value.atom (.Keyword "BLOCK")))
+  | .LOCAL =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "scope")
+        (.Atom (Prelude.Value.atom (.Keyword "LOCAL")))
 
 instance : ToValue NanoP4Spec.scope := ⟨NanoP4Spec.scope.toValue⟩
 instance : BEq NanoP4Spec.scope := ⟨valueEq⟩
 
-def scope.ofValue : Nat → IL.value → Option NanoP4Spec.scope
+def scope.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.scope
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
-         let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "GLOBAL"))) | none
+         let some [] :=
+             Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "GLOBAL"))) | none
          pure NanoP4Spec.scope.GLOBAL) <|>
       ((do
-          let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "BLOCK"))) | none
+          let some [] :=
+              Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "BLOCK"))) | none
           pure NanoP4Spec.scope.BLOCK) <|>
        (do
-          let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "LOCAL"))) | none
+          let some [] :=
+              Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "LOCAL"))) | none
           pure NanoP4Spec.scope.LOCAL))
     | _ => none
 
@@ -91,12 +102,12 @@ instance : OfValue NanoP4Spec.scope := ⟨NanoP4Spec.scope.ofValue⟩
 
 abbrev typeId : Type := NanoP4Spec.id
 
-def typeId.toValue (x : NanoP4Spec.typeId) : IL.value := ToValue.toValue x
+def typeId.toValue (x : NanoP4Spec.typeId) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.typeId := ⟨NanoP4Spec.typeId.toValue⟩
 instance : BEq NanoP4Spec.typeId := ⟨valueEq⟩
 
-def typeId.ofValue : Nat → IL.value → Option NanoP4Spec.typeId
+def typeId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeId
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 

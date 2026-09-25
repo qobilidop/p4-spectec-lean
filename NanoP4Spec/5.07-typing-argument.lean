@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -55,7 +54,7 @@ def ArgumentList_ok.run
                     let argumentIR := tmp_1
                     pure argumentIR))
               «argument*»
-        let «argumentIR*» := List.map (·) tmp_2
+        let «argumentIR*» := tmp_2
         pure «argumentIR*»))
 
 end NanoP4Spec

@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -538,7 +537,7 @@ def TableMatch_eval.run [Externs]
                         let value_entry := tmp_1
                         pure value_entry))
                   «expression_entry*»
-            let «value_entry*» := List.map (·) tmp_2
+            let «value_entry*» := tmp_2
             let tmp_3 ←
                 NanoP4Spec.«$match_entry_value»
                   fuel
@@ -577,7 +576,7 @@ def TableMatch_eval.run [Externs]
                          let value_entry := tmp_5
                          pure value_entry))
                    «expression_entry*»
-             let «value_entry*» := List.map (·) tmp_6
+             let «value_entry*» := tmp_6
              let tmp_7 ←
                  NanoP4Spec.«$match_entry_value»
                    fuel
@@ -632,7 +631,7 @@ def TableMatch_eval.run [Externs]
                          let value_entry := tmp_11
                          pure value_entry))
                    «expression_entry*»
-             let «value_entry*» := List.map (·) tmp_12
+             let «value_entry*» := tmp_12
              let tmp_13 ←
                  NanoP4Spec.«$match_entry_value»
                    fuel

@@ -4,13 +4,18 @@ import Lean.Data.Json.Printer
 import P4SpecTec.Util.Source
 
 /-!
+Not a mirror: this module is ours, placed beside the module whose values it
+decodes.
+
+Not a mirror: this module is our own, placed beside the module it decodes.
+
 Decoders for the JSON that `ppx_deriving_yojson` prints, the format of
 upstream's `-json` export: records are objects, variants are arrays headed
 by the constructor name, tuples and lists are arrays, options are `null`
 or the value itself, unit is `null`, and bigints are decimal strings.
 -/
 
-namespace P4SpecTec.Util.Json
+namespace P4SpecTec.Util.Yojson
 
 open Lean (Json)
 open P4SpecTec.Util.Source
@@ -114,4 +119,4 @@ def note_phrase {α β : Type} (d : D α) (dn : D β) : D (note_phrase α β) :=
 def args (c : String) (n : Nat) (a : Array Json) : Except String (Array Json) :=
   if a.size == n then pure a else .error s!"constructor {c}: expected {n} arguments, got {a.size}"
 
-end P4SpecTec.Util.Json
+end P4SpecTec.Util.Yojson

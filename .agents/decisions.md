@@ -63,6 +63,17 @@ settles is not repeated here.
 - **Mirrored modules keep upstream names, including `snake_case`; our own
   code follows Lean style.** Reason: the side-by-side audit is the
   point of mirroring; renaming to Lean style would break it. (2026-09-25)
+- **File naming by provenance** (decided with the user 2026-09-25): a
+  mirrored module sits at its OCaml file's path under `p4spec/lib/`,
+  capitalised component by component (`Lang/Il/Ast.lean`,
+  `Runtime/Value/Value.lean`, `Interface/Builtin/Texts.lean`); a
+  generated module is its spec file's name verbatim; our own code follows
+  Lean conventions. The path, not dune's module name, is the rule because
+  upstream's module names depend on each library's dune stanza
+  (`lang` uses qualified subdirectories, `runtime` and `interface` do
+  not), while the path is invertible without reading them. The mirror
+  check derives its pairs from the paths; a module of ours under a
+  mirrored root declares "not a mirror". (2026-09-25)
 - **The keyword list for name escaping is extracted from Lean's own token
   table by a script, never hand-written.** Reason: Aeneas's escaping bugs
   recurred until they did this. Escape with `«»` only for whole-identifier

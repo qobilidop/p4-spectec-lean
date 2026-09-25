@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -242,7 +241,7 @@ def ParserTransition_ok.run
                     let typeIR_case := tmp_5
                     pure typeIR_case))
               «expression_case*»
-        let «typeIR_case*» := List.map (·) tmp_6
+        let «typeIR_case*» := tmp_6
         let tmp_7 ←
             List.mapM
               (fun (typeIR_case : NanoP4Spec.typeIR) =>
@@ -258,7 +257,7 @@ def ParserTransition_ok.run
                     let nameIR_case := tmp_8
                     pure nameIR_case))
               «name_case*»
-        let «nameIR_case*» := List.map (·) tmp_9
+        let «nameIR_case*» := tmp_9
         let tmp_10 ←
             List.mapM
               (fun (nameIR_case : NanoP4Spec.nameIR) =>
@@ -266,7 +265,7 @@ def ParserTransition_ok.run
                     let b_contains := List.elem nameIR_case «nameIR_state*»
                     pure b_contains))
               «nameIR_case*»
-        let «b_contains*» := List.map (·) tmp_10
+        let «b_contains*» := tmp_10
         let tmp_11 ← NanoP4Spec.«$forall_» fuel «b_contains*»
         let _ ← Iter.check tmp_11
         pure ()))

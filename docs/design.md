@@ -56,7 +56,8 @@ proof effort only on what is left. Concretely:
 
 - **The IL deep embedding mirrors `ast.ml` exactly.** Same type names,
   constructor names, constructor order, field order, and comments. One
-  Lean file for the one OCaml file.
+  Lean file for the one OCaml file, at the OCaml file's path under
+  `p4spec/lib/`, capitalised: `P4SpecTec/Lang/Il/Ast.lean`.
 - **The semantics port mirrors the AL interpreter's structure.** One Lean
   module per OCaml module (`ctx.ml`, `interp.ml`, `backtrack.ml`,
   `nondet.ml`), functions with the same names in the same order, each
@@ -293,8 +294,9 @@ refinement relation and discharges it syntax-directedly. So:
 | Lean 4 kernel | trusted | standard | |
 | Upstream parser and elaborator (OCaml) | trusted | defines what the spec means; shared with the official P4 spec toolchain | that the spec is P4 |
 | JSON dump of the IL | trusted | tiny and structural; round-trip tested against upstream's IL printer | |
-| `P4SpecTec.Semantics` (IL interpreter in Lean) | trusted | the spec of the compiler; mirrors upstream's AL interpreter file by file; cross-checked by rung 2 | agreement with SL or PL interpreters |
-| `P4SpecTec.Prelude.Builtins` | trusted | ports of upstream builtins, one file per file; unit-test obligations generated from upstream outputs | |
+| `P4SpecTec.Interp` (AL interpreter in Lean, M2) | trusted | the spec of the compiler; mirrors upstream's AL interpreter file by file; cross-checked by rung 2 | agreement with SL or PL interpreters |
+| `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the default printer, file by file | hint-driven printing (rejected by codegen until supported) |
+| `P4SpecTec.Interface.Builtin` | trusted | ports of upstream builtins, one file per file, at the OCaml file's path; unit tests in `P4SpecTecTest/Builtins.lean` (generated obligations from upstream outputs are planned) | |
 | `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
 | `P4SpecTec.Codegen` | checked | every output validated by rung 3 | |
 | Generated `P4Spec` | checked | kernel-checked, differential-tested, validated per definition | |
@@ -314,14 +316,14 @@ here is a bug.
 | Every reference to a generated name is qualified with the library name; type parameters are `τX` | spec variables are named after their types and would shadow them | `Codegen/Names.lean` |
 | Equality on generated types is equality of their IL values | `deriving BEq` on nested inductives is opaque; value equality is upstream's `Value.eq` | `Codegen/Types.lean`, `Prelude/Value.lean` |
 | In the IL mirror, `iterexp`, `iterprem` and `typorigin'` are named inductives, EL hints are raw JSON, `Bigint.t` is `Nat`/`Int`, the polymorphic-variant unions are flat inductives | the kernel rejects a pair holding a list of a type being declared; the EL is not mirrored; Lean has no bigint or open unions | `IL/Ast.lean` |
-| Failure (`Unmatch`) and error (`Err`) both become `none` in the executable encoding | one `Option` monad at M1; the split arrives with the M2 monad | `Codegen/Exp.lean` |
-| Each relation emitted twice, `Prop` and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean` |
-| Iterated premises encoded as `∀ x ∈ xs, …` and definitional `Forall₂`, not nested inductive predicates | Lean's kernel does not support nested inductive predicates with indices (lean4#1964) | `Codegen/Rels.lean`, `Prelude/Iter.lean` |
+| Failure (`Unmatch`) and error (`Err`) both become `none` in the executable encoding; division and modulus by zero and `^` (which upstream aborts on) are `none` too; an `Err` inside a `does not hold` premise therefore counts as the premise holding, where upstream propagates the error | one `Option` monad at M1; the split arrives with the M2 monad, which must keep `Err` distinct at `IfNotHoldPr` | `Codegen/Exp.lean`, `Prelude/Num.lean` |
+| Each relation emitted twice, `Prop` (M2) and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean` |
+| Iterated premises encoded as `∀ x ∈ xs, …` and definitional `Forall₂`, not nested inductive predicates (M2) | Lean's kernel does not support nested inductive predicates with indices (lean4#1964) | `Codegen/Rels.lean`, `Prelude/Iter.lean` |
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
 | Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
-| Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Semantics/Ctx.lean` |
-| Failure and divergence separated in the interpreter's return type | `partial_fixpoint` needs monotonicity; `<|>` on `Option` is not monotone | `Semantics/Interp.lean` |
-| No mutable context, caching, hooks, backtraces | pure functions; these are instrumentation, not meaning | `Semantics/*` |
+| Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
+| Failure and divergence separated in the interpreter's return type (M2) | `partial_fixpoint` needs monotonicity; `<|>` on `Option` is not monotone | `Interp/` |
+| No mutable context, caching, hooks, backtraces (M2) | pure functions; these are instrumentation, not meaning | `Interp/` |
 | Mutual block grouping by dependency | Lean requires mutually recursive definitions in one `mutual` block | `Codegen/Funcs.lean` |
 
 ### 5.4 Per-construct encodings
@@ -331,7 +333,7 @@ applies instead, each documented in the module that implements it.
 
 | IL construct | Lean encoding |
 |---|---|
-| Subtype pair `S ⊆ T` (from `e <: T`, `e as T`) | three generated functions per pair, by matching cases with equal mixops: `S.to_T : S → T`, `T.of_S : T → Option S`, `T.is_S : T → Bool`; numeric `nat ⊆ int` by `Int.ofNat`, `Num.toNat?`, `0 ≤ i`; tuples and iterators pointwise |
+| Subtype pair `S ⊆ T` (from `e <: T`, `e as T`) | three generated functions per pair, by matching cases with equal mixops: `S.to_T : S → T`, `T.of_S : T → Option S`, `T.is_S : T → Bool`; numeric `nat ⊆ int` by `Int.ofNat`, `Num.toNat?`, `0 ≤ i`; tuples and iterators pointwise. The AL's `subcheck` is not consulted: a case's arguments are assumed to have the same types on both sides, which codegen asserts (the `RecurseSC` argument checks are not generated) |
 | Rule group with `else` group; clauses with `else` | alternatives in order (`<|>` in `Option`), the `else` last, as the AL interpreter's sequential mode |
 | Mixfix notation | constructor names from the atoms (`Names.ctorName`); struct fields from their atoms |
 | Iterators `?`, `*` with dimensions | `Option`, `List`; joint iteration zips the bound lists and maps, binding variables unzipped; an iterated premise likewise, with `mapM` |
@@ -339,7 +341,7 @@ applies instead, each documented in the module that implements it.
 | Partial functions, downcasts, indexing, slicing, calls | hoisted into `let x ←` statements of the enclosing `do` block (A-normal form), `none` on failure, never a default value (the Wasm Rocq backend's defaults produced provably false lemmas) |
 | Extern syntax, `extern dec`, `extern relation` | `ExternValue`; fields of the generated class `Externs` |
 | Tables (`table dec`) | a function by cases over the rows |
-| Builtins (`builtin dec`) | a wrapper around the prelude's port of the same OCaml file; sets and maps unwrapped to element lists |
+| Builtins (`builtin dec`) | a wrapper around the port of the same OCaml file under `Interface/Builtin/`; sets and maps unwrapped to element lists; `print_` uses the hint-free printer, and codegen rejects a spec with `print` hints |
 | Values of generated types | `ToValue` (structural) and `OfValue fuel` (decoder) instances per type, for programs, printing and equality |
 
 ### 5.5 Test sources (all from upstream)
@@ -390,16 +392,17 @@ p4-spectec-lean/
 │   └── programs/nano-p4/         # booted programs with upstream's verdicts
 │
 ├── P4SpecTec/                    # core library, language-agnostic
-│   ├── Util/Source.lean, Util/Json.lean   # phrases and regions; JSON decoding helpers
-│   ├── Xl/Num.lean, Xl/Bool.lean          # mirror lang/xl/
+│   │                             # a mirrored module sits at its OCaml file's path, capitalised
+│   ├── Util/Source.lean          # mirrors util/source.ml; Util/Yojson.lean is ours (decoding helpers)
+│   ├── Lang/Xl/, Lang/Il/, Lang/Al/   # mirror lang/xl/, lang/il/ast.ml, lang/al/ast.ml; Json.lean beside each is ours
 │   ├── Domain/Atom.lean, Domain/Mixfix.lean   # mirror domain/
-│   ├── IL/Ast.lean, IL/Json.lean          # mirror lang/il/ast.ml; its decoders
-│   ├── AL/Ast.lean, AL/Json.lean          # mirror lang/al/ast.ml; its decoders
-│   ├── Semantics/                # M2, TRUSTED: mirrors interp/interp-al/ file by file
-│   ├── Prelude/                  # runtime the generated code imports
-│   │   ├── Value.lean            # values, compare/eq, printing, ToValue, OfValue
+│   ├── Runtime/Value/Value.lean  # TRUSTED: mirrors runtime/value/value.ml (Make, compare, eq)
+│   ├── Interface/P4/Unparse.lean # TRUSTED: mirrors interface/p4/unparse.ml (the printer)
+│   ├── Interface/Builtin/        # TRUSTED: mirrors interface/builtin/ file by file
+│   ├── Interp/                   # M2, TRUSTED: mirrors interp/interp-al/ file by file
+│   ├── Prelude/                  # ours: the runtime aggregate the generated code imports
+│   │   ├── Value.lean            # ToValue, OfValue, equality through values
 │   │   ├── Extern.lean, Num.lean, Iter.lean
-│   │   └── Builtins/             # TRUSTED: mirrors interface/builtin/ file by file
 │   ├── Codegen/                  # NOT trusted: validated per definition (M2)
 │   │   ├── Names.lean            # the naming rule; Keywords.lean is generated from Lean's token table
 │   │   ├── Env.lean, Graph.lean, Fmt.lean   # spec environment; SCCs; the printer

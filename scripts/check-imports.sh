@@ -14,12 +14,12 @@ for lib in "$@"; do
     rel="${path#"$root"/}"; rel="${rel%.lean}"
     # a component that is not an identifier (a generated module named after
     # its spec file, e.g. 3.2-bits) is imported French-quoted
-    mod="$(printf '%s' "$rel" | tr '/' '\n' | while IFS= read -r part; do
+    mod="$(printf '%s\n' "$rel" | tr '/' '\n' | while IFS= read -r part; do
       if printf '%s' "$part" | grep -qE "^[A-Za-z_][A-Za-z0-9_']*\$"; then printf '%s.' "$part"
       else printf '«%s».' "$part"; fi
     done)"
     mod="${mod%.}"
-    if ! grep -qF "import $mod" "$file"; then
+    if ! grep -qxF "import $mod" "$file" && ! grep -qxF "public import $mod" "$file"; then
       echo "[check-imports] $file does not import $mod"; fail=1
     fi
   done < <(find "$dir" -name '*.lean' | sort)

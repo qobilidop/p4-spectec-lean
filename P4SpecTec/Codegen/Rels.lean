@@ -14,8 +14,8 @@ namespace P4SpecTec.Codegen.Rels
 open Std (Format)
 open P4SpecTec.Util.Source
 open P4SpecTec.Domain
-open P4SpecTec.IL
-open P4SpecTec.AL
+open P4SpecTec.Lang.Il
+open P4SpecTec.Lang.Al
 open P4SpecTec.Codegen.Types
 open P4SpecTec.Codegen.Exp
 open P4SpecTec.Codegen.Funcs
@@ -42,7 +42,7 @@ def groupTerm (match_ : rulematch) (paths : List rulepath) : CgM Term := do
 
 /-- A relation's run function. -/
 def relDecl (ctx : Ctx) (recursive externs : Bool) (id : String) (nottyp : nottyp)
-    (inputs : List Nat) (groups : List AL.rulegroup) (elsegroup : Option AL.elsegroup) :
+    (inputs : List Nat) (groups : List Lang.Al.rulegroup) (elsegroup : Option Lang.Al.elsegroup) :
     Except String Format := do
   let args := (Mixfix.args nottyp.it).map (·.it)
   let (ins, outs) := splitArgs inputs args

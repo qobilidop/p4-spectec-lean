@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -26,29 +25,34 @@ inductive actionDeclarationIR where
       (parameterIR : List NanoP4Spec.parameterIR)
       (blockStatement : NanoP4Spec.blockStatement)
 
-def actionDeclarationIR.toValue : NanoP4Spec.actionDeclarationIR → IL.value
-  | .ACTION_lparen_rparen x0 x1 x2 => Value.case (Value.varT
-     "actionDeclarationIR") (.Seq
-     [(.Atom (Value.atom (.Keyword "ACTION"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Arg (ToValue.toValue x2))])
+def actionDeclarationIR.toValue : NanoP4Spec.actionDeclarationIR → Lang.Il.value
+  | .ACTION_lparen_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "actionDeclarationIR")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Arg (ToValue.toValue x2))])
 
 instance : ToValue NanoP4Spec.actionDeclarationIR := ⟨NanoP4Spec.actionDeclarationIR.toValue⟩
 instance : BEq NanoP4Spec.actionDeclarationIR := ⟨valueEq⟩
 
-def actionDeclarationIR.ofValue : Nat → IL.value → Option NanoP4Spec.actionDeclarationIR
+def actionDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.actionDeclarationIR
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "ACTION"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                   (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.actionDeclarationIR.ACTION_lparen_rparen
             (← OfValue.ofValue fuel a0)
@@ -65,36 +69,41 @@ inductive parserDeclarationIR where
       (parserLocalDeclarationList : NanoP4Spec.parserLocalDeclarationList)
       (parserStateList : NanoP4Spec.parserStateList)
 
-def parserDeclarationIR.toValue : NanoP4Spec.parserDeclarationIR → IL.value
-  | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 => Value.case (Value.varT
-     "parserDeclarationIR") (.Seq
-     [(.Atom (Value.atom (.Keyword "PARSER"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Brack
-         (Value.atom .LBrace)
-         (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
-         (Value.atom .RBrace))])
+def parserDeclarationIR.toValue : NanoP4Spec.parserDeclarationIR → Lang.Il.value
+  | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "parserDeclarationIR")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Brack
+               (Prelude.Value.atom .LBrace)
+               (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
+               (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.parserDeclarationIR := ⟨NanoP4Spec.parserDeclarationIR.toValue⟩
 instance : BEq NanoP4Spec.parserDeclarationIR := ⟨valueEq⟩
 
-def parserDeclarationIR.ofValue : Nat → IL.value → Option NanoP4Spec.parserDeclarationIR
+def parserDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parserDeclarationIR
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2, a3] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "PARSER"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                   (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Brack
-                      (Value.atom .LBrace)
+                      (Prelude.Value.atom .LBrace)
                       (.Seq [(.Arg ()), (.Arg ())])
-                      (Value.atom .RBrace))]) | none
+                      (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.parserDeclarationIR.PARSER_lparen_rparen_lbrace_rbrace
             (← OfValue.ofValue fuel a0)
             (← OfValue.ofValue fuel a1)
@@ -111,39 +120,44 @@ inductive controlDeclarationIR where
       (controlLocalDeclarationList : NanoP4Spec.controlLocalDeclarationList)
       (controlBody : NanoP4Spec.controlBody)
 
-def controlDeclarationIR.toValue : NanoP4Spec.controlDeclarationIR → IL.value
-  | .CONTROL_lparen_rparen_lbrace_APPLY_rbrace x0 x1 x2 x3 => Value.case (Value.varT
-     "controlDeclarationIR") (.Seq
-     [(.Atom (Value.atom (.Keyword "CONTROL"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Brack
-         (Value.atom .LBrace)
-         (.Seq
-            [(.Arg (ToValue.toValue x2)),
-             (.Atom (Value.atom (.Keyword "APPLY"))),
-             (.Arg (ToValue.toValue x3))])
-         (Value.atom .RBrace))])
+def controlDeclarationIR.toValue : NanoP4Spec.controlDeclarationIR → Lang.Il.value
+  | .CONTROL_lparen_rparen_lbrace_APPLY_rbrace x0 x1 x2 x3 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "controlDeclarationIR")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Brack
+               (Prelude.Value.atom .LBrace)
+               (.Seq
+                  [(.Arg (ToValue.toValue x2)),
+                   (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
+                   (.Arg (ToValue.toValue x3))])
+               (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.controlDeclarationIR := ⟨NanoP4Spec.controlDeclarationIR.toValue⟩
 instance : BEq NanoP4Spec.controlDeclarationIR := ⟨valueEq⟩
 
-def controlDeclarationIR.ofValue : Nat → IL.value → Option NanoP4Spec.controlDeclarationIR
+def controlDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.controlDeclarationIR
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2, a3] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "CONTROL"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                   (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Brack
-                      (Value.atom .LBrace)
-                      (.Seq [(.Arg ()), (.Atom (Value.atom (.Keyword "APPLY"))), (.Arg ())])
-                      (Value.atom .RBrace))]) | none
+                      (Prelude.Value.atom .LBrace)
+                      (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "APPLY"))), (.Arg ())])
+                      (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.controlDeclarationIR.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
             (← OfValue.ofValue fuel a0)
             (← OfValue.ofValue fuel a1)
@@ -169,50 +183,65 @@ inductive callableDef where
       (controlLocalDeclarationList : NanoP4Spec.controlLocalDeclarationList)
       (controlBody : NanoP4Spec.controlBody)
 
-def callableDef.toValue : NanoP4Spec.callableDef → IL.value
-  | .ACTION_lparen_rparen x0 x1 x2 => Value.case (Value.varT
-     "callableDef") (.Seq
-     [(.Atom (Value.atom (.Keyword "ACTION"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Arg (ToValue.toValue x2))])
-  | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 => Value.case (Value.varT
-     "callableDef") (.Seq
-     [(.Atom (Value.atom (.Keyword "PARSER"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Brack
-         (Value.atom .LBrace)
-         (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
-         (Value.atom .RBrace))])
-  | .CONTROL_lparen_rparen_lbrace_APPLY_rbrace x0 x1 x2 x3 => Value.case (Value.varT
-     "callableDef") (.Seq
-     [(.Atom (Value.atom (.Keyword "CONTROL"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Brack
-         (Value.atom .LBrace)
-         (.Seq
-            [(.Arg (ToValue.toValue x2)),
-             (.Atom (Value.atom (.Keyword "APPLY"))),
-             (.Arg (ToValue.toValue x3))])
-         (Value.atom .RBrace))])
+def callableDef.toValue : NanoP4Spec.callableDef → Lang.Il.value
+  | .ACTION_lparen_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callableDef")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Arg (ToValue.toValue x2))])
+  | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callableDef")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Brack
+               (Prelude.Value.atom .LBrace)
+               (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
+               (Prelude.Value.atom .RBrace))])
+  | .CONTROL_lparen_rparen_lbrace_APPLY_rbrace x0 x1 x2 x3 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callableDef")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Brack
+               (Prelude.Value.atom .LBrace)
+               (.Seq
+                  [(.Arg (ToValue.toValue x2)),
+                   (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
+                   (.Arg (ToValue.toValue x3))])
+               (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.callableDef := ⟨NanoP4Spec.callableDef.toValue⟩
 instance : BEq NanoP4Spec.callableDef := ⟨valueEq⟩
 
-def callableDef.ofValue : Nat → IL.value → Option NanoP4Spec.callableDef
+def callableDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDef
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "ACTION"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                   (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.callableDef.ACTION_lparen_rparen
             (← OfValue.ofValue fuel a0)
@@ -220,16 +249,16 @@ def callableDef.ofValue : Nat → IL.value → Option NanoP4Spec.callableDef
             (← OfValue.ofValue fuel a2))) <|>
       ((do
           let some [a0, a1, a2, a3] :=
-              Value.caseArgs
+              Prelude.Value.caseArgs
                 c
                 (.Seq
-                   [(.Atom (Value.atom (.Keyword "PARSER"))),
+                   [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
                     (.Arg ()),
-                    (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                     (.Brack
-                       (Value.atom .LBrace)
+                       (Prelude.Value.atom .LBrace)
                        (.Seq [(.Arg ()), (.Arg ())])
-                       (Value.atom .RBrace))]) | none
+                       (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.callableDef.PARSER_lparen_rparen_lbrace_rbrace
              (← OfValue.ofValue fuel a0)
              (← OfValue.ofValue fuel a1)
@@ -237,16 +266,17 @@ def callableDef.ofValue : Nat → IL.value → Option NanoP4Spec.callableDef
              (← OfValue.ofValue fuel a3))) <|>
        (do
           let some [a0, a1, a2, a3] :=
-              Value.caseArgs
+              Prelude.Value.caseArgs
                 c
                 (.Seq
-                   [(.Atom (Value.atom (.Keyword "CONTROL"))),
+                   [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
                     (.Arg ()),
-                    (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                     (.Brack
-                       (Value.atom .LBrace)
-                       (.Seq [(.Arg ()), (.Atom (Value.atom (.Keyword "APPLY"))), (.Arg ())])
-                       (Value.atom .RBrace))]) | none
+                       (Prelude.Value.atom .LBrace)
+                       (.Seq
+                          [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "APPLY"))), (.Arg ())])
+                       (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.callableDef.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
              (← OfValue.ofValue fuel a0)
              (← OfValue.ofValue fuel a1)
@@ -258,12 +288,12 @@ instance : OfValue NanoP4Spec.callableDef := ⟨NanoP4Spec.callableDef.ofValue�
 
 abbrev callableDefEnv : Type := NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableDef
 
-def callableDefEnv.toValue (x : NanoP4Spec.callableDefEnv) : IL.value := ToValue.toValue x
+def callableDefEnv.toValue (x : NanoP4Spec.callableDefEnv) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.callableDefEnv := ⟨NanoP4Spec.callableDefEnv.toValue⟩
 instance : BEq NanoP4Spec.callableDefEnv := ⟨valueEq⟩
 
-def callableDefEnv.ofValue : Nat → IL.value → Option NanoP4Spec.callableDefEnv
+def callableDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDefEnv
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -275,17 +305,19 @@ structure globalLoadLayer where
   PARSER : Option NanoP4Spec.parserDeclarationIR
   CONTROL : Option NanoP4Spec.controlDeclarationIR
 
-def globalLoadLayer.toValue : NanoP4Spec.globalLoadLayer → IL.value
-  | ⟨x0, x1, x2, x3⟩ => Value.str (Value.varT
-     "globalLoadLayer") [("CALLABLE_TYPE", ToValue.toValue x0),
-   ("CALLABLE", ToValue.toValue x1),
-   ("PARSER", ToValue.toValue x2),
-   ("CONTROL", ToValue.toValue x3)]
+def globalLoadLayer.toValue : NanoP4Spec.globalLoadLayer → Lang.Il.value
+  | ⟨x0, x1, x2, x3⟩ =>
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "globalLoadLayer")
+        [("CALLABLE_TYPE", ToValue.toValue x0),
+         ("CALLABLE", ToValue.toValue x1),
+         ("PARSER", ToValue.toValue x2),
+         ("CONTROL", ToValue.toValue x3)]
 
 instance : ToValue NanoP4Spec.globalLoadLayer := ⟨NanoP4Spec.globalLoadLayer.toValue⟩
 instance : BEq NanoP4Spec.globalLoadLayer := ⟨valueEq⟩
 
-def globalLoadLayer.ofValue : Nat → IL.value → Option NanoP4Spec.globalLoadLayer
+def globalLoadLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.globalLoadLayer
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2), (_, f3)] =>
@@ -301,12 +333,12 @@ instance : OfValue NanoP4Spec.globalLoadLayer := ⟨NanoP4Spec.globalLoadLayer.o
 
 abbrev loadContext : Type := NanoP4Spec.globalLoadLayer
 
-def loadContext.toValue (x : NanoP4Spec.loadContext) : IL.value := ToValue.toValue x
+def loadContext.toValue (x : NanoP4Spec.loadContext) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.loadContext := ⟨NanoP4Spec.loadContext.toValue⟩
 instance : BEq NanoP4Spec.loadContext := ⟨valueEq⟩
 
-def loadContext.ofValue : Nat → IL.value → Option NanoP4Spec.loadContext
+def loadContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.loadContext
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 

@@ -25,8 +25,8 @@ namespace P4SpecTec.Codegen.Types
 open Std (Format)
 open P4SpecTec.Util.Source
 open P4SpecTec.Domain
-open P4SpecTec.IL
-open P4SpecTec.AL
+open P4SpecTec.Lang.Il
+open P4SpecTec.Lang.Al
 
 /-- The marker in an `unfold` list standing for every alias. -/
 def unfoldAll : String := "*"
@@ -79,12 +79,12 @@ where
 /-- A Lean term for a `typ'` as an IL value note: `Value.varT "id"` without
 type arguments, since notes on generated values are dummies. -/
 def noteTerm : typ' → Term
-  | .BoolT => .atom "IL.typ'.BoolT"
-  | .NumT .NatT => .atom "(IL.typ'.NumT .NatT)"
-  | .NumT .IntT => .atom "(IL.typ'.NumT .IntT)"
-  | .TextT => .atom "IL.typ'.TextT"
-  | .VarT i _ => .call "Value.varT" [.strLit i.it]
-  | _ => .atom "IL.typ'.TextT"
+  | .BoolT => .atom "Lang.Il.typ'.BoolT"
+  | .NumT .NatT => .atom "(Lang.Il.typ'.NumT .NatT)"
+  | .NumT .IntT => .atom "(Lang.Il.typ'.NumT .IntT)"
+  | .TextT => .atom "Lang.Il.typ'.TextT"
+  | .VarT i _ => .call "Prelude.Value.varT" [.strLit i.it]
+  | _ => .atom "Lang.Il.typ'.TextT"
 
 /-- A Lean term for an atom. -/
 def atomTerm (a : Atom.t) : Term :=
@@ -108,12 +108,12 @@ where
 /-- A Lean term for a mixop, as `Mixfix.t Unit`. -/
 partial def mixopTerm : Mixfix.mixop → Term
   | .Arg () => .atom "(.Arg ())"
-  | .Atom a => .paren (.call ".Atom" [.call "Value.atom" [atomTerm a.it]])
+  | .Atom a => .paren (.call ".Atom" [.call "Prelude.Value.atom" [atomTerm a.it]])
   | .Brack l m r =>
-    .paren (.call ".Brack" [.call "Value.atom" [atomTerm l.it], mixopTerm m,
-      .call "Value.atom" [atomTerm r.it]])
+    .paren (.call ".Brack" [.call "Prelude.Value.atom" [atomTerm l.it], mixopTerm m,
+      .call "Prelude.Value.atom" [atomTerm r.it]])
   | .Infix l a r =>
-    .paren (.call ".Infix" [mixopTerm l, .call "Value.atom" [atomTerm a.it], mixopTerm r])
+    .paren (.call ".Infix" [mixopTerm l, .call "Prelude.Value.atom" [atomTerm a.it], mixopTerm r])
   | .Seq ms => .paren (.call ".Seq" [.list (ms.map mixopTerm)])
 
 /-- A Lean term filling a mixop with argument terms, as `Mixfix.t value`. -/
@@ -124,15 +124,15 @@ where
   go : Mixfix.mixop → List Term → Term × List Term
     | .Arg (), a :: as => (.paren (.call ".Arg" [a]), as)
     | .Arg (), [] => (.atom "(.Arg (panic! \"arity\"))", [])
-    | .Atom a, as => (.paren (.call ".Atom" [.call "Value.atom" [atomTerm a.it]]), as)
+    | .Atom a, as => (.paren (.call ".Atom" [.call "Prelude.Value.atom" [atomTerm a.it]]), as)
     | .Brack l m r, as =>
       let (m', as) := go m as
-      (.paren (.call ".Brack" [.call "Value.atom" [atomTerm l.it], m',
-        .call "Value.atom" [atomTerm r.it]]), as)
+      (.paren (.call ".Brack" [.call "Prelude.Value.atom" [atomTerm l.it], m',
+        .call "Prelude.Value.atom" [atomTerm r.it]]), as)
     | .Infix l a r, as =>
       let (l', as) := go l as
       let (r', as) := go r as
-      (.paren (.call ".Infix" [l', .call "Value.atom" [atomTerm a.it], r']), as)
+      (.paren (.call ".Infix" [l', .call "Prelude.Value.atom" [atomTerm a.it], r']), as)
     | .Seq ms, as =>
       let (ms', as) := ms.foldl (init := ([], as)) fun (acc, as) m =>
         let (m', as) := go m as
@@ -231,6 +231,11 @@ structure HelperState where
   /-- Helper definitions generated so far. -/
   decls : List Format := []
 
+/-- A match arm `| pat => body` that breaks after the arrow. -/
+def arm (pat : Format) (body : Format) : Format :=
+  Term.hardLine ++
+    Format.group (Format.nest 4 (Format.text "| " ++ pat ++ " =>" ++ Format.line ++ body))
+
 /-- The mutual function name for a member type's `toValue`. -/
 def toValueName (id : String) : String := Names.typeName id ++ ".toValue"
 
@@ -262,9 +267,9 @@ partial def toValueTerm (env : Env) (members : List String) (t : typ') (x : Term
           pure idx
       match t with
       | .IterT _ .List =>
-        pure (.call "Value.list" [noteTerm t, .call s!"{st.prefix_}toValue_{idx}" [x]])
+        pure (.call "Runtime.Value.Make.list" [noteTerm t, .call s!"{st.prefix_}toValue_{idx}" [x]])
       | .IterT _ .Opt =>
-        pure (.call "Value.opt" [noteTerm t, .call s!"{st.prefix_}toValue_{idx}" [x]])
+        pure (.call "Runtime.Value.Make.opt" [noteTerm t, .call s!"{st.prefix_}toValue_{idx}" [x]])
       | _ => pure (.call s!"{st.prefix_}toValue_{idx}" [x])
 where
   /-- The helper for a container type. -/
@@ -274,49 +279,49 @@ where
     match t with
     | .IterT e .List =>
       let inner ← toValueTerm env members e.it (.atom "x")
-      pure <| Format.text s!"def {name} : " ++ ty ++ " → List IL.value" ++ Format.nest 2 (
+      pure <| Format.text s!"def {name} : " ++ ty ++ " → List Lang.Il.value" ++ Format.nest 2 (
         Format.line ++ "| [] => []" ++
         Format.line ++ "| x :: xs => " ++ inner.arg ++ " :: " ++ name ++ " xs")
     | .IterT e .Opt =>
       let inner ← toValueTerm env members e.it (.atom "x")
-      pure <| Format.text s!"def {name} : " ++ ty ++ " → Option IL.value" ++ Format.nest 2 (
+      pure <| Format.text s!"def {name} : " ++ ty ++ " → Option Lang.Il.value" ++ Format.nest 2 (
         Format.line ++ "| none => none" ++
         Format.line ++ "| some x => some " ++ inner.arg)
     | .TupleT ts =>
       let names := (List.range ts.length).map fun i => s!"x{i}"
       let inners ← (ts.zip names).mapM fun (e, n) => toValueTerm env members e.it (.atom n)
-      pure <| Format.text s!"def {name} : " ++ ty ++ " → IL.value" ++ Format.nest 2 (
-        Format.line ++ "| " ++ (Term.tuple (names.map Term.atom)).fmt ++ " => Value.tuple " ++
-          (noteTerm t).arg ++ " " ++ (Term.list inners).fmt)
+      pure <| Format.text s!"def {name} : " ++ ty ++ " → Lang.Il.value" ++ Format.nest 2 (
+        arm (Term.tuple (names.map Term.atom)).fmt
+          (Term.call "Runtime.Value.Make.tuple" [noteTerm t, .list inners]).fmt)
     | .VarT i targs =>
       -- a spec type applied to arguments that mention members: unfold its cases
       match env.instantiate i.it (targs.map (·.it)) with
       | some (.PlainT u) =>
         let inner ← toValueTerm env members u.it (.atom "x")
-        pure <| Term.defn (Format.text s!"def {name} (x : " ++ ty ++ ") : IL.value") inner.fmt
+        pure <| Term.defn (Format.text s!"def {name} (x : " ++ ty ++ ") : Lang.Il.value") inner.fmt
       | some (.VariantT cases) =>
         let cnames := ctorNames cases
         let arms ← (cases.zip cnames).mapM fun (c, cname) => do
           let args := Mixfix.args c.nottyp.it
           let anames := (List.range args.length).map fun k => s!"x{k}"
           let inners ← (args.zip anames).mapM fun (a, n) => toValueTerm env members a.it (.atom n)
-          let pat := Format.text ("| ." ++ cname ++ String.join (anames.map (" " ++ ·)))
-          pure (pat ++ " => Value.case " ++ (noteTerm t).arg ++ " " ++
-            (mixfixTerm (Mixfix.to_mixop c.nottyp.it) inners).fmt)
-        pure <| Format.text s!"def {name} : " ++ ty ++ " → IL.value" ++
-          Format.nest 2 (Format.join (arms.map (Format.line ++ ·)))
+          pure (arm (Term.patApp ("." ++ cname) anames)
+            (Term.call "Runtime.Value.Make.case"
+              [noteTerm t, mixfixTerm (Mixfix.to_mixop c.nottyp.it) inners]).fmt)
+        pure <| Format.text s!"def {name} : " ++ ty ++ " → Lang.Il.value" ++
+          Format.nest 2 (Format.join arms)
       | some (.StructT fields) =>
         let anames := (List.range fields.length).map fun k => s!"x{k}"
         let inners ← (fields.zip anames).mapM fun ((_, ft), n) =>
           toValueTerm env members ft.it (.atom n)
         let pairs := (fields.zip inners).map fun ((a, _), v) =>
           Term.tuple [Term.strLit (Names.atomName a.it), v]
-        pure <| Format.text s!"def {name} : " ++ ty ++ " → IL.value" ++ Format.nest 2 (
-          Format.line ++ "| ⟨" ++ Format.text (", ".intercalate anames) ++ "⟩ => Value.str " ++
-            (noteTerm t).arg ++ " " ++ (Term.list pairs).fmt)
-      | _ => pure (Term.defn (Format.text s!"def {name} (x : " ++ ty ++ ") : IL.value")
+        pure <| Format.text s!"def {name} : " ++ ty ++ " → Lang.Il.value" ++ Format.nest 2 (
+          arm (Format.text ("⟨" ++ ", ".intercalate anames ++ "⟩"))
+            (Term.call "Runtime.Value.Make.str" [noteTerm t, .list pairs]).fmt)
+      | _ => pure (Term.defn (Format.text s!"def {name} (x : " ++ ty ++ ") : Lang.Il.value")
         (Format.text "ToValue.toValue x"))
-    | _ => pure (Term.defn (Format.text s!"def {name} (x : " ++ ty ++ ") : IL.value")
+    | _ => pure (Term.defn (Format.text s!"def {name} (x : " ++ ty ++ ") : Lang.Il.value")
       (Format.text "ToValue.toValue x"))
 
 /-- The `toValue` functions of a group, as one mutual block, followed by the
@@ -335,7 +340,7 @@ def toValueDecls (env : Env) (group : List (String × List String × deftyp')) :
     | .PlainT t =>
       let (inner, st') := (toValueTerm env members t.it (.atom "x")).run st
       st := st'
-      fns := fns ++ [Term.defn (header ++ " (x : " ++ self.fmt ++ ") : IL.value") inner.fmt]
+      fns := fns ++ [Term.defn (header ++ " (x : " ++ self.fmt ++ ") : Lang.Il.value") inner.fmt]
     | .StructT fields =>
       let anames := (List.range fields.length).map fun k => s!"x{k}"
       let mut inners : List Term := []
@@ -344,9 +349,9 @@ def toValueDecls (env : Env) (group : List (String × List String × deftyp')) :
         st := st'; inners := inners ++ [v]
       let pairs := (fields.zip inners).map fun ((a, _), v) =>
         Term.tuple [Term.strLit (Names.atomName a.it), v]
-      fns := fns ++ [header ++ " : " ++ self.fmt ++ " → IL.value" ++ Format.nest 2 (
-        Format.line ++ "| ⟨" ++ Format.text (", ".intercalate anames) ++ "⟩ => Value.str " ++
-          note.arg ++ " " ++ (Term.list pairs).fmt)]
+      fns := fns ++ [header ++ " : " ++ self.fmt ++ " → Lang.Il.value" ++ Format.nest 2 (
+        arm (Format.text ("⟨" ++ ", ".intercalate anames ++ "⟩"))
+          (Term.call "Runtime.Value.Make.str" [note, .list pairs]).fmt)]
     | .VariantT cases =>
       let cnames := ctorNames cases
       let mut arms : List Format := []
@@ -357,11 +362,11 @@ def toValueDecls (env : Env) (group : List (String × List String × deftyp')) :
         for (a, n) in args.zip anames do
           let (v, st') := (toValueTerm env members a.it (.atom n)).run st
           st := st'; inners := inners ++ [v]
-        let pat := Format.text ("| ." ++ cname ++ String.join (anames.map (" " ++ ·)))
-        arms := arms ++ [pat ++ " => Value.case " ++ note.arg ++ " " ++
-          (mixfixTerm (Mixfix.to_mixop c.nottyp.it) inners).fmt]
-      fns := fns ++ [header ++ " : " ++ self.fmt ++ " → IL.value" ++
-        Format.nest 2 (Format.join (arms.map (Format.line ++ ·)))]
+        arms := arms ++ [arm (Term.patApp ("." ++ cname) anames)
+          (Term.call "Runtime.Value.Make.case"
+            [note, mixfixTerm (Mixfix.to_mixop c.nottyp.it) inners]).fmt]
+      fns := fns ++ [header ++ " : " ++ self.fmt ++ " → Lang.Il.value" ++
+        Format.nest 2 (Format.join arms)]
   let decls := fns ++ st.decls
   let block := if decls.length == 1 then joinDecls decls else mutualBlock decls
   let instances := group.map fun (tid, tparams, _) =>
@@ -405,7 +410,8 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
               (ofValueTerm env members a.it (.atom n)).fmt ++ ")")
           Term.paren (.doBlock [
             Term.letStmt (Format.text "some " ++ (Term.list (anames.map Term.atom)).fmt)
-              (.call "Value.caseArgs" [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) true,
+              (.call "Prelude.Value.caseArgs"
+                [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) true,
             Format.text "pure " ++
               (Term.call (env.q (Names.typeName i.it) ++ "." ++ cname) decs).arg])
         .paren (.matchOn (.proj v "it") [
@@ -455,7 +461,7 @@ def ofValueDecls (env : Env) (group : List (String × List String × deftyp')) :
     let name := ofValueName tid
     let insts := ofValueInstances tparams
     let header := Format.group (Format.nest 4 (Format.text s!"def {name}" ++
-      tparamImplicits tparams ++ insts ++ " :" ++ Format.line ++ "Nat → IL.value → Option " ++
+      tparamImplicits tparams ++ insts ++ " :" ++ Format.line ++ "Nat → Lang.Il.value → Option " ++
       self.arg))
     let body := match dt with
       | .PlainT t =>
@@ -479,7 +485,8 @@ def ofValueDecls (env : Env) (group : List (String × List String × deftyp')) :
               (ofValueTerm env members a.it (.atom n)).fmt ++ ")")
           Term.paren (.doBlock [
             Term.letStmt (Format.text "some " ++ (Term.list (anames.map Term.atom)).fmt)
-              (.call "Value.caseArgs" [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) true,
+              (.call "Prelude.Value.caseArgs"
+                [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) true,
             Format.text "pure " ++
               (Term.call (env.q (Names.typeName tid) ++ "." ++ cname) decs).arg])
         Format.text "| fuel + 1, v => " ++ (Term.matchOn (.atom "v.it") [
@@ -506,7 +513,7 @@ def isName (s t : String) : String := Names.typeName t ++ ".is_" ++ Names.escape
 
 /-- The injection, projection and check between variant `s` and variant
 `t`, by matching cases with equal mixops. -/
-def subtypeDecls (env : Env) (s t : String) : Format := Id.run do
+def subtypeDecls (env : Env) (s t : String) : Except String Format := do
   let sCases := (env.variantCases s []).getD []
   let tCases := (env.variantCases t []).getD []
   let sNames := ctorNames sCases
@@ -517,9 +524,16 @@ def subtypeDecls (env : Env) (s t : String) : Format := Id.run do
   for (sc, sn) in sCases.zip sNames do
     match (tCases.zip tNames).find? fun (tc, _) => Mixfix.eq_mixop sc.nottyp.it tc.nottyp.it with
     | some (tc, tn) =>
-      let n := (Mixfix.args sc.nottyp.it).length
+      -- the bridge maps a case to the case with the same mixop; the AL's
+      -- `RecurseSC` would also check the arguments' values against the
+      -- subtype's argument types, which is only needed when those differ
+      let sArgs := (Mixfix.args sc.nottyp.it).map (·.it)
+      let tArgs := (Mixfix.args tc.nottyp.it).map (·.it)
+      if sArgs.length != tArgs.length || !((sArgs.zip tArgs).all fun (a, b) => typEq a b) then
+        throw s!"subtype {s} of {t}: case {Mixfix.to_string sc.nottyp.it} has different \
+          argument types in the two (design 5.4: not supported)"
+      let n := sArgs.length
       let xs := (List.range n).map fun k => s!"x{k}"
-      let _ := tc
       let arm (l : Format) (r : Format) : Format :=
         Format.group (Format.nest 2 (Format.text "| " ++ l ++ " =>" ++ Format.line ++ r))
       ups := ups ++ [arm (Term.patApp ("." ++ sn) xs) (Term.patApp ("." ++ tn) xs)]

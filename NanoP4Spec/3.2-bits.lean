@@ -16,18 +16,17 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
 abbrev bit : Type := Bool
 
-def bit.toValue (x : NanoP4Spec.bit) : IL.value := ToValue.toValue x
+def bit.toValue (x : NanoP4Spec.bit) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.bit := ⟨NanoP4Spec.bit.toValue⟩
 instance : BEq NanoP4Spec.bit := ⟨valueEq⟩
 
-def bit.ofValue : Nat → IL.value → Option NanoP4Spec.bit
+def bit.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bit
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -35,28 +34,28 @@ instance : OfValue NanoP4Spec.bit := ⟨NanoP4Spec.bit.ofValue⟩
 
 abbrev bits : Type := List NanoP4Spec.bit
 
-def bits.toValue (x : NanoP4Spec.bits) : IL.value := ToValue.toValue x
+def bits.toValue (x : NanoP4Spec.bits) : Lang.Il.value := ToValue.toValue x
 
 instance : ToValue NanoP4Spec.bits := ⟨NanoP4Spec.bits.toValue⟩
 instance : BEq NanoP4Spec.bits := ⟨valueEq⟩
 
-def bits.ofValue : Nat → IL.value → Option NanoP4Spec.bits
+def bits.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bits
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.bits := ⟨NanoP4Spec.bits.ofValue⟩
 
 def «$bits_to_int_unsigned» (fuel : Nat) (p0 : NanoP4Spec.bits) : Option Int :=
-  pure (Builtins.Numerics.bits_to_int_unsigned p0)
+  pure (Builtin.Numerics.bits_to_int_unsigned p0)
 
 def «$bits_to_int_signed» (fuel : Nat) (p0 : NanoP4Spec.bits) : Option Int :=
-  Builtins.Numerics.bits_to_int_signed p0
+  Builtin.Numerics.bits_to_int_signed p0
 
 def «$int_to_bits_unsigned» (fuel : Nat) (p0 : Nat) (p1 : Int) : Option NanoP4Spec.bits :=
-  Builtins.Numerics.int_to_bits_unsigned (Int.ofNat p0) p1
+  Builtin.Numerics.int_to_bits_unsigned (Int.ofNat p0) p1
 
 def «$int_to_bits_signed» (fuel : Nat) (p0 : Nat) (p1 : Int) : Option NanoP4Spec.bits :=
-  Builtins.Numerics.int_to_bits_signed (Int.ofNat p0) p1
+  Builtin.Numerics.int_to_bits_signed (Int.ofNat p0) p1
 
 mutual
 

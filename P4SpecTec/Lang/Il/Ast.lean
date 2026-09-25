@@ -1,7 +1,7 @@
 import Lean.Data.Json.Basic
 import P4SpecTec.Util.Source
-import P4SpecTec.Xl.Num
-import P4SpecTec.Xl.Bool
+import P4SpecTec.Lang.Xl.Num
+import P4SpecTec.Lang.Xl.Bool
 import P4SpecTec.Domain.Atom
 import P4SpecTec.Domain.Mixfix
 
@@ -16,15 +16,17 @@ cannot sit inside a `mutual` block, and the kernel's nested-inductive check
 does not unfold one in a constructor argument.
 
 Deviations forced by Lean are in the named list of `docs/design.md`
-section 5.3; this file has three: EL hints are kept as raw JSON, the
+section 5.3; this file has four: EL hints are kept as raw JSON, the
 polymorphic-variant unions (`unop`, `binop`, `cmpop`, `optyp`, `numop`) are
-flattened into one inductive each, and `Bigint.t` is `Nat` or `Int`.
+flattened into one inductive each, `Bigint.t` is `Nat` or `Int`, and
+`iterexp`, `iterprem` and `typorigin'` are named inductives rather than
+tuples.
 -/
 
-namespace P4SpecTec.IL
+namespace P4SpecTec.Lang.Il
 
 open P4SpecTec.Util.Source
-open P4SpecTec.Xl
+open P4SpecTec.Lang.Xl
 open P4SpecTec.Domain
 
 /- Numbers -/
@@ -560,48 +562,48 @@ abbrev spec := List «def»
 /-! Accessors named as upstream's `Util.Source` projections. -/
 
 /-- The `vid` of a value note. -/
-def vnote.vid : IL.vnote → IL.vid | .mk v _ _ => v
+def vnote.vid : Lang.Il.vnote → Lang.Il.vid | .mk v _ _ => v
 
 /-- The `typ` of a value note. -/
-def vnote.typ : IL.vnote → IL.typ' | .mk _ t _ => t
+def vnote.typ : Lang.Il.vnote → Lang.Il.typ' | .mk _ t _ => t
 
 /-- The `vhash` of a value note. -/
-def vnote.vhash : IL.vnote → Int | .mk _ _ h => h
+def vnote.vhash : Lang.Il.vnote → Int | .mk _ _ h => h
 
 /-- The `nottyp` of a type case. -/
-def typcase.nottyp : IL.typcase → IL.nottyp | .mk n _ _ => n
+def typcase.nottyp : Lang.Il.typcase → Lang.Il.nottyp | .mk n _ _ => n
 
 /-- The `typorigin` of a type case. -/
-def typcase.typorigin : IL.typcase → IL.typorigin | .mk _ o _ => o
+def typcase.typorigin : Lang.Il.typcase → Lang.Il.typorigin | .mk _ o _ => o
 
 /-- The `id` of a type origin. -/
-def typorigin'.id : IL.typorigin' → IL.id | .mk i _ => i
+def typorigin'.id : Lang.Il.typorigin' → Lang.Il.id | .mk i _ => i
 
 /-- The `targs` of a type origin. -/
-def typorigin'.targs : IL.typorigin' → List IL.targ | .mk _ ts => ts
+def typorigin'.targs : Lang.Il.typorigin' → List Lang.Il.targ | .mk _ ts => ts
 
 /-- The `id` of a variable. -/
-def var.id : IL.var → IL.id | .mk i _ _ => i
+def var.id : Lang.Il.var → Lang.Il.id | .mk i _ _ => i
 
 /-- The `typ` of a variable. -/
-def var.typ : IL.var → IL.typ | .mk _ t _ => t
+def var.typ : Lang.Il.var → Lang.Il.typ | .mk _ t _ => t
 
 /-- The `iters` of a variable. -/
-def var.iters : IL.var → List IL.iter | .mk _ _ is => is
+def var.iters : Lang.Il.var → List Lang.Il.iter | .mk _ _ is => is
 
 /-- The `iter` of an iterated expression. -/
-def iterexp.iter : IL.iterexp → IL.iter | .mk i _ => i
+def iterexp.iter : Lang.Il.iterexp → Lang.Il.iter | .mk i _ => i
 
 /-- The `vars` of an iterated expression. -/
-def iterexp.vars : IL.iterexp → List IL.var | .mk _ vs => vs
+def iterexp.vars : Lang.Il.iterexp → List Lang.Il.var | .mk _ vs => vs
 
 /-- The `iter` of an iterated premise. -/
-def iterprem.iter : IL.iterprem → IL.iter | .mk i _ _ => i
+def iterprem.iter : Lang.Il.iterprem → Lang.Il.iter | .mk i _ _ => i
 
 /-- The bound variables of an iterated premise. -/
-def iterprem.vars_bound : IL.iterprem → List IL.var | .mk _ vs _ => vs
+def iterprem.vars_bound : Lang.Il.iterprem → List Lang.Il.var | .mk _ vs _ => vs
 
 /-- The binding variables of an iterated premise. -/
-def iterprem.vars_bind : IL.iterprem → List IL.var | .mk _ _ vs => vs
+def iterprem.vars_bind : Lang.Il.iterprem → List Lang.Il.var | .mk _ _ vs => vs
 
-end P4SpecTec.IL
+end P4SpecTec.Lang.Il

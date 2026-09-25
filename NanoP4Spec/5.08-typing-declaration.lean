@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -87,7 +86,7 @@ def ExternDecl_ok.run
                     let externMethodTypeDefIR := tmp_1
                     pure externMethodTypeDefIR))
               «externMethodPrototype*»
-        let «externMethodTypeDefIR*» := List.map (·) tmp_2
+        let «externMethodTypeDefIR*» := tmp_2
         let tmp_3 ←
             List.mapM
               (fun (externMethodTypeDefIR : NanoP4Spec.externMethodTypeDefIR) =>
@@ -148,7 +147,7 @@ def TypeDecl_ok.run
                     let typeIR := tmp_3
                     pure typeIR))
               «type*»
-        let «typeIR*» := List.map (·) tmp_4
+        let «typeIR*» := tmp_4
         let tmp_6 ←
             List.mapM
               (fun (name : NanoP4Spec.name) =>
@@ -157,7 +156,7 @@ def TypeDecl_ok.run
                     let id_field := tmp_5
                     pure id_field))
               «name*»
-        let «id_field*» := List.map (·) tmp_6
+        let «id_field*» := tmp_6
         let tmp_7 ← NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) fuel «id_field*»
         let _ ← Iter.check tmp_7
         let tmp_8 ← NanoP4Spec.«$id» fuel name_struct
@@ -198,7 +197,7 @@ def TypeDecl_ok.run
                      let typeIR := tmp_13
                      pure typeIR))
                «type*»
-         let «typeIR*» := List.map (·) tmp_14
+         let «typeIR*» := tmp_14
          let tmp_16 ←
              List.mapM
                (fun (name : NanoP4Spec.name) =>
@@ -207,7 +206,7 @@ def TypeDecl_ok.run
                      let id_field := tmp_15
                      pure id_field))
                «name*»
-         let «id_field*» := List.map (·) tmp_16
+         let «id_field*» := tmp_16
          let tmp_17 ← NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) fuel «id_field*»
          let _ ← Iter.check tmp_17
          let tmp_18 ← NanoP4Spec.«$id» fuel name_header

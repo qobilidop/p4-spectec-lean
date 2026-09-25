@@ -1,4 +1,4 @@
-import P4SpecTec.IL.Ast
+import P4SpecTec.Lang.Il.Ast
 import P4SpecTec.Codegen.Keywords
 
 /-!
@@ -33,7 +33,7 @@ invertible rule (design section 2.1), no renaming for taste.
 namespace P4SpecTec.Codegen.Names
 
 open P4SpecTec.Domain
-open P4SpecTec.IL
+open P4SpecTec.Lang.Il
 
 /-- Whether a character may start a Lean identifier (`τ` prefixes type
 parameters; Lean accepts Greek letters other than λ, Π and Σ). -/

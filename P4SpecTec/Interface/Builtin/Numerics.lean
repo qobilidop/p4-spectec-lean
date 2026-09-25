@@ -7,7 +7,7 @@ shift above upstream's `max_bit_width` (2048) is an error there and
 `none` here.
 -/
 
-namespace P4SpecTec.Prelude.Builtins.Numerics
+namespace P4SpecTec.Builtin.Numerics
 
 /-- Mirrors `max_bit_width`. -/
 def max_bit_width : Int := 2048
@@ -59,24 +59,14 @@ def pow2' (w : Int) : Int := shl' 1 w.toNat
 def pow2 (w : Int) : Int := pow2' w
 
 /-- Mirrors `bitstr_to_int'`: reinterpret a bit string of width `w` as a
-signed integer. Written with the fuel `w` gives, since the OCaml recurses
-on the same width until the value is in range. -/
+signed integer. The OCaml adds or subtracts `2^w` until the value is in
+`[-2^(w-1), 2^(w-1))`; that fixed point is the closed form below. -/
 def bitstr_to_int' (w : Int) (n : Int) : Int :=
   if w ≤ 0 then 0
   else
     let w' := pow2' w
     let half := Int.tdiv w' 2
-    -- one step of normalisation suffices for any input within one period;
-    -- iterate a bounded number of times for inputs further away
-    go (n.natAbs.log2 + 2) n w' half
-where
-  /-- The recursion of the OCaml, bounded by fuel. -/
-  go : Nat → Int → Int → Int → Int
-    | 0, n, _, _ => n
-    | k + 1, n, w', half =>
-      if n ≥ half then go k (n - w') w' half
-      else if n < -half then go k (n + w') w' half
-      else n
+    Int.emod (n + half) w' - half
 
 /-- `dec $bitstr_to_int(int, int) : int`. -/
 def bitstr_to_int (width bitstr : Int) : Option Int :=
@@ -149,4 +139,4 @@ def bitacc_replace (b m l r : Int) : Int :=
   let mask := Int.not (lxor mask_hi mask_lo)
   lxor (land b mask) r
 
-end P4SpecTec.Prelude.Builtins.Numerics
+end P4SpecTec.Builtin.Numerics

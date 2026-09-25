@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -24,23 +23,30 @@ inductive forwardingDecision where
   | FORWARD
   | DROP
 
-def forwardingDecision.toValue : NanoP4Spec.forwardingDecision → IL.value
-  | .FORWARD => Value.case (Value.varT
-     "forwardingDecision") (.Atom (Value.atom (.Keyword "FORWARD")))
-  | .DROP => Value.case (Value.varT "forwardingDecision") (.Atom (Value.atom (.Keyword "DROP")))
+def forwardingDecision.toValue : NanoP4Spec.forwardingDecision → Lang.Il.value
+  | .FORWARD =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "forwardingDecision")
+        (.Atom (Prelude.Value.atom (.Keyword "FORWARD")))
+  | .DROP =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "forwardingDecision")
+        (.Atom (Prelude.Value.atom (.Keyword "DROP")))
 
 instance : ToValue NanoP4Spec.forwardingDecision := ⟨NanoP4Spec.forwardingDecision.toValue⟩
 instance : BEq NanoP4Spec.forwardingDecision := ⟨valueEq⟩
 
-def forwardingDecision.ofValue : Nat → IL.value → Option NanoP4Spec.forwardingDecision
+def forwardingDecision.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.forwardingDecision
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
-         let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "FORWARD"))) | none
+         let some [] :=
+             Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "FORWARD"))) | none
          pure NanoP4Spec.forwardingDecision.FORWARD) <|>
       (do
-         let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "DROP"))) | none
+         let some [] :=
+             Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "DROP"))) | none
          pure NanoP4Spec.forwardingDecision.DROP)
     | _ => none
 

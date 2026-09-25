@@ -14,8 +14,8 @@ namespace P4SpecTec.Codegen.Funcs
 open Std (Format)
 open P4SpecTec.Util.Source
 open P4SpecTec.Domain
-open P4SpecTec.IL
-open P4SpecTec.AL
+open P4SpecTec.Lang.Il
+open P4SpecTec.Lang.Al
 open P4SpecTec.Codegen.Types
 open P4SpecTec.Codegen.Exp
 
@@ -80,7 +80,7 @@ def funcDecl (ctx : Ctx) (recursive externs : Bool) (id : String) (tparams : Lis
 
 /-- A table function: rows as clauses. -/
 def tableDecl (ctx : Ctx) (recursive externs : Bool) (id : String) (params : List param')
-    (ret : typ') (rows : List AL.tablerow) : Except String Format := do
+    (ret : typ') (rows : List Lang.Al.tablerow) : Except String Format := do
   let alts ← Exp.run ctx do
     let rs ← rows.mapM fun r => do
       let (_, args, out, prems) := r.it
@@ -147,77 +147,77 @@ def builtinBody (env : Env) (id : String) (params : List typ') : Except String T
     | some a => pure a
     | none => throw s!"builtin {id} needs the stdlib type {what}"
   match id with
-  | "print_" => pure (pureOf (.call "Value.print" [.call toValueRef [p 0]]))
-  | "text_to_int" => pure (.call "Builtins.Texts.text_to_int" [p 0])
-  | "int_to_text" => pure (pureOf (.call "Builtins.Texts.int_to_text" [p 0]))
-  | "split_text" => pure (.call "Builtins.Texts.split_text" [p 0, p 1])
-  | "strip_prefix" => pure (.call "Builtins.Texts.strip_prefix" [p 0, p 1])
-  | "strip_suffix" => pure (.call "Builtins.Texts.strip_suffix" [p 0, p 1])
-  | "strip_all_whitespace" => pure (pureOf (.call "Builtins.Texts.strip_all_whitespace" [p 0]))
-  | "rev_" => pure (pureOf (.call "Builtins.Lists.rev_" [p 0]))
-  | "concat_" => pure (pureOf (.call "Builtins.Lists.concat_" [p 0]))
-  | "distinct_" => pure (pureOf (.call "Builtins.Lists.distinct_" [p 0]))
-  | "partition_" => pure (pureOf (.call "Builtins.Lists.partition_" [p 0, p 1]))
-  | "assoc_" => pure (pureOf (.call "Builtins.Lists.assoc_" [p 0, p 1]))
-  | "sort_" => pure (pureOf (.call "Builtins.Lists.sort_" [p 0]))
-  | "transpose_" => pure (.call "Builtins.Lists.transpose_" [p 0])
+  | "print_" => pure (pureOf (.call "P4.Unparse.print" [.call toValueRef [p 0]]))
+  | "text_to_int" => pure (.call "Builtin.Texts.text_to_int" [p 0])
+  | "int_to_text" => pure (pureOf (.call "Builtin.Texts.int_to_text" [p 0]))
+  | "split_text" => pure (.call "Builtin.Texts.split_text" [p 0, p 1])
+  | "strip_prefix" => pure (.call "Builtin.Texts.strip_prefix" [p 0, p 1])
+  | "strip_suffix" => pure (.call "Builtin.Texts.strip_suffix" [p 0, p 1])
+  | "strip_all_whitespace" => pure (pureOf (.call "Builtin.Texts.strip_all_whitespace" [p 0]))
+  | "rev_" => pure (pureOf (.call "Builtin.Lists.rev_" [p 0]))
+  | "concat_" => pure (pureOf (.call "Builtin.Lists.concat_" [p 0]))
+  | "distinct_" => pure (pureOf (.call "Builtin.Lists.distinct_" [p 0]))
+  | "partition_" => pure (pureOf (.call "Builtin.Lists.partition_" [p 0, p 1]))
+  | "assoc_" => pure (pureOf (.call "Builtin.Lists.assoc_" [p 0, p 1]))
+  | "sort_" => pure (pureOf (.call "Builtin.Lists.sort_" [p 0]))
+  | "transpose_" => pure (.call "Builtin.Lists.transpose_" [p 0])
   | "intersect_set" | "union_set" | "diff_set" =>
     let a ← need "set" (setElems env (p 0))
     let b ← need "set" (setElems env (p 1))
-    let r ← need "set" (setMk env (.call s!"Builtins.Sets.{id}" [a, b]))
+    let r ← need "set" (setMk env (.call s!"Builtin.Sets.{id}" [a, b]))
     pure (pureOf r)
   | "unions_set" =>
     let e ← need "set" (setElems env (.atom "s"))
-    let inner := Term.call "Builtins.Sets.unions_set" [.call "List.map" [.lam ["s"] e, p 0]]
+    let inner := Term.call "Builtin.Sets.unions_set" [.call "List.map" [.lam ["s"] e, p 0]]
     let r ← need "set" (setMk env inner)
     pure (pureOf r)
   | "sub_set" | "eq_set" =>
     let a ← need "set" (setElems env (p 0))
     let b ← need "set" (setElems env (p 1))
-    pure (pureOf (.call s!"Builtins.Sets.{id}" [a, b]))
+    pure (pureOf (.call s!"Builtin.Sets.{id}" [a, b]))
   | "find_map" =>
     let m ← need "map" (mapElems env (p 0))
-    pure (pureOf (.call "Builtins.Maps.find_map" [m, p 1]))
+    pure (pureOf (.call "Builtin.Maps.find_map" [m, p 1]))
   | "find_maps" =>
     let e ← need "map" (mapElems env (.atom "m"))
-    pure (pureOf (.call "Builtins.Maps.find_maps" [.call "List.map" [.lam ["m"] e, p 0], p 1]))
+    pure (pureOf (.call "Builtin.Maps.find_maps" [.call "List.map" [.lam ["m"] e, p 0], p 1]))
   | "add_map" | "update_map" =>
     let m ← need "map" (mapElems env (p 0))
-    let r ← need "map" (mapMk env (.call s!"Builtins.Maps.{id}" [m, p 1, p 2]))
+    let r ← need "map" (mapMk env (.call s!"Builtin.Maps.{id}" [m, p 1, p 2]))
     pure (pureOf r)
   | "adds_map" =>
     let m ← need "map" (mapElems env (p 0))
     let r ← need "map" (mapMk env (.atom "r"))
-    let call := Term.call "Builtins.Maps.adds_map" [m, p 1, p 2]
+    let call := Term.call "Builtin.Maps.adds_map" [m, p 1, p 2]
     pure (.paren (.doBlock [Format.text "let r ← " ++ call.fmt, Format.text "pure " ++ r.arg]))
-  | "sum_nat" => pure (pureOf (.call "Builtins.Nats.sum_nat" [p 0]))
-  | "max_nat" => pure (.call "Builtins.Nats.max_nat" [p 0])
-  | "min_nat" => pure (.call "Builtins.Nats.min_nat" [p 0])
-  | "sum_int" => pure (pureOf (.call "Builtins.Ints.sum_int" [p 0]))
-  | "max_int" => pure (pureOf (.call "Builtins.Ints.max_int" [p 0]))
-  | "min_int" => pure (pureOf (.call "Builtins.Ints.min_int" [p 0]))
+  | "sum_nat" => pure (pureOf (.call "Builtin.Nats.sum_nat" [p 0]))
+  | "max_nat" => pure (.call "Builtin.Nats.max_nat" [p 0])
+  | "min_nat" => pure (.call "Builtin.Nats.min_nat" [p 0])
+  | "sum_int" => pure (pureOf (.call "Builtin.Ints.sum_int" [p 0]))
+  | "max_int" => pure (pureOf (.call "Builtin.Ints.max_int" [p 0]))
+  | "min_int" => pure (pureOf (.call "Builtin.Ints.min_int" [p 0]))
   | "shl" | "shr" =>
-    pure (.call s!"Builtins.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)])
+    pure (.call s!"Builtin.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)])
   | "shr_arith" =>
-    pure (.call "Builtins.Numerics.shr_arith"
+    pure (.call "Builtin.Numerics.shr_arith"
       [toInt (pt 0) (p 0), toInt (pt 1) (p 1), toInt (pt 2) (p 2)])
-  | "pow2" => pure (pureOf (.call "Builtins.Numerics.pow2" [toInt (pt 0) (p 0)]))
+  | "pow2" => pure (pureOf (.call "Builtin.Numerics.pow2" [toInt (pt 0) (p 0)]))
   | "bitstr_to_int" | "int_to_bitstr" =>
-    pure (.call s!"Builtins.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)])
-  | "bits_to_int_unsigned" => pure (pureOf (.call "Builtins.Numerics.bits_to_int_unsigned" [p 0]))
-  | "bits_to_int_signed" => pure (.call "Builtins.Numerics.bits_to_int_signed" [p 0])
+    pure (.call s!"Builtin.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)])
+  | "bits_to_int_unsigned" => pure (pureOf (.call "Builtin.Numerics.bits_to_int_unsigned" [p 0]))
+  | "bits_to_int_signed" => pure (.call "Builtin.Numerics.bits_to_int_signed" [p 0])
   | "int_to_bits_unsigned" | "int_to_bits_signed" =>
-    pure (.call s!"Builtins.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)])
-  | "bneg" => pure (pureOf (.call "Builtins.Numerics.bneg" [toInt (pt 0) (p 0)]))
+    pure (.call s!"Builtin.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)])
+  | "bneg" => pure (pureOf (.call "Builtin.Numerics.bneg" [toInt (pt 0) (p 0)]))
   | "band" | "bxor" | "bor" =>
-    pure (pureOf (.call s!"Builtins.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)]))
+    pure (pureOf (.call s!"Builtin.Numerics.{id}" [toInt (pt 0) (p 0), toInt (pt 1) (p 1)]))
   | "bitacc" =>
-    pure (.call "Builtins.Numerics.bitacc"
+    pure (.call "Builtin.Numerics.bitacc"
       [toInt (pt 0) (p 0), toInt (pt 1) (p 1), toInt (pt 2) (p 2)])
   | "bitacc_replace" =>
-    pure (pureOf (.call "Builtins.Numerics.bitacc_replace"
+    pure (pureOf (.call "Builtin.Numerics.bitacc_replace"
       [toInt (pt 0) (p 0), toInt (pt 1) (p 1), toInt (pt 2) (p 2), toInt (pt 3) (p 3)]))
-  | _ => throw s!"builtin {id} has no port in P4SpecTec.Prelude.Builtins"
+  | _ => throw s!"builtin {id} has no port under P4SpecTec/Interface/Builtin/"
 
 /-- A builtin wrapper. -/
 def builtinDecl (env : Env) (id : String) (tparams : List String) (params : List param')
@@ -229,7 +229,7 @@ def builtinDecl (env : Env) (id : String) (tparams : List String) (params : List
   pure (header ++ Format.nest 2 (Format.line ++ body.fmt))
 
 /-- The `Externs` class: one field per extern function and relation. -/
-def externsClass (env : Env) (defs : List AL.def) : Format :=
+def externsClass (env : Env) (defs : List Lang.Al.def) : Format :=
   let fields := defs.filterMap fun d => match d.it with
     | .ExternDecD i tparams params ret _ =>
       let pts := paramTypes (params.map (·.it))

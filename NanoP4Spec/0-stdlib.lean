@@ -15,27 +15,33 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
 inductive set (τK : Type) where
   | lbrace_rbrace (x : List τK)
 
-def set.toValue {τK : Type} [ToValue τK] : NanoP4Spec.set τK → IL.value
-  | .lbrace_rbrace x0 => Value.case (Value.varT
-     "set") (.Brack (Value.atom .LBrace) (.Arg (ToValue.toValue x0)) (Value.atom .RBrace))
+def set.toValue {τK : Type} [ToValue τK] : NanoP4Spec.set τK → Lang.Il.value
+  | .lbrace_rbrace x0 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "set")
+        (.Brack
+           (Prelude.Value.atom .LBrace)
+           (.Arg (ToValue.toValue x0))
+           (Prelude.Value.atom .RBrace))
 
 instance {τK : Type} [ToValue τK] : ToValue (NanoP4Spec.set τK) := ⟨NanoP4Spec.set.toValue⟩
 instance {τK : Type} [ToValue τK] : BEq (NanoP4Spec.set τK) := ⟨valueEq⟩
 
-def set.ofValue {τK : Type} [OfValue τK] : Nat → IL.value → Option (NanoP4Spec.set τK)
+def set.ofValue {τK : Type} [OfValue τK] : Nat → Lang.Il.value → Option (NanoP4Spec.set τK)
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0] :=
-             Value.caseArgs c (.Brack (Value.atom .LBrace) (.Arg ()) (Value.atom .RBrace)) | none
+             Prelude.Value.caseArgs
+               c
+               (.Brack (Prelude.Value.atom .LBrace) (.Arg ()) (Prelude.Value.atom .RBrace)) | none
          pure (NanoP4Spec.set.lbrace_rbrace (← OfValue.ofValue fuel a0)))
     | _ => none
 
@@ -44,27 +50,29 @@ instance {τK : Type} [OfValue τK] : OfValue (NanoP4Spec.set τK) := ⟨NanoP4S
 inductive pair (τK : Type) (τV : Type) where
   | colon (x_1 : τK) (x_2 : τV)
 
-def pair.toValue {τK τV : Type} [ToValue τK] [ToValue τV] : NanoP4Spec.pair τK τV → IL.value
-  | .colon x0 x1 => Value.case (Value.varT
-     "pair") (.Seq
-     [(.Arg (ToValue.toValue x0)),
-      (.Atom (Value.atom (.Operator ":"))),
-      (.Arg (ToValue.toValue x1))])
+def pair.toValue {τK τV : Type} [ToValue τK] [ToValue τV] : NanoP4Spec.pair τK τV → Lang.Il.value
+  | .colon x0 x1 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "pair")
+        (.Seq
+           [(.Arg (ToValue.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator ":"))),
+            (.Arg (ToValue.toValue x1))])
 
 instance {τK τV : Type} [ToValue τK] [ToValue τV] : ToValue (NanoP4Spec.pair τK τV) :=
   ⟨NanoP4Spec.pair.toValue⟩
 instance {τK τV : Type} [ToValue τK] [ToValue τV] : BEq (NanoP4Spec.pair τK τV) := ⟨valueEq⟩
 
 def pair.ofValue {τK τV : Type} [OfValue τK] [OfValue τV] :
-    Nat → IL.value → Option (NanoP4Spec.pair τK τV)
+    Nat → Lang.Il.value → Option (NanoP4Spec.pair τK τV)
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
-               (.Seq [(.Arg ()), (.Atom (Value.atom (.Operator ":"))), (.Arg ())]) | none
+               (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ":"))), (.Arg ())]) | none
          pure (NanoP4Spec.pair.colon (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
     | _ => none
 
@@ -73,7 +81,9 @@ instance {τK τV : Type} [OfValue τK] [OfValue τV] : OfValue (NanoP4Spec.pair
 
 abbrev map (τK : Type) (τV : Type) : Type := NanoP4Spec.set (NanoP4Spec.pair τK τV)
 
-def map.toValue {τK τV : Type} [ToValue τK] [ToValue τV] (x : NanoP4Spec.map τK τV) : IL.value :=
+def map.toValue {τK τV : Type} [ToValue τK] [ToValue τV] (x : NanoP4Spec.map
+    τK
+    τV) : Lang.Il.value :=
   ToValue.toValue x
 
 instance {τK τV : Type} [ToValue τK] [ToValue τV] : ToValue (NanoP4Spec.map τK τV) :=
@@ -81,7 +91,7 @@ instance {τK τV : Type} [ToValue τK] [ToValue τV] : ToValue (NanoP4Spec.map 
 instance {τK τV : Type} [ToValue τK] [ToValue τV] : BEq (NanoP4Spec.map τK τV) := ⟨valueEq⟩
 
 def map.ofValue {τK τV : Type} [OfValue τK] [OfValue τV] :
-    Nat → IL.value → Option (NanoP4Spec.map τK τV)
+    Nat → Lang.Il.value → Option (NanoP4Spec.map τK τV)
   | 0, _ => none
   | fuel + 1, v => OfValue.ofValue fuel v
 
@@ -89,10 +99,10 @@ instance {τK τV : Type} [OfValue τK] [OfValue τV] : OfValue (NanoP4Spec.map 
   ⟨NanoP4Spec.map.ofValue⟩
 
 def «$print_» {τX : Type} [ToValue τX] [BEq τX] (fuel : Nat) (p0 : τX) : Option String :=
-  pure (Value.print (ToValue.toValue p0))
+  pure (P4.Unparse.print (ToValue.toValue p0))
 
 def «$strip_all_whitespace» (fuel : Nat) (p0 : String) : Option String :=
-  pure (Builtins.Texts.strip_all_whitespace p0)
+  pure (Builtin.Texts.strip_all_whitespace p0)
 
 def «$ite» {τX : Type} [ToValue τX] [BEq τX]
     (fuel : Nat)
@@ -166,16 +176,16 @@ def «$forall_» (fuel : Nat) (p0 : List Bool) : Option Bool :=
          pure (b_h && tmp_0))
 
 def «$rev_» {τX : Type} [ToValue τX] [BEq τX] (fuel : Nat) (p0 : List τX) : Option (List τX) :=
-  pure (Builtins.Lists.rev_ p0)
+  pure (Builtin.Lists.rev_ p0)
 
 def «$distinct_» {τK : Type} [ToValue τK] [BEq τK] (fuel : Nat) (p0 : List τK) : Option Bool :=
-  pure (Builtins.Lists.distinct_ p0)
+  pure (Builtin.Lists.distinct_ p0)
 
 def «$assoc_» {τX τY : Type} [ToValue τX] [BEq τX] [ToValue τY] [BEq τY]
     (fuel : Nat)
     (p0 : τX)
     (p1 : List (τX × τY)) : Option (Option τY) :=
-  pure (Builtins.Lists.assoc_ p0 p1)
+  pure (Builtin.Lists.assoc_ p0 p1)
 
 def «$empty_set» {τK : Type} [ToValue τK] [BEq τK] (fuel : Nat) : Option (NanoP4Spec.set τK) :=
   pure (NanoP4Spec.set.lbrace_rbrace ([] : List τK))
@@ -195,7 +205,7 @@ def «$intersect_set» {τK : Type} [ToValue τK] [BEq τK]
     (p1 : NanoP4Spec.set τK) : Option (NanoP4Spec.set τK) :=
   pure
     (NanoP4Spec.set.lbrace_rbrace
-       (Builtins.Sets.intersect_set
+       (Builtin.Sets.intersect_set
           (match p0 with
              | .lbrace_rbrace l => l)
           (match p1 with
@@ -207,7 +217,7 @@ def «$union_set» {τK : Type} [ToValue τK] [BEq τK]
     (p1 : NanoP4Spec.set τK) : Option (NanoP4Spec.set τK) :=
   pure
     (NanoP4Spec.set.lbrace_rbrace
-       (Builtins.Sets.union_set
+       (Builtin.Sets.union_set
           (match p0 with
              | .lbrace_rbrace l => l)
           (match p1 with
@@ -218,7 +228,7 @@ def «$unions_set» {τK : Type} [ToValue τK] [BEq τK]
     (p0 : List (NanoP4Spec.set τK)) : Option (NanoP4Spec.set τK) :=
   pure
     (NanoP4Spec.set.lbrace_rbrace
-       (Builtins.Sets.unions_set
+       (Builtin.Sets.unions_set
           (List.map
              (fun s =>
                 (match s with
@@ -231,7 +241,7 @@ def «$diff_set» {τK : Type} [ToValue τK] [BEq τK]
     (p1 : NanoP4Spec.set τK) : Option (NanoP4Spec.set τK) :=
   pure
     (NanoP4Spec.set.lbrace_rbrace
-       (Builtins.Sets.diff_set
+       (Builtin.Sets.diff_set
           (match p0 with
              | .lbrace_rbrace l => l)
           (match p1 with
@@ -242,7 +252,7 @@ def «$sub_set» {τK : Type} [ToValue τK] [BEq τK]
     (p0 : NanoP4Spec.set τK)
     (p1 : NanoP4Spec.set τK) : Option Bool :=
   pure
-    (Builtins.Sets.sub_set
+    (Builtin.Sets.sub_set
        (match p0 with
           | .lbrace_rbrace l => l)
        (match p1 with
@@ -253,7 +263,7 @@ def «$eq_set» {τK : Type} [ToValue τK] [BEq τK]
     (p0 : NanoP4Spec.set τK)
     (p1 : NanoP4Spec.set τK) : Option Bool :=
   pure
-    (Builtins.Sets.eq_set
+    (Builtin.Sets.eq_set
        (match p0 with
           | .lbrace_rbrace l => l)
        (match p1 with
@@ -300,7 +310,7 @@ def «$find_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τ
     (p0 : NanoP4Spec.map τK τV)
     (p1 : τK) : Option (Option τV) :=
   pure
-    (Builtins.Maps.find_map
+    (Builtin.Maps.find_map
        (match p0 with
           | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
        p1)
@@ -310,7 +320,7 @@ def «$find_maps» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq �
     (p0 : List (NanoP4Spec.map τK τV))
     (p1 : τK) : Option (Option τV) :=
   pure
-    (Builtins.Maps.find_maps
+    (Builtin.Maps.find_maps
        (List.map
           (fun m =>
              (match m with
@@ -327,7 +337,7 @@ def «$add_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV
     (NanoP4Spec.set.lbrace_rbrace
        (List.map
           (fun (k, v) => NanoP4Spec.pair.colon k v)
-          (Builtins.Maps.add_map
+          (Builtin.Maps.add_map
              (match p0 with
                 | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
              p1
@@ -342,7 +352,7 @@ def «$update_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq 
     (NanoP4Spec.set.lbrace_rbrace
        (List.map
           (fun (k, v) => NanoP4Spec.pair.colon k v)
-          (Builtins.Maps.update_map
+          (Builtin.Maps.update_map
              (match p0 with
                 | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
              p1

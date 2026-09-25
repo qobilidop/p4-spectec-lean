@@ -1,17 +1,22 @@
-import P4SpecTec.IL.Json
-import P4SpecTec.AL.Ast
+import P4SpecTec.Lang.Il.Json
+import P4SpecTec.Lang.Al.Ast
 
 /-!
+Not a mirror: this module is ours, placed beside the module whose values it
+decodes.
+
+Not a mirror: this module is our own, placed beside the module it decodes.
+
 JSON decoders for the AL, following the `[@@deriving yojson]` encoding of
 `p4spec/lib/lang/al/ast.ml`. Everything but rules, table rows and
-definitions is decoded by `P4SpecTec.IL.Json`.
+definitions is decoded by `P4SpecTec.Lang.Il.Json`.
 -/
 
-namespace P4SpecTec.AL.Json
+namespace P4SpecTec.Lang.Al.Json
 
 open Lean (Json)
-open P4SpecTec.Util.Json
-open P4SpecTec.IL.Json (id typ nottyp exp prem arg param tparam deftyp hint inputs clause)
+open P4SpecTec.Util.Yojson
+open P4SpecTec.Lang.Il.Json (id typ nottyp exp prem arg param tparam deftyp hint inputs clause)
 
 /-- Decode `rulematch`. -/
 def rulematch : D rulematch := triple (list exp) (list exp) (list prem)
@@ -59,9 +64,9 @@ def «def» : D «def» := phrase def'
 def spec : D spec := list «def»
 
 /-- Read and decode a spec export from a file. -/
-def readSpec (path : System.FilePath) : IO AL.spec := do
+def readSpec (path : System.FilePath) : IO Lang.Al.spec := do
   let text ← IO.FS.readFile path
   let json ← IO.ofExcept (Lean.Json.parse text)
   IO.ofExcept (spec json)
 
-end P4SpecTec.AL.Json
+end P4SpecTec.Lang.Al.Json

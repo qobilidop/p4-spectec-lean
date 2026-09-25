@@ -10,17 +10,22 @@ namespace P4SpecTec.Prelude.Num
 /-- `Num.bin `SubOp` on naturals: the result is an integer. -/
 def natSub (a b : Nat) : Int := (a : Int) - (b : Int)
 
-/-- `Num.bin `DivOp` on integers: `Bigint./` truncates toward zero. -/
-def intDiv (a b : Int) : Int := Int.tdiv a b
+/-- `Num.bin `DivOp` on naturals; `none` on zero, where upstream's
+`assert false` aborts. -/
+def natDiv? (a b : Nat) : Option Nat := if b == 0 then none else some (a / b)
 
-/-- `Num.bin `ModOp` on integers: `Bigint.rem` keeps the dividend's sign. -/
-def intMod (a b : Int) : Int := Int.tmod a b
+/-- `Num.bin `ModOp` on naturals; `none` on zero. -/
+def natMod? (a b : Nat) : Option Nat := if b == 0 then none else some (a % b)
 
-/-- `Num.bin `PowOp` on naturals. -/
-def natPow (a b : Nat) : Nat := a ^ b
+/-- `Num.bin `DivOp` on integers: `Bigint./` truncates toward zero; `none` on zero. -/
+def intDiv? (a b : Int) : Option Int := if b == 0 then none else some (Int.tdiv a b)
 
-/-- `Num.bin `PowOp` on integers with a natural exponent, as `Bigint.pow`. -/
-def intPow (a : Int) (b : Int) : Int := a ^ b.toNat
+/-- `Num.bin `ModOp` on integers: `Bigint.rem` keeps the dividend's sign; `none` on zero. -/
+def intMod? (a b : Int) : Option Int := if b == 0 then none else some (Int.tmod a b)
+
+/-- `Num.bin` has no `PowOp` case upstream (`assert false`), so `^` is a
+failure in the executable encoding too. -/
+def pow? {α : Type} (_a _b : α) : Option α := none
 
 /-- The downcast `int` to `nat` of the interpreter's `downcast`: only
 non-negative integers. -/

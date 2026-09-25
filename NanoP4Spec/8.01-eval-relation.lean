@@ -16,7 +16,6 @@ set_option autoImplicit false
 set_option maxHeartbeats 1000000
 
 open P4SpecTec P4SpecTec.Prelude
-open P4SpecTec.IL (value)
 
 namespace NanoP4Spec
 
@@ -25,29 +24,40 @@ inductive transitionResult where
   | REJECT
   | STATE (id : NanoP4Spec.id)
 
-def transitionResult.toValue : NanoP4Spec.transitionResult → IL.value
-  | .ACCEPT => Value.case (Value.varT "transitionResult") (.Atom (Value.atom (.Keyword "ACCEPT")))
-  | .REJECT => Value.case (Value.varT "transitionResult") (.Atom (Value.atom (.Keyword "REJECT")))
-  | .STATE x0 => Value.case (Value.varT
-     "transitionResult") (.Seq
-     [(.Atom (Value.atom (.Keyword "STATE"))), (.Arg (ToValue.toValue x0))])
+def transitionResult.toValue : NanoP4Spec.transitionResult → Lang.Il.value
+  | .ACCEPT =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "transitionResult")
+        (.Atom (Prelude.Value.atom (.Keyword "ACCEPT")))
+  | .REJECT =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "transitionResult")
+        (.Atom (Prelude.Value.atom (.Keyword "REJECT")))
+  | .STATE x0 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "transitionResult")
+        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "STATE"))), (.Arg (ToValue.toValue x0))])
 
 instance : ToValue NanoP4Spec.transitionResult := ⟨NanoP4Spec.transitionResult.toValue⟩
 instance : BEq NanoP4Spec.transitionResult := ⟨valueEq⟩
 
-def transitionResult.ofValue : Nat → IL.value → Option NanoP4Spec.transitionResult
+def transitionResult.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.transitionResult
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
-         let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "ACCEPT"))) | none
+         let some [] :=
+             Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "ACCEPT"))) | none
          pure NanoP4Spec.transitionResult.ACCEPT) <|>
       ((do
-          let some [] := Value.caseArgs c (.Atom (Value.atom (.Keyword "REJECT"))) | none
+          let some [] :=
+              Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "REJECT"))) | none
           pure NanoP4Spec.transitionResult.REJECT) <|>
        (do
           let some [a0] :=
-              Value.caseArgs c (.Seq [(.Atom (Value.atom (.Keyword "STATE"))), (.Arg ())]) | none
+              Prelude.Value.caseArgs
+                c
+                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "STATE"))), (.Arg ())]) | none
           pure (NanoP4Spec.transitionResult.STATE (← OfValue.ofValue fuel a0))))
     | _ => none
 
@@ -59,29 +69,34 @@ inductive actionCallee where
       (parameterIR : List NanoP4Spec.parameterIR)
       (blockStatement : NanoP4Spec.blockStatement)
 
-def actionCallee.toValue : NanoP4Spec.actionCallee → IL.value
-  | .ACTION_lparen_rparen x0 x1 x2 => Value.case (Value.varT
-     "actionCallee") (.Seq
-     [(.Atom (Value.atom (.Keyword "ACTION"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Arg (ToValue.toValue x2))])
+def actionCallee.toValue : NanoP4Spec.actionCallee → Lang.Il.value
+  | .ACTION_lparen_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "actionCallee")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Arg (ToValue.toValue x2))])
 
 instance : ToValue NanoP4Spec.actionCallee := ⟨NanoP4Spec.actionCallee.toValue⟩
 instance : BEq NanoP4Spec.actionCallee := ⟨valueEq⟩
 
-def actionCallee.ofValue : Nat → IL.value → Option NanoP4Spec.actionCallee
+def actionCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.actionCallee
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "ACTION"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                   (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.actionCallee.ACTION_lparen_rparen
             (← OfValue.ofValue fuel a0)
@@ -97,32 +112,40 @@ inductive externMethodCallee where
       (callableId : NanoP4Spec.callableId)
       (parameterIR : List NanoP4Spec.parameterIR)
 
-def externMethodCallee.toValue : NanoP4Spec.externMethodCallee → IL.value
-  | .EXTERN_METHOD_dot_lparen_rparen x0 x1 x2 => Value.case (Value.varT
-     "externMethodCallee") (.Seq
-     [(.Atom (Value.atom (.Keyword "EXTERN_METHOD"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Atom (Value.atom (.Operator "."))),
-      (.Arg (ToValue.toValue x1)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x2)) (Value.atom .RParen))])
+def externMethodCallee.toValue : NanoP4Spec.externMethodCallee → Lang.Il.value
+  | .EXTERN_METHOD_dot_lparen_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "externMethodCallee")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "EXTERN_METHOD"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator "."))),
+            (.Arg (ToValue.toValue x1)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x2))
+               (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.externMethodCallee := ⟨NanoP4Spec.externMethodCallee.toValue⟩
 instance : BEq NanoP4Spec.externMethodCallee := ⟨valueEq⟩
 
-def externMethodCallee.ofValue : Nat → IL.value → Option NanoP4Spec.externMethodCallee
+def externMethodCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.externMethodCallee
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "EXTERN_METHOD"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "EXTERN_METHOD"))),
                    (.Arg ()),
-                   (.Atom (Value.atom (.Operator "."))),
+                   (.Atom (Prelude.Value.atom (.Operator "."))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen))]) | none
+                   (.Brack
+                      (Prelude.Value.atom .LParen)
+                      (.Arg ())
+                      (Prelude.Value.atom .RParen))]) | none
          pure (NanoP4Spec.externMethodCallee.EXTERN_METHOD_dot_lparen_rparen
             (← OfValue.ofValue fuel a0)
             (← OfValue.ofValue fuel a1)
@@ -136,32 +159,40 @@ inductive tableApplyMethodCallee where
       (nameIR : NanoP4Spec.nameIR)
       (tableProperties : NanoP4Spec.tableProperties)
 
-def tableApplyMethodCallee.toValue : NanoP4Spec.tableApplyMethodCallee → IL.value
-  | .TABLE_dot_APPLY_lbrace_rbrace x0 x1 => Value.case (Value.varT
-     "tableApplyMethodCallee") (.Seq
-     [(.Atom (Value.atom (.Keyword "TABLE"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Atom (Value.atom (.Operator "."))),
-      (.Atom (Value.atom (.Keyword "APPLY"))),
-      (.Brack (Value.atom .LBrace) (.Arg (ToValue.toValue x1)) (Value.atom .RBrace))])
+def tableApplyMethodCallee.toValue : NanoP4Spec.tableApplyMethodCallee → Lang.Il.value
+  | .TABLE_dot_APPLY_lbrace_rbrace x0 x1 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "tableApplyMethodCallee")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator "."))),
+            (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
+            (.Brack
+               (Prelude.Value.atom .LBrace)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.tableApplyMethodCallee := ⟨NanoP4Spec.tableApplyMethodCallee.toValue⟩
 instance : BEq NanoP4Spec.tableApplyMethodCallee := ⟨valueEq⟩
 
-def tableApplyMethodCallee.ofValue : Nat → IL.value → Option NanoP4Spec.tableApplyMethodCallee
+def tableApplyMethodCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableApplyMethodCallee
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "TABLE"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
                    (.Arg ()),
-                   (.Atom (Value.atom (.Operator "."))),
-                   (.Atom (Value.atom (.Keyword "APPLY"))),
-                   (.Brack (Value.atom .LBrace) (.Arg ()) (Value.atom .RBrace))]) | none
+                   (.Atom (Prelude.Value.atom (.Operator "."))),
+                   (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
+                   (.Brack
+                      (Prelude.Value.atom .LBrace)
+                      (.Arg ())
+                      (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.tableApplyMethodCallee.TABLE_dot_APPLY_lbrace_rbrace
             (← OfValue.ofValue fuel a0)
             (← OfValue.ofValue fuel a1)))
@@ -182,43 +213,58 @@ inductive callee where
       (nameIR : NanoP4Spec.nameIR)
       (tableProperties : NanoP4Spec.tableProperties)
 
-def callee.toValue : NanoP4Spec.callee → IL.value
-  | .ACTION_lparen_rparen x0 x1 x2 => Value.case (Value.varT
-     "callee") (.Seq
-     [(.Atom (Value.atom (.Keyword "ACTION"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x1)) (Value.atom .RParen)),
-      (.Arg (ToValue.toValue x2))])
-  | .EXTERN_METHOD_dot_lparen_rparen x0 x1 x2 => Value.case (Value.varT
-     "callee") (.Seq
-     [(.Atom (Value.atom (.Keyword "EXTERN_METHOD"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Atom (Value.atom (.Operator "."))),
-      (.Arg (ToValue.toValue x1)),
-      (.Brack (Value.atom .LParen) (.Arg (ToValue.toValue x2)) (Value.atom .RParen))])
-  | .TABLE_dot_APPLY_lbrace_rbrace x0 x1 => Value.case (Value.varT
-     "callee") (.Seq
-     [(.Atom (Value.atom (.Keyword "TABLE"))),
-      (.Arg (ToValue.toValue x0)),
-      (.Atom (Value.atom (.Operator "."))),
-      (.Atom (Value.atom (.Keyword "APPLY"))),
-      (.Brack (Value.atom .LBrace) (.Arg (ToValue.toValue x1)) (Value.atom .RBrace))])
+def callee.toValue : NanoP4Spec.callee → Lang.Il.value
+  | .ACTION_lparen_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callee")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RParen)),
+            (.Arg (ToValue.toValue x2))])
+  | .EXTERN_METHOD_dot_lparen_rparen x0 x1 x2 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callee")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "EXTERN_METHOD"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator "."))),
+            (.Arg (ToValue.toValue x1)),
+            (.Brack
+               (Prelude.Value.atom .LParen)
+               (.Arg (ToValue.toValue x2))
+               (Prelude.Value.atom .RParen))])
+  | .TABLE_dot_APPLY_lbrace_rbrace x0 x1 =>
+      Runtime.Value.Make.case
+        (Prelude.Value.varT "callee")
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
+            (.Arg (ToValue.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator "."))),
+            (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
+            (.Brack
+               (Prelude.Value.atom .LBrace)
+               (.Arg (ToValue.toValue x1))
+               (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.callee := ⟨NanoP4Spec.callee.toValue⟩
 instance : BEq NanoP4Spec.callee := ⟨valueEq⟩
 
-def callee.ofValue : Nat → IL.value → Option NanoP4Spec.callee
+def callee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callee
   | 0, _ => none
   | fuel + 1, v => match v.it with
     | .CaseV c =>
       (do
          let some [a0, a1, a2] :=
-             Value.caseArgs
+             Prelude.Value.caseArgs
                c
                (.Seq
-                  [(.Atom (Value.atom (.Keyword "ACTION"))),
+                  [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
                    (.Arg ()),
-                   (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen)),
+                   (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.callee.ACTION_lparen_rparen
             (← OfValue.ofValue fuel a0)
@@ -226,28 +272,34 @@ def callee.ofValue : Nat → IL.value → Option NanoP4Spec.callee
             (← OfValue.ofValue fuel a2))) <|>
       ((do
           let some [a0, a1, a2] :=
-              Value.caseArgs
+              Prelude.Value.caseArgs
                 c
                 (.Seq
-                   [(.Atom (Value.atom (.Keyword "EXTERN_METHOD"))),
+                   [(.Atom (Prelude.Value.atom (.Keyword "EXTERN_METHOD"))),
                     (.Arg ()),
-                    (.Atom (Value.atom (.Operator "."))),
+                    (.Atom (Prelude.Value.atom (.Operator "."))),
                     (.Arg ()),
-                    (.Brack (Value.atom .LParen) (.Arg ()) (Value.atom .RParen))]) | none
+                    (.Brack
+                       (Prelude.Value.atom .LParen)
+                       (.Arg ())
+                       (Prelude.Value.atom .RParen))]) | none
           pure (NanoP4Spec.callee.EXTERN_METHOD_dot_lparen_rparen
              (← OfValue.ofValue fuel a0)
              (← OfValue.ofValue fuel a1)
              (← OfValue.ofValue fuel a2))) <|>
        (do
           let some [a0, a1] :=
-              Value.caseArgs
+              Prelude.Value.caseArgs
                 c
                 (.Seq
-                   [(.Atom (Value.atom (.Keyword "TABLE"))),
+                   [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
                     (.Arg ()),
-                    (.Atom (Value.atom (.Operator "."))),
-                    (.Atom (Value.atom (.Keyword "APPLY"))),
-                    (.Brack (Value.atom .LBrace) (.Arg ()) (Value.atom .RBrace))]) | none
+                    (.Atom (Prelude.Value.atom (.Operator "."))),
+                    (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
+                    (.Brack
+                       (Prelude.Value.atom .LBrace)
+                       (.Arg ())
+                       (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.callee.TABLE_dot_APPLY_lbrace_rbrace
              (← OfValue.ofValue fuel a0)
              (← OfValue.ofValue fuel a1))))

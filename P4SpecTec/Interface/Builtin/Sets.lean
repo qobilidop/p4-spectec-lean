@@ -8,7 +8,9 @@ of the spec's `set<K>` case and keep that order. The generated wrapper
 supplies the case's constructor and projection.
 -/
 
-namespace P4SpecTec.Prelude.Builtins.Sets
+namespace P4SpecTec.Builtin.Sets
+
+open P4SpecTec.Prelude
 
 /-- Elements sorted by value, duplicates removed: `VSet.elements` of
 `VSet.of_list`. -/
@@ -44,4 +46,4 @@ def sub_set {K : Type} [ToValue K] (a b : List K) : Bool := a.all fun k => mem k
 /-- `dec $eq_set<K>(set<K>, set<K>) : bool`. -/
 def eq_set {K : Type} [ToValue K] (a b : List K) : Bool := sub_set a b && sub_set b a
 
-end P4SpecTec.Prelude.Builtins.Sets
+end P4SpecTec.Builtin.Sets

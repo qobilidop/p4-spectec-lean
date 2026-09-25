@@ -16,8 +16,8 @@ namespace P4SpecTec.Codegen.Emit
 open Std (Format)
 open P4SpecTec.Util.Source
 open P4SpecTec.Domain
-open P4SpecTec.IL
-open P4SpecTec.AL
+open P4SpecTec.Lang.Il
+open P4SpecTec.Lang.Al
 open P4SpecTec.Codegen.Types
 open P4SpecTec.Codegen.Exp
 open P4SpecTec.Codegen.Funcs
@@ -55,7 +55,7 @@ def preamble (lib module file : String) : String :=
     "order, by the encodings of `docs/design.md`.\n-/\n\n",
     "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
     "set_option autoImplicit false\nset_option maxHeartbeats 1000000\n\n",
-    "open P4SpecTec P4SpecTec.Prelude\nopen P4SpecTec.IL (value)\n\n",
+    "open P4SpecTec P4SpecTec.Prelude\n\n",
     s!"namespace {lib}\n\n"]
 
 /-- The types named by casts inside an expression. -/
@@ -66,7 +66,7 @@ partial def castTypes (e : exp) : List String :=
     | _ => []) ++ (pairsOfExp.children e).flatMap castTypes
 
 /-- The types a definition's signature and body mention. -/
-def typesOfDef (d : AL.def) : List String :=
+def typesOfDef (d : Lang.Al.def) : List String :=
   let sig := match d.it with
     | .TypD _ _ dt _ => Env.deftypRefs dt.it
     | .VarD _ t _ => Env.typeRefs t.it
@@ -80,11 +80,29 @@ def typesOfDef (d : AL.def) : List String :=
   let body := (expsOfDef d).flatMap fun e => Env.typeRefs e.note ++ castTypes e
   sig ++ body
 
+/-- The `print` hints of a definition: not supported yet, so their presence
+fails generation loudly rather than printing values the wrong way. -/
+def printHints (d : Lang.Al.def) : List String :=
+  let hintsOf (hs : List Lang.Il.hint) : List String :=
+    hs.filterMap fun h =>
+      match h.getObjVal? "it" >>= (·.getObjVal? "hintid") >>= (·.getObjVal? "it") with
+      | .ok (.str "print") => some d.it.id.it
+      | _ => none
+  match d.it with
+  | .TypD _ _ dt hs =>
+    hintsOf hs ++ (match dt.it with
+      | .VariantT cases => cases.flatMap fun c => match c with | .mk _ _ chs => hintsOf chs
+      | _ => [])
+  | _ => []
+
 /-- Generate the plan for a spec. -/
-def plan (env : Env) (spec : AL.spec) : Except String (List Unit × List String) := do
+def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List String) := do
+  let withPrint := spec.flatMap printHints
+  if !withPrint.isEmpty then
+    throw s!"print hints are not supported yet (design 5.4); found on {withPrint}"
   let files := (spec.map Env.fileOf).eraseDups
   let fileIdx (f : String) : Nat := (files.idxOf? f).getD 0
-  let defById : Std.HashMap String AL.def :=
+  let defById : Std.HashMap String Lang.Al.def :=
     Std.HashMap.ofList (spec.map fun d => (d.it.id.it, d))
   let defFile (id : String) : Nat := match defById.get? id with
     | some d => fileIdx (Env.fileOf d)
@@ -146,7 +164,8 @@ def plan (env : Env) (spec : AL.spec) : Except String (List Unit × List String)
       | none => false
     if isVariant s && isVariant t then
       let file := max (typeUnitFile.getD s 0) (typeUnitFile.getD t 0)
-      let u : Unit := { id := s!"S:{s}:{t}", file := file, decls := subtypeDecls env s t }
+      let decls ← subtypeDecls env s t
+      let u : Unit := { id := s!"S:{s}:{t}", file := file, decls := decls }
       units := units ++ [u]
     else throw s!"cast between non-variant types {s} and {t}"
   -- externs
@@ -212,7 +231,7 @@ def plan (env : Env) (spec : AL.spec) : Except String (List Unit × List String)
 
 
 /-- Generate every output file of a library. -/
-def generate (lib exportPath : String) (spec : AL.spec) : Except String (List Output) := do
+def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (List Output) := do
   let env := Env.ofSpec lib spec
   let (units, files) ← plan env spec
   let used := (units.map (·.file)).eraseDups.mergeSort (· ≤ ·)

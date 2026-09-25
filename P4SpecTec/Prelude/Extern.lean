@@ -18,7 +18,7 @@ structure ExternValue where
 instance : BEq ExternValue := ⟨fun a b => a.json.compress == b.json.compress⟩
 
 instance : ToValue ExternValue :=
-  ⟨fun e => Value.mk (Value.varT "extern") (.ExternV e.json)⟩
+  ⟨fun e => Runtime.Value.Make.mk (Value.varT "extern") (.ExternV e.json)⟩
 
 instance : OfValue ExternValue :=
   ⟨fun _ v => match v.it with | .ExternV j => some ⟨j⟩ | _ => none⟩

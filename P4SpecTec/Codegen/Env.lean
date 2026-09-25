@@ -1,5 +1,5 @@
 import Std.Data.HashMap
-import P4SpecTec.AL.Ast
+import P4SpecTec.Lang.Al.Ast
 import P4SpecTec.Codegen.Names
 
 /-!
@@ -14,8 +14,8 @@ namespace P4SpecTec.Codegen
 
 open P4SpecTec.Util.Source
 open P4SpecTec.Domain
-open P4SpecTec.IL
-open P4SpecTec.AL
+open P4SpecTec.Lang.Il
+open P4SpecTec.Lang.Al
 
 /-- What is known about a type definition. -/
 structure TypeInfo where
@@ -73,19 +73,19 @@ structure Env where
   /-- Relations by name. -/
   rels : Std.HashMap String RelInfo := {}
   /-- Definitions in spec order. -/
-  defs : List AL.def := []
+  defs : List Lang.Al.def := []
 
 namespace Env
 
 /-- The file a definition comes from. -/
-def fileOf (d : AL.def) : String := d.«at».left.file
+def fileOf (d : Lang.Al.def) : String := d.«at».left.file
 
 /-- Qualify a generated name with the library, so a spec variable named
 after a type or relation cannot shadow it. -/
 def q (env : Env) (name : String) : String := env.lib ++ "." ++ name
 
 /-- Build the environment from a spec. -/
-def ofSpec (lib : String) (spec : AL.spec) : Env := Id.run do
+def ofSpec (lib : String) (spec : Lang.Al.spec) : Env := Id.run do
   let mut env : Env := { lib, defs := spec }
   for d in spec do
     let file := fileOf d

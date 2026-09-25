@@ -1,4 +1,4 @@
-import P4SpecTec.AL.Json
+import P4SpecTec.Lang.Al.Json
 
 /-!
 The committed Nano-P4 export decodes completely, and the count of
@@ -6,7 +6,7 @@ definitions by kind is the one upstream's `algo` printed when the export
 was made (`.agents/status.md` records the numbers).
 -/
 
-open P4SpecTec.AL in
+open P4SpecTec.Lang.Al in
 /-- Decode the export and count definitions by constructor. -/
 def countDefs : IO (List (String × Nat)) := do
   let spec ← Json.readSpec "exports/nano-p4.al.json"

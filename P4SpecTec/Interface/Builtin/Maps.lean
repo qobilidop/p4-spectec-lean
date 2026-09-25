@@ -8,12 +8,14 @@ keys by value. The generated wrapper supplies the pair case's constructor
 and projection.
 -/
 
-namespace P4SpecTec.Prelude.Builtins.Maps
+namespace P4SpecTec.Builtin.Maps
+
+open P4SpecTec.Prelude
 
 /-- Mirrors `map_find_opt`. -/
 def find {K V : Type} [ToValue K] (k : K) (pairs : List (K × V)) : Option V :=
   let v := toValue k
-  (pairs.find? fun (k', _) => Value.eq v (toValue k')).map (·.2)
+  (pairs.find? fun (k', _) => Runtime.Value.eq v (toValue k')).map (·.2)
 
 /-- Mirrors `map_update`: replace in place or append. -/
 def update {K V : Type} [ToValue K] (k : K) (v : V) : List (K × V) → List (K × V)
@@ -43,4 +45,4 @@ def adds_map {K V : Type} [ToValue K] (m : List (K × V)) (ks : List K) (vs : Li
 def update_map {K V : Type} [ToValue K] (m : List (K × V)) (k : K) (v : V) : List (K × V) :=
   update k v m
 
-end P4SpecTec.Prelude.Builtins.Maps
+end P4SpecTec.Builtin.Maps
