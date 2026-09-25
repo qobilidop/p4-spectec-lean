@@ -9,6 +9,7 @@ import P4SpecTec.Interface.Builtin.Ints
 import P4SpecTec.Interface.Builtin.Numerics
 import P4SpecTec.Prelude.Value
 import P4SpecTec.Prelude.Eval
+import P4SpecTec.Prelude.StateEval
 import P4SpecTec.Prelude.Extern
 import P4SpecTec.Prelude.Num
 import P4SpecTec.Prelude.Iter

@@ -7,6 +7,7 @@ import P4SpecTecTest.Subtypes
 import P4SpecTecTest.Alter
 import P4SpecTecTest.PrintPolicies
 import P4SpecTecTest.Updates
+import P4SpecTecTest.StateEval
 
 /-!
 # P4SpecTecTest
