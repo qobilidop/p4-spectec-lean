@@ -41,6 +41,8 @@ abbrev StateEval := ExceptT Fail (StateT FreshState Option)
 
 namespace StateEval
 
+open Lean.Order
+
 /-- Observe both the result and counter of a terminating computation. -/
 def run (a : StateEval α) (s : FreshState) : Option (Except Fail α × FreshState) :=
   ExceptT.run a s
@@ -131,6 +133,128 @@ theorem run_notHold (a : StateEval α) (s : FreshState) :
 
 /-- info: 'P4SpecTec.Prelude.StateEval.run_notHold' does not depend on any axioms -/
 #guard_msgs in #print axioms run_notHold
+
+/-! ## Transparent execution and recursion support -/
+
+/-- Executing a pure return does not change state. -/
+theorem runPure (a : α) (s : FreshState) :
+    run (pure a) s = some (.ok a, s) := rfl
+
+/-- info: 'P4SpecTec.Prelude.StateEval.runPure' does not depend on any axioms -/
+#guard_msgs in #print axioms runPure
+
+/-- Throwing either failure preserves the current state. -/
+theorem runThrow (e : Fail) (s : FreshState) :
+    run (throw e : StateEval α) s = some (.error e, s) := rfl
+
+/-- info: 'P4SpecTec.Prelude.StateEval.runThrow' does not depend on any axioms -/
+#guard_msgs in #print axioms runThrow
+
+/-- Bind passes successful post-state to the continuation and retains it
+when propagating either failure. -/
+theorem runBind (m : StateEval α) (k : α → StateEval β) (s : FreshState) :
+    run (m >>= k) s = (run m s).bind (fun (r, t) =>
+      match r with
+      | .ok a => run (k a) t
+      | .error e => some (.error e, t)) := by
+  cases h : m s with
+  | none => simp [run, ExceptT.run, ExceptT.mk, Bind.bind, ExceptT.bind, StateT.bind, h]
+  | some v =>
+    rcases v with ⟨r, t⟩
+    cases r <;> simp [run, ExceptT.run, ExceptT.mk, Bind.bind, ExceptT.bind, StateT.bind,
+      ExceptT.bindCont, Pure.pure, StateT.pure, h]
+
+/-- info: 'P4SpecTec.Prelude.StateEval.runBind' depends on axioms: [propext] -/
+#guard_msgs in #print axioms runBind
+
+/-- Successful bind exposes an intermediate value and its precise state. -/
+theorem runBindOk (m : StateEval α) (k : α → StateEval β) (s t : FreshState) (b : β) :
+    run (m >>= k) s = some (.ok b, t) ↔
+      ∃ a u, run m s = some (.ok a, u) ∧ run (k a) u = some (.ok b, t) := by
+  rw [runBind]
+  cases h : run m s with
+  | none => simp
+  | some v =>
+    rcases v with ⟨r, u⟩
+    cases r with
+    | error e => simp
+    | ok a =>
+      simp only [Option.bind_some, Option.some.injEq, Prod.mk.injEq, Except.ok.injEq]
+      constructor
+      · intro hk; exact ⟨a, u, ⟨rfl, rfl⟩, hk⟩
+      · rintro ⟨a', u', ⟨rfl, rfl⟩, hk⟩; exact hk
+
+/-- info: 'P4SpecTec.Prelude.StateEval.runBindOk' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms runBindOk
+
+/-- Running the carrier at a fixed state preserves monotonicity. -/
+@[partial_fixpoint_monotone]
+theorem monotoneRun {γ α : Type} [PartialOrder γ] (f : γ → StateEval α)
+    (hf : monotone f) (s : FreshState) :
+    monotone (fun x => run (f x) s) := fun x y h => hf x y h s
+
+/-- info: 'P4SpecTec.Prelude.StateEval.monotoneRun' depends on axioms: [Quot.sound] -/
+#guard_msgs in #print axioms monotoneRun
+
+/-- The stateful carrier wrapper is monotone. -/
+@[partial_fixpoint_monotone]
+theorem monotoneMk {γ α : Type} [PartialOrder γ]
+    (f : γ → FreshState → Option (Except Fail α × FreshState)) (hf : monotone f) :
+    monotone (fun x => (ExceptT.mk (f x) : StateEval α)) := hf
+
+/-- info: 'P4SpecTec.Prelude.StateEval.monotoneMk' depends on axioms: [Quot.sound] -/
+#guard_msgs in #print axioms monotoneMk
+
+/-- Sequential choice is monotone in both alternatives, at every state. -/
+@[partial_fixpoint_monotone]
+theorem monotoneOrElse {γ α : Type} [PartialOrder γ] (f g : γ → StateEval α)
+    (hf : monotone f) (hg : monotone g) : monotone (fun x => orElse (f x) (g x)) := by
+  apply monotone_of_monotone_apply
+  intro s
+  change monotone (fun x => (run (f x) s) >>= fun (r, t) =>
+    match r with
+    | .ok a => some (.ok a, t)
+    | .error .err => some (.error .err, t)
+    | .error .unmatch => run (g x) t)
+  apply monotone_bind Option
+  · exact monotoneRun f hf s
+  · apply monotone_of_monotone_apply
+    intro (r, t)
+    cases r with
+    | ok a => apply monotone_const
+    | error e => cases e with
+      | err => apply monotone_const
+      | unmatch => exact monotoneRun g hg t
+
+/-- info: 'P4SpecTec.Prelude.StateEval.monotoneOrElse' depends on axioms: [Quot.sound] -/
+#guard_msgs in #print axioms monotoneOrElse
+
+/-- The notation for sequential choice has the same monotonicity. -/
+@[partial_fixpoint_monotone]
+theorem monotoneHOrElse {γ α : Type} [PartialOrder γ] (f g : γ → StateEval α)
+    (hf : monotone f) (hg : monotone g) : monotone (fun x => (f x <|> g x)) :=
+  monotoneOrElse f g hf hg
+
+/-- info: 'P4SpecTec.Prelude.StateEval.monotoneHOrElse' depends on axioms: [Quot.sound] -/
+#guard_msgs in #print axioms monotoneHOrElse
+
+/-- Negation is monotone, including when its operand consumes state. -/
+@[partial_fixpoint_monotone]
+theorem monotoneNotHold {γ α : Type} [PartialOrder γ] (f : γ → StateEval α)
+    (hf : monotone f) : monotone (fun x => notHold (f x)) := by
+  apply monotone_of_monotone_apply
+  intro s
+  change monotone (fun x => (run (f x) s) >>= fun (r, t) =>
+    match r with
+    | .ok _ => some (Except.error (α := Unit) .unmatch, t)
+    | .error .err => some (Except.error (α := Unit) .err, t)
+    | .error .unmatch => some (Except.ok (ε := Fail) (), t))
+  apply monotone_bind Option
+  · exact monotoneRun f hf s
+  · apply monotone_const
+
+/-- info: 'P4SpecTec.Prelude.StateEval.monotoneNotHold' depends on axioms: [Quot.sound] -/
+#guard_msgs in #print axioms monotoneNotHold
 
 end StateEval
 end P4SpecTec.Prelude

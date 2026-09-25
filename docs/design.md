@@ -441,6 +441,17 @@ refinement relation and discharges it syntax-directedly. As built (M2,
   this was decided before the port, not after. Completeness, the other
   direction, is not stated (section 12).
 
+The experimental stateful calculus (`Refine/StateCalc.lean`) strengthens
+the result relation with exact final-counter equality for every terminating
+outcome, including mismatch and hard error. Its bind, choice, negation
+and ordered-iteration rules are kernel-proved. An interpreter-only step
+may be skipped only when its terminating executions succeed and preserve
+state. Divergence remains unconstrained by one-way partial correctness.
+`RejectedPrefix` records the states consumed by earlier mismatching
+alternatives; a recursive structural-rule fixture checks this approach
+with `partial_fixpoint`. This is a calculus and proof fixture, not yet a
+stateful AL-interpreter refinement theorem or generated full-P4 coverage.
+
 ### 5.2 Trusted vs checked
 
 | Component | Status | Why | Does not establish |

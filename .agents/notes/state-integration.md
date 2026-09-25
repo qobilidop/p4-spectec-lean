@@ -4,6 +4,12 @@
 the reviewed fresh-state foundation. This is planned work, not delivered
 generator/interpreter support. Preserve Nano's pure API and existing proofs.
 
+Step 1 is now implemented and independently reviewed: `Refine/StateCalc`,
+StateEval monotonicity/execution equations and `P4SpecTecTest/StateCalc`.
+Focused builds, exact axiom guards and the recursive structural-rule
+fixture pass; the integrated full gate is recorded in status. Step 2 is
+the next experiment, not delivered support.
+
 ## Decision and scope
 
 Select a uniform stateful execution mode structurally when the spec declares
