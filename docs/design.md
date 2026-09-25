@@ -166,7 +166,9 @@ Decisions:
   prints `Std.Format` with its own printer at 100 columns and writes
   ordinary `.lean` files that Lake builds like any other module; keyword
   escaping uses Lean's own token table. A recursive group that spans
-  files is emitted in the module of the last file (section 5.3). The files are
+  files is emitted in the module of the last file (section 5.3), so a
+  spec file whose definitions all belong to such groups gets no module
+  of its own (7 of Nano-P4's 34 files). The files are
   committed; CI regenerates and diffs them, and `--update` refreshes
   them. This gives Lake parallelism and incremental builds, keeps the
   IDE responsive, makes every codegen change a reviewable diff, and
@@ -458,7 +460,7 @@ relation. Not planned for the start.
 
 ## 6. Code organization
 
-The tree at the end of M1 (M3 and M4 entries are planned):
+The tree at the end of M2 (M3 and M4 entries are planned):
 
 One Lake package `p4spectec` with several libraries. The core library and
 root namespace are `P4SpecTec`, aligned with upstream. `SpecTec` alone

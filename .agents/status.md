@@ -29,7 +29,7 @@ the user before it starts.
 | Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations in both encodings, run-soundness theorems with audits, `Externs` class, per-file modules, `--check`/`--update`; every definition in `Eval := ExceptT Fail Option`, recursive groups by `partial_fixpoint`, no fuel | `main` |
 | Tactics | `P4SpecTec/Tactic/RunSound.lean`: `run_sound` (symbolic execution of a run function against its `Prop` constructor) and `run_sound_group` (over `mutual_partial_correctness`, matching conjuncts by function); `Tactic/Refine.lean`: `refine_al`, lockstep execution of the interpreter port and the generated code (design 5.1); `Tactic/Audit.lean`: `#audit_axioms` | `main` |
 | Rung 3 | `Refine/Value.lean` (`canon`, `Rel`, `eq_iff_canon`), `Refine/Quote.lean`, `Refine/Calc.lean` (`Refines`, `Holds`, `HoldsSpec`, exposure lemmas); `Codegen/Reify.lean` quotes every definition (`d.al`), `Codegen/Validate.lean` states the theorems and decides the fragment; `NanoP4Spec/Refinement.lean` holds `spec` (the quoted spec as a list) and the theorems: 18 of 153 definitions are in the fragment (18 functions, 0 relations: no builtin calls, casts, subtype checks, iteration bodies, iterated premises, type parameters, externs, indexing), all 18 theorems proved and audited; the rest are listed there with reasons | `main` |
-| Generated | `NanoP4Spec/`: 27 modules named after the spec files (56.8k lines), then `Refinement/` (the quoted spec and one module per covered recursion group, 19 modules) and `Refinement.lean`, 48 modules in all, building with `--wfail`; 161 types, 76 functions, 77 relations in both encodings (77 `Prop` inductives, 98 run-soundness theorems: 77 `R.run_sound` and 21 group theorems, each audited); 65 `partial_fixpoint` definitions; 18 refinement theorems and 2 determinism theorems, each audited | `main` |
+| Generated | `NanoP4Spec/`: 27 modules named after the spec files (7 of the 34 spec files have none: their definitions all sit in recursive groups completed by a later file), then `Refinement/` (the quoted spec and one module per covered recursion group, 19 files) and `Refinement.lean`; with the root `NanoP4Spec.lean`, 48 modules, about 57k lines, building with `--wfail`; 161 types, 76 functions, 77 relations in both encodings (77 `Prop` inductives, 98 run-soundness theorems: 77 `R.run_sound` and 21 group theorems, each audited); 65 `partial_fixpoint` definitions; 18 refinement theorems and 2 determinism theorems, each audited | `main` |
 | Rung 2 | `test/diff/run.py`, two legs: the generated `Program_ok.run` and the interpreter port each agree with the AL interpreter's verdict on 78 of 78 programs (48 pass, 30 fail: 32 positive, 21 negative, 25 exercises); for the 48 that pass, the output typing context equals upstream's value on both legs | `main` |
 | Timing | `docs/timing-nano-p4.md`: 860.6 s of elaboration over 48 modules (per-module sum); the 18 refinement groups are 19 to 89 s each and build in parallel, so a full rebuild of `NanoP4Spec` takes 123 s wall on 16 cores (was about 13.5 min as one module). Only the `Refinement/` modules import the tactic, so a tactic edit rebuilds only them; a gate rerun with nothing changed takes 7 s | `main` |
 
@@ -44,7 +44,10 @@ the harness: 78 of 78 verdicts agree on both legs, 48 output typing
 contexts equal), rerun after merging `main` (three Dependabot workflow
 bumps) and after splitting the refinement theorems per group: exit 0. CI
 on pull request #4 at `8c8d099`, run 36170670305: success (33 min on a
-cold `.lake` cache; the cache on `main` predated the new modules).
+cold `.lake` cache; the cache on `main` predated the new modules). On `main`
+after the M2 merge and the handoff fixes (including the gate's own
+layout list), `scripts/check.sh`: exit 0; CI on `main` is the running
+verdict for each push.
 
 ## Open threads
 
