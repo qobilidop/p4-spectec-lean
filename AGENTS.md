@@ -70,6 +70,7 @@ scripts/time-elab.sh <Lib>  # per-module elaboration times, to docs/timing-<lib>
 lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]   # the compiler
 test/diff/run.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
+lake exe check-print        # printer/builtin/interpreter vs pinned upstream observations
 lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json
 python3 scripts/spec-snapshot.py unpack exports/p4.al.json  # verified full-P4 extraction
 ```

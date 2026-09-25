@@ -4,6 +4,8 @@ import P4SpecTecTest.Builtins
 import P4SpecTecTest.Quote
 import P4SpecTecTest.QuoteChecks
 import P4SpecTecTest.Subtypes
+import P4SpecTecTest.Alter
+import P4SpecTecTest.PrintPolicies
 
 /-!
 # P4SpecTecTest

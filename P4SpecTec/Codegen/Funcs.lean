@@ -1,4 +1,5 @@
 import P4SpecTec.Codegen.Exp
+import P4SpecTec.Interface.P4.Unparse
 
 /-!
 Functions: `FuncDecD` to a `def` returning `Option`, whose body tries the
@@ -150,7 +151,11 @@ def builtinBody (env : Env) (id : String) (params : List typ') : Except String T
     | some a => pure a
     | none => throw s!"builtin {id} needs the stdlib type {what}"
   match id with
-  | "print_" => pure (pureOf (.call "P4.Unparse.print" [.call toValueRef [p 0]]))
+  | "print_" => do
+    let hints ← P4.Unparse.hints_of_spec_al env.defs
+    let table := if hints.isEmpty then .atom "[]" else .atom (env.q "«$print_».hints")
+    let printed := .call "P4.Unparse.printWithHints" [table, .call toValueRef [p 0]]
+    pure (.call "Eval.err?" [.call "Except.toOption" [printed]])
   | "text_to_int" => pure (optOf (.call "Builtin.Texts.text_to_int" [p 0]))
   | "int_to_text" => pure (pureOf (.call "Builtin.Texts.int_to_text" [p 0]))
   | "split_text" => pure (optOf (.call "Builtin.Texts.split_text" [p 0, p 1]))

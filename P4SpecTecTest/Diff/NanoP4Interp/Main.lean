@@ -31,7 +31,8 @@ def expectedOutputs (path : String) : IO (Option (List Lang.Il.value)) := do
     | Except.ok vs => pure (some vs)
 
 /-- Decode and type-check one program through the interpreter. -/
-def check (g : Interp_al.Ctx.global) (path : String) : IO String := do
+def check (cfg : Interp_al.Interp.Config) (g : Interp_al.Ctx.global)
+    (path : String) : IO String := do
   let debug := (← IO.getEnv "P4SPECTEC_INTERP_DEBUG").isSome
   let text ← (IO.FS.readFile path).toBaseIO
   match text with
@@ -40,7 +41,7 @@ def check (g : Interp_al.Ctx.global) (path : String) : IO String := do
     match Lean.Json.parse text >>= P4SpecTec.Lang.Il.Json.value with
     | Except.error _ => pure "decode-error"
     | Except.ok v =>
-      match Interp_al.Interp.eval_rel fuel { debug } g "Program_ok" [v] with
+      match Interp_al.Interp.eval_rel fuel { cfg with debug } g "Program_ok" [v] with
       | some (.ok outs) =>
         match ← expectedOutputs path with
         | some expected =>
@@ -57,6 +58,8 @@ def check (g : Interp_al.Ctx.global) (path : String) : IO String := do
 /-- Load the spec, then run every program named on the command line. -/
 def main (args : List String) : IO UInt32 := do
   let spec ← Lang.Al.Json.readSpec "exports/nano-p4.al.json"
+  let .ok cfg := Interp_al.Interp.Config.withPrintHints {} spec
+    | IO.eprintln "nano-p4-interp: invalid print hints"; return 1
   match Interp_al.Interp.init spec with
   | .error e =>
     IO.eprintln s!"nano-p4-interp: {e}"
@@ -64,5 +67,5 @@ def main (args : List String) : IO UInt32 := do
     return 1
   | .ok g =>
     for path in args do
-      IO.println s!"{path} {← check g path}"
+      IO.println s!"{path} {← check cfg g path}"
     return 0

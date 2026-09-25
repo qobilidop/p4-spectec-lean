@@ -99,7 +99,7 @@ def pair2 (v : value) : Option (value × value) := do
 def invoke (id : String) (targs : List typ) (args : List value) : Option value := do
   match id, targs, args with
   -- the extension entry of the P4 interfaces
-  | "print_", _, [v] => pure (Make.text (P4.Unparse.print v))
+  | "print_", _, [v] => Make.text <$> (P4.Unparse.printWithHints [] v).toOption
   -- Nats
   | "sum_nat", _, [v] => do pure (Make.nat (Nats.sum_nat (← (← Get.list v).mapM nat_of_value)))
   | "max_nat", _, [v] => do pure (Make.nat (← Nats.max_nat (← (← Get.list v).mapM nat_of_value)))
@@ -205,5 +205,13 @@ def invoke (id : String) (targs : List typ) (args : List value) : Option value :
 where
   /-- The `nat` type. -/
   Typ_nat : typ := mkPhrase (.NumT .NatT)
+
+/-- The interface-specific print extension with the spec's validated hint
+table. Printer exceptions are errors, distinct from a builtin mismatch. -/
+def invokeWithHints (henv : P4.Unparse.HEnv) (id : String) (targs : List typ)
+    (args : List value) : Except String (Option value) :=
+  match id, args with
+  | "print_", [v] => (some ∘ Make.text) <$> P4.Unparse.printWithHints henv v
+  | _, _ => pure (invoke id targs args)
 
 end P4SpecTec.Builtin.Call

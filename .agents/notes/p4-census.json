@@ -6145,6 +6145,7 @@
   {"occurrences": 1, "name": "tableDeclarationIR"},
   {"occurrences": 1, "name": "controlLocalDeclarationIR"},
   {"occurrences": 1, "name": "storageReference"}],
+ "printHintTableEmission": {"lines": 1389, "bytes": 58910},
  "files":
  [{"file": "upstream/p4-spectec/spec/0-aux/0.0-stdlib.watsup",
    "definitions": 63},
@@ -6692,7 +6693,7 @@
     "call with type arguments",
     "calls a builtin"]},
   {"source": "upstream/p4-spectec/spec/0-aux/0.1-stdlib-p4.watsup:5.1",
-   "runEmission": {"lines": 3, "bytes": 161},
+   "runEmission": {"lines": 4, "bytes": 225},
    "propEmission": null,
    "name": "print_",
    "kind": "BuiltinDecD",

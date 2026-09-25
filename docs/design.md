@@ -449,7 +449,7 @@ refinement relation and discharges it syntax-directedly. As built (M2,
 | Upstream parser, elaborator and IL-to-AL algorithmization (OCaml) | trusted | produces the AL input; shared with the upstream P4 specification toolchain | that the spec is P4, or a proof that algorithmization preserves IL semantics |
 | JSON dump of the IL | trusted | tiny and structural; round-trip tested against upstream's IL printer | |
 | `P4SpecTec.Interp_al` (the AL interpreter in Lean, with `Runtime.Value.Match`, `Runtime.Type.*`, `Runtime.Dynamic*`, `Builtin.Call`) | trusted | the spec of the compiler; mirrors upstream's `interp/interp-al/` file by file and function by function; cross-checked by the second leg of rung 2 (`nano-p4-interp`: the port on the deep terms of the corpus against the AL export, 78 of 78 verdicts and 48 of 48 outputs agree) | agreement with SL or PL interpreters |
-| `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the default printer, file by file | hint-driven printing (rejected by codegen until supported) |
+| `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the note-aware printer, file by file; 12 printer fixtures compared with pinned upstream observations on every gate | hinted-print refinement or arbitrary external-value note provenance |
 | `P4SpecTec.Interface.Builtin` | trusted | ports of upstream builtins, one file per file, at the OCaml file's path; unit tests in `P4SpecTecTest/Builtins.lean` (generated obligations from upstream outputs are planned) | |
 | `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
 | `P4SpecTec.Codegen` | checked within the supported fragment | 18 Nano-P4 definitions validated by rung 3; all Nano-P4 quotations compared with the export | correctness of definitions outside the refinement fragment |
@@ -478,6 +478,8 @@ here is a bug.
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
 | Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
+| Generated variant values carry static type notes when converted back to IL values; printing is admitted only when constructor origins and subtype bridges preserve the selected hint policy | the typed representation omits runtime note provenance; a checked compatibility condition avoids adding otherwise unused metadata | `Codegen/PrintHints.lean`, `Codegen/Types.lean` |
+| `Alter.OtherH` retains raw EL JSON; unsupported print expressions fail generation, and invalid placeholders or unprintable values return errors | EL is not otherwise embedded and Lean has no OCaml exceptions; all 190 hints at the pin use the six supported alternation forms | `Lang/Hints/Alter.lean`, `Lang/Hints/AlterJson.lean`, `Interface/P4/Unparse.lean` |
 | The interpreter runs in `Eval` too, and every function of its recursive block takes a fuel, one unit per call; `none` is exhaustion | the block's recursion is not structural (aliases unfold, rules call rules); a fuel keeps the port's shape the OCaml's and makes induction on the evaluation an induction on `Nat` for rung 3; `partial_fixpoint` over the whole block was the alternative and was not needed | `Interp/InterpAl/Interp.lean` |
 | No mutable context, caching, hooks, backtraces, deterministic mode; the global tables are immutable hash maps, the local environments association lists; the extern implementations and the guard flag are a `Config` parameter | pure functions; these are instrumentation and checks, not meaning | `Interp/InterpAl/` |
 | `'a backtrack` is `Eval`; failure traces are dropped; a `debug` premise prints nothing; upstream's exceptions and failed assertions are `Fail.err` | `Eval` is the one monad of the port and of the generated code; Lean has no exceptions | `Interp/InterpAl/Backtrack.lean`, `Interp.lean` |
@@ -505,9 +507,20 @@ applies instead, each documented in the module that implements it.
 | Partial functions, downcasts, indexing, slicing, calls | hoisted into `let x ←` statements of the enclosing `do` block (A-normal form), `none` on failure, never a default value (the Wasm Rocq backend's defaults produced provably false lemmas) |
 | Extern syntax, `extern dec`, `extern relation` | `ExternValue`; fields of the generated class `Externs` |
 | Tables (`table dec`) | a function by cases over the rows |
-| Builtins (`builtin dec`) | a wrapper around the port of the same OCaml file under `Interface/Builtin/`; sets and maps unwrapped to element lists; `print_` uses the hint-free printer, and codegen rejects a spec with `print` hints |
+| Builtins (`builtin dec`) | a wrapper around the port of the same OCaml file under `Interface/Builtin/`; sets and maps unwrapped to element lists. `print_` uses a literal per-spec table keyed by type and mixop, with cursor, fusion and empty-piece semantics ported from upstream. Placeholder bounds, supported forms, constructor-note provenance and policy compatibility across inherited cases/casts are checked before generation. Interpreter callers initialize `Config.withPrintHints` from the same AL spec. Printer errors become `Fail.err`, not retryable mismatches. |
 | Values of generated types | `ToValue` (structural) and `OfValue fuel` (decoder) instances per type, for programs, printing and equality |
 | Relation, `Prop` encoding | `inductive R : args → Prop`, one constructor per rule path named by `Names.ruleName` (`rule<k>` when the spec names neither group nor rule), implicit arguments for the path's variables with the types the AL notes give, hypotheses in statement order; `R.run_sound` per relation, `<first>.run_sound_group` per recursive group, `#audit_axioms` after each |
+
+Hint-policy compatibility checks justify the generated representation's
+specific static note changes, not arbitrary note changes in decoded input.
+The existing `Rel` erases notes, and quoted AL drops hints; neither it nor
+`HoldsSpec` alone establishes a hinted-print correspondence theorem. Print
+builtins remain outside the refinement fragment until an appropriate
+policy/environment contract is proved. The printer's twelve recorded
+upstream observations cover cursor ordering, fusion, empty spacing,
+type-specific lookup, nested hints, unused unprintable arguments, byte
+escaping and ASCII-only case conversion; they are differential tests,
+not refinement proofs.
 
 ### 5.5 Test sources (all from upstream)
 
@@ -733,8 +746,8 @@ and what we provide regardless of consumer:
   Expect work on mutual blocks, `partial_fixpoint` monotonicity, and
   build times. Target instances arrive with the packet leg of rung 2.
   M3A exports the pinned full spec and measures the remaining obligations;
-  generation currently stops at print hints. Independent emission probes
-  also identify indexed path updates and stateful fresh identifiers as
+  generation now passes validated print hints and stops at indexed path
+  updates. Independent emission probes identify stateful fresh identifiers as
   barriers. M3B fixes thirteen subtype bridges by retaining their type
   arguments; all 567 bridge pairs now emit text. These probes are not
   evidence of a full-P4 build or proof coverage.

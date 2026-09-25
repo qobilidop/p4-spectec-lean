@@ -64,6 +64,13 @@ structure Config where
   /-- Whether every invocation and its outcome is traced on stderr
   (`dbgTrace`), for diagnosis. -/
   debug : Bool := false
+  /-- The P4 interface's print table, initialized from the AL specification. -/
+  printHints : P4.Unparse.HEnv := []
+
+/-- Configure the print extension from the same specification as the
+interpreter tables, rejecting unsupported or malformed print hints. -/
+def Config.withPrintHints (cfg : Config) (spec : Lang.Al.spec) : Except String Config := do
+  pure { cfg with printHints := ← P4.Unparse.hints_of_spec_al spec }
 
 /-- The outcome of an evaluation, for the trace. -/
 def outcome {α : Type} (r : backtrack α) : String :=
@@ -1055,11 +1062,12 @@ def invoke_builtin_func : Nat → Config → Ctx.t → Lang.Il.id → List tpara
     List value → typ → backtrack value
   | 0, _, _, _, _, _, _, _ => Eval.diverge
   | _ + 1, cfg, ctx, i, tparams, targs, values_input, typ_output => do
-    match Builtin.Call.invoke i.it targs values_input with
-    | some value_output =>
+    match Builtin.Call.invokeWithHints cfg.printHints i.it targs values_input with
+    | .ok (some value_output) =>
       check_func_output cfg ctx i tparams typ_output targs value_output
       pure value_output
-    | none => back_unmatch i.at s!"builtin {i.it} failed"
+    | .ok none => back_unmatch i.at s!"builtin {i.it} failed"
+    | .error message => back_err i.at message
 
 /-- Mirrors `match_tablerow`. -/
 def match_tablerow : Nat → Ctx.t → Ctx.t → Lang.Al.tablerow → List value →
