@@ -414,12 +414,17 @@ Serves users of the generated semantics, not generation itself.
 - **Warnings fail the build through `lake build --wfail`**, never through
   `warningAsError` in Lake options, which rewrites the severities that
   `#guard_msgs` tests observe. A `sorry` is a warning and so fails too.
-- **Documentation.** Design and working notes are Markdown in `docs/` and
-  `.agents/`, readable in the repository without a build. API reference
-  is doc-gen4 from docstrings once the library has a public surface,
-  gated behind a dev configuration so ordinary builds skip it. A user
-  manual with checked examples is a candidate for Verso at M4, when the
-  public surface is frozen and examples worth checking exist.
+- **Documentation and website.** Design and working notes are Markdown
+  in `docs/` and `.agents/`, readable in the repository without a build.
+  The project website is one GitHub Pages site built by one workflow in
+  the Nix shell, in three stages: none until M1 has real declarations;
+  after M1, API reference from doc-gen4 in its own Lake package that
+  ordinary builds skip, published under `api/`; at M4, a Verso site in
+  its own package with the design narrative and a tutorial whose
+  examples are checked against the frozen public surface. A page that
+  claims something about the generated code should fail to build when
+  the claim stops being true. Verso and doc-gen4 are pinned to the tag
+  matching the toolchain and bumped with it.
 - **No license header per file.** The root `LICENSE` covers the
   repository.
 - **Gates are scripts; the exit code is the verdict.** The full gate runs

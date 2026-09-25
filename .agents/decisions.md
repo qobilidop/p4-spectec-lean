@@ -101,12 +101,25 @@ settles is not repeated here.
 ## Documentation
 
 - **Markdown for design and working notes; doc-gen4 for API reference
-  once there is a public surface; Verso considered at M4 for a checked
-  user manual.** Reason: the current readers are the user and agents,
-  who need docs readable in the repository without a build; API docs
-  from docstrings are free once `linter.missingDocs` is enforced; Verso
-  earns its dependency only when there are stable declarations for
-  examples to cite. (2026-09-25)
+  once there is a public surface; a Verso site at M4.** Reason: the
+  current readers are the user and agents, who need docs readable in the
+  repository without a build; API docs from docstrings are free once
+  `linter.missingDocs` is enforced; Verso earns its dependency only when
+  there are stable declarations for examples to cite. (2026-09-25)
+- **The project website is one GitHub Pages site, built by one workflow
+  in the Nix shell, in three stages.** (1) Until M1 has real
+  declarations: no site; the README and `docs/design.md` are the site.
+  (2) After M1: API reference from doc-gen4, in a separate Lake package
+  under `docs/api/` that ordinary builds never touch, published under
+  the `api/` path. (3) At M4: a Verso site (website genre) in its own
+  Lake package under `website/`, holding the design narrative and a
+  tutorial whose examples are checked against the frozen public surface,
+  with the doc-gen4 output beside it. Verso and doc-gen4 are pinned to
+  the tag matching `lean-toolchain` and bumped with it. Reason: a page
+  claiming something about the generated code should fail to build when
+  the claim stops being true; a site before there is anything to show is
+  maintenance without benefit. Agreed by the user 2026-09-25.
+  (2026-09-25)
 
 ## Process
 

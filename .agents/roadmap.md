@@ -11,3 +11,11 @@ active; an item becomes work only when the user scopes it.
   correct against the generated deep semantics.
 - A P4 parser in Lean as a verified replacement for upstream's.
 - Upstreaming the JSON export patch.
+
+Website, sequenced against the milestones (decisions, "Documentation"):
+
+- After M1: doc-gen4 API reference under `docs/api/`, published to GitHub
+  Pages under `api/` by a Pages workflow running in the Nix shell.
+- At M4: a Verso site under `website/` with the design narrative and a
+  checked tutorial against the frozen public surface, doc-gen4 output
+  beside it, same Pages site.
