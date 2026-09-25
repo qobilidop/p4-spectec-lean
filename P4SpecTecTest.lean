@@ -11,6 +11,8 @@ import P4SpecTecTest.Updates
 import P4SpecTecTest.StateEval
 import P4SpecTecTest.StateCalc
 import P4SpecTecTest.StateInterp
+import P4SpecTecTest.RecursivePrefix
+import P4SpecTecTest.StateRules
 
 /-!
 # P4SpecTecTest

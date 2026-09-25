@@ -8,8 +8,12 @@ Step 1 is now implemented and independently reviewed: `Refine/StateCalc`,
 StateEval monotonicity/execution equations and `P4SpecTecTest/StateCalc`.
 Focused builds, exact axiom guards and the recursive structural-rule
 fixture pass; the integrated full gate is recorded in status. Step 2's
-shared interpreter is independently reviewed and undergoing integration;
-durable complete-AL upstream observations are still being implemented.
+shared interpreter and durable complete-AL upstream observations are integrated
+in merged PR #13, independently reviewed and fully gated locally and in CI.
+The recursive rejected-prefix fixture and
+ordered structural-chain fixture are integrated in the next checkpoint;
+they establish bounded proof patterns, not generated automation. Steps 3 and
+4 are active in isolated worktrees, sharing mode/attempt/statement APIs.
 
 ## Decision and scope
 
