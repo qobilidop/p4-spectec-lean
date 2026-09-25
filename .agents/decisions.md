@@ -35,13 +35,26 @@ settles is not repeated here.
 - **Use a ByteArray-backed ByteText for semantic text, not identifiers.**
   OCaml indexing/slicing/replacement operates on arbitrary bytes; Lean
   String cannot preserve all results. The foundation keeps decoding
-  explicit and checked, with kernel equality/compare-equality laws. Prefer ByteArray
-  to lists for direct byte access/storage; integration must preserve
+  explicit and checked, with kernel equality/compare-equality laws. Prefer
+  ByteArray to lists for direct byte access/storage; integration preserves
   arbitrary bytes through IL values, generated types, builtins and proofs.
-  Confidence: high for the representation, with parser/export boundaries
-  to audit before claiming general byte-preserving JSON input. Revisit if
-  proof reduction/performance exposes a concrete problem. Foundation only
-  is delivered; inventory in `.agents/notes/byte-text.md`. (2026-09-25)
+  JSON input rejects invalid UTF-8 and unpaired surrogate escapes instead
+  of accepting replacement characters. This deliberately restricts the
+  input transport; it is not a general byte-preserving OCaml-string export.
+  Confidence: high for internal byte semantics and fail-closed ingress.
+  Revisit if source literals require arbitrary-byte transport, or proof
+  reduction/performance exposes a concrete problem. Inventory and evidence
+  boundaries: `.agents/notes/byte-text.md`. (2026-09-25)
+
+- **Preserve text builtin exception classes in the oracle and checked
+  dispatch.** Pinned upstream retries `BuiltinError` from arity extraction,
+  but not `Assert_failure`, `Failure` or `Invalid_argument`. Represent those hard
+  aborts as `Fail.err`, consistent with the design, never `unmatch`.
+  A catch-all success/error oracle hid this distinction; record the actual
+  exception class and fail closed on unknown classes. This audit covers
+  six text builtins and the previously checked printer, not every legacy
+  Option-returning builtin. Confidence: high for these observed paths;
+  remaining builtin families require M3C fidelity audit. (2026-09-25)
 
 - **Land explicit fresh state as a bounded foundation before integrating
   it.** The counter sits below failure and wraps as signed 63-bit OCaml
@@ -154,15 +167,12 @@ settles is not repeated here.
 
 ## Generated code
 
-- **Land root-index list updates separately from semantic text changes.**
-  Four updates in `Lvalue_write` can use the existing checked list helper.
-  The two remaining text updates require byte semantics: OCaml permits
-  byte sequences that Lean `String` cannot contain. Replacing Unicode
-  characters or rejecting an invalid UTF-8 result would silently change
-  behavior. Keep text updates rejected while choosing a faithful byte
-  representation, preserving name/identifier strings separately. Reason:
-  make bounded progress without mislabeling ASCII-only behavior as a
-  complete implementation. (2026-09-25)
+- **Use checked root-index updates and reject unsupported path shapes.**
+  The four list updates landed separately; the two text updates now use
+  the integrated byte representation, preserving invalid-UTF-8 results
+  and requiring exactly one replacement byte. Keep sliced updates and
+  nested index prefixes rejected rather than approximating their meaning.
+  Preserve base/replacement/index evaluation order. (2026-09-25)
 - **Print with validated type-and-mixop policies, not a changed value
   representation.** All 190 hints decode; all 2,120 variant origins and
   567 bridge pairs preserve policy selection at the pin. Enforce these

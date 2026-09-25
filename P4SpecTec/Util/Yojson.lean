@@ -7,8 +7,6 @@ import P4SpecTec.Util.Source
 Not a mirror: this module is ours, placed beside the module whose values it
 decodes.
 
-Not a mirror: this module is our own, placed beside the module it decodes.
-
 Decoders for the JSON that `ppx_deriving_yojson` prints, the format of
 upstream's `-json` export: records are objects, variants are arrays headed
 by the constructor name, tuples and lists are arrays, options are `null`
@@ -22,6 +20,60 @@ open P4SpecTec.Util.Source
 
 /-- A decoder from JSON. -/
 abbrev D (α : Type) := Json → Except String α
+
+/-- An ASCII hexadecimal digit, for validating escaped Unicode code units. -/
+private def hexDigit (b : UInt8) : Option Nat :=
+  let n := b.toNat
+  if 48 ≤ n && n ≤ 57 then some (n - 48)
+  else if 65 ≤ n && n ≤ 70 then some (n - 55)
+  else if 97 ≤ n && n ≤ 102 then some (n - 87)
+  else none
+
+/-- Four hexadecimal bytes beginning at an offset. -/
+private def hexUnit (bytes : ByteArray) (i : Nat) : Option Nat := do
+  let a ← bytes.data[i]? >>= hexDigit
+  let b ← bytes.data[i + 1]? >>= hexDigit
+  let c ← bytes.data[i + 2]? >>= hexDigit
+  let d ← bytes.data[i + 3]? >>= hexDigit
+  pure (((a * 16 + b) * 16 + c) * 16 + d)
+
+/-- Reject surrogate escapes that Lean's JSON parser would replace silently.
+Scan bytes without materializing a character list for large spec exports. -/
+private def validateEscapes (bytes : ByteArray) : Except String Unit :=
+  go bytes.size 0 false
+where
+  /-- Each step consumes at least one byte; the fuel is the initial byte count. -/
+  go : Nat → Nat → Bool → Except String Unit
+    | 0, i, _ =>
+      if i ≥ bytes.size then pure () else throw "incomplete JSON escape validation"
+    | fuel + 1, i, quoted => do
+      if i ≥ bytes.size then return ()
+      let c := bytes[i]!
+      if quoted && c == 92 then
+        if bytes.data[i + 1]? == some 117 then
+          let some u := hexUnit bytes (i + 2) | throw "invalid JSON Unicode escape"
+          if 0xd800 ≤ u && u ≤ 0xdbff then
+            if bytes.data[i + 6]? != some 92 || bytes.data[i + 7]? != some 117 then
+              throw "unpaired JSON high surrogate"
+            let some v := hexUnit bytes (i + 8) | throw "invalid JSON surrogate pair"
+            if 0xdc00 ≤ v && v ≤ 0xdfff then go fuel (i + 12) quoted
+            else throw "invalid JSON surrogate pair"
+          else if 0xdc00 ≤ u && u ≤ 0xdfff then throw "unpaired JSON low surrogate"
+          else go fuel (i + 6) quoted
+        else go fuel (i + 2) quoted
+      else go fuel (i + 1) (if c == 34 then !quoted else quoted)
+
+/-- Parse JSON without silently replacing invalid UTF-8 or surrogate escapes. -/
+def parseBytes (bytes : ByteArray) : Except String Json := do
+  let text ← match String.fromUTF8? bytes with
+    | some text => pure text
+    | none => throw "JSON input is not valid UTF-8"
+  validateEscapes bytes
+  Json.parse text
+
+/-- Read JSON as bytes and validate UTF-8 before parsing Unicode strings. -/
+def readFile (path : System.FilePath) : IO Json := do
+  IO.ofExcept (parseBytes (← IO.FS.readBinFile path))
 
 /-- Fail with a message that shows a prefix of the offending JSON. -/
 def fail {α : Type} (what : String) (j : Json) : Except String α :=

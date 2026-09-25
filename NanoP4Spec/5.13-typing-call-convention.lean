@@ -770,7 +770,7 @@ inductive Statement_ok : NanoP4Spec.scope →
       {lvalue' : NanoP4Spec.lvalue}
       {argumentList : NanoP4Spec.argumentList}
       {referenceExpression : NanoP4Spec.referenceExpression}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {«argumentIR*» : List NanoP4Spec.argumentIR} :
         ((NanoP4Spec.statement.is_callStatement statement : Bool) = true) →
@@ -799,7 +799,7 @@ inductive Statement_ok : NanoP4Spec.scope →
       {typeIR : NanoP4Spec.typeIR}
       {typeId : NanoP4Spec.typeId}
       {externMethodTypeDefEnv : NanoP4Spec.externMethodTypeDefEnv}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {callableId' : NanoP4Spec.callableId}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {«argumentIR*» : List NanoP4Spec.argumentIR} :
@@ -2208,10 +2208,14 @@ def ParserStateList_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.pars
           have «nameIR_state*» := tmp_3
           let tmp_4 ← ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.nameIR) «nameIR_state*»)
           let _ ← Eval.check tmp_4
-          let _ ← Eval.check (List.elem "start" «nameIR_state*»)
-          let _ ← Eval.check ((!(List.elem "accept" «nameIR_state*»)) &&
-           (!(List.elem "reject" «nameIR_state*»)))
-          have «nameIR_state_all*» := "accept" :: ("reject" :: «nameIR_state*»)
+          let _ ← Eval.check (List.elem (P4SpecTec.ByteText.ofString "start") «nameIR_state*»)
+          let _ ← Eval.check ((!(List.elem
+               (P4SpecTec.ByteText.ofString "accept")
+               «nameIR_state*»)) &&
+           (!(List.elem (P4SpecTec.ByteText.ofString "reject") «nameIR_state*»)))
+          have «nameIR_state_all*» :=
+              (P4SpecTec.ByteText.ofString "accept") ::
+              ((P4SpecTec.ByteText.ofString "reject") :: «nameIR_state*»)
           let tmp_5 ←
               List.mapM
                 (fun (parserState : NanoP4Spec.parserState) =>
@@ -2237,20 +2241,24 @@ inductive ParserStateList_ok : NanoP4Spec.typingContext → NanoP4Spec.parserSta
         (List.length (List.map (·.2.2) tmp_1) = List.length «nameIR_state*») →
         (∀
            (name : NanoP4Spec.name)
-           (nameIR_state : String),
+           (nameIR_state : P4SpecTec.ByteText),
            (name, nameIR_state) ∈ (List.zip (List.map (·.2.2) tmp_1) «nameIR_state*») →
            NanoP4Spec.«$id» name = some (.ok nameIR_state)) →
         (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.nameIR) «nameIR_state*» = some (.ok tmp_4)) →
         ((tmp_4 : Bool) = true) →
-        ((List.elem "start" «nameIR_state*» : Bool) = true) →
-        (((!(List.elem "accept" «nameIR_state*»)) &&
-            (!(List.elem "reject" «nameIR_state*»)) : Bool) =
+        ((List.elem (P4SpecTec.ByteText.ofString "start") «nameIR_state*» : Bool) = true) →
+        (((!(List.elem (P4SpecTec.ByteText.ofString "accept") «nameIR_state*»)) &&
+            (!(List.elem (P4SpecTec.ByteText.ofString "reject") «nameIR_state*»)) : Bool) =
            true) →
         (List.length «parserState*» = List.length tmp_5) →
         (∀
            (parserState : NanoP4Spec.parserState),
            (parserState, ()) ∈ (List.zip «parserState*» tmp_5) →
-           NanoP4Spec.ParserState_ok TC ("accept" :: ("reject" :: «nameIR_state*»)) parserState) →
+           NanoP4Spec.ParserState_ok
+             TC
+             ((P4SpecTec.ByteText.ofString "accept") ::
+              ((P4SpecTec.ByteText.ofString "reject") :: «nameIR_state*»))
+             parserState) →
         NanoP4Spec.ParserStateList_ok TC parserStateList
 
 theorem ParserStateList_ok.run_sound
@@ -2362,7 +2370,7 @@ def ParserStateList_ok.al : Lang.Al.def :=
                 (.IfPr
                    (Q.e
                       (.MemE
-                         (Q.e (.TextE "start") .TextT)
+                         (Q.e (.TextE (P4SpecTec.ByteText.ofString "start")) .TextT)
                          (Q.e
                             (.IterE
                                (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
@@ -2381,7 +2389,7 @@ def ParserStateList_ok.al : Lang.Al.def :=
                                .BoolT
                                (Q.e
                                   (.MemE
-                                     (Q.e (.TextE "accept") .TextT)
+                                     (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT)
                                      (Q.e
                                         (.IterE
                                            (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
@@ -2395,7 +2403,7 @@ def ParserStateList_ok.al : Lang.Al.def :=
                                .BoolT
                                (Q.e
                                   (.MemE
-                                     (Q.e (.TextE "reject") .TextT)
+                                     (Q.e (.TextE (P4SpecTec.ByteText.ofString "reject")) .TextT)
                                      (Q.e
                                         (.IterE
                                            (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
@@ -2413,10 +2421,10 @@ def ParserStateList_ok.al : Lang.Al.def :=
                       (.IterT (Q.t (Q.varT "nameIR" [])) .List))
                    (Q.e
                       (.ConsE
-                         (Q.e (.TextE "accept") .TextT)
+                         (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT)
                          (Q.e
                             (.ConsE
-                               (Q.e (.TextE "reject") .TextT)
+                               (Q.e (.TextE (P4SpecTec.ByteText.ofString "reject")) .TextT)
                                (Q.e
                                   (.IterE
                                      (Q.e (.VarE (Q.i "nameIR_state")) (Q.varT "nameIR" []))
@@ -2532,7 +2540,7 @@ inductive TableAction_ok : NanoP4Spec.typingContext →
       {TC : NanoP4Spec.typingContext}
       {tableActionReference : NanoP4Spec.tableActionReference}
       {nonTypeName : NanoP4Spec.nonTypeName}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {tmp_3 : List (NanoP4Spec.nameIR × NanoP4Spec.typeIR × NanoP4Spec.direction)}
       {tmp_4 : Bool} :
@@ -2563,7 +2571,7 @@ inductive TableAction_ok : NanoP4Spec.typingContext →
       {TC : NanoP4Spec.typingContext}
       {nonTypeName : NanoP4Spec.nonTypeName}
       {argumentList : NanoP4Spec.argumentList}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«argument*» : List NanoP4Spec.argument}
       {«argumentIR*» : List NanoP4Spec.argumentIR}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
@@ -3507,7 +3515,7 @@ inductive TableEntry_ok : NanoP4Spec.typingContext →
       {typeIR : NanoP4Spec.typeIR}
       {typeIR_key : NanoP4Spec.typeIR}
       {_nameIR : NanoP4Spec.nameIR}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {tmp_3 : Option ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR))} :
         ((NanoP4Spec.tableActionReference.is_nonTypeName tableActionReference' : Bool) = true) →
         (NanoP4Spec.tableActionReference.of_nonTypeName tableActionReference' = some name) →
@@ -3532,7 +3540,7 @@ inductive TableEntry_ok : NanoP4Spec.typingContext →
       {typeIR : NanoP4Spec.typeIR}
       {typeIR_key : NanoP4Spec.typeIR}
       {_nameIR : NanoP4Spec.nameIR}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«parameterIR_action*» : List NanoP4Spec.parameterIR}
       {«argumentIR_action*» : List NanoP4Spec.argumentIR}
       {«argumentIR_entry*» : List NanoP4Spec.argumentIR}
@@ -4708,7 +4716,7 @@ inductive TableDecl_ok : NanoP4Spec.typingContext →
       {name : NanoP4Spec.name}
       {tableProperties : NanoP4Spec.tableProperties}
       {TBLC : NanoP4Spec.tableContext}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         (NanoP4Spec.TableProperties_ok TC_0 tableProperties TBLC) →
         (NanoP4Spec.«$id» name = some (.ok typeId)) →
@@ -5465,7 +5473,7 @@ inductive ActionDecl_ok : NanoP4Spec.typingContext →
       {tmp_2 : Bool}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         (NanoP4Spec.«$flatten_parameterList» parameterList = some (.ok «parameter*»)) →
         (List.length «parameter*» = List.length tmp_1) →
@@ -5683,7 +5691,7 @@ def Decl_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.declaration)
            let _ ← ExceptT.mk (NanoP4Spec.Call_convention_ok.run «parameterIR*» «argumentIR*»)
            let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» name)
            have typeId_object := tmp_5
-           let _ ← Eval.check (typeId_object == "main")
+           let _ ← Eval.check (typeId_object == (P4SpecTec.ByteText.ofString "main"))
            have packageObjectTypeIR :=
                NanoP4Spec.packageObjectTypeIR.PACKAGE_lparen_rparen typeId_object «parameterIR*»
            have varTypeIR :=
@@ -5833,7 +5841,7 @@ inductive Decl_ok : NanoP4Spec.typingContext →
       {typeId : NanoP4Spec.typeId}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {«argumentIR*» : List NanoP4Spec.argumentIR}
-      {typeId_object : String}
+      {typeId_object : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.declaration.is_instantiation declaration : Bool) = true) →
         (NanoP4Spec.declaration.of_instantiation declaration =
@@ -5848,7 +5856,7 @@ inductive Decl_ok : NanoP4Spec.typingContext →
         (NanoP4Spec.ArgumentList_ok NanoP4Spec.scope.GLOBAL TC_0 argumentList «argumentIR*») →
         (NanoP4Spec.Call_convention_ok «parameterIR*» «argumentIR*») →
         (NanoP4Spec.«$id» name = some (.ok typeId_object)) →
-        ((typeId_object == "main" : Bool) = true) →
+        ((typeId_object == (P4SpecTec.ByteText.ofString "main") : Bool) = true) →
         (NanoP4Spec.«$add_var_t»
              NanoP4Spec.scope.GLOBAL
              TC_0
@@ -5886,7 +5894,7 @@ inductive Decl_ok : NanoP4Spec.typingContext →
         (List.length «name*» = List.length «id*») →
         (∀
            (name : NanoP4Spec.name)
-           (id : String),
+           (id : P4SpecTec.ByteText),
            (name, id) ∈ (List.zip «name*» «id*») →
            NanoP4Spec.«$id» name = some (.ok id)) →
         (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id*» = some (.ok tmp_4)) →
@@ -5920,7 +5928,7 @@ inductive Decl_ok : NanoP4Spec.typingContext →
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
       {TC_1 : NanoP4Spec.typingContext}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {TC_2 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.declaration.is_parserDeclaration declaration : Bool) = true) →
         (NanoP4Spec.declaration.of_parserDeclaration declaration =
@@ -5954,7 +5962,7 @@ inductive Decl_ok : NanoP4Spec.typingContext →
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
       {TC_1 : NanoP4Spec.typingContext}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {TC_2 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.declaration.is_controlDeclaration declaration : Bool) = true) →
         (NanoP4Spec.declaration.of_controlDeclaration declaration =
@@ -6197,7 +6205,7 @@ def Decl_ok.al : Lang.Al.def :=
                          .EqOp
                          .BoolT
                          (Q.e (.VarE (Q.i "typeId_object")) (Q.varT "typeId" []))
-                         (Q.e (.TextE "main") .TextT))
+                         (Q.e (.TextE (P4SpecTec.ByteText.ofString "main")) .TextT))
                       .BoolT)),
               Q.pr
                 (.LetPr

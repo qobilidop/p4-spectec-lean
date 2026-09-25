@@ -144,14 +144,18 @@ def map.al : Lang.Al.def :=
              (Q.t (Q.varT "set" [Q.t (Q.varT "pair" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])])]))))
        [])
 
-def «$print_» {τX : Type} [ToValue τX] [BEq τX] (p0 : τX) : Option (Except Fail String) :=
+def «$print_» {τX : Type} [ToValue τX] [BEq τX] (p0 : τX)
+    : Option (Except Fail P4SpecTec.ByteText) :=
   ExceptT.run
-    (Eval.err? (Except.toOption (P4.Unparse.printWithHints [] (ToValue.toValue p0))))
+    (Eval.err?
+       (Option.map
+          P4SpecTec.ByteText.ofString
+          (Except.toOption (P4.Unparse.printWithHints [] (ToValue.toValue p0)))))
 
 def «$print_».al : Lang.Al.def :=
   Q.d (.BuiltinDecD (Q.i "print_") [Q.i "X"] [Q.pm (.ExpP (Q.t (Q.varT "X" [])))] (Q.t .TextT) [])
 
-def «$strip_all_whitespace» (p0 : String) : Option (Except Fail String) :=
+def «$strip_all_whitespace» (p0 : P4SpecTec.ByteText) : Option (Except Fail P4SpecTec.ByteText) :=
   ExceptT.run
     (pure (Builtin.Texts.strip_all_whitespace p0))
 

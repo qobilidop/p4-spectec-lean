@@ -56,12 +56,14 @@ def check (json : Lean.Json) : Except String Nat := do
     let dispatched ← Builtin.Call.invokeWithHints hints "print_" [] [value]
     match dispatched with
     | some ⟨.TextV text, _, _⟩ =>
-      if text != expected then throw s!"print oracle {name}: builtin output differs"
+      if text != ByteText.ofString expected then
+        throw s!"print oracle {name}: builtin output differs"
     | _ => throw s!"print oracle {name}: builtin failed"
     match (Interp_al.Interp.invoke_builtin_func 1 cfg ⟨{}, {}⟩
         (Util.Source.mkPhrase "print_") [] [] [value] (Util.Source.mkPhrase .TextT)).run with
     | some (.ok ⟨.TextV text, _, _⟩) =>
-      if text != expected then throw s!"print oracle {name}: interpreter output differs"
+      if text != ByteText.ofString expected then
+        throw s!"print oracle {name}: interpreter output differs"
     | _ => throw s!"print oracle {name}: interpreter failed"
   pure cases.size
 
@@ -73,9 +75,7 @@ def main (args : List String) : IO UInt32 := do
     | [] => pure "test/print/observed.json"
     | [path] => pure path
     | _ => throw (IO.userError "usage: check-print [fixture.json]")
-  let text ← IO.FS.readFile path
-  let .ok json := Lean.Json.parse text
-    | IO.eprintln "[print-oracle] invalid fixture JSON"; return 1
+  let json ← P4SpecTec.Util.Yojson.readFile path
   let pin ← IO.Process.output { cmd := "git", args := #["-C", "upstream/p4-spectec",
     "rev-parse", "HEAD"] }
   if pin.exitCode != 0 then

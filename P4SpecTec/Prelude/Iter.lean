@@ -15,17 +15,15 @@ def idx {α : Type} (xs : List α) (i : Nat) : Option α := xs[i]?
 def idxInt {α : Type} (xs : List α) (i : Int) : Option α :=
   if i < 0 then none else xs[i.toNat]?
 
-/-- `s[i]` on a text: the one-character text at `i`. -/
-def idxText (s : String) (i : Nat) : Option String :=
-  (s.toList[i]?).map String.singleton
+/-- `s[i]` on a text: the one-byte text at `i`. -/
+def idxText (s : ByteText) (i : Nat) : Option ByteText := s.idx i
 
 /-- `xs[i : n]`: the `n` elements from `i`; `none` unless `i + n ≤ |xs|`. -/
 def slice {α : Type} (xs : List α) (i n : Nat) : Option (List α) :=
   if i + n ≤ xs.length then some ((xs.drop i).take n) else none
 
 /-- `s[i : n]` on a text. -/
-def sliceText (s : String) (i n : Nat) : Option String :=
-  (slice s.toList i n).map String.ofList
+def sliceText (s : ByteText) (i n : Nat) : Option ByteText := s.slice i n
 
 /-- `xs[i = v]`: replace the element at `i`; `none` when out of bounds. -/
 def setIdx {α : Type} (xs : List α) (i : Nat) (v : α) : Option (List α) :=

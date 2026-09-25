@@ -190,7 +190,7 @@ def eval_bool_exp (_typ_note : typ) (b : Bool) : backtrack value := pure (Value.
 def eval_num_exp (_typ_note : typ) (n : Num.t) : backtrack value := pure (Value.Make.num n)
 
 /-- Mirrors `eval_text_exp`. -/
-def eval_text_exp (_typ_note : typ) (s : String) : backtrack value := pure (Value.Make.text s)
+def eval_text_exp (_typ_note : typ) (s : ByteText) : backtrack value := pure (Value.Make.text s)
 
 /-- Mirrors `eval_var_exp`. -/
 def eval_var_exp (_typ_note : typ) (ctx : Ctx.t) (i : Lang.Il.id) : backtrack value :=
@@ -274,8 +274,8 @@ def index (value_b : value) (idx : Int) («at» : region) : backtrack value :=
   match value_b.it with
   | .TextV s =>
     if idx < 0 || idx ≥ s.length then back_err «at» "index out of bounds"
-    else match s.toList[idx.toNat]? with
-      | some c => pure (Value.Make.text (String.singleton c))
+    else match s.idx idx.toNat with
+      | some c => pure (Value.Make.text c)
       | none => back_err «at» "index out of bounds"
   | .ListV values =>
     if idx < 0 || idx ≥ values.length then back_err «at» "index out of bounds"
@@ -289,8 +289,8 @@ def slice (typ : typ) (value_b : value) (idx_l idx_n : Int) («at» : region) : 
   let idx_h := idx_l + idx_n
   match value_b.it with
   | .TextV s =>
-    if idx_l < 0 || idx_h > s.length then back_err «at» "slice out of bounds"
-    else pure (Value.Make.text (String.ofList ((s.toList.drop idx_l.toNat).take idx_n.toNat)))
+    if idx_l < 0 || idx_n < 0 || idx_h > s.length then back_err «at» "slice out of bounds"
+    else do pure (Value.Make.text (← Eval.err? (s.slice idx_l.toNat idx_n.toNat)))
   | .ListV values =>
     if idx_l < 0 || idx_h > values.length then back_err «at» "slice out of bounds"
     else pure (Value.Make.list typ.it ((values.drop idx_l.toNat).take idx_n.toNat))
@@ -305,10 +305,7 @@ def update_index (typ : typ) (v : value) (idx_target : Int) (value_upd : value)
     else do
       let s_n ← Eval.err? (Value.Get.text value_upd)
       if s_n.length != 1 then back_err «at» "updating a character requires a single-character text"
-      else
-        let cs := s.toList
-        pure (Value.Make.text (String.ofList (cs.take idx_target.toNat ++ s_n.toList ++
-          cs.drop (idx_target.toNat + 1))))
+      else pure (Value.Make.text (← Eval.err? (s.setIdx idx_target.toNat s_n)))
   | .ListV values =>
     if idx_target < 0 || idx_target ≥ values.length then back_err «at» "index out of bounds"
     else pure (Value.Make.list typ.it (values.set idx_target.toNat value_upd))
@@ -320,14 +317,11 @@ def update_slice (typ : typ) (v : value) (idx_l idx_n : Int) (value_upd : value)
   let idx_h := idx_l + idx_n
   match v.it with
   | .TextV s =>
-    if idx_l < 0 || idx_h > s.length then back_err «at» "slice out of bounds"
+    if idx_l < 0 || idx_n < 0 || idx_h > s.length then back_err «at» "slice out of bounds"
     else do
       let s_upd ← Eval.err? (Value.Get.text value_upd)
       if s_upd.length != idx_n then back_err «at» "updating a slice requires a text of its length"
-      else
-        let cs := s.toList
-        pure (Value.Make.text (String.ofList (cs.take idx_l.toNat ++ s_upd.toList ++
-          cs.drop idx_h.toNat)))
+      else pure (Value.Make.text (← Eval.err? (s.setSlice idx_l.toNat idx_n.toNat s_upd)))
   | .ListV values =>
     if idx_l < 0 || idx_h > values.length then back_err «at» "slice out of bounds"
     else do

@@ -87,7 +87,7 @@ inductive ControlLocalDecl_eval : NanoP4Spec.evalContext →
       {controlLocalDeclaration : NanoP4Spec.controlLocalDeclaration}
       {name : NanoP4Spec.name}
       {tableProperties : NanoP4Spec.tableProperties}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {EC_1 : NanoP4Spec.evalContext} :
         ((NanoP4Spec.controlLocalDeclaration.is_tableDeclaration controlLocalDeclaration : Bool) =
            true) →

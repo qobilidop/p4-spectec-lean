@@ -44,7 +44,7 @@ def num : Num.t → value
   | .Int i => int i
 
 /-- Mirrors `Make.text`. -/
-def text (s : String) : value := mk .TextT (.TextV s)
+def text (s : ByteText) : value := mk .TextT (.TextV s)
 
 /-- Mirrors `Make.str`. -/
 def str (t : typ') (fields : List (String × value)) : value :=
@@ -81,7 +81,7 @@ def bool (v : value) : Option Bool := match v.it with | .BoolV b => some b | _ =
 def num (v : value) : Option Num.t := match v.it with | .NumV n => some n | _ => none
 
 /-- Mirrors `Get.text`. -/
-def text (v : value) : Option String := match v.it with | .TextV s => some s | _ => none
+def text (v : value) : Option ByteText := match v.it with | .TextV s => some s | _ => none
 
 /-- Mirrors `Get.str`. -/
 def str (v : value) : Option (List valuefield) :=

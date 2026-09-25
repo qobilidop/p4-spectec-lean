@@ -350,7 +350,7 @@ inductive Lvalue_write : NanoP4Spec.scope →
       {lvalue : NanoP4Spec.lvalue}
       {value : NanoP4Spec.value}
       {referenceExpression : NanoP4Spec.referenceExpression}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {EC_1 : NanoP4Spec.evalContext} :
         ((NanoP4Spec.lvalue.is_nonTypeName lvalue : Bool) = true) →
         (NanoP4Spec.lvalue.of_nonTypeName lvalue = some referenceExpression) →
@@ -366,7 +366,7 @@ inductive Lvalue_write : NanoP4Spec.scope →
       {value' : NanoP4Spec.value}
       {typeId : NanoP4Spec.typeId}
       {«fieldValue*» : List NanoP4Spec.fieldValue}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {«fieldValue_update*» : List NanoP4Spec.fieldValue}
       {EC_1 : NanoP4Spec.evalContext} :
         (((match (NanoP4Spec.lvalue.dot lvalue_base member) with
@@ -397,7 +397,7 @@ inductive Lvalue_write : NanoP4Spec.scope →
       {value' : NanoP4Spec.value}
       {typeId : NanoP4Spec.typeId}
       {«fieldValue*» : List NanoP4Spec.fieldValue}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {«fieldValue_update*» : List NanoP4Spec.fieldValue}
       {EC_1 : NanoP4Spec.evalContext} :
         (((match (NanoP4Spec.lvalue.dot lvalue_base member) with

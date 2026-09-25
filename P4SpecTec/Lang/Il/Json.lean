@@ -216,7 +216,7 @@ partial def value' : D value' := fun j => do
   match c, a with
   | "BoolV", #[b] => .BoolV <$> bool b
   | "NumV", #[n] => .NumV <$> num n
-  | "TextV", #[s] => .TextV <$> str s
+  | "TextV", #[s] => (fun s => .TextV (ByteText.ofString s)) <$> str s
   | "StructV", #[fs] => .StructV <$> list (pair atom value) fs
   | "CaseV", #[m] => .CaseV <$> mixfix value m
   | "TupleV", #[vs] => .TupleV <$> list value vs
@@ -260,7 +260,7 @@ partial def exp' : D exp' := fun j => do
   match c, a with
   | "BoolE", #[b] => .BoolE <$> bool b
   | "NumE", #[n] => .NumE <$> num n
-  | "TextE", #[s] => .TextE <$> str s
+  | "TextE", #[s] => (fun s => .TextE (ByteText.ofString s)) <$> str s
   | "VarE", #[i] => .VarE <$> id i
   | "UnE", #[o, t, e] => do pure (.UnE (← unop o) (← optyp t) (← exp e))
   | "BinE", #[o, t, l, r] => do pure (.BinE (← binop o) (← optyp t) (← exp l) (← exp r))

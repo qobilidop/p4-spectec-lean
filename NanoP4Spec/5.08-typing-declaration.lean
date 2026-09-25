@@ -386,7 +386,7 @@ inductive ExternDecl_ok : NanoP4Spec.typingContext →
       {«externMethodTypeDefIR*» : List NanoP4Spec.externMethodTypeDefIR}
       {tmp_3 : List ((List NanoP4Spec.parameterIR) × NanoP4Spec.callableId)}
       {tmp_4 : Bool}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         (NanoP4Spec.«$flatten_externMethodPrototypeList» externMethodPrototypeList =
            some (.ok «externMethodPrototype*»)) →
@@ -852,7 +852,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
       {«typeIR*» : List NanoP4Spec.typeIR}
       {«id_field*» : List NanoP4Spec.id}
       {tmp_7 : Bool}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.typeDeclaration.is_structTypeDeclaration typeDeclaration' : Bool) = true) →
         (NanoP4Spec.typeDeclaration.of_structTypeDeclaration typeDeclaration' =
@@ -868,7 +868,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
         (List.length (List.map (·.1) tmp_2) = List.length «id_field*») →
         (∀
            (name : NanoP4Spec.name)
-           (id_field : String),
+           (id_field : P4SpecTec.ByteText),
            (name, id_field) ∈ (List.zip (List.map (·.1) tmp_2) «id_field*») →
            NanoP4Spec.«$id» name = some (.ok id_field)) →
         (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id_field*» = some (.ok tmp_7)) →
@@ -896,7 +896,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
       {«typeIR*» : List NanoP4Spec.typeIR}
       {«id_field*» : List NanoP4Spec.id}
       {tmp_7 : Bool}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.typeDeclaration.is_headerTypeDeclaration typeDeclaration' : Bool) = true) →
         (NanoP4Spec.typeDeclaration.of_headerTypeDeclaration typeDeclaration' =
@@ -912,7 +912,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
         (List.length (List.map (·.1) tmp_2) = List.length «id_field*») →
         (∀
            (name : NanoP4Spec.name)
-           (id_field : String),
+           (id_field : P4SpecTec.ByteText),
            (name, id_field) ∈ (List.zip (List.map (·.1) tmp_2) «id_field*») →
            NanoP4Spec.«$id» name = some (.ok id_field)) →
         (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id_field*» = some (.ok tmp_7)) →
@@ -938,7 +938,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
       {tmp_2 : Bool}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.typeDeclaration.is_parserTypeDeclaration typeDeclaration' : Bool) = true) →
         (NanoP4Spec.typeDeclaration.of_parserTypeDeclaration typeDeclaration' =
@@ -968,7 +968,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
       {tmp_3 : Bool}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.typeDeclaration.is_controlTypeDeclaration typeDeclaration' : Bool) = true) →
         (NanoP4Spec.typeDeclaration.of_controlTypeDeclaration typeDeclaration' =
@@ -998,7 +998,7 @@ inductive TypeDecl_ok : NanoP4Spec.typingContext →
       {«parameter*» : List NanoP4Spec.parameter}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
-      {typeId : String}
+      {typeId : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         ((NanoP4Spec.typeDeclaration.is_packageTypeDeclaration typeDeclaration' : Bool) = true) →
         (NanoP4Spec.typeDeclaration.of_packageTypeDeclaration typeDeclaration' =

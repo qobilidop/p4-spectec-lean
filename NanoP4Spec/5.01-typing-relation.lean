@@ -864,7 +864,7 @@ inductive Expr_ok : NanoP4Spec.scope →
       {TC : NanoP4Spec.typingContext}
       {expression : NanoP4Spec.expression}
       {name : NanoP4Spec.name}
-      {id : String}
+      {id : P4SpecTec.ByteText}
       {_direction : NanoP4Spec.direction}
       {typeIR : NanoP4Spec.typeIR} :
         ((NanoP4Spec.expression.is_nonTypeName expression : Bool) = true) →
@@ -1060,7 +1060,7 @@ inductive Expr_ok : NanoP4Spec.scope →
       {_typeId : NanoP4Spec.typeId}
       {tmp_3 : List NanoP4Spec.fieldTypeIR}
       {tmp_4 : List (NanoP4Spec.id × NanoP4Spec.typeIR)}
-      {id_member : String}
+      {id_member : P4SpecTec.ByteText}
       {typeIR : NanoP4Spec.typeIR} :
         ((NanoP4Spec.expression.is_memberAccessExpression expression : Bool) = true) →
         (NanoP4Spec.expression.of_memberAccessExpression expression =
@@ -1092,7 +1092,7 @@ inductive Expr_ok : NanoP4Spec.scope →
       {_typeId : NanoP4Spec.typeId}
       {tmp_3 : List NanoP4Spec.fieldTypeIR}
       {tmp_4 : List (NanoP4Spec.id × NanoP4Spec.typeIR)}
-      {id_member : String}
+      {id_member : P4SpecTec.ByteText}
       {typeIR : NanoP4Spec.typeIR} :
         ((NanoP4Spec.expression.is_memberAccessExpression expression : Bool) = true) →
         (NanoP4Spec.expression.of_memberAccessExpression expression =
@@ -2704,7 +2704,7 @@ inductive Lvalue_ok : NanoP4Spec.scope →
       {TC : NanoP4Spec.typingContext}
       {lvalue : NanoP4Spec.lvalue}
       {referenceExpression : NanoP4Spec.referenceExpression}
-      {id : String}
+      {id : P4SpecTec.ByteText}
       {direction : NanoP4Spec.direction}
       {typeIR : NanoP4Spec.typeIR} :
         ((NanoP4Spec.lvalue.is_nonTypeName lvalue : Bool) = true) →
@@ -2725,7 +2725,7 @@ inductive Lvalue_ok : NanoP4Spec.scope →
       {_typeId : NanoP4Spec.typeId}
       {«fieldTypeIR*» : List NanoP4Spec.fieldTypeIR}
       {tmp_2 : List (NanoP4Spec.id × NanoP4Spec.typeIR)}
-      {id_member : String}
+      {id_member : P4SpecTec.ByteText}
       {typeIR : NanoP4Spec.typeIR} :
         (((match (NanoP4Spec.lvalue.dot lvalue_base member) with
                | NanoP4Spec.lvalue.dot _ _ => true
@@ -2757,7 +2757,7 @@ inductive Lvalue_ok : NanoP4Spec.scope →
       {_typeId : NanoP4Spec.typeId}
       {«fieldTypeIR*» : List NanoP4Spec.fieldTypeIR}
       {tmp_2 : List (NanoP4Spec.id × NanoP4Spec.typeIR)}
-      {id_member : String}
+      {id_member : P4SpecTec.ByteText}
       {typeIR : NanoP4Spec.typeIR} :
         (((match (NanoP4Spec.lvalue.dot lvalue_base member) with
                | NanoP4Spec.lvalue.dot _ _ => true
@@ -3300,10 +3300,10 @@ inductive TableKey_ok : NanoP4Spec.typingContext →
       {expression : NanoP4Spec.expression}
       {name_matchKind : NanoP4Spec.name}
       {typeIR : NanoP4Spec.typeIR}
-      {id : String}
+      {id : P4SpecTec.ByteText}
       {tmp_2 : NanoP4Spec.varTypeIR}
-      {tmp_3 : String}
-      {nameIR : String} :
+      {tmp_3 : P4SpecTec.ByteText}
+      {nameIR : P4SpecTec.ByteText} :
         (NanoP4Spec.Expr_ok NanoP4Spec.scope.BLOCK TC expression typeIR) →
         (NanoP4Spec.«$id» name_matchKind = some (.ok id)) →
         (NanoP4Spec.«$find_var_t» NanoP4Spec.scope.GLOBAL TC id = some (.ok tmp_2)) →

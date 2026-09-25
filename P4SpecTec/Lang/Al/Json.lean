@@ -65,8 +65,7 @@ def spec : D spec := list «def»
 
 /-- Read and decode a spec export from a file. -/
 def readSpec (path : System.FilePath) : IO Lang.Al.spec := do
-  let text ← IO.FS.readFile path
-  let json ← IO.ofExcept (Lean.Json.parse text)
+  let json ← Util.Yojson.readFile path
   IO.ofExcept (spec json)
 
 end P4SpecTec.Lang.Al.Json

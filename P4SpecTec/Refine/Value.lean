@@ -123,7 +123,8 @@ theorem compare'_eq_iff : âˆ€ (a b : value'), Runtime.Value.compare' a b = .eq â
     rcases b with b | b | b | b | b | b | (_ | b) | b | b | b <;>
       first
       | (simp [Runtime.Value.compare', canon', Runtime.Value.tag, compareBool_eq_iff,
-          compareNum_eq_iff, compareString_eq_iff, Nat.compare_eq_eq]; done)
+          compareNum_eq_iff, compareString_eq_iff, ByteText.compare_eq_iff_eq,
+          ByteText.instOrd, Nat.compare_eq_eq]; done)
       | (simp [Runtime.Value.compare', canon', compares_eq_iff a b]; done)
       | (simp [Runtime.Value.compare', canon', compareFields_eq_iff a b]; done)
       | (simp [Runtime.Value.compare', canon', compareMixfix_eq_iff a b]; done)

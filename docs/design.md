@@ -488,7 +488,9 @@ here is a bug.
 | A temporary the spec does not name (the collected list of an iteration, a hoisted call whose result is matched by a pattern) is a constructor argument named `tmp_n` | the AL has no name for it | `Codegen/Props.lean` |
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
 | Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
-| Experimental semantic text uses `ByteText`, a `ByteArray` wrapper with explicit UTF-8 conversion; not yet wired into IL or generated types | upstream text is an arbitrary byte sequence, while Lean `String` requires valid UTF-8; byte updates can invalidate an initially valid string. Identifier and atom strings remain separate | `Util/ByteText.lean` |
+| Semantic text uses `ByteText`, a `ByteArray` wrapper, throughout IL values, generated types and the interpreter; identifiers and atoms remain `String` | upstream text is an arbitrary byte sequence, while Lean `String` requires valid UTF-8; byte updates can invalidate an initially valid string. UTF-8 conversion is explicit and decoding is checked | `Util/ByteText.lean`, `Lang/Il/Ast.lean`, `Codegen/Types.lean` |
+| JSON ingress rejects invalid UTF-8 and unpaired surrogate escapes, including cases a parser would silently replace | JSON's Unicode strings are not a general arbitrary-byte transport. This is a fail-closed input restriction, not a lossless encoding of every OCaml string | `Util/Yojson.lean` |
+| Checked text-builtin dispatch preserves arity mismatches as `Fail.unmatch` and maps assertions/invalid integer parsing to `Fail.err`; other builtin families retain the legacy failure classification | upstream catches `BuiltinError` for backtracking but does not catch these hard exceptions. Typed generated wrappers admit only well-typed, correctly applied arguments | `Interface/Builtin/Call.lean`, `Codegen/Funcs.lean` |
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
 | Generated variant values carry static type notes when converted back to IL values; printing is admitted only when constructor origins and subtype bridges preserve the selected hint policy | the typed representation omits runtime note provenance; a checked compatibility condition avoids adding otherwise unused metadata | `Codegen/PrintHints.lean`, `Codegen/Types.lean` |
 | `Alter.OtherH` retains raw EL JSON; unsupported print expressions fail generation, and invalid placeholders or unprintable values return errors | EL is not otherwise embedded and Lean has no OCaml exceptions; all 190 hints at the pin use the six supported alternation forms | `Lang/Hints/Alter.lean`, `Lang/Hints/AlterJson.lean`, `Interface/P4/Unparse.lean` |
@@ -516,7 +518,7 @@ applies instead, each documented in the module that implements it.
 | Rule group with `else` group; clauses with `else` | alternatives in order (`<|>` in `Option`), the `else` last, as the AL interpreter's sequential mode |
 | Mixfix notation | constructor names from the atoms (`Names.ctorName`); struct fields from their atoms |
 | Iterators `?`, `*` with dimensions | `Option`, `List`; joint iteration zips the bound lists and maps, binding variables unzipped; an iterated premise likewise, with `mapM` |
-| Path update `e[p = v]` | `{ e with a.b := v }` for dotted paths; root-index list replacement uses `Iter.setIdx`, evaluates base/replacement/index in that order, and gives `Fail.err` out of bounds. Text byte updates, sliced updates and nested index prefixes remain rejected. |
+| Path update `e[p = v]` | `{ e with a.b := v }` for dotted paths; root-index list replacement uses `Iter.setIdx`, text replacement uses `ByteText.setIdx`. Both evaluate base/replacement/index in that order and give `Fail.err` out of bounds; text replacement requires exactly one byte and preserves invalid-UTF-8 results. Sliced updates and nested index prefixes remain rejected. |
 | Partial functions, downcasts, indexing, slicing, calls | hoisted into `let x ←` statements of the enclosing `do` block (A-normal form), `none` on failure, never a default value (the Wasm Rocq backend's defaults produced provably false lemmas) |
 | Extern syntax, `extern dec`, `extern relation` | `ExternValue`; fields of the generated class `Externs` |
 | Tables (`table dec`) | a function by cases over the rows |
@@ -534,6 +536,16 @@ upstream observations cover cursor ordering, fusion, empty spacing,
 type-specific lookup, nested hints, unused unprintable arguments, byte
 escaping and ASCII-only case conversion; they are differential tests,
 not refinement proofs.
+
+Text length, indexing, slicing, concatenation, comparison and replacement
+operate on bytes, not Unicode characters. Generated text literals use
+explicit UTF-8 encoding when valid, and byte arrays otherwise; quoted AL
+uses the same lossless representation. The text-builtin oracle records
+hexadecimal payloads and exact upstream exception classes, checking the
+dispatcher, interpreter and production-emitted wrappers. These observations
+are regression evidence, not a proof of complete builtin correspondence.
+Existing but malformed expected-output files fail the differential harness;
+they cannot silently disable output comparison.
 
 ### 5.5 Test sources (all from upstream)
 
@@ -759,9 +771,9 @@ and what we provide regardless of consumer:
   Expect work on mutual blocks, `partial_fixpoint` monotonicity, and
   build times. Target instances arrive with the packet leg of rung 2.
   M3A exports the pinned full spec and measures the remaining obligations;
-  generation now passes validated print hints and root-index list updates,
-  but stops at byte-oriented text updates. Independent emission probes
-  also identify stateful fresh identifiers as a barrier. M3B fixes
+  generation now passes validated print hints and root-index list and byte
+  text updates. Independent emission probes still identify stateful fresh
+  identifiers as a barrier. M3B fixes
   thirteen subtype bridges by retaining their type
   arguments; all 567 bridge pairs now emit text. These probes are not
   evidence of a full-P4 build or proof coverage.

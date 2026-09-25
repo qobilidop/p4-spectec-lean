@@ -74,3 +74,8 @@ root = "P4SpecTecTest.Census.Main"
 [[lean_exe]]
 name = "check-print"
 root = "P4SpecTecTest.Print.Main"
+
+# Byte-level text builtin outputs observed from pinned upstream OCaml.
+[[lean_exe]]
+name = "check-text-builtins"
+root = "P4SpecTecTest.Text.Main"

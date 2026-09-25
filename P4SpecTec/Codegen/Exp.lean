@@ -321,7 +321,7 @@ partial def compileExp (e : exp) : CgM Term := do
   | .BoolE b => pure (.atom (toString b))
   | .NumE (.Nat n) => pure (.ascribe (.natLit n) (.atom "Nat"))
   | .NumE (.Int i) => pure (.ascribe (.intLit i) (.atom "Int"))
-  | .TextE s => pure (.strLit s)
+  | .TextE s => pure (.textLit s)
   | .VarE i => pure (var i.it [])
   | .UnE op optyp a =>
     let t ← compileExp a
@@ -407,7 +407,7 @@ partial def compileExp (e : exp) : CgM Term := do
   | .LenE a =>
     let t ← compileExp a
     match env.resolve a.note with
-    | .TextT => pure (.call "String.length" [t])
+    | .TextT => pure (.call "P4SpecTec.ByteText.length" [t])
     | _ => pure (.call "List.length" [t])
   | .DotE a atm => do pure (.proj (← compileExp a) (Names.fieldName atm.it))
   | .IdxE b i =>
@@ -438,7 +438,9 @@ partial def compileExp (e : exp) : CgM Term := do
           -- Upstream evaluates the base, replacement, then path index.
           let ti ← compileExp i
           hoistErr (← typOf e.note) (.call "Iter.setIdx" [tb, ti, tf])
-        | _, .TextT, _ => fail "byte-oriented text path updates are not supported (design 5.4)"
+        | .RootP, .TextT, .NumT .NatT =>
+          let ti ← compileExp i
+          hoistErr (← typOf e.note) (.call "P4SpecTec.ByteText.setIdx" [tb, ti, tf])
         | _, _, _ => fail "nested or non-natural indexed path update is not supported (design 5.4)"
       | _ => fail "sliced path updates are not supported (design section 5.4)"
   | .CallE i targs args =>

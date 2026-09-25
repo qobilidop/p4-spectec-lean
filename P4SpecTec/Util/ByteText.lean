@@ -53,6 +53,8 @@ def length (text : ByteText) : Nat := text.bytes.size
 /-- Concatenate exact byte sequences. -/
 def append (left right : ByteText) : ByteText := ⟨left.bytes ++ right.bytes⟩
 
+instance : Append ByteText := ⟨append⟩
+
 /-- Read one byte as a singleton byte text, if the index exists. -/
 def idx (text : ByteText) (index : Nat) : Option ByteText :=
   if h : index < text.length then

@@ -22,7 +22,45 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B state-calculus checkpoint
+## Active M3B byte-semantics integration
+
+- Branch `m3b-byte-integration`, based on state-calculus PR #11 head
+  `f07ddad`. The byte worktree integrates ByteText through IL/runtime,
+  interpreter, generator, printer and existing value/refinement proofs.
+  Root-index text updates preserve arbitrary bytes. Nano output is
+  regenerated; the census now has one callable emission failure
+  (`fresh_typeId`) and zero relation Prop-emission failures. This is not
+  a full-P4 build claim.
+- Independent review found and drove fixes for two real issues: malformed
+  surrogate replacement at JSON ingress, and hard text exceptions erased
+  to retryable mismatches. The classified pinned oracle has 46 cases:
+  31 successes, 11 OCaml `Failure`, four `Assert_failure`. All 46 pass
+  checked dispatch, interpretation and production-emitted wrappers; four
+  also pass the real Nano wrapper. Other builtin families still need an
+  exception/fidelity audit.
+- Isolated focused builds, both library roots and all existing Nano proofs
+  passed. The final root/binary build exited 0 (229 jobs). Corrected Decode,
+  Updates and Builtins tests pass. Both differential binaries pass transport
+  sensitivity tests using a valid control program, malformed UTF-8 and
+  surrogate escapes; corrupt existing expectations fail rather than skip.
+  The actual upstream oracle regeneration check and Lean consumer exited 0.
+  Text/import hygiene passed. The first surrogate test build used nonexistent
+  convenience APIs; fixed before these passes. One census invocation used
+  the wrong flag and exited 2; the corrected `--update` exited 0.
+- Integrated isolated commit `725fc91`; the full primary `scripts/check.sh`
+  exited 0 with no skipped gates, including all Nano proofs, both corpus
+  legs, classified text/printer oracles, quotations, JSON sensitivity and
+  the updated census. Read-only review has no outstanding high/medium
+  findings: `.agents/reviews/m3b-byte-integration.md`. Remote CI remains
+  pending. Next: publish the PR, then reconcile the reviewed effect
+  interpreter and add durable stateful upstream observations.
+- PRs #9 (fresh-state foundation) and #10 (byte foundation) passed CI and
+  merged. PR #11 (state calculus) also passed CI and merged into main.
+  The shared effect interpreter is implemented and locally checked in
+  `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`; independent review,
+  reconciliation with byte text and integrated gates remain separate work.
+
+## Completed M3B state-calculus checkpoint
 
 - Branch `m3b-state-proofs`, based on byte-foundation PR #10 head `ea01e8d`.
   Integrated the independently reviewed contracts/proof-fixture stage:
@@ -36,8 +74,8 @@ correctness requirements or destructive published-history changes.
   No stateful AL refinement or generated proof automation is claimed.
   Next is the shared-interpreter experiment.
 - In `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`, GPT-6 Astra
-  is beginning effect-parameterized interpreter work from calculus commit
-  `9bc0861`; keep the pure API and all Nano proofs. Byte integration below
+  has implemented effect-parameterized interpretation from calculus commit
+  `9bc0861`, retaining the pure API and all Nano proofs. Byte integration above
   remains a separate isolated workstream and must be reconciled before
   a combined interpreter checkpoint.
 
@@ -61,8 +99,8 @@ correctness requirements or destructive published-history changes.
   upstream byte-safe observations. Initial focused core/compiler/value
   and refinement-calculus builds pass; no integration full gate yet.
 - PR #7 (print) passed remote CI and merged as `5e1aa79`. PR #8 (list
-  updates) passed remote CI and merged into main. PR #9 (state
-  foundation/plan) is published and locally gated; its remote CI is pending.
+  updates), #9 (state foundation/plan) and #10 (byte foundation) also passed
+  CI and merged into main.
 
 ## Completed M3B fresh-state foundation
 

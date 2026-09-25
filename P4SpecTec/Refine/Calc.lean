@@ -534,7 +534,7 @@ theorem canon_eq_it {v : value} {q : value'} {n : vnote} {r : region} (h : canon
   simp [canon_mk, canon']
 
 /-- Equality of texts. -/
-@[simp] theorem eq_text (a b : String) (n n' : vnote) (r r' : region) :
+@[simp] theorem eq_text (a b : ByteText) (n n' : vnote) (r r' : region) :
     Runtime.Value.eq ⟨.TextV a, n, r⟩ ⟨.TextV b, n', r'⟩ = decide (a = b) := by
   rw [Bool.eq_iff_iff, eq_iff_canon]
   simp [canon_mk, canon']
@@ -570,7 +570,7 @@ theorem canon'_eq_num {p : value'} {m : Num.t} (h : canon' p = .NumV m) : p = .N
   rw [h]
 
 /-- A canonical text payload. -/
-theorem canon'_eq_text {p : value'} {t : String} (h : canon' p = .TextV t) : p = .TextV t := by
+theorem canon'_eq_text {p : value'} {t : ByteText} (h : canon' p = .TextV t) : p = .TextV t := by
   rcases p with b' | n | s | fs | c | vs | (_ | w) | vs | i | j <;> simp [canon'] at h
   rw [h]
 

@@ -1,0 +1,752 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "cases": [
+    {
+      "name": "decimal-negative",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2d3432"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "-42"
+        }
+      }
+    },
+    {
+      "name": "decimal-positive",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2b3432"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "42"
+        }
+      }
+    },
+    {
+      "name": "hex-upper",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "30784646"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "255"
+        }
+      }
+    },
+    {
+      "name": "hex-minus",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2d305866"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "-15"
+        }
+      }
+    },
+    {
+      "name": "binary-plus",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2b3062313031"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "5"
+        }
+      }
+    },
+    {
+      "name": "octal",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "306f3737"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "63"
+        }
+      }
+    },
+    {
+      "name": "underscores",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "315f5f325f"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "12"
+        }
+      }
+    },
+    {
+      "name": "hex-underscores",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "3078415f42"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "171"
+        }
+      }
+    },
+    {
+      "name": "empty",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": ""
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "0"
+        }
+      }
+    },
+    {
+      "name": "bare-plus",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2b"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "0"
+        }
+      }
+    },
+    {
+      "name": "bare-minus",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2d"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "0"
+        }
+      }
+    },
+    {
+      "name": "bare-prefix",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "3078"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "0"
+        }
+      }
+    },
+    {
+      "name": "bare-negative-prefix",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2d3078"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "0"
+        }
+      }
+    },
+    {
+      "name": "leading-underscore",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "5f31"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "prefix-underscore",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "30785f31"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "invalid-binary",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "3062313032"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "invalid-octal",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "306f38"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "invalid-hex",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "307847"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "bad-sign",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2d2d31"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "leading-space",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "2032"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "trailing-space",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "3220"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "unicode",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "c3a9"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "invalid-utf8",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "ff"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "embedded-nul",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "31320033"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "failure"
+      }
+    },
+    {
+      "name": "large",
+      "operation": "text_to_int",
+      "args": [
+        {
+          "textHex": "313233343536373839303132333435363738393031323334353637383930"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "intDecimal": "123456789012345678901234567890"
+        }
+      }
+    },
+    {
+      "name": "render-negative",
+      "operation": "int_to_text",
+      "args": [
+        {
+          "intDecimal": "-3"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "2d33"
+        }
+      }
+    },
+    {
+      "name": "render-zero",
+      "operation": "int_to_text",
+      "args": [
+        {
+          "intDecimal": "0"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "2b30"
+        }
+      }
+    },
+    {
+      "name": "render-positive",
+      "operation": "int_to_text",
+      "args": [
+        {
+          "intDecimal": "3"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "2b33"
+        }
+      }
+    },
+    {
+      "name": "split-ascii",
+      "operation": "split_text",
+      "args": [
+        {
+          "textHex": "612c622c2c63"
+        },
+        {
+          "textHex": "2c"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textsHex": [
+            "61",
+            "62",
+            "",
+            "63"
+          ]
+        }
+      }
+    },
+    {
+      "name": "split-empty",
+      "operation": "split_text",
+      "args": [
+        {
+          "textHex": ""
+        },
+        {
+          "textHex": "2c"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textsHex": [
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "split-utf8-byte",
+      "operation": "split_text",
+      "args": [
+        {
+          "textHex": "c3a9"
+        },
+        {
+          "textHex": "c3"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textsHex": [
+            "",
+            "a9"
+          ]
+        }
+      }
+    },
+    {
+      "name": "split-nul-invalid",
+      "operation": "split_text",
+      "args": [
+        {
+          "textHex": "00ff00"
+        },
+        {
+          "textHex": "00"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textsHex": [
+            "",
+            "ff",
+            ""
+          ]
+        }
+      }
+    },
+    {
+      "name": "split-multibyte-separator",
+      "operation": "split_text",
+      "args": [
+        {
+          "textHex": "61"
+        },
+        {
+          "textHex": "c3a9"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "assert_failure"
+      }
+    },
+    {
+      "name": "split-empty-separator",
+      "operation": "split_text",
+      "args": [
+        {
+          "textHex": "61"
+        },
+        {
+          "textHex": ""
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "assert_failure"
+      }
+    },
+    {
+      "name": "prefix-ascii",
+      "operation": "strip_prefix",
+      "args": [
+        {
+          "textHex": "68656c6c6f"
+        },
+        {
+          "textHex": "6865"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "6c6c6f"
+        }
+      }
+    },
+    {
+      "name": "prefix-utf8-byte",
+      "operation": "strip_prefix",
+      "args": [
+        {
+          "textHex": "c3a9"
+        },
+        {
+          "textHex": "c3"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "a9"
+        }
+      }
+    },
+    {
+      "name": "prefix-empty",
+      "operation": "strip_prefix",
+      "args": [
+        {
+          "textHex": "68656c6c6f"
+        },
+        {
+          "textHex": ""
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "68656c6c6f"
+        }
+      }
+    },
+    {
+      "name": "prefix-mismatch",
+      "operation": "strip_prefix",
+      "args": [
+        {
+          "textHex": "68656c6c6f"
+        },
+        {
+          "textHex": "78"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "assert_failure"
+      }
+    },
+    {
+      "name": "suffix-ascii",
+      "operation": "strip_suffix",
+      "args": [
+        {
+          "textHex": "68656c6c6f"
+        },
+        {
+          "textHex": "6c6f"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "68656c"
+        }
+      }
+    },
+    {
+      "name": "suffix-utf8-byte",
+      "operation": "strip_suffix",
+      "args": [
+        {
+          "textHex": "c3a9"
+        },
+        {
+          "textHex": "a9"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "c3"
+        }
+      }
+    },
+    {
+      "name": "suffix-empty",
+      "operation": "strip_suffix",
+      "args": [
+        {
+          "textHex": "68656c6c6f"
+        },
+        {
+          "textHex": ""
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "68656c6c6f"
+        }
+      }
+    },
+    {
+      "name": "suffix-mismatch",
+      "operation": "strip_suffix",
+      "args": [
+        {
+          "textHex": "68656c6c6f"
+        },
+        {
+          "textHex": "78"
+        }
+      ],
+      "additions": 0,
+      "result": {
+        "status": "assert_failure"
+      }
+    },
+    {
+      "name": "spaces-ascii",
+      "operation": "strip_all_whitespace",
+      "args": [
+        {
+          "textHex": "612062202063"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "616263"
+        }
+      }
+    },
+    {
+      "name": "spaces-invalid",
+      "operation": "strip_all_whitespace",
+      "args": [
+        {
+          "textHex": "ff200900"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "ff0900"
+        }
+      }
+    },
+    {
+      "name": "spaces-utf8",
+      "operation": "strip_all_whitespace",
+      "args": [
+        {
+          "textHex": "c3a920c3a9"
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": "c3a9c3a9"
+        }
+      }
+    },
+    {
+      "name": "spaces-empty",
+      "operation": "strip_all_whitespace",
+      "args": [
+        {
+          "textHex": ""
+        }
+      ],
+      "additions": 1,
+      "result": {
+        "status": "ok",
+        "value": {
+          "textHex": ""
+        }
+      }
+    }
+  ]
+}

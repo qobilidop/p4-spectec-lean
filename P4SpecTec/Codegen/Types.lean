@@ -53,7 +53,7 @@ partial def typTerm (env : Env) (unfold : List String) : typ' → Term
   | .BoolT => .atom "Bool"
   | .NumT .NatT => .atom "Nat"
   | .NumT .IntT => .atom "Int"
-  | .TextT => .atom "String"
+  | .TextT => .atom "P4SpecTec.ByteText"
   | .VarT i targs =>
     if unfold.contains i.it || (unfold.contains unfoldAll && env.isAlias i.it) then
       match env.instantiate i.it (targs.map (·.it)) with

@@ -1,3 +1,5 @@
+import P4SpecTec.Util.ByteText
+
 /-!
 Building Lean source text. Terms are `Std.Format` with a flag saying
 whether they need parentheses as arguments; declarations are formats
@@ -149,6 +151,14 @@ def ite (c a b : Term) : Term :=
 
 /-- A string literal. -/
 def strLit (s : String) : Term := atom s.quote
+
+/-- A semantic text literal, preserving invalid UTF-8 as explicit bytes. -/
+def textLit (s : ByteText) : Term :=
+  match s.toString? with
+  | some text => call "P4SpecTec.ByteText.ofString" [strLit text]
+  | none =>
+    let bytes := list (s.toBytes.toList.map fun b => atom (toString b.toNat))
+    call "P4SpecTec.ByteText.ofBytes" [call "ByteArray.mk" [call "List.toArray" [bytes]]]
 
 /-- A natural-number literal. -/
 def natLit (n : Nat) : Term := atom (toString n)

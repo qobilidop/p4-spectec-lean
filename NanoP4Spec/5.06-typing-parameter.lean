@@ -57,7 +57,7 @@ inductive Parameter_ok : NanoP4Spec.scope →
       {type : NanoP4Spec.type}
       {name : NanoP4Spec.name}
       {typeIR : NanoP4Spec.typeIR}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         (NanoP4Spec.Type_ok TC_0 type typeIR) →
         (NanoP4Spec.«$id» name = some (.ok nameIR)) →
@@ -666,7 +666,7 @@ inductive ExternMethod_ok : NanoP4Spec.typingContext →
       {parameterList : NanoP4Spec.parameterList}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {TC_body : NanoP4Spec.typingContext}
-      {callableId : String} :
+      {callableId : P4SpecTec.ByteText} :
         (NanoP4Spec.ParameterList_ok
            NanoP4Spec.scope.LOCAL
            TC
