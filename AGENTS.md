@@ -43,6 +43,8 @@ include hidden files. Git history is the archive; nothing is tagged.
    (section 5.1), the code organization, the named list of deviations
    from upstream (section 5.3), the per-construct encodings (5.4), and
    the milestones.
+4. `docs/lean-pitfalls.md`, before writing Lean in the code generator or
+   the tactics: the traps already hit on this toolchain.
 
 ## Environment
 
@@ -68,7 +70,13 @@ test/diff/run.py            # rung 2: generated relation and interpreter port vs
 Keep `main` green. Check exit codes, not output. CI
 (`.github/workflows/ci.yml`) runs the same `scripts/check.sh` after
 `lean-action` installs the toolchain and restores the `.lake` cache, and
-checks that the upstream submodule commit is on upstream `main`.
+checks that the upstream submodule commit is on upstream `main` or on its
+`gsoc-nano-spec` branch, where Nano-P4 lives until it lands on `main`
+(decisions, "Pins"). The `upstream/p4-spectec` working tree is expected
+to show local changes to four OCaml files: that is
+`upstream/patches/0001-json-export.patch`, applied by
+`scripts/build-upstream.sh`; `git -C upstream/p4-spectec checkout -- .`
+removes it.
 
 To bump the upstream pin: move the submodule, rebuild upstream, rerun the
 exports (spec and programs), regenerate `NanoP4Spec/`, run the mirror
@@ -79,8 +87,9 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 ## Conventions
 
 - **Agent instructions live in `AGENTS.md` alone.** Never create
-  `CLAUDE.md` or `CLAUDE.local.md`; Claude-specific notes belong in
-  `.claude/rules/`.
+  `CLAUDE.md` or `CLAUDE.local.md`; Claude-specific notes, if one is ever
+  needed, belong in `.claude/rules/` (none exists; everything so far
+  applies to any agent).
 - **Correct by construction first** (`docs/design.md` section 2.1). Where
   upstream has a name, file split, constructor order or function
   structure, mirror it exactly. Every module that mirrors an upstream

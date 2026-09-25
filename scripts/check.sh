@@ -24,7 +24,7 @@ fail=0
 say() { printf '[check] %s\n' "$*"; }
 
 for path in \
-  AGENTS.md README.md LICENSE docs/design.md \
+  AGENTS.md README.md LICENSE docs/design.md docs/lean-pitfalls.md \
   .agents/status.md .agents/decisions.md .agents/roadmap.md \
   lakefile.toml lake-manifest.json lean-toolchain \
   P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean \

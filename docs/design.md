@@ -353,6 +353,17 @@ refinement relation and discharges it syntax-directedly. As built (M2,
   `d.al` is trusted to be the export minus regions and hints (read
   against the AST at review, not tested: an M3 item,
   `.agents/roadmap.md`).
+- **Diagnosing a failing proof.** Build the one group:
+  `lake build NanoP4Spec.Refinement.<group>` (the module is named after
+  the group's first definition, with `'` spelled `_p`). Add
+  `set_option refine_al.trace true in` before the theorem in a scratch
+  copy of that module and run `lake env lean` on it: the tactic prints
+  each step (fuel split, callee, case split, the condition it splits on)
+  and at the end the time per phase, to stderr; a failure names the
+  interpreter step and the generated term it was paired with, and the
+  last action. The usual causes are a missing unfolding lemma in the simp
+  set (the interpreter term stays stuck) or a construct outside the
+  fragment the syntactic check missed.
 - **Failure vs divergence.** `partial_fixpoint` rejects backtracking
   written with `<|>` because it is not monotone in the flat order. The
   interpreter therefore separates failure as data from divergence,
@@ -404,7 +415,7 @@ here is a bug.
 | The builtin dispatcher works on values through the typed ports; the `add` callback and `fresh_typeId` are not mirrored | one port per builtin file; the callback registers values for upstream's caches | `Interface/Builtin/Call.lean` |
 | A hyphenated upstream directory is a camel-cased Lean directory (`interp-al` is `InterpAl`) | a hyphen cannot be in a module name | `scripts/check-mirror.py` |
 | `is_iter_var_exp` recurses on the size of the expression (`termination_by`) rather than structurally | it descends through the phrase's payload, which structural recursion does not see; a fuel here would make a low-fuel run take the general iteration path instead of diverging, which rung 3 cannot allow | `Interp/InterpAl/Interp.lean` |
-| The refinement theorems are in one generated module after the spec files (`Refinement.lean`), with the quoted spec as a list and one `HoldsSpec` hypothesis | the theorems need every quoted definition (a callee's theorem needs its own callees' table entries), and one hypothesis over the whole spec avoids listing the transitive callees of every definition | `Codegen/Emit.lean`, `Codegen/Validate.lean` |
+| The refinement theorems are in generated modules after the spec files: `Refinement/Spec` (the quoted spec as a list), one module per recursion group importing its callees' groups, and `Refinement` gathering them with the coverage; one `HoldsSpec` hypothesis over the whole spec | the theorems need every quoted definition (a callee's theorem needs its own callees' table entries), and one hypothesis over the whole spec avoids listing the transitive callees of every definition; a module per group lets Lake recheck only the groups an edit touches, and independent groups in parallel; only these modules import the refinement calculus and tactic, so editing the tactic leaves the spec modules built | `Codegen/Emit.lean`, `Codegen/Validate.lean` |
 | The `Q.*` quoting constructors and `mkPhrase` are reducible | the driver's `simp` must see through them definitionally: a rewrite under `decide` with a non-reducible definition leaves an ill-typed term | `Refine/Quote.lean`, `Util/Source.lean` |
 | `ToValue (α × β)` flattens a right-nested product into one IL tuple | the generator renders a spec tuple type as a right-nested product and its value as one flat tuple; a spec tuple nested inside a tuple (none in Nano-P4) would need a wrapper type (M3 trigger) | `Prelude/Value.lean` |
 | Mutual block grouping by dependency | Lean requires mutually recursive definitions in one `mutual` block | `Codegen/Funcs.lean` |
@@ -515,7 +526,8 @@ p4-spectec-lean/
 ├── P4SpecTecTest/                # test-only: decode test, the differential runners (Diff/NanoP4Run/, Diff/NanoP4Interp/)
 │
 ├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it,
-│                                 # then Refinement.lean: the quoted spec as a list and the rung 3 theorems
+│                                 # then Refinement/: the quoted spec as a list (Spec) and the rung 3
+│                                 # theorems, one module per recursion group; Refinement.lean gathers them
 ├── P4Spec/                       # GENERATED at M3; Targets/ hand-written, mirrors backend-sim/<target>/
 │
 ├── P4Lib/                        # M4; independent of the generated spec
@@ -546,7 +558,7 @@ Rung 3 lives in: `Interp/InterpAl/` and the runtime it needs (reference
 side, trusted), `Refine/` (the value relation, the quoting constructors
 and the refinement calculus), `Codegen/Reify.lean` and
 `Codegen/Validate.lean` (generation side), `Tactic/Refine.lean` (proof
-side, where the real work is), and `NanoP4Spec/Refinement.lean` (the
+side, where the real work is), and `NanoP4Spec/Refinement/` (the
 generated theorems).
 
 ### P4Lib
