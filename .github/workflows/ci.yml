@@ -45,12 +45,17 @@ jobs:
         run: nix develop --command scripts/check.sh
       # The pin follows upstream's `gsoc-nano-spec` branch until Nano-P4 lands
       # on main (decisions: "Pins"); either ref makes the pin reachable.
+      # The submodule clone is shallow and single-branch, so its refspec
+      # covers only `main`; explicit refspecs create the other tracking ref.
       - name: Upstream pin is on upstream main or the Nano-P4 branch
         run: |
-          git -C upstream/p4-spectec fetch --quiet origin main gsoc-nano-spec
+          git -C upstream/p4-spectec fetch --quiet origin \
+            +refs/heads/main:refs/remotes/origin/main \
+            +refs/heads/gsoc-nano-spec:refs/remotes/origin/gsoc-nano-spec
           git -C upstream/p4-spectec merge-base --is-ancestor HEAD origin/main \
             || git -C upstream/p4-spectec merge-base --is-ancestor HEAD origin/gsoc-nano-spec
       - name: Nano-P4 spec pin is on its main
         run: |
-          git -C upstream/nano-p4-spec fetch --quiet origin main
+          git -C upstream/nano-p4-spec fetch --quiet origin \
+            +refs/heads/main:refs/remotes/origin/main
           git -C upstream/nano-p4-spec merge-base --is-ancestor HEAD origin/main
