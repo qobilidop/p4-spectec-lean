@@ -22,7 +22,26 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B byte-text foundation
+## Active M3B state-calculus checkpoint
+
+- Branch `m3b-state-proofs`, based on byte-foundation PR #10 head `ea01e8d`.
+  Integrated the independently reviewed contracts/proof-fixture stage:
+  StateRefines/StateEvals, bind/choice/negation/map rules, monotonicity,
+  rejected-prefix and ordered-state witnesses, and a recursive structural
+  Ids soundness proof. Exact axiom audits pass. Review:
+  `.agents/reviews/m3b-state-calculus.md`.
+- Focused author/reviewer builds and hygiene passed. The full primary
+  gate exited 0 with no skips, including rebuilt Nano proofs, unchanged
+  generated output and all differential/quotation/printer/census checks.
+  No stateful AL refinement or generated proof automation is claimed.
+  Next is the shared-interpreter experiment.
+- In `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`, GPT-6 Astra
+  is beginning effect-parameterized interpreter work from calculus commit
+  `9bc0861`; keep the pure API and all Nano proofs. Byte integration below
+  remains a separate isolated workstream and must be reconciled before
+  a combined interpreter checkpoint.
+
+## Completed M3B byte-text foundation
 
 - Branch `m3b-byte-foundation`, based on state PR #9 head `019c665`.
   Integrated the independently reviewed ByteArray-backed `ByteText`
@@ -33,9 +52,8 @@ correctness requirements or destructive published-history changes.
   header marker; fixed. A fresh full gate exited 0 with no skips, including
   rebuilt Nano proofs and unchanged generated output. Inventory and
   integration boundaries: `.agents/notes/byte-text.md`.
-- The state calculus/proof prototype is active in isolated worktree
-  `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`, branch
-  `m3b-state-calculus`, with GPT-6 Astra. No generator/interpreter edits.
+- The state calculus/proof prototype from isolated branch
+  `m3b-state-calculus` is integrated in the active checkpoint above.
 - Byte substrate integration is active separately in
   `/Users/qobilidop/my/work/p4-spectec-lean-byte-text`, branch
   `m3b-byte-semantics`. Root is migrating IL/runtime/codegen/interpreter

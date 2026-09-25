@@ -43,6 +43,7 @@ import P4SpecTec.Prelude.Iter
 import P4SpecTec.Prelude.Num
 import P4SpecTec.Prelude.Value
 import P4SpecTec.Refine.Calc
+import P4SpecTec.Refine.StateCalc
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Value
 import P4SpecTec.Runtime.Dynamic.Var
