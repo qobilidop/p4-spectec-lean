@@ -27,6 +27,7 @@ import P4SpecTec.Lang.Al.Ast
 import P4SpecTec.Lang.Hints.Alter
 import P4SpecTec.Lang.Hints.AlterJson
 import P4SpecTec.Interp.InterpAl.Backtrack
+import P4SpecTec.Interp.Effects
 import P4SpecTec.Interp.InterpAl.Ctx
 import P4SpecTec.Interp.InterpAl.Interp
 import P4SpecTec.Lang.Al.Json

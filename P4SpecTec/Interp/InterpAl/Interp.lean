@@ -2,11 +2,14 @@ import P4SpecTec.Interp.InterpAl.Ctx
 import P4SpecTec.Runtime.Value.Match
 import P4SpecTec.Interface.Builtin.Call
 import P4SpecTec.Lang.Hints.Input
+import P4SpecTec.Interp.Effects
 
 /-!
 The AL interpreter. Mirrors `p4spec/lib/interp/interp-al/interp.ml`,
 TRUSTED (design section 5.2): the same functions in the same order, each
-named as upstream, in the `Eval` monad of `Backtrack.lean`. Deviations,
+named as upstream. One effect-parameterized evaluator specializes to the
+original pure `Eval` API or the explicit-state `StateEval` API. Pure context
+and value helpers still use `Backtrack.lean` and are lifted. Deviations,
 listed in the design (section 5.3):
 
 - Every function of the recursive block takes a fuel and consumes one
@@ -14,10 +17,11 @@ listed in the design (section 5.3):
   recurses freely.
 - The interpreter is parameterised by `Config`: the extern
   implementations (the `Extern` functor argument) and the guard flag
-  (`check_guard`); the `Interface` argument is the builtin dispatcher
-  `Builtin.Call.invoke`. The caches, hooks, backtraces and the
-  deterministic mode (`Nondet`) are not mirrored: they are instrumentation
-  and checks, not meaning.
+  (`check_guard`). The effect interface dispatches pure builtins through `Builtin.Call` and
+  implements explicit fresh allocation in stateful mode. This port models
+  sequential, cache-free execution. Caches, registration, hooks, backtraces
+  and deterministic checking (`Nondet`) are not mirrored. With fresh IDs,
+  checking extra alternatives can consume state, so modes are not interchangeable.
 - Where the OCaml raises an exception or fails an assertion (a value of
   the wrong shape, `List.hd` of an empty list, an optionality mismatch),
   the result is `Fail.err`, the kind upstream never backtracks over.
@@ -40,24 +44,25 @@ open P4SpecTec.Runtime.Dynamic
 open P4SpecTec.Runtime.Dynamic_al
 open P4SpecTec.Interp_al.Backtrack
 
-/-- The extern implementations (the `Extern` functor argument): an extern
-relation or function on values; a failure is a mismatch or an error. -/
-structure Extern where
+/-- The extern implementations (the `Extern` functor argument), in the
+same effect carrier as the evaluator. The default preserves the pure API. -/
+structure Extern (m : Type → Type := Eval) where
   /-- Mirrors `Extern.eval_extern_rel`. -/
-  eval_extern_rel : String → List value → backtrack (List value)
+  eval_extern_rel : String → List value → m (List value)
   /-- Mirrors `Extern.eval_extern_func`. -/
-  eval_extern_func : String → List typ → List value → backtrack value
+  eval_extern_func : String → List typ → List value → m value
 
 /-- No externs: every extern call is undefined. -/
-def Extern.none : Extern where
-  eval_extern_rel := fun i _ => back_err no_region s!"extern relation {i} is undefined"
-  eval_extern_func := fun i _ _ => back_err no_region s!"extern function {i} is undefined"
+def Extern.none [Effects m] : Extern m where
+  eval_extern_rel := fun i _ => monadLift (back_err no_region s!"extern relation {i} is undefined")
+  eval_extern_func := fun i _ _ =>
+    monadLift (back_err no_region s!"extern function {i} is undefined")
 
-/-- The interpreter's configuration: the externs and the guard flag
-(`check_guard`, on by default). -/
-structure Config where
+/-- The interpreter's configuration: externs in its effect carrier, guard,
+tracing and print policy. The default carrier is the original pure `Eval`. -/
+structure Config (m : Type → Type := Eval) [Effects m] where
   /-- The extern implementations. -/
-  extern : Extern := .none
+  extern : Extern m := .none
   /-- Whether relation and function inputs and outputs are checked against
   their declared types at the entry points. -/
   guard : Bool := true
@@ -67,9 +72,11 @@ structure Config where
   /-- The P4 interface's print table, initialized from the AL specification. -/
   printHints : P4.Unparse.HEnv := []
 
+variable {m : Type → Type} [Effects m]
+
 /-- Configure the print extension from the same specification as the
 interpreter tables, rejecting unsupported or malformed print hints. -/
-def Config.withPrintHints (cfg : Config) (spec : Lang.Al.spec) : Except String Config := do
+def Config.withPrintHints (cfg : Config m) (spec : Lang.Al.spec) : Except String (Config m) := do
   pure { cfg with printHints := ← P4.Unparse.hints_of_spec_al spec }
 
 /-- The outcome of an evaluation, for the trace. -/
@@ -81,8 +88,8 @@ def outcome {α : Type} (r : backtrack α) : String :=
   | none => "diverge"
 
 /-- Trace an invocation when `debug` is set. -/
-def traced {α : Type} (cfg : Config) (what : String) (r : backtrack α) : backtrack α :=
-  if cfg.debug then dbgTrace s!"{what}: {outcome r}" fun _ => r else r
+def traced {α : Type} (cfg : Config m) (what : String) (r : m α) : m α :=
+  if cfg.debug then Effects.trace what r else r
 
 /-- `typ_note`: an expression's type as a typed phrase (`exp.note $ exp.at`). -/
 def typ_note (e : exp) : typ := mkPhrase e.note e.at
@@ -93,7 +100,7 @@ def typ_of_value (v : value) («at» : region) : typ := mkPhrase v.note.typ «at
 /-! Checkers -/
 
 /-- Mirrors `check_rel_inputs`. -/
-def check_rel_inputs (cfg : Config) (ctx : Ctx.t) (id_rel : Lang.Il.id)
+def check_rel_inputs (cfg : Config m) (ctx : Ctx.t) (id_rel : Lang.Il.id)
     (values_input : List value) : backtrack Unit := do
   if !cfg.guard then return ()
   let (nottyp, inputs) ← Ctx.find_rel_signature ctx id_rel
@@ -105,7 +112,7 @@ def check_rel_inputs (cfg : Config) (ctx : Ctx.t) (id_rel : Lang.Il.id)
     id_rel.at s!"relation input of {id_rel.it} does not match the expected type"
 
 /-- Mirrors `check_rel_outputs`. -/
-def check_rel_outputs (cfg : Config) (ctx : Ctx.t) (id_rel : Lang.Il.id) (nottyp : nottyp)
+def check_rel_outputs (cfg : Config m) (ctx : Ctx.t) (id_rel : Lang.Il.id) (nottyp : nottyp)
     (inputs : Lang.Il.Hints.Input.t) (values_output : List value) : backtrack Unit := do
   if !cfg.guard then return ()
   let typs := Mixfix.args nottyp.it
@@ -117,7 +124,7 @@ def check_rel_outputs (cfg : Config) (ctx : Ctx.t) (id_rel : Lang.Il.id) (nottyp
     id_rel.at s!"relation output of {id_rel.it} does not match the expected type"
 
 /-- Mirrors `check_func_inputs`. -/
-def check_func_inputs (cfg : Config) (ctx : Ctx.t) (id_func : Lang.Il.id) (targs : List targ)
+def check_func_inputs (cfg : Config m) (ctx : Ctx.t) (id_func : Lang.Il.id) (targs : List targ)
     (values_input : List value) : backtrack Unit := do
   if !cfg.guard then return ()
   let (tparams, typs_params, _) ← Ctx.find_func_signature ctx id_func
@@ -132,7 +139,7 @@ def check_func_inputs (cfg : Config) (ctx : Ctx.t) (id_func : Lang.Il.id) (targs
     id_func.at s!"function argument of {id_func.it} does not match the parameter type"
 
 /-- Mirrors `check_func_output`. -/
-def check_func_output (cfg : Config) (ctx : Ctx.t) (id_func : Lang.Il.id) (tparams : List tparam)
+def check_func_output (cfg : Config m) (ctx : Ctx.t) (id_func : Lang.Il.id) (tparams : List tparam)
     (typ_output : typ) (targs : List targ) (value_output : value) : backtrack Unit := do
   if !cfg.guard then return ()
   let theta := Subst.of_lists tparams targs
@@ -482,8 +489,8 @@ def assign_arg_exp : Nat → Ctx.t → exp → value → backtrack Ctx.t
   | fuel + 1, ctx, exp, value => assign_exp fuel ctx exp value
 
 /-- Mirrors `eval_exp`. -/
-def eval_exp : Nat → Config → Ctx.t → exp → backtrack value
-  | 0, _, _, _ => Eval.diverge
+def eval_exp : Nat → Config m → Ctx.t → exp → m value
+  | 0, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, exp =>
     let typ_note := typ_note exp
     match exp.it with
@@ -515,13 +522,13 @@ def eval_exp : Nat → Config → Ctx.t → exp → backtrack value
     | .IterE exp iterexp => eval_iter_exp fuel cfg typ_note ctx exp iterexp
 
 /-- Mirrors `eval_exps`. -/
-def eval_exps : Nat → Config → Ctx.t → List exp → backtrack (List value)
-  | 0, _, _, _ => Eval.diverge
-  | fuel + 1, cfg, ctx, exps => exps.mapM fun exp => eval_exp fuel cfg ctx exp
+def eval_exps : Nat → Config m → Ctx.t → List exp → m (List value)
+  | 0, _, _, _ => do Eval.diverge
+  | fuel + 1, cfg, ctx, exps => exps.mapM fun exp => do eval_exp fuel cfg ctx exp
 
 /-- Mirrors `eval_un_exp`. -/
-def eval_un_exp : Nat → Config → typ → Ctx.t → unop → optyp → exp → backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def eval_un_exp : Nat → Config m → typ → Ctx.t → unop → optyp → exp → m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, unop, _optyp, exp => do
     let value ← eval_exp fuel cfg ctx exp
     match unop with
@@ -530,8 +537,8 @@ def eval_un_exp : Nat → Config → typ → Ctx.t → unop → optyp → exp �
     | .MinusOp => eval_un_num .MinusOp value
 
 /-- Mirrors `eval_bin_exp`. -/
-def eval_bin_exp : Nat → Config → typ → Ctx.t → binop → optyp → exp → exp → backtrack value
-  | 0, _, _, _, _, _, _, _ => Eval.diverge
+def eval_bin_exp : Nat → Config m → typ → Ctx.t → binop → optyp → exp → exp → m value
+  | 0, _, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, binop, _optyp, exp_l, exp_r => do
     let value_l ← eval_exp fuel cfg ctx exp_l
     let value_r ← eval_exp fuel cfg ctx exp_r
@@ -540,8 +547,8 @@ def eval_bin_exp : Nat → Config → typ → Ctx.t → binop → optyp → exp 
     | none => eval_bin_bool binop value_l value_r
 
 /-- Mirrors `eval_cmp_exp`. -/
-def eval_cmp_exp : Nat → Config → typ → Ctx.t → cmpop → optyp → exp → exp → backtrack value
-  | 0, _, _, _, _, _, _, _ => Eval.diverge
+def eval_cmp_exp : Nat → Config m → typ → Ctx.t → cmpop → optyp → exp → exp → m value
+  | 0, _, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, cmpop, _optyp, exp_l, exp_r => do
     let value_l ← eval_exp fuel cfg ctx exp_l
     let value_r ← eval_exp fuel cfg ctx exp_r
@@ -585,8 +592,8 @@ def upcast : Nat → Ctx.t → typ → value → backtrack value
     | _ => pure value
 
 /-- Mirrors `eval_upcast_exp`. -/
-def eval_upcast_exp : Nat → Config → typ → Ctx.t → typ → exp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_upcast_exp : Nat → Config m → typ → Ctx.t → typ → exp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, typ, exp => do
     upcast fuel ctx typ (← eval_exp fuel cfg ctx exp)
 
@@ -627,14 +634,14 @@ def downcast : Nat → Ctx.t → typ → value → backtrack value
     | _ => pure value
 
 /-- Mirrors `eval_downcast_exp`. -/
-def eval_downcast_exp : Nat → Config → typ → Ctx.t → typ → exp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_downcast_exp : Nat → Config m → typ → Ctx.t → typ → exp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, typ, exp => do
     downcast fuel ctx typ (← eval_exp fuel cfg ctx exp)
 
 /-- Mirrors `eval_sub_exp`. -/
-def eval_sub_exp : Nat → Config → typ → Ctx.t → exp → typ → subcheck → backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def eval_sub_exp : Nat → Config m → typ → Ctx.t → exp → typ → subcheck → m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp, _typ, subcheck => do
     let value ← eval_exp fuel cfg ctx exp
     let sub := Value.Match.check (Ctx.find_typdef_opt' ctx) (Ctx.find_func_signature_opt' ctx)
@@ -642,21 +649,21 @@ def eval_sub_exp : Nat → Config → typ → Ctx.t → exp → typ → subcheck
     pure (Value.Make.bool sub)
 
 /-- Mirrors `eval_match_exp`. -/
-def eval_match_exp : Nat → Config → typ → Ctx.t → exp → pattern → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_match_exp : Nat → Config m → typ → Ctx.t → exp → pattern → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp, pattern => do
     let value ← eval_exp fuel cfg ctx exp
     pure (Value.Make.bool (pattern_matches pattern value))
 
 /-- Mirrors `eval_tuple_exp`. -/
-def eval_tuple_exp : Nat → Config → typ → Ctx.t → List exp → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_tuple_exp : Nat → Config m → typ → Ctx.t → List exp → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exps => do
     pure (Value.Make.tuple typ_note.it (← eval_exps fuel cfg ctx exps))
 
 /-- Mirrors `eval_case_exp`. -/
-def eval_case_exp : Nat → Config → typ → Ctx.t → notexp → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_case_exp : Nat → Config m → typ → Ctx.t → notexp → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, notexp => do
     let mixop := Mixfix.to_mixop notexp
     let values ← eval_exps fuel cfg ctx (Mixfix.args notexp)
@@ -665,29 +672,29 @@ def eval_case_exp : Nat → Config → typ → Ctx.t → notexp → backtrack va
     | none => back_err typ_note.at "arity mismatch"
 
 /-- Mirrors `eval_str_exp`. -/
-def eval_str_exp : Nat → Config → typ → Ctx.t → List (atom × exp) → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_str_exp : Nat → Config m → typ → Ctx.t → List (atom × exp) → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, fields => do
     let values ← eval_exps fuel cfg ctx (fields.map (·.2))
     pure (Value.Make.mk typ_note.it (.StructV ((fields.map (·.1)).zip values)))
 
 /-- Mirrors `eval_opt_exp`. -/
-def eval_opt_exp : Nat → Config → typ → Ctx.t → Option exp → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_opt_exp : Nat → Config m → typ → Ctx.t → Option exp → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp_opt => do
     match exp_opt with
     | some exp => pure (Value.Make.opt typ_note.it (some (← eval_exp fuel cfg ctx exp)))
     | none => pure (Value.Make.opt typ_note.it none)
 
 /-- Mirrors `eval_list_exp`. -/
-def eval_list_exp : Nat → Config → typ → Ctx.t → List exp → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_list_exp : Nat → Config m → typ → Ctx.t → List exp → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exps => do
     pure (Value.Make.list typ_note.it (← eval_exps fuel cfg ctx exps))
 
 /-- Mirrors `eval_cons_exp`. -/
-def eval_cons_exp : Nat → Config → typ → Ctx.t → exp → exp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_cons_exp : Nat → Config m → typ → Ctx.t → exp → exp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp_h, exp_t => do
     let value_h ← eval_exp fuel cfg ctx exp_h
     let value_t ← eval_exp fuel cfg ctx exp_t
@@ -695,8 +702,8 @@ def eval_cons_exp : Nat → Config → typ → Ctx.t → exp → exp → backtra
     pure (Value.Make.list typ_note.it (value_h :: values_t))
 
 /-- Mirrors `eval_cat_exp`. -/
-def eval_cat_exp : Nat → Config → typ → Ctx.t → exp → exp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_cat_exp : Nat → Config m → typ → Ctx.t → exp → exp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp_l, exp_r => do
     let value_l ← eval_exp fuel cfg ctx exp_l
     let value_r ← eval_exp fuel cfg ctx exp_r
@@ -706,8 +713,8 @@ def eval_cat_exp : Nat → Config → typ → Ctx.t → exp → exp → backtrac
     | _, _ => back_err typ_note.at "concatenation expects either two texts or two lists"
 
 /-- Mirrors `eval_mem_exp`. -/
-def eval_mem_exp : Nat → Config → typ → Ctx.t → exp → exp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_mem_exp : Nat → Config m → typ → Ctx.t → exp → exp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp_e, exp_s => do
     let value_e ← eval_exp fuel cfg ctx exp_e
     let value_s ← eval_exp fuel cfg ctx exp_s
@@ -715,8 +722,8 @@ def eval_mem_exp : Nat → Config → typ → Ctx.t → exp → exp → backtrac
     pure (Value.Make.bool (values_s.any (Value.eq value_e)))
 
 /-- Mirrors `eval_len_exp`. -/
-def eval_len_exp : Nat → Config → typ → Ctx.t → exp → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_len_exp : Nat → Config m → typ → Ctx.t → exp → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp => do
     let value ← eval_exp fuel cfg ctx exp
     match value.it with
@@ -725,23 +732,23 @@ def eval_len_exp : Nat → Config → typ → Ctx.t → exp → backtrack value
     | _ => back_err exp.at "length operation expects either a text or a list"
 
 /-- Mirrors `eval_dot_exp`. -/
-def eval_dot_exp : Nat → Config → typ → Ctx.t → exp → atom → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_dot_exp : Nat → Config m → typ → Ctx.t → exp → atom → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp_b, atom => do
     let value_b ← eval_exp fuel cfg ctx exp_b
     dot (← Eval.err? (Value.Get.str value_b)) atom
 
 /-- Mirrors `eval_idx_exp`. -/
-def eval_idx_exp : Nat → Config → typ → Ctx.t → exp → exp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_idx_exp : Nat → Config m → typ → Ctx.t → exp → exp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp_b, exp_i => do
     let value_b ← eval_exp fuel cfg ctx exp_b
     let value_i ← eval_exp fuel cfg ctx exp_i
     index value_b (← index_of value_i) exp_i.at
 
 /-- Mirrors `eval_slice_exp`. -/
-def eval_slice_exp : Nat → Config → typ → Ctx.t → exp → exp → exp → backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def eval_slice_exp : Nat → Config m → typ → Ctx.t → exp → exp → exp → m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp_b, exp_i, exp_n => do
     let value_b ← eval_exp fuel cfg ctx exp_b
     let value_i ← eval_exp fuel cfg ctx exp_i
@@ -751,8 +758,8 @@ def eval_slice_exp : Nat → Config → typ → Ctx.t → exp → exp → exp �
     slice typ_note value_b idx_l idx_n exp_i.at
 
 /-- Mirrors `eval_access_path`. -/
-def eval_access_path : Nat → Config → Ctx.t → value → path → backtrack value
-  | 0, _, _, _, _ => Eval.diverge
+def eval_access_path : Nat → Config m → Ctx.t → value → path → m value
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, value_b, path =>
     match path.it with
     | .RootP => pure value_b
@@ -773,8 +780,8 @@ def eval_access_path : Nat → Config → Ctx.t → value → path → backtrack
       dot (← Eval.err? (Value.Get.str value)) atom
 
 /-- Mirrors `eval_update_path`. -/
-def eval_update_path : Nat → Config → Ctx.t → value → path → value → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_update_path : Nat → Config m → Ctx.t → value → path → value → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, value_b, path, value_upd =>
     match path.it with
     | .RootP => pure value_upd
@@ -804,41 +811,41 @@ def eval_update_path : Nat → Config → Ctx.t → value → path → value →
       eval_update_path fuel cfg ctx value_b path value
 
 /-- Mirrors `eval_upd_exp`. -/
-def eval_upd_exp : Nat → Config → typ → Ctx.t → exp → path → exp → backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def eval_upd_exp : Nat → Config m → typ → Ctx.t → exp → path → exp → m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp_b, path, exp_f => do
     let value_b ← eval_exp fuel cfg ctx exp_b
     let value_f ← eval_exp fuel cfg ctx exp_f
     eval_update_path fuel cfg ctx value_b path value_f
 
 /-- Mirrors `eval_call_exp`. -/
-def eval_call_exp : Nat → Config → typ → Ctx.t → Lang.Il.id → List targ → List arg →
-    backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def eval_call_exp : Nat → Config m → typ → Ctx.t → Lang.Il.id → List targ → List arg →
+    m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, i, targs, args => do
     let targs := subst_targs ctx targs
     let values_args ← eval_args fuel cfg ctx args
     invoke_func fuel cfg true ctx i targs values_args
 
 /-- Mirrors `eval_iter_exp_opt`. -/
-def eval_iter_exp_opt : Nat → Config → typ → Ctx.t → exp → List var → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_iter_exp_opt : Nat → Config m → typ → Ctx.t → exp → List var → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp, vars => do
     match ← Ctx.sub_opt ctx vars with
     | some ctx_sub => pure (Value.Make.opt typ_note.it (some (← eval_exp fuel cfg ctx_sub exp)))
     | none => pure (Value.Make.opt typ_note.it none)
 
 /-- Mirrors `eval_iter_exp_list`. -/
-def eval_iter_exp_list : Nat → Config → typ → Ctx.t → exp → List var → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_iter_exp_list : Nat → Config m → typ → Ctx.t → exp → List var → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp, vars => do
     let ctxs_sub ← Ctx.sub_list ctx vars
     let values ← ctxs_sub.mapM fun ctx_sub => eval_exp fuel cfg ctx_sub exp
     pure (Value.Make.list typ_note.it values)
 
 /-- Mirrors `eval_iter_exp`. -/
-def eval_iter_exp : Nat → Config → typ → Ctx.t → exp → iterexp → backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_iter_exp : Nat → Config m → typ → Ctx.t → exp → iterexp → m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp, iterexp =>
     match is_iter_var_exp ⟨.IterE exp iterexp, typ_note.it, typ_note.at⟩ with
     | some var => Ctx.find_value ctx var
@@ -848,21 +855,21 @@ def eval_iter_exp : Nat → Config → typ → Ctx.t → exp → iterexp → bac
       | .mk .List vars => eval_iter_exp_list fuel cfg typ_note ctx exp vars
 
 /-- Mirrors `eval_arg`. -/
-def eval_arg : Nat → Config → Ctx.t → arg → backtrack value
-  | 0, _, _, _ => Eval.diverge
+def eval_arg : Nat → Config m → Ctx.t → arg → m value
+  | 0, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, arg =>
     match arg.it with
     | .ExpA exp => eval_exp fuel cfg ctx exp
     | .DefA i => eval_arg_def ctx i
 
 /-- Mirrors `eval_args`. -/
-def eval_args : Nat → Config → Ctx.t → List arg → backtrack (List value)
-  | 0, _, _, _ => Eval.diverge
-  | fuel + 1, cfg, ctx, args => args.mapM fun arg => eval_arg fuel cfg ctx arg
+def eval_args : Nat → Config m → Ctx.t → List arg → m (List value)
+  | 0, _, _, _ => do Eval.diverge
+  | fuel + 1, cfg, ctx, args => args.mapM fun arg => do eval_arg fuel cfg ctx arg
 
 /-- Mirrors `eval_prem` (and `eval_prem'`). -/
-def eval_prem : Nat → Config → Ctx.t → prem → backtrack Ctx.t
-  | 0, _, _, _ => Eval.diverge
+def eval_prem : Nat → Config m → Ctx.t → prem → m Ctx.t
+  | 0, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, prem =>
     match prem.it with
     | .RulePr i notexp inputs => eval_rule_prem fuel cfg ctx i notexp inputs
@@ -874,14 +881,14 @@ def eval_prem : Nat → Config → Ctx.t → prem → backtrack Ctx.t
     | .DebugPr exp => eval_debug_prem fuel cfg ctx exp
 
 /-- Mirrors `eval_prems`. -/
-def eval_prems : Nat → Config → Ctx.t → List prem → backtrack Ctx.t
-  | 0, _, _, _ => Eval.diverge
-  | fuel + 1, cfg, ctx, prems => prems.foldlM (fun ctx prem => eval_prem fuel cfg ctx prem) ctx
+def eval_prems : Nat → Config m → Ctx.t → List prem → m Ctx.t
+  | 0, _, _, _ => do Eval.diverge
+  | fuel + 1, cfg, ctx, prems => prems.foldlM (fun ctx prem => do eval_prem fuel cfg ctx prem) ctx
 
 /-- Mirrors `eval_rule_prem`. -/
-def eval_rule_prem : Nat → Config → Ctx.t → Lang.Il.id → notexp → Lang.Il.Hints.Input.t →
-    backtrack Ctx.t
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_rule_prem : Nat → Config m → Ctx.t → Lang.Il.id → notexp → Lang.Il.Hints.Input.t →
+    m Ctx.t
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, i, notexp, inputs => do
     let exps := Mixfix.args notexp
     let (exps_input, exps_output) := Lang.Hints.Input.split inputs exps
@@ -890,39 +897,39 @@ def eval_rule_prem : Nat → Config → Ctx.t → Lang.Il.id → notexp → Lang
     assign_exps fuel ctx exps_output values_output
 
 /-- Mirrors `eval_if_prem`. -/
-def eval_if_prem : Nat → Config → Ctx.t → exp → backtrack Ctx.t
-  | 0, _, _, _ => Eval.diverge
+def eval_if_prem : Nat → Config m → Ctx.t → exp → m Ctx.t
+  | 0, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, exp_cond => do
     let value_cond ← eval_exp fuel cfg ctx exp_cond
     let cond ← Eval.err? (Value.Get.bool value_cond)
     if cond then pure ctx else back_unmatch exp_cond.at "condition was not met"
 
 /-- Mirrors `eval_if_hold_prem`. -/
-def eval_if_hold_prem : Nat → Config → Ctx.t → Lang.Il.id → notexp → backtrack Ctx.t
-  | 0, _, _, _, _ => Eval.diverge
+def eval_if_hold_prem : Nat → Config m → Ctx.t → Lang.Il.id → notexp → m Ctx.t
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, i, notexp => do
     let values_input ← eval_exps fuel cfg ctx (Mixfix.args notexp)
     let _ ← invoke_rel fuel cfg true ctx i values_input
     pure ctx
 
 /-- Mirrors `eval_if_not_hold_prem`. -/
-def eval_if_not_hold_prem : Nat → Config → Ctx.t → Lang.Il.id → notexp → backtrack Ctx.t
-  | 0, _, _, _, _ => Eval.diverge
+def eval_if_not_hold_prem : Nat → Config m → Ctx.t → Lang.Il.id → notexp → m Ctx.t
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, i, notexp => do
     let values_input ← eval_exps fuel cfg ctx (Mixfix.args notexp)
-    let _ ← Eval.notHold (invoke_rel fuel cfg true ctx i values_input)
+    let _ ← Effects.notHold (invoke_rel fuel cfg true ctx i values_input)
     pure ctx
 
 /-- Mirrors `eval_let_prem`. -/
-def eval_let_prem : Nat → Config → Ctx.t → exp → exp → backtrack Ctx.t
-  | 0, _, _, _, _ => Eval.diverge
+def eval_let_prem : Nat → Config m → Ctx.t → exp → exp → m Ctx.t
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, exp_l, exp_r => do
     let value ← eval_exp fuel cfg ctx exp_r
     assign_exp fuel ctx exp_l value
 
 /-- Mirrors `eval_iter_prem_opt`. -/
-def eval_iter_prem_opt : Nat → Config → Ctx.t → prem → List var → List var → backtrack Ctx.t
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_iter_prem_opt : Nat → Config m → Ctx.t → prem → List var → List var → m Ctx.t
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, prem, vars_bound, vars_bind => do
     match ← Ctx.sub_opt ctx vars_bound with
     | none =>
@@ -938,8 +945,8 @@ def eval_iter_prem_opt : Nat → Config → Ctx.t → prem → List var → List
         ctx)
 
 /-- Mirrors `eval_iter_prem_list`. -/
-def eval_iter_prem_list : Nat → Config → Ctx.t → prem → List var → List var → backtrack Ctx.t
-  | 0, _, _, _, _, _ => Eval.diverge
+def eval_iter_prem_list : Nat → Config m → Ctx.t → prem → List var → List var → m Ctx.t
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, prem, vars_bound, vars_bind => do
     let ctxs_sub ← Ctx.sub_list ctx vars_bound
     let values_binding ← match ctxs_sub with
@@ -954,16 +961,16 @@ def eval_iter_prem_list : Nat → Config → Ctx.t → prem → List var → Lis
       Ctx.add_value ctx (v.id, v.iters ++ [.List]) (Value.Make.list typ.it values_binding)) ctx)
 
 /-- Mirrors `eval_iter_prem`. -/
-def eval_iter_prem : Nat → Config → Ctx.t → prem → iterprem → backtrack Ctx.t
-  | 0, _, _, _, _ => Eval.diverge
+def eval_iter_prem : Nat → Config m → Ctx.t → prem → iterprem → m Ctx.t
+  | 0, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, prem, iterprem =>
     match iterprem with
     | .mk .Opt vars_bound vars_bind => eval_iter_prem_opt fuel cfg ctx prem vars_bound vars_bind
     | .mk .List vars_bound vars_bind => eval_iter_prem_list fuel cfg ctx prem vars_bound vars_bind
 
 /-- Mirrors `eval_debug_prem`: evaluates, prints nothing (deviation). -/
-def eval_debug_prem : Nat → Config → Ctx.t → exp → backtrack Ctx.t
-  | 0, _, _, _ => Eval.diverge
+def eval_debug_prem : Nat → Config m → Ctx.t → exp → m Ctx.t
+  | 0, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, exp => do
     let _ ← eval_exp fuel cfg ctx exp
     pure ctx
@@ -979,9 +986,9 @@ def match_rule : Nat → Ctx.t → region → rulematch → List value → backt
 
 /-- Mirrors `invoke_rel`, without the cache and hooks; `internal` says
 whether the inputs are already known to be well-typed. -/
-def invoke_rel : Nat → Config → Bool → Ctx.t → Lang.Il.id → List value → backtrack (List value)
-  | 0, _, _, _, _, _ => Eval.diverge
-  | fuel + 1, cfg, internal, ctx, i, values_input => traced cfg s!"relation {i.it}" do
+def invoke_rel : Nat → Config m → Bool → Ctx.t → Lang.Il.id → List value → m (List value)
+  | 0, _, _, _, _, _ => do Eval.diverge
+  | fuel + 1, cfg, internal, ctx, i, values_input => do traced cfg s!"relation {i.it}" do
     let rel ← Ctx.find_rel ctx i
     if !internal then check_rel_inputs cfg ctx i values_input
     match rel with
@@ -990,9 +997,9 @@ def invoke_rel : Nat → Config → Bool → Ctx.t → Lang.Il.id → List value
       invoke_defined_rel fuel cfg ctx i rulegroups elsegroup_opt values_input
 
 /-- Mirrors `invoke_extern_rel`. -/
-def invoke_extern_rel : Nat → Config → Ctx.t → Lang.Il.id → nottyp → Lang.Il.Hints.Input.t →
-    List value → backtrack (List value)
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def invoke_extern_rel : Nat → Config m → Ctx.t → Lang.Il.id → nottyp → Lang.Il.Hints.Input.t →
+    List value → m (List value)
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | _ + 1, cfg, ctx, i, nottyp, inputs, values_input => do
     let values_output ← cfg.extern.eval_extern_rel i.it values_input
     check_rel_outputs cfg ctx i nottyp inputs values_output
@@ -1000,12 +1007,12 @@ def invoke_extern_rel : Nat → Config → Ctx.t → Lang.Il.id → nottyp → L
 
 /-- Mirrors `invoke_defined_rel`, sequential mode: the rule paths in
 order, then the `else` group when none matched. -/
-def invoke_defined_rel : Nat → Config → Ctx.t → Lang.Il.id → List Lang.Al.rulegroup →
-    Option Lang.Al.elsegroup → List value → backtrack (List value)
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def invoke_defined_rel : Nat → Config m → Ctx.t → Lang.Il.id → List Lang.Al.rulegroup →
+    Option Lang.Al.elsegroup → List value → m (List value)
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, _id, rulegroups, elsegroup_opt, values_input =>
     let do_backtrack_rulepath (rulematch : rulematch) (rulepath : rulepath) :
-        Unit → backtrack (List value) := fun _ => do
+        Unit → m (List value) := fun _ => do
       let (id_rulepath, prems, exps_output) := rulepath
       let ctx_local := Ctx.localize ctx
       let (ctx_local, prems_input) ← match_rule fuel ctx_local id_rulepath.at rulematch values_input
@@ -1014,7 +1021,7 @@ def invoke_defined_rel : Nat → Config → Ctx.t → Lang.Il.id → List Lang.A
     let backtracks_path := rulegroups.flatMap fun rulegroup =>
       let (_, rulematch, rulepaths) := rulegroup.it
       rulepaths.map (do_backtrack_rulepath rulematch)
-    Eval.orElse (choose_sequential backtracks_path)
+    Effects.orElse (Effects.chooseSequential backtracks_path)
       (match elsegroup_opt with
         | some eg =>
           let (_, rulematch, rulepath) := eg.it
@@ -1022,18 +1029,18 @@ def invoke_defined_rel : Nat → Config → Ctx.t → Lang.Il.id → List Lang.A
         | none => back_unmatch_silent)
 
 /-- Mirrors `invoke_func`, without the cache and hooks. -/
-def invoke_func : Nat → Config → Bool → Ctx.t → Lang.Il.id → List targ → List value →
-    backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
-  | fuel + 1, cfg, internal, ctx, i, targs, values_input => traced cfg s!"function {i.it}" do
+def invoke_func : Nat → Config m → Bool → Ctx.t → Lang.Il.id → List targ → List value →
+    m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
+  | fuel + 1, cfg, internal, ctx, i, targs, values_input => do traced cfg s!"function {i.it}" do
     let (_, func) ← Ctx.find_func ctx i
     if !internal then check_func_inputs cfg ctx i targs values_input
     invoke_func_body fuel cfg ctx i func targs values_input
 
 /-- Mirrors `invoke_func_body`. -/
-def invoke_func_body : Nat → Config → Ctx.t → Lang.Il.id → Func.t → List targ → List value →
-    backtrack value
-  | 0, _, _, _, _, _, _ => Eval.diverge
+def invoke_func_body : Nat → Config m → Ctx.t → Lang.Il.id → Func.t → List targ → List value →
+    m value
+  | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, i, func, targs, values_input =>
     match func with
     | .Extern tparams _ typ => invoke_extern_func fuel cfg ctx i tparams targs values_input typ
@@ -1043,25 +1050,22 @@ def invoke_func_body : Nat → Config → Ctx.t → Lang.Il.id → Func.t → Li
       invoke_defined_func fuel cfg ctx i tparams clauses elseclause_opt targs values_input
 
 /-- Mirrors `invoke_extern_func`. -/
-def invoke_extern_func : Nat → Config → Ctx.t → Lang.Il.id → List tparam → List targ →
-    List value → typ → backtrack value
-  | 0, _, _, _, _, _, _, _ => Eval.diverge
+def invoke_extern_func : Nat → Config m → Ctx.t → Lang.Il.id → List tparam → List targ →
+    List value → typ → m value
+  | 0, _, _, _, _, _, _, _ => do Eval.diverge
   | _ + 1, cfg, ctx, i, tparams, targs, values_input, typ_output => do
     let value_output ← cfg.extern.eval_extern_func i.it [] values_input
     check_func_output cfg ctx i tparams typ_output targs value_output
     pure value_output
 
 /-- Mirrors `invoke_builtin_func`: a `BuiltinError` is a mismatch. -/
-def invoke_builtin_func : Nat → Config → Ctx.t → Lang.Il.id → List tparam → List targ →
-    List value → typ → backtrack value
-  | 0, _, _, _, _, _, _, _ => Eval.diverge
+def invoke_builtin_func : Nat → Config m → Ctx.t → Lang.Il.id → List tparam → List targ →
+    List value → typ → m value
+  | 0, _, _, _, _, _, _, _ => do Eval.diverge
   | _ + 1, cfg, ctx, i, tparams, targs, values_input, typ_output => do
-    match Builtin.Call.invokeWithHints cfg.printHints i.it targs values_input with
-    | .ok (some value_output) =>
-      check_func_output cfg ctx i tparams typ_output targs value_output
-      pure value_output
-    | .ok none => back_unmatch i.at s!"builtin {i.it} failed"
-    | .error message => back_err i.at message
+    let value_output ← Effects.builtin cfg.printHints i.it targs values_input
+    check_func_output cfg ctx i tparams typ_output targs value_output
+    pure value_output
 
 /-- Mirrors `match_tablerow`. -/
 def match_tablerow : Nat → Ctx.t → Ctx.t → Lang.Al.tablerow → List value →
@@ -1075,11 +1079,11 @@ def match_tablerow : Nat → Ctx.t → Ctx.t → Lang.Al.tablerow → List value
     pure (ctx, args_input, prems, exp_output)
 
 /-- Mirrors `invoke_table_func`. -/
-def invoke_table_func : Nat → Config → Ctx.t → Lang.Il.id → List Lang.Al.tablerow → List value →
-    backtrack value
-  | 0, _, _, _, _, _ => Eval.diverge
+def invoke_table_func : Nat → Config m → Ctx.t → Lang.Il.id → List Lang.Al.tablerow → List value →
+    m value
+  | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, _id, tablerows, values_input =>
-    choose_sequential (tablerows.map fun row => fun _ => do
+    Effects.chooseSequential (tablerows.map fun row => fun _ => do
       let ctx_local := Ctx.localize ctx
       let (ctx_local, _, prems, exp_output) ← match_tablerow fuel ctx ctx_local row values_input
       let ctx_local ← eval_prems fuel cfg ctx_local prems
@@ -1098,11 +1102,11 @@ def match_clause : Nat → Ctx.t → Ctx.t → clause → List value →
 
 /-- Mirrors `invoke_defined_func`, sequential mode: the clauses in order,
 then the `else` clause when none matched. -/
-def invoke_defined_func : Nat → Config → Ctx.t → Lang.Il.id → List tparam → List clause →
-    Option elseclause → List targ → List value → backtrack value
-  | 0, _, _, _, _, _, _, _, _ => Eval.diverge
+def invoke_defined_func : Nat → Config m → Ctx.t → Lang.Il.id → List tparam → List clause →
+    Option elseclause → List targ → List value → m value
+  | 0, _, _, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, ctx, i, tparams, clauses, elseclause_opt, targs, values_input =>
-    let do_backtrack_clause (clause : clause) : Unit → backtrack value := fun _ => do
+    let do_backtrack_clause (clause : clause) : Unit → m value := fun _ => do
       let ctx_local := Ctx.localize ctx
       check_back_err (targs.length == tparams.length) i.at "arity mismatch in type arguments"
       let ctx_local ← (tparams.zip targs).foldlM (fun ctx_local (tparam, targ) =>
@@ -1110,7 +1114,7 @@ def invoke_defined_func : Nat → Config → Ctx.t → Lang.Il.id → List tpara
       let (ctx_local, _, prems, exp_output) ← match_clause fuel ctx ctx_local clause values_input
       let ctx_local ← eval_prems fuel cfg ctx_local prems
       eval_exp fuel cfg ctx_local exp_output
-    Eval.orElse (choose_sequential (clauses.map do_backtrack_clause))
+    Effects.orElse (Effects.chooseSequential (clauses.map do_backtrack_clause))
       (match elseclause_opt with
         | some elseclause => do_backtrack_clause elseclause ()
         | none => back_unmatch_silent)
@@ -1120,13 +1124,13 @@ end
 /-! Entry points for evaluation -/
 
 /-- Mirrors `do_eval_rel`. -/
-def do_eval_rel (fuel : Nat) (cfg : Config) (g : Ctx.global) (relname : String)
-    (values_input : List value) : backtrack (List value) :=
+def do_eval_rel (fuel : Nat) (cfg : Config m) (g : Ctx.global) (relname : String)
+    (values_input : List value) : m (List value) :=
   invoke_rel fuel cfg false (Ctx.empty g) (mkPhrase relname) values_input
 
 /-- Mirrors `do_eval_func`. -/
-def do_eval_func (fuel : Nat) (cfg : Config) (g : Ctx.global) (funcname : String)
-    (targs : List targ) (values_input : List value) : backtrack value :=
+def do_eval_func (fuel : Nat) (cfg : Config m) (g : Ctx.global) (funcname : String)
+    (targs : List targ) (values_input : List value) : m value :=
   invoke_func fuel cfg false (Ctx.empty g) (mkPhrase funcname) targs values_input
 
 /-- Mirrors `eval_rel`: the result as data (`Run.rel_result`). -/
@@ -1138,6 +1142,21 @@ def eval_rel (fuel : Nat) (cfg : Config) (g : Ctx.global) (relname : String)
 def eval_func (fuel : Nat) (cfg : Config) (g : Ctx.global) (funcname : String) (targs : List targ)
     (values_input : List value) : Option (Except Fail value) :=
   (do_eval_func fuel cfg g funcname targs values_input).run
+
+/-- Execute a relation in an explicit fresh-state session. The caller chooses
+the initial state and retains the returned state, even after failure. -/
+def evalRelState (fuel : Nat) (cfg : Config StateEval) (g : Ctx.global) (relname : String)
+    (values_input : List value) (s : FreshState) :
+    Option (Except Fail (List value) × FreshState) :=
+  StateEval.run (do_eval_rel fuel cfg g relname values_input) s
+
+/-- Execute a function without implicitly resetting its fresh-state session.
+Supplying `FreshState.initial` explicitly starts a new session; `init` below
+only constructs specification tables and never resets a caller's state. -/
+def evalFuncState (fuel : Nat) (cfg : Config StateEval) (g : Ctx.global) (funcname : String)
+    (targs : List targ) (values_input : List value) (s : FreshState) :
+    Option (Except Fail value × FreshState) :=
+  StateEval.run (do_eval_func fuel cfg g funcname targs values_input) s
 
 /-- Mirrors `init`: the global tables of a spec. -/
 def init (spec : Lang.Al.spec) : Except String Ctx.global := Ctx.init spec

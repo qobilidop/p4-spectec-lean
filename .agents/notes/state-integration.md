@@ -1,14 +1,15 @@
 # Stateful integration plan
 
 2026-09-25. Based on an independent GPT-6 Astra architecture audit after
-the reviewed fresh-state foundation. This is planned work, not delivered
-generator/interpreter support. Preserve Nano's pure API and existing proofs.
+the reviewed fresh-state foundation. Generator support remains planned;
+the shared interpreter is implemented, preserving Nano's pure API and proofs.
 
 Step 1 is now implemented and independently reviewed: `Refine/StateCalc`,
 StateEval monotonicity/execution equations and `P4SpecTecTest/StateCalc`.
 Focused builds, exact axiom guards and the recursive structural-rule
-fixture pass; the integrated full gate is recorded in status. Step 2 is
-the next experiment, not delivered support.
+fixture pass; the integrated full gate is recorded in status. Step 2's
+shared interpreter is independently reviewed and undergoing integration;
+durable complete-AL upstream observations are still being implemented.
 
 ## Decision and scope
 
@@ -43,6 +44,15 @@ state-indexed rule proofs require a materially different representation.
 - Iterated premises need an ordered chain of states, not independent
   pointwise witnesses. Negative premises retain the mismatching call's
   final state. Failed earlier alternatives can affect the selected path.
+- `DebugPr` currently skips compiling its expression. Evaluate it even
+  when printing is omitted, preserving its effects and failures.
+- Dependency collection must include global `DefA` references and exclude
+  lexically shadowed local callbacks; otherwise SCC/file placement and
+  extern-instance requirements are incomplete.
+- A rejected attempt can call the same recursive SCC. The existing
+  structural fixture's rejected prefix is nonrecursive; prototype stronger
+  all-terminating-outcome realization motives before translating those
+  failure equations into witnesses over final, not approximate, calls.
 
 ## One interpreter, two specializations
 
@@ -102,3 +112,15 @@ and preserve state; inability to fail alone no longer justifies skipping.
 5. Generated stateful refinement with exact all-outcome state agreement.
 6. Full-P4 regeneration/elaboration, measured coverage, full gate and
    independent review. Keep any remaining rejection explicit.
+
+The executable and proof generators can be split after freezing a shared
+mode/complete-attempt/statement interface. Production state mode must remain
+an explicit rejection until structural Prop and run-soundness are supported;
+never silently omit the existing rung-1 guarantees. Pure determinism emission
+cannot be reused unchanged for state-indexed relations.
+
+Separate higher-order interpreter boundaries remain: `Match.sub_` rejects
+`FuncT`, type-parameter freshening uses deterministic names, and direct builtin
+aliases dispatch by the local identifier. Guard-disabled callback fixtures
+do not establish guarded full-P4 fidelity. These need separate scoped fixes
+and oracle evidence.

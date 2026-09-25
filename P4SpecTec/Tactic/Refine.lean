@@ -114,6 +114,8 @@ def helperFunctions : List Name := [
   ``Interp.typ_of_value, ``Interp.is_iter_var_exp,
   ``Backtrack.back_err, ``Backtrack.back_unmatch_silent, ``Backtrack.back_unmatch,
   ``Backtrack.back_nest, ``Backtrack.check_back_err, ``Backtrack.choose_sequential,
+  ``P4SpecTec.Interp_al.Effects.chooseSequential,
+  ``P4SpecTec.Interp_al.Effects.builtin, ``P4SpecTec.Interp_al.Effects.builtinEval,
   ``Ctx.find_rel, ``Ctx.find_rel_opt, ``Ctx.find_func, ``Ctx.find_func_opt, ``Ctx.find_value,
   ``Ctx.find_value_opt, ``Ctx.find_values, ``Ctx.add_value, ``Ctx.localize, ``Ctx.empty,
   ``Ctx.empty_local, ``Ctx.back_undef, ``Ctx.sub_opt, ``Ctx.sub_list, ``Ctx.transpose,
@@ -144,6 +146,8 @@ def helperFunctions : List Name := [
 
 /-- The lemmas of the calculus and the library that normalise both sides. -/
 def calcLemmas : List Name := [
+  ``P4SpecTec.Interp_al.Effects.liftPure, ``P4SpecTec.Interp_al.Effects.orElsePure,
+  ``P4SpecTec.Interp_al.Effects.notHoldPure,
   ``Q.p_it, ``Q.i_it, ``Q.a_it, ``Q.t_it, ``Q.e_it, ``Q.e_note, ``Q.pa_it, ``Q.pa_note, ``Q.pr_it,
   ``Q.ar_it, ``Q.pm_it, ``Q.nt_it, ``Q.dt_it, ``Q.cl_it, ``Q.rg_it, ``Q.eg_it, ``Q.tr_it, ``Q.d_it,
   ``Q.rp_eq, ``Q.v_eq, ``traced_eq, ``check_rel_inputs_off, ``check_rel_outputs_off,
@@ -263,7 +267,7 @@ def factHyps : TacticM (List Name) := do
           (lhs.isAppOfArity ``P4SpecTec.Util.Source.info.it 4 &&
             (lhs.getArg! 3).consumeMData.isFVar) ||
           (match lhs with | .proj _ _ x => x.consumeMData.isFVar | _ => false) ||
-          (lhs.isAppOfArity ``Interp.Config.guard 1) ||
+          (lhs.isAppOf ``Interp.Config.guard) ||
           rhs.consumeMData.isConstOf ``Bool.true || rhs.consumeMData.isConstOf ``Bool.false ||
           (lhs.isAppOfArity ``Ctx.t.global 1) ||
           (lhs.isAppOfArity ``Ctx.local.fenv 1) ||
@@ -376,6 +380,21 @@ def refinesGoal : TacticM (Option (Expr × Expr × Expr)) := do
         (ty.getArg! 4).consumeMData))
     else pure none
 
+/-- Find the first explicit `Nat` parameter of an interpreter call. Its
+signature identifies fuel without assuming that it precedes implicit carrier
+and effect-instance parameters. All recognized recursive APIs take fuel as
+their first explicit natural parameter. -/
+def fuelArgument? (e : Expr) : MetaM (Option Expr) := do
+  let mut ty ← inferType e.getAppFn
+  for arg in e.getAppArgs do
+    ty ← whnf ty
+    match ty with
+    | .forallE _ dom body bi =>
+      if bi.isExplicit && (← whnf dom).isConstOf ``Nat then return some arg.consumeMData
+      ty := body.instantiate1 arg
+    | _ => return none
+  return none
+
 /-- The fuel argument of an interpreter call on a variable fuel in head
 position: the head itself, the discriminant of a `match` or the condition
 of an `if` at the head, the argument of an option lift, or the body of a
@@ -384,15 +403,15 @@ continuation: a split there would copy the whole proof into a zero
 branch that does not diverge. -/
 partial def stuckFuel (head : Expr) : MetaM (Option FVarId) := do
   let e := head.consumeMData
-  let here : Option FVarId := match e.getAppFn.consumeMData with
+  let here : Option FVarId ← match e.getAppFn.consumeMData with
     | .const c _ =>
       if (blockFunctions.contains c || invocations.contains c) &&
           e.getAppNumArgs ≥ 1 then
-        match (e.getArg! 0).consumeMData with
-        | .fvar f => some f
-        | _ => none
-      else none
-    | _ => none
+        match ← fuelArgument? e with
+        | some (.fvar f) => pure (some f)
+        | _ => pure none
+      else pure none
+    | _ => pure none
   if let some f := here then return some f
   if let some app ← matchMatcherApp? e then
     for d in app.discrs do
@@ -757,7 +776,8 @@ def calleeStep (s : SimpSet) (m n : Expr) : TacticM Unit := timed "callee" do
   let call := (genHead.getArg! 3).consumeMData
   let some (callee, _) := calleeOf call | throwError "refine_al: unknown callee {call}"
   let thm := Name.str callee "refines"
-  let fuel := (head.getArg! 0).consumeMData
+  let some fuel ← fuelArgument? head
+    | throwError "refine_al: interpreter invocation has no explicit natural fuel parameter"
   -- the callee proof, as a term applied to the fuel and the goal's arguments
   let ih? ← groupIH
   let mut viaIH := false

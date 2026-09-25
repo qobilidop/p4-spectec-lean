@@ -22,7 +22,36 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B byte-semantics integration
+## Active M3B shared-interpreter integration
+
+- Branch `m3b-effect-integration`, based on byte PR #12 head `e1c5555`.
+  Integrated isolated effect commits `a81265d` and `21ee889`, with explicit
+  String-to-ByteText encoding at fresh dispatch and checked decoding only
+  in the ASCII test observer. One evaluator supports Eval/StateEval,
+  carrier-matched externs, failure-retaining choice/negation and explicit
+  stateful session entry points. No stateful generator/proof claim.
+- Author's isolated core, test root and all Nano proof builds exited 0.
+  Independent review has no outstanding findings. A low test-sensitivity
+  finding was fixed with distinguishable negation alternatives; the
+  read-only reversed-negation mutation fails exactly those two assertions.
+  Primary core + StateInterp focused build exited 0 after byte integration.
+  Narrow integration review passed, including hard-text-failure state
+  retention and raw-byte preservation. The full primary gate exited 0 with
+  no skips, including rebuilt Nano proofs and all existing oracles/corpus
+  checks. Durable state-oracle integration is next; no push yet.
+  Evidence: `.agents/notes/effect-interpreter.md` and
+  `.agents/reviews/m3b-effect-interpreter.md`.
+- Parallel isolated next work: GPT-6 Sol is making durable pinned upstream
+  AL state observations in `p4-spectec-lean-state-oracle`; GPT-6 Astra is
+  prototyping recursive rejected-prefix proof obligations in
+  `p4-spectec-lean-state-proof-prototype`. Both are unintegrated. Root has
+  prepared `m3b-state-codegen` in the former byte worktree with reviewed
+  state foundations; no generator changes yet. The plan records debug
+  evaluation, callback dependency/scope and recursive witness obligations.
+- Next: finish integrated interpreter review/gate and publish; continue
+  state oracle and proof prototype before enabling generator state mode.
+
+## Completed M3B byte-semantics integration
 
 - Branch `m3b-byte-integration`, based on state-calculus PR #11 head
   `f07ddad`. The byte worktree integrates ByteText through IL/runtime,
@@ -51,9 +80,8 @@ correctness requirements or destructive published-history changes.
   exited 0 with no skipped gates, including all Nano proofs, both corpus
   legs, classified text/printer oracles, quotations, JSON sensitivity and
   the updated census. Read-only review has no outstanding high/medium
-  findings: `.agents/reviews/m3b-byte-integration.md`. Remote CI remains
-  pending. Next: publish the PR, then reconcile the reviewed effect
-  interpreter and add durable stateful upstream observations.
+  findings: `.agents/reviews/m3b-byte-integration.md`. PR #12 is published;
+  remote CI remains pending. Interpreter integration is active above.
 - PRs #9 (fresh-state foundation) and #10 (byte foundation) passed CI and
   merged. PR #11 (state calculus) also passed CI and merged into main.
   The shared effect interpreter is implemented and locally checked in
