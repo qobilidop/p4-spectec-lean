@@ -1,6 +1,7 @@
 import P4SpecTecTest.Smoke
 import P4SpecTecTest.Decode
 import P4SpecTecTest.Builtins
+import P4SpecTecTest.ByteText
 import P4SpecTecTest.Quote
 import P4SpecTecTest.QuoteChecks
 import P4SpecTecTest.Subtypes
