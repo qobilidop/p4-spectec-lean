@@ -16,8 +16,37 @@ recursion group); determinism theorems where provable (2 of 77
 relations). The user authorized M3A: recursive spec export, the full pinned
 P4 AL export and a capability census, a generated-quotation comparison
 against the export, and an evidence-based plan for the rest of M3.
-Full P4 rendering, target instances and expanding the proof fragment are
-later phases; M3A measures their obligations.
+The user has now authorized autonomous staged completion of all M3,
+including rendering, differential validation, targets and proofs. Make
+reasonable reversible decisions, record uncertainty for later review,
+and do not wait for routine choices. This does not authorize weakening
+correctness requirements or destructive published-history changes.
+
+## Active M3B stage
+
+- Branch `m3b-subtype-bridges`, based on PR #5 head `038a502`.
+- Preserve full subtype applications through collection, bridge naming,
+  signatures and placement. Two independent read-only audits found all
+  thirteen failures are erased `continueResult<X>` arguments, not a need
+  for covariant payload conversions. All 363 occurrences have equal
+  payloads after substitution; all 129 checks use `MixopSC`.
+- Upstream `runtime/type/sub.ml` substitutes both applications and
+  requires equivalent payloads. Keep that fail-closed boundary. Add
+  specialized names without changing Nano's monomorphic names.
+- Implementation and compiled regression fixtures pass. All 567 full-P4
+  bridge pairs emit text; Nano's 48 files are byte-identical. The full
+  local `scripts/check.sh` exited 0; no gates skipped. Independent
+  read-only review found no high/medium findings; report is
+  `.agents/reviews/m3b-subtypes.md`. GPT-6 Sol authored focused tests;
+  GPT-6 Astra handled implementation and independent semantics audits.
+- PR #5 CI run `36182784164` was still in progress at the latest check;
+  its final revision must pass before merging.
+- Next after subtype bridges: print-hint semantics. Selection depends on
+  runtime type notes, which generated casts do not preserve. Independent
+  audit found identical print policies across all 567 bridge pairs at
+  this pin; constructor/alias provenance still needs checking. Turn
+  compatibility into a checked invariant, not an assumption. Do not
+  simply remove the print-hint rejection.
 
 ## M3A checkpoint
 
@@ -68,10 +97,8 @@ later phases; M3A measures their obligations.
   fixed; final documentation-placement review passed. Full gate after
   relocation: exit 0. Delivered in PR #5; remote CI is not part
   of this local evidence and must be checked before merging.
-- Next scoped work is M3B, not automatic completion of all M3: inspect
-  the thirteen failing `continueResult` subtype bridges against AL
-  `subcheck`, then implement faithful generation of the remaining
-  constructs. The phased plan gives exit criteria and fidelity gaps.
+- M3B is now active under the user's authorization to complete all M3.
+  The phased plan gives exit criteria and fidelity gaps.
 
 ## Current state
 

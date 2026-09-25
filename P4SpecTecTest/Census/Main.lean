@@ -154,13 +154,12 @@ def census (spec : Lang.Al.spec) : Json := Id.run do
           | _ => if emitterMutual then [Types.unfoldAll] else []
         let text := render (Types.typeDecl env unfold tid ts dt)
         (text.splitOn "\n").length).sum)]
-  let pairs := (spec.flatMap fun d => (Exp.expsOfDef d).flatMap (Exp.pairsOfExp env)).eraseDups
+  let pairs := Exp.pairsOfSpec env spec
   let bridges := pairs.map fun (s, t) =>
-    let isVariant (id : String) : Bool := (env.types.get? id).any fun (info : TypeInfo) =>
-      match info.deftyp with | some (.VariantT _) => true | _ => false
-    let result := if isVariant s && isVariant t then Types.subtypeDecls env s t
-      else .error s!"cast between non-variant types {s} and {t}"
-    Json.mkObj [("sub", toJson s), ("sup", toJson t), ("emission", probe result)]
+    let result := Types.subtypeDecls env s t
+    Json.mkObj [("sub", toJson (Types.typeHead s)), ("sup", toJson (Types.typeHead t)),
+      ("subType", toJson (render (Types.typTerm env [] s).fmt)),
+      ("supType", toJson (render (Types.typTerm env [] t).fmt)), ("emission", probe result)]
   let kinds := ["TypD", "ExternTypD", "VarD", "FuncDecD", "BuiltinDecD", "ExternDecD",
     "TableDecD", "RelD", "ExternRelD"]
   let printHints := spec.filterMap fun d =>

@@ -242,7 +242,7 @@ partial def castUp (sub sup : typ') (x : Term) : CgM Term := do
   if typEq sub sup then pure x
   else match sub, sup with
     | .NumT .NatT, .NumT .IntT => pure (.call "Int.ofNat" [x])
-    | .VarT s _, .VarT t _ => pure (.call (env.q (upName s.it t.it)) [x])
+    | .VarT .., .VarT .. => pure (.call (env.q (upName sub sup)) [x])
     | .TupleT ss, .TupleT ts =>
       let names := (List.range ss.length).map fun i => s!"c{i}"
       let parts ← ((ss.zip ts).zip names).mapM fun ((a, b), n) => castUp a.it b.it (.atom n)
@@ -266,7 +266,7 @@ partial def castDown (sub sup : typ') (x : Term) : CgM Term := do
   if typEq sub sup then pure (.call "pure" [x])
   else match sub, sup with
     | .NumT .NatT, .NumT .IntT => pure (.call "Num.toNat?" [x])
-    | .VarT s _, .VarT t _ => pure (.call (env.q (downName s.it t.it)) [x])
+    | .VarT .., .VarT .. => pure (.call (env.q (downName sub sup)) [x])
     | .TupleT ss, .TupleT ts =>
       let names := (List.range ss.length).map fun i => s!"c{i}"
       let parts ← ((ss.zip ts).zip names).mapM fun ((a, b), n) => castDown a.it b.it (.atom n)
@@ -292,7 +292,7 @@ partial def isSub (sub sup : typ') (x : Term) : CgM Term := do
   if typEq sub sup then pure (.atom "true")
   else match sub, sup with
     | .NumT .NatT, .NumT .IntT => pure (.call "decide" [.binop "≤" (.atom "0") x])
-    | .VarT s _, .VarT t _ => pure (.call (env.q (isName s.it t.it)) [x])
+    | .VarT .., .VarT .. => pure (.call (env.q (isName sub sup)) [x])
     | .TupleT ss, .TupleT ts =>
       let names := (List.range ss.length).map fun i => s!"c{i}"
       let parts ← ((ss.zip ts).zip names).mapM fun ((a, b), n) => isSub a.it b.it (.atom n)
@@ -725,7 +725,7 @@ def run {α : Type} (ctx : Ctx) (m : CgM α) : Except String α :=
 
 /-- Collect the `(sub, sup)` variant pairs of every cast and check in an
 expression, resolved through aliases. -/
-partial def pairsOfExp (env : Env) (e : exp) : List (String × String) :=
+partial def pairsOfExp (env : Env) (e : exp) : List (typ' × typ') :=
   let here := match e.it with
     | .UpCastE t a => pairOf (env.resolve a.note) (env.resolve t.it)
     | .DownCastE t a => pairOf (env.resolve t.it) (env.resolve a.note)
@@ -734,8 +734,8 @@ partial def pairsOfExp (env : Env) (e : exp) : List (String × String) :=
   here ++ (children e).flatMap (pairsOfExp env)
 where
   /-- The pairs of a cast between two types, structurally. -/
-  pairOf : typ' → typ' → List (String × String)
-    | .VarT s _, .VarT t _ => if s.it == t.it then [] else [(s.it, t.it)]
+  pairOf : typ' → typ' → List (typ' × typ')
+    | s@(.VarT ..), t@(.VarT ..) => if typEq s t then [] else [(s, t)]
     | .TupleT ss, .TupleT ts =>
       (ss.zip ts).flatMap fun (a, b) => pairOf (env.resolve a.it) (env.resolve b.it)
     | .IterT s _, .IterT t _ => pairOf (env.resolve s.it) (env.resolve t.it)
@@ -794,6 +794,13 @@ def expsOfDef (d : Lang.Al.def) : List exp :=
       pats ++ (args.filterMap fun a => match a.it with | .ExpA x => some x | _ => none) ++ [out] ++
         prems.flatMap expsOfPrem
   | _ => []
+
+/-- Collect full bridge applications in encounter order, deduplicating
+by region-independent type equality rather than by their head names. -/
+def pairsOfSpec (env : Env) (spec : Lang.Al.spec) : List (typ' × typ') :=
+  let pairs := spec.flatMap fun d => (expsOfDef d).flatMap (pairsOfExp env)
+  pairs.foldl (init := []) fun acc (s, t) =>
+    if acc.any (fun (a, b) => typEq s a && typEq t b) then acc else acc ++ [(s, t)]
 
 /-- The functions an expression calls. -/
 partial def callsOfExp (e : exp) : List String :=

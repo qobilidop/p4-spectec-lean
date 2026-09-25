@@ -124,6 +124,18 @@ settles is not repeated here.
 
 ## Generated code
 
+- **Specialize variant bridges by full type applications.** The thirteen
+  full-P4 `continueResult` failures were erased arguments, not different
+  payload semantics. Match upstream `runtime/type/sub.ml`: instantiate
+  both variants and require equivalent payload types. Preserve existing
+  monomorphic names; a structural, region-free encoding of both argument
+  lists names specializations in child namespaces. No hash collisions or
+  encounter-order dependence. Free parameters and explicit function-type
+  arguments remain rejected until an explicit binder scheme is needed.
+  Reason: faithful handling of all observed pairs without silently
+  conflating future specializations or inventing covariant payload casts.
+  Confidence: high at the pin; revisit when an export needs polymorphic
+  bridge declarations. (2026-09-25)
 - **M3A is reconnaissance, not completion of full-P4 generation.** The
   user authorized the full export, capability census, independent quoted
   AST check and a concrete plan for the rest of M3. `P4Spec.lean` remains
@@ -438,6 +450,22 @@ settles is not repeated here.
 
 ## Process
 
+- **Complete M3 autonomously in reviewed stages.** The user explicitly
+  authorized all remaining M3 work and asked that routine decisions not
+  wait for their return. Make reasonable reversible decisions, record
+  their reasons and uncertainties for later review, and pursue safe
+  alternatives when blocked. New authority is still needed for destructive
+  history changes or a material relaxation of the agreed correctness
+  claims. Reason: maintain progress without hiding consequential choices.
+  (2026-09-25)
+- **Choose subagent models by workload.** At the user's request, use
+  GPT-6 Astra for demanding semantics and proof audits, GPT-6 Sol for
+  bounded implementation/testing, and GPT-6 Luna for straightforward
+  inventory checks. Match each assignment to its actual difficulty;
+  do not restart useful running audits solely to change models.
+  Reason: spend stronger reasoning where it affects correctness while
+  keeping focused work efficient. Revisit based on observed task quality.
+  (2026-09-25)
 - **Select merges per PR, defaulting to preservation of useful commits.**
   User approved merge commits for coherent individual changes, squash
   for a single change spread across incidental WIP/fixups, and rebase

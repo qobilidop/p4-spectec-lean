@@ -226,6 +226,13 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 - **Independent read-only review after each step**, filed under
   `.agents/reviews/`; fix findings on the working branch before merging
   to `main` (or before a permitted direct push).
+- **Use subagents and worktrees when useful, choosing models by task.**
+  Prefer Astra for difficult semantics/proof analysis, Sol for bounded
+  implementation and tests, and Luna for straightforward inventories.
+  Give each writer explicit file ownership or an isolated worktree.
+  During authorized autonomous work, make reasonable reversible choices
+  and record consequential decisions for later user review instead of
+  waiting for routine input; do not weaken correctness requirements.
 
 ## Checkpoints and compaction
 
