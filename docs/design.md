@@ -340,7 +340,7 @@ refinement relation and discharges it syntax-directedly. As built (M2,
   cannot close fails the build; nothing is `sorry`ed. At M2 the fragment
   holds 18 of Nano-P4's 153 definitions, all functions: every relation
   calls a builtin or iterates, so the relation form of the statement is
-  exercised only by hand (`.agents/notes/m2-phase-d.md`) until the
+  exercised only in development, not in the build, until the
   fragment grows (M3).
 - **What it does not cover.** The theorem quantifies over generated
   values and their `toValue` images, so the generated *types* and their

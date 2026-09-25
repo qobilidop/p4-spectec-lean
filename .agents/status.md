@@ -3,20 +3,18 @@
 Where the work stands now. Updated at every checkpoint; holds current
 state only.
 
-Last updated: 2026-09-25. **Active: milestone M2 (Nano-P4, rung 3 and
-the lemma library), on branch `m2-nano-p4`; phases A, B, C and D of the
-plan in `.agents/notes/m2-plan.md` are done** (fuel-free executable
-encoding in the `Eval` monad with `partial_fixpoint`; the `Prop` encoding
-of every relation with a generated, tactic-proved run-soundness theorem
-and an axiom audit; the AL interpreter ported to Lean and agreeing with
-upstream on the corpus as the second leg of rung 2; rung 3: every
-definition quoted, the value relation, the refinement calculus, generated
-refinement theorems proved by `refine_al` for the fragment it covers,
-`.agents/notes/m2-phase-d.md`). Phase E: the determinism attempt is
-done (2 of 77 relations, design section 12); the independent review of
-phase D is filed and its gate finding fixed; timing, the phase D/E
-commits, the merge of `main`'s Dependabot bumps, and the merge to `main`
-remain.
+Last updated: 2026-09-25. **Milestone M2 (Nano-P4, rung 3 and the lemma
+library) is closed; nothing is active.** Delivered: the fuel-free
+executable encoding in the `Eval` monad with `partial_fixpoint`; the
+`Prop` encoding of every relation with a generated, tactic-proved
+run-soundness theorem and an axiom audit; the AL interpreter ported to
+Lean and agreeing with upstream on the corpus as the second leg of rung
+2; rung 3 (every definition quoted, the value relation, the refinement
+calculus with a proved witness for its table hypothesis, refinement
+theorems proved by `refine_al` for 18 definitions, one module per
+recursion group); determinism theorems where provable (2 of 77
+relations). The next milestone, M3 (the full P4 spec), needs a scope from
+the user before it starts.
 
 ## Current state
 
@@ -26,25 +24,27 @@ remain.
 | Upstream build | P4-SpecTec at the `gsoc-nano-spec` pin builds in the `upstream` Nix shell on nixpkgs' OCaml 5.5 with `scripts/build-upstream.sh` | `main` |
 | Export | `elab -json`, `algo -json` and `nano parse -json` from `upstream/patches/0001-json-export.patch`; `exports/nano-p4.al.json` (8.5 MB), 78 booted programs with upstream's verdicts under `exports/programs/nano-p4/` | `main` |
 | Deep embedding | `P4SpecTec/Lang/Il/Ast.lean`, `Lang/Al/Ast.lean` and their JSON decoders mirror `lang/il/ast.ml`, `lang/al/ast.ml` at the same paths; `scripts/check-mirror.py` derives every mirrored pair from the paths and checks constructor lists and order | `main` |
-| Prelude | `Runtime/Value/Value.lean` and `Interface/P4/Unparse.lean` mirror value construction, accessors, comparison and the printer; `Interface/Builtin/` ports every builtin file, with unit tests in `P4SpecTecTest/Builtins.lean` and the dispatcher on values `Call.lean`; `Prelude/` holds `ToValue`/`OfValue`, the `Eval` monad, numerics and iteration helpers | `m2-nano-p4` |
-| Interpreter | `Interp/InterpAl/{Backtrack,Ctx,Interp}.lean` mirror `interp/interp-al/` function by function, with fuel, over `Runtime/Value/Match.lean`, `Runtime/Type/{Typdef,Typ,Subst}.lean`, `Runtime/Dynamic/Var.lean`, `Runtime/DynamicAl/{Rel,Func}.lean`, `Lang/Hints/Input.lean`; `lake exe nano-p4-interp` (`P4SpecTecTest/Diff/NanoP4Interp/Main.lean`) runs `Program_ok` on the deep terms against the AL export | `m2-nano-p4` |
-| Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations in both encodings, run-soundness theorems with audits, `Externs` class, per-file modules, `--check`/`--update`; every definition in `Eval := ExceptT Fail Option`, recursive groups by `partial_fixpoint`, no fuel | `m2-nano-p4` |
-| Tactics | `P4SpecTec/Tactic/RunSound.lean`: `run_sound` (symbolic execution of a run function against its `Prop` constructor) and `run_sound_group` (over `mutual_partial_correctness`, matching conjuncts by function); `Tactic/Refine.lean`: `refine_al`, lockstep execution of the interpreter port and the generated code (design 5.1); `Tactic/Audit.lean`: `#audit_axioms` | `m2-nano-p4` |
-| Rung 3 | `Refine/Value.lean` (`canon`, `Rel`, `eq_iff_canon`), `Refine/Quote.lean`, `Refine/Calc.lean` (`Refines`, `Holds`, `HoldsSpec`, exposure lemmas); `Codegen/Reify.lean` quotes every definition (`d.al`), `Codegen/Validate.lean` states the theorems and decides the fragment; `NanoP4Spec/Refinement.lean` holds `spec` (the quoted spec as a list) and the theorems: 18 of 153 definitions are in the fragment (18 functions, 0 relations: no builtin calls, casts, subtype checks, iteration bodies, iterated premises, type parameters, externs, indexing), all 18 theorems proved and audited; the rest are listed there with reasons | `m2-nano-p4` |
-| Generated | `NanoP4Spec/`, 28 modules named after the spec files, 21k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations in both encodings (77 `Prop` inductives, 98 theorems: 77 `R.run_sound` and 21 group theorems, each audited); 65 `partial_fixpoint` definitions in 20 recursive groups | `m2-nano-p4` |
-| Rung 2 | `test/diff/run.py`, two legs: the generated `Program_ok.run` and the interpreter port each agree with the AL interpreter's verdict on 78 of 78 programs (48 pass, 30 fail: 32 positive, 21 negative, 25 exercises); for the 48 that pass, the output typing context equals upstream's value on both legs | `m2-nano-p4` |
-| Timing | `docs/timing-nano-p4.md`: 860.6 s of elaboration over 48 modules (per-module sum); the 18 refinement groups are 19 to 89 s each and build in parallel, so a full rebuild of `NanoP4Spec` takes 123 s wall on 16 cores (was about 13.5 min as one module). Only the `Refinement/` modules import the tactic, so a tactic edit rebuilds only them; a gate rerun with nothing changed takes 7 s | `m2-nano-p4` |
+| Prelude | `Runtime/Value/Value.lean` and `Interface/P4/Unparse.lean` mirror value construction, accessors, comparison and the printer; `Interface/Builtin/` ports every builtin file, with unit tests in `P4SpecTecTest/Builtins.lean` and the dispatcher on values `Call.lean`; `Prelude/` holds `ToValue`/`OfValue`, the `Eval` monad, numerics and iteration helpers | `main` |
+| Interpreter | `Interp/InterpAl/{Backtrack,Ctx,Interp}.lean` mirror `interp/interp-al/` function by function, with fuel, over `Runtime/Value/Match.lean`, `Runtime/Type/{Typdef,Typ,Subst}.lean`, `Runtime/Dynamic/Var.lean`, `Runtime/DynamicAl/{Rel,Func}.lean`, `Lang/Hints/Input.lean`; `lake exe nano-p4-interp` (`P4SpecTecTest/Diff/NanoP4Interp/Main.lean`) runs `Program_ok` on the deep terms against the AL export | `main` |
+| Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations in both encodings, run-soundness theorems with audits, `Externs` class, per-file modules, `--check`/`--update`; every definition in `Eval := ExceptT Fail Option`, recursive groups by `partial_fixpoint`, no fuel | `main` |
+| Tactics | `P4SpecTec/Tactic/RunSound.lean`: `run_sound` (symbolic execution of a run function against its `Prop` constructor) and `run_sound_group` (over `mutual_partial_correctness`, matching conjuncts by function); `Tactic/Refine.lean`: `refine_al`, lockstep execution of the interpreter port and the generated code (design 5.1); `Tactic/Audit.lean`: `#audit_axioms` | `main` |
+| Rung 3 | `Refine/Value.lean` (`canon`, `Rel`, `eq_iff_canon`), `Refine/Quote.lean`, `Refine/Calc.lean` (`Refines`, `Holds`, `HoldsSpec`, exposure lemmas); `Codegen/Reify.lean` quotes every definition (`d.al`), `Codegen/Validate.lean` states the theorems and decides the fragment; `NanoP4Spec/Refinement.lean` holds `spec` (the quoted spec as a list) and the theorems: 18 of 153 definitions are in the fragment (18 functions, 0 relations: no builtin calls, casts, subtype checks, iteration bodies, iterated premises, type parameters, externs, indexing), all 18 theorems proved and audited; the rest are listed there with reasons | `main` |
+| Generated | `NanoP4Spec/`, 28 modules named after the spec files, 21k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations in both encodings (77 `Prop` inductives, 98 theorems: 77 `R.run_sound` and 21 group theorems, each audited); 65 `partial_fixpoint` definitions in 20 recursive groups | `main` |
+| Rung 2 | `test/diff/run.py`, two legs: the generated `Program_ok.run` and the interpreter port each agree with the AL interpreter's verdict on 78 of 78 programs (48 pass, 30 fail: 32 positive, 21 negative, 25 exercises); for the 48 that pass, the output typing context equals upstream's value on both legs | `main` |
+| Timing | `docs/timing-nano-p4.md`: 860.6 s of elaboration over 48 modules (per-module sum); the 18 refinement groups are 19 to 89 s each and build in parallel, so a full rebuild of `NanoP4Spec` takes 123 s wall on 16 cores (was about 13.5 min as one module). Only the `Refinement/` modules import the tactic, so a tactic edit rebuilds only them; a gate rerun with nothing changed takes 7 s | `main` |
 
 ## Last checked evidence
 
-2026-09-25, on `m2-nano-p4` with phases D and E, `scripts/check.sh` in
+2026-09-25, on the M2 branch with phases D and E, `scripts/check.sh` in
 the Nix shell: exit 0 (layout, text, imports, mirror, `lake build --wfail`
 with the 29 generated modules, the 18 refinement theorems, the 2
 determinism theorems and the 98 run-soundness theorems, each with
 `#audit_axioms`, `lake test`, keyword table, `p4spectec-gen --check`, and
 the harness: 78 of 78 verdicts agree on both legs, 48 output typing
-contexts equal). `main` has since moved (three Dependabot workflow bumps,
-merged by the user); not yet merged into the branch.
+contexts equal), rerun after merging `main` (three Dependabot workflow
+bumps) and after splitting the refinement theorems per group: exit 0. CI
+on pull request #4 at `8c8d099`, run 36170670305: success (33 min on a
+cold `.lake` cache; the cache on `main` predated the new modules).
 
 ## Open threads
 
@@ -64,8 +64,9 @@ merged by the user); not yet merged into the branch.
 - The tactic's own diagnostics (`set_option refine_al.trace true`: the
   steps, the phase times) stay in `Tactic/Refine.lean`; the trace goes to
   stderr so that a failing step does not discard it.
-- **Review findings on rung 3 open for M3** (`.agents/reviews/m2-phase-d.md`;
-  the `HoldsSpec` witness it asked for is proved, `holdsSpec_of_init`):
+- **Review findings on rung 3 open for M3** (the M2 review, in git history
+  as `.agents/reviews/m2-phase-d.md` before the M2 close; the `HoldsSpec`
+  witness it asked for is proved, `holdsSpec_of_init`):
   the quoting is trusted (a
   decode-erase-compare test of `NanoP4Spec.spec` against the export is
   the check to add); `Match.sub_`/`check'` answer `false` and
