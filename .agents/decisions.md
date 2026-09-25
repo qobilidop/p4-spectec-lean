@@ -124,6 +124,35 @@ settles is not repeated here.
 
 ## Generated code
 
+- **M3A is reconnaissance, not completion of full-P4 generation.** The
+  user authorized the full export, capability census, independent quoted
+  AST check and a concrete plan for the rest of M3. `P4Spec.lean` remains
+  a placeholder until the generator accepts the unchanged full export.
+  The subsequent phases and exit criteria are in
+  `.agents/notes/full-p4-reconnaissance.md`. Reason: separate rendering barriers,
+  interpreter fidelity, target behavior and proof coverage so progress
+  cannot be mistaken for the thesis's all-definition claim. (2026-09-25)
+- **Spec directory enumeration belongs to upstream.** `export-spec.sh`
+  passes the directory directly; upstream traverses recursively in sorted
+  order and excludes `include/`. Reason: full P4 is sectioned, Nano-P4 is
+  flat, and upstream already defines a deterministic policy. Nano-P4's
+  export remains byte-identical. (2026-09-25)
+- **Commit spec AL snapshots as deterministic gzip with a raw SHA-256.**
+  User approved replacing the proposed 93.83 MiB JSON with a 2.61 MiB
+  lossless snapshot before its first commit. `spec-snapshot.py` packs
+  without a timestamp or filename and verifies before unpacking the
+  ignored working JSON; the gate does this without OCaml. No regions or
+  hints are erased. Nano-P4 migrates forward to 244,303 compressed bytes,
+  preserving its original JSON bytes and published history. Rewriting
+  history would save only its 268,720-byte Git object, not 8.11 MiB.
+  The gate rejects tracked/indexed files over 5 MiB, with no exceptions.
+  Reason:
+  preserve the self-contained frontend/Lean contract without nearing
+  GitHub's 100 MiB file limit or requiring LFS. Compressed files lose
+  ordinary text diffs and still accumulate history; revisit at upstream
+  bumps if size or churn warrants external checksum-pinned artifacts.
+  Confidence: high for this checkpoint, medium long term. (2026-09-25)
+
 - **The compiler consumes the AL (`algo -json`), not the IL.** The AL is
   the IL after upstream's algo pass: binding analysis rewrites every rule
   and clause so that patterns are single-level, subtype injections are
@@ -258,6 +287,26 @@ settles is not repeated here.
 
 ## Verification
 
+- **Check the compiled quoted spec independently on every gate run.**
+  `check-quotes` decodes the current Nano-P4 export and compares it with
+  `NanoP4Spec.spec` using derived AST equality, with test-only instances
+  ignoring regions and hint lists. Source `VarD` entries are omitted,
+  like `Ctx.init`; type notes and all other fields and ordering remain.
+  Reason: comparing reifier output to itself cannot catch a bad quote,
+  and a cached `#eval` cannot notice a changed external JSON file. The
+  check caught the existing type `id`/function `$id` lookup collision;
+  separate maps now preserve type quotations and source placement.
+  This is a test of quoting, not a kernel proof, and extends to full P4
+  once its generated library builds. (2026-09-25)
+- **The full-P4 census is checked but is not a successful compilation.**
+  `p4spectec-census` probes individual emitters, so every component gets
+  its own first diagnostic despite earlier global failures. The checked
+  report includes raw type recursion separately from the generator's
+  mutual-wrapper choice; type text estimates follow the generator's alias
+  unfolding rules. Reason: actual emitter diagnostics are useful for work
+  ordering, while successful text emission and syntactic proof eligibility
+  establish neither elaboration nor correctness. (2026-09-25)
+
 - **Rung 3 is proof-producing translation, and the theorem is a
   type-indexed refinement, not equality.** Per IL type a value relation
   between IL values and generated Lean values; per definition, related
@@ -389,8 +438,45 @@ settles is not repeated here.
 
 ## Process
 
+- **Select merges per PR, defaulting to preservation of useful commits.**
+  User approved merge commits for coherent individual changes, squash
+  for a single change spread across incidental WIP/fixups, and rebase
+  only with an explicit linear-history preference. Reason: Git is the
+  project archive; messages, stable commit references and logical change
+  boundaries aid later investigation. PR #5 should use a merge commit:
+  its implementation and subsequent workflow decisions are distinct.
+  The user prefers no merge-strategy section in PR descriptions; this
+  choice belongs to workflow policy, not the change narrative.
+  This does not bypass review, remote CI or repository protections.
+  (2026-09-25)
+- **Make the existing commit-message convention explicit.** Retain
+  Beams' style and the under-50-character subject, spell out 72-column
+  prose wrapping and rationale, and adopt Git's emphasis on atomic
+  changes and self-contained explanations. Reason: naming a guide alone
+  did not prevent unwrapped bodies in recent commits. Apply prospectively;
+  do not rewrite published history for cosmetic cleanup. Source links
+  and actionable instructions are in `AGENTS.md`. (2026-09-25)
 - **No git tags.** Compaction and archiving rely on git history alone;
   the user does not want tags. (2026-09-25)
-- **Small self-contained changes commit directly to `main`;
-  multi-commit or build-affecting work gets a branch.** Decided by
-  judgment per change, stated in one line when committing. (2026-09-24)
+- **PRs by default; direct-to-main only for trivial, non-behavioral
+  maintenance.** User approved tightening the earlier small-change
+  exception: small code changes can carry substantial risk. Code, proofs,
+  dependencies, exports, build/CI changes and substantive policy use PRs
+  with independent review and passing remote CI, in addition to the local
+  pre-push gate. Routine typos, formatting and status updates may go
+  directly to main. Autonomous completion does not require an additional
+  human approval unless repository protections require one. Reason: test
+  on Linux before landing and retain a coherent review record without
+  unnecessary ceremony for trivial maintenance. (2026-09-25)
+- **PR descriptions explain rationale, evidence and limitations.**
+  Adapted from GitHub's reviewer guidance and Google's engineering
+  practices at the user's request. The actionable policy and source
+  links live in `AGENTS.md`, not a second instruction file or a verbose
+  mandatory template. Reason: a PR must remain understandable without
+  agent chat history; review guidance should be proportional to risk.
+  (2026-09-25)
+- **Keep PR AI disclosure to one short sentence naming agent and exact
+  model.** User requested concise attribution, beyond commit trailers.
+  Model names come from session evidence, not a configured default.
+  Review claims elsewhere must still distinguish AI-agent review from
+  human review. The actionable rule is in `AGENTS.md`. (2026-09-25)

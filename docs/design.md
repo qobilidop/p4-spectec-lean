@@ -3,14 +3,15 @@
 Status: agreed design, 2026-09-24; revised 2026-09-25 after a prior-art
 review (section 11) and again at the end of M1 for what building the
 pilot taught (the AL as the export, fuel, module grouping, the naming
-rule). "IL" below names the language; the export the compiler reads is
-the AL, the IL after upstream's algo pass (section 3).
+rule). The compiler input and the reference interpreter are AL, the
+algorithmic representation produced from IL by upstream's `algo` pass.
+Section 3 distinguishes these stages and their historical names.
 Diagrams: https://claude.ai/artifact/XCUhcd9cSsC4qBu2TjkiUJ (private).
 
 ## 1. Goal and thesis
 
-A compiler from P4-SpecTec's IL (internal language) to Lean 4, written in
-Lean, reusing the upstream OCaml frontend and elaborator unchanged, with
+A compiler from P4-SpecTec's AL (algorithmic language) to Lean 4, written in
+Lean, reusing the upstream OCaml frontend, elaborator and algorithmization pass, with
 every generated definition validated by a machine-checked theorem. Plus a
 small Lean library for P4 primitives that downstream verification projects
 can import without the generated spec.
@@ -21,16 +22,16 @@ output is only partly usable: Wasm SpecTec needed about fifteen IL-to-IL
 passes before Rocq would accept its spec, and the generated Wasm 2.0 file
 still has 64 axioms and 69 recursive functions turned into relations
 because termination could not be shown; the Lean branch has 116 opaque
-definitions and no proofs against it. P4-SpecTec's IL is different in
-kind: elaboration already makes every rule algorithmic, with explicit
+definitions and no proofs against it. P4-SpecTec's AL is different in
+kind: elaboration followed by algorithmization makes every rule algorithmic, with explicit
 dataflow, no existentials, and side conditions for partial patterns. That
 is most of the middlend Wasm had to build, done upstream, once. So:
 
-> Because P4-SpecTec's IL is algorithmic, P4's mechanized semantics can be
+> Because P4-SpecTec's AL is algorithmic, P4's mechanized semantics can be
 > rendered into Lean as ordinary computable functions and rule-indexed
 > inductive relations with nothing opaque, and that rendering can be
 > validated definition by definition against a Lean formalization of the
-> IL, in the manner of proof-producing translation.
+> AL, in the manner of proof-producing translation.
 
 **Claims.** Each has one experiment and one way to fail.
 
@@ -38,7 +39,7 @@ is most of the middlend Wasm had to build, done upstream, once. So:
 |---|---|---|
 | 1. Complete rendering | every definition of the pinned spec renders and kernel-checks | any `opaque`, `axiom`, `sorry` or `partial` in generated code |
 | 2. Agrees with upstream | the executable rendering answers the p4c corpus as upstream's interpreter does | an unexplained divergence |
-| 3. Validated per definition | every generated definition carries a refinement theorem against the IL interpreter, proved by a generic tactic | a theorem the tactic cannot close |
+| 3. Validated per definition | every generated definition carries a refinement theorem against the AL interpreter, proved by a generic tactic | a theorem the tactic cannot close |
 | 4. Usable for proofs | a generated lemma library per relation, including a determinism theorem, that upstream only checks dynamically | a relation whose determinism cannot be stated or a downstream proof that needs hand-written adapters |
 
 The project is self-contained. It depends on upstream P4-SpecTec and on
@@ -91,6 +92,70 @@ alone. Conventions in section 8.
 Source: https://github.com/kaist-plrg/p4-spectec and the P4-SpecTec paper
 (arXiv 2608.00639).
 
+### 3.1 Representations and the compiler boundary
+
+There is one representation currently named **IL**, within a pipeline of
+five main specification-language representations:
+
+| Stage | Name | Purpose |
+|---|---|---|
+| EL | External language | Parsed `.watsup` syntax, close to the author's notation. |
+| IL | Internal language | Elaborated, type-checked syntax with inferred information and type annotations. |
+| AL | Algorithmic language | Binding analysis and side-condition insertion organize rules into executable matches and paths. |
+| SL | Structured language | Rules become structured instruction blocks, including branches, bindings, relation calls and returns. |
+| PL | Prose language | The structured algorithms acquire annotations for rendering readable specification prose. |
+
+The pinned upstream implementation is explicit:
+
+```text
+.watsup → parse → EL → elaborate → IL → algo → AL → structure → SL → annotate → PL
+                                             │
+                                             └→ JSON → this compiler → Lean
+```
+
+The authoritative pipeline is `p4spec/lib/pass/pass.ml`. Its `algo` pass
+is `Binding.Analyze.analyze_spec` followed by
+`Sidecondition.Guard.insert_spec` (`pass/algo/algo.ml`). Most AL types are
+aliases of their IL counterparts: expressions, types, values, premises
+and function clauses are shared. AL changes the representation of rule
+groups, table rows and enclosing definitions. SL introduces instruction
+constructors such as `IfI`, `CaseI`, `LetI`, `RuleI` and `ReturnI`.
+`lang/xl/` contains shared components, not another pipeline stage; `OL`
+under `pass/structure/` is an internal representation of that pass.
+These are representations of the *specification*. They are separate from
+the P4 program IR whose semantics the `.watsup` files define.
+
+Historical names explain some inconsistent references. Upstream commit
+[`80b246ed`](https://github.com/kaist-plrg/p4-spectec/commit/80b246ed),
+2026-06-29, renamed the old **IL to AL** and the old **IL2 to IL**.
+The pinned upstream README still describes a pipeline without AL and
+shows `-il` commands. The P4 command at the pin uses `-al`; the Nano-P4 run
+command retains `-il` for its AL interpreter. This project's older use
+of "IL to Lean" likewise names the language family too loosely: the
+actual exported artifact is `*.al.json`.
+
+AL is the chosen boundary because it keeps the inference-rule structure
+needed for the generated `Prop` relations while already exposing the
+execution structure needed for their run functions. Its upstream
+interpreter provides both an executable oracle and a concrete reference
+implementation to port to Lean. Consuming IL directly would require us
+to reproduce algorithmization or formalize and validate another route
+through binding and side conditions. Consuming SL would put the later
+structuring and control-flow optimization passes inside our trusted
+pipeline and make the connection to individual inference rules less
+direct. The Nano-P4 experiment supports this engineering choice; it is
+not a proof that AL is the only suitable boundary.
+
+The refinement theorems start at **AL**. We trust parsing, elaboration
+and IL-to-AL algorithmization; we do not prove their preservation of the
+source specification's meaning. The IL AST and decoder exist because AL
+shares their types, not because a direct IL backend is implemented.
+Direct IL input is not a scheduled milestone. A future verified or
+validated IL-to-AL pass could strengthen this boundary while reusing the
+AL-to-Lean backend.
+
+### 3.2 Facts at the upstream pin
+
 - Pipeline: `.watsup` spec files → EL (parsed) → IL (elaborated) → AL
   (algorithmic) → SL (structured) → PL (prose). We consume AL: the IL after
   the algo pass (`pass/algo/`, binding analysis and guard insertion), whose
@@ -104,7 +169,7 @@ Source: https://github.com/kaist-plrg/p4-spectec and the P4-SpecTec paper
   type defs, functions with clauses and premises, relations with rule
   groups, plus `extern` types/relations/decs, `builtin` decs, and tables.
   All but `def` and `spec` already derive JSON serialization.
-- Every relation carries an input hint. Elaboration guarantees all outputs
+- Every relation carries an input hint. Elaboration and algorithmization guarantee all outputs
   are computable from inputs with no existential search. Determinism is
   validated dynamically, not statically, so rule order matters for the
   executable encoding but not for the `Prop` encoding.
@@ -352,9 +417,12 @@ refinement relation and discharges it syntax-directedly. As built (M2,
   table hypothesis `HoldsSpec` has its witness (`holdsSpec_of_init`: the
   tables `Ctx.init` builds from the quoted spec satisfy it, so a run of
   the interpreter on `NanoP4Spec.spec` is an instance); the quoting
-  `d.al` is trusted to be the export minus regions and hints (read
-  against the AST at review, not tested: an M3 item,
-  `.agents/roadmap.md`).
+  `d.al` is checked against the decoded export by `check-quotes` on every
+  gate invocation: all 342 quoted Nano-P4 definitions, in order, with
+  regions and hints erased and source `VarD` entries omitted as `Ctx.init`
+  does. The comparison uses independently derived AST equality, not the
+  quoting emitter. This is a runtime check, not a kernel proof of quoting
+  correctness; full-P4 quotations will be checked when that library builds.
 - **Diagnosing a failing proof.** Build the one group:
   `lake build NanoP4Spec.Refinement.<group>` (the module is named after
   the group's first definition, with `'` spelled `_p`). Add
@@ -378,14 +446,14 @@ refinement relation and discharges it syntax-directedly. As built (M2,
 | Component | Status | Why | Does not establish |
 |---|---|---|---|
 | Lean 4 kernel | trusted | standard | |
-| Upstream parser and elaborator (OCaml) | trusted | defines what the spec means; shared with the official P4 spec toolchain | that the spec is P4 |
+| Upstream parser, elaborator and IL-to-AL algorithmization (OCaml) | trusted | produces the AL input; shared with the upstream P4 specification toolchain | that the spec is P4, or a proof that algorithmization preserves IL semantics |
 | JSON dump of the IL | trusted | tiny and structural; round-trip tested against upstream's IL printer | |
 | `P4SpecTec.Interp_al` (the AL interpreter in Lean, with `Runtime.Value.Match`, `Runtime.Type.*`, `Runtime.Dynamic*`, `Builtin.Call`) | trusted | the spec of the compiler; mirrors upstream's `interp/interp-al/` file by file and function by function; cross-checked by the second leg of rung 2 (`nano-p4-interp`: the port on the deep terms of the corpus against the AL export, 78 of 78 verdicts and 48 of 48 outputs agree) | agreement with SL or PL interpreters |
 | `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the default printer, file by file | hint-driven printing (rejected by codegen until supported) |
 | `P4SpecTec.Interface.Builtin` | trusted | ports of upstream builtins, one file per file, at the OCaml file's path; unit tests in `P4SpecTecTest/Builtins.lean` (generated obligations from upstream outputs are planned) | |
 | `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
-| `P4SpecTec.Codegen` | checked | every output validated by rung 3 | |
-| Generated `P4Spec` | checked | kernel-checked, differential-tested, validated per definition | |
+| `P4SpecTec.Codegen` | checked within the supported fragment | 18 Nano-P4 definitions validated by rung 3; all Nano-P4 quotations compared with the export | correctness of definitions outside the refinement fragment |
+| Generated `NanoP4Spec`; planned `P4Spec` | checked to the recorded coverage | Nano-P4 is kernel-checked and differential-tested, with refinement for 18 definitions; full-P4 generation is still blocked | full-P4 correctness before M3's remaining phases |
 | Lean elaborator and compiler | checked / trusted | the kernel checks elaboration; the compiler is trusted for `#eval` and differential runs only | |
 
 ### 5.3 Deviations forced by Lean
@@ -485,7 +553,7 @@ p4-spectec-lean/
 │       └── 0001-json-export.patch   # `elab -json`, `algo -json`, `nano parse -json`
 │
 ├── exports/                      # committed JSON: the OCaml → Lean handoff
-│   ├── nano-p4.al.json           # (p4.al.json at M3)
+│   ├── nano-p4.al.json.gz        # both specs: .json.gz + .json.sha256; extracted JSON ignored
 │   └── programs/nano-p4/         # booted programs with upstream's verdicts
 │
 ├── P4SpecTec/                    # core library, language-agnostic
@@ -543,8 +611,15 @@ p4-spectec-lean/
 Choices embedded in the tree:
 
 - Submodule plus patch, not a fork. Bumping upstream is one line.
-- JSON exports are committed. They are the OCaml/Lean contract, diff
-  cleanly, and Lean builds do not need OCaml. CI checks they are current.
+- JSON exports are committed as the OCaml/Lean contract; Lean builds need
+  no OCaml. Both spec snapshots use deterministic gzip and
+  a raw checksum; the gate verifies and extracts it. Its readable census
+  stays in Git, but ordinary text diffs of the compressed AST are lost.
+  CI checks generated Lean and the census against these snapshots; it
+  does not re-export upstream specifications on every run.
+  Tracked files are capped at 5 MiB by the gate; larger or high-churn
+  inputs should use checksum-pinned external artifacts. History is not
+  rewritten merely to migrate existing snapshots to compressed storage.
 - Generated Lean is committed and is the build input. CI regenerates from
   the exports and fails on any diff. Generated files carry a grep-able
   header naming the generator and the spec file, and are never
@@ -622,8 +697,7 @@ Armv8 model in Coq at all. So:
   GitHub Pages site in three stages: none until M1; doc-gen4 API
   reference after M1; a Verso site with checked examples at M4.
 - **No license header per file.**
-- **Commits** follow Chris Beams' rules with a body that says why. Small
-  self-contained changes go directly to `main`.
+- **Contribution workflow and PR-writing policy** live in `AGENTS.md`.
 - **Independent read-only review after each step.**
 
 ## 9. Downstream use
@@ -658,6 +732,13 @@ and what we provide regardless of consumer:
 - **M3, full P4 1.2.5 spec.** Scale codegen and elaboration to ~80 files.
   Expect work on mutual blocks, `partial_fixpoint` monotonicity, and
   build times. Target instances arrive with the packet leg of rung 2.
+  M3A exports the pinned full spec and measures the remaining obligations;
+  generation currently stops at print hints. Independent emission probes
+  also identify indexed path updates, stateful fresh identifiers and
+  thirteen subtype bridges as barriers. These are generation gaps, not
+  evidence of a full-P4 build or proof coverage.
+  The 108 source inputs become 80 top-level source-region files in AL;
+  the final Lean module count is not yet known.
 - **M4, P4Lib and the site.** BitVec bridge, packet types, first
   downstream proof, Verso site.
 

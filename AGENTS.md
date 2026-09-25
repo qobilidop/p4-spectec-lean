@@ -6,20 +6,22 @@ was done: everything needed is in the files named here.
 
 ## What this is
 
-p4-spectec-lean: a compiler from P4-SpecTec's IL to Lean 4, validated
-per definition against a Lean formalization of the IL, plus a small P4
+p4-spectec-lean: a compiler from P4-SpecTec's AL to Lean 4, validated
+per definition against a Lean port of the AL interpreter, plus a small P4
 primitives library. The design, principles and milestones are in
 `docs/design.md`.
 
 ## Where things live
 
-Documentation is split by what it describes, not by who reads it:
+Documentation is split by purpose and audience:
 
-- `docs/` describes the artifact: what it is, how it works, what is
-  trusted and what is checked. Written for people; nothing in it links
-  into `.agents/`.
+- `docs/` contains polished, human-facing documentation of the artifact:
+  what it is, how it works, what is trusted and what is checked. No
+  agent-oriented plans, working reports or raw analysis dumps; nothing
+  in it links into `.agents/`.
 - `.agents/` describes the work: where it stands, what was decided and
-  why, what is parked. Committed narrative state, never runtime state.
+  why, what is parked. Agent-oriented plans, working notes and reproducible
+  analysis reports belong here. Committed working state, never runtime state.
   Logs and scratch output stay out of git.
 
 | File | Holds |
@@ -29,6 +31,8 @@ Documentation is split by what it describes, not by who reads it:
 | `.agents/roadmap.md` | backlog beyond the milestones in the design |
 | `.agents/notes/` | live working notes |
 | `.agents/reviews/` | independent review reports for the current work |
+| `.agents/notes/full-p4-reconnaissance.md` | full-P4 census findings and the remaining M3 phases |
+| `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
 
 `.agents/` is a hidden directory; `rg` and `fd` skip it unless told to
 include hidden files. Git history is the archive; nothing is tagged.
@@ -65,6 +69,9 @@ scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token tab
 scripts/time-elab.sh <Lib>  # per-module elaboration times, to docs/timing-<lib>.md
 lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]   # the compiler
 test/diff/run.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
+lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
+lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json
+python3 scripts/spec-snapshot.py unpack exports/p4.al.json  # verified full-P4 extraction
 ```
 
 Keep `main` green. Check exit codes, not output. CI
@@ -111,6 +118,15 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 - **Every external input is pinned**: P4-SpecTec by commit (the
   submodule), the opam repository by commit (`scripts/build-upstream.sh`),
   Lean by `lean-toolchain`, Batteries by tag in `lakefile.toml`.
+- **Keep the repository lean; do not commit very large files.** Prefer
+  reproducible generation or small, losslessly compressed snapshots for
+  generated inputs; use checksum-pinned external artifacts when size or
+  churn makes those unsuitable. Assess Git history growth, not just the
+  current checkout. Rewriting published history requires explicit user
+  agreement on the affected refs and disruption; do not infer it from a
+  request to reduce repository size.
+  `scripts/check-file-sizes.py` rejects tracked files above 5 MiB in
+  either the index or working tree. No size exceptions are currently allowed.
 - **JSON exports are committed, and so is generated Lean**, under
   `NanoP4Spec/` and `P4Spec/`, one module per upstream spec file (none
   for a file whose definitions all sit in a recursive group completed by a
@@ -119,6 +135,11 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   the exports and fails on any diff; never hand-edit a generated file,
   regenerate it with `--update`. `P4SpecTec/Codegen/Keywords.lean` is
   generated too, from Lean's token table.
+  Both spec snapshots are committed as `exports/<name>.al.json.gz` plus
+  a raw SHA-256; the gate verifies and extracts the ignored JSON files.
+  Full-P4 generation remains
+  blocked on the constructs in `.agents/notes/full-p4-reconnaissance.md`, and the
+  gate checks its decoded capability census until generation is supported.
 - **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
   (a warning fails, and a `sorry` is a warning), `lake test`, every module
   imported by its library root, no trailing whitespace, Lean lines at most
@@ -148,17 +169,63 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   a confidence and revisit trigger when uncertain.
 - **`.agents/status.md` is updated at every checkpoint**: exact checks
   run, skipped gates, remaining obligations, next concrete step.
-- **Commits**: Chris Beams' seven rules; imperative subject under 50
-  characters; a body that says why, not what. One logical change per
-  commit. Agent commits end with a `Co-Authored-By: <agent> <email>`
-  trailer. Small self-contained changes go directly to `main`;
-  multi-commit or build-affecting work gets a branch.
+- **Commit messages** follow [Chris Beams](https://cbea.ms/git-commit/)
+  and [Git's contribution guidance](https://git-scm.com/docs/SubmittingPatches).
+  Use a specific, capitalized imperative subject under 50 characters,
+  without a final period. Separate the body with a blank line and wrap
+  prose at 72 columns (leave URLs and required trailers intact). Explain
+  the prior problem, intended outcome and why this approach was chosen;
+  include consequential alternatives or compatibility effects when
+  relevant. Do not merely restate the diff or depend on chat/PR context.
+  Keep one logical change per commit, including its tests and necessary
+  documentation; split unrelated work instead of hiding it behind a
+  vague subject. A PR explains the whole proposal; each commit explains
+  its own change. Inspect the staged diff and final message before
+  committing. Agent commits end with the required coauthor trailer.
+- **PRs are the default**, even for small code changes.
+  Direct-to-`main` is reserved for trivial, non-behavioral maintenance
+  (typos, formatting, routine status updates), never changes to code,
+  proofs, dependencies, exports, build/CI behavior or substantive policy.
+  PRs need independent review and passing remote CI before merging;
+  the local full gate is still required before pushing. A separate human
+  approval is not required when autonomous completion was authorized;
+  all repository protection requirements still apply.
+- **Choose the merge strategy per PR; preserve meaningful commits by
+  default.** Use a merge commit when individual commits are coherent
+  changes worth retaining, preserving their messages, hashes and the PR
+  boundary. Squash when one logical change is spread across WIP/fixup
+  commits; write a considered final message preserving rationale and
+  coauthor attribution, not a concatenation of progress notes. Use
+  rebase-and-merge only when a linear-history preference is explicit,
+  accepting that GitHub changes commit hashes. Keep this workflow choice
+  out of the PR description unless requested; a merge-strategy section
+  is unnecessary. Merge only after review and CI for the final revision.
+- **PR descriptions are a durable explanation for reviewers.** Use a
+  specific, outcome-focused title. Lead with the problem and why the
+  change is needed; summarize the approach and consequential tradeoffs,
+  not a file-by-file changelog. Supply enough context to stand alone
+  without chat history; link supporting issues/designs rather than
+  making readers reconstruct the rationale from them. Record exact
+  validation commands and results, distinguishing local tests, remote
+  CI, and checks not run. State meaningful risks, compatibility changes
+  and scope limits. For complex diffs, give a short review order and
+  identify where judgment is needed. Scale the length to the change;
+  omit empty sections and boilerplate. Re-read the description against
+  the final diff before merging and update stale claims.
+  This follows [GitHub's review guidance](https://docs.github.com/en/pull-requests/concepts/helping-others-review-your-changes)
+  and [Google's change-description guidance](https://google.github.io/eng-practices/review/developer/cl-descriptions.html).
+- **AI disclosure in PRs:** one short sentence naming the authoring agent
+  and exact model, e.g. "Authored by OpenAI Codex (GPT-6 Astra)." Verify
+  attribution from active-session evidence, not a configured default;
+  never guess. Keep review claims accurate elsewhere in the description:
+  AI-agent review is not human review. Coauthor trailers remain required.
 - **Unfinished work is a pushed branch** with a work-in-progress commit
   saying what it holds and lacks, never an uncommitted worktree.
 - **A push is gated on the recorded exit status** of the full gate, never
   on a command that reads a log.
 - **Independent read-only review after each step**, filed under
-  `.agents/reviews/`, findings fixed on `main`.
+  `.agents/reviews/`; fix findings on the working branch before merging
+  to `main` (or before a permitted direct push).
 
 ## Checkpoints and compaction
 

@@ -4,7 +4,7 @@ Where the work stands now. Updated at every checkpoint; holds current
 state only.
 
 Last updated: 2026-09-25. **Milestone M2 (Nano-P4, rung 3 and the lemma
-library) is closed; nothing is active.** Delivered: the fuel-free
+library) is closed; M3A is complete on `m3a-full-p4`.** Delivered: the fuel-free
 executable encoding in the `Eval` monad with `partial_fixpoint`; the
 `Prop` encoding of every relation with a generated, tactic-proved
 run-soundness theorem and an axiom audit; the AL interpreter ported to
@@ -13,8 +13,65 @@ Lean and agreeing with upstream on the corpus as the second leg of rung
 calculus with a proved witness for its table hypothesis, refinement
 theorems proved by `refine_al` for 18 definitions, one module per
 recursion group); determinism theorems where provable (2 of 77
-relations). The next milestone, M3 (the full P4 spec), needs a scope from
-the user before it starts.
+relations). The user authorized M3A: recursive spec export, the full pinned
+P4 AL export and a capability census, a generated-quotation comparison
+against the export, and an evidence-based plan for the rest of M3.
+Full P4 rendering, target instances and expanding the proof fragment are
+later phases; M3A measures their obligations.
+
+## M3A checkpoint
+
+- Branch: `m3a-full-p4`, based on `384adea`.
+- Delivered in PR #5 (`b5448c9` implementation, follow-up policies through
+  `c5e96fb`). PR-default workflow, PR/commit-writing guidance and explicit
+  AI disclosure are recorded in `AGENTS.md`; PR #5's description reflects
+  them. Prior policy reviews and full local gates passed; see
+  `.agents/reviews/pr-workflow.md`.
+- User approved choosing merge strategy per PR, preserving meaningful
+  commits by default. PR #5 should use a merge commit to retain its
+  distinct implementation and workflow decisions. The AI disclosure also
+  names the authoring agent and model in one sentence, per the user's
+  brevity request: OpenAI Codex (GPT-6 Astra), verified via the session
+  coauthor helper and existing trailers. Merge strategy stays out of the
+  PR description. These policy-only changes passed independent review
+  and the full local gate (exit 0); they change no repository settings.
+  Remote CI must pass on the final PR revision before merging.
+- Confirmed only the expected four patched upstream OCaml files were dirty.
+- Read the resume documents, exporter, generator entry point, quotation
+  emitter, fragment classifier and differential harness.
+- Recursive export delivered: Nano-P4 is byte-identical; full P4 is
+  98,387,720 bytes, 1,689 definitions. The exporter review independently
+  reproduced both hashes. Full P4 contains 108 source files, with 80
+  top-level declaration-region files in AL.
+- Independent quotation check caught and fixed a type/function namespace
+  collision (`id.al` incorrectly contained `$id`'s FuncDecD). Regenerated
+  output changes only that quotation. Runtime comparison: all 342
+  definitions match, exit 0; sensitivity and namespace tests: exit 0.
+  Quotation review passed after explicit gate invocation was added.
+- Census: four callable emission failures, one Prop-emission failure,
+  thirteen subtype bridge failures; 138 functions syntactically eligible
+  for refinement. Nano-P4 cross-check reproduces its 18 candidates with
+  no emission failures. Type text estimates corrected after independent
+  review; post-correction review and census check passed.
+- Pipeline distinctions and remaining M3 phases are documented in
+  `docs/design.md` section 3 and `.agents/notes/full-p4-reconnaissance.md`.
+  Working reports and the machine census live under `.agents/notes/`,
+  not in human-facing `docs/`, per the user's documentation policy.
+- User approved preserving published history and compressing both spec
+  snapshots: Nano 244,303 bytes; full P4 2,738,237 bytes. Raw JSON is
+  ignored, checksum-verified and extracted by the gate. Full P4's 98 MB
+  raw export was never committed. The gate rejects files over 5 MiB,
+  checking the index as well as the working tree; no exceptions.
+- Independent export, quotation and census reviews are in
+  `.agents/reviews/`; all code findings fixed. Later storage and size-guard
+  reviews passed. Documentation findings (remaining IL/AL contradictions)
+  fixed; final documentation-placement review passed. Full gate after
+  relocation: exit 0. Delivered in PR #5; remote CI is not part
+  of this local evidence and must be checked before merging.
+- Next scoped work is M3B, not automatic completion of all M3: inspect
+  the thirteen failing `continueResult` subtype bridges against AL
+  `subcheck`, then implement faithful generation of the remaining
+  constructs. The phased plan gives exit criteria and fidelity gaps.
 
 ## Current state
 
@@ -22,7 +79,7 @@ the user before it starts.
 |---|---|---|
 | Design | agreed; revised for M1's findings (AL not IL as the export, fuel, module grouping, naming rule) | `main` |
 | Upstream build | P4-SpecTec at the `gsoc-nano-spec` pin builds in the `upstream` Nix shell on nixpkgs' OCaml 5.5 with `scripts/build-upstream.sh` | `main` |
-| Export | `elab -json`, `algo -json` and `nano parse -json` from `upstream/patches/0001-json-export.patch`; `exports/nano-p4.al.json` (8.5 MB), 78 booted programs with upstream's verdicts under `exports/programs/nano-p4/` | `main` |
+| Export | `elab -json`, `algo -json` and `nano parse -json` from `upstream/patches/0001-json-export.patch`; both spec AL snapshots stored as gzip plus raw SHA-256; 78 booted programs with upstream's verdicts under `exports/programs/nano-p4/` | M3A branch |
 | Deep embedding | `P4SpecTec/Lang/Il/Ast.lean`, `Lang/Al/Ast.lean` and their JSON decoders mirror `lang/il/ast.ml`, `lang/al/ast.ml` at the same paths; `scripts/check-mirror.py` derives every mirrored pair from the paths and checks constructor lists and order | `main` |
 | Prelude | `Runtime/Value/Value.lean` and `Interface/P4/Unparse.lean` mirror value construction, accessors, comparison and the printer; `Interface/Builtin/` ports every builtin file, with unit tests in `P4SpecTecTest/Builtins.lean` and the dispatcher on values `Call.lean`; `Prelude/` holds `ToValue`/`OfValue`, the `Eval` monad, numerics and iteration helpers | `main` |
 | Interpreter | `Interp/InterpAl/{Backtrack,Ctx,Interp}.lean` mirror `interp/interp-al/` function by function, with fuel, over `Runtime/Value/Match.lean`, `Runtime/Type/{Typdef,Typ,Subst}.lean`, `Runtime/Dynamic/Var.lean`, `Runtime/DynamicAl/{Rel,Func}.lean`, `Lang/Hints/Input.lean`; `lake exe nano-p4-interp` (`P4SpecTecTest/Diff/NanoP4Interp/Main.lean`) runs `Program_ok` on the deep terms against the AL export | `main` |
@@ -35,19 +92,20 @@ the user before it starts.
 
 ## Last checked evidence
 
-2026-09-25, on the M2 branch with phases D and E, `scripts/check.sh` in
-the Nix shell: exit 0 (layout, text, imports, mirror, `lake build --wfail`
-with the generated modules (48 after the per-group split), the 18 refinement theorems, the 2
-determinism theorems and the 98 run-soundness theorems, each with
-`#audit_axioms`, `lake test`, keyword table, `p4spectec-gen --check`, and
-the harness: 78 of 78 verdicts agree on both legs, 48 output typing
-contexts equal), rerun after merging `main` (three Dependabot workflow
-bumps) and after splitting the refinement theorems per group: exit 0. CI
-on pull request #4 at `8c8d099`, run 36170670305: success (33 min on a
-cold `.lake` cache; the cache on `main` predated the new modules). On `main`
-after the M2 merge and the handoff fixes (including the gate's own
-layout list), `scripts/check.sh`: exit 0; CI on `main` is the running
-verdict for each push.
+2026-09-25, M3A, `scripts/check.sh` in the default Nix shell: exit 0
+after both gzip snapshots and the file-size guard were integrated. All
+existing Lean builds/tests/axiom audits and generator checks pass; 78
+verdicts and 48 output contexts agree on both differential legs; all 342
+quotations match; the 1,689-definition census is current. Snapshot tests
+(3) and size-guard test pass. No Lean gates skipped. Final rerun after
+moving the work reports: exit 0. Diff whitespace check: exit 0.
+
+Both export scripts rerun through the upstream Nix shell: exit 0;
+archives/checksums byte-identical to staged versions. Upstream's `$sink`
+missing-clauses warning is expected and recorded. No fresh upstream
+build was needed; the existing executable at the unchanged pin was used.
+Full-P4 generation, proofs and target simulation were not attempted as
+completion gates: they remain blocked on the measured M3B–M3F work.
 
 ## Open threads
 
@@ -70,9 +128,8 @@ verdict for each push.
 - **Review findings on rung 3 open for M3** (the M2 review, in git history
   as `.agents/reviews/m2-phase-d.md`, readable at commit `530f132`; the `HoldsSpec`
   witness it asked for is proved, `holdsSpec_of_init`):
-  the quoting is trusted (a
-  decode-erase-compare test of `NanoP4Spec.spec` against the export is
-  the check to add); `Match.sub_`/`check'` answer `false` and
+  quotation comparison is now covered by M3A's runtime gate;
+  `Match.sub_`/`check'` answer `false` and
   `Subst.subst_typ_inner` the identity at fuel zero, the class of wart
   fixed in `is_iter_var_exp`, harmless while their fuel is the constant
   1000 but in the way once casts enter the fragment; the codegen mutation
