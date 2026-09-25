@@ -1,0 +1,113 @@
+diff --git a/p4spec/bin/main.ml b/p4spec/bin/main.ml
+index 189b04df..c86603e6 100644
+--- a/p4spec/bin/main.ml
++++ b/p4spec/bin/main.ml
+@@ -160,12 +160,15 @@ let elab_command =
+      let open Core.Command.Param in
+      let%map paths_spec =
+        anon (non_empty_sequence_as_list ("path" %: string))
+-     in
++     and json = flag "-json" no_arg ~doc:"print the IL as JSON" in
+      fun () ->
+        run_with_diagnostics
+          ~action:(fun () -> P4spectec.elab paths_spec)
+          ~on_success:(fun spec_il ->
+-           Format.printf "%s\n" (Il.Print.string_of_spec spec_il);
++           if json then
++             Format.printf "%s\n"
++               (Yojson.Safe.to_string (Il.spec_to_yojson spec_il))
++           else Format.printf "%s\n" (Il.Print.string_of_spec spec_il);
+            Ok ()))
+ 
+ let algo_command =
+@@ -174,12 +177,15 @@ let algo_command =
+      let open Core.Command.Param in
+      let%map paths_spec =
+        anon (non_empty_sequence_as_list ("path" %: string))
+-     in
++     and json = flag "-json" no_arg ~doc:"print the AL as JSON" in
+      fun () ->
+        run_with_diagnostics
+          ~action:(fun () -> P4spectec.algo paths_spec)
+          ~on_success:(fun spec_al ->
+-           Format.printf "%s\n" (Al.Print.string_of_spec spec_al);
++           if json then
++             Format.printf "%s\n"
++               (Yojson.Safe.to_string (Al.spec_to_yojson spec_al))
++           else Format.printf "%s\n" (Al.Print.string_of_spec spec_al);
+            Ok ()))
+ 
+ let struct_command =
+diff --git a/p4spec/bin/nano.ml b/p4spec/bin/nano.ml
+index 2e96f945..498d34e2 100644
+--- a/p4spec/bin/nano.ml
++++ b/p4spec/bin/nano.ml
+@@ -118,11 +118,15 @@ let parse_command =
+      let open Core.Command.Param in
+      let%map path_p4 = flag "-p" (required string) ~doc:"Nano-P4 program"
+      and tree = flag "-t" no_arg ~doc:"print as tree"
++     and json = flag "-json" no_arg ~doc:"print the IL value as JSON"
+      and includes_p4 = flag "-i" (listed string) ~doc:"Nano-P4 include paths" in
+      fun () ->
+        match Interface.NanoP4.parse_program includes_p4 [ path_p4 ] with
+        | Pass value_program ->
+            if tree then Nano.Print.print_tree value_program
++           else if json then
++             Format.printf "%s\n"
++               (Yojson.Safe.to_string (Il.value_to_yojson value_program))
+            else Format.printf "%s\n" (Il.Print.string_of_value value_program)
+        | Fail diagnostic ->
+            render_failure diagnostic;
+diff --git a/p4spec/lib/lang/al/ast.ml b/p4spec/lib/lang/al/ast.ml
+index 3ea7bc09..a51a73cd 100644
+--- a/p4spec/lib/lang/al/ast.ml
++++ b/p4spec/lib/lang/al/ast.ml
+@@ -126,11 +126,11 @@ and elsegroup' = id * rulematch * rulepath
+ 
+ (* Clauses *)
+ 
+-type clause = Il.clause
+-type clause' = Il.clause'
++type clause = Il.clause [@@deriving yojson]
++type clause' = Il.clause' [@@deriving yojson]
+ 
+-type elseclause = Il.elseclause
+-type elseclause' = Il.elseclause'
++type elseclause = Il.elseclause [@@deriving yojson]
++type elseclause' = Il.elseclause' [@@deriving yojson]
+ 
+ (* Table rows *)
+ 
+@@ -139,7 +139,7 @@ and tablerow' = exp list * arg list * exp * prem list
+ 
+ (* Hints *)
+ 
+-type hint = El.hint
++type hint = El.hint [@@deriving yojson]
+ 
+ (* Definitions *)
+ 
+@@ -163,7 +163,8 @@ and def' =
+   | TableDecD of id * param list * typ * tablerow list * hint list
+   (* `dec` id `<` list(tparam, `,`) `>` list(param, `,`) `:` typ clause* hint* *)
+   | FuncDecD of id * tparam list * param list * typ * clause list * elseclause option * hint list
++[@@deriving yojson]
+ 
+ (* Spec *)
+ 
+-type spec = def list
++type spec = def list [@@deriving yojson]
+diff --git a/p4spec/lib/lang/il/ast.ml b/p4spec/lib/lang/il/ast.ml
+index 8b423035..b823425d 100644
+--- a/p4spec/lib/lang/il/ast.ml
++++ b/p4spec/lib/lang/il/ast.ml
+@@ -255,7 +255,8 @@ and def' =
+   | TableDecD of id * param list * typ * tablerow list * hint list
+   (* `dec` id `<` list(tparam, `,`) `>` list(param, `,`) `:` typ clause* hint* *)
+   | FuncDecD of id * tparam list * param list * typ * clause list * elseclause option * hint list
++[@@deriving yojson]
+ 
+ (* Spec *)
+ 
+-type spec = def list
++type spec = def list [@@deriving yojson]
