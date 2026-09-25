@@ -41,6 +41,9 @@ for path in \
   test/print/observed.json test/print/run.py test/print/probe.ml \
   P4SpecTecTest/Print/Main.lean P4SpecTecTest/Text/Main.lean \
   test/text/observed.json test/text/run.py test/text/probe.ml \
+  P4SpecTecTest/StateOracle/Main.lean \
+  test/state/observed.json test/state/run.py test/state/probe.ml test/state/README.md \
+  test/state/test_oracle.py \
   scripts/build-upstream.sh scripts/export-spec.sh scripts/export-program.sh \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
   test/diff/run.py .github/workflows/ci.yml
@@ -78,12 +81,17 @@ if command -v lake >/dev/null 2>&1; then
   (cd "$root" && python3 test/diff/run.py) || { say "differential test failed"; fail=1; }
   python3 "$root/test/diff/test_json_boundary.py" \
     || { say "JSON transport/output checks failed"; fail=1; }
-  (cd "$root" && lake build --wfail check-quotes check-print check-text-builtins p4spectec-census) \
+  (cd "$root" && lake build --wfail check-quotes check-print check-text-builtins \
+    check-state-oracle p4spectec-census) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }
   (cd "$root" && lake exe check-text-builtins) \
     || { say "text builtin oracle check failed"; fail=1; }
+  (cd "$root" && lake exe check-state-oracle) \
+    || { say "stateful interpreter oracle check failed"; fail=1; }
+  python3 "$root/test/state/test_oracle.py" \
+    || { say "state oracle sensitivity check failed"; fail=1; }
   (cd "$root" && lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json) \
     || { say "P4 census is stale or the export does not decode"; fail=1; }
 elif [ "${P4SPECTEC_SKIP_LEAN:-0}" = "1" ]; then

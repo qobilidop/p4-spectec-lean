@@ -462,6 +462,15 @@ The existing pure Nano refinement statements remain unchanged. This shared
 interpreter does not by itself provide stateful generated code or refinement
 proofs, or establish guarded higher-order full-P4 execution.
 
+The state oracle records 15 pinned upstream observations: ten complete
+AL/session cases and five direct fresh-builtin cases. Complete AL runs in
+sequential, cache-free, guard-disabled mode. It compares payloads and exact
+post-state; upstream's public entry points collapse internal hard errors
+and mismatches, so only the direct primitive cases compare failure tags
+exactly. Signed wrap and invalid arity are primitive observations, not
+complete-AL coverage. The fixture is checked on every gate and can be
+regenerated from the pinned upstream interpreter.
+
 ### 5.2 Trusted vs checked
 
 | Component | Status | Why | Does not establish |

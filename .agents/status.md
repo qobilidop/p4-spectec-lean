@@ -38,16 +38,24 @@ correctness requirements or destructive published-history changes.
   Narrow integration review passed, including hard-text-failure state
   retention and raw-byte preservation. The full primary gate exited 0 with
   no skips, including rebuilt Nano proofs and all existing oracles/corpus
-  checks. Durable state-oracle integration is next; no push yet.
+  checks. Durable state-oracle commit `59525a2` is now integrated with byte
+  adapters: upstream regeneration, focused build and all 15 comparisons
+  exited 0. Root independent review fixed primitive failure-kind sensitivity
+  and required exact mode/scope documentation. The oracle-integrated full
+  gate exited 0 with no skips, including all 15 observations and ten corrupt
+  fixture rejections. Sol independently reviewed the root's byte/JSON/CLI
+  adapters and gate hooks with no findings. Publication and remote CI are
+  next. Oracle review: `.agents/reviews/m3b-state-oracle.md`.
   Evidence: `.agents/notes/effect-interpreter.md` and
   `.agents/reviews/m3b-effect-interpreter.md`.
-- Parallel isolated next work: GPT-6 Sol is making durable pinned upstream
-  AL state observations in `p4-spectec-lean-state-oracle`; GPT-6 Astra is
-  prototyping recursive rejected-prefix proof obligations in
-  `p4-spectec-lean-state-proof-prototype`. Both are unintegrated. Root has
-  prepared `m3b-state-codegen` in the former byte worktree with reviewed
-  state foundations; no generator changes yet. The plan records debug
-  evaluation, callback dependency/scope and recursive witness obligations.
+- Parallel next work: the recursive rejected-prefix fixture `981cc0b`,
+  reviewed as `9c95fba`, is frozen in `p4-spectec-lean-state-proof-prototype`
+  and not yet integrated. It proves exact recursive failure-state transport
+  using stronger all-outcome motives. Executable state codegen is active in
+  the former byte worktree (`m3b-state-codegen`); state Prop/run-soundness
+  work is isolated in `p4-spectec-lean-state-props`. Shared mode/attempt/
+  statement APIs are coordinated. Production state generation remains
+  explicitly rejected until structural propositions and proofs are ready.
 - Next: finish integrated interpreter review/gate and publish; continue
   state oracle and proof prototype before enabling generator state mode.
 
