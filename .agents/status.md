@@ -34,8 +34,12 @@ correctness requirements or destructive published-history changes.
   exited 0, no skips: all Nano proofs rebuilt, generator output unchanged,
   both differential legs, quotations, printer fixtures and census pass.
   No generator, stateful refinement or memoization claim.
-- The next integration decision is documented with alternatives in
-  `.agents/notes/fresh-identifiers.md`. A separate ignored scratch probe
+- The integration direction is now recorded in
+  `.agents/notes/state-integration.md`: uniform full-spec state selected
+  structurally, one shared interpreter, state-indexed successful rules
+  with rejected-prefix evidence. The audit caught shared rule prefixes
+  that must rerun on each attempt before effects can be enabled.
+  A separate ignored scratch probe
   demonstrated an Option-returning recursive allocator with
   `partial_fixpoint` and an audited standard axiom set after adding two
   monotonicity lemmas; this is not yet a committed API or full integration.
