@@ -281,8 +281,8 @@ settles is not repeated here.
   included) is what makes `else` groups and `does not hold` premises
   meaningful, and divergence refining anything is what makes every fuel
   provable; one `HoldsSpec` over the whole quoted spec avoids listing the
-  transitive callees of every definition, so the theorems live in one
-  module after the spec files (`Refinement.lean`); the guard is
+  transitive callees of every definition, so the theorems live in modules
+  after the spec files, one per recursion group (`Refinement/`); the guard is
   instrumentation, not meaning. `canon` is not idempotent on `ExternV`
   (`Json.compress` is a `partial def` nothing can be proved about), so
   equality tests are aligned by the congruence `eq_of_canon`, not by a

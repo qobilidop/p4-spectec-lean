@@ -33,7 +33,7 @@ remain.
 | Rung 3 | `Refine/Value.lean` (`canon`, `Rel`, `eq_iff_canon`), `Refine/Quote.lean`, `Refine/Calc.lean` (`Refines`, `Holds`, `HoldsSpec`, exposure lemmas); `Codegen/Reify.lean` quotes every definition (`d.al`), `Codegen/Validate.lean` states the theorems and decides the fragment; `NanoP4Spec/Refinement.lean` holds `spec` (the quoted spec as a list) and the theorems: 18 of 153 definitions are in the fragment (18 functions, 0 relations: no builtin calls, casts, subtype checks, iteration bodies, iterated premises, type parameters, externs, indexing), all 18 theorems proved and audited; the rest are listed there with reasons | `m2-nano-p4` |
 | Generated | `NanoP4Spec/`, 28 modules named after the spec files, 21k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations in both encodings (77 `Prop` inductives, 98 theorems: 77 `R.run_sound` and 21 group theorems, each audited); 65 `partial_fixpoint` definitions in 20 recursive groups | `m2-nano-p4` |
 | Rung 2 | `test/diff/run.py`, two legs: the generated `Program_ok.run` and the interpreter port each agree with the AL interpreter's verdict on 78 of 78 programs (48 pass, 30 fail: 32 positive, 21 negative, 25 exercises); for the 48 that pass, the output typing context equals upstream's value on both legs | `m2-nano-p4` |
-| Timing | `docs/timing-nano-p4.md`: 807.7 s over 29 modules; `Refinement` (the 18 refinement theorems) is 773 s, about 43 s per theorem, the other 28 modules 35 s together. Proof-checking time, not authoring, is the cost, as the design predicted; the driver's `simp` calls on the interpreter's equations dominate (phase times under `refine_al.trace`) | `m2-nano-p4` |
+| Timing | `docs/timing-nano-p4.md`: 860.6 s of elaboration over 48 modules (per-module sum); the 18 refinement groups are 19 to 89 s each and build in parallel, so a full rebuild of `NanoP4Spec` takes 123 s wall on 16 cores (was about 13.5 min as one module). Only the `Refinement/` modules import the tactic, so a tactic edit rebuilds only them; a gate rerun with nothing changed takes 7 s | `m2-nano-p4` |
 
 ## Last checked evidence
 
@@ -48,10 +48,10 @@ merged by the user); not yet merged into the branch.
 
 ## Open threads
 
-- **Rung 3's proof time**: 43 s per theorem; at the full spec's size this
-  is the budget to watch. The profile is in the tactic's trace; caching
-  the simp set per module and splitting `Refinement.lean` per spec file
-  are the first levers.
+- **Rung 3's proof time**: 19 to 89 s per group, parallel across groups;
+  at the full spec's size this is the budget to watch. The profile is in
+  the tactic's trace; caching the simp set (rebuilt per theorem, with a
+  scan of the environment) is the next lever.
 - **Rung 3 covers 18 of 153 definitions.** Growing the fragment is the
   M3 work order for rung 3, in this order of payoff: builtin calls (a
   lemma per builtin relating the port on values to the wrapper), iterated

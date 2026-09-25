@@ -5,8 +5,6 @@ import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
 import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
-import P4SpecTec.Refine.Calc
-import P4SpecTec.Tactic.Refine
 
 /-! # NanoP4Spec.«0-stdlib»
 

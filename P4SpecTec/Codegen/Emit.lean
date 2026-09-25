@@ -11,12 +11,17 @@ relations, each followed by the `Prop` encoding of its relations and
 their run-soundness theorems), every group is assigned to the module of
 the last spec file it or its dependencies come from, and one module is
 written per spec file that has something to say, in spec order, each
-importing the previous. Every definition is also quoted (`d.al`), and a
-last module, `Refinement`, holds the quoted spec as a list and the
-refinement theorems of rung 3 (`Codegen/Validate.lean`), which need the
-whole spec. Design section 4.1 and the deviations "a recursive group
-spanning files is emitted in the module of the last file" and "the
-refinement theorems are in one module after the spec files".
+importing the previous. Every definition is also quoted (`d.al`). The
+refinement theorems of rung 3 (`Codegen/Validate.lean`) come after the
+spec files: `Refinement/Spec` holds the quoted spec as a list, one module
+per recursion group holds that group's theorems and imports the modules
+of its callees' theorems (so that Lake rechecks only what changed, and
+independent groups in parallel), and `Refinement` gathers them with the
+coverage summary. Only these modules import the refinement calculus and
+tactic, so editing the tactic leaves the spec modules built. Design
+section 4.1 and the deviations "a recursive group spanning files is
+emitted in the module of the last file" and "the refinement theorems are
+in modules after the spec files".
 -/
 
 namespace P4SpecTec.Codegen.Emit
@@ -48,6 +53,31 @@ structure Unit where
   decls : Format
   /-- Whether it needs the `Externs` class. -/
   externs : Bool := false
+
+/-- The refinement theorems of one recursion group, in their own module. -/
+structure RefGroup where
+  /-- The module's last name component. -/
+  name : String
+  /-- The theorems. -/
+  decls : Format
+  /-- The module names of the groups whose theorems these call. -/
+  deps : List String
+
+/-- The rung 3 part of the plan. -/
+structure RefPlan where
+  /-- The quoted spec, `def spec`. -/
+  spec : Format
+  /-- The coverage line and the reasons for the definitions without a theorem. -/
+  summary : Format
+  /-- The covered groups, in dependency order. -/
+  groups : List RefGroup
+
+/-- A module name component for a group, from its first definition's id:
+letters, digits and `_` only, so that no quoting is needed. -/
+def groupModuleName (id : String) : String :=
+  let s := String.join (id.toList.map fun c =>
+    if c.isAlphanum || c == '_' then c.toString else if c == '\'' then "_p" else "")
+  if s.isEmpty || s.front.isDigit then "G" ++ s else s
 
 /-- The header comment every generated file starts with: two grep-able
 lines, the generator and the inputs. -/
@@ -105,7 +135,7 @@ def printHints (d : Lang.Al.def) : List String :=
 
 /-- Generate the plan for a spec. -/
 def plan (env : Env) (spec : Lang.Al.spec) :
-    Except String (List Unit × List String × Format) := do
+    Except String (List Unit × List String × RefPlan) := do
   let withPrint := spec.flatMap printHints
   if !withPrint.isEmpty then
     throw s!"print hints are not supported yet (design 5.4); found on {withPrint}"
@@ -206,7 +236,9 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let funGroups := Graph.sccs funIds funDeps
   let mut unitFile : Std.HashMap String Nat := {}
   let mut needsExt : Std.HashMap String Bool := {}
-  let mut refinements : List Format := []
+  let mut uncovered : List Format := []
+  let mut refGroups : List RefGroup := []
+  let mut groupModule : Std.HashMap String String := {}   -- covered id → its module
   let mut covered := 0
   let mut total := 0
   let mut coveredIds : List String := []
@@ -290,7 +322,17 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     let reasons := if bodied.isEmpty then []
       else if ext then group.map fun id => (id, "extern")
       else reasons ++ uncoveredCallees
-    refinements := refinements ++ Validate.groupTheorems env.lib recursive bodied reasons
+    let thms := Validate.groupTheorems env.lib recursive bodied reasons
+    if reasons.isEmpty && !bodied.isEmpty then
+      let base := groupModuleName bodied.head!.id
+      let taken := refGroups.map (·.name)
+      let name := if taken.contains base then s!"{base}_{refGroups.length}" else base
+      let deps := (group.flatMap fun id => (calls id).filterMap fun c =>
+        if group.contains c then none else groupModule.get? c).eraseDups
+      refGroups := refGroups ++ [{ name, decls := joinDecls thms, deps }]
+      for m in bodied do groupModule := groupModule.insert m.id name
+    else
+      uncovered := uncovered ++ thms
     if reasons.isEmpty then
       covered := covered + bodied.length
       coveredIds := coveredIds ++ bodied.map (·.id)
@@ -309,7 +351,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let specDecl := Term.defn (Format.text "def spec : List Lang.Al.def")
     (Format.text (" ::\n  ".intercalate quotedNames ++ " ::\n  []"))
   let summary := Format.text s!"-- refinement theorems: {covered} of {total} definitions"
-  pure (units, files, joinDecls ([summary, specDecl] ++ refinements))
+  pure (units, files,
+    { spec := specDecl, summary := joinDecls (summary :: uncovered), groups := refGroups })
 
 
 /-- Generate every output file of a library. -/
@@ -331,8 +374,7 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     let body := units.filter (·.file == i)
     let imports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
       "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Tactic.Det\n" ++
-      "import P4SpecTec.Refine.Quote\nimport P4SpecTec.Refine.Calc\n" ++
-      "import P4SpecTec.Tactic.Refine\n" ++ (match prev with
+      "import P4SpecTec.Refine.Quote\n" ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
     let text := headerLine lib exportPath file ++ "\n" ++ imports ++ "\n" ++
@@ -341,21 +383,36 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     prev := some module
     modules := modules ++ [module]
   -- the refinement theorems, after every spec file
-  let refImports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
-    "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Refine.Quote\n" ++
-    "import P4SpecTec.Refine.Calc\nimport P4SpecTec.Tactic.Refine\n" ++ (match prev with
-    | some p => s!"import {lib}.{p}\n"
-    | none => "")
+  let refPrelude := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.Audit\n" ++
+    "import P4SpecTec.Refine.Quote\nimport P4SpecTec.Refine.Calc\n" ++
+    "import P4SpecTec.Tactic.Refine\n"
+  let refOptions := String.join [
+    "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
+    "set_option autoImplicit false\nset_option maxHeartbeats 4000000\n",
+    "-- the quoted spec is one deep `::` chain\nset_option maxRecDepth 8192\n\n",
+    "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
+    s!"namespace {lib}\n\n"]
+  let refModule (name what : String) (imports : List String) (body : Format) : Output :=
+    { path := s!"{lib}/Refinement/{name}.lean",
+      text := headerLine lib exportPath what ++ "\n" ++ refPrelude ++
+        String.join (imports.map fun m => s!"import {lib}.{m}\n") ++ "\n" ++
+        s!"/-! # {lib}.Refinement.{name}\n\n" ++ "Generated: " ++ what ++
+        ".\nRung 3, design section 5.1.\n-/\n\n" ++ refOptions ++ render body ++
+        s!"\n\nend {lib}\n" }
+  outs := outs ++ [refModule "Spec" "the quoted specification as a list" prev.toList
+    refinement.spec]
+  modules := modules ++ ["Refinement.Spec"]
+  for g in refinement.groups do
+    let deps := "Refinement.Spec" :: g.deps.map (s!"Refinement.{·}")
+    outs := outs ++ [refModule g.name s!"refinement theorems, group {g.name}" deps g.decls]
+    modules := modules ++ [s!"Refinement.{g.name}"]
+  let refImports := String.join ((["Refinement.Spec"] ++
+    refinement.groups.map (s!"Refinement.{·.name}")).map fun m => s!"import {lib}.{m}\n")
   let refText := headerLine lib exportPath "every file (rung 3)" ++ "\n" ++ refImports ++ "\n" ++
     String.join [
-      s!"/-! # {lib}.Refinement\n\nThe quoted specification as a list, and the refinement ",
-      "theorems of rung 3\n(design section 5.1): the AL interpreter run on each quoted ",
-      "definition refines\nthe generated code, by `refine_al`. Generated.\n-/\n\n",
-      "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
-      "set_option autoImplicit false\nset_option maxHeartbeats 4000000\n",
-      "-- the quoted spec is one deep `::` chain\nset_option maxRecDepth 8192\n\n",
-      "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
-      s!"namespace {lib}\n\n"] ++ render refinement ++ s!"\n\nend {lib}\n"
+      s!"/-! # {lib}.Refinement\n\nThe refinement theorems of rung 3 (design section 5.1), ",
+      "one module per\nrecursion group under `Refinement/`, and the definitions without ",
+      "a theorem, with\nthe reason. Generated.\n-/\n\n"] ++ render refinement.summary ++ "\n"
   outs := outs ++ [{ path := s!"{lib}/Refinement.lean", text := refText }]
   modules := modules ++ ["Refinement"]
   let root := headerLine lib exportPath "all files" ++ "\n" ++
