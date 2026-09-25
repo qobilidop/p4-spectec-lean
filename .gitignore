@@ -1,0 +1,19 @@
+# Lean
+.lake/
+
+# Nix / direnv
+.direnv/
+result
+
+# Scratch output: logs, differential replays, emitted Lean
+.artifacts/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store

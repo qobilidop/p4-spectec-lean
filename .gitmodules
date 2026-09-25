@@ -1,0 +1,3 @@
+[submodule "upstream/p4-spectec"]
+	path = upstream/p4-spectec
+	url = https://github.com/kaist-plrg/p4-spectec

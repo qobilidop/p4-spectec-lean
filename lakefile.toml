@@ -1,0 +1,37 @@
+# p4spectec: a compiler from P4-SpecTec's IL to Lean 4, its runtime prelude,
+# the generated P4 specifications, and a small P4 primitives library.
+# See docs/design.md section 6 for what each library holds.
+name = "p4spectec"
+version = "0.0.1"
+defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec"]
+moreLeanArgs = ["-DwarningAsError=true"]
+
+[[require]]
+name = "batteries"
+git = "https://github.com/leanprover-community/batteries"
+rev = "v4.34.0"
+
+# Core: IL deep embedding, IL semantics, prelude, codegen, validation tactic.
+[[lean_lib]]
+name = "P4SpecTec"
+
+# Test-only modules: mirror checks, prelude vs builtins, decode round-trips.
+[[lean_lib]]
+name = "P4SpecTecTest"
+
+# P4 primitives for downstream users; independent of the generated specs.
+[[lean_lib]]
+name = "P4Lib"
+
+# Pilot: the Nano-P4 specification, generated from exports/nano-p4.il.json.
+[[lean_lib]]
+name = "NanoP4Spec"
+
+# The full P4 specification, generated from exports/p4.il.json.
+[[lean_lib]]
+name = "P4Spec"
+
+# Pretty-prints generated syntax to .lean files for reading and debugging.
+[[lean_exe]]
+name = "p4spectec-emit"
+root = "P4SpecTec.Emit.Main"
