@@ -57,6 +57,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Tactic.Det
 import P4SpecTec.Tactic.Refine
 import P4SpecTec.Tactic.RunSound
+import P4SpecTec.Util.ByteText
 import P4SpecTec.Util.Source
 import P4SpecTec.Util.Yojson
 

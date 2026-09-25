@@ -32,6 +32,17 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Use a ByteArray-backed ByteText for semantic text, not identifiers.**
+  OCaml indexing/slicing/replacement operates on arbitrary bytes; Lean
+  String cannot preserve all results. The foundation keeps decoding
+  explicit and checked, with kernel equality/compare-equality laws. Prefer ByteArray
+  to lists for direct byte access/storage; integration must preserve
+  arbitrary bytes through IL values, generated types, builtins and proofs.
+  Confidence: high for the representation, with parser/export boundaries
+  to audit before claiming general byte-preserving JSON input. Revisit if
+  proof reduction/performance exposes a concrete problem. Foundation only
+  is delivered; inventory in `.agents/notes/byte-text.md`. (2026-09-25)
+
 - **Land explicit fresh state as a bounded foundation before integrating
   it.** The counter sits below failure and wraps as signed 63-bit OCaml
   `int` on the pinned 64-bit platforms. Choice and negation retain consumed

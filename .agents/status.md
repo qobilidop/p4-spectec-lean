@@ -22,7 +22,31 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B fresh-state foundation
+## Active M3B byte-text foundation
+
+- Branch `m3b-byte-foundation`, based on state PR #9 head `019c665`.
+  Integrated the independently reviewed ByteArray-backed `ByteText`
+  foundation from the isolated worktree. No IL, generator, interpreter
+  or builtin behavior changed yet. Review: `.agents/reviews/m3b-byte-text.md`.
+- Focused implementation/reviewer builds, both library roots and hygiene
+  passed. The first primary gate exited 1 on a missing "not a mirror"
+  header marker; fixed. A fresh full gate exited 0 with no skips, including
+  rebuilt Nano proofs and unchanged generated output. Inventory and
+  integration boundaries: `.agents/notes/byte-text.md`.
+- The state calculus/proof prototype is active in isolated worktree
+  `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`, branch
+  `m3b-state-calculus`, with GPT-6 Astra. No generator/interpreter edits.
+- Byte substrate integration is active separately in
+  `/Users/qobilidop/my/work/p4-spectec-lean-byte-text`, branch
+  `m3b-byte-semantics`. Root is migrating IL/runtime/codegen/interpreter
+  and proofs; GPT-6 Sol migrated text builtins and is recording pinned
+  upstream byte-safe observations. Initial focused core/compiler/value
+  and refinement-calculus builds pass; no integration full gate yet.
+- PR #7 (print) passed remote CI and merged as `5e1aa79`. PR #8 (list
+  updates) passed remote CI and merged into main. PR #9 (state
+  foundation/plan) is published and locally gated; its remote CI is pending.
+
+## Completed M3B fresh-state foundation
 
 - Branch `m3b-state-foundation`, based on list-update PR #8 head `3b8175f`.
   The isolated experiment has been integrated without changing generated
@@ -43,9 +67,9 @@ correctness requirements or destructive published-history changes.
   demonstrated an Option-returning recursive allocator with
   `partial_fixpoint` and an audited standard axiom set after adding two
   monotonicity lemmas; this is not yet a committed API or full integration.
-- A ByteArray-backed semantic-text foundation is being implemented by
-  GPT-6 Sol in `/Users/qobilidop/my/work/p4-spectec-lean-byte-text`.
-  Keep identifier strings separate and conversions to UTF-8 checked.
+- The ByteArray-backed semantic-text foundation authored by GPT-6 Sol
+  in `/Users/qobilidop/my/work/p4-spectec-lean-byte-text` has been integrated
+  into the active branch above. Identifier strings remain separate.
 
 ## Completed indexed-list-update checkpoint
 
