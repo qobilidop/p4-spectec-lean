@@ -137,22 +137,27 @@ def check_func_output (cfg : Config) (ctx : Ctx.t) (id_func : Lang.Il.id) (tpara
 
 /-! Helper for checking if an expression is a simple iteration of a variable -/
 
-/-- Mirrors `is_iter_var_exp`, with fuel. -/
-def is_iter_var_exp : Nat → exp → Option Var.t
-  | 0, _ => none
-  | fuel + 1, e =>
-    match e.it with
-    | .VarE id_exp => some (id_exp, [])
-    | .IterE exp_inner iterexp =>
-      match is_iter_var_exp fuel exp_inner with
-      | some (id_var, iters_var) =>
-        match iterexp with
-        | .mk iter [v] =>
-          if id_var.it == v.id.it && iters_var == v.iters then some (id_var, iters_var ++ [iter])
-          else none
-        | _ => none
-      | none => none
-    | _ => none
+/-- Mirrors `is_iter_var_exp`; recursion on the size of the expression,
+since it descends through the phrase's payload. -/
+def is_iter_var_exp (e : exp) : Option Var.t :=
+  match _h : e.it with
+  | .VarE id_exp => some (id_exp, [])
+  | .IterE exp_inner iterexp =>
+    match is_iter_var_exp exp_inner with
+    | some (id_var, iters_var) =>
+      match iterexp with
+      | .mk iter [v] =>
+        if id_var.it == v.id.it && iters_var == v.iters then some (id_var, iters_var ++ [iter])
+        else none
+      | _ => none
+    | none => none
+  | _ => none
+termination_by sizeOf e
+decreasing_by
+  have h' : sizeOf e.it = sizeOf (exp'.IterE exp_inner iterexp) := by rw [_h]
+  obtain ⟨it, note, «at»⟩ := e
+  simp only [info.mk.sizeOf_spec, exp'.IterE.sizeOf_spec] at h' ⊢
+  omega
 
 /-! Assignments: the non-recursive cases -/
 
@@ -446,7 +451,7 @@ def assign_iter_exp_list : Nat → Ctx.t → exp → List var → value → back
 def assign_iter_exp : Nat → typ → Ctx.t → exp → iterexp → value → backtrack Ctx.t
   | 0, _, _, _, _, _ => Eval.diverge
   | fuel + 1, typ_exp, ctx, exp, iterexp, value =>
-    match is_iter_var_exp fuel ⟨.IterE exp iterexp, typ_exp.it, typ_exp.at⟩ with
+    match is_iter_var_exp ⟨.IterE exp iterexp, typ_exp.it, typ_exp.at⟩ with
     | some (id_var, iters_var) => pure (Ctx.add_value ctx (id_var, iters_var) value)
     | none =>
       match iterexp with
@@ -834,7 +839,7 @@ def eval_iter_exp_list : Nat → Config → typ → Ctx.t → exp → List var �
 def eval_iter_exp : Nat → Config → typ → Ctx.t → exp → iterexp → backtrack value
   | 0, _, _, _, _, _ => Eval.diverge
   | fuel + 1, cfg, typ_note, ctx, exp, iterexp =>
-    match is_iter_var_exp fuel ⟨.IterE exp iterexp, typ_note.it, typ_note.at⟩ with
+    match is_iter_var_exp ⟨.IterE exp iterexp, typ_note.it, typ_note.at⟩ with
     | some var => Ctx.find_value ctx var
     | none =>
       match iterexp with
