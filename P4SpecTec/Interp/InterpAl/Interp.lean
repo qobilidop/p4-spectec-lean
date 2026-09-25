@@ -86,8 +86,8 @@ def typ_of_value (v : value) («at» : region) : typ := mkPhrase v.note.typ «at
 /-! Checkers -/
 
 /-- Mirrors `check_rel_inputs`. -/
-def check_rel_inputs (cfg : Config) (ctx : Ctx.t) (id_rel : Lang.Il.id) (values_input : List value) :
-    backtrack Unit := do
+def check_rel_inputs (cfg : Config) (ctx : Ctx.t) (id_rel : Lang.Il.id)
+    (values_input : List value) : backtrack Unit := do
   if !cfg.guard then return ()
   let (nottyp, inputs) ← Ctx.find_rel_signature ctx id_rel
   let typs := Mixfix.args nottyp.it
@@ -592,7 +592,8 @@ def downcast : Nat → Ctx.t → typ → value → backtrack value
     | .NumT .NatT =>
       match value.it with
       | .NumV (.Nat _) => pure value
-      | .NumV (.Int i) => if i ≥ 0 then pure (Value.Make.nat i.toNat) else back_err typ.at "negative"
+      | .NumV (.Int i) =>
+        if i ≥ 0 then pure (Value.Make.nat i.toNat) else back_err typ.at "negative"
       | _ => back_err typ.at "not a number"
     | .VarT tid targs => do
       let (tparams, deftyp) ← Ctx.find_defined_typdef ctx tid

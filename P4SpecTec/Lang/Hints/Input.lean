@@ -32,7 +32,8 @@ inductive invalid where
 
 /-- Mirrors `validate`. -/
 def validate (hint : t_phrase) (arity : Nat) : Except invalid Lang.Il.Hints.Input.t :=
-  let rec find_duplicate (seen : List (phrase Int)) : List (phrase Int) → Option (Int × region × region)
+  let rec find_duplicate (seen : List (phrase Int)) :
+      List (phrase Int) → Option (Int × region × region)
     | [] => none
     | idx :: idxs =>
       match seen.find? fun s => s.it == idx.it with

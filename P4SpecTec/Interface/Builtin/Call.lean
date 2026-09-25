@@ -114,9 +114,12 @@ def invoke (id : String) (targs : List typ) (args : List value) : Option value :
   | "split_text", _, [s, sep] => do
     let parts ← Texts.split_text (← Get.text s) (← Get.text sep)
     pure (Make.list (.IterT (mkPhrase .BoolT) .List) (parts.map Make.text))
-  | "strip_prefix", _, [s, p] => do pure (Make.text (← Texts.strip_prefix (← Get.text s) (← Get.text p)))
-  | "strip_suffix", _, [s, p] => do pure (Make.text (← Texts.strip_suffix (← Get.text s) (← Get.text p)))
-  | "strip_all_whitespace", _, [s] => do pure (Make.text (Texts.strip_all_whitespace (← Get.text s)))
+  | "strip_prefix", _, [s, p] => do
+    pure (Make.text (← Texts.strip_prefix (← Get.text s) (← Get.text p)))
+  | "strip_suffix", _, [s, p] => do
+    pure (Make.text (← Texts.strip_suffix (← Get.text s) (← Get.text p)))
+  | "strip_all_whitespace", _, [s] => do
+    pure (Make.text (Texts.strip_all_whitespace (← Get.text s)))
   -- Lists
   | "rev_", [typ], [v] => do pure (Make.list (.IterT typ .List) (Lists.rev_ (← Get.list v)))
   | "concat_", [typ], [v] => do
