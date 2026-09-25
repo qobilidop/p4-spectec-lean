@@ -124,6 +124,18 @@ settles is not repeated here.
 
 ## Generated code
 
+- **Specialize variant bridges by full type applications.** The thirteen
+  full-P4 `continueResult` failures were erased arguments, not different
+  payload semantics. Match upstream `runtime/type/sub.ml`: instantiate
+  both variants and require equivalent payload types. Preserve existing
+  monomorphic names; a structural, region-free encoding of both argument
+  lists names specializations in child namespaces. No hash collisions or
+  encounter-order dependence. Free-parameter and function-type-argument
+  bridges remain rejected until an explicit binder scheme is needed.
+  Reason: faithful handling of all observed pairs without silently
+  conflating future specializations or inventing covariant payload casts.
+  Confidence: high at the pin; revisit when an export needs polymorphic
+  bridge declarations. (2026-09-25)
 - **M3A is reconnaissance, not completion of full-P4 generation.** The
   user authorized the full export, capability census, independent quoted
   AST check and a concrete plan for the rest of M3. `P4Spec.lean` remains

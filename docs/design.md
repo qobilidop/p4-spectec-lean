@@ -497,7 +497,7 @@ applies instead, each documented in the module that implements it.
 
 | IL construct | Lean encoding |
 |---|---|
-| Subtype pair `S ⊆ T` (from `e <: T`, `e as T`) | three generated functions per pair, by matching cases with equal mixops: `S.to_T : S → T`, `T.of_S : T → Option S`, `T.is_S : T → Bool`; numeric `nat ⊆ int` by `Int.ofNat`, `Num.toNat?`, `0 ≤ i`; tuples and iterators pointwise. The AL's `subcheck` is not consulted: a case's arguments are assumed to have the same types on both sides, which codegen asserts (the `RecurseSC` argument checks are not generated) |
+| Subtype pair `S ⊆ T` (from `e <: T`, `e as T`) | three generated functions per instantiated pair, by matching cases with equal mixops: `S.to_T : S → T`, `T.of_S : T → Option S`, `T.is_S : T → Bool`. Parameterized pairs retain both applications and use deterministic structural specialization names below those namespaces; monomorphic names are unchanged. Both variants are instantiated before comparing alias-equivalent payload types, as upstream's variant subtype relation requires. Missing cases, malformed applications, free type parameters and unequal payloads fail generation; no covariant payload conversion is inferred. Numeric `nat ⊆ int` uses `Int.ofNat`, `Num.toNat?`, `0 ≤ i`; tuples and iterators are pointwise. The AL's `subcheck` is not consulted and `RecurseSC` argument checks are not generated. |
 | Rule group with `else` group; clauses with `else` | alternatives in order (`<|>` in `Option`), the `else` last, as the AL interpreter's sequential mode |
 | Mixfix notation | constructor names from the atoms (`Names.ctorName`); struct fields from their atoms |
 | Iterators `?`, `*` with dimensions | `Option`, `List`; joint iteration zips the bound lists and maps, binding variables unzipped; an iterated premise likewise, with `mapM` |
@@ -734,8 +734,9 @@ and what we provide regardless of consumer:
   build times. Target instances arrive with the packet leg of rung 2.
   M3A exports the pinned full spec and measures the remaining obligations;
   generation currently stops at print hints. Independent emission probes
-  also identify indexed path updates, stateful fresh identifiers and
-  thirteen subtype bridges as barriers. These are generation gaps, not
+  also identify indexed path updates and stateful fresh identifiers as
+  barriers. M3B fixes thirteen subtype bridges by retaining their type
+  arguments; all 567 bridge pairs now emit text. These probes are not
   evidence of a full-P4 build or proof coverage.
   The 108 source inputs become 80 top-level source-region files in AL;
   the final Lean module count is not yet known.

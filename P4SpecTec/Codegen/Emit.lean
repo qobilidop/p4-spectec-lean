@@ -98,7 +98,7 @@ def preamble (lib module file : String) : String :=
 
 /-- The types named by casts inside an expression. -/
 partial def castTypes (e : exp) : List String :=
-  (match e.it with
+  Env.typeRefs e.note ++ (match e.it with
     | .UpCastE t _ | .DownCastE t _ | .SubE _ t _ => Env.typeRefs t.it
     | .CallE _ targs _ => targs.flatMap fun t => Env.typeRefs t.it
     | _ => []) ++ (pairsOfExp.children e).flatMap castTypes
@@ -209,19 +209,12 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       unitOfType := unitOfType.insert id unitIdx
       typeUnitFile := typeUnitFile.insert id file
   -- subtype bridges
-  let pairs := (spec.flatMap fun d => (expsOfDef d).flatMap (pairsOfExp env)).eraseDups
+  let pairs := pairsOfSpec env spec
   for (s, t) in pairs do
-    let isVariant (id : String) : Bool := match env.types.get? id with
-      | some info => match info.deftyp with
-        | some (.VariantT _) => true
-        | _ => false
-      | none => false
-    if isVariant s && isVariant t then
-      let file := max (typeUnitFile.getD s 0) (typeUnitFile.getD t 0)
-      let decls ← subtypeDecls env s t
-      let u : Unit := { id := s!"S:{s}:{t}", file := file, decls := decls }
-      units := units ++ [u]
-    else throw s!"cast between non-variant types {s} and {t}"
+    let file := ((Env.typeRefs s ++ Env.typeRefs t).map (typeUnitFile.getD · 0)).foldl max 0
+    let decls ← subtypeDecls env s t
+    let u : Unit := { id := "S:" ++ upName s t, file, decls }
+    units := units ++ [u]
   -- externs
   let externDefs := spec.filter fun d => match d.it with
     | .ExternDecD .. | .ExternRelD .. => true

@@ -502,20 +502,96 @@ def ofValueDecls (env : Env) (group : List (String × List String × deftyp')) :
 
 /-! ## Subtypes -/
 
+/-- A region-independent, prefix-decodable key for a type application.
+Lengths delimit names; list lengths delimit children. `Z` escapes every
+non-alphanumeric character (and itself), so the key is a Lean identifier
+component without relying on hashes or encounter order. -/
+partial def typeKey : typ' → String
+  | .BoolT => "b"
+  | .NumT .NatT => "n"
+  | .NumT .IntT => "i"
+  | .TextT => "s"
+  | .VarT i ts => "v" ++ nameKey i.it ++ argsKey ts
+  | .TupleT ts => "p" ++ argsKey ts
+  | .IterT t .Opt => "o" ++ typeKey t.it
+  | .IterT t .List => "l" ++ typeKey t.it
+  | .FuncT ps ts t => "f" ++ toString ps.length ++ "_" ++
+    String.join (ps.map fun p => nameKey p.it) ++ argsKey ts ++ typeKey t.it
+where
+  /-- Length-prefixed identifier text with an unambiguous escape. -/
+  nameKey (s : String) : String :=
+    let encoded := String.join (s.toList.map fun c =>
+      if c.isAlphanum && c != 'Z' then String.singleton c else s!"Z{c.toNat}_")
+    toString encoded.length ++ "_" ++ encoded
+  /-- A length-prefixed list of type keys. -/
+  argsKey (ts : List typ) : String :=
+    toString ts.length ++ "_" ++ String.join (ts.map fun t => typeKey t.it)
+
+/-- The name of a named type, for bridge diagnostics and namespaces. -/
+def typeHead : typ' → String
+  | .VarT i _ => i.it
+  | _ => "<unnamed>"
+
+/-- Preserve existing monomorphic names; distinguish specializations in
+a child namespace by both complete argument lists. -/
+def bridgeSuffix (s t : typ') : String :=
+  match s, t with
+  | .VarT _ [], .VarT _ [] => ""
+  | .VarT _ ss, .VarT _ ts => ".a" ++ typeKey.argsKey ss ++ "a" ++ typeKey.argsKey ts
+  | _, _ => "." ++ typeKey s ++ "_" ++ typeKey t
+
 /-- The name of the injection from `s` into `t`. -/
-def upName (s t : String) : String := Names.typeName s ++ ".to_" ++ Names.escape t
+def upName (s t : typ') : String :=
+  Names.typeName (typeHead s) ++ ".to_" ++ Names.escape (typeHead t) ++ bridgeSuffix s t
 
 /-- The name of the projection from `t` to `s`. -/
-def downName (s t : String) : String := Names.typeName t ++ ".of_" ++ Names.escape s
+def downName (s t : typ') : String :=
+  Names.typeName (typeHead t) ++ ".of_" ++ Names.escape (typeHead s) ++ bridgeSuffix s t
 
 /-- The name of the check that a `t` is an `s`. -/
-def isName (s t : String) : String := Names.typeName t ++ ".is_" ++ Names.escape s
+def isName (s t : typ') : String :=
+  Names.typeName (typeHead t) ++ ".is_" ++ Names.escape (typeHead s) ++ bridgeSuffix s t
+
+/-- Check the closed type applications used by specialized bridges.
+Free parameters require an explicit binder context and are not silently
+treated as globally available types. -/
+partial def checkBridgeType (env : Env) : typ' → Except String Unit
+  | .VarT i ts => do
+    let some info := env.types.get? i.it
+      | throw s!"subtype bridge: unknown or free type parameter {i.it}"
+    if info.tparams.length != ts.length then
+      throw s!"subtype bridge: {i.it} expects {info.tparams.length} type arguments, got {ts.length}"
+    for t in ts do checkBridgeType env t.it
+  | .TupleT ts => ts.forM fun t => checkBridgeType env t.it
+  | .IterT t _ => checkBridgeType env t.it
+  | .FuncT .. => throw "subtype bridge: function type arguments are not supported"
+  | _ => pure ()
+
+/-- Recursively unfold aliases for invariant payload comparison. This
+does not turn variant subtyping into covariant payload conversion. -/
+partial def normalizeBridgeType (env : Env) (t : typ') : typ' :=
+  match env.resolve t with
+  | .VarT i ts => .VarT i (ts.map fun t => { t with it := normalizeBridgeType env t.it })
+  | .TupleT ts => .TupleT (ts.map fun t => { t with it := normalizeBridgeType env t.it })
+  | .IterT t i => .IterT { t with it := normalizeBridgeType env t.it } i
+  | t => t
+
+/-- Instantiate a closed variant application, rejecting malformed or
+nonvariant bridge requests before emitting declarations. -/
+def bridgeCases (env : Env) (t : typ') : Except String (List typcase) := do
+  checkBridgeType env t
+  let .VarT i ts := t | throw "subtype bridge: expected a named variant application"
+  let some cases := env.variantCases i.it (ts.map (·.it))
+    | throw s!"subtype bridge: {i.it} is not a defined variant"
+  pure cases
 
 /-- The injection, projection and check between variant `s` and variant
-`t`, by matching cases with equal mixops. -/
-def subtypeDecls (env : Env) (s t : String) : Except String Format := do
-  let sCases := (env.variantCases s []).getD []
-  let tCases := (env.variantCases t []).getD []
+`t`, after substituting both applications' arguments. Like upstream's
+`runtime/type/sub.ml`, shared cases must have equivalent payload types. -/
+def subtypeDecls (env : Env) (s t : typ') : Except String Format := do
+  let sCases ← bridgeCases env s
+  let tCases ← bridgeCases env t
+  let label := s!"subtype {render (typTerm env [] s).fmt} of {render (typTerm env [] t).fmt}"
   let sNames := ctorNames sCases
   let tNames := ctorNames tCases
   let mut ups : List Format := []
@@ -524,13 +600,11 @@ def subtypeDecls (env : Env) (s t : String) : Except String Format := do
   for (sc, sn) in sCases.zip sNames do
     match (tCases.zip tNames).find? fun (tc, _) => Mixfix.eq_mixop sc.nottyp.it tc.nottyp.it with
     | some (tc, tn) =>
-      -- the bridge maps a case to the case with the same mixop; the AL's
-      -- `RecurseSC` would also check the arguments' values against the
-      -- subtype's argument types, which is only needed when those differ
       let sArgs := (Mixfix.args sc.nottyp.it).map (·.it)
       let tArgs := (Mixfix.args tc.nottyp.it).map (·.it)
-      if sArgs.length != tArgs.length || !((sArgs.zip tArgs).all fun (a, b) => typEq a b) then
-        throw s!"subtype {s} of {t}: case {Mixfix.to_string sc.nottyp.it} has different \
+      if sArgs.length != tArgs.length || !((sArgs.zip tArgs).all fun (a, b) =>
+          typEq (normalizeBridgeType env a) (normalizeBridgeType env b)) then
+        throw s!"{label}: case {Mixfix.to_string sc.nottyp.it} has different \
           argument types in the two (design 5.4: not supported)"
       let n := sArgs.length
       let xs := (List.range n).map fun k => s!"x{k}"
@@ -540,18 +614,18 @@ def subtypeDecls (env : Env) (s t : String) : Except String Format := do
       downs := downs ++ [arm (Term.patApp ("." ++ tn) xs)
         (Format.text "some " ++ Format.paren (Term.patApp ("." ++ sn) xs))]
       checks := checks ++ [arm (Term.patApp ("." ++ tn) (xs.map fun _ => "_")) (Format.text "true")]
-    | none => pure ()
-  let sT := env.q (Names.typeName s)
-  let tT := env.q (Names.typeName t)
+    | none => throw s!"{label}: missing case {Mixfix.to_string sc.nottyp.it} in supertype"
+  let sT := typTerm env [] s
+  let tT := typTerm env [] t
   let arms (l : List Format) := Format.nest 2 (Format.join (l.map (Term.hardLine ++ ·)))
-  let sig (name : String) (ts : List String) : Format :=
+  let sig (name : String) (ts : List Term) : Format :=
     Format.group (Format.nest 4 (Format.text s!"def {name} :" ++ Format.line ++
-      Term.arrows (ts.map Format.text)))
+      Term.arrows (ts.map (·.fmt))))
   let up := sig (upName s t) [sT, tT] ++ arms ups
   let partial_ := downs.length < tCases.length
-  let down := sig (downName s t) [tT, s!"Option {sT}"] ++
+  let down := sig (downName s t) [tT, .call "Option" [sT]] ++
     arms (downs ++ (if partial_ then [Format.text "| _ => none"] else []))
-  let chk := sig (isName s t) [tT, "Bool"] ++
+  let chk := sig (isName s t) [tT, .atom "Bool"] ++
     arms (checks ++ (if partial_ then [Format.text "| _ => false"] else []))
   pure (joinDecls [up, down, chk])
 
