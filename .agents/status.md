@@ -19,8 +19,8 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   Root independently read the script/tests, verified the restored pin and
   clean status, reran the real idempotence check and all ten offline tests
   (exit 0). Integrated full `scripts/check.sh` exited 0 with no skips,
-  including the ten offline restore tests. Publication is next; merge
-  after PR #14, which this branch stacks on.
+  including the ten offline restore tests. Published as PR #15; its
+  remote Gate passed. Next: the full-P4 boot/result oracle adapter.
 - Pinned input slice in the state-oracle worktree: 1,352 resolved sample
   paths, with 67 matching positive exclusion references. The remainder is
   not an oracle eligibility denominator. One representative sample passed
@@ -44,13 +44,13 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   exited 0 (44 jobs). Full primary `scripts/check.sh` exited 0 with no skips,
   including both Nano differential legs, quotations, classified oracles,
   transport sensitivity and the full-P4 census. Published as PR #14,
-  whose remote Gate passed (20m13s); mergeable, awaiting merge.
+  whose remote Gate passed (20m13s); merged as `39d952a`.
   Reviews: `.agents/reviews/m3b-recursive-prefix.md` and
   `.agents/reviews/m3b-state-rules.md`; corresponding implementation notes
   are under `.agents/notes/`.
 - PR #12 (byte integration) and PR #13 (shared interpreter/state oracle)
   passed remote CI and merged. Both final local gates for #13 passed with
-  no skips. PR #14 builds on #13's head and needs its own remote CI.
+  no skips. PR #14 built on #13's head, passed remote CI and merged.
 
 ## Parallel work and next steps
 
