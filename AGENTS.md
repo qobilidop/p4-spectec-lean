@@ -64,6 +64,7 @@ scripts/check.sh            # every gate CI runs; exit 0 is the verdict
 scripts/build-upstream.sh   # build P4-SpecTec at the pin with our patches (upstream shell)
 scripts/export-spec.sh      # regenerate exports/<name>.al.json (upstream shell)
 scripts/export-program.sh   # re-boot the Nano-P4 corpus with upstream's verdicts (upstream shell)
+scripts/fetch-p4c.sh        # optional pinned full-P4 sample/include checkout under .artifacts/
 scripts/check-mirror.py     # mirrored modules have upstream's constructors in order
 scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token table
 scripts/time-elab.sh <Lib>  # per-module elaboration times, to docs/timing-<lib>.md

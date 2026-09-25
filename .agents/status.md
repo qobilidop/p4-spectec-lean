@@ -11,7 +11,25 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active checkpoint: recursive state proofs
+## Active checkpoint: pinned corpus preparation
+
+- Branch `m3c-corpus-inputs`, based on reviewed proof head `325db77`.
+  Integrates a sparse, exact-pin p4c restore script and ten offline tests.
+  Source data stays ignored; ordinary CI requires no p4c network fetch.
+  Root independently read the script/tests, verified the restored pin and
+  clean status, reran the real idempotence check and all ten offline tests
+  (exit 0). Integrated full `scripts/check.sh` exited 0 with no skips,
+  including the ten offline restore tests. Published as PR #15; its
+  remote Gate passed. Next: the full-P4 boot/result oracle adapter.
+- Pinned input slice in the state-oracle worktree: 1,352 resolved sample
+  paths, with 67 matching positive exclusion references. The remainder is
+  not an oracle eligibility denominator. One representative sample passed
+  upstream typing and instantiation in separate CLI sessions; boot values,
+  outputs and counters still need an adapter. No whole-corpus validation.
+  Evidence and review: `.agents/notes/full-p4-corpus-prep.md` and
+  `.agents/reviews/m3c-corpus-prep.md`.
+
+## Recent recursive proof checkpoint
 
 - Branch `m3b-recursive-state-proofs`, based on effect/oracle head `87e44c7`.
   Integrates recursive-prefix fixture `981cc0b` (review `9c95fba`) and
@@ -25,24 +43,27 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   `lake build --wfail P4SpecTecTest.RecursivePrefix P4SpecTecTest.StateRules`
   exited 0 (44 jobs). Full primary `scripts/check.sh` exited 0 with no skips,
   including both Nano differential legs, quotations, classified oracles,
-  transport sensitivity and the full-P4 census. Publication is next.
+  transport sensitivity and the full-P4 census. Published as PR #14,
+  whose remote Gate passed (20m13s); merged as `39d952a`.
   Reviews: `.agents/reviews/m3b-recursive-prefix.md` and
   `.agents/reviews/m3b-state-rules.md`; corresponding implementation notes
   are under `.agents/notes/`.
 - PR #12 (byte integration) and PR #13 (shared interpreter/state oracle)
   passed remote CI and merged. Both final local gates for #13 passed with
-  no skips. This proof checkpoint builds on #13's head; it still needs
-  publication and its own remote CI before merging.
+  no skips. PR #14 built on #13's head, passed remote CI and merged.
 
 ## Parallel work and next steps
 
 - Executable state generator: worktree
   `/Users/qobilidop/my/work/p4-spectec-lean-byte-text`, branch
-  `m3b-state-codegen`, base `bf7fb62`. GPT-6 Astra's implementation is frozen
-  for independent review: uniform mode, complete attempts, callbacks/externs,
+  `m3b-state-codegen`, base `bf7fb62`. GPT-6 Astra's implementation has had
+  independent review: uniform mode, complete attempts, callbacks/externs,
   debug effects, dependency collection and emitted-code tests. Final focused
   StateCodegen/Updates/Text build exited 0 (65 jobs); Nano `--check` exited
-  0, all 48 files unchanged. Not integrated. Worktree note:
+  0, all 48 files unchanged. Three reproduced findings are being fixed:
+  mixed optional-expression errors, callback-cycle monotonicity, and direct
+  function-data validation. Raw builtin/extern callback alias fidelity is
+  also being checked before integration. Worktree note:
   `.agents/notes/state-codegen.md`.
 - Structural proof generation: worktree
   `/Users/qobilidop/my/work/p4-spectec-lean-state-props`, branch
@@ -50,6 +71,10 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   automation, sharing executable AST APIs. Copied executable dependencies
   are not independently owned changes. Capture-free structural chains pass
   Lean positivity; closing over enclosing constructor arguments does not.
+  Bounded linear backend `381dd6a` and scope-capture fix `25ad4f2` passed root
+  independent review and 63-job builds in the former recursive-prefix tree,
+  now branch `m3b-linear-proof-review`. The original failing reviewer probe
+  passes unchanged after the fix. Iteration extension remains in progress.
 - Root owns production integration. `Emit`, `Props` and `Validate` reject
   stateful production generation until structural rules and proofs are ready.
   Enablement also needs generated state imports and state-aware determinism/
@@ -58,9 +83,9 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 - M3C preparation is in worktree
   `/Users/qobilidop/my/work/p4-spectec-lean-state-oracle`, branch
   `m3b-state-oracle`, note `.agents/notes/full-p4-corpus-prep.md`.
-  The missing nested p4c sample/include checkout and full-P4 oracle adapter
-  requirements are being independently checked. Regression files alone do
-  not establish the canonical corpus denominator. No full-corpus boot claim.
+  The pinned sparse sample/include checkout is restored. The boot/result
+  oracle adapter remains to be implemented. Regression files alone do not
+  establish the canonical corpus denominator. No full-corpus boot claim.
 - Next: checkpoint proof fixtures; independently review and integrate
   executable/proof generators; establish stateful refinement; regenerate
   and elaborate full P4. Then M3C corpus/fidelity, M3D targets (NanoSwitch,
@@ -146,5 +171,5 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
 ## Blocked
 
-No external blocker requiring user input. Missing corpus inputs need a
-pinned restore; generator proof work is ongoing, not blocked.
+No external blocker requiring user input. Corpus inputs are restored;
+generator proof work and the full-P4 oracle adapter remain ongoing work.

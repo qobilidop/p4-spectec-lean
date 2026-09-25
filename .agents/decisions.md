@@ -32,6 +32,16 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Restore full-P4 corpus sources as a sparse ignored p4c checkout.**
+  Derive the commit and HTTPS URL from the pinned P4-SpecTec gitlink and
+  committed `.gitmodules`, not branch tips or mutable configuration. Fetch
+  only shallow/blob-filtered sample, include and required symlink-target
+  directories; no p4c build or recursive submodules. Keep source duplicates
+  and runtime outputs out of Git. Ordinary CI runs offline restore-contract
+  tests, not corpus downloads. Confidence: high for the current pin; revisit
+  the sparse paths if an upstream bump introduces include/link dependencies.
+  This is input preparation, not a corpus-validation claim. (2026-09-25)
+
 - **Use a ByteArray-backed ByteText for semantic text, not identifiers.**
   OCaml indexing/slicing/replacement operates on arbitrary bytes; Lean
   String cannot preserve all results. The foundation keeps decoding

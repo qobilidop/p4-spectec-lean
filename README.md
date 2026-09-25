@@ -50,7 +50,7 @@ The development environment is defined by `flake.nix` and pinned by
 with flakes enabled, then:
 
 ```
-git submodule update --init      # P4-SpecTec at the pin (its p4c submodule is not needed)
+git submodule update --init      # P4-SpecTec at the pin (Nano builds do not need p4c)
 nix develop                      # Lean side: elan installs the toolchain lean-toolchain names
 lake build                       # the Lean packages
 scripts/check.sh                 # every gate CI runs; exit 0 is the verdict
@@ -69,6 +69,14 @@ version it names.
 Spec snapshots are checksum-verified before extraction. The gate rejects
 tracked files above 5 MiB; growing artifacts belong in external,
 checksum-pinned storage rather than an ever-growing Git history.
+
+For full-P4 corpus preparation, run `scripts/fetch-p4c.sh` in the default
+Nix shell after initializing P4-SpecTec. It restores the sample/include
+slice at upstream's exact nested p4c pin into ignored `.artifacts/p4c`,
+without building p4c or fetching recursive submodules. Existing dirty or
+wrong-pin checkouts are rejected, not overwritten. This prepares inputs;
+full-P4 differential validation is still under development. The normal
+gate tests the restore script offline and does not download this corpus.
 
 If you use [direnv](https://direnv.net/), an `.envrc` containing `use flake`
 enters the default shell on `cd`. It is ignored by git as a personal

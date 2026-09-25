@@ -45,6 +45,7 @@ for path in \
   test/state/observed.json test/state/run.py test/state/probe.ml test/state/README.md \
   test/state/test_oracle.py \
   scripts/build-upstream.sh scripts/export-spec.sh scripts/export-program.sh \
+  scripts/fetch-p4c.sh scripts/test-fetch-p4c.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
   test/diff/run.py .github/workflows/ci.yml
 do
@@ -67,6 +68,8 @@ python3 "$root/test/snapshot/test_file_sizes.py" || fail=1
 "$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec || fail=1
 python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
 python3 "$root/test/snapshot/test_snapshot.py" || { say "snapshot tests failed"; fail=1; }
+bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
+python3 "$root/scripts/test-fetch-p4c.py" || { say "p4c restore tests failed"; fail=1; }
 for name in nano-p4 p4; do
   python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }
