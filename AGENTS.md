@@ -39,9 +39,10 @@ include hidden files. Git history is the archive; nothing is tagged.
 2. `.agents/decisions.md`: what is decided and why. Overrule an entry by
    rewriting it in place with the new date and reason.
 3. `docs/design.md`: the goal, the principles (section 2), the
-   architecture, the verification ladder, the code organization, the
-   named list of deviations from upstream (section 5.3), and the
-   milestones.
+   architecture, the verification ladder with the refinement theorem
+   (section 5.1), the code organization, the named list of deviations
+   from upstream (section 5.3), the per-construct encodings (5.4), and
+   the milestones.
 
 ## Environment
 
@@ -82,7 +83,10 @@ and record the new commit in `.agents/decisions.md`.
 - **Every external input is pinned**: P4-SpecTec by commit (the
   submodule), the opam repository by commit (`scripts/build-upstream.sh`),
   Lean by `lean-toolchain`, Batteries by tag in `lakefile.toml`.
-- **JSON exports are committed**; generated Lean is not.
+- **JSON exports are committed, and so is generated Lean**, under
+  `NanoP4Spec/` and `P4Spec/`, one module per upstream spec file, with a
+  grep-able header. CI regenerates from the exports and fails on any
+  diff; never hand-edit a generated file, regenerate it.
 - **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
   (a warning fails, and a `sorry` is a warning), `lake test`, every module
   imported by its library root, no trailing whitespace, Lean lines at most

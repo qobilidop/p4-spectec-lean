@@ -11,7 +11,7 @@ rungs 1 and 2) and needs the user's go-ahead.
 
 | Scope | Result | Revision |
 |---|---|---|
-| Design | agreed, `docs/design.md` | `051ce06` |
+| Design | agreed; revised after the prior-art design review (thesis and claims, refinement theorem, recursion strategy, per-file text emission, timing at M1, encodings) | this commit |
 | Scaffolding | Lake package, agent state, gate stubs, upstream submodule at the pin | `7d613a1` |
 | Engineering conventions | prior-art study applied: build flags, linters, test driver, CI, text and import checks | this commit |
 
@@ -30,9 +30,14 @@ remote). No differential test, export, or upstream build exists yet.
 
 ## Open threads
 
-- Milestone M1 has not started. Its first concrete step is the JSON
-  export patch to upstream (`upstream/patches/0001-json-export.patch`),
-  then `P4SpecTec/IL/Ast.lean` mirroring `p4spec/lib/lang/il/ast.ml`.
+- Milestone M1 has not started. Its first concrete steps: build
+  upstream in the `upstream` Nix shell (verifies the OCaml version
+  risk), the JSON export patch (`upstream/patches/0001-json-export.patch`;
+  IL `def` and `spec` need the deriving added), then
+  `P4SpecTec/IL/Ast.lean` mirroring `p4spec/lib/lang/il/ast.ml`.
+- Before the interpreter port in M2: decide the failure/divergence
+  split of its return type (design section 5.1), since `<|>` on
+  `Option` blocks `partial_fixpoint`.
 - Open points in `docs/design.md` section 10: harness language, fuel
   policy location, meta-circular spec, Lean version policy.
 - The `upstream` Nix shell has been entered but P4-SpecTec has not been

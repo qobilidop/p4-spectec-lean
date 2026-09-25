@@ -20,7 +20,7 @@ for path in \
   .agents/status.md .agents/decisions.md .agents/roadmap.md \
   lakefile.toml lake-manifest.json lean-toolchain \
   P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean \
-  P4SpecTec/Emit/Main.lean \
+  P4SpecTec/Codegen/Main.lean \
   upstream/p4-spectec/README.md upstream/patches \
   exports scripts/build-upstream.sh scripts/export-spec.sh scripts/export-program.sh \
   test/diff .github/workflows/ci.yml

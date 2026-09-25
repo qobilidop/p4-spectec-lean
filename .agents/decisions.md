@@ -83,17 +83,81 @@ settles is not repeated here.
 
 ## Generated code
 
-- **Emitted Lean is committed as a golden under `P4SpecTecTest/golden/`,
-  regenerated and diffed in CI, refreshed with `--update`.** It is not
-  the build input; `spectec_import` elaborates from JSON. Reason: every
-  codegen change becomes a reviewable diff of its output, matching the
-  correct-by-construction principle; Sail, Aeneas and Wasm SpecTec's Lean
-  backend all do this. If the full spec's golden proves too large for
-  review, split it per upstream section, never drop it. (2026-09-25)
-- **Per-file elaboration timing is added at M3**, when the full spec
-  gives it something to measure. Reason: Sail's slow 246-constructor
-  inductive (rems-project/sail#1049) is a real risk for the IL's larger
-  variants, but there is nothing to time before M3. (2026-09-25)
+- **Generated Lean is emitted as text, one module per upstream spec
+  file, committed under `NanoP4Spec/` and `P4Spec/`, and is the build
+  input.** CI regenerates from the exports and fails on any diff;
+  `--update` refreshes. Files carry a grep-able header and are never
+  hand-edited. Reason: Lake parallelism and incremental builds, IDE
+  responsiveness, reviewable diffs, and generated files that mirror
+  their sources; every prior art emits text, and Wasm's monolithic
+  outputs are the scale warning. Supersedes the same-day decision to
+  elaborate from JSON through a `spectec_import` command with a separate
+  golden; that route bought nothing rung 3 does not already give.
+  (2026-09-25, revised the same day)
+- **Per-file elaboration timing starts at M1**, with a tracked table,
+  and proof-checking time of generated theorems is measured from M2.
+  Reason: Isabelle's SpecTec backend needed constructor-capping passes on
+  Wasm, which is smaller than P4; Sail's RISC-V Lean output is 175k
+  lines; encoding choices are cheap to change only early. Supersedes the
+  same-day decision to wait for M3. (2026-09-25, revised the same day)
+- **Recursion strategy: structural first, `partial_fixpoint` for
+  mutually recursive `Option` functions, explicit fuel last, never
+  `partial`.** Reason: `partial_fixpoint` yields unfolding equations and
+  the `partial_correctness` induction principle the soundness theorems
+  need, and removes the fuel deviation from the list, which the
+  correct-by-construction principle prefers. The interpreter must
+  separate failure (data) from divergence (bottom), because `<|>` on
+  `Option` is not monotone. Confidence: high in the ordering, medium in
+  how many definitions each tier catches; revisit at M1 with counts.
+  (2026-09-25)
+- **Three Lean-specific encodings from M1:** iterated premises as
+  `∀ x ∈ xs` and definitional `Forall₂` (lean4#1964), `BEq` not
+  `DecidableEq` on nested inductives (lean4#2329), numerics as `Nat`,
+  `Int`, `Rat` with explicit conversions. Reason: Breitner's Lean branch
+  of Wasm SpecTec hit all three. (2026-09-25)
+- **Per-construct encodings instead of IL-to-IL passes**, listed in the
+  design (section 5.4). Reason: passes would move the generated code
+  away from the spec file it mirrors; the Wasm Rocq backend's default
+  values for partial functions produced provably false lemmas, so
+  partiality is `Option` with side conditions. (2026-09-25)
+
+## Verification
+
+- **Rung 3 is proof-producing translation, and the theorem is a
+  type-indexed refinement, not equality.** Per IL type a value relation
+  between IL values and generated Lean values; per definition, related
+  inputs and interpreter success imply shallow success with a related
+  output; a fixed per-construct lemma library and a syntax-directed
+  driver discharge it, with the recursive case from the definition's own
+  induction principle. Completeness is a second phase, only where
+  determinism is proved. Reason: CakeML, Cogent and certifying extraction
+  all state it this way and none obtained `rfl`; equality cannot hold
+  between untyped backtracking evaluation and typed total definitions.
+  (2026-09-25)
+- **Rung 3 is defence in depth, not a smaller trusted base.** It moves
+  trust from the generator to the interpreter port, which is reviewable
+  side by side with upstream and cross-checked by rung 2. Both line
+  counts are measured and reported. Reason: Sail's authors note a
+  translation's semantics is "effectively defined by this translation";
+  the claim must be honest. (2026-09-25)
+- **A generated per-relation lemma library** (inversion per rule,
+  run-soundness, a determinism theorem attempt whose failures are
+  reported as spec findings) is part of the public surface from M2.
+  Reason: CHERI and Morello survived model churn only through generated
+  lemma statements; determinism is what downstream equivalence proofs
+  need and what upstream checks only dynamically. (2026-09-25)
+- **The compiler is written in Lean.** The deep embedding must exist in
+  Lean for validation, so generator and validator share one AST and one
+  decoder; Lean's formatter and token table give canonical output and
+  correct escaping; a Lean generator could one day be verified. Upstream
+  adoption is not a criterion (the user, 2026-09-25). (2026-09-25)
+- **The goal is stated as a thesis with four claims** (design section
+  1): complete rendering with nothing opaque, agreement with upstream,
+  a refinement theorem per definition, and a generated lemma library
+  usable for proofs. Reason: the prior-art review found the design
+  stated an instrumental goal with no success criteria; the thesis rests
+  on P4-SpecTec's IL being algorithmic, which is what Wasm's backends
+  lacked. (2026-09-25)
 - **The differential harness reuses upstream's `excludes/` lists** for
   p4c programs P4-SpecTec cannot handle, rather than maintaining its own.
   Upstream is an input, not a downstream. (2026-09-25)

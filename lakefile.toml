@@ -43,7 +43,8 @@ name = "NanoP4Spec"
 [[lean_lib]]
 name = "P4Spec"
 
-# Pretty-prints generated syntax to .lean files for reading and debugging.
+# The compiler: reads IL exports and writes one generated .lean module per
+# upstream spec file. `--update` refreshes committed output; CI diffs it.
 [[lean_exe]]
-name = "p4spectec-emit"
-root = "P4SpecTec.Emit.Main"
+name = "p4spectec-gen"
+root = "P4SpecTec.Codegen.Main"

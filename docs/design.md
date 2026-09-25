@@ -1,28 +1,47 @@
 # p4-spectec-lean: design
 
-Status: agreed design, 2026-09-24, revised 2026-09-25. No code yet.
+Status: agreed design, 2026-09-24; revised 2026-09-25 after a prior-art
+review (section 11). No code yet.
 Diagrams: https://claude.ai/artifact/XCUhcd9cSsC4qBu2TjkiUJ (private).
 
-## 1. Goal
+## 1. Goal and thesis
 
-A compiler from P4-SpecTec's IL (internal language) to Lean 4, reusing the
-upstream OCaml frontend and elaborator unchanged, with the translation
-validated as strongly as is practical. Plus a small Lean library for P4
-primitives that downstream verification projects can import without the
-generated spec.
+A compiler from P4-SpecTec's IL (internal language) to Lean 4, written in
+Lean, reusing the upstream OCaml frontend and elaborator unchanged, with
+every generated definition validated by a machine-checked theorem. Plus a
+small Lean library for P4 primitives that downstream verification projects
+can import without the generated spec.
 
-Two things come out of the compiler, from one pass:
+**Thesis.** Existing spec-DSL-to-prover backends (Ott, Lem, Sail, Wasm
+SpecTec's Rocq and Lean backends) are unverified pretty-printers whose
+output is only partly usable: Wasm SpecTec needed about fifteen IL-to-IL
+passes before Rocq would accept its spec, and the generated Wasm 2.0 file
+still has 64 axioms and 69 recursive functions turned into relations
+because termination could not be shown; the Lean branch has 116 opaque
+definitions and no proofs against it. P4-SpecTec's IL is different in
+kind: elaboration already makes every rule algorithmic, with explicit
+dataflow, no existentials, and side conditions for partial patterns. That
+is most of the middlend Wasm had to build, done upstream, once. So:
 
-- The P4 language semantics as Lean definitions: types, functions, and
-  every relation in two encodings (an inductive `Prop` for proofs and an
-  executable `Option`-returning function for testing), with a generated
-  soundness theorem linking the two.
-- A decoder that turns a parsed P4 program into a term of the generated
-  program type, so individual programs can be evaluated and reasoned about.
+> Because P4-SpecTec's IL is algorithmic, P4's mechanized semantics can be
+> rendered into Lean as ordinary computable functions and rule-indexed
+> inductive relations with nothing opaque, and that rendering can be
+> validated definition by definition against a Lean formalization of the
+> IL, in the manner of proof-producing translation.
+
+**Claims.** Each has one experiment and one way to fail.
+
+| Claim | Experiment | Fails if |
+|---|---|---|
+| 1. Complete rendering | every definition of the pinned spec renders and kernel-checks | any `opaque`, `axiom`, `sorry` or `partial` in generated code |
+| 2. Agrees with upstream | the executable rendering answers the p4c corpus as upstream's interpreter does | an unexplained divergence |
+| 3. Validated per definition | every generated definition carries a refinement theorem against the IL interpreter, proved by a generic tactic | a theorem the tactic cannot close |
+| 4. Usable for proofs | a generated lemma library per relation, including a determinism theorem, that upstream only checks dynamically | a relation whose determinism cannot be stated or a downstream proof that needs hand-written adapters |
 
 The project is self-contained. It depends on upstream P4-SpecTec and on
-Lean, and on nothing else. Downstream projects consume it; they do not
-shape it (section 8).
+Lean, and on nothing else. It stays independent of upstream: upstream may
+use it as a reference, but adoption is never a design criterion.
+Downstream projects consume it; they do not shape it (section 9).
 
 ## 2. Principles
 
@@ -34,39 +53,32 @@ proof effort only on what is left. Concretely:
 
 - **The IL deep embedding mirrors `ast.ml` exactly.** Same type names,
   constructor names, constructor order, field order, and comments. One
-  Lean file for the one OCaml file. A reviewer reads them side by side
-  and needs nothing else.
+  Lean file for the one OCaml file.
 - **The semantics port mirrors the AL interpreter's structure.** One Lean
   module per OCaml module (`ctx.ml`, `interp.ml`, `backtrack.ml`,
   `nondet.ml`), functions with the same names in the same order, each
-  with a comment citing the upstream file and line. Where the OCaml has a
-  helper, Lean has the same helper. No refactoring into a preferred
+  citing the upstream file and line. No refactoring into a preferred
   shape.
 - **Builtins and targets mirror their OCaml files**, one Lean file per
-  file under `interface/builtin/` and `backend-sim/<target>/`, same
-  function names.
+  file under `interface/builtin/` and `backend-sim/<target>/`.
+- **Generated modules mirror upstream spec files**, one Lean file per
+  `.watsup` file, in the same order, so a reviewer diffs
+  `5.10-typing-statement.watsup` against `P4Spec/Typing/Statement.lean`.
 - **Generated names derive from spec names by one documented, invertible
-  rule.** Relation `Stmt_ok` becomes `Stmt_ok`; rule `Stmt_ok/if-then`
-  becomes a constructor a reader can predict without running the tool.
-  Mixfix atoms get the same treatment. No renaming for taste.
-- **Codegen output is boring on purpose.** No optimization passes, no
-  rule merging, no cleverness a reader would have to reverse-engineer.
-  The output should look like what a careful person would write by hand
-  from the spec.
-- **The export is upstream's own serialization** where one exists, not a
-  custom encoder. The IL types already derive JSON; the patch calls it.
-- **Deviations forced by Lean are one named list** (section 5.3). Each
-  entry says what changed, why Lean needed it, and where. Nothing else
-  deviates.
-- **Mechanical mirror checks where cheap.** A script extracts constructor
-  lists from `ast.ml` and function names from the interpreter and compares
-  them with the Lean files, so the side-by-side property is tested rather
-  than trusted.
+  rule.** No renaming for taste.
+- **Codegen output is boring on purpose.** No IL-to-IL rewriting passes,
+  no rule merging, no cleverness. Per-construct encodings (section 5.4)
+  are the only transformations, and they are listed.
+- **The export is upstream's own serialization.** The IL types already
+  derive JSON; the patch calls it.
+- **Deviations forced by Lean are one named list** (section 5.3).
+- **Mechanical mirror checks where cheap.** Scripts compare constructor
+  and function lists between the OCaml and Lean files.
 
 ### 2.2 The repository is the only state
 
 Work must be resumable by a fresh agent or person from the repository
-alone. Conventions in section 7.
+alone. Conventions in section 8.
 
 ## 3. Upstream facts the design relies on
 
@@ -78,7 +90,7 @@ Source: https://github.com/kaist-plrg/p4-spectec and the P4-SpecTec paper
 - The IL AST is `p4spec/lib/lang/il/ast.ml`, 261 lines. Definitions are
   type defs, functions with clauses and premises, relations with rule
   groups, plus `extern` types/relations/decs, `builtin` decs, and tables.
-  Most of it already derives JSON serialization.
+  All but `def` and `spec` already derive JSON serialization.
 - Every relation carries an input hint. Elaboration guarantees all outputs
   are computable from inputs with no existential search. Determinism is
   validated dynamically, not statically, so rule order matters for the
@@ -86,62 +98,77 @@ Source: https://github.com/kaist-plrg/p4-spectec and the P4-SpecTec paper
 - Externs and builtins are declared but not defined in the spec. Targets
   (v1model, PSA, eBPF) supply them; upstream keeps them in OCaml under
   `p4spec/lib/backend-sim/`.
-- The full spec is about 1.2 MB across ~80 files. Nano-P4, the GSoC
-  educational dialect, is the pilot target.
+- Size: 28,862 lines of spec, 591 syntax definitions, 253 relations,
+  1,090 rules, 561 function declarations (paper, section 8.1). Nano-P4,
+  the GSoC educational dialect, is the pilot target.
 - Upstream has three interpreters: AL (backtracking over IL rules, 64 KB,
   the faithful semantics), SL (87 KB), PL (90 KB). We port AL.
 - Upstream's P4 frontend (`p4spec/lib/interface/p4/`) preprocesses, parses
   (Petr4-derived menhir grammar), and "boots" the program into an IL value.
-  `p4spectec run -rel Program_ok -i p4c/p4include -p prog.p4` does this
-  before interpreting.
 - Upstream ships an experimental meta-circular spec (`spec-meta/`, ~65 KB):
   SpecTec's own semantics written in SpecTec. Not relied on; noted as a
   possible future source for the IL semantics.
-
-Prior art for spec-DSL-to-prover backends (Ott, Lem, Sail, K, Wasm
-SpecTec's Rocq backend on branch `coq` and Lean backend on branch
-`lean4-wip`) are all unverified pretty-printers. The kernel typechecking the
-output is the safety net. Nobody has a verified backend of this kind.
+- Upstream maintains `excludes/` lists of p4c programs it cannot handle,
+  with reasons; the differential harness reuses them.
 
 ## 4. Architecture
 
 ### 4.1 Spec flow
 
 ```
-OCaml (upstream, unchanged)                     Lean 4 (this repo)
-spec files → Parse → Elaborate → IL ────┐
-                                        │ elab --json  (our only patch)
-                                        ▼
-                                   p4.il.json ──FromJson──▶ P4SpecTec.IL (deep embedding)
-                                                                 │
-                                                                 ▼
-                                                        P4SpecTec.Codegen (metaprogram, IL → Syntax)
-                                                                 │ elabCommand
-                                                                 ▼
-                                                        P4Spec (generated)
-                                                          types      inductive / structure / abbrev
-                                                          functions  def f (fuel : Nat), total
-                                                          relations  inductive R : Prop  +  def R.run : Option
-                                                          class P4Spec.Target  (extern state, Call_ext, extern decs, builtins)
-                                                          ▲ imports P4SpecTec.Prelude
-                                                          ▲ instantiated by P4Spec.Targets.*
+OCaml (upstream, unchanged)                Lean 4 (this repo)
+spec files → Parse → Elaborate → IL ──┐
+                                      │ elab --json  (our only patch)
+                                      ▼
+                              p4.il.json ──FromJson──▶ P4SpecTec.IL (deep embedding)
+                                                            │
+                                                            ▼
+                                                   P4SpecTec.Codegen  (lake exe p4spectec-gen)
+                                                            │ writes one .lean per spec file
+                                                            ▼
+                                                   P4Spec/<Section>/<File>.lean  (committed, diffed in CI)
+                                                     types      inductive / structure / abbrev
+                                                     functions  def, structural or partial_fixpoint
+                                                     relations  inductive R : Prop  +  def R.run : Option
+                                                     ⌜d⌝, refinement theorems, lemma library
+                                                     class P4Spec.Target  (externs and builtins)
+                                                     ▲ imports P4SpecTec.Prelude
+                                                     ▲ instantiated by P4Spec.Targets.*
 ```
 
 Decisions:
 
-- Almost nothing in OCaml. The JSON dump is a small patch to upstream,
-  intended to be upstreamed. Everything else lives in Lean.
-- The compiler takes a list of spec files, not a fixed directory, so a
+- **Almost nothing in OCaml.** The JSON dump is a small patch to upstream.
+  Everything else is Lean, including the compiler: the IL deep embedding
+  must exist in Lean for validation anyway, so the generator and the
+  validator share one AST and one decoder; Lean's own formatter gives
+  canonical output and its token table gives correct keyword escaping;
+  and a generator in Lean could one day be verified, one in OCaml never.
+- **The compiler takes a list of spec files**, not a fixed directory, so a
   consumer can add an architecture or a contract written in SpecTec.
-- Codegen builds surface syntax with quotations and hands it to the
-  elaborator. No text round-trip, readable output when pretty-printed,
-  Lean resolves implicits, universes and mutual blocks.
-- Mutually recursive spec functions take an explicit fuel argument so Lean
-  accepts them as total and they stay transparent to proofs. No `partial`.
-- Relations are emitted in both encodings from one pass, with a generated
-  theorem `R.run i = some o → R i o`.
-- Externs and builtins become fields of a generated class. Target instances
-  are ports of upstream's OCaml target code.
+- **Text emission, one module per upstream spec file.** The generator
+  builds `Syntax`, prints it with Lean's formatter, and writes ordinary
+  `.lean` files that Lake builds like any other module. The files are
+  committed; CI regenerates and diffs them, and `--update` refreshes
+  them. This gives Lake parallelism and incremental builds, keeps the
+  IDE responsive, makes every codegen change a reviewable diff, and
+  keeps generated files mirroring their sources. Every prior art emits
+  text; Wasm's monolithic outputs are the scale warning.
+- **Recursion strategy, in order.** Structural recursion where the spec
+  is structural (most functions over syntax). `partial_fixpoint` for
+  mutually recursive functions returning `Option`, which yields
+  unfolding equations and the `partial_correctness` induction principle
+  the soundness theorems need. Explicit fuel only for definitions that
+  fit neither, recorded as a deviation. Never `partial`.
+- **Relations are emitted in both encodings** from one pass: an
+  inductive `Prop` with one constructor per rule for proofs, and an
+  executable `Option`-returning function for testing and evaluation,
+  linked by a generated theorem `R.run i = some o → R i o`.
+- **Externs and builtins become fields of a generated class.** Target
+  instances are ports of upstream's OCaml target code. Every extern call
+  in generated code goes through this one interface, so a free-monad
+  outcome interface (what Sail needed for concurrency and symbolic
+  execution) can replace it later without touching generated code.
 
 ### 4.2 Program flow
 
@@ -163,11 +190,10 @@ prog.p4 + p4c/p4include → Preprocess → Parse → Boot (P4 AST → IL value) 
 ```
 
 - No P4 parser in Lean. The grammar is large, has a C-style preprocessor,
-  and upstream's parser is the one the differential tests trust. A Lean
-  parser could come later as a verified replacement.
+  and upstream's parser is the one the differential tests trust.
 - Deep embedding first. A shallow embedding (P4 program → Lean functions)
-  is a separate later compiler, proved correct against this semantics. Out
-  of scope.
+  is a separate later compiler, proved correct against this semantics.
+  Out of scope.
 
 ## 5. Verification and validation
 
@@ -175,30 +201,72 @@ Four rungs. We build rungs 1 to 3. Rung 4 is deliberately out of scope.
 
 1. **Kernel checking.** Every generated declaration and theorem is
    kernel-checked. Build fails on any `sorry`, `partial`, or unproved
-   termination. Warnings are errors. An audit target prints the axioms of
-   every generated theorem under a guard, so a native-decide escape or an
-   imported axiom cannot pass silently. Free.
+   termination. Warnings are errors. An audit checks the axioms of every
+   generated theorem, so a native-decide escape or an imported axiom
+   cannot pass silently.
 2. **Differential testing.** Run the generated executable relations and
-   upstream's interpreter on the same corpus; compare typing verdicts, IR,
-   instantiation results, and output packets. Also run the Lean IL
+   upstream's interpreter on the same corpus; compare typing verdicts,
+   IR, instantiation results, and output packets. Also run the Lean IL
    interpreter itself (on the deep terms) against upstream's on a subset,
-   which directly tests the semantics port. Nothing here is proved. Runs in
-   CI. Mutation checks on both sides: mutate codegen and require rung 3 to
-   fail; mutate the semantics port and require rung 2 to catch it.
-3. **Translation validation.** Requires the Lean formalization of the IL:
-   a deep embedding of the IL AST plus an interpreter for it. For each
-   definition `d`, codegen emits the shallow Lean definition `d` and the
-   quoted IL term `⌜d⌝` (a structural copy of the JSON as Lean data), plus
-   a theorem `⟦⌜d⌝⟧ = d` discharged by a generic tactic. A failing tactic
-   fails the build. Codegen is therefore not trusted.
+   which directly tests the semantics port. Ported builtins get generated
+   unit-test obligations from upstream's test outputs. Mutation checks on
+   both sides: mutate codegen and require rung 3 to fail; mutate the
+   semantics port and require rung 2 to catch it.
+3. **Proof-producing translation.** Requires the Lean formalization of
+   the IL: a deep embedding of the IL AST plus an interpreter for it. For
+   each definition `d`, codegen emits the shallow Lean definition `d`,
+   the quoted IL term `⌜d⌝` (a structural copy of the JSON as Lean data),
+   and a refinement theorem (section 5.1) discharged by a generic tactic.
+   A failing tactic fails the build. Codegen is therefore not trusted.
 4. **Verified translation function.** Not practical: Lean's own elaborator
    is unverified. Not planned.
 
-Rung 3 in plain terms: `d` is the fast generated code; `⌜d⌝` is the raw
-spec kept as data; the interpreter is the slow, obviously-correct generic
-walker; the theorem says the two agree on all inputs.
+**What rung 3 buys, honestly.** It does not shrink the trusted base; it
+moves it from the generator to the interpreter port. Sail's authors put
+it plainly: their translation's semantics "is effectively defined by this
+translation". What rung 3 gives instead is a trusted base that is
+reviewable side by side with upstream (section 2.1) and cross-checked by
+rung 2, in place of one that is neither. That is defence in depth. The
+design measures both line counts and reports them.
 
-### 5.1 Trusted vs checked
+### 5.1 The refinement theorem
+
+The theorem is not `⟦⌜d⌝⟧ = d`. The interpreter works on untyped IL
+values and backtracks; the shallow definition is typed and total. Every
+precedent (CakeML's proof-producing translator, Cogent's certifying
+compiler, certifying extraction for Coq) states a type-indexed
+refinement relation and discharges it syntax-directedly. So:
+
+- Codegen generates, per IL type `τ`, a relation
+  `R τ : IL.Value → ⟦τ⟧ → Prop` between IL values and values of the
+  generated Lean type, mirroring CakeML's `INT`, `LIST_TYPE`, `PAIR_TYPE`.
+  IL is first-order, so no function-typed invariants are needed, which
+  removes the hardest part of CakeML's translator.
+- For a function `f : τ₁ → … → τₙ → τ`:
+  `Forall₂ R vs xs → interp ⌜f⌝ vs = some r → ∃ x, R τ r x ∧ f xs = some x`.
+  Completeness, the other direction, is a second phase and is stated only
+  where determinism is proved.
+- For a relation, the same statement against the inductive `Prop`
+  version, and separately `R.run i = some o → R i o` via
+  `partial_correctness`; both share the value relation.
+- The tactic is a fixed library: one lemma per IL expression and premise
+  form (`interp_var`, `interp_call`, `interp_case`, `interp_iter`,
+  `interp_prem_if`, …), per-type lemmas generated with each type, and a
+  syntax-directed driver whose recursive case comes from the definition's
+  own induction principle. Expect one generated induction step per
+  (mutual) definition and zero manual lines. Nobody gets `rfl`; plan on
+  rewriting from day one.
+- **Effort and risk.** One-time library comparable to CakeML's core, a
+  few weeks. Per definition, proof-checking time, not authoring, is the
+  bottleneck; Cogent reports about twelve generated proof lines per
+  source line. Measured from the first Nano-P4 output.
+- **Failure vs divergence.** `partial_fixpoint` rejects backtracking
+  written with `<|>` because it is not monotone in the flat order. The
+  interpreter therefore separates failure as data from divergence,
+  returning `Option (Except Fail v)` or the equivalent transformer, and
+  this is decided before the port, not after.
+
+### 5.2 Trusted vs checked
 
 | Component | Status | Why | Does not establish |
 |---|---|---|---|
@@ -206,22 +274,11 @@ walker; the theorem says the two agree on all inputs.
 | Upstream parser and elaborator (OCaml) | trusted | defines what the spec means; shared with the official P4 spec toolchain | that the spec is P4 |
 | JSON dump of the IL | trusted | tiny and structural; round-trip tested against upstream's IL printer | |
 | `P4SpecTec.Semantics` (IL interpreter in Lean) | trusted | the spec of the compiler; mirrors upstream's AL interpreter file by file; cross-checked by rung 2 | agreement with SL or PL interpreters |
-| `P4SpecTec.Prelude.Builtins` | trusted | ports of upstream builtins, one file per file; unit-tested against the originals | |
+| `P4SpecTec.Prelude.Builtins` | trusted | ports of upstream builtins, one file per file; unit-test obligations generated from upstream outputs | |
 | `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
 | `P4SpecTec.Codegen` | checked | every output validated by rung 3 | |
 | Generated `P4Spec` | checked | kernel-checked, differential-tested, validated per definition | |
-| Lean elaborator | checked | its output is what the kernel checks | |
-
-### 5.2 The semantics port
-
-The IL *syntax* is a mechanical constructor-for-constructor copy of
-`ast.ml`. The *semantics* is a port of the AL interpreter, not a copy. The
-core (expression evaluation, iterators, path updates, rule matching,
-backtracking) ports function by function. What the port drops is
-engineering, not meaning: mutable context, result caching, instrumentation
-hooks, backtraces, and the unique-id value-equality scheme. Each omission
-is an easy judgment call but not a mechanical one; that is what the
-side-by-side review and the rung 2 interpreter comparison are for.
+| Lean elaborator and compiler | checked / trusted | the kernel checks elaboration; the compiler is trusted for `#eval` and differential runs only | |
 
 ### 5.3 Deviations forced by Lean
 
@@ -231,24 +288,44 @@ here is a bug.
 
 | Deviation | Why Lean needs it | Where |
 |---|---|---|
-| Fuel argument on mutually recursive functions and executable relations | Lean requires a termination argument; the spec's recursion is not structural | `Codegen/Funcs.lean`, `Codegen/Rels.lean` |
-| Each relation emitted twice, `Prop` and executable | a `Prop` cannot be run; an executable function cannot be reasoned about declaratively | `Codegen/Rels.lean` |
+| `partial_fixpoint` on mutually recursive `Option` functions; explicit fuel where that fails | Lean requires a termination argument or a monotone fixpoint; the spec's recursion is not always structural | `Codegen/Funcs.lean`, `Codegen/Rels.lean` |
+| Each relation emitted twice, `Prop` and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean` |
+| Iterated premises encoded as `∀ x ∈ xs, …` and definitional `Forall₂`, not nested inductive predicates | Lean's kernel does not support nested inductive predicates with indices (lean4#1964) | `Codegen/Rels.lean`, `Prelude/Iter.lean` |
+| `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
+| Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Semantics/Ctx.lean` |
+| Failure and divergence separated in the interpreter's return type | `partial_fixpoint` needs monotonicity; `<|>` on `Option` is not monotone | `Semantics/Interp.lean` |
 | No mutable context, caching, hooks, backtraces | pure functions; these are instrumentation, not meaning | `Semantics/*` |
 | Mutual block grouping by dependency | Lean requires mutually recursive definitions in one `mutual` block | `Codegen/Funcs.lean` |
 
-### 5.4 Test sources (all from upstream)
+### 5.4 Per-construct encodings
+
+Codegen performs no IL-to-IL passes; these are the local encodings it
+applies instead, each documented in the module that implements it.
+
+| IL construct | Lean encoding |
+|---|---|
+| Subtype check `e <: τ` | explicit injection function per subtype pair |
+| Rule group with `else` group | boolean negation of the earlier rules' premises, not a negated relation |
+| Mixfix notation | flattened atom names by the naming rule; Lean namespaces replace prefix mangling |
+| Iterators `?`, `*` with dimensions | `Option`, `List`, `List.zip` for joint iteration, with side conditions on lengths |
+| Path update `e[p = v]` | structural update helpers in the prelude |
+| Partial functions and `!` projections | `Option` return with generated side conditions, never a default value (the Wasm Rocq backend's defaults produced provably false lemmas) |
+| Extern declarations | fields of the target class |
+| Tables (`table dec`) | a function by cases over the rows |
+
+### 5.5 Test sources (all from upstream)
 
 - p4c sample corpus: hand-written, mostly well-typed programs. Main source
   for typing and instantiation comparison; seed set for the fuzzer.
+  Upstream's `excludes/` lists say which programs to skip and why.
 - Negative-test fuzzer (`p4spectec testgen`, `fuzzer/`): mutation-based
-  generator of *ill-typed* programs, guided by spec coverage, reduced with
-  creduce. Exercises the failure paths of the typing relation, where a
-  first-match executable encoding and a backtracking interpreter are most
-  likely to disagree.
+  generator of *ill-typed* programs, guided by spec coverage. Exercises
+  the failure paths of the typing relation, where a first-match
+  executable encoding and a backtracking interpreter are most likely to
+  disagree.
 - STF packet tests (`testdata/p4testgen/`): program + input packets +
-  expected outputs, produced by p4c's p4testgen. Used by the packet
-  simulation comparison.
+  expected outputs. Used by the packet simulation comparison.
 
 There is no random well-typed program generator. Options if wanted later:
 p4c's p4smith, or enumerating derivations of the generated inductive typing
@@ -264,83 +341,57 @@ refers to the Wasm-DSL project and is not used as a name here.
 p4-spectec-lean/
 ├── AGENTS.md                     # entry point for people and agents; reading order (no CLAUDE.md)
 ├── README.md
-├── flake.nix                     # dev shell: Lean toolchain, OCaml 5.1 + opam deps, p4c includes
+├── flake.nix, flake.lock         # the development environment; every command runs inside it
 ├── lean-toolchain
-├── lakefile.toml                 # libs: P4SpecTec, P4Lib, NanoP4Spec, P4Spec; exe: p4spectec-emit
+├── lakefile.toml                 # libs: P4SpecTec, P4SpecTecTest, P4Lib, NanoP4Spec, P4Spec; exe: p4spectec-gen
 ├── docs/                         # describes the artifact; never links into .agents/
 │   └── design.md                 # this file
 ├── .agents/                      # describes the work; the resumable state
-│   ├── status.md                 # current state only: evidence with commit hashes, open threads, next step
-│   ├── decisions.md              # register of decisions in force, rewritten in place, with date and reason
-│   ├── roadmap.md                # backlog beyond the milestones
-│   ├── notes/                    # live working notes
-│   └── reviews/                  # independent review reports for current work
+│   ├── status.md, decisions.md, roadmap.md, notes/, reviews/
 │
 ├── upstream/
-│   ├── p4-spectec/               # git submodule, pinned (brings p4c as its own submodule)
+│   ├── p4-spectec/               # git submodule, pinned
 │   └── patches/
-│       └── 0001-json-export.patch   # adds `elab --json` and `run --dump-value`, using the derived serializers
+│       └── 0001-json-export.patch   # adds `elab --json` and `run --dump-value` using the derived serializers
 │
 ├── exports/                      # committed JSON: the OCaml → Lean handoff
-│   ├── nano-p4.il.json
-│   ├── p4.il.json
+│   ├── nano-p4.il.json, p4.il.json
 │   └── programs/                 # booted P4 programs used by Lean tests
 │
 ├── P4SpecTec/                    # core library, language-agnostic
 │   ├── IL/
 │   │   ├── Ast.lean              # mirrors lang/il/ast.ml constructor for constructor
-│   │   ├── Value.lean            # IL values (the `value` type of ast.ml, kept separate for the decoder)
+│   │   ├── Value.lean            # IL values
 │   │   └── Json.lean             # FromJson for both
 │   ├── Semantics/                # TRUSTED: mirrors interp/interp-al/ file by file
-│   │   ├── Ctx.lean              # ← ctx.ml
-│   │   ├── Interp.lean           # ← interp.ml
-│   │   ├── Backtrack.lean        # ← backtrack.ml
-│   │   └── Nondet.lean           # ← nondet.ml
+│   │   ├── Ctx.lean, Interp.lean, Backtrack.lean, Nondet.lean
 │   ├── Prelude/                  # runtime the generated code imports
-│   │   ├── Num.lean              # nat/int arithmetic matching OCaml's Num semantics
-│   │   ├── Iter.lean             # Option and List helpers for `?` and `*`
-│   │   ├── Path.lean             # structural update along a path
-│   │   ├── Subtype.lean          # `<:` checks, `matches` patterns
-│   │   ├── Target.lean           # class shape for extern syn / rel / dec
+│   │   ├── Num.lean, Iter.lean, Path.lean, Subtype.lean, Target.lean
 │   │   └── Builtins/             # TRUSTED: mirrors interface/builtin/ file by file
-│   │       ├── Call.lean, Extract.lean, Fresh.lean, Ints.lean, Lists.lean,
-│   │       └── Maps.lean, Nats.lean, Numerics.lean, Sets.lean, Texts.lean
 │   ├── Codegen/                  # NOT trusted: validated per definition
-│   │   ├── Names.lean            # the one documented, invertible naming rule
-│   │   ├── Types.lean            # TypD → inductive / structure / abbrev
-│   │   ├── Funcs.lean            # FuncDecD → def with fuel; mutual block grouping
-│   │   ├── Rels.lean             # RelD → inductive Prop + Option-returning run function
+│   │   ├── Names.lean            # the one documented, invertible naming rule; keyword table from Lean itself
+│   │   ├── Types.lean            # TypD → inductive / structure / abbrev, plus the value relation R τ
+│   │   ├── Funcs.lean            # FuncDecD → def; structural, partial_fixpoint, or fuel
+│   │   ├── Rels.lean             # RelD → inductive Prop + run function
 │   │   ├── Decode.lean           # FromValue instances for every generated type
 │   │   ├── Reify.lean            # emits ⌜d⌝, the deep term as a Lean constant
-│   │   ├── Validate.lean         # emits the d_valid and run_sound theorem statements
-│   │   └── Command.lean          # `spectec_import [files]` elaborator command
+│   │   ├── Validate.lean         # emits the refinement and run-soundness theorem statements
+│   │   ├── Lemmas.lean           # emits the per-relation lemma library: inversion, determinism, run-soundness
+│   │   ├── Emit.lean             # Syntax → formatted text, one module per spec file, generated-file header
+│   │   └── Main.lean             # `lake exe p4spectec-gen [files] --out DIR [--update]`
 │   ├── Tactic/
-│   │   └── Validate.lean         # generic tactic discharging generated theorems
-│   └── Emit/
-│       └── Main.lean             # `lake exe p4spectec-emit`: pretty-prints generated Syntax to .lean
-├── P4SpecTecTest/                # test-only modules: mirror checks, prelude vs builtins, decode round-trips
+│   │   └── Refine.lean           # per-construct interpreter lemmas and the syntax-directed driver
+├── P4SpecTecTest/                # test-only: mirror checks, prelude vs builtins, decode round-trips, timing
 │
-├── NanoP4Spec/                   # pilot: `spectec_import` of the Nano-P4 export + Targets/
-├── P4Spec/                       # full spec, split per upstream spec section for build parallelism
-│   └── Targets/                  # TRUSTED: mirrors backend-sim/<target>/ file by file
-│       ├── V1Model/, PSA/, EBPF/
+├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file; Targets/
+├── P4Spec/                       # GENERATED, committed, diffed in CI; one module per spec file, per upstream section
+│   └── Targets/                  # TRUSTED, hand-written: mirrors backend-sim/<target>/ file by file
 │
 ├── P4Lib/                        # independent of the generated spec; importable by downstream
-│   ├── BitVec.lean               # lemmas bridging Int-mod-2^n spec ops to core BitVec
-│   └── Packet.lean               # byte strings, header extraction and emission
+│   ├── BitVec.lean, Packet.lean
 │
-├── test/
-│   └── diff/                     # rung 2 harness
-│       ├── run.py                # runs upstream interpreter and Lean binary on the same corpus
-│       ├── compare.py            # normalizes and diffs verdicts, IR, packets
-│       └── corpus.txt            # which p4c samples, fuzz outputs and STF files to use
-│
-└── scripts/
-    ├── build-upstream.sh         # apply patches, build p4spectec at the pin; stamp records commit + patch digest
-    ├── export-spec.sh            # regenerate exports/*.il.json
-    ├── export-program.sh         # boot one .p4 file to exports/programs/
-    ├── check-mirror.py           # constructor and function lists in Lean match the OCaml originals
-    └── check.sh                  # every gate CI runs; exit code is the verdict
+├── test/diff/                    # rung 2 harness
+└── scripts/                      # check.sh (the gate), check-mirror, build-upstream, export-spec, export-program, time-elab
 ```
 
 Choices embedded in the tree:
@@ -348,98 +399,86 @@ Choices embedded in the tree:
 - Submodule plus patch, not a fork. Bumping upstream is one line.
 - JSON exports are committed. They are the OCaml/Lean contract, diff
   cleanly, and Lean builds do not need OCaml. CI checks they are current.
-- Generated Lean is not a build input, but it is committed as a golden.
-  The import command elaborates from JSON; the emit executable writes the
-  same declarations as `.lean` text under `P4SpecTecTest/golden/`, CI
-  regenerates and diffs it, and `--update` refreshes it. Every codegen
-  change is then reviewable as a diff of its output, which is the
-  cheapest audit there is. Sail, Aeneas and Wasm SpecTec's Lean backend
-  all converged on this.
-- Trusted files are marked and each mirrors an upstream file. Only
-  `Semantics/`, `Prelude/Builtins/`, and `*/Targets/` need side-by-side
-  review against upstream.
-- `P4Lib` does not depend on `P4Spec`. Target instances do (they
-  instantiate a generated class), so they live next to the spec.
-- The full spec is split per upstream section so Lake can parallelize and
-  typing can be iterated on without rebuilding instantiation.
+- Generated Lean is committed and is the build input. CI regenerates from
+  the exports and fails on any diff. Generated files carry a grep-able
+  header naming the generator and the spec file, and are never
+  hand-edited: the Wasm Rocq team re-patches its generated file after
+  every regeneration, which is the failure mode to avoid.
+- Trusted files are marked and each mirrors an upstream file.
+- `P4Lib` does not depend on `P4Spec`. Target instances do, so they live
+  next to the spec.
 - Lake layout: importable modules under the root, test-only modules under
   a `Test` root, no Mathlib, one toolchain pin.
 
 Rung 3 lives in: `IL/Ast.lean` and `Semantics/*` (reference side,
-trusted), `Codegen/Reify.lean` and `Codegen/Validate.lean` (generation
-side), `Tactic/Validate.lean` (proof side, where the real work is).
+trusted), `Codegen/Types.lean` (value relations), `Codegen/Reify.lean`
+and `Codegen/Validate.lean` (generation side), `Tactic/Refine.lean`
+(proof side, where the real work is).
 
 ### P4Lib
 
 Serves users of the generated semantics, not generation itself.
 
-- `Packet.lean`: byte sequences, header extraction and emission. Needed by
-  every target instance.
+- `Packet.lean`: byte sequences, header extraction and emission.
 - `BitVec.lean`: the spec defines `bit<n>` arithmetic as unbounded-integer
   arithmetic modulo 2^n, so generated code computes with `Int`. That is
   correct but hostile to proof automation, which works on core `BitVec`.
   The bridge is a lemma library equating the two under the obvious
-  conversion so goals can be handed to `bv_decide`. Needed by no rung; only
-  by downstream proofs. Built last, driven by the first real proof.
+  conversion so goals can be handed to `bv_decide`. Needed by no rung;
+  only by downstream proofs. Built last, driven by the first real proof.
 
-## 7. Engineering conventions
+## 7. Scale
 
-- **`AGENTS.md` is the single entry point** and names every file an agent
-  needs, in reading order. No `CLAUDE.md`; Claude-specific notes go in
-  `.claude/rules/`.
+The full spec is 1,090 rules and 561 functions, and each relation
+produces a `Prop` inductive, a run function, a reified term, theorems and
+lemmas. Prior art says elaboration cost is the risk that surfaces last
+and hurts most: Isabelle's SpecTec backend needed passes to cap
+constructor counts because datatype compilation is quadratic; Sail's
+RISC-V output is 175k lines of Lean; Islaris could not manipulate the
+Armv8 model in Coq at all. So:
+
+- Per-file modules (section 4.1), so Lake parallelizes and a change to
+  typing does not rebuild instantiation.
+- Per-file elaboration timing from the first Nano-P4 output, in M1, with
+  a tracked table, so encoding choices are made while they are cheap to
+  change.
+- Generated types derive only what is used; no `DecidableEq` on wide
+  variants.
+- Proof-checking time of generated theorems measured from M2 and
+  budgeted like build time.
+
+## 8. Engineering conventions
+
+- **`AGENTS.md` is the single entry point.** No `CLAUDE.md`.
 - **`docs/` describes the artifact, `.agents/` describes the work.**
-  `docs/` never links into `.agents/`; a test enforces it.
-- **`.agents/status.md` holds current truth only:** last checked evidence
-  with commit hashes and CI links, open threads, next concrete step.
-  Updated at every checkpoint.
-- **`.agents/decisions.md` is a register, not a diary.** Each entry has a
-  reason and date; a superseded entry is rewritten in place; uncertain ones
-  carry a confidence and a revisit trigger.
-- **Compaction at milestone boundaries** rewrites status and decisions to
-  what is true now, deletes finished notes, and promotes artifact-describing
-  notes into `docs/`. Git history is the archive. No tags.
-- **Unfinished work is a pushed branch** with a work-in-progress commit
-  saying what it holds and lacks, never an uncommitted worktree.
-- **One environment, defined by Nix.** `flake.nix` and `flake.lock` are
-  the development environment; every command, locally and in CI, runs
-  inside `nix develop`. The OCaml toolchain and P4-SpecTec's libraries
-  come from nixpkgs at the locked revision, so there is no opam state to
-  reproduce. Lean is the one exception: elan installs the version
-  `lean-toolchain` names, because nixpkgs lags Lean releases. A personal
-  `.envrc` for direnv is ignored by git.
+- **`.agents/status.md` holds current truth only;** updated at every
+  checkpoint.
+- **`.agents/decisions.md` is a register, not a diary.**
+- **Compaction at milestone boundaries;** git history is the archive; no
+  tags.
+- **Unfinished work is a pushed branch**, never an uncommitted worktree.
+- **One environment, defined by Nix.** Every command, locally and in CI,
+  runs inside `nix develop`. Lean comes from elan at the version
+  `lean-toolchain` names; the OCaml side comes from nixpkgs' default
+  package set, the one the binary cache carries. A personal `.envrc` is
+  ignored.
 - **Every external input is pinned and listed in one table:** P4-SpecTec
   by commit, nixpkgs by `flake.lock`, GitHub Actions by SHA, the Lean
   toolchain by version, Batteries by tag with the exact revision in the
   Lake manifest.
 - **Warnings fail the build through `lake build --wfail`**, never through
-  `warningAsError` in Lake options, which rewrites the severities that
-  `#guard_msgs` tests observe. A `sorry` is a warning and so fails too.
-- **Documentation and website.** Design and working notes are Markdown
-  in `docs/` and `.agents/`, readable in the repository without a build.
-  The project website is one GitHub Pages site built by one workflow in
-  the Nix shell, in three stages: none until M1 has real declarations;
-  after M1, API reference from doc-gen4 in its own Lake package that
-  ordinary builds skip, published under `api/`; at M4, a Verso site in
-  its own package with the design narrative and a tutorial whose
-  examples are checked against the frozen public surface. A page that
-  claims something about the generated code should fail to build when
-  the claim stops being true. Verso and doc-gen4 are pinned to the tag
-  matching the toolchain and bumped with it.
-- **No license header per file.** The root `LICENSE` covers the
-  repository.
-- **Gates are scripts; the exit code is the verdict.** The full gate runs
-  before a push. A push is gated on a recorded exit status, never on a
-  command that reads a log.
-- **Proof trust is a build gate:** warnings as errors, an axiom audit over
-  every advertised and generated theorem.
-- **Commits** follow Chris Beams' rules; the body says why, not what.
-  Agent commits end with a `Co-Authored-By` trailer. Small, self-contained
-  changes go directly to `main`; multi-commit or build-affecting work gets
-  a branch.
-- **Independent read-only review after each step**, filed under
-  `.agents/reviews/`, findings fixed on `main`.
+  `warningAsError` in Lake options. A `sorry` is a warning and fails too.
+- **Docstrings on every declaration; mirrored modules keep upstream
+  names; our own code follows Lean style.**
+- **Documentation and website.** Markdown in `docs/` and `.agents/`; a
+  GitHub Pages site in three stages: none until M1; doc-gen4 API
+  reference after M1; a Verso site with checked examples at M4.
+- **No license header per file.**
+- **Commits** follow Chris Beams' rules with a body that says why. Small
+  self-contained changes go directly to `main`.
+- **Independent read-only review after each step.**
 
-## 8. Downstream use
+## 9. Downstream use
 
 p4blo (github.com/qobilidop/p4blo) is the motivating consumer: it wants
 to prove its own architecture-free P4 IR semantics equivalent to
@@ -447,38 +486,53 @@ P4-SpecTec's, using this rendering. That is its problem to solve; this
 project takes nothing from it. What a consumer of that kind needs from us,
 and what we provide regardless of consumer:
 
-- **A stable public surface.** Generated names, module split, and the
-  shape of the two relation encodings are an API once imported. The naming
-  rule is settled in the pilot and frozen; later changes are breaking.
-- **Extra spec files as ordinary input** (section 4.1), so a consumer can
-  add an architecture or contract written in SpecTec.
-- **Externs as parameters** (the generated target class), so a downstream
-  theorem can quantify over a shared extern model instead of reproducing
-  any simulator's extern code.
+- **A stable, versioned public surface.** Generated names, module split,
+  the two relation encodings, and the per-relation lemma library are an
+  API once imported. The naming rule is settled in the pilot and frozen;
+  later changes are breaking. CHERI and Morello survived years of model
+  changes only because lemma statements were generated with the model.
+- **Extra spec files as ordinary input** (section 4.1).
+- **Externs as parameters** through one interface (section 4.1).
 
-## 9. Milestones
+## 10. Milestones
 
-- **M1, Nano-P4, rungs 1 and 2.** JSON dump patch, deep embedding, codegen
-  for types, functions and relations, prelude, mirror checks, differential
-  tests against upstream on the Nano-P4 corpus. Naming rule frozen at the
-  end of M1.
-- **M2, Nano-P4, rung 3.** IL semantics in Lean, per-definition validation
-  theorems, exec-to-Prop soundness theorems, generic tactic, axiom audit.
+- **M1, Nano-P4, rungs 1 and 2.** JSON dump patch, upstream built in the
+  Nix shell, deep embedding, codegen for types, functions and relations
+  with per-file text emission, prelude, mirror checks, per-file
+  elaboration timing table, differential tests against upstream on the
+  Nano-P4 corpus. Naming rule frozen at the end of M1.
+- **M2, Nano-P4, rung 3 and the lemma library.** IL semantics in Lean
+  with the failure/divergence split, value relations per type, the
+  per-construct lemma library and driver tactic, refinement and
+  run-soundness theorems, per-relation inversion and determinism
+  theorems, axiom audit, proof-checking time measured.
 - **M3, full P4 1.2.5 spec.** Scale codegen and elaboration to ~80 files.
-  Expect work on mutual blocks, fuel thresholds and build times. Target
-  instances arrive with the packet leg of rung 2.
-- **M4, P4Lib.** BitVec bridge, packet types, first downstream proof.
+  Expect work on mutual blocks, `partial_fixpoint` monotonicity, and
+  build times. Target instances arrive with the packet leg of rung 2.
+- **M4, P4Lib and the site.** BitVec bridge, packet types, first
+  downstream proof, Verso site.
 
-## 10. Open points
+## 11. Prior art consulted
+
+Design: Wasm SpecTec's Rocq backend (branches `rocq-backend`,
+`rocq-backend-proof`, `mech-backend`; IL2Coq thesis; PLDI 2024 paper) and
+Lean backend (`lean4-wip`); CakeML's proof-producing translator (ICFP 2012,
+JFP 2014); Cogent's certifying compiler (ICFP 2016, ASPLOS 2016);
+certifying extraction (ITP 2019); Ott (JFP 2010); Lem (ICFP 2014); Sail
+and its prover backends (POPL 2019, Morello ESOP 2022, CHERI-MIPS S&P 2020,
+Islaris PLDI 2022); ESMeta/JISET/JEST; K's proof certificates (CAV 2021);
+Petr4, P4Cub, Verifiable P4, HOL4P4; Lean's `partial_fixpoint`. Engineering:
+cedar-spec, LNSym, Sail's Lean backend, Aeneas, Batteries, lean-mlir.
+
+## 12. Open points
 
 - Differential harness language: Python or a Lean executable. Leaning
   Python.
-- Where the fuel threshold policy for executable relations lives; probably
-  a small config next to each export.
 - Whether upstream's meta-circular spec matures enough to generate the IL
   semantics from it. Would turn the side-by-side review into a diff against
   upstream, but one hand-written semantics stays at the bottom of the
   stack regardless.
-- Which P4-SpecTec commit to pin first. Our own choice; the latest
-  upstream commit that builds is the default.
-- Lean version: current stable, Batteries, no Mathlib.
+- Whether the full spec's generated modules stay reviewable as diffs; if
+  not, review per section, never drop the diff check.
+- Completeness direction of the refinement theorems: stated only where
+  determinism is proved; whether to pursue it at all is decided after M2.
