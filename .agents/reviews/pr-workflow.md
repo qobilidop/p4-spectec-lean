@@ -21,3 +21,9 @@ and required coauthor trailer. The PR accurately attributes implementation,
 writing and separate AI-agent reviews without implying human review.
 Labeled AI disclosure as user-required so the adjacent GitHub/Google
 references are not misrepresented as its source.
+
+Final merge/disclosure review: no findings. The per-PR merge policy
+preserves meaningful commits by default without bypassing checks or
+protections. Per user preference, the PR has no merge-strategy section
+and only one disclosure sentence naming agent and verified model.
+Review evidence remains explicitly labeled AI-agent review.

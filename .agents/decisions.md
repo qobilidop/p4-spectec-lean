@@ -438,6 +438,17 @@ settles is not repeated here.
 
 ## Process
 
+- **Select merges per PR, defaulting to preservation of useful commits.**
+  User approved merge commits for coherent individual changes, squash
+  for a single change spread across incidental WIP/fixups, and rebase
+  only with an explicit linear-history preference. Reason: Git is the
+  project archive; messages, stable commit references and logical change
+  boundaries aid later investigation. PR #5 should use a merge commit:
+  its implementation and subsequent workflow decisions are distinct.
+  The user prefers no merge-strategy section in PR descriptions; this
+  choice belongs to workflow policy, not the change narrative.
+  This does not bypass review, remote CI or repository protections.
+  (2026-09-25)
 - **Make the existing commit-message convention explicit.** Retain
   Beams' style and the under-50-character subject, spell out 72-column
   prose wrapping and rationale, and adopt Git's emphasis on atomic
@@ -464,7 +475,8 @@ settles is not repeated here.
   mandatory template. Reason: a PR must remain understandable without
   agent chat history; review guidance should be proportional to risk.
   (2026-09-25)
-- **Disclose AI use in PR descriptions**, including authorship and
-  review roles; do not present separate AI-agent reviews as human review.
-  User explicitly requested transparency at the PR level, beyond commit
-  coauthor trailers. The actionable rule is in `AGENTS.md`. (2026-09-25)
+- **Keep PR AI disclosure to one short sentence naming agent and exact
+  model.** User requested concise attribution, beyond commit trailers.
+  Model names come from session evidence, not a configured default.
+  Review claims elsewhere must still distinguish AI-agent review from
+  human review. The actionable rule is in `AGENTS.md`. (2026-09-25)

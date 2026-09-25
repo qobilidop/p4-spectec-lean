@@ -190,6 +190,16 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   the local full gate is still required before pushing. A separate human
   approval is not required when autonomous completion was authorized;
   all repository protection requirements still apply.
+- **Choose the merge strategy per PR; preserve meaningful commits by
+  default.** Use a merge commit when individual commits are coherent
+  changes worth retaining, preserving their messages, hashes and the PR
+  boundary. Squash when one logical change is spread across WIP/fixup
+  commits; write a considered final message preserving rationale and
+  coauthor attribution, not a concatenation of progress notes. Use
+  rebase-and-merge only when a linear-history preference is explicit,
+  accepting that GitHub changes commit hashes. Keep this workflow choice
+  out of the PR description unless requested; a merge-strategy section
+  is unnecessary. Merge only after review and CI for the final revision.
 - **PR descriptions are a durable explanation for reviewers.** Use a
   specific, outcome-focused title. Lead with the problem and why the
   change is needed; summarize the approach and consequential tradeoffs,
@@ -204,11 +214,11 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   the final diff before merging and update stale claims.
   This follows [GitHub's review guidance](https://docs.github.com/en/pull-requests/concepts/helping-others-review-your-changes)
   and [Google's change-description guidance](https://google.github.io/eng-practices/review/developer/cl-descriptions.html).
-- **User-required AI disclosure in PRs.** Identify the tool and its role in
-  implementation, tests, documentation and review as applicable. Separate
-  AI-agent review from human review; do not imply human approval or
-  inspection that did not occur. Commit coauthor trailers do not replace
-  this PR-level disclosure.
+- **AI disclosure in PRs:** one short sentence naming the authoring agent
+  and exact model, e.g. "Authored by OpenAI Codex (GPT-6 Astra)." Verify
+  attribution from active-session evidence, not a configured default;
+  never guess. Keep review claims accurate elsewhere in the description:
+  AI-agent review is not human review. Coauthor trailers remain required.
 - **Unfinished work is a pushed branch** with a work-in-progress commit
   saying what it holds and lacks, never an uncommitted worktree.
 - **A push is gated on the recorded exit status** of the full gate, never

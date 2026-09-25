@@ -22,24 +22,20 @@ later phases; M3A measures their obligations.
 ## M3A checkpoint
 
 - Branch: `m3a-full-p4`, based on `384adea`.
-- Delivered in PR #5 at `b5448c9`; follow-up records the user-approved
-  PR-default policy and researched PR-writing guidance in `AGENTS.md`
-  and decisions. It changes no runtime code or repository protection
-  settings. Follow-up independent review passed (report:
-  `.agents/reviews/pr-workflow.md`); full local gate and whitespace check
-  passed, exit 0. PR #5's description is being updated with rationale,
-  approach, concrete validation, limitations and a short review order.
+- Delivered in PR #5 (`b5448c9` implementation, follow-up policies through
+  `c5e96fb`). PR-default workflow, PR/commit-writing guidance and explicit
+  AI disclosure are recorded in `AGENTS.md`; PR #5's description reflects
+  them. Prior policy reviews and full local gates passed; see
+  `.agents/reviews/pr-workflow.md`.
+- User approved choosing merge strategy per PR, preserving meaningful
+  commits by default. PR #5 should use a merge commit to retain its
+  distinct implementation and workflow decisions. The AI disclosure also
+  names the authoring agent and model in one sentence, per the user's
+  brevity request: OpenAI Codex (GPT-6 Astra), verified via the session
+  coauthor helper and existing trailers. Merge strategy stays out of the
+  PR description. These policy-only changes passed independent review
+  and the full local gate (exit 0); they change no repository settings.
   Remote CI must pass on the final PR revision before merging.
-- PR description revised at `9e45ed7`. The user also requested learning
-  commit-message practice; Beams and Git's own contribution guide were
-  consulted. Follow-up makes the existing convention explicit and fixes
-  body wrapping prospectively, without rewriting published commits.
-  The user requested explicit PR-level AI disclosure too; the PR-writing
-  policy now requires truthful authorship/review roles and distinguishes
-  separate AI-agent review from human review. PR #5's disclosure is
-  published. Follow-up independent review passed; full local gate and
-  whitespace check passed, exit 0. The policy-only follow-up is ready
-  to commit and push; remote CI remains a separate pre-merge obligation.
 - Confirmed only the expected four patched upstream OCaml files were dirty.
 - Read the resume documents, exporter, generator entry point, quotation
   emitter, fragment classifier and differential harness.
