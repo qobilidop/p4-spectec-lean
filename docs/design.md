@@ -451,6 +451,12 @@ state. Divergence remains unconstrained by one-way partial correctness.
 alternatives; a recursive structural-rule fixture checks this approach
 with `partial_fixpoint`. This is a calculus and proof fixture, not yet a
 stateful AL-interpreter refinement theorem or generated full-P4 coverage.
+Further bounded fixtures handle recursive calls inside rejected attempts
+and ordered structural recursive premises. Stronger partial-correctness
+motives carry exact all-outcome realization alongside successful structural
+soundness. Iteration retains a structural premise per element with linked
+states, not just executable equations; the kernel requires enclosing values
+to be explicit inputs rather than captured nested-inductive parameters.
 
 One effect-parameterized AL evaluator now supports both the existing pure
 `Eval` interface and explicit-state `StateEval`. Stateful function and
