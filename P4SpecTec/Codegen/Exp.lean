@@ -430,7 +430,17 @@ partial def compileExp (e : exp) : CgM Term := do
     match dotPath p with
     | some [] => pure tf
     | some fields => pure (.structInst (some tb) [(".".intercalate fields, tf)])
-    | none => fail "path update with indexing is not supported (design section 5.4)"
+    | none =>
+      match p.it with
+      | .IdxP q i =>
+        match q.it, env.resolve q.note, env.resolve i.note with
+        | .RootP, .IterT _ .List, .NumT .NatT =>
+          -- Upstream evaluates the base, replacement, then path index.
+          let ti ← compileExp i
+          hoistErr (← typOf e.note) (.call "Iter.setIdx" [tb, ti, tf])
+        | _, .TextT, _ => fail "byte-oriented text path updates are not supported (design 5.4)"
+        | _, _, _ => fail "nested or non-natural indexed path update is not supported (design 5.4)"
+      | _ => fail "sliced path updates are not supported (design section 5.4)"
   | .CallE i targs args =>
     let ctx ← read
     let info := match env.funcs.get? i.it with

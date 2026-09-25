@@ -503,7 +503,7 @@ applies instead, each documented in the module that implements it.
 | Rule group with `else` group; clauses with `else` | alternatives in order (`<|>` in `Option`), the `else` last, as the AL interpreter's sequential mode |
 | Mixfix notation | constructor names from the atoms (`Names.ctorName`); struct fields from their atoms |
 | Iterators `?`, `*` with dimensions | `Option`, `List`; joint iteration zips the bound lists and maps, binding variables unzipped; an iterated premise likewise, with `mapM` |
-| Path update `e[p = v]` | `{ e with a.b := v }` for dotted paths; indexed paths are rejected until M3 |
+| Path update `e[p = v]` | `{ e with a.b := v }` for dotted paths; root-index list replacement uses `Iter.setIdx`, evaluates base/replacement/index in that order, and gives `Fail.err` out of bounds. Text byte updates, sliced updates and nested index prefixes remain rejected. |
 | Partial functions, downcasts, indexing, slicing, calls | hoisted into `let x ←` statements of the enclosing `do` block (A-normal form), `none` on failure, never a default value (the Wasm Rocq backend's defaults produced provably false lemmas) |
 | Extern syntax, `extern dec`, `extern relation` | `ExternValue`; fields of the generated class `Externs` |
 | Tables (`table dec`) | a function by cases over the rows |
@@ -746,9 +746,10 @@ and what we provide regardless of consumer:
   Expect work on mutual blocks, `partial_fixpoint` monotonicity, and
   build times. Target instances arrive with the packet leg of rung 2.
   M3A exports the pinned full spec and measures the remaining obligations;
-  generation now passes validated print hints and stops at indexed path
-  updates. Independent emission probes identify stateful fresh identifiers as
-  barriers. M3B fixes thirteen subtype bridges by retaining their type
+  generation now passes validated print hints and root-index list updates,
+  but stops at byte-oriented text updates. Independent emission probes
+  also identify stateful fresh identifiers as a barrier. M3B fixes
+  thirteen subtype bridges by retaining their type
   arguments; all 567 bridge pairs now emit text. These probes are not
   evidence of a full-P4 build or proof coverage.
   The 108 source inputs become 80 top-level source-region files in AL;

@@ -124,6 +124,15 @@ settles is not repeated here.
 
 ## Generated code
 
+- **Land root-index list updates separately from semantic text changes.**
+  Four updates in `Lvalue_write` can use the existing checked list helper.
+  The two remaining text updates require byte semantics: OCaml permits
+  byte sequences that Lean `String` cannot contain. Replacing Unicode
+  characters or rejecting an invalid UTF-8 result would silently change
+  behavior. Keep text updates rejected while choosing a faithful byte
+  representation, preserving name/identifier strings separately. Reason:
+  make bounded progress without mislabeling ASCII-only behavior as a
+  complete implementation. (2026-09-25)
 - **Print with validated type-and-mixop policies, not a changed value
   representation.** All 190 hints decode; all 2,120 variant origins and
   567 bridge pairs preserve policy selection at the pin. Enforce these
