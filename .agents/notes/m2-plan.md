@@ -91,7 +91,13 @@ would only restate the constructors. Details are in the design (4.1,
   `partial_fixpoint`; recorded exactly as observed).
 - Proof-checking time enters `docs/timing-nano-p4.md`.
 
-## Phase C: the AL interpreter in Lean
+## Phase C: the AL interpreter in Lean (done 2026-09-25)
+
+Built as sketched, with an explicit fuel instead of `partial_fixpoint`
+(decisions, "Generated code") and `Value.Match`, `Type.{Typdef,Typ,Subst}`,
+`Dynamic.Var`, `Dynamic_al.{Rel,Func}`, `Builtin.Call` and
+`Hints.Input` mirrored beside it. The second leg agrees on 78 of 78
+programs and 48 of 48 outputs, in under two seconds for the corpus.
 
 - `P4SpecTec/Interp/InterpAl/{Backtrack,Ctx,Interp}.lean` mirror
   `interp/interp-al/{backtrack,ctx,interp}.ml` function by function in

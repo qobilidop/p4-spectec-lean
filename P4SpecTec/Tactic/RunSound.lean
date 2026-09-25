@@ -160,16 +160,19 @@ partial def execute (work : List Name) : TacticM Unit := do
     if ty.isAppOfArity ``Exists 2 then
       let x ← freshName "rs_x"
       let h' ← freshName "rs_h"
-      evalTactic (← `(tactic| obtain ⟨$(mkIdent x):ident, $(mkIdent h'):ident⟩ := $(mkIdent h):ident))
+      evalTactic (← `(tactic|
+        obtain ⟨$(mkIdent x):ident, $(mkIdent h'):ident⟩ := $(mkIdent h):ident))
       execute (h' :: rest)
     else if ty.isAppOfArity ``And 2 then
       let h1 ← freshName "rs_h"
       let h2 := Name.mkSimple s!"{h1}a"
-      evalTactic (← `(tactic| obtain ⟨$(mkIdent h1):ident, $(mkIdent h2):ident⟩ := $(mkIdent h):ident))
+      evalTactic (← `(tactic|
+        obtain ⟨$(mkIdent h1):ident, $(mkIdent h2):ident⟩ := $(mkIdent h):ident))
       execute (h1 :: h2 :: rest)
     else if ty.isAppOfArity ``Or 2 then
       let h1 ← freshName "rs_h"
-      evalTactic (← `(tactic| rcases $(mkIdent h):ident with $(mkIdent h1):ident | $(mkIdent h1):ident))
+      evalTactic (← `(tactic|
+        rcases $(mkIdent h):ident with $(mkIdent h1):ident | $(mkIdent h1):ident))
       let goals ← getGoals
       let mut out := #[]
       for g in goals do
@@ -355,7 +358,8 @@ where
     else if ty.eq?.isSome then
       if ← tryTac (evalTactic (← `(tactic| rfl))) then pure ()
       else if ← tryTac (evalTactic (← `(tactic| subst_vars; rfl))) then pure ()
-      else if ← tryTac (evalTactic (← `(tactic| simp_all only [Prod.mk.injEq, and_self]))) then pure ()
+      else if ← tryTac (evalTactic (← `(tactic| simp_all only [Prod.mk.injEq, and_self]))) then
+        pure ()
       else throwError "run_sound: cannot close {ty}"
     else if ty.getAppFn.consumeMData.isConst then
       -- an inductive relation: try its constructors in order
@@ -390,8 +394,8 @@ where
           catch e =>
             last := last ++ m!"\n{c}: {e.toMessageData}"
             s.restore
-        throwError "run_sound: no constructor of {name} closes the goal{Lean.MessageData.ofGoal goal}\
-          \nlast attempt: {last}"
+        throwError "run_sound: no constructor of {name} closes the goal\
+          {Lean.MessageData.ofGoal goal}\nlast attempt: {last}"
       | _ => throwError "run_sound: cannot close {ty}"
     else
       throwError "run_sound: cannot close {ty}"
@@ -502,7 +506,8 @@ elab "run_sound_group " p:ident : tactic => do
       | none =>
         let shown ← forallBoundedTelescope info.type (some (k + 2 * n)) fun _ body => do
           (conjuncts body).mapM fun e => do pure (← ppExpr e)
-        throwError "run_sound_group: no conjunct for {f}; the principle's conjuncts are:{Lean.MessageData.joinSep (shown.map fun e => m!"\n{e}") ""}"
+        let listed := Lean.MessageData.joinSep (shown.map fun e => m!"\n{e}") ""
+        throwError "run_sound_group: no conjunct for {f}; the principle's conjuncts are:{listed}"
     let ordered ← leanOrder.mapM partOf
     let permuted := ordered.dropLast.foldr (fun a acc => mkApp2 (mkConst ``And) a acc)
       ordered.getLast!

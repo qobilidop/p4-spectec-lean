@@ -249,9 +249,10 @@ Four rungs. We build rungs 1 to 3. Rung 4 is deliberately out of scope.
    cannot pass silently.
 2. **Differential testing.** Run the generated executable relations and
    upstream's interpreter on the same corpus; compare typing verdicts,
-   IR, instantiation results, and output packets. Also run the Lean IL
-   interpreter itself (on the deep terms) against upstream's on a subset,
-   which directly tests the semantics port. Ported builtins get generated
+   IR, instantiation results, and output packets. Also run the Lean AL
+   interpreter itself on the deep terms against upstream's (the second
+   leg, `nano-p4-interp`, on the whole Nano-P4 corpus), which directly
+   tests the semantics port. Ported builtins get generated
    unit-test obligations from upstream's test outputs. Mutation checks on
    both sides: mutate codegen and require rung 3 to fail; mutate the
    semantics port and require rung 2 to catch it.
@@ -316,7 +317,7 @@ refinement relation and discharges it syntax-directedly. So:
 | Lean 4 kernel | trusted | standard | |
 | Upstream parser and elaborator (OCaml) | trusted | defines what the spec means; shared with the official P4 spec toolchain | that the spec is P4 |
 | JSON dump of the IL | trusted | tiny and structural; round-trip tested against upstream's IL printer | |
-| `P4SpecTec.Interp` (AL interpreter in Lean, M2) | trusted | the spec of the compiler; mirrors upstream's AL interpreter file by file; cross-checked by rung 2 | agreement with SL or PL interpreters |
+| `P4SpecTec.Interp_al` (the AL interpreter in Lean, with `Runtime.Value.Match`, `Runtime.Type.*`, `Runtime.Dynamic*`, `Builtin.Call`) | trusted | the spec of the compiler; mirrors upstream's `interp/interp-al/` file by file and function by function; cross-checked by the second leg of rung 2 (`nano-p4-interp`: the port on the deep terms of the corpus against the AL export, 78 of 78 verdicts and 48 of 48 outputs agree) | agreement with SL or PL interpreters |
 | `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the default printer, file by file | hint-driven printing (rejected by codegen until supported) |
 | `P4SpecTec.Interface.Builtin` | trusted | ports of upstream builtins, one file per file, at the OCaml file's path; unit tests in `P4SpecTecTest/Builtins.lean` (generated obligations from upstream outputs are planned) | |
 | `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
@@ -346,8 +347,12 @@ here is a bug.
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
 | Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
-| Failure and divergence separated in the interpreter's return type (M2) | `partial_fixpoint` needs monotonicity; `<|>` on `Option` is not monotone | `Interp/` |
-| No mutable context, caching, hooks, backtraces (M2) | pure functions; these are instrumentation, not meaning | `Interp/` |
+| The interpreter runs in `Eval` too, and every function of its recursive block takes a fuel, one unit per call; `none` is exhaustion | the block's recursion is not structural (aliases unfold, rules call rules); a fuel keeps the port's shape the OCaml's and makes induction on the evaluation an induction on `Nat` for rung 3; `partial_fixpoint` over the whole block was the alternative and was not needed | `Interp/InterpAl/Interp.lean` |
+| No mutable context, caching, hooks, backtraces, deterministic mode; the global tables are immutable hash maps, the local environments association lists; the extern implementations and the guard flag are a `Config` parameter | pure functions; these are instrumentation and checks, not meaning | `Interp/InterpAl/` |
+| `'a backtrack` is `Eval`; failure traces are dropped; a `debug` premise prints nothing; upstream's exceptions and failed assertions are `Fail.err` | `Eval` is the one monad of the port and of the generated code; Lean has no exceptions | `Interp/InterpAl/Backtrack.lean`, `Interp.lean` |
+| `Value.Match.sub_` and `Type.Subst` take a fuel; `Match.sub_`'s `FuncT` case (function values, through `Type.Equiv`) yields `false`; `Subst.freshen_tparams` derives fresh names from the parameter's name; a higher-order substitution substitutes the head | the recursion is not structural; Nano-P4 has no function values (an M3 item); no global counter | `Runtime/Value/Match.lean`, `Runtime/Type/Subst.lean` |
+| The builtin dispatcher works on values through the typed ports; the `add` callback and `fresh_typeId` are not mirrored | one port per builtin file; the callback registers values for upstream's caches | `Interface/Builtin/Call.lean` |
+| A hyphenated upstream directory is a camel-cased Lean directory (`interp-al` is `InterpAl`) | a hyphen cannot be in a module name | `scripts/check-mirror.py` |
 | Mutual block grouping by dependency | Lean requires mutually recursive definitions in one `mutual` block | `Codegen/Funcs.lean` |
 
 ### 5.4 Per-construct encodings
@@ -421,10 +426,14 @@ p4-spectec-lean/
 │   ├── Util/Source.lean          # mirrors util/source.ml; Util/Yojson.lean is ours (decoding helpers)
 │   ├── Lang/Xl/, Lang/Il/, Lang/Al/   # mirror lang/xl/, lang/il/ast.ml, lang/al/ast.ml; Json.lean beside each is ours
 │   ├── Domain/Atom.lean, Domain/Mixfix.lean   # mirror domain/
-│   ├── Runtime/Value/Value.lean  # TRUSTED: mirrors runtime/value/value.ml (Make, compare, eq)
+│   ├── Runtime/Value/Value.lean  # TRUSTED: mirrors runtime/value/value.ml (Make, Get, compare, eq)
+│   ├── Runtime/Value/Match.lean  # TRUSTED: mirrors runtime/value/match.ml (subtyping of values)
+│   ├── Runtime/Type/             # TRUSTED: mirrors runtime/type/{typdef,typ,subst}.ml
+│   ├── Runtime/Dynamic/Var.lean, Runtime/DynamicAl/{Rel,Func}.lean   # TRUSTED: the environments' keys and entries
 │   ├── Interface/P4/Unparse.lean # TRUSTED: mirrors interface/p4/unparse.ml (the printer)
-│   ├── Interface/Builtin/        # TRUSTED: mirrors interface/builtin/ file by file
-│   ├── Interp/                   # M2, TRUSTED: mirrors interp/interp-al/ file by file
+│   ├── Interface/Builtin/        # TRUSTED: mirrors interface/builtin/ file by file; Call.lean is the dispatcher on values
+│   ├── Lang/Hints/Input.lean     # mirrors lang/hints/input.ml (input positions, split and combine)
+│   ├── Interp/InterpAl/          # TRUSTED: mirrors interp/interp-al/{backtrack,ctx,interp}.ml (M2)
 │   ├── Prelude/                  # ours: the runtime aggregate the generated code imports
 │   │   ├── Value.lean            # ToValue, OfValue, equality through values
 │   │   ├── Eval.lean             # the Eval monad: Fail, orElse, monotonicity, run lemmas (M2)
@@ -442,7 +451,7 @@ p4-spectec-lean/
 │   ├── Tactic/                   # the proof side (M2)
 │   │   ├── RunSound.lean         # run_sound, run_sound_group: symbolic execution against the Prop
 │   │   └── Audit.lean            # #audit_axioms
-├── P4SpecTecTest/                # test-only: decode test, the differential runner (Diff/NanoP4Run.lean)
+├── P4SpecTecTest/                # test-only: decode test, the differential runners (Diff/NanoP4Run/, Diff/NanoP4Interp/)
 │
 ├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it
 ├── P4Spec/                       # GENERATED at M3; Targets/ hand-written, mirrors backend-sim/<target>/

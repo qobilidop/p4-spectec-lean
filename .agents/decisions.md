@@ -234,8 +234,17 @@ settles is not repeated here.
   soundness proofs uniform; a structurally recursive definition would
   need its own induction principle and gain nothing, since the
   executable encoding is never used in a termination argument. The
-  interpreter port (M2) uses the same monad and the same principle.
-  Supersedes the "structural first" ordering. (2026-09-25)
+  interpreter port uses the same monad with an explicit fuel instead
+  (below). Supersedes the "structural first" ordering. (2026-09-25)
+- **The interpreter port takes a fuel, one unit per call of its recursive
+  block, in `Eval`.** Reason: the block has about forty mutually recursive
+  functions with calls under `mapM`, `foldlM` and thunks, and its recursion
+  is not structural; `partial_fixpoint`'s monotonicity proof over it is a
+  risk with no benefit, since rung 3 inducts on the evaluation and an
+  induction on the fuel is that induction; the fuel is the only place
+  where the port's shape is not the OCaml's, and `none` reads as
+  exhaustion. The value matcher and the type substitution take a fuel for
+  the same reason (alias unfolding). (2026-09-25)
 - **Three Lean-specific encodings from M1:** iterated premises as
   `∀ x ∈ xs` and definitional `Forall₂` (lean4#1964), `BEq` not
   `DecidableEq` on nested inductives (lean4#2329), numerics as `Nat`,

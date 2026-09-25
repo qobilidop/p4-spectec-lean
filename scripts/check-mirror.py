@@ -17,14 +17,27 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 UP = ROOT / "upstream" / "p4-spectec" / "p4spec" / "lib"
 
-# Types internal to an OCaml function's implementation, not mirrored.
-SKIP = {"domain/mixfix.ml": {"atom_internal"}}
+# Types internal to an OCaml function's implementation, not mirrored; and
+# `'a backtrack`, which the port represents as the `Eval` monad
+# (Prelude/Eval.lean): a deviation listed in the design.
+SKIP = {"domain/mixfix.ml": {"atom_internal"}, "interp/interp-al/backtrack.ml": {"backtrack"}}
 
 # Roots under P4SpecTec/ whose modules mirror upstream: a module's path,
 # lower-cased, is the OCaml file under p4spec/lib/ (Lang/Il/Ast.lean is
 # lang/il/ast.ml). A module there with no such file must say "not a mirror"
 # in its docstring.
-MIRROR_ROOTS = ["Lang", "Domain", "Util", "Interface", "Runtime"]
+MIRROR_ROOTS = ["Lang", "Domain", "Util", "Interface", "Runtime", "Interp"]
+
+
+def kebab(component):
+    """A hyphenated upstream directory is camel-cased in Lean (`interp-al` is
+    `InterpAl`, `dynamic-al` is `DynamicAl`): the inverse, for lookup."""
+    out = ""
+    for i, c in enumerate(component):
+        if c.isupper() and i > 0:
+            out += "-"
+        out += c.lower()
+    return out
 
 
 def pairs():
@@ -32,7 +45,12 @@ def pairs():
     for root_name in MIRROR_ROOTS:
         for lean in sorted((ROOT / "P4SpecTec" / root_name).rglob("*.lean")):
             rel = lean.relative_to(ROOT / "P4SpecTec")
-            ml = "/".join(c.lower() for c in rel.with_suffix("").parts) + ".ml"
+            parts = rel.with_suffix("").parts
+            ml = "/".join(c.lower() for c in parts) + ".ml"
+            if not (UP / ml).exists():
+                alt = "/".join(kebab(c) for c in parts[:-1]) + "/" + parts[-1].lower() + ".ml"
+                if (UP / alt).exists():
+                    ml = alt
             out.append((ml, str(lean.relative_to(ROOT))))
     return out
 
@@ -56,6 +74,11 @@ def ocaml_types(text):
         body = line.split("=", 1)[1] if re.match(r"\s*(type|and)\b", line) and "=" in line else line
         # an inline variant in a constructor's payload is its own Lean inductive
         body = body.split(" of ", 1)[0] if " of " in body else body
+        # the first constructor may follow `=` without a bar (`type cursor = Global | Local`);
+        # a module-qualified name after `=` is an alias, not a constructor
+        if re.match(r"\s*(type|and)\b", line) and "=" in line and \
+                re.match(r"\s*[A-Z][A-Za-z0-9_']*(?![\w.])", body):
+            body = "| " + body.lstrip()
         for u in re.findall(r"[|\[]\s*([A-Z][A-Za-z0-9_']*\.[a-z_]+)", body):
             out.setdefault(name, []).append("=" + u)
         for c in re.findall(r"[|\[]\s*`?([A-Z][A-Za-z0-9_']*)(?![\w.])", body):

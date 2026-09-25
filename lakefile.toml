@@ -53,4 +53,9 @@ root = "P4SpecTec.Codegen.Main"
 # and run the generated typing relation on them (test/diff/run.py drives it).
 [[lean_exe]]
 name = "nano-p4-run"
-root = "P4SpecTecTest.Diff.NanoP4Run"
+root = "P4SpecTecTest.Diff.NanoP4Run.Main"
+
+# The second leg: the Lean port of the AL interpreter on the same programs.
+[[lean_exe]]
+name = "nano-p4-interp"
+root = "P4SpecTecTest.Diff.NanoP4Interp.Main"
