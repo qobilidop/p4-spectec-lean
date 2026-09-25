@@ -57,6 +57,57 @@ settles is not repeated here.
   preamble**, and generated modules live in their own library. Reason:
   Aeneas, Sail and lean-mlir all converge on this. (2026-09-25)
 
+## Environment
+
+- **Nix defines the environment; everything runs inside `nix develop`.**
+  `flake.nix` has a default shell (elan, git, python) and an `upstream`
+  shell (nixpkgs' default OCaml package set and P4-SpecTec's libraries).
+  CI uses the same shells, with the Nix store, `~/.elan` and `.lake`
+  cached. Reason: the user wants reproducibility maintained
+  systematically; nixpkgs at the locked revision replaces an
+  opam-repository pin. Lean stays on elan because nixpkgs lags releases.
+  The default OCaml set (5.5.0 at the lock) is used rather than the 5.1
+  set upstream's README names, because only the default set is in the
+  public binary cache; the 5.1 set compiles the compiler and Jane Street
+  core from source, over an hour on a laptop and on every CI runner.
+  Upstream's dune-project requires only `ocaml >= 5.1.0`. Risk: newer
+  OCaml, menhir (20260203 vs 20240715) or ppx_deriving_yojson (3.9.0)
+  may not build upstream unchanged; the first M1 step is that build,
+  and a package override in the flake is the fallback. Confidence: high
+  in the approach, medium in the versions; revisit at the first upstream
+  build. (2026-09-25)
+- **`.envrc` and `.direnv/` are ignored by git.** direnv is a personal
+  convenience, not project tooling; the flake is. (2026-09-25)
+- **No license header per file.** The root `LICENSE` is enough; the user
+  dislikes per-file headers. (2026-09-25)
+
+## Generated code
+
+- **Emitted Lean is committed as a golden under `P4SpecTecTest/golden/`,
+  regenerated and diffed in CI, refreshed with `--update`.** It is not
+  the build input; `spectec_import` elaborates from JSON. Reason: every
+  codegen change becomes a reviewable diff of its output, matching the
+  correct-by-construction principle; Sail, Aeneas and Wasm SpecTec's Lean
+  backend all do this. If the full spec's golden proves too large for
+  review, split it per upstream section, never drop it. (2026-09-25)
+- **Per-file elaboration timing is added at M3**, when the full spec
+  gives it something to measure. Reason: Sail's slow 246-constructor
+  inductive (rems-project/sail#1049) is a real risk for the IL's larger
+  variants, but there is nothing to time before M3. (2026-09-25)
+- **The differential harness reuses upstream's `excludes/` lists** for
+  p4c programs P4-SpecTec cannot handle, rather than maintaining its own.
+  Upstream is an input, not a downstream. (2026-09-25)
+
+## Documentation
+
+- **Markdown for design and working notes; doc-gen4 for API reference
+  once there is a public surface; Verso considered at M4 for a checked
+  user manual.** Reason: the current readers are the user and agents,
+  who need docs readable in the repository without a build; API docs
+  from docstrings are free once `linter.missingDocs` is enforced; Verso
+  earns its dependency only when there are stable declarations for
+  examples to cite. (2026-09-25)
+
 ## Process
 
 - **No git tags.** Compaction and archiving rely on git history alone;

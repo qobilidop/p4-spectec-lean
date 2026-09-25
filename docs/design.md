@@ -348,8 +348,13 @@ Choices embedded in the tree:
 - Submodule plus patch, not a fork. Bumping upstream is one line.
 - JSON exports are committed. They are the OCaml/Lean contract, diff
   cleanly, and Lean builds do not need OCaml. CI checks they are current.
-- Generated Lean is not committed. The import command elaborates from
-  JSON; the emit executable exists for reading and debugging.
+- Generated Lean is not a build input, but it is committed as a golden.
+  The import command elaborates from JSON; the emit executable writes the
+  same declarations as `.lean` text under `P4SpecTecTest/golden/`, CI
+  regenerates and diffs it, and `--update` refreshes it. Every codegen
+  change is then reviewable as a diff of its output, which is the
+  cheapest audit there is. Sail, Aeneas and Wasm SpecTec's Lean backend
+  all converged on this.
 - Trusted files are marked and each mirrors an upstream file. Only
   `Semantics/`, `Prelude/Builtins/`, and `*/Targets/` need side-by-side
   review against upstream.
@@ -395,9 +400,28 @@ Serves users of the generated semantics, not generation itself.
   notes into `docs/`. Git history is the archive. No tags.
 - **Unfinished work is a pushed branch** with a work-in-progress commit
   saying what it holds and lacks, never an uncommitted worktree.
+- **One environment, defined by Nix.** `flake.nix` and `flake.lock` are
+  the development environment; every command, locally and in CI, runs
+  inside `nix develop`. The OCaml toolchain and P4-SpecTec's libraries
+  come from nixpkgs at the locked revision, so there is no opam state to
+  reproduce. Lean is the one exception: elan installs the version
+  `lean-toolchain` names, because nixpkgs lags Lean releases. A personal
+  `.envrc` for direnv is ignored by git.
 - **Every external input is pinned and listed in one table:** P4-SpecTec
-  by commit, the opam repository by commit, GitHub Actions by SHA, the Lean
-  toolchain by version.
+  by commit, nixpkgs by `flake.lock`, GitHub Actions by SHA, the Lean
+  toolchain by version, Batteries by tag with the exact revision in the
+  Lake manifest.
+- **Warnings fail the build through `lake build --wfail`**, never through
+  `warningAsError` in Lake options, which rewrites the severities that
+  `#guard_msgs` tests observe. A `sorry` is a warning and so fails too.
+- **Documentation.** Design and working notes are Markdown in `docs/` and
+  `.agents/`, readable in the repository without a build. API reference
+  is doc-gen4 from docstrings once the library has a public surface,
+  gated behind a dev configuration so ordinary builds skip it. A user
+  manual with checked examples is a candidate for Verso at M4, when the
+  public surface is frozen and examples worth checking exist.
+- **No license header per file.** The root `LICENSE` covers the
+  repository.
 - **Gates are scripts; the exit code is the verdict.** The full gate runs
   before a push. A push is gated on a recorded exit status, never on a
   command that reads a log.

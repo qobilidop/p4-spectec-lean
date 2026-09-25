@@ -35,13 +35,11 @@ remote). No differential test, export, or upstream build exists yet.
   then `P4SpecTec/IL/Ast.lean` mirroring `p4spec/lib/lang/il/ast.ml`.
 - Open points in `docs/design.md` section 10: harness language, fuel
   policy location, meta-circular spec, Lean version policy.
-- Awaiting the user's call from the prior-art study: whether emitted
-  Lean for the pilot is committed as a diffed golden; whether the
-  differential harness reuses upstream's `excludes/` lists; whether to
-  add a per-file elaboration timing script now or at M3.
+- The `upstream` Nix shell has been entered but P4-SpecTec has not been
+  built in it; nixpkgs package versions differ from upstream's README pins
+  (see decisions, "Environment"). First M1 step verifies the build.
 - Risk noted from Sail: a 246-constructor inductive elaborated slowly
-  (rems-project/sail#1049). The IL's larger variants will need a timing
-  check at M3.
+  (rems-project/sail#1049). Per-file timing is added at M3.
 
 ## Blocked
 

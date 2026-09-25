@@ -26,17 +26,25 @@ Status: design agreed, scaffolding in place, no code yet. The design is
 
 ## Development
 
-Lean comes from [elan](https://github.com/leanprover/elan); `lean-toolchain`
-selects the version. Building P4-SpecTec, needed only to regenerate
-`exports/`, requires OCaml 5.1 and opam; `scripts/build-upstream.sh` does
-it at the pinned commit. Optionally, `flake.nix` provides both through
-`nix develop`.
+The development environment is defined by `flake.nix` and pinned by
+`flake.lock`; CI uses the same shells. Install [Nix](https://nixos.org/download/)
+with flakes enabled, then:
 
 ```
 git submodule update --init      # P4-SpecTec at the pin (its p4c submodule is not needed)
+nix develop                      # Lean side: elan installs the toolchain lean-toolchain names
 lake build                       # the Lean packages
-scripts/check.sh                 # every gate CI runs
+scripts/check.sh                 # every gate CI runs; exit 0 is the verdict
+nix develop .#upstream           # OCaml side, only to rebuild P4-SpecTec and regenerate exports/
 ```
+
+Lean itself is installed by elan from `lean-toolchain`, not from nixpkgs,
+which lags Lean releases; the pin is the file, the lock is the toolchain
+version it names.
+
+If you use [direnv](https://direnv.net/), an `.envrc` containing `use flake`
+enters the default shell on `cd`. It is ignored by git as a personal
+convenience; the project's tooling is the flake.
 
 ## License
 

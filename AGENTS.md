@@ -45,11 +45,12 @@ include hidden files. Git history is the archive; nothing is tagged.
 
 ## Environment
 
-Lean comes from `elan`; `lean-toolchain` selects the version. The
-upstream P4-SpecTec toolchain (OCaml 5.1, opam) is needed only to
-regenerate `exports/`; `scripts/build-upstream.sh` builds it at the pin.
-`flake.nix` provides both pinned, entered with `nix develop` or direnv;
-the documentation does not assume Nix.
+The environment is `flake.nix`, pinned by `flake.lock`, and every
+command in this repository is run inside it: `nix develop` for the Lean
+side (elan installs the toolchain `lean-toolchain` names) and
+`nix develop .#upstream` for building the pinned P4-SpecTec to regenerate
+`exports/`. CI uses the same shells. A personal `.envrc` is ignored by
+git.
 
 ```
 scripts/check.sh            # every gate CI runs; exit 0 is the verdict

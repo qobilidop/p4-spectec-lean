@@ -1,8 +1,9 @@
 # Lean
 .lake/
 
-# Nix / direnv
+# Nix / direnv. .envrc is a personal convenience, not project tooling.
 .direnv/
+.envrc
 result
 
 # Scratch output: logs, differential replays, emitted Lean

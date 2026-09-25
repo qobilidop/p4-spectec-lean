@@ -9,22 +9,55 @@
       forAll = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
-      # Lean comes from elan, not nixpkgs, because nixpkgs lags Lean
-      # releases; `lean-toolchain` selects the version on first use. The
-      # OCaml toolchain is only for building the pinned P4-SpecTec.
-      devShells = forAll (pkgs: {
-        default = pkgs.mkShell {
-          packages = with pkgs; [
-            elan
-            opam
-            gmp
-            pkg-config
-            zstd
-            gnumake
-            git
-            python3
+      devShells = forAll (pkgs:
+        let
+          # The OCaml toolchain and every library P4-SpecTec's dune-project
+          # requires, from nixpkgs at the locked revision. Upstream's own
+          # flake omits four of these; this list follows its dune-project.
+          # The default package set is used because it is the one the public
+          # binary cache carries; the pinned 5.1 set is not cached and takes
+          # over an hour to compile. Upstream requires OCaml >= 5.1.0.
+          ocamlPkgs = pkgs.ocamlPackages;
+          upstreamPackages = with ocamlPkgs; [
+            ocamlPkgs.ocaml
+            dune_3
+            findlib
+            menhir
+            menhirLib
+            bignum
+            core
+            core_unix
+            ppx_let
+            ppx_deriving_yojson
+            yojson
+            uucp
+            uuseg
+            uutf
+            bisect_ppx
           ];
-        };
-      });
+        in
+        {
+          # The Lean side. Lean itself comes from elan, which installs the
+          # version `lean-toolchain` names on first use; nixpkgs lags Lean
+          # releases, and Lake needs the toolchain's own layout.
+          default = pkgs.mkShell {
+            packages = with pkgs; [
+              elan
+              git
+              python3
+            ];
+          };
+
+          # The upstream side: building the pinned P4-SpecTec to regenerate
+          # exports/. Kept separate because only that step needs OCaml.
+          upstream = pkgs.mkShell {
+            packages = upstreamPackages ++ (with pkgs; [
+              gmp
+              pkg-config
+              gnumake
+              git
+            ]);
+          };
+        });
     };
 }
