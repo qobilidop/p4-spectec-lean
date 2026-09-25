@@ -15,17 +15,16 @@ all 78 programs of upstream's Nano-P4 corpus. The design is
 
 | Path | What |
 |---|---|
-| `P4SpecTec/` | core library: IL deep embedding, IL semantics, prelude, codegen, validation tactic |
+| `P4SpecTec/` | core library: the IL and AL deep embeddings, the prelude and mirrored runtime, the code generator (the IL semantics and validation tactic arrive at M2) |
 | `P4SpecTecTest/` | test-only modules for the core library |
 | `P4Lib/` | P4 primitives for downstream users; independent of the generated specs |
-| `NanoP4Spec/` | the pilot specification, generated from `exports/nano-p4.il.json` |
-| `P4Spec/` | the full P4 specification, generated from `exports/p4.il.json` |
+| `NanoP4Spec/` | the pilot specification, generated from `exports/nano-p4.al.json` |
+| `P4Spec/` | the full P4 specification, generated from `exports/p4.al.json` at M3 |
 | `exports/` | committed JSON exports of the IL, the OCaml → Lean handoff |
 | `upstream/` | P4-SpecTec and the Nano-P4 spec as pinned submodules, and our patches |
-| `docs/` | the design and the elaboration-time table |
 | `test/diff/` | the differential-testing harness |
 | `scripts/` | the gates and the export scripts |
-| `docs/` | the design |
+| `docs/` | the design and the elaboration-time table |
 | `.agents/` | agent working state: status, decisions, roadmap |
 
 ## Development

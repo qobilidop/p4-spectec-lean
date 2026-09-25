@@ -1,5 +1,6 @@
 import P4SpecTecTest.Smoke
 import P4SpecTecTest.Decode
+import P4SpecTecTest.Builtins
 import P4SpecTecTest.Diff.NanoP4Run
 
 /-!

@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Rung 2, typing leg: compare the generated `Program_ok.run` with upstream.
 
-For every booted program under exports/programs/nano-p4/, upstream's verdict
-(`<name>.verdict`, recorded by scripts/export-program.sh from
-`nano-p4spectec check`) is compared with the verdict of `lake exe nano-p4-run`
-on the same program. Exit 0 only when every program agrees. A program the
-frontend rejected (`<name>.unparseable`) has no verdict and is skipped.
+For every booted program under exports/programs/nano-p4/, the AL
+interpreter's verdict (`<name>.verdict`, recorded by scripts/export-program.sh
+from `nano-p4spectec check -il`) is compared with the verdict of
+`lake exe nano-p4-run` on the same program, which also compares the output
+typing context with the one upstream recorded (`<name>.outputs.json`) and
+reports fuel exhaustion apart from rejection. Exit 0 only when every program
+agrees. A program the frontend rejected (`<name>.unparseable`) has no
+verdict and is skipped. The SL interpreter's verdict (`<name>.verdict.sl`)
+is reported when it differs from the AL's, for information.
 
     test/diff/run.py            # all of the corpus
     test/diff/run.py positive   # one subdirectory
@@ -46,8 +50,13 @@ def main(argv):
             agree += 1
         else:
             disagree += 1
-            print(f"DISAGREE {rel}: upstream {expected}, lean {got}")
-    print(f"[diff] {agree} agree, {disagree} disagree, {len(programs)} programs")
+            print(f"DISAGREE {rel}: upstream (AL) {expected}, lean {got}")
+        sl = path.with_suffix(".verdict.sl")
+        if sl.exists() and sl.read_text().strip() != expected:
+            print(f"NOTE {rel}: upstream SL says {sl.read_text().strip()}, AL says {expected}")
+    with_outputs = sum(1 for p, _ in programs if p.with_suffix(".outputs.json").exists())
+    print(f"[diff] {agree} agree, {disagree} disagree, {len(programs)} programs, "
+          f"{with_outputs} with output values compared")
     return 0 if disagree == 0 else 1
 
 

@@ -1,0 +1,11 @@
+error: invocation of relation Program_ok failed
+
+  source: interp
+
+  trace:
+  application of rule Program_ok// failed
+  └── upstream/nano-p4-spec/5.08-typing-declaration.watsup:199.6-199.14
+      invocation of relation Decls_ok failed
+      ├── upstream/nano-p4-spec/5.08-typing-declaration.watsup:199.6-199.14
+      │   application of rule Decls_ok//nil failed
+      │   └── up

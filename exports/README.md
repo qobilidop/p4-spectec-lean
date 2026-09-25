@@ -11,6 +11,9 @@ them. Paths inside the exports are relative to the repository root.
   upstream's algo pass), from `upstream/nano-p4-spec/*.watsup`. M1.
 - `p4.al.json`: the full P4 specification's AL. M3, not yet exported.
 - `programs/nano-p4/<dir>/<name>.json`: upstream's Nano-P4 corpus, booted
-  by the nano frontend, one IL value per program, next to
-  `<name>.verdict`, upstream's `Program_ok` verdict (`pass` or `fail`)
-  that the differential harness compares against.
+  by the nano frontend, one IL value per program, next to the oracle the
+  differential harness compares against: `<name>.verdict`, the AL
+  interpreter's `Program_ok` verdict (`pass` or `fail`); on success
+  `<name>.outputs.json`, its output values (the typing context); on
+  failure `<name>.diagnostic`, the first 400 bytes of its diagnostic; and
+  `<name>.verdict.sl`, the SL interpreter's verdict for comparison.

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Boot Nano-P4 programs through P4-SpecTec's nano frontend and write their
-# IL values as JSON under exports/programs/<name>/, next to upstream's
-# typing verdict (`pass` or `fail` from `nano-p4spectec check`) as the
-# oracle the differential harness compares against:
+# IL values as JSON under exports/programs/<name>/, next to the oracle the
+# differential harness compares against: the AL interpreter's typing
+# verdict (`<name>.verdict`, pass or fail), its output values on success
+# (`<name>.outputs.json`) or its first diagnostic on failure
+# (`<name>.diagnostic`), and the SL interpreter's verdict (`<name>.verdict.sl`):
 #   nano-p4spectec parse -json -i <includes> -p <file>.p4
-#   nano-p4spectec check <spec> -i <includes> -p <file>.p4
+#   nano-p4spectec check -il -json <spec> -i <includes> -p <file>.p4
+#   nano-p4spectec check -sl <spec> -i <includes> -p <file>.p4
 # Requires the upstream build (scripts/build-upstream.sh). With no
 # arguments, exports upstream's whole Nano-P4 corpus.
 #   scripts/export-program.sh [<dir> ...]
@@ -31,10 +34,23 @@ for dir in "${dirs[@]}"; do
     base="$(basename "$p4" .p4)"
     if (cd "$root" && "$exe" parse -json -i "$includes" -p "$dir/$base.p4" > "$outdir/$base.json.tmp" 2>/dev/null); then
       mv "$outdir/$base.json.tmp" "$outdir/$base.json"
-      if (cd "$root" && "$exe" check upstream/nano-p4-spec/*.watsup -i "$includes" -p "$dir/$base.p4" >/dev/null 2>&1); then
+      # the AL interpreter (the one the port mirrors) is the oracle: its verdict
+      # and, on success, its output values; the SL interpreter's verdict beside
+      if (cd "$root" && "$exe" check -il -json upstream/nano-p4-spec/*.watsup -i "$includes" \
+            -p "$dir/$base.p4" > "$outdir/$base.outputs.json.tmp" 2>"$outdir/$base.diagnostic"); then
         echo pass > "$outdir/$base.verdict"
+        mv "$outdir/$base.outputs.json.tmp" "$outdir/$base.outputs.json"
+        rm -f "$outdir/$base.diagnostic"
       else
         echo fail > "$outdir/$base.verdict"
+        rm -f "$outdir/$base.outputs.json.tmp" "$outdir/$base.outputs.json"
+        head -c 400 "$outdir/$base.diagnostic" > "$outdir/$base.diagnostic.tmp"
+        mv "$outdir/$base.diagnostic.tmp" "$outdir/$base.diagnostic"
+      fi
+      if (cd "$root" && "$exe" check -sl upstream/nano-p4-spec/*.watsup -i "$includes" -p "$dir/$base.p4" >/dev/null 2>&1); then
+        echo pass > "$outdir/$base.verdict.sl"
+      else
+        echo fail > "$outdir/$base.verdict.sl"
       fi
     else
       # a program the frontend rejects has no value; record that

@@ -39,10 +39,51 @@ index 189b04df..c86603e6 100644
  
  let struct_command =
 diff --git a/p4spec/bin/nano.ml b/p4spec/bin/nano.ml
-index 2e96f945..498d34e2 100644
+index 2e96f945..346d9a03 100644
 --- a/p4spec/bin/nano.ml
 +++ b/p4spec/bin/nano.ml
-@@ -118,11 +118,15 @@ let parse_command =
+@@ -70,6 +70,7 @@ let check_command =
+      and guard =
+        flag "-guard" no_arg ~doc:"enable guard for builtins and externs"
+      and profile = flag "-profile" no_arg ~doc:"profiling"
++     and json = flag "-json" no_arg ~doc:"print the output values as JSON"
+      and trace =
+        Command.Param.choose_one
+          [
+@@ -79,7 +80,7 @@ let check_command =
+            |> map ~f:(fun b -> Core.Option.some_if b (Some Inst.Trace.Full));
+          ]
+          ~if_nothing_chosen:(Default_to None)
+-     and _mode =
++     and mode =
+        Command.Param.choose_one
+          [
+            flag "il" no_arg ~doc:"run AL interpreter"
+@@ -93,7 +94,7 @@ let check_command =
+        let cache = not no_cache in
+        run_with_diagnostics
+          ~action:(fun () ->
+-           let* spec_sim = P4spectec.spec_of_mode SL_mode paths_spec in
++           let* spec_sim = P4spectec.spec_of_mode mode paths_spec in
+            let* simulator =
+              P4spectec.build_nano_sim ~cache ~det ~guard spec_sim
+            in
+@@ -106,8 +107,12 @@ let check_command =
+            in
+            Inst.Hook.finish ();
+            match result with
+-           | Pass _ ->
+-               Format.printf "passed\n";
++           | Pass values_output ->
++               if json then
++                 Format.printf "%s\n"
++                   (Yojson.Safe.to_string
++                      (`List (List.map Il.value_to_yojson values_output)))
++               else Format.printf "passed\n";
+                Ok ()
+            | Fail (`Syntax diagnostic) -> Error diagnostic
+            | Fail (`Runtime failure) -> Error (diagnostic_of_failure failure)))
+@@ -118,11 +123,15 @@ let parse_command =
       let open Core.Command.Param in
       let%map path_p4 = flag "-p" (required string) ~doc:"Nano-P4 program"
       and tree = flag "-t" no_arg ~doc:"print as tree"

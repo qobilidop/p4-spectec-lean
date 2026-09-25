@@ -35,11 +35,11 @@ leanOptions = { linter.missingDocs = false }
 [[lean_lib]]
 name = "P4Lib"
 
-# Pilot: the Nano-P4 specification, generated from exports/nano-p4.il.json.
+# Pilot: the Nano-P4 specification, generated from exports/nano-p4.al.json.
 [[lean_lib]]
 name = "NanoP4Spec"
 
-# The full P4 specification, generated from exports/p4.il.json.
+# The full P4 specification, generated from exports/p4.al.json (M3).
 [[lean_lib]]
 name = "P4Spec"
 

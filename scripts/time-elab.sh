@@ -9,7 +9,8 @@ lib="${1:?usage: time-elab.sh <Lib>}"
 log="$(mktemp)"
 rm -rf "$root/.lake/build/lib/lean/$lib" "$root/.lake/build/lib/lean/$lib.olean" "$root/.lake/build/ir/$lib"
 (cd "$root" && lake build "$lib" > "$log" 2>&1) || { cat "$log"; exit 1; }
-rows="$(grep -oE "Built $lib(\.[A-Za-z0-9_]+)? \([0-9.]+(ms|s)\)" "$log" | sed -E 's/Built ([^ ]+) \(([0-9.]+)(ms|s)\)/\1 \2 \3/' \
+# module names may carry French-quoted components (NanoP4Spec.«3.2-bits»)
+rows="$(grep -oE "Built $lib(\.[^ ]+)? \([0-9.]+(ms|s)\)" "$log" | sed -E 's/Built ([^ ]+) \(([0-9.]+)(ms|s)\)/\1 \2 \3/' \
   | awk '{ t = $2; if ($3 == "ms") t = t / 1000; printf "%s %.2f\n", $1, t }' | sort -k2 -rn)"
 echo "# Elaboration times: $lib"
 echo ""
