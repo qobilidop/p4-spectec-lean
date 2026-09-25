@@ -686,7 +686,7 @@ inductive Expr_eval : NanoP4Spec.scope →
       {EC : NanoP4Spec.evalContext}
       {expression : NanoP4Spec.expression}
       {name : NanoP4Spec.name}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {value : NanoP4Spec.value} :
         ((NanoP4Spec.expression.is_nonTypeName expression : Bool) = true) →
         (NanoP4Spec.expression.of_nonTypeName expression = some name) →
@@ -734,7 +734,7 @@ inductive Expr_eval : NanoP4Spec.scope →
       {typeId : NanoP4Spec.typeId}
       {«fieldValue*» : List NanoP4Spec.fieldValue}
       {tmp_3 : List (NanoP4Spec.nameIR × NanoP4Spec.value)}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {value_member : NanoP4Spec.value} :
         ((NanoP4Spec.expression.is_memberAccessExpression expression : Bool) = true) →
         (NanoP4Spec.expression.of_memberAccessExpression expression =
@@ -766,7 +766,7 @@ inductive Expr_eval : NanoP4Spec.scope →
       {typeId : NanoP4Spec.typeId}
       {«fieldValue*» : List NanoP4Spec.fieldValue}
       {tmp_3 : List (NanoP4Spec.nameIR × NanoP4Spec.value)}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {value_member : NanoP4Spec.value} :
         ((NanoP4Spec.expression.is_memberAccessExpression expression : Bool) = true) →
         (NanoP4Spec.expression.of_memberAccessExpression expression =
@@ -1635,7 +1635,7 @@ inductive VarDecl_eval : NanoP4Spec.scope →
       {name : NanoP4Spec.name}
       {expression : NanoP4Spec.expression}
       {value : NanoP4Spec.value}
-      {nameIR : String}
+      {nameIR : P4SpecTec.ByteText}
       {EC_1 : NanoP4Spec.evalContext} :
         (NanoP4Spec.Expr_eval scope EC_0 expression value) →
         (NanoP4Spec.«$id» name = some (.ok nameIR)) →
@@ -1839,7 +1839,7 @@ inductive Callee_eval : NanoP4Spec.scope →
       {EC : NanoP4Spec.evalContext}
       {lvalue : NanoP4Spec.lvalue}
       {referenceExpression : NanoP4Spec.referenceExpression}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {callableDef : NanoP4Spec.callableDef}
       {_nameIR : NanoP4Spec.nameIR}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
@@ -1871,7 +1871,7 @@ inductive Callee_eval : NanoP4Spec.scope →
       {value : NanoP4Spec.value}
       {typeId : NanoP4Spec.typeId}
       {objectState : NanoP4Spec.objectState}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {typeDefIR : NanoP4Spec.typeDefIR}
       {_typeId : NanoP4Spec.typeId}
       {externMethodTypeDefEnv : NanoP4Spec.externMethodTypeDefEnv}

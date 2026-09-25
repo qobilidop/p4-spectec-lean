@@ -5144,7 +5144,11 @@ def Parser_apply.run [Externs]
           let tmp_3 ← ExceptT.mk (NanoP4Spec.«$flatten_parserStateList» parserStateList)
           have «parserState*» := tmp_3
           let tmp_4 ←
-              ExceptT.mk (NanoP4Spec.ParserState_trans.run EC_callee_2 «parserState*» "start")
+              ExceptT.mk
+                (NanoP4Spec.ParserState_trans.run
+                   EC_callee_2
+                   «parserState*»
+                   (P4SpecTec.ByteText.ofString "start"))
           let (transitionResult, EC_callee_3) := tmp_4
           let tmp_5 ←
               ExceptT.mk
@@ -5194,7 +5198,7 @@ inductive Parser_apply [Externs] : NanoP4Spec.evalContext →
         (NanoP4Spec.ParserState_trans
            EC_callee_2
            «parserState*»
-           "start"
+           (P4SpecTec.ByteText.ofString "start")
            transitionResult
            EC_callee_3) →
         (NanoP4Spec.Copy_out
@@ -5395,7 +5399,7 @@ def Parser_apply.al : Lang.Al.def :=
                       (Q.a .Turnstile)
                       (.Infix
                          (.Infix
-                            (.Arg (Q.e (.TextE "start") .TextT))
+                            (.Arg (Q.e (.TextE (P4SpecTec.ByteText.ofString "start")) .TextT))
                             (Q.a .Colon)
                             (.Arg
                                (Q.e

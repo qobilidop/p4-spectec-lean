@@ -132,7 +132,7 @@ def integerLiteral.al : Lang.Al.def :=
        [])
 
 inductive identifier where
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
 
 def identifier.toValue : NanoP4Spec.identifier → Lang.Il.value
   | ._ID x0 =>
@@ -166,7 +166,7 @@ def identifier.al : Lang.Al.def :=
        [])
 
 inductive typeIdentifier where
-  | _TID (s : String)
+  | _TID (s : P4SpecTec.ByteText)
 
 def typeIdentifier.toValue : NanoP4Spec.typeIdentifier → Lang.Il.value
   | ._TID x0 =>
@@ -202,7 +202,7 @@ def typeIdentifier.al : Lang.Al.def :=
        [])
 
 inductive nonTypeName where
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS
@@ -310,7 +310,7 @@ def name.al : Lang.Al.def :=
   Q.d (.TypD (Q.i "name") [] (Q.dt (.PlainT (Q.t (Q.varT "nonTypeName" [])))) [])
 
 inductive nameList where
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS
@@ -685,7 +685,7 @@ inductive type where
   | INT_langle_rangle (i : Int)
   | BOOL
   | MATCH_KIND
-  | _TID (s : String)
+  | _TID (s : P4SpecTec.ByteText)
 
 def type.toValue : NanoP4Spec.type → Lang.Il.value
   | .BIT_langle_rangle x0 =>
@@ -1337,7 +1337,7 @@ inductive expression where
   | FALSE
   | W (n : Nat) (i : Int)
   | S (n : Nat) (i : Int)
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS
@@ -1356,7 +1356,7 @@ inductive argumentListNonEmpty where
   | FALSE
   | W (n : Nat) (i : Int)
   | S (n : Nat) (i : Int)
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS
@@ -1379,7 +1379,7 @@ inductive argumentList where
   | FALSE
   | W (n : Nat) (i : Int)
   | S (n : Nat) (i : Int)
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS
@@ -2442,7 +2442,7 @@ def parenthesizedExpression.al : Lang.Al.def :=
        [])
 
 inductive lvalue where
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS
@@ -4535,7 +4535,7 @@ def tableKey.al : Lang.Al.def :=
        [])
 
 inductive tableActionReference where
-  | _ID (s : String)
+  | _ID (s : P4SpecTec.ByteText)
   | APPLY
   | KEY
   | ACTIONS

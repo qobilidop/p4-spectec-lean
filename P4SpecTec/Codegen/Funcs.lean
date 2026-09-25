@@ -147,6 +147,7 @@ def builtinBody (env : Env) (id : String) (params : List typ') : Except String T
   let pt (i : Nat) : typ' := params.getD i .TextT
   let pureOf (t : Term) : Term := .call "pure" [t]
   let optOf (t : Term) : Term := .call "Eval.unmatch?" [t]
+  let hardOf (t : Term) : Term := .call "Eval.err?" [t]
   let need {α : Type} (what : String) : Option α → Except String α
     | some a => pure a
     | none => throw s!"builtin {id} needs the stdlib type {what}"
@@ -155,12 +156,13 @@ def builtinBody (env : Env) (id : String) (params : List typ') : Except String T
     let hints ← P4.Unparse.hints_of_spec_al env.defs
     let table := if hints.isEmpty then .atom "[]" else .atom (env.q "«$print_».hints")
     let printed := .call "P4.Unparse.printWithHints" [table, .call toValueRef [p 0]]
-    pure (.call "Eval.err?" [.call "Except.toOption" [printed]])
-  | "text_to_int" => pure (optOf (.call "Builtin.Texts.text_to_int" [p 0]))
+    pure (.call "Eval.err?" [.call "Option.map"
+      [.atom "P4SpecTec.ByteText.ofString", .call "Except.toOption" [printed]]])
+  | "text_to_int" => pure (hardOf (.call "Builtin.Texts.text_to_int" [p 0]))
   | "int_to_text" => pure (pureOf (.call "Builtin.Texts.int_to_text" [p 0]))
-  | "split_text" => pure (optOf (.call "Builtin.Texts.split_text" [p 0, p 1]))
-  | "strip_prefix" => pure (optOf (.call "Builtin.Texts.strip_prefix" [p 0, p 1]))
-  | "strip_suffix" => pure (optOf (.call "Builtin.Texts.strip_suffix" [p 0, p 1]))
+  | "split_text" => pure (hardOf (.call "Builtin.Texts.split_text" [p 0, p 1]))
+  | "strip_prefix" => pure (hardOf (.call "Builtin.Texts.strip_prefix" [p 0, p 1]))
+  | "strip_suffix" => pure (hardOf (.call "Builtin.Texts.strip_suffix" [p 0, p 1]))
   | "strip_all_whitespace" => pure (pureOf (.call "Builtin.Texts.strip_all_whitespace" [p 0]))
   | "rev_" => pure (pureOf (.call "Builtin.Lists.rev_" [p 0]))
   | "concat_" => pure (pureOf (.call "Builtin.Lists.concat_" [p 0]))

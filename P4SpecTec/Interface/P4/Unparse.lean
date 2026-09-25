@@ -9,7 +9,7 @@ alternation policies by runtime type identifier and case mixop, or falls
 back to ordinary mixfix rendering. Unsupported value shapes return errors
 instead of OCaml exceptions. Builtins use this checked entry point; the
 older `print` entry point retains its hint-free placeholder behavior.
-Text escapes operate on UTF-8 bytes and atom case conversion is ASCII-only,
+Text escapes preserve arbitrary bytes and atom case conversion is ASCII-only,
 as in OCaml. Hints preserve empty positions, unlike default mixfix assembly.
 -/
 
@@ -71,8 +71,8 @@ def hints_of_spec_al (spec : Lang.Al.spec) : Except String HEnv :=
 /-- Mirrors OCaml's `String.escaped`, which `pp_text_v` applies: backslash,
 double quote, newline, tab and carriage return by their escapes, other
 non-printable bytes as `\\ddd`. -/
-def escaped (s : String) : String :=
-  String.join (s.toUTF8.toList.map fun b =>
+def escaped (s : ByteText) : String :=
+  String.join (s.toBytes.toList.map fun b =>
     match b.toNat with
     | 92 => "\\\\" | 34 => "\\\"" | 10 => "\\n" | 9 => "\\t" | 13 => "\\r" | 8 => "\\b"
     | d =>

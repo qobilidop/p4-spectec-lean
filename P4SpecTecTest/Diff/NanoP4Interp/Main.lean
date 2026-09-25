@@ -23,22 +23,20 @@ def fuel : Nat := 10000000
 /-- The outputs upstream recorded for a program, if any. -/
 def expectedOutputs (path : String) : IO (Option (List Lang.Il.value)) := do
   let p := (path.dropEnd 5).toString ++ ".outputs.json"
-  match ← (IO.FS.readFile p).toBaseIO with
-  | Except.error _ => pure none
-  | Except.ok text =>
-    match Lean.Json.parse text >>= P4SpecTec.Util.Yojson.list P4SpecTec.Lang.Il.Json.value with
-    | Except.error _ => pure none
-    | Except.ok vs => pure (some vs)
+  if !(← System.FilePath.pathExists p) then return none
+  let json ← Util.Yojson.readFile p
+  let vs ← IO.ofExcept (Util.Yojson.list Lang.Il.Json.value json)
+  pure (some vs)
 
 /-- Decode and type-check one program through the interpreter. -/
 def check (cfg : Interp_al.Interp.Config) (g : Interp_al.Ctx.global)
     (path : String) : IO String := do
   let debug := (← IO.getEnv "P4SPECTEC_INTERP_DEBUG").isSome
-  let text ← (IO.FS.readFile path).toBaseIO
-  match text with
+  let bytes ← (IO.FS.readBinFile path).toBaseIO
+  match bytes with
   | Except.error _ => pure "read-error"
-  | Except.ok text =>
-    match Lean.Json.parse text >>= P4SpecTec.Lang.Il.Json.value with
+  | Except.ok bytes =>
+    match Util.Yojson.parseBytes bytes >>= P4SpecTec.Lang.Il.Json.value with
     | Except.error _ => pure "decode-error"
     | Except.ok v =>
       match Interp_al.Interp.eval_rel fuel { cfg with debug } g "Program_ok" [v] with

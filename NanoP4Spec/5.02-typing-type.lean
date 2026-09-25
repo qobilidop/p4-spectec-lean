@@ -1264,7 +1264,7 @@ inductive VarDecl_ok : NanoP4Spec.scope →
       {expression : NanoP4Spec.expression}
       {typeIR : NanoP4Spec.typeIR}
       {typeIR' : NanoP4Spec.typeIR}
-      {id : String}
+      {id : P4SpecTec.ByteText}
       {TC_1 : NanoP4Spec.typingContext} :
         (NanoP4Spec.Type_ok TC_0 type typeIR) →
         (NanoP4Spec.Expr_ok scope TC_0 expression typeIR') →
@@ -1501,7 +1501,7 @@ inductive ParserTransition_ok : NanoP4Spec.typingContext →
       {TC : NanoP4Spec.typingContext}
       {«nameIR_state*» : List NanoP4Spec.nameIR}
       {name : NanoP4Spec.name}
-      {nameIR : String} :
+      {nameIR : P4SpecTec.ByteText} :
         (((match (NanoP4Spec.stateExpression.semi name) with
                | NanoP4Spec.stateExpression.semi _ => true
                | _ => false) : Bool) =
@@ -1548,7 +1548,7 @@ inductive ParserTransition_ok : NanoP4Spec.typingContext →
         (List.length (List.map (·.2) tmp_3) = List.length «nameIR_case*») →
         (∀
            (name_case : NanoP4Spec.name)
-           (nameIR_case : String),
+           (nameIR_case : P4SpecTec.ByteText),
            (name_case, nameIR_case) ∈ (List.zip (List.map (·.2) tmp_3) «nameIR_case*») →
            NanoP4Spec.«$id» name_case = some (.ok nameIR_case)) →
         (List.length «nameIR_case*» = List.length «b_contains*») →

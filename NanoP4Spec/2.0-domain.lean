@@ -23,7 +23,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
-abbrev id : Type := String
+abbrev id : Type := P4SpecTec.ByteText
 
 def id.toValue (x : NanoP4Spec.id) : Lang.Il.value := ToValue.toValue x
 
@@ -38,7 +38,7 @@ instance : OfValue NanoP4Spec.id := ⟨NanoP4Spec.id.ofValue⟩
 
 def id.al : Lang.Al.def := Q.d (.TypD (Q.i "id") [] (Q.dt (.PlainT (Q.t .TextT))) [])
 
-abbrev callableId : Type := String
+abbrev callableId : Type := P4SpecTec.ByteText
 
 def callableId.toValue (x : NanoP4Spec.callableId) : Lang.Il.value := ToValue.toValue x
 
@@ -54,7 +54,7 @@ instance : OfValue NanoP4Spec.callableId := ⟨NanoP4Spec.callableId.ofValue⟩
 def callableId.al : Lang.Al.def :=
   Q.d (.TypD (Q.i "callableId") [] (Q.dt (.PlainT (Q.t .TextT))) [])
 
-abbrev nameIR : Type := String
+abbrev nameIR : Type := P4SpecTec.ByteText
 
 def nameIR.toValue (x : NanoP4Spec.nameIR) : Lang.Il.value := ToValue.toValue x
 
@@ -139,7 +139,7 @@ instance : OfValue NanoP4Spec.typeId := ⟨NanoP4Spec.typeId.ofValue⟩
 def typeId.al : Lang.Al.def :=
   Q.d (.TypD (Q.i "typeId") [] (Q.dt (.PlainT (Q.t (Q.varT "id" [])))) [])
 
-def «$id» (p0 : NanoP4Spec.name) : Option (Except Fail String) :=
+def «$id» (p0 : NanoP4Spec.name) : Option (Except Fail P4SpecTec.ByteText) :=
   ExceptT.run
     (do
        have name := p0

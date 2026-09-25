@@ -45,7 +45,7 @@ export ToValue (toValue)
 instance : ToValue Bool := ⟨Runtime.Value.Make.bool⟩
 instance : ToValue Nat := ⟨Runtime.Value.Make.nat⟩
 instance : ToValue Int := ⟨Runtime.Value.Make.int⟩
-instance : ToValue String := ⟨Runtime.Value.Make.text⟩
+instance : ToValue ByteText := ⟨Runtime.Value.Make.text⟩
 instance : ToValue value := ⟨id⟩
 
 instance {α : Type} [ToValue α] : ToValue (List α) :=
@@ -87,7 +87,7 @@ instance : OfValue Bool := ⟨fun _ v => match v.it with | .BoolV b => some b | 
 instance : OfValue Nat := ⟨fun _ v => match v.it with | .NumV (.Nat n) => some n | _ => none⟩
 instance : OfValue Int :=
   ⟨fun _ v => match v.it with | .NumV (.Int i) => some i | .NumV (.Nat n) => some n | _ => none⟩
-instance : OfValue String := ⟨fun _ v => match v.it with | .TextV s => some s | _ => none⟩
+instance : OfValue ByteText := ⟨fun _ v => match v.it with | .TextV s => some s | _ => none⟩
 instance : OfValue value := ⟨fun _ v => some v⟩
 
 instance {α : Type} [OfValue α] : OfValue (List α) :=

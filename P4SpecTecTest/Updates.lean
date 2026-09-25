@@ -1,9 +1,10 @@
 import Lean.Elab.Command
 import P4SpecTec.Codegen.Exp
+import P4SpecTec.Codegen.Reify
 import P4SpecTec.Prelude
 
 /-!
-List-index update regressions. The checks elaborate the real expression
+List-index update and byte-text regressions. The checks elaborate the real expression
 compiler's term and run it in `Eval`; unsupported path shapes stay errors.
 -/
 
@@ -47,7 +48,7 @@ def nestedUpdate : exp := update (varExp "xss" nestedList) (varExp "v" nat)
   (index (index (root nestedList) (varExp "i" nat) listNat)
     (varExp "j" nat) nat)
 
-#guard !(compile textUpdate).isOk
+#guard (compile textUpdate).isOk
 #guard !(compile sliceUpdate).isOk
 #guard !(compile nestedUpdate).isOk
 
@@ -92,6 +93,65 @@ run_cmd do
     let stx ← match Lean.Parser.runParserCategory (← getEnv) `command command with
       | .ok stx => pure stx
       | .error err => throwError "generated update did not parse:\n{command}\n{err}"
+    Lean.Elab.Command.elabCommand stx
+
+open Lean Elab Command in
+run_cmd do
+  let source ← match compile textUpdate with
+    | .error err => throwError "text update did not compile: {err}"
+    | .ok (result, stmts) => pure (Codegen.render (Exp.doOf stmts result).fmt)
+  let decl := "def runTextUpdate (s char : ByteText) (i : Nat) : " ++
+    "Option (Except Fail ByteText) := (" ++ source ++ " : Eval ByteText).run"
+  let checks := [
+    "#guard (match runTextUpdate (ByteText.ofString \"é\") (ByteText.ofString \"X\") 0 with " ++
+      "| some (.ok t) => t.toBytes == ByteArray.mk #[0x58, 0xa9] | _ => false)",
+    "#guard (match runTextUpdate (ByteText.ofString \"é\") (ByteText.ofString \"X\") 2 with " ++
+      "| some (.error .err) => true | _ => false)",
+    "#guard (match runTextUpdate (ByteText.ofString \"abc\") (ByteText.ofString \"é\") 0 with " ++
+      "| some (.error .err) => true | _ => false)"]
+  for command in decl :: checks do
+    let stx ← match Lean.Parser.runParserCategory (← getEnv) `command command with
+      | .ok stx => pure stx
+      | .error err => throwError "generated text update did not parse:\n{command}\n{err}"
+    Lean.Elab.Command.elabCommand stx
+
+-- Compile literal and byte operations through the production emitter,
+-- including an invalid-UTF-8 payload that cannot use a Lean string literal.
+open Lean Elab Command in
+run_cmd do
+  let raw := ByteText.ofBytes (ByteArray.mk #[0, 0xff, 0xa9])
+  let rawExp : exp := ⟨.TextE raw, .TextT, no_region⟩
+  let unicode : exp := ⟨.TextE (ByteText.ofString "é"), .TextT, no_region⟩
+  let number (n : Nat) : exp := ⟨.NumE (.Nat n), nat, no_region⟩
+  let cases : List (String × exp × String × String) := [
+    ("rawLiteral", rawExp, "ByteText", "v.toBytes == ByteArray.mk #[0, 0xff, 0xa9]"),
+    ("unicodeLiteral", unicode, "ByteText", "v.toBytes == ByteArray.mk #[0xc3, 0xa9]"),
+    ("byteLength", ⟨.LenE unicode, nat, no_region⟩, "Nat", "v == 2"),
+    ("byteIndex", ⟨.IdxE unicode (number 1), .TextT, no_region⟩,
+      "ByteText", "v.toBytes == ByteArray.mk #[0xa9]"),
+    ("byteSlice", ⟨.SliceE rawExp (number 1) (number 2), .TextT, no_region⟩,
+      "ByteText", "v.toBytes == ByteArray.mk #[0xff, 0xa9]"),
+    ("byteCat", ⟨.CatE unicode rawExp, .TextT, no_region⟩,
+      "ByteText", "v.toBytes == ByteArray.mk #[0xc3, 0xa9, 0, 0xff, 0xa9]")]
+  for (name, input, ty, expected) in cases do
+    let source ← match compile input with
+      | .error err => throwError "byte expression did not compile: {err}"
+      | .ok (result, stmts) => pure (Codegen.render (Exp.doOf stmts result).fmt)
+    let decl := s!"def {name} : Eval {ty} := {source}"
+    let check := s!"#guard (match {name}.run with | some (.ok v) => {expected} | _ => false)"
+    for command in [decl, check] do
+      let stx ← match Lean.Parser.runParserCategory (← getEnv) `command command with
+        | .ok stx => pure stx
+        | .error err => throwError "byte expression did not parse:\n{command}\n{err}"
+      Lean.Elab.Command.elabCommand stx
+  let quoted := Codegen.render (Reify.exp' rawExp.it).fmt
+  let decl := s!"def quotedRaw : exp' := {quoted}"
+  let check := "#guard (match quotedRaw with | .TextE s => " ++
+    "s.toBytes == ByteArray.mk #[0, 0xff, 0xa9] | _ => false)"
+  for command in [decl, check] do
+    let stx ← match Lean.Parser.runParserCategory (← getEnv) `command command with
+      | .ok stx => pure stx
+      | .error err => throwError "byte quotation did not parse:\n{command}\n{err}"
     Lean.Elab.Command.elabCommand stx
 
 end P4SpecTecTest.Updates

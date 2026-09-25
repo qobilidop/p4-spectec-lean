@@ -249,7 +249,7 @@ inductive Decl_load : NanoP4Spec.loadContext →
       {name_action : NanoP4Spec.name}
       {_parameterList : NanoP4Spec.parameterList}
       {blockStatement : NanoP4Spec.blockStatement}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {LC_1 : NanoP4Spec.loadContext} :
         ((NanoP4Spec.declaration.is_actionDeclaration declaration : Bool) = true) →
@@ -297,7 +297,7 @@ inductive Decl_load : NanoP4Spec.loadContext →
       {parameterList : NanoP4Spec.parameterList}
       {parserLocalDeclarationList : NanoP4Spec.parserLocalDeclarationList}
       {parserStateList : NanoP4Spec.parserStateList}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {LC_1 : NanoP4Spec.loadContext} :
         ((NanoP4Spec.declaration.is_parserDeclaration declaration : Bool) = true) →
@@ -332,7 +332,7 @@ inductive Decl_load : NanoP4Spec.loadContext →
       {parameterList : NanoP4Spec.parameterList}
       {controlLocalDeclarationList : NanoP4Spec.controlLocalDeclarationList}
       {controlBody : NanoP4Spec.controlBody}
-      {callableId : String}
+      {callableId : P4SpecTec.ByteText}
       {«parameterIR*» : List NanoP4Spec.parameterIR}
       {LC_1 : NanoP4Spec.loadContext} :
         ((NanoP4Spec.declaration.is_controlDeclaration declaration : Bool) = true) →

@@ -23,20 +23,18 @@ def fuel : Nat := 1000000
 next to it holds the list of output values of `Program_ok`. -/
 def expectedOutputs (path : String) : IO (Option (List Lang.Il.value)) := do
   let p := (path.dropEnd 5).toString ++ ".outputs.json"
-  match ← (IO.FS.readFile p).toBaseIO with
-  | Except.error _ => pure none
-  | Except.ok text =>
-    match Lean.Json.parse text >>= P4SpecTec.Util.Yojson.list P4SpecTec.Lang.Il.Json.value with
-    | Except.error _ => pure none
-    | Except.ok vs => pure (some vs)
+  if !(← System.FilePath.pathExists p) then return none
+  let json ← Util.Yojson.readFile p
+  let vs ← IO.ofExcept (Util.Yojson.list Lang.Il.Json.value json)
+  pure (some vs)
 
 /-- Decode and type-check one program. -/
 def check (path : String) : IO String := do
-  let text ← (IO.FS.readFile path).toBaseIO
-  match text with
+  let bytes ← (IO.FS.readBinFile path).toBaseIO
+  match bytes with
   | Except.error _ => pure "read-error"
-  | Except.ok text =>
-    match Lean.Json.parse text >>= P4SpecTec.Lang.Il.Json.value with
+  | Except.ok bytes =>
+    match Util.Yojson.parseBytes bytes >>= P4SpecTec.Lang.Il.Json.value with
     | Except.error _ => pure "decode-error"
     | Except.ok v =>
       match NanoP4Spec.program.ofValue fuel v with

@@ -267,7 +267,10 @@ def NanoSwitch_setup.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectSt
        have EC_0 := p0
        have objectState_packet := p1
        (do
-          have packetValue := NanoP4Spec.packetValue.PACKET "packet_in" objectState_packet
+          have packetValue :=
+              NanoP4Spec.packetValue.PACKET
+                (P4SpecTec.ByteText.ofString "packet_in")
+                objectState_packet
           let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
           have EC_1 :=
               { EC_0 with
@@ -277,20 +280,23 @@ def NanoSwitch_setup.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectSt
                 (NanoP4Spec.«$add_var_e»
                    NanoP4Spec.scope.GLOBAL
                    EC_1
-                   "packet_in"
+                   (P4SpecTec.ByteText.ofString "packet_in")
                    (NanoP4Spec.packetValue.to_value packetValue))
           have EC_2 := tmp_1
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$find_typeDef_e» EC_1 "Header")
+          let tmp_2 ←
+              ExceptT.mk (NanoP4Spec.«$find_typeDef_e» EC_1 (P4SpecTec.ByteText.ofString "Header"))
           let tmp_3 ← ExceptT.mk (NanoP4Spec.«$typeIR_of_typeDefIR» tmp_2)
           have typeIR_header := tmp_3
-          let tmp_4 ← ExceptT.mk (NanoP4Spec.Var_init.run EC_2 typeIR_header "hdr")
+          let tmp_4 ←
+              ExceptT.mk
+                (NanoP4Spec.Var_init.run EC_2 typeIR_header (P4SpecTec.ByteText.ofString "hdr"))
           have EC_3 := tmp_4
           let tmp_5 ←
               ExceptT.mk
                 (NanoP4Spec.Var_init.run
                    EC_3
                    (NanoP4Spec.baseTypeIR.to_typeIR NanoP4Spec.baseTypeIR.BOOL)
-                   "accept")
+                   (P4SpecTec.ByteText.ofString "accept"))
           have EC_4 := tmp_5
           pure EC_4))
 
@@ -312,21 +318,23 @@ inductive NanoSwitch_setup : NanoP4Spec.evalContext →
              NanoP4Spec.scope.GLOBAL
              ({ EC_0 with
                 GLOBAL.FRAME := tmp_0, })
-             "packet_in"
+             (P4SpecTec.ByteText.ofString "packet_in")
              (NanoP4Spec.packetValue.to_value
-                (NanoP4Spec.packetValue.PACKET "packet_in" objectState_packet)) =
+                (NanoP4Spec.packetValue.PACKET
+                   (P4SpecTec.ByteText.ofString "packet_in")
+                   objectState_packet)) =
            some (.ok EC_2)) →
         (NanoP4Spec.«$find_typeDef_e»
              ({ EC_0 with
                 GLOBAL.FRAME := tmp_0, })
-             "Header" =
+             (P4SpecTec.ByteText.ofString "Header") =
            some (.ok tmp_2)) →
         (NanoP4Spec.«$typeIR_of_typeDefIR» tmp_2 = some (.ok typeIR_header)) →
-        (NanoP4Spec.Var_init EC_2 typeIR_header "hdr" EC_3) →
+        (NanoP4Spec.Var_init EC_2 typeIR_header (P4SpecTec.ByteText.ofString "hdr") EC_3) →
         (NanoP4Spec.Var_init
            EC_3
            (NanoP4Spec.baseTypeIR.to_typeIR NanoP4Spec.baseTypeIR.BOOL)
-           "accept"
+           (P4SpecTec.ByteText.ofString "accept")
            EC_4) →
         NanoP4Spec.NanoSwitch_setup EC_0 objectState_packet EC_4
 
@@ -377,7 +385,7 @@ def NanoSwitch_setup.al : Lang.Al.def :=
                       (.CaseE
                          (.Seq
                             [.Atom (Q.a (.Keyword "PACKET")),
-                             .Arg (Q.e (.TextE "packet_in") .TextT),
+                             .Arg (Q.e (.TextE (P4SpecTec.ByteText.ofString "packet_in")) .TextT),
                              .Arg
                                (Q.e (.VarE (Q.i "objectState_packet")) (Q.varT "objectState" []))]))
                       (Q.varT "packetValue" []))),
@@ -411,7 +419,8 @@ def NanoSwitch_setup.al : Lang.Al.def :=
                                   (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
                                   (Q.varT "scope" []))),
                           Q.ar (.ExpA (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))),
-                          Q.ar (.ExpA (Q.e (.TextE "packet_in") .TextT)),
+                          Q.ar
+                            (.ExpA (Q.e (.TextE (P4SpecTec.ByteText.ofString "packet_in")) .TextT)),
                           Q.ar
                             (.ExpA
                                (Q.e
@@ -436,7 +445,11 @@ def NanoSwitch_setup.al : Lang.Al.def :=
                                      [Q.ar
                                         (.ExpA
                                            (Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" []))),
-                                      Q.ar (.ExpA (Q.e (.TextE "Header") .TextT))])
+                                      Q.ar
+                                        (.ExpA
+                                           (Q.e
+                                              (.TextE (P4SpecTec.ByteText.ofString "Header"))
+                                              .TextT))])
                                   (Q.varT "typeDefIR" [])))])
                       (Q.varT "typeIR" []))),
               Q.pr
@@ -448,7 +461,7 @@ def NanoSwitch_setup.al : Lang.Al.def :=
                       (.Infix
                          (.Seq
                             [.Arg (Q.e (.VarE (Q.i "typeIR_header")) (Q.varT "typeIR" [])),
-                             .Arg (Q.e (.TextE "hdr") .TextT)])
+                             .Arg (Q.e (.TextE (P4SpecTec.ByteText.ofString "hdr")) .TextT)])
                          (Q.a .Tilesturn)
                          (.Arg (Q.e (.VarE (Q.i "EC_3")) (Q.varT "evalContext" [])))))
                    [0, 1, 2]),
@@ -468,7 +481,7 @@ def NanoSwitch_setup.al : Lang.Al.def :=
                                         (.CaseE (.Atom (Q.a (.Keyword "BOOL"))))
                                         (Q.varT "baseTypeIR" [])))
                                   (Q.varT "typeIR" [])),
-                             .Arg (Q.e (.TextE "accept") .TextT)])
+                             .Arg (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT)])
                          (Q.a .Tilesturn)
                          (.Arg (Q.e (.VarE (Q.i "EC_4")) (Q.varT "evalContext" [])))))
                    [0, 1, 2])]
@@ -481,12 +494,22 @@ def «$nanoswitch_forwarding» (p0 : NanoP4Spec.evalContext)
   ExceptT.run
     ((do
         have EC := p0
-        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$find_var_e» NanoP4Spec.scope.GLOBAL EC "accept")
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$find_var_e»
+                 NanoP4Spec.scope.GLOBAL
+                 EC
+                 (P4SpecTec.ByteText.ofString "accept"))
         let _ ← Eval.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B true)) == tmp_0)
         pure NanoP4Spec.forwardingDecision.FORWARD) <|>
      (do
         have EC := p0
-        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$find_var_e» NanoP4Spec.scope.GLOBAL EC "accept")
+        let tmp_1 ←
+            ExceptT.mk
+              (NanoP4Spec.«$find_var_e»
+                 NanoP4Spec.scope.GLOBAL
+                 EC
+                 (P4SpecTec.ByteText.ofString "accept"))
         let _ ← Eval.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false)) ==
          tmp_1)
         pure NanoP4Spec.forwardingDecision.DROP))
@@ -525,7 +548,9 @@ def «$nanoswitch_forwarding».al : Lang.Al.def :=
                                      (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
                                      (Q.varT "scope" []))),
                              Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
-                             Q.ar (.ExpA (Q.e (.TextE "accept") .TextT))])
+                             Q.ar
+                               (.ExpA
+                                  (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT))])
                          (Q.varT "value" [])))
                    .BoolT))],
         Q.cl
@@ -555,7 +580,9 @@ def «$nanoswitch_forwarding».al : Lang.Al.def :=
                                      (.CaseE (.Atom (Q.a (.Keyword "GLOBAL"))))
                                      (Q.varT "scope" []))),
                              Q.ar (.ExpA (Q.e (.VarE (Q.i "EC")) (Q.varT "evalContext" []))),
-                             Q.ar (.ExpA (Q.e (.TextE "accept") .TextT))])
+                             Q.ar
+                               (.ExpA
+                                  (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT))])
                          (Q.varT "value" [])))
                    .BoolT))]]
        none
@@ -571,8 +598,10 @@ def NanoSwitch_parse.run [Externs]
        have parserDeclarationIR := p1
        (do
           have «argument*» :=
-              [NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "packet_in"),
-               NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr")]
+              [NanoP4Spec.identifier.to_expression
+                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "packet_in")),
+               NanoP4Spec.identifier.to_expression
+                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr"))]
           let tmp_0 ← ExceptT.mk (NanoP4Spec.Parser_apply.run EC_0 «argument*» parserDeclarationIR)
           let (transitionResult, EC_1) := tmp_0
           pure (transitionResult, EC_1)))
@@ -589,8 +618,10 @@ inductive NanoSwitch_parse [Externs] : NanoP4Spec.evalContext →
       {EC_1 : NanoP4Spec.evalContext} :
         (NanoP4Spec.Parser_apply
            EC_0
-           ([NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "packet_in"),
-             NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr")])
+           ([NanoP4Spec.identifier.to_expression
+               (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "packet_in")),
+             NanoP4Spec.identifier.to_expression
+               (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr"))])
            parserDeclarationIR
            transitionResult
            EC_1) →
@@ -650,7 +681,10 @@ def NanoSwitch_parse.al : Lang.Al.def :=
                                   (.CaseE
                                      (.Seq
                                         [.Atom (Q.a (.Tag "ID")),
-                                         .Arg (Q.e (.TextE "packet_in") .TextT)]))
+                                         .Arg
+                                           (Q.e
+                                              (.TextE (P4SpecTec.ByteText.ofString "packet_in"))
+                                              .TextT)]))
                                   (Q.varT "identifier" [])))
                             (Q.varT "expression" []),
                           Q.e
@@ -660,7 +694,10 @@ def NanoSwitch_parse.al : Lang.Al.def :=
                                   (.CaseE
                                      (.Seq
                                         [.Atom (Q.a (.Tag "ID")),
-                                         .Arg (Q.e (.TextE "hdr") .TextT)]))
+                                         .Arg
+                                           (Q.e
+                                              (.TextE (P4SpecTec.ByteText.ofString "hdr"))
+                                              .TextT)]))
                                   (Q.varT "identifier" [])))
                             (Q.varT "expression" [])])
                       (.IterT (Q.t (Q.varT "argument" [])) .List))),
@@ -706,8 +743,10 @@ def NanoSwitch_filter.run [Externs]
        have controlDeclarationIR := p1
        (do
           have «argument*» :=
-              [NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr"),
-               NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "accept")]
+              [NanoP4Spec.identifier.to_expression
+                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr")),
+               NanoP4Spec.identifier.to_expression
+                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "accept"))]
           let tmp_0 ←
               ExceptT.mk (NanoP4Spec.Control_apply.run EC_0 «argument*» controlDeclarationIR)
           have EC_1 := tmp_0
@@ -723,8 +762,10 @@ inductive NanoSwitch_filter [Externs] : NanoP4Spec.evalContext →
       {EC_1 : NanoP4Spec.evalContext} :
         (NanoP4Spec.Control_apply
            EC_0
-           ([NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr"),
-             NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "accept")])
+           ([NanoP4Spec.identifier.to_expression
+               (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr")),
+             NanoP4Spec.identifier.to_expression
+               (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "accept"))])
            controlDeclarationIR
            EC_1) →
         NanoP4Spec.NanoSwitch_filter EC_0 controlDeclarationIR EC_1
@@ -779,7 +820,10 @@ def NanoSwitch_filter.al : Lang.Al.def :=
                                   (.CaseE
                                      (.Seq
                                         [.Atom (Q.a (.Tag "ID")),
-                                         .Arg (Q.e (.TextE "hdr") .TextT)]))
+                                         .Arg
+                                           (Q.e
+                                              (.TextE (P4SpecTec.ByteText.ofString "hdr"))
+                                              .TextT)]))
                                   (Q.varT "identifier" [])))
                             (Q.varT "expression" []),
                           Q.e
@@ -789,7 +833,10 @@ def NanoSwitch_filter.al : Lang.Al.def :=
                                   (.CaseE
                                      (.Seq
                                         [.Atom (Q.a (.Tag "ID")),
-                                         .Arg (Q.e (.TextE "accept") .TextT)]))
+                                         .Arg
+                                           (Q.e
+                                              (.TextE (P4SpecTec.ByteText.ofString "accept"))
+                                              .TextT)]))
                                   (Q.varT "identifier" [])))
                             (Q.varT "expression" [])])
                       (.IterT (Q.t (Q.varT "argument" [])) .List))),

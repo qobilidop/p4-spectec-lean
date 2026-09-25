@@ -1066,7 +1066,7 @@ def ParserTransition_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.tra
              | _ => false)
           let .semi name := stateExpression' | throw Fail.err
           let tmp_0 ← ExceptT.mk (NanoP4Spec.«$id» name)
-          let _ ← Eval.check (tmp_0 == "accept")
+          let _ ← Eval.check (tmp_0 == (P4SpecTec.ByteText.ofString "accept"))
           pure NanoP4Spec.transitionResult.ACCEPT) <|>
        ((do
            have stateExpression' := stateExpression
@@ -1075,7 +1075,7 @@ def ParserTransition_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.tra
               | _ => false)
            let .semi name := stateExpression' | throw Fail.err
            let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
-           let _ ← Eval.check (tmp_1 == "reject")
+           let _ ← Eval.check (tmp_1 == (P4SpecTec.ByteText.ofString "reject"))
            pure NanoP4Spec.transitionResult.REJECT) <|>
         ((do
             have stateExpression' := stateExpression
@@ -1085,7 +1085,8 @@ def ParserTransition_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.tra
             let .semi name := stateExpression' | throw Fail.err
             let tmp_2 ← ExceptT.mk (NanoP4Spec.«$id» name)
             have nameIR := tmp_2
-            let _ ← Eval.check ((nameIR != "accept") && (nameIR != "reject"))
+            let _ ← Eval.check ((nameIR != (P4SpecTec.ByteText.ofString "accept")) &&
+             (nameIR != (P4SpecTec.ByteText.ofString "reject")))
             pure (NanoP4Spec.transitionResult.STATE nameIR)) <|>
          (do
             have stateExpression' := stateExpression
@@ -1194,35 +1195,37 @@ inductive ParserTransition_eval : NanoP4Spec.evalContext →
   NanoP4Spec.transitionStatement →
   NanoP4Spec.transitionResult →
   Prop where
-  | accept {EC : NanoP4Spec.evalContext} {name : NanoP4Spec.name} {tmp_0 : String} :
+  | accept {EC : NanoP4Spec.evalContext} {name : NanoP4Spec.name} {tmp_0 : P4SpecTec.ByteText} :
         (((match (NanoP4Spec.stateExpression.semi name) with
                | NanoP4Spec.stateExpression.semi _ => true
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.«$id» name = some (.ok tmp_0)) →
-        ((tmp_0 == "accept" : Bool) = true) →
+        ((tmp_0 == (P4SpecTec.ByteText.ofString "accept") : Bool) = true) →
         NanoP4Spec.ParserTransition_eval
           EC
           (NanoP4Spec.transitionStatement.TRANSITION (NanoP4Spec.stateExpression.semi name))
           NanoP4Spec.transitionResult.ACCEPT
-  | reject {EC : NanoP4Spec.evalContext} {name : NanoP4Spec.name} {tmp_0 : String} :
+  | reject {EC : NanoP4Spec.evalContext} {name : NanoP4Spec.name} {tmp_0 : P4SpecTec.ByteText} :
         (((match (NanoP4Spec.stateExpression.semi name) with
                | NanoP4Spec.stateExpression.semi _ => true
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.«$id» name = some (.ok tmp_0)) →
-        ((tmp_0 == "reject" : Bool) = true) →
+        ((tmp_0 == (P4SpecTec.ByteText.ofString "reject") : Bool) = true) →
         NanoP4Spec.ParserTransition_eval
           EC
           (NanoP4Spec.transitionStatement.TRANSITION (NanoP4Spec.stateExpression.semi name))
           NanoP4Spec.transitionResult.REJECT
-  | state {EC : NanoP4Spec.evalContext} {name : NanoP4Spec.name} {nameIR : String} :
+  | state {EC : NanoP4Spec.evalContext} {name : NanoP4Spec.name} {nameIR : P4SpecTec.ByteText} :
         (((match (NanoP4Spec.stateExpression.semi name) with
                | NanoP4Spec.stateExpression.semi _ => true
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.«$id» name = some (.ok nameIR)) →
-        (((nameIR != "accept") && (nameIR != "reject") : Bool) = true) →
+        (((nameIR != (P4SpecTec.ByteText.ofString "accept")) &&
+            (nameIR != (P4SpecTec.ByteText.ofString "reject")) : Bool) =
+           true) →
         NanoP4Spec.ParserTransition_eval
           EC
           (NanoP4Spec.transitionStatement.TRANSITION (NanoP4Spec.stateExpression.semi name))
@@ -1414,7 +1417,7 @@ def ParserTransition_eval.al : Lang.Al.def :=
                                []
                                [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
                             .TextT)
-                         (Q.e (.TextE "accept") .TextT))
+                         (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT))
                       .BoolT))]
              [Q.e (.CaseE (.Atom (Q.a (.Keyword "ACCEPT")))) (Q.varT "transitionResult" [])],
            Q.rp
@@ -1451,7 +1454,7 @@ def ParserTransition_eval.al : Lang.Al.def :=
                                []
                                [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
                             .TextT)
-                         (Q.e (.TextE "reject") .TextT))
+                         (Q.e (.TextE (P4SpecTec.ByteText.ofString "reject")) .TextT))
                       .BoolT))]
              [Q.e (.CaseE (.Atom (Q.a (.Keyword "REJECT")))) (Q.varT "transitionResult" [])],
            Q.rp
@@ -1496,14 +1499,14 @@ def ParserTransition_eval.al : Lang.Al.def :=
                                .NeOp
                                .BoolT
                                (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
-                               (Q.e (.TextE "accept") .TextT))
+                               (Q.e (.TextE (P4SpecTec.ByteText.ofString "accept")) .TextT))
                             .BoolT)
                          (Q.e
                             (.CmpE
                                .NeOp
                                .BoolT
                                (Q.e (.VarE (Q.i "nameIR")) (Q.varT "nameIR" []))
-                               (Q.e (.TextE "reject") .TextT))
+                               (Q.e (.TextE (P4SpecTec.ByteText.ofString "reject")) .TextT))
                             .BoolT))
                       .BoolT))]
              [Q.e

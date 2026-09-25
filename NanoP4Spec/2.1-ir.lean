@@ -202,29 +202,29 @@ def baseTypeIR.al : Lang.Al.def :=
 mutual
 
 inductive parameterIR where
-  | mk (direction : NanoP4Spec.direction) (typeIR : NanoP4Spec.typeIR) (nameIR : String)
+  | mk (direction : NanoP4Spec.direction) (typeIR : NanoP4Spec.typeIR) (nameIR : P4SpecTec.ByteText)
 
 inductive fieldTypeIR where
-  | semi (typeIR : NanoP4Spec.typeIR) (id : String)
+  | semi (typeIR : NanoP4Spec.typeIR) (id : P4SpecTec.ByteText)
 
 inductive externMethodTypeDefIR where
-  | VOID_lparen_rparen (callableId : String) (parameterIR : List NanoP4Spec.parameterIR)
+  | VOID_lparen_rparen (callableId : P4SpecTec.ByteText) (parameterIR : List NanoP4Spec.parameterIR)
 
 inductive typeIR where
   | INT_langle_rangle (n : Nat)
   | BIT_langle_rangle (n : Nat)
   | BOOL
   | MATCH_KIND
-  | STRUCT_lbrace_rbrace (typeId : String) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
-  | HEADER_lbrace_rbrace (typeId : String) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
+  | STRUCT_lbrace_rbrace (typeId : P4SpecTec.ByteText) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
+  | HEADER_lbrace_rbrace (typeId : P4SpecTec.ByteText) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
   | EXTERN
-      (typeId : String)
+      (typeId : P4SpecTec.ByteText)
       (externMethodTypeDefEnv :
-         NanoP4Spec.set (NanoP4Spec.pair String NanoP4Spec.externMethodTypeDefIR))
-  | PARSER_lparen_rparen (typeId : String) (parameterIR : List NanoP4Spec.parameterIR)
-  | CONTROL_lparen_rparen (typeId : String) (parameterIR : List NanoP4Spec.parameterIR)
-  | PACKAGE_lparen_rparen (typeId : String) (parameterIR : List NanoP4Spec.parameterIR)
-  | TABLE (typeId : String)
+         NanoP4Spec.set (NanoP4Spec.pair P4SpecTec.ByteText NanoP4Spec.externMethodTypeDefIR))
+  | PARSER_lparen_rparen (typeId : P4SpecTec.ByteText) (parameterIR : List NanoP4Spec.parameterIR)
+  | CONTROL_lparen_rparen (typeId : P4SpecTec.ByteText) (parameterIR : List NanoP4Spec.parameterIR)
+  | PACKAGE_lparen_rparen (typeId : P4SpecTec.ByteText) (parameterIR : List NanoP4Spec.parameterIR)
+  | TABLE (typeId : P4SpecTec.ByteText)
 
 end
 

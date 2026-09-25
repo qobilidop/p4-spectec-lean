@@ -1,5 +1,6 @@
 import Lean.Data.Json.Basic
 import P4SpecTec.Util.Source
+import P4SpecTec.Util.ByteText
 import P4SpecTec.Lang.Xl.Num
 import P4SpecTec.Lang.Xl.Bool
 import P4SpecTec.Domain.Atom
@@ -16,11 +17,11 @@ cannot sit inside a `mutual` block, and the kernel's nested-inductive check
 does not unfold one in a constructor argument.
 
 Deviations forced by Lean are in the named list of `docs/design.md`
-section 5.3; this file has four: EL hints are kept as raw JSON, the
+section 5.3: EL hints are kept as raw JSON, the
 polymorphic-variant unions (`unop`, `binop`, `cmpop`, `optyp`, `numop`) are
 flattened into one inductive each, `Bigint.t` is `Nat` or `Int`, and
 `iterexp`, `iterprem` and `typorigin'` are named inductives rather than
-tuples.
+tuples. Semantic text uses arbitrary bytes, distinct from identifier strings.
 -/
 
 namespace P4SpecTec.Lang.Il
@@ -37,7 +38,7 @@ abbrev num := Num.t
 /- Texts -/
 
 /-- Mirrors `text`. -/
-abbrev text := String
+abbrev text := ByteText
 
 /- Identifiers -/
 
@@ -247,7 +248,7 @@ inductive value' where
   /-- `NumV of Num.t` -/
   | NumV (n : Num.t)
   /-- `TextV of string` -/
-  | TextV (s : String)
+  | TextV (s : text)
   /-- `StructV of valuefield list` -/
   | StructV (fields : List (atom × info value' vnote region))
   /-- `CaseV of valuecase` -/

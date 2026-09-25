@@ -228,17 +228,17 @@ def objectState.al : Lang.Al.def := Q.d (.ExternTypD (Q.i "objectState") [])
 mutual
 
 inductive fieldValue where
-  | semi (value : NanoP4Spec.value) (nameIR : String)
+  | semi (value : NanoP4Spec.value) (nameIR : P4SpecTec.ByteText)
 
 inductive value where
   | W (n : Nat) (i : Int)
   | S (n : Nat) (i : Int)
   | _B (b : Bool)
-  | MATCH_KIND_dot (nameIR : String)
-  | STRUCT_lbrace_rbrace (typeId : String) (fieldValue : List NanoP4Spec.fieldValue)
-  | HEADER_lbrace_rbrace (typeId : String) (fieldValue : List NanoP4Spec.fieldValue)
-  | PACKET (typeId : String) (objectState : NanoP4Spec.objectState)
-  | TABLE (nameIR : String) (tableProperties : NanoP4Spec.tableProperties)
+  | MATCH_KIND_dot (nameIR : P4SpecTec.ByteText)
+  | STRUCT_lbrace_rbrace (typeId : P4SpecTec.ByteText) (fieldValue : List NanoP4Spec.fieldValue)
+  | HEADER_lbrace_rbrace (typeId : P4SpecTec.ByteText) (fieldValue : List NanoP4Spec.fieldValue)
+  | PACKET (typeId : P4SpecTec.ByteText) (objectState : NanoP4Spec.objectState)
+  | TABLE (nameIR : P4SpecTec.ByteText) (tableProperties : NanoP4Spec.tableProperties)
 
 end
 

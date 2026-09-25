@@ -14,8 +14,10 @@ The builtin dispatcher on IL values, for the interpreter. Mirrors
 entry decoding its arguments as the OCaml builtin does (`Value.Get`,
 `bigint_of_value`, `set_of_value`, `map_of_value`, `bits_of_value`),
 calling the port of the same file under `Interface/Builtin/`, and
-encoding the result (`Value.Make`, `value_of_set`, ...). A failure the
-OCaml reports as a `BuiltinError`, an `error` or an assertion is `none`.
+encoding the result (`Value.Make`, `value_of_set`, ...). The legacy `invoke`
+erases failure kinds to `none`; `invokeWithHints` distinguishes retryable
+arity failures from hard text-operation failures and printer exceptions.
+The remaining builtin families still use the legacy failure classification.
 The `add` callback that registers fresh values upstream and `fresh_typeId`
 (stateful) are not mirrored; of the interface-specific extension entries,
 `print_` (Nano-P4's and P4's printer, `Interface/P4/Unparse.lean`) is.
@@ -99,7 +101,8 @@ def pair2 (v : value) : Option (value × value) := do
 def invoke (id : String) (targs : List typ) (args : List value) : Option value := do
   match id, targs, args with
   -- the extension entry of the P4 interfaces
-  | "print_", _, [v] => Make.text <$> (P4.Unparse.printWithHints [] v).toOption
+  | "print_", _, [v] =>
+    (Make.text ∘ ByteText.ofString) <$> (P4.Unparse.printWithHints [] v).toOption
   -- Nats
   | "sum_nat", _, [v] => do pure (Make.nat (Nats.sum_nat (← (← Get.list v).mapM nat_of_value)))
   | "max_nat", _, [v] => do pure (Make.nat (← Nats.max_nat (← (← Get.list v).mapM nat_of_value)))
@@ -110,7 +113,8 @@ def invoke (id : String) (targs : List typ) (args : List value) : Option value :
   | "min_int", _, [v] => do pure (Make.int (Ints.min_int (← (← Get.list v).mapM int_of_value)))
   -- Texts
   | "text_to_int", _, [v] => do pure (Make.int (← Texts.text_to_int (← Get.text v)))
-  | "int_to_text", _, [v] => do pure (Make.text (Num.string_of_num (← Get.num v)))
+  | "int_to_text", _, [v] =>
+    do pure (Make.text (ByteText.ofString (Num.string_of_num (← Get.num v))))
   | "split_text", _, [s, sep] => do
     let parts ← Texts.split_text (← Get.text s) (← Get.text sep)
     pure (Make.list (.IterT (mkPhrase .BoolT) .List) (parts.map Make.text))
@@ -206,12 +210,27 @@ where
   /-- The `nat` type. -/
   Typ_nat : typ := mkPhrase (.NumT .NatT)
 
-/-- The interface-specific print extension with the spec's validated hint
-table. Printer exceptions are errors, distinct from a builtin mismatch. -/
+/-- Check text arity before using the legacy result decoder. Upstream's
+`Extract` arity errors are retryable; `Value.Get` runtime errors and exceptions
+inside a correctly applied text operation are hard errors. -/
+private def invokeText (id : String) (arity : Nat) (targs : List typ)
+    (args : List value) : Except String (Option value) := do
+  if !targs.isEmpty || args.length != arity then return none
+  match invoke id targs args with
+  | some v => pure (some v)
+  | none => throw s!"text builtin {id} failed"
+
+/-- Checked text dispatch and the interface-specific print extension with
+the spec's validated hints. Other builtin families retain legacy dispatch. -/
 def invokeWithHints (henv : P4.Unparse.HEnv) (id : String) (targs : List typ)
     (args : List value) : Except String (Option value) :=
   match id, args with
-  | "print_", [v] => (some ∘ Make.text) <$> P4.Unparse.printWithHints henv v
+  | "print_", [v] =>
+    (some ∘ Make.text ∘ ByteText.ofString) <$> P4.Unparse.printWithHints henv v
+  | "text_to_int", _ | "int_to_text", _ | "strip_all_whitespace", _ =>
+    invokeText id 1 targs args
+  | "split_text", _ | "strip_prefix", _ | "strip_suffix", _ =>
+    invokeText id 2 targs args
   | _, _ => pure (invoke id targs args)
 
 end P4SpecTec.Builtin.Call

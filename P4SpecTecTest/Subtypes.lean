@@ -154,6 +154,7 @@ run_cmd do
   let callList ← castText <| Exp.castUp listBox listSum
     (.atom "[Box._C 1, Box._C 2]")
   let q := "P4SpecTecTest.Subtypes."
+  let textX := "(P4SpecTec.ByteText.ofString \"x\")"
   let checks := [
     s!"#guard (match {q}{Types.upName boxNat sumNat} (Box._C 7) with " ++
       "| Sum._C n => n == 7 | _ => false)",
@@ -163,11 +164,11 @@ run_cmd do
       "| none => true | _ => false)",
     s!"#guard {q}{Types.isName boxNat sumNat} (Sum._C 7)",
     s!"#guard !{q}{Types.isName boxNat sumNat} Sum._D",
-    s!"#guard (match {q}{Types.upName boxText sumText} (Box._C \"x\") with " ++
-      "| Sum._C s => s == \"x\" | _ => false)",
-    s!"#guard (match {q}{Types.downName boxText sumText} (Sum._C \"x\") with " ++
-      "| some (Box._C s) => s == \"x\" | _ => false)",
-    s!"#guard {q}{Types.isName boxText sumText} (Sum._C \"x\")",
+    s!"#guard (match {q}{Types.upName boxText sumText} (Box._C {textX}) with " ++
+      s!"| Sum._C s => s == {textX} | _ => false)",
+    s!"#guard (match {q}{Types.downName boxText sumText} (Sum._C {textX}) with " ++
+      s!"| some (Box._C s) => s == {textX} | _ => false)",
+    s!"#guard {q}{Types.isName boxText sumText} (Sum._C {textX})",
     s!"#guard (match {q}{Types.upName (varT "Box" [varT "NatAlias"]) sumNat} " ++
       "(Box._C 7) with | Sum._C n => n == 7 | _ => false)",
     s!"#guard (match {callUp} with | Sum._C n => n == 7 | _ => false)",

@@ -125,7 +125,7 @@ partial def exp (e : Lang.Il.exp) : Term := .call "Q.e" [exp' e.it, typ' e.note]
 partial def exp' : Lang.Il.exp' → Term
   | .BoolE b => .call ".BoolE" [.atom (toString b)]
   | .NumE n => .call ".NumE" [num n]
-  | .TextE s => .call ".TextE" [str s]
+  | .TextE s => .call ".TextE" [.textLit s]
   | .VarE i => .call ".VarE" [.call "Q.i" [str i.it]]
   | .UnE o ot a => .call ".UnE" [op o, op ot, exp a]
   | .BinE o ot a b => .call ".BinE" [op o, op ot, exp a, exp b]
