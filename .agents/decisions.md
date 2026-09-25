@@ -8,10 +8,24 @@ settles is not repeated here.
 
 ## Pins
 
-- **P4-SpecTec is pinned at `2730cfd9`** (2026-09-22, "Merge pull request
-  #320 from kaist-plrg/fix-batch-1"), the head of `main` when the project
-  started, with green upstream CI. Bumped by moving the submodule and
-  re-running the exports and the mirror checks. (2026-09-25)
+- **P4-SpecTec is pinned at `8c8e0c6f`** (2026-09-17, "Merge branch 'main'
+  into gsoc-nano-spec"), the head of upstream's `gsoc-nano-spec` branch,
+  which is `main` as of 2026-09-17 plus the Nano-P4 frontend, test corpus
+  and nano-switch target. Reason: Nano-P4, the pilot, is not on `main` at
+  the previous pin `2730cfd9` (it lives on that branch, ten `main` commits
+  behind); the differential harness needs the nano frontend to boot
+  programs and upstream's `check` as the oracle. CI accepts a pin
+  reachable from `main` or from `gsoc-nano-spec`. Confidence: medium; the
+  branch could be rebased. Revisit when Nano-P4 lands on `main`: return
+  the pin there. Bumped by moving the submodule and re-running the exports
+  and the mirror checks. (2026-09-25)
+- **The Nano-P4 spec is a second submodule, `upstream/nano-p4-spec`, pinned
+  at `60dfd991`** (2026-09-08), the commit P4-SpecTec's branch references
+  as its nested `nano-p4/spec` submodule, from the public
+  `pacokwon/nano-p4-spec`. Reason: P4-SpecTec's nested submodule uses an
+  SSH URL, and the compiler takes spec files as inputs anyway (design
+  section 4.1). CI checks the pin is on that repository's `main`.
+  (2026-09-25)
 - **Lean `v4.34.1`, Batteries `v4.34.0`, no Mathlib.** The current stable
   release at project start; Batteries at the matching minor. Bumped
   together. (2026-09-25)
@@ -56,6 +70,18 @@ settles is not repeated here.
 - **Generated files carry a grep-able first line and a fixed option
   preamble**, and generated modules live in their own library. Reason:
   Aeneas, Sail and lean-mlir all converge on this. (2026-09-25)
+- **Mirror checks are `scripts/check-mirror.py`**, comparing the
+  constructor lists of each mirrored OCaml type with the Lean inductive
+  of the same name, per type rather than per file, because a `mutual`
+  block forces a declaration order the OCaml does not have. Polymorphic
+  variant unions are compared against the flattened Lean inductive.
+  (2026-09-25)
+- **The differential harness is Python** (`test/diff/run.py`), driving a
+  Lean executable (`nano-p4-run`) that decodes and runs; upstream's
+  verdicts are recorded next to the exported programs, so the gate needs
+  no OCaml. Reason: the harness only orchestrates and compares; recording
+  the oracle keeps CI to one toolchain. Settles design section 12.
+  (2026-09-25)
 
 ## Environment
 
@@ -83,6 +109,17 @@ settles is not repeated here.
 
 ## Generated code
 
+- **The compiler consumes the AL (`algo -json`), not the IL.** The AL is
+  the IL after upstream's algo pass: binding analysis rewrites every rule
+  and clause so that patterns are single-level, subtype injections are
+  explicit `if e <: T` / `let x = e as T` premises, and joint iterations
+  carry length guards; rule groups are split into a shared match and
+  paths. That pass (2.6k lines of OCaml) is exactly the middlend that
+  makes the spec algorithmic, and it is what the AL interpreter runs, so
+  consuming its output keeps codegen boring and the rung 3 semantics
+  aligned. The deep embedding mirrors `al/ast.ml` on top of `il/ast.ml`.
+  Supersedes the design's "IL" wording, which the design now reads as AL.
+  (2026-09-25)
 - **Generated Lean is emitted as text, one module per upstream spec
   file, committed under `NanoP4Spec/` and `P4Spec/`, and is the build
   input.** CI regenerates from the exports and fails on any diff;
@@ -94,8 +131,65 @@ settles is not repeated here.
   elaborate from JSON through a `spectec_import` command with a separate
   golden; that route bought nothing rung 3 does not already give.
   (2026-09-25, revised the same day)
-- **Per-file elaboration timing starts at M1**, with a tracked table,
-  and proof-checking time of generated theorems is measured from M2.
+- **Text is produced by the generator's own `Std.Format` printer, not by
+  building `Syntax` and running Lean's formatter.** Reason: the formatter
+  needs an elaboration environment and its line breaking depends on
+  width heuristics; a direct printer is deterministic, diff-stable and
+  keeps the 100-column limit. Keyword escaping still comes from Lean's
+  own token table (`scripts/gen-keywords.sh`). Refines the design's
+  section 4.1 wording. (2026-09-25)
+- **A recursive group that spans several spec files is emitted in the
+  module of the last file**, since a `mutual` block cannot cross files;
+  every other definition stays in its file's module, and modules import
+  each other in spec order. Nano-P4's typing relations form one such
+  group. (2026-09-25)
+- **Every generated function and run function takes `fuel : Nat` first,
+  and a recursive group consumes one unit per call.** M1 uses this
+  uniformly instead of the "structural first" ordering because
+  `partial_fixpoint` rejects the `<|>` backtracking of the executable
+  encoding (not monotone on `Option`), and structural recursion fails
+  wherever a rule recurses on a projected subterm (`e as T`). Counts at
+  M1: 12 recursive function groups, 8 recursive relation groups. Revisit
+  at M2 with the failure/divergence split, which makes `<|>` monotone
+  and allows `partial_fixpoint` without fuel; the run functions' fuel is
+  then removed. (2026-09-25)
+- **The `Prop` encoding of relations is generated at M2, not M1.** Its
+  hypotheses for function calls depend on the fuel decision above (a
+  hypothesis `f args = some r` needs a fuel today), so writing it now
+  would fix the wrong shape. M1 ships the executable encoding, validated
+  by rung 2. (2026-09-25)
+- **Equality and ordering on generated types go through their IL values**
+  (`valueEq`, `valueCompare`, via the generated `ToValue` instance), not
+  through derived `BEq`. Reason: Lean's `deriving BEq` on nested
+  inductives produces an opaque (`partial`) function that `decide` and
+  `rfl` cannot unfold, which M2's proofs would hit; value equality is
+  also exactly upstream's `Value.eq`, which the interpreter uses for
+  `=`. (2026-09-25)
+- **Encoders are structural, decoders take fuel.** `toValue` is generated
+  as a mutual block with one helper per nested container occurrence
+  (lists, options, tuples, and spec types applied to group members),
+  because structural recursion through `List.map` is not accepted;
+  `ofValue fuel` recurses on the untyped value and is auxiliary. Value
+  notes on generated values are dummies (`Value.varT "id"` without type
+  arguments, id 0, hash 0): notes are performance devices upstream.
+  (2026-09-25)
+- **The naming rule is frozen at the end of M1** as `P4SpecTec/Codegen/Names.lean`
+  documents: spec names verbatim, `«$f»` for functions, `R`/`R.run` for
+  relations, constructors from mixop atoms joined by `_`, `τX` for type
+  parameters, `«x*»` for iterated variables, and every reference to a
+  generated type, constructor, function or relation qualified with the
+  library name, because spec variables are conventionally named after
+  their types and would shadow them. Later changes are breaking (design
+  section 9). (2026-09-25)
+- **An `extern syntax` is `ExternValue`** (JSON the target owns, as
+  `ExternV` upstream) and **`extern dec`/`extern relation` are fields of a
+  generated class `Externs`**, an instance-implicit binder on every
+  definition that transitively calls one; target instances arrive at M3.
+  (2026-09-25)
+- **Per-file elaboration timing starts at M1**, with a tracked table
+  (`docs/timing-nano-p4.md`, from `scripts/time-elab.sh`, regenerated by
+  hand at checkpoints), and proof-checking time of generated theorems is
+  measured from M2.
   Reason: Isabelle's SpecTec backend needed constructor-capping passes on
   Wasm, which is smaller than P4; Sail's RISC-V Lean output is 175k
   lines; encoding choices are cheap to change only early. Supersedes the

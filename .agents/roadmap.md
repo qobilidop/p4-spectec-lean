@@ -10,7 +10,12 @@ active; an item becomes work only when the user scopes it.
 - A shallow embedding of P4 programs (program → Lean functions), proved
   correct against the generated deep semantics.
 - A P4 parser in Lean as a verified replacement for upstream's.
-- Upstreaming the JSON export patch.
+- Upstreaming the JSON export patch (`elab -json`, `algo -json`,
+  `nano parse -json`).
+- Returning the P4-SpecTec pin to upstream `main` once Nano-P4 lands there
+  (the pin follows `gsoc-nano-spec` today; decisions, "Pins").
+- Readability of generated code: fewer temporaries, flatter alternatives,
+  hard-wrapped headers. Not needed for correctness; wanted for review.
 
 Website, sequenced against the milestones (decisions, "Documentation"):
 

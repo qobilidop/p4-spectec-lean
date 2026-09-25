@@ -4,7 +4,10 @@ A compiler from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)'s
 IL to Lean 4, validated per definition against a Lean formalization of the
 IL, plus a small P4 primitives library.
 
-Status: design agreed, scaffolding in place, no code yet. The design is
+Status: milestone M1 done. The Nano-P4 specification (34 files, 161
+types, 76 functions, 77 relations) is rendered into Lean as executable
+definitions that kernel-check and agree with upstream's interpreter on
+all 78 programs of upstream's Nano-P4 corpus. The design is
 [`docs/design.md`](docs/design.md); the entry point for working here is
 [`AGENTS.md`](AGENTS.md).
 
@@ -18,7 +21,8 @@ Status: design agreed, scaffolding in place, no code yet. The design is
 | `NanoP4Spec/` | the pilot specification, generated from `exports/nano-p4.il.json` |
 | `P4Spec/` | the full P4 specification, generated from `exports/p4.il.json` |
 | `exports/` | committed JSON exports of the IL, the OCaml → Lean handoff |
-| `upstream/` | P4-SpecTec as a pinned submodule, and our patches to it |
+| `upstream/` | P4-SpecTec and the Nano-P4 spec as pinned submodules, and our patches |
+| `docs/` | the design and the elaboration-time table |
 | `test/diff/` | the differential-testing harness |
 | `scripts/` | the gates and the export scripts |
 | `docs/` | the design |
@@ -36,6 +40,10 @@ nix develop                      # Lean side: elan installs the toolchain lean-t
 lake build                       # the Lean packages
 scripts/check.sh                 # every gate CI runs; exit 0 is the verdict
 nix develop .#upstream           # OCaml side, only to rebuild P4-SpecTec and regenerate exports/
+scripts/build-upstream.sh        #   (in that shell) apply the patches and build p4spectec
+scripts/export-spec.sh nano-p4 upstream/nano-p4-spec   # regenerate exports/nano-p4.al.json
+scripts/export-program.sh        # re-boot the Nano-P4 corpus and record upstream's verdicts
+lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --update   # regenerate NanoP4Spec/
 ```
 
 Lean itself is installed by elan from `lean-toolchain`, not from nixpkgs,
