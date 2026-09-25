@@ -79,18 +79,23 @@ further. There are no function/relation raw-name collisions in this pin.
 
 The ordinary generator on the unchanged export now accepts print hints
 after validating their syntax and policy compatibility, then stops at
-indexed path updates. Independent probes report:
+byte-oriented text path updates. Independent probes report:
 
 | Component | Result |
 |---|---|
 | Print hints | 190 occurrences on 67 types; all decode, validate and emit a literal table |
-| Executable callable emission | 1,051 of 1,055 emit text; 4 reject |
-| Inductive relation emission | 255 of 256 emit text; 1 rejects |
+| Executable callable emission | 1,052 of 1,055 emit text; 3 reject |
+| Inductive relation emission | 256 of 256 emit text |
 | Subtype bridge emission | 567 of 567 instantiated pairs emit text (M3B; baseline 554) |
 
-The four callable failures are `$replace_text'`, `$replace_text_except'`
-and `Lvalue_write` (indexed or sliced path updates), and `$fresh_typeId`
-(no stateful builtin port). `Lvalue_write` also fails `Prop` emission.
+The three callable failures are `$replace_text'`, `$replace_text_except'`
+(byte-oriented text updates), and `$fresh_typeId` (no stateful builtin
+port). All four root-index list updates in `Lvalue_write` now emit in
+both encodings, preserving base/replacement/index evaluation order and
+hard bounds errors. Text needs a byte-preserving representation: Lean
+`String` requires valid UTF-8, while upstream replacement can produce
+invalid UTF-8 even from valid inputs. Nested and sliced path updates
+remain rejected; neither occurs among this pin's six indexed updates.
 The thirteen baseline bridge failures all had source `continueResult`.
 M3B's independent audits found the collector had erased its type
 arguments: after instantiation the shared `_CONT` payload is exactly the
@@ -144,8 +149,8 @@ whether to unfold aliases.
 
 These counts are from successful individual emission probes, before
 module assembly. The two largest type groups have 20 and 16 members.
-The successful executable and `Prop` probes alone total 109,169 lines
-(108,607 before specialized bridge names);
+The successful executable and `Prop` probes alone total 110,089 lines
+(109,169 before root-index list updates);
 this excludes types, value adapters, quotations and proofs. It is a
 partial text-volume measurement, not a final generated-library size.
 Final module placement and elaboration time remain unmeasured because

@@ -6424,7 +6424,7 @@
    "features": []},
   {"source": "upstream/p4-spectec/spec/0-aux/0.0-stdlib.watsup:71.1",
    "runEmission":
-   {"error": "path update with indexing is not supported (design section 5.4)"},
+   {"error": "byte-oriented text path updates are not supported (design 5.4)"},
    "propEmission": null,
    "name": "replace_text'",
    "kind": "FuncDecD",
@@ -6438,7 +6438,7 @@
    "features": []},
   {"source": "upstream/p4-spectec/spec/0-aux/0.0-stdlib.watsup:82.1",
    "runEmission":
-   {"error": "path update with indexing is not supported (design section 5.4)"},
+   {"error": "byte-oriented text path updates are not supported (design 5.4)"},
    "propEmission": null,
    "name": "replace_text_except'",
    "kind": "FuncDecD",
@@ -12387,10 +12387,8 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:100.1",
-   "runEmission":
-   {"error": "path update with indexing is not supported (design section 5.4)"},
-   "propEmission":
-   {"error": "path update with indexing is not supported (design section 5.4)"},
+   "runEmission": {"lines": 380, "bytes": 19581},
+   "propEmission": {"lines": 540, "bytes": 22503},
    "name": "Lvalue_write",
    "kind": "RelD",
    "features":

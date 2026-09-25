@@ -22,12 +22,41 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B print-hint stage
+## Active M3B indexed-list-update stage
+
+- Branch `m3b-indexed-updates`, based on print-hint PR #7 head `7c1bfec`.
+- Implement the four root-index list updates in `Lvalue_write`, preserving
+  base/replacement/index evaluation order and hard bounds errors.
+  Focused implementation/test builds and `lake test` passed. The full
+  `scripts/check.sh` exited 0 with no skipped gates, including the unchanged
+  Nano generator check, both differential legs, quotations and printer
+  fixtures. The census now has three callable failures and no relation
+  `Prop` emission failures; emission alone is not full-P4 elaboration.
+  Independent read-only review found no high/medium issues; its stale
+  milestone wording finding is fixed. Report:
+  `.agents/reviews/m3b-indexed-updates.md`. Tests elaborate synthetic
+  list updates; the four full-P4 updates are emission-only evidence.
+- Keep the two text updates rejected. Lean `String` contains a UTF-8
+  validity proof; OCaml byte replacement can produce invalid UTF-8 even
+  from valid inputs (`é`, replacing byte 0 with `X`). A character update
+  or a failed UTF-8 conversion would not implement upstream semantics.
+  A semantic-text representation inventory is underway before choosing
+  that substrate change; identifier strings are a separate concern.
+- Parallel isolated worktree:
+  `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`, branch
+  `m3b-fresh-state`, based on `7c1bfec`. GPT-6 Astra is implementing only
+  an explicit-state foundation and tests, not changing codegen/interpreter
+  yet. Failed branches and negation must retain consumed fresh IDs.
+- PR #6 passed remote CI and merged. PR #7 is independently reviewed,
+  locally green and awaiting remote CI. No source changes to either
+  published PR while subsequent work proceeds.
+
+## Completed print-hint checkpoint
 
 - Branch `m3b-print-hints`, based on subtype PR #6 head `b458a61`.
-- PR #5 passed remote CI and merged as `4df4954`. PR #6 is now based
-  on `main`, independently reviewed and locally green; remote CI is
-  pending. Preserve its meaningful implementation/workflow commits.
+- PR #5 passed remote CI and merged as `4df4954`; PR #6 passed remote
+  CI and merged as `351cf5d`, preserving its implementation/workflow
+  commits. PR #7 is awaiting remote CI.
 - Preserve full subtype applications through collection, bridge naming,
   signatures and placement. Two independent read-only audits found all
   thirteen failures are erased `continueResult<X>` arguments, not a need
@@ -193,8 +222,8 @@ completion gates: they remain blocked on the measured M3B–M3F work.
 - **Packet leg of rung 2** (nano-switch simulation) is M3 by the design
   ("target instances arrive with the packet leg"); the `Externs` class is
   generated, no instance exists yet.
-- Path updates with indexing (`e[p[i] = v]`) are rejected by codegen;
-  Nano-P4 has none. Needed for M3.
+- Root-index list updates are supported; text, nested and sliced path
+  updates remain rejected by codegen. Nano-P4 has none.
 - `fresh_typeId` (a stateful builtin) has no port; not used by Nano-P4.
 - `print` hints are supported under checked policy compatibility; a
   hinted-print refinement theorem still needs a stronger value/environment
