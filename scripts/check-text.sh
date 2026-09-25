@@ -20,6 +20,7 @@ for f in $(git -C "$root" ls-files -- '*.lean'); do
   if grep -nvE 'https?://' "$p" | awk -F: 'length($0) - length($1) - 1 > 100 {print; found=1} END {exit !found}' >/dev/null; then
     echo "[check-text] line over 100 characters: $f"; fail=1
   fi
+  case "$f" in scripts/*) continue ;; esac   # a script may load all of Lean on purpose
   if grep -nE '^import Lean$' "$p" >/dev/null; then
     echo "[check-text] bare 'import Lean': $f"; fail=1
   fi

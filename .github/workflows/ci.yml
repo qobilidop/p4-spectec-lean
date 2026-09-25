@@ -20,7 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          # The pinned P4-SpecTec checkout; its own p4c submodule is not needed.
+          # The pinned P4-SpecTec and Nano-P4 spec checkouts; P4-SpecTec's own
+          # nested submodules (p4c, nano-p4/spec) are not needed.
           submodules: true
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
       - uses: nix-community/cache-nix-action@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
@@ -42,7 +43,14 @@ jobs:
             lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-
       - name: Run the gate
         run: nix develop --command scripts/check.sh
-      - name: Upstream pin is on upstream main
+      # The pin follows upstream's `gsoc-nano-spec` branch until Nano-P4 lands
+      # on main (decisions: "Pins"); either ref makes the pin reachable.
+      - name: Upstream pin is on upstream main or the Nano-P4 branch
         run: |
-          git -C upstream/p4-spectec fetch --quiet origin main
-          git -C upstream/p4-spectec merge-base --is-ancestor HEAD origin/main
+          git -C upstream/p4-spectec fetch --quiet origin main gsoc-nano-spec
+          git -C upstream/p4-spectec merge-base --is-ancestor HEAD origin/main \
+            || git -C upstream/p4-spectec merge-base --is-ancestor HEAD origin/gsoc-nano-spec
+      - name: Nano-P4 spec pin is on its main
+        run: |
+          git -C upstream/nano-p4-spec fetch --quiet origin main
+          git -C upstream/nano-p4-spec merge-base --is-ancestor HEAD origin/main
