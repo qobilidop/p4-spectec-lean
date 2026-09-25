@@ -3,8 +3,17 @@
 # See docs/design.md section 6 for what each library holds.
 name = "p4spectec"
 version = "0.0.1"
+# Test and lint drivers are not default targets; `lake test` and `lake lint`
+# run them. Warnings fail the build through `lake build --wfail` in
+# scripts/check.sh, not through warningAsError, which would also rewrite the
+# severities that #guard_msgs tests observe.
 defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec"]
-moreLeanArgs = ["-DwarningAsError=true"]
+testDriver = "P4SpecTecTest"
+
+[leanOptions]
+# Every declaration in a client-importable library carries a docstring.
+linter.missingDocs = true
+linter.unusedSimpArgs = true
 
 [[require]]
 name = "batteries"
@@ -15,9 +24,12 @@ rev = "v4.34.0"
 [[lean_lib]]
 name = "P4SpecTec"
 
-# Test-only modules: mirror checks, prelude vs builtins, decode round-trips.
+# Test-only modules: mirror checks, prelude vs builtins, decode round-trips,
+# #guard_msgs files. Every module under P4SpecTecTest/ is built by `lake test`.
 [[lean_lib]]
 name = "P4SpecTecTest"
+globs = ["P4SpecTecTest", "P4SpecTecTest.+"]
+leanOptions = { linter.missingDocs = false }
 
 # P4 primitives for downstream users; independent of the generated specs.
 [[lean_lib]]

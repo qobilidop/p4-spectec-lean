@@ -57,7 +57,14 @@ scripts/build-upstream.sh   # build P4-SpecTec at the pin with our patches
 scripts/export-spec.sh      # regenerate exports/*.il.json
 ```
 
-Keep `main` green. Check exit codes, not output.
+Keep `main` green. Check exit codes, not output. CI
+(`.github/workflows/ci.yml`) runs the same `scripts/check.sh` after
+`lean-action` installs the toolchain and restores the `.lake` cache, and
+checks that the upstream submodule commit is on upstream `main`.
+
+To bump the upstream pin: move the submodule, rerun the exports and the
+mirror checks, re-read every module that mirrors a changed upstream file,
+and record the new commit in `.agents/decisions.md`.
 
 ## Conventions
 
@@ -75,6 +82,28 @@ Keep `main` green. Check exit codes, not output.
   submodule), the opam repository by commit (`scripts/build-upstream.sh`),
   Lean by `lean-toolchain`, Batteries by tag in `lakefile.toml`.
 - **JSON exports are committed**; generated Lean is not.
+- **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
+  (a warning fails, and a `sorry` is a warning), `lake test`, every module
+  imported by its library root, no trailing whitespace, Lean lines at most
+  100 characters, precise imports (no bare `import Lean`). Never set
+  `warningAsError` in Lake options; it rewrites the severities that
+  `#guard_msgs` tests observe.
+- **Docstrings on every declaration** in a client-importable library
+  (`linter.missingDocs` is on package-wide, off in the test library).
+  Modules open with a `/-! -/` docstring. A module that mirrors an
+  upstream file names it there.
+- **Naming.** Modules that mirror upstream OCaml keep upstream's names,
+  including `snake_case`, so the side-by-side audit holds. Our own code
+  (codegen, prelude, P4Lib) follows Lean style: `lowerCamelCase` for
+  definitions and theorems, `UpperCamelCase` for types and namespaces.
+- **Tests** are `#guard` and `#guard_msgs` files under `P4SpecTecTest/`,
+  built by `lake test`. Every advertised theorem, and every generated
+  validation theorem, is followed by a `#guard_msgs in #print axioms`
+  check naming its exact axiom set. `native_decide` is not used in
+  proofs: it adds the `Lean.ofReduceBool` axiom, which the audit rejects.
+- **Generated code** carries a grep-able first line naming the generator
+  and its input, and a fixed preamble of options. Generated modules live
+  in their own library so a default build can skip them.
 - **Every decision the design does not settle** goes in
   `.agents/decisions.md` under its topic, with reason and date, and with
   a confidence and revisit trigger when uncertain.

@@ -12,18 +12,21 @@ rungs 1 and 2) and needs the user's go-ahead.
 | Scope | Result | Revision |
 |---|---|---|
 | Design | agreed, `docs/design.md` | `051ce06` |
-| Scaffolding | Lake package, agent state, gate stubs, upstream submodule at the pin | this commit |
+| Scaffolding | Lake package, agent state, gate stubs, upstream submodule at the pin | `7d613a1` |
+| Engineering conventions | prior-art study applied: build flags, linters, test driver, CI, text and import checks | this commit |
 
-The library roots are doc-comment-only modules; `lake build` succeeds on
-them. `scripts/check.sh` checks layout, the absence of `CLAUDE.md`, that
-`docs/` does not link into `.agents/`, and runs the Lean build.
+The library roots are doc-comment-only modules plus one smoke test.
+`scripts/check.sh` checks layout, the absence of `CLAUDE.md`, that
+`docs/` does not link into `.agents/`, text hygiene, that every module is
+imported by its root, then `lake build --wfail` and `lake test`.
 
 ## Last checked evidence
 
-2026-09-25, at the scaffolding commit, `nix develop --command
-scripts/check.sh`: exit 0. Lean `v4.34.1` installed by elan, Batteries
-cloned at the revision `lake-manifest.json` records, all four libraries
-built. No differential test, export, or upstream build exists yet.
+2026-09-25, at the conventions commit, `nix develop --command
+scripts/check.sh`: exit 0. Lean `v4.34.1`, Batteries at the revision
+`lake-manifest.json` records, four libraries and the test library built,
+the smoke test's `#guard` and `#guard_msgs` pass. CI has not run yet (no
+remote). No differential test, export, or upstream build exists yet.
 
 ## Open threads
 
@@ -32,6 +35,13 @@ built. No differential test, export, or upstream build exists yet.
   then `P4SpecTec/IL/Ast.lean` mirroring `p4spec/lib/lang/il/ast.ml`.
 - Open points in `docs/design.md` section 10: harness language, fuel
   policy location, meta-circular spec, Lean version policy.
+- Awaiting the user's call from the prior-art study: whether emitted
+  Lean for the pilot is committed as a diffed golden; whether the
+  differential harness reuses upstream's `excludes/` lists; whether to
+  add a per-file elaboration timing script now or at M3.
+- Risk noted from Sail: a 246-constructor inductive elaborated slowly
+  (rems-project/sail#1049). The IL's larger variants will need a timing
+  check at M3.
 
 ## Blocked
 

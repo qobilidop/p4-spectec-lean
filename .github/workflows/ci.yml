@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The pinned P4-SpecTec checkout; its own p4c submodule is not needed.
+          submodules: true
+      # Installs elan, the toolchain from lean-toolchain, and caches .lake keyed
+      # on the toolchain and manifest. Building is left to scripts/check.sh so
+      # local and CI runs are the same command.
+      - uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-github-cache: true
+      - name: Run the gate
+        run: scripts/check.sh
+      - name: Upstream pin is on upstream main
+        run: |
+          git -C upstream/p4-spectec fetch --quiet origin main
+          git -C upstream/p4-spectec merge-base --is-ancestor HEAD origin/main
