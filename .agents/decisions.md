@@ -32,6 +32,25 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Land explicit fresh state as a bounded foundation before integrating
+  it.** The counter sits below failure and wraps as signed 63-bit OCaml
+  `int` on the pinned 64-bit platforms. Choice and negation retain consumed
+  IDs; reset is explicit. Confidence: high for this carrier/primitive,
+  independently checked against upstream and focused tests. Generator
+  mode, higher-order effects, state-indexed relations and refinement need
+  integration; never pretend a result-only theorem
+  proves post-state preservation. Audit: `.agents/notes/fresh-identifiers.md`.
+  (2026-09-25)
+- **Use uniform state for a spec declaring the fresh builtin, retaining
+  Nano's pure mode.** Mixed signatures require effect analysis across
+  callbacks/externs; uniform state avoids that unsound shortcut. Share
+  one effect-parameterized interpreter. Successful state-indexed rules
+  must account for earlier rejected attempts and ordered iterations;
+  refinement preserves final state on every terminating outcome. Plan:
+  `.agents/notes/state-integration.md`. Confidence: high in this direction,
+  medium in the precise proof API; revisit after the recursive proof
+  fixture and pure-specialization compatibility check. (2026-09-25)
+
 - **Warnings fail the build via `lake build --wfail`, not via
   `warningAsError` in Lake options.** The option rewrites severities at
   log time, so a `#guard_msgs` test expecting a warning would see an

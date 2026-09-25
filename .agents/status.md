@@ -22,7 +22,32 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B indexed-list-update stage
+## Active M3B fresh-state foundation
+
+- Branch `m3b-state-foundation`, based on list-update PR #8 head `3b8175f`.
+  The isolated experiment has been integrated without changing generated
+  definitions or interpreter behavior. `StateEval` retains allocations on
+  failures/negation and models the 63-bit signed counter. Twenty-four
+  computation checks and five audited run lemmas pass focused builds.
+- Independent read-only review passed; see
+  `.agents/reviews/m3b-fresh-state.md`. The full primary-worktree gate
+  exited 0, no skips: all Nano proofs rebuilt, generator output unchanged,
+  both differential legs, quotations, printer fixtures and census pass.
+  No generator, stateful refinement or memoization claim.
+- The integration direction is now recorded in
+  `.agents/notes/state-integration.md`: uniform full-spec state selected
+  structurally, one shared interpreter, state-indexed successful rules
+  with rejected-prefix evidence. The audit caught shared rule prefixes
+  that must rerun on each attempt before effects can be enabled.
+  A separate ignored scratch probe
+  demonstrated an Option-returning recursive allocator with
+  `partial_fixpoint` and an audited standard axiom set after adding two
+  monotonicity lemmas; this is not yet a committed API or full integration.
+- A ByteArray-backed semantic-text foundation is being implemented by
+  GPT-6 Sol in `/Users/qobilidop/my/work/p4-spectec-lean-byte-text`.
+  Keep identifier strings separate and conversions to UTF-8 checked.
+
+## Completed indexed-list-update checkpoint
 
 - Branch `m3b-indexed-updates`, based on print-hint PR #7 head `7c1bfec`.
 - Implement the four root-index list updates in `Lvalue_write`, preserving
@@ -42,11 +67,11 @@ correctness requirements or destructive published-history changes.
   or a failed UTF-8 conversion would not implement upstream semantics.
   A semantic-text representation inventory is underway before choosing
   that substrate change; identifier strings are a separate concern.
-- Parallel isolated worktree:
+- Original isolated worktree:
   `/Users/qobilidop/my/work/p4-spectec-lean-fresh-state`, branch
-  `m3b-fresh-state`, based on `7c1bfec`. GPT-6 Astra is implementing only
-  an explicit-state foundation and tests, not changing codegen/interpreter
-  yet. Failed branches and negation must retain consumed fresh IDs.
+  `m3b-fresh-state`, based on `7c1bfec`. Its explicit-state foundation
+  and tests have been integrated into the active branch above, with no
+  codegen/interpreter change. Failed branches and negation retain IDs.
 - PR #6 passed remote CI and merged. PR #7 is independently reviewed,
   locally green and awaiting remote CI. No source changes to either
   published PR while subsequent work proceeds.
