@@ -18,24 +18,24 @@ jobs:
     name: Gate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The pinned P4-SpecTec and Nano-P4 spec checkouts; P4-SpecTec's own
           # nested submodules (p4c, nano-p4/spec) are not needed.
           submodules: true
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
-      - uses: nix-community/cache-nix-action@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
+      - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-
           gc-max-store-size-linux: 2G
       # The flake provides elan, not Lean; elan installs the toolchain that
       # lean-toolchain names into ~/.elan on first use. Cache it by that pin.
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.elan
           key: elan-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
-      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-${{ github.sha }}
