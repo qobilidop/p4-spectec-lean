@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.01-typing-relation»
 
 /-! # NanoP4Spec.«5.02-typing-type»
@@ -1291,6 +1294,9 @@ theorem VarDecl_ok.run_sound
 
 #audit_axioms NanoP4Spec.VarDecl_ok.run_sound
 
+-- no determinism theorem: VarDecl_ok
+--   calls Type_ok, which has no determinism theorem
+
 def VarDecl_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -1564,6 +1570,9 @@ theorem ParserTransition_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserTransition_ok.run_sound
+
+-- no determinism theorem: ParserTransition_ok
+--   2 rule paths
 
 def ParserTransition_ok.al : Lang.Al.def :=
   Q.d

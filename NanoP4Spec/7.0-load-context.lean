@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.13-typing-call-convention»
 
 /-! # NanoP4Spec.«7.0-load-context»
@@ -65,6 +68,26 @@ def actionDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.ac
 
 instance : OfValue NanoP4Spec.actionDeclarationIR := ⟨NanoP4Spec.actionDeclarationIR.ofValue⟩
 
+def actionDeclarationIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "actionDeclarationIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "actionDeclarationIR"
+                []]))
+       [])
+
 inductive parserDeclarationIR where
   | PARSER_lparen_rparen_lbrace_rbrace
       (nameIR : NanoP4Spec.nameIR)
@@ -115,6 +138,31 @@ def parserDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.pa
     | _ => none
 
 instance : OfValue NanoP4Spec.parserDeclarationIR := ⟨NanoP4Spec.parserDeclarationIR.ofValue⟩
+
+def parserDeclarationIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserDeclarationIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])),
+                          .Arg (Q.t (Q.varT "parserStateList" []))])
+                      (Q.a .RBrace)])
+                "parserDeclarationIR"
+                []]))
+       [])
 
 inductive controlDeclarationIR where
   | CONTROL_lparen_rparen_lbrace_APPLY_rbrace
@@ -169,6 +217,32 @@ def controlDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.c
     | _ => none
 
 instance : OfValue NanoP4Spec.controlDeclarationIR := ⟨NanoP4Spec.controlDeclarationIR.ofValue⟩
+
+def controlDeclarationIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "controlDeclarationIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "controlLocalDeclarationList" [])),
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Arg (Q.t (Q.varT "controlBody" []))])
+                      (Q.a .RBrace)])
+                "controlDeclarationIR"
+                []]))
+       [])
 
 inductive callableDef where
   | ACTION_lparen_rparen
@@ -289,6 +363,59 @@ def callableDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDe
 
 instance : OfValue NanoP4Spec.callableDef := ⟨NanoP4Spec.callableDef.ofValue⟩
 
+def callableDef.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callableDef")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "actionDeclarationIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])),
+                          .Arg (Q.t (Q.varT "parserStateList" []))])
+                      (Q.a .RBrace)])
+                "parserDeclarationIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "controlLocalDeclarationList" [])),
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Arg (Q.t (Q.varT "controlBody" []))])
+                      (Q.a .RBrace)])
+                "controlDeclarationIR"
+                []]))
+       [])
+
 abbrev callableDefEnv : Type := NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableDef
 
 def callableDefEnv.toValue (x : NanoP4Spec.callableDefEnv) : Lang.Il.value := ToValue.toValue x
@@ -301,6 +428,16 @@ def callableDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callabl
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.callableDefEnv := ⟨NanoP4Spec.callableDefEnv.ofValue⟩
+
+def callableDefEnv.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callableDefEnv")
+       []
+       (Q.dt
+          (.PlainT
+             (Q.t (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableDef" [])]))))
+       [])
 
 structure globalLoadLayer where
   CALLABLE_TYPE : NanoP4Spec.callableTypeDefEnv
@@ -334,6 +471,20 @@ def globalLoadLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.global
 
 instance : OfValue NanoP4Spec.globalLoadLayer := ⟨NanoP4Spec.globalLoadLayer.ofValue⟩
 
+def globalLoadLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "globalLoadLayer")
+       []
+       (Q.dt
+          (.StructT
+             [(Q.a (.Keyword "CALLABLE_TYPE"), Q.t (Q.varT "callableTypeDefEnv" [])),
+              (Q.a (.Keyword "CALLABLE"), Q.t (Q.varT "callableDefEnv" [])),
+              (Q.a (.Keyword "PARSER"), Q.t (.IterT (Q.t (Q.varT "parserDeclarationIR" [])) .Opt)),
+              (Q.a (.Keyword "CONTROL"),
+               Q.t (.IterT (Q.t (Q.varT "controlDeclarationIR" [])) .Opt))]))
+       [])
+
 abbrev loadContext : Type := NanoP4Spec.globalLoadLayer
 
 def loadContext.toValue (x : NanoP4Spec.loadContext) : Lang.Il.value := ToValue.toValue x
@@ -346,6 +497,9 @@ def loadContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.loadContex
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.loadContext := ⟨NanoP4Spec.loadContext.ofValue⟩
+
+def loadContext.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "loadContext") [] (Q.dt (.PlainT (Q.t (Q.varT "globalLoadLayer" [])))) [])
 
 def parserDeclarationIR.to_callableDef : NanoP4Spec.parserDeclarationIR → NanoP4Spec.callableDef
   | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 =>

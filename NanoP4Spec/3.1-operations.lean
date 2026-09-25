@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«3.0-value»
 
 /-! # NanoP4Spec.«3.1-operations»
@@ -26,29 +29,80 @@ def «$bitstr_to_int» (p0 : Int) (p1 : Int) : Option (Except Fail Int) :=
   ExceptT.run
     (Eval.unmatch? (Builtin.Numerics.bitstr_to_int p0 p1))
 
+def «$bitstr_to_int».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "bitstr_to_int")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .IntT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (.NumT .IntT))
+       [])
+
 def «$int_to_bitstr» (p0 : Int) (p1 : Int) : Option (Except Fail Int) :=
   ExceptT.run
     (Eval.unmatch? (Builtin.Numerics.int_to_bitstr p0 p1))
+
+def «$int_to_bitstr».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "int_to_bitstr")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .IntT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (.NumT .IntT))
+       [])
 
 def «$pow2» (p0 : Nat) : Option (Except Fail Int) :=
   ExceptT.run
     (pure (Builtin.Numerics.pow2 (Int.ofNat p0)))
 
+def «$pow2».al : Lang.Al.def :=
+  Q.d (.BuiltinDecD (Q.i "pow2") [] [Q.pm (.ExpP (Q.t (.NumT .NatT)))] (Q.t (.NumT .IntT)) [])
+
 def «$bneg» (p0 : Int) : Option (Except Fail Int) :=
   ExceptT.run
     (pure (Builtin.Numerics.bneg p0))
+
+def «$bneg».al : Lang.Al.def :=
+  Q.d (.BuiltinDecD (Q.i "bneg") [] [Q.pm (.ExpP (Q.t (.NumT .IntT)))] (Q.t (.NumT .IntT)) [])
 
 def «$band» (p0 : Int) (p1 : Int) : Option (Except Fail Int) :=
   ExceptT.run
     (pure (Builtin.Numerics.band p0 p1))
 
+def «$band».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "band")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .IntT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (.NumT .IntT))
+       [])
+
 def «$bxor» (p0 : Int) (p1 : Int) : Option (Except Fail Int) :=
   ExceptT.run
     (pure (Builtin.Numerics.bxor p0 p1))
 
+def «$bxor».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "bxor")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .IntT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (.NumT .IntT))
+       [])
+
 def «$bor» (p0 : Int) (p1 : Int) : Option (Except Fail Int) :=
   ExceptT.run
     (pure (Builtin.Numerics.bor p0 p1))
+
+def «$bor».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "bor")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .IntT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (.NumT .IntT))
+       [])
 
 def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
     : Option (Except Fail NanoP4Spec.value) :=

@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«8.10-eval-control»
 
 /-! # NanoP4Spec.«8.11-eval-table»
@@ -56,6 +59,9 @@ theorem TableKey_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.TableKey_eval.run_sound
+
+-- no determinism theorem: TableKey_eval
+--   calls Expr_eval, which has no determinism theorem
 
 def TableKey_eval.al : Lang.Al.def :=
   Q.d

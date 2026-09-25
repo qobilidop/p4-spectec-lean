@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«0-stdlib»
 
 /-! # NanoP4Spec.«1-syntax»
@@ -55,6 +58,17 @@ def booleanLiteral.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.boolean
 
 instance : OfValue NanoP4Spec.booleanLiteral := ⟨NanoP4Spec.booleanLiteral.ofValue⟩
 
+def booleanLiteral.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "booleanLiteral")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "TRUE"))) "booleanLiteral" [],
+              Q.tc (.Atom (Q.a (.Keyword "FALSE"))) "booleanLiteral" []]))
+       [])
+
 inductive integerLiteral where
   | W (n : Nat) (i : Int)
   | S (n : Nat) (i : Int)
@@ -100,6 +114,25 @@ def integerLiteral.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integer
 
 instance : OfValue NanoP4Spec.integerLiteral := ⟨NanoP4Spec.integerLiteral.ofValue⟩
 
+def integerLiteral.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "integerLiteral")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                []]))
+       [])
+
 inductive identifier where
   | _ID (s : String)
 
@@ -126,6 +159,14 @@ def identifier.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.identifier
 
 instance : OfValue NanoP4Spec.identifier := ⟨NanoP4Spec.identifier.ofValue⟩
 
+def identifier.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "identifier")
+       []
+       (Q.dt (.VariantT [Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" []]))
+       [])
+
 inductive typeIdentifier where
   | _TID (s : String)
 
@@ -151,6 +192,16 @@ def typeIdentifier.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeIde
     | _ => none
 
 instance : OfValue NanoP4Spec.typeIdentifier := ⟨NanoP4Spec.typeIdentifier.ofValue⟩
+
+def typeIdentifier.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeIdentifier")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Seq [.Atom (Q.a (.Tag "TID")), .Arg (Q.t .TextT)]) "typeIdentifier" []]))
+       [])
 
 inductive nonTypeName where
   | _ID (s : String)
@@ -214,6 +265,20 @@ def nonTypeName.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nonTypeNam
 
 instance : OfValue NanoP4Spec.nonTypeName := ⟨NanoP4Spec.nonTypeName.ofValue⟩
 
+def nonTypeName.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "nonTypeName")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" []]))
+       [])
+
 abbrev typeName : Type := NanoP4Spec.typeIdentifier
 
 def typeName.toValue (x : NanoP4Spec.typeName) : Lang.Il.value := ToValue.toValue x
@@ -227,6 +292,9 @@ def typeName.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeName
 
 instance : OfValue NanoP4Spec.typeName := ⟨NanoP4Spec.typeName.ofValue⟩
 
+def typeName.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "typeName") [] (Q.dt (.PlainT (Q.t (Q.varT "typeIdentifier" [])))) [])
+
 abbrev name : Type := NanoP4Spec.nonTypeName
 
 def name.toValue (x : NanoP4Spec.name) : Lang.Il.value := ToValue.toValue x
@@ -239,6 +307,9 @@ def name.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.name
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.name := ⟨NanoP4Spec.name.ofValue⟩
+
+def name.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "name") [] (Q.dt (.PlainT (Q.t (Q.varT "nonTypeName" [])))) [])
 
 inductive nameList where
   | _ID (s : String)
@@ -319,6 +390,27 @@ def nameList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nameList
 
 instance : OfValue NanoP4Spec.nameList := ⟨NanoP4Spec.nameList.ofValue⟩
 
+def nameList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "nameList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "nameList" [])),
+                    .Atom (Q.a (.Operator ",")),
+                    .Arg (Q.t (Q.varT "name" []))])
+                "nameList"
+                []]))
+       [])
+
 abbrev member : Type := NanoP4Spec.name
 
 def member.toValue (x : NanoP4Spec.member) : Lang.Il.value := ToValue.toValue x
@@ -331,6 +423,9 @@ def member.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.member
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.member := ⟨NanoP4Spec.member.ofValue⟩
+
+def member.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "member") [] (Q.dt (.PlainT (Q.t (Q.varT "name" [])))) [])
 
 inductive direction where
   | _EMPTY
@@ -381,6 +476,19 @@ def direction.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.direction
     | _ => none
 
 instance : OfValue NanoP4Spec.direction := ⟨NanoP4Spec.direction.ofValue⟩
+
+def direction.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "direction")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "direction" [],
+              Q.tc (.Atom (Q.a (.Keyword "IN"))) "direction" [],
+              Q.tc (.Atom (Q.a (.Keyword "OUT"))) "direction" [],
+              Q.tc (.Atom (Q.a (.Keyword "INOUT"))) "direction" []]))
+       [])
 
 inductive integerType where
   | BIT_langle_rangle (i : Int)
@@ -438,6 +546,27 @@ def integerType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integerTyp
     | _ => none
 
 instance : OfValue NanoP4Spec.integerType := ⟨NanoP4Spec.integerType.ofValue⟩
+
+def integerType.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "integerType")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "BIT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .IntT))) (Q.a .RAngle)])
+                "integerType"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "INT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .IntT))) (Q.a .RAngle)])
+                "integerType"
+                []]))
+       [])
 
 inductive baseType where
   | BIT_langle_rangle (i : Int)
@@ -514,6 +643,29 @@ def baseType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseType
 
 instance : OfValue NanoP4Spec.baseType := ⟨NanoP4Spec.baseType.ofValue⟩
 
+def baseType.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "baseType")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "BIT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .IntT))) (Q.a .RAngle)])
+                "integerType"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "INT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .IntT))) (Q.a .RAngle)])
+                "integerType"
+                [],
+              Q.tc (.Atom (Q.a (.Keyword "BOOL"))) "baseType" [],
+              Q.tc (.Atom (Q.a (.Keyword "MATCH_KIND"))) "baseType" []]))
+       [])
+
 abbrev namedType : Type := NanoP4Spec.typeName
 
 def namedType.toValue (x : NanoP4Spec.namedType) : Lang.Il.value := ToValue.toValue x
@@ -526,6 +678,9 @@ def namedType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.namedType
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.namedType := ⟨NanoP4Spec.namedType.ofValue⟩
+
+def namedType.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "namedType") [] (Q.dt (.PlainT (Q.t (Q.varT "typeName" [])))) [])
 
 inductive type where
   | BIT_langle_rangle (i : Int)
@@ -613,6 +768,30 @@ def type.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.type
 
 instance : OfValue NanoP4Spec.type := ⟨NanoP4Spec.type.ofValue⟩
 
+def type.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "type")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "BIT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .IntT))) (Q.a .RAngle)])
+                "integerType"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "INT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .IntT))) (Q.a .RAngle)])
+                "integerType"
+                [],
+              Q.tc (.Atom (Q.a (.Keyword "BOOL"))) "baseType" [],
+              Q.tc (.Atom (Q.a (.Keyword "MATCH_KIND"))) "baseType" [],
+              Q.tc (.Seq [.Atom (Q.a (.Tag "TID")), .Arg (Q.t .TextT)]) "typeIdentifier" []]))
+       [])
+
 inductive parameter where
   | mk (direction : NanoP4Spec.direction) (type : NanoP4Spec.type) (name : NanoP4Spec.name)
 
@@ -640,6 +819,22 @@ def parameter.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parameter
     | _ => none
 
 instance : OfValue NanoP4Spec.parameter := ⟨NanoP4Spec.parameter.ofValue⟩
+
+def parameter.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parameter")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "direction" [])),
+                    .Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" []))])
+                "parameter"
+                []]))
+       [])
 
 inductive nonEmptyParameterList where
   | mk (direction : NanoP4Spec.direction) (type : NanoP4Spec.type) (name : NanoP4Spec.name)
@@ -686,6 +881,29 @@ def nonEmptyParameterList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
     | _ => none
 
 instance : OfValue NanoP4Spec.nonEmptyParameterList := ⟨NanoP4Spec.nonEmptyParameterList.ofValue⟩
+
+def nonEmptyParameterList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "nonEmptyParameterList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "direction" [])),
+                    .Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" []))])
+                "parameter"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "nonEmptyParameterList" [])),
+                    .Atom (Q.a (.Operator ",")),
+                    .Arg (Q.t (Q.varT "parameter" []))])
+                "nonEmptyParameterList"
+                []]))
+       [])
 
 inductive parameterList where
   | _EMPTY
@@ -740,6 +958,30 @@ def parameterList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.paramete
     | _ => none
 
 instance : OfValue NanoP4Spec.parameterList := ⟨NanoP4Spec.parameterList.ofValue⟩
+
+def parameterList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parameterList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "parameterList" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "direction" [])),
+                    .Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" []))])
+                "parameter"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "nonEmptyParameterList" [])),
+                    .Atom (Q.a (.Operator ",")),
+                    .Arg (Q.t (Q.varT "parameter" []))])
+                "nonEmptyParameterList"
+                []]))
+       [])
 
 inductive literalExpression where
   | TRUE
@@ -806,6 +1048,27 @@ def literalExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.lite
 
 instance : OfValue NanoP4Spec.literalExpression := ⟨NanoP4Spec.literalExpression.ofValue⟩
 
+def literalExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "literalExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "TRUE"))) "booleanLiteral" [],
+              Q.tc (.Atom (Q.a (.Keyword "FALSE"))) "booleanLiteral" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                []]))
+       [])
+
 abbrev referenceExpression : Type := NanoP4Spec.name
 
 def referenceExpression.toValue (x : NanoP4Spec.referenceExpression) : Lang.Il.value :=
@@ -819,6 +1082,9 @@ def referenceExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.re
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.referenceExpression := ⟨NanoP4Spec.referenceExpression.ofValue⟩
+
+def referenceExpression.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "referenceExpression") [] (Q.dt (.PlainT (Q.t (Q.varT "name" [])))) [])
 
 inductive unop where
   | bang
@@ -869,6 +1135,19 @@ def unop.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.unop
     | _ => none
 
 instance : OfValue NanoP4Spec.unop := ⟨NanoP4Spec.unop.ofValue⟩
+
+def unop.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "unop")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Operator "!"))) "unop" [],
+              Q.tc (.Atom (Q.a (.Operator "~"))) "unop" [],
+              Q.tc (.Atom (Q.a (.Operator "-"))) "unop" [],
+              Q.tc (.Atom (Q.a (.Operator "+"))) "unop" []]))
+       [])
 
 inductive binop where
   | star
@@ -1014,6 +1293,29 @@ def binop.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.binop
 
 instance : OfValue NanoP4Spec.binop := ⟨NanoP4Spec.binop.ofValue⟩
 
+def binop.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "binop")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Operator "*"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "+"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "-"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "<="))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator ">="))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "<"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator ">"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "!="))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "=="))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "&"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "^"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "|"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "&&"))) "binop" [],
+              Q.tc (.Atom (Q.a (.Operator "||"))) "binop" []]))
+       [])
+
 abbrev callTarget : Type := NanoP4Spec.namedType
 
 def callTarget.toValue (x : NanoP4Spec.callTarget) : Lang.Il.value := ToValue.toValue x
@@ -1026,6 +1328,9 @@ def callTarget.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callTarget
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.callTarget := ⟨NanoP4Spec.callTarget.ofValue⟩
+
+def callTarget.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "callTarget") [] (Q.dt (.PlainT (Q.t (Q.varT "namedType" [])))) [])
 
 mutual
 
@@ -1725,6 +2030,189 @@ instance : OfValue NanoP4Spec.argumentListNonEmpty := ⟨NanoP4Spec.argumentList
 
 instance : OfValue NanoP4Spec.argumentList := ⟨NanoP4Spec.argumentList.ofValue⟩
 
+def expression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "expression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "TRUE"))) "booleanLiteral" [],
+              Q.tc (.Atom (Q.a (.Keyword "FALSE"))) "booleanLiteral" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" [],
+              Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "unop" [])), .Arg (Q.t (Q.varT "expression" []))])
+                "unaryExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "expression" [])),
+                    .Arg (Q.t (Q.varT "binop" [])),
+                    .Arg (Q.t (Q.varT "expression" []))])
+                "binaryExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "memberAccessBase" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "member" []))])
+                "memberAccessExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "callTarget" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen)])
+                "callExpression"
+                [],
+              Q.tc
+                (.Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen))
+                "parenthesizedExpression"
+                []]))
+       [])
+
+def memberAccessBase.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "memberAccessBase") [] (Q.dt (.PlainT (Q.t (Q.varT "expression" [])))) [])
+
+def argument.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "argument") [] (Q.dt (.PlainT (Q.t (Q.varT "expression" [])))) [])
+
+def argumentListNonEmpty.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "argumentListNonEmpty")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "TRUE"))) "booleanLiteral" [],
+              Q.tc (.Atom (Q.a (.Keyword "FALSE"))) "booleanLiteral" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" [],
+              Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "unop" [])), .Arg (Q.t (Q.varT "expression" []))])
+                "unaryExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "expression" [])),
+                    .Arg (Q.t (Q.varT "binop" [])),
+                    .Arg (Q.t (Q.varT "expression" []))])
+                "binaryExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "memberAccessBase" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "member" []))])
+                "memberAccessExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "callTarget" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen)])
+                "callExpression"
+                [],
+              Q.tc
+                (.Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen))
+                "parenthesizedExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "argumentListNonEmpty" [])),
+                    .Atom (Q.a (.Operator ",")),
+                    .Arg (Q.t (Q.varT "argument" []))])
+                "argumentListNonEmpty"
+                []]))
+       [])
+
+def argumentList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "argumentList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "argumentList" [],
+              Q.tc (.Atom (Q.a (.Keyword "TRUE"))) "booleanLiteral" [],
+              Q.tc (.Atom (Q.a (.Keyword "FALSE"))) "booleanLiteral" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" [],
+              Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "unop" [])), .Arg (Q.t (Q.varT "expression" []))])
+                "unaryExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "expression" [])),
+                    .Arg (Q.t (Q.varT "binop" [])),
+                    .Arg (Q.t (Q.varT "expression" []))])
+                "binaryExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "memberAccessBase" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "member" []))])
+                "memberAccessExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "callTarget" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen)])
+                "callExpression"
+                [],
+              Q.tc
+                (.Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen))
+                "parenthesizedExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "argumentListNonEmpty" [])),
+                    .Atom (Q.a (.Operator ",")),
+                    .Arg (Q.t (Q.varT "argument" []))])
+                "argumentListNonEmpty"
+                []]))
+       [])
+
 inductive unaryExpression where
   | mk (unop : NanoP4Spec.unop) (expression : NanoP4Spec.expression)
 
@@ -1749,6 +2237,19 @@ def unaryExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.unaryE
     | _ => none
 
 instance : OfValue NanoP4Spec.unaryExpression := ⟨NanoP4Spec.unaryExpression.ofValue⟩
+
+def unaryExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "unaryExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "unop" [])), .Arg (Q.t (Q.varT "expression" []))])
+                "unaryExpression"
+                []]))
+       [])
 
 inductive binaryExpression where
   | mk
@@ -1781,6 +2282,22 @@ def binaryExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.binar
 
 instance : OfValue NanoP4Spec.binaryExpression := ⟨NanoP4Spec.binaryExpression.ofValue⟩
 
+def binaryExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "binaryExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "expression" [])),
+                    .Arg (Q.t (Q.varT "binop" [])),
+                    .Arg (Q.t (Q.varT "expression" []))])
+                "binaryExpression"
+                []]))
+       [])
+
 inductive memberAccessExpression where
   | dot (memberAccessBase : NanoP4Spec.memberAccessBase) (member : NanoP4Spec.member)
 
@@ -1811,6 +2328,22 @@ def memberAccessExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
     | _ => none
 
 instance : OfValue NanoP4Spec.memberAccessExpression := ⟨NanoP4Spec.memberAccessExpression.ofValue⟩
+
+def memberAccessExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "memberAccessExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "memberAccessBase" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "member" []))])
+                "memberAccessExpression"
+                []]))
+       [])
 
 inductive callExpression where
   | lparen_rparen (callTarget : NanoP4Spec.callTarget) (argumentList : NanoP4Spec.argumentList)
@@ -1850,6 +2383,21 @@ def callExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callExp
 
 instance : OfValue NanoP4Spec.callExpression := ⟨NanoP4Spec.callExpression.ofValue⟩
 
+def callExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "callTarget" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen)])
+                "callExpression"
+                []]))
+       [])
+
 inductive parenthesizedExpression where
   | lparen_rparen (expression : NanoP4Spec.expression)
 
@@ -1881,6 +2429,19 @@ def parenthesizedExpression.ofValue :
 
 instance : OfValue NanoP4Spec.parenthesizedExpression :=
   ⟨NanoP4Spec.parenthesizedExpression.ofValue⟩
+
+def parenthesizedExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parenthesizedExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen))
+                "parenthesizedExpression"
+                []]))
+       [])
 
 inductive lvalue where
   | _ID (s : String)
@@ -1978,6 +2539,31 @@ def lvalue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.lvalue
 
 instance : OfValue NanoP4Spec.lvalue := ⟨NanoP4Spec.lvalue.ofValue⟩
 
+def lvalue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "lvalue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "lvalue" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "member" []))])
+                "lvalue"
+                [],
+              Q.tc
+                (.Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "lvalue" []))) (Q.a .RParen))
+                "lvalue"
+                []]))
+       [])
+
 inductive emptyStatement where
   | semi
 
@@ -2000,6 +2586,14 @@ def emptyStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.emptySt
     | _ => none
 
 instance : OfValue NanoP4Spec.emptyStatement := ⟨NanoP4Spec.emptyStatement.ofValue⟩
+
+def emptyStatement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "emptyStatement")
+       []
+       (Q.dt (.VariantT [Q.tc (.Atom (Q.a (.Operator ";"))) "emptyStatement" []]))
+       [])
 
 inductive assignmentStatement where
   | eq_semi (lvalue : NanoP4Spec.lvalue) (expression : NanoP4Spec.expression)
@@ -2036,6 +2630,23 @@ def assignmentStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.as
     | _ => none
 
 instance : OfValue NanoP4Spec.assignmentStatement := ⟨NanoP4Spec.assignmentStatement.ofValue⟩
+
+def assignmentStatement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "assignmentStatement")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "lvalue" [])),
+                    .Atom (Q.a (.Operator "=")),
+                    .Arg (Q.t (Q.varT "expression" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "assignmentStatement"
+                []]))
+       [])
 
 inductive callStatement where
   | lparen_rparen_semi (lvalue : NanoP4Spec.lvalue) (argumentList : NanoP4Spec.argumentList)
@@ -2074,6 +2685,22 @@ def callStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callStat
 
 instance : OfValue NanoP4Spec.callStatement := ⟨NanoP4Spec.callStatement.ofValue⟩
 
+def callStatement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callStatement")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "lvalue" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "callStatement"
+                []]))
+       [])
+
 inductive initializer where
   | eq (expression : NanoP4Spec.expression)
 
@@ -2099,6 +2726,19 @@ def initializer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.initialize
     | _ => none
 
 instance : OfValue NanoP4Spec.initializer := ⟨NanoP4Spec.initializer.ofValue⟩
+
+def initializer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "initializer")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Atom (Q.a (.Operator "=")), .Arg (Q.t (Q.varT "expression" []))])
+                "initializer"
+                []]))
+       [])
 
 mutual
 
@@ -2315,6 +2955,79 @@ instance : OfValue NanoP4Spec.statement := ⟨NanoP4Spec.statement.ofValue⟩
 
 instance : OfValue NanoP4Spec.statementList := ⟨NanoP4Spec.statementList.ofValue⟩
 
+def blockStatement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "blockStatement")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "statementList" []))) (Q.a .RBrace))
+                "blockStatement"
+                []]))
+       [])
+
+def statement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "statement")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Operator ";"))) "emptyStatement" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Arg (Q.t (Q.varT "initializer" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "variableDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "lvalue" [])),
+                    .Atom (Q.a (.Operator "=")),
+                    .Arg (Q.t (Q.varT "expression" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "assignmentStatement"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "lvalue" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "callStatement"
+                [],
+              Q.tc
+                (.Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "statementList" []))) (Q.a .RBrace))
+                "blockStatement"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "IF")),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" [])),
+                    .Atom (Q.a (.Keyword "ELSE")),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "conditionalStatement"
+                []]))
+       [])
+
+def statementList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "statementList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "statementList" [],
+              Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "statementList" [])), .Arg (Q.t (Q.varT "statement" []))])
+                "statementList"
+                []]))
+       [])
+
 inductive conditionalStatement where
   | IF_lparen_rparen_ELSE
       (expression : NanoP4Spec.expression)
@@ -2360,6 +3073,24 @@ def conditionalStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.c
 
 instance : OfValue NanoP4Spec.conditionalStatement := ⟨NanoP4Spec.conditionalStatement.ofValue⟩
 
+def conditionalStatement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "conditionalStatement")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "IF")),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" [])),
+                    .Atom (Q.a (.Keyword "ELSE")),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "conditionalStatement"
+                []]))
+       [])
+
 inductive variableDeclaration where
   | semi (type : NanoP4Spec.type) (name : NanoP4Spec.name) (initializer : NanoP4Spec.initializer)
 
@@ -2396,6 +3127,23 @@ def variableDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.va
     | _ => none
 
 instance : OfValue NanoP4Spec.variableDeclaration := ⟨NanoP4Spec.variableDeclaration.ofValue⟩
+
+def variableDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "variableDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Arg (Q.t (Q.varT "initializer" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "variableDeclaration"
+                []]))
+       [])
 
 inductive functionPrototype where
   | VOID_lparen_rparen (name : NanoP4Spec.name) (parameterList : NanoP4Spec.parameterList)
@@ -2436,6 +3184,22 @@ def functionPrototype.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.func
     | _ => none
 
 instance : OfValue NanoP4Spec.functionPrototype := ⟨NanoP4Spec.functionPrototype.ofValue⟩
+
+def functionPrototype.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "functionPrototype")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "VOID")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen)])
+                "functionPrototype"
+                []]))
+       [])
 
 inductive actionDeclaration where
   | ACTION_lparen_rparen
@@ -2480,6 +3244,23 @@ def actionDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.acti
 
 instance : OfValue NanoP4Spec.actionDeclaration := ⟨NanoP4Spec.actionDeclaration.ofValue⟩
 
+def actionDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "actionDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "actionDeclaration"
+                []]))
+       [])
+
 inductive instantiation where
   | lparen_rparen_semi
       (type : NanoP4Spec.type)
@@ -2523,6 +3304,23 @@ def instantiation.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.instanti
 
 instance : OfValue NanoP4Spec.instantiation := ⟨NanoP4Spec.instantiation.ofValue⟩
 
+def instantiation.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "instantiation")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "type" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "instantiation"
+                []]))
+       [])
+
 inductive matchKindDeclaration where
   | MATCH_KIND_lbrace_rbrace (nameList : NanoP4Spec.nameList)
 
@@ -2560,6 +3358,21 @@ def matchKindDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.m
 
 instance : OfValue NanoP4Spec.matchKindDeclaration := ⟨NanoP4Spec.matchKindDeclaration.ofValue⟩
 
+def matchKindDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "matchKindDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "nameList" []))) (Q.a .RBrace)])
+                "matchKindDeclaration"
+                []]))
+       [])
+
 inductive typeField where
   | semi (type : NanoP4Spec.type) (name : NanoP4Spec.name)
 
@@ -2588,6 +3401,22 @@ def typeField.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeField
     | _ => none
 
 instance : OfValue NanoP4Spec.typeField := ⟨NanoP4Spec.typeField.ofValue⟩
+
+def typeField.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeField")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "typeField"
+                []]))
+       [])
 
 inductive typeFieldList where
   | _EMPTY
@@ -2621,6 +3450,20 @@ def typeFieldList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeFiel
     | _ => none
 
 instance : OfValue NanoP4Spec.typeFieldList := ⟨NanoP4Spec.typeFieldList.ofValue⟩
+
+def typeFieldList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeFieldList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "typeFieldList" [],
+              Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "typeFieldList" [])), .Arg (Q.t (Q.varT "typeField" []))])
+                "typeFieldList"
+                []]))
+       [])
 
 inductive structTypeDeclaration where
   | STRUCT_lbrace_rbrace (name : NanoP4Spec.name) (typeFieldList : NanoP4Spec.typeFieldList)
@@ -2662,6 +3505,22 @@ def structTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
 
 instance : OfValue NanoP4Spec.structTypeDeclaration := ⟨NanoP4Spec.structTypeDeclaration.ofValue⟩
 
+def structTypeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "structTypeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "structTypeDeclaration"
+                []]))
+       [])
+
 inductive headerTypeDeclaration where
   | HEADER_lbrace_rbrace (name : NanoP4Spec.name) (typeFieldList : NanoP4Spec.typeFieldList)
 
@@ -2701,6 +3560,22 @@ def headerTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
     | _ => none
 
 instance : OfValue NanoP4Spec.headerTypeDeclaration := ⟨NanoP4Spec.headerTypeDeclaration.ofValue⟩
+
+def headerTypeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "headerTypeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "headerTypeDeclaration"
+                []]))
+       [])
 
 inductive derivedTypeDeclaration where
   | STRUCT_lbrace_rbrace (name : NanoP4Spec.name) (typeFieldList : NanoP4Spec.typeFieldList)
@@ -2767,6 +3642,29 @@ def derivedTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
 
 instance : OfValue NanoP4Spec.derivedTypeDeclaration := ⟨NanoP4Spec.derivedTypeDeclaration.ofValue⟩
 
+def derivedTypeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "derivedTypeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "structTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "headerTypeDeclaration"
+                []]))
+       [])
+
 inductive externMethodPrototype where
   | semi (functionPrototype : NanoP4Spec.functionPrototype)
 
@@ -2792,6 +3690,19 @@ def externMethodPrototype.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
     | _ => none
 
 instance : OfValue NanoP4Spec.externMethodPrototype := ⟨NanoP4Spec.externMethodPrototype.ofValue⟩
+
+def externMethodPrototype.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externMethodPrototype")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "functionPrototype" [])), .Atom (Q.a (.Operator ";"))])
+                "externMethodPrototype"
+                []]))
+       [])
 
 inductive externMethodPrototypeList where
   | _EMPTY
@@ -2831,6 +3742,22 @@ def externMethodPrototypeList.ofValue :
 
 instance : OfValue NanoP4Spec.externMethodPrototypeList :=
   ⟨NanoP4Spec.externMethodPrototypeList.ofValue⟩
+
+def externMethodPrototypeList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externMethodPrototypeList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "externMethodPrototypeList" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "externMethodPrototypeList" [])),
+                    .Arg (Q.t (Q.varT "externMethodPrototype" []))])
+                "externMethodPrototypeList"
+                []]))
+       [])
 
 inductive externObjectDeclaration where
   | EXTERN_lbrace_rbrace
@@ -2877,6 +3804,25 @@ def externObjectDeclaration.ofValue :
 instance : OfValue NanoP4Spec.externObjectDeclaration :=
   ⟨NanoP4Spec.externObjectDeclaration.ofValue⟩
 
+def externObjectDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externObjectDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (Q.varT "externMethodPrototypeList" [])))
+                      (Q.a .RBrace)])
+                "externObjectDeclaration"
+                []]))
+       [])
+
 abbrev externDeclaration : Type := NanoP4Spec.externObjectDeclaration
 
 def externDeclaration.toValue (x : NanoP4Spec.externDeclaration) : Lang.Il.value :=
@@ -2890,6 +3836,14 @@ def externDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.exte
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.externDeclaration := ⟨NanoP4Spec.externDeclaration.ofValue⟩
+
+def externDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externDeclaration")
+       []
+       (Q.dt (.PlainT (Q.t (Q.varT "externObjectDeclaration" []))))
+       [])
 
 inductive selectCase where
   | colon_semi (expression : NanoP4Spec.expression) (name : NanoP4Spec.name)
@@ -2927,6 +3881,23 @@ def selectCase.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.selectCase
 
 instance : OfValue NanoP4Spec.selectCase := ⟨NanoP4Spec.selectCase.ofValue⟩
 
+def selectCase.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "selectCase")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "expression" [])),
+                    .Atom (Q.a (.Operator ":")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "selectCase"
+                []]))
+       [])
+
 inductive selectCaseList where
   | _EMPTY
   | mk (selectCaseList : NanoP4Spec.selectCaseList) (selectCase : NanoP4Spec.selectCase)
@@ -2959,6 +3930,21 @@ def selectCaseList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.selectC
     | _ => none
 
 instance : OfValue NanoP4Spec.selectCaseList := ⟨NanoP4Spec.selectCaseList.ofValue⟩
+
+def selectCaseList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "selectCaseList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "selectCaseList" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "selectCaseList" [])), .Arg (Q.t (Q.varT "selectCase" []))])
+                "selectCaseList"
+                []]))
+       [])
 
 inductive selectExpression where
   | SELECT_lparen_rparen_lbrace_rbrace
@@ -3004,6 +3990,22 @@ def selectExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.selec
     | _ => none
 
 instance : OfValue NanoP4Spec.selectExpression := ⟨NanoP4Spec.selectExpression.ofValue⟩
+
+def selectExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "selectExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "SELECT")),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "selectCaseList" []))) (Q.a .RBrace)])
+                "selectExpression"
+                []]))
+       [])
 
 inductive stateExpression where
   | semi (name : NanoP4Spec.name)
@@ -3061,6 +4063,26 @@ def stateExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.stateE
 
 instance : OfValue NanoP4Spec.stateExpression := ⟨NanoP4Spec.stateExpression.ofValue⟩
 
+def stateExpression.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "stateExpression")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "name" [])), .Atom (Q.a (.Operator ";"))])
+                "stateExpression"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "SELECT")),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "selectCaseList" []))) (Q.a .RBrace)])
+                "selectExpression"
+                []]))
+       [])
+
 inductive transitionStatement where
   | TRANSITION (stateExpression : NanoP4Spec.stateExpression)
 
@@ -3086,6 +4108,20 @@ def transitionStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tr
     | _ => none
 
 instance : OfValue NanoP4Spec.transitionStatement := ⟨NanoP4Spec.transitionStatement.ofValue⟩
+
+def transitionStatement.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "transitionStatement")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TRANSITION")), .Arg (Q.t (Q.varT "stateExpression" []))])
+                "transitionStatement"
+                []]))
+       [])
 
 inductive parserTypeDeclaration where
   | PARSER_lparen_rparen_semi (name : NanoP4Spec.name) (parameterList : NanoP4Spec.parameterList)
@@ -3125,6 +4161,23 @@ def parserTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
     | _ => none
 
 instance : OfValue NanoP4Spec.parserTypeDeclaration := ⟨NanoP4Spec.parserTypeDeclaration.ofValue⟩
+
+def parserTypeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserTypeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "parserTypeDeclaration"
+                []]))
+       [])
 
 inductive parserState where
   | STATE_lbrace_rbrace
@@ -3169,6 +4222,27 @@ def parserState.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parserStat
     | _ => none
 
 instance : OfValue NanoP4Spec.parserState := ⟨NanoP4Spec.parserState.ofValue⟩
+
+def parserState.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserState")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STATE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "statementList" [])),
+                          .Arg (Q.t (Q.varT "transitionStatement" []))])
+                      (Q.a .RBrace)])
+                "parserState"
+                []]))
+       [])
 
 inductive parserStateList where
   | STATE_lbrace_rbrace
@@ -3224,6 +4298,32 @@ def parserStateList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parser
 
 instance : OfValue NanoP4Spec.parserStateList := ⟨NanoP4Spec.parserStateList.ofValue⟩
 
+def parserStateList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserStateList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STATE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "statementList" [])),
+                          .Arg (Q.t (Q.varT "transitionStatement" []))])
+                      (Q.a .RBrace)])
+                "parserState"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "parserStateList" [])), .Arg (Q.t (Q.varT "parserState" []))])
+                "parserStateList"
+                []]))
+       [])
+
 abbrev parserLocalDeclaration : Type := NanoP4Spec.variableDeclaration
 
 def parserLocalDeclaration.toValue (x : NanoP4Spec.parserLocalDeclaration) : Lang.Il.value :=
@@ -3237,6 +4337,14 @@ def parserLocalDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.parserLocalDeclaration := ⟨NanoP4Spec.parserLocalDeclaration.ofValue⟩
+
+def parserLocalDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserLocalDeclaration")
+       []
+       (Q.dt (.PlainT (Q.t (Q.varT "variableDeclaration" []))))
+       [])
 
 inductive parserLocalDeclarationList where
   | _EMPTY
@@ -3276,6 +4384,22 @@ def parserLocalDeclarationList.ofValue :
 
 instance : OfValue NanoP4Spec.parserLocalDeclarationList :=
   ⟨NanoP4Spec.parserLocalDeclarationList.ofValue⟩
+
+def parserLocalDeclarationList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserLocalDeclarationList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "parserLocalDeclarationList" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])),
+                    .Arg (Q.t (Q.varT "parserLocalDeclaration" []))])
+                "parserLocalDeclarationList"
+                []]))
+       [])
 
 inductive parserDeclaration where
   | PARSER_lparen_rparen_lbrace_rbrace
@@ -3328,6 +4452,28 @@ def parserDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.pars
 
 instance : OfValue NanoP4Spec.parserDeclaration := ⟨NanoP4Spec.parserDeclaration.ofValue⟩
 
+def parserDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])),
+                          .Arg (Q.t (Q.varT "parserStateList" []))])
+                      (Q.a .RBrace)])
+                "parserDeclaration"
+                []]))
+       [])
+
 inductive tableKey where
   | lbrace_colon_semi_rbrace (expression : NanoP4Spec.expression) (name : NanoP4Spec.name)
 
@@ -3369,6 +4515,26 @@ def tableKey.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableKey
     | _ => none
 
 instance : OfValue NanoP4Spec.tableKey := ⟨NanoP4Spec.tableKey.ofValue⟩
+
+def tableKey.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableKey")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Brack
+                   (Q.a .LBrace)
+                   (.Seq
+                      [.Arg (Q.t (Q.varT "expression" [])),
+                       .Atom (Q.a (.Operator ":")),
+                       .Arg (Q.t (Q.varT "name" [])),
+                       .Atom (Q.a (.Operator ";"))])
+                   (Q.a .RBrace))
+                "tableKey"
+                []]))
+       [])
 
 inductive tableActionReference where
   | _ID (s : String)
@@ -3455,6 +4621,26 @@ def tableActionReference.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
 
 instance : OfValue NanoP4Spec.tableActionReference := ⟨NanoP4Spec.tableActionReference.ofValue⟩
 
+def tableActionReference.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableActionReference")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Seq [.Atom (Q.a (.Tag "ID")), .Arg (Q.t .TextT)]) "identifier" [],
+              Q.tc (.Atom (Q.a (.Keyword "APPLY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "KEY"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "ACTIONS"))) "nonTypeName" [],
+              Q.tc (.Atom (Q.a (.Keyword "STATE"))) "nonTypeName" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen)])
+                "tableActionReference"
+                []]))
+       [])
+
 inductive tableAction where
   | semi (tableActionReference : NanoP4Spec.tableActionReference)
 
@@ -3480,6 +4666,19 @@ def tableAction.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableActio
     | _ => none
 
 instance : OfValue NanoP4Spec.tableAction := ⟨NanoP4Spec.tableAction.ofValue⟩
+
+def tableAction.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableAction")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "tableActionReference" [])), .Atom (Q.a (.Operator ";"))])
+                "tableAction"
+                []]))
+       [])
 
 inductive tableActionList where
   | semi (tableActionReference : NanoP4Spec.tableActionReference)
@@ -3516,6 +4715,24 @@ def tableActionList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableA
     | _ => none
 
 instance : OfValue NanoP4Spec.tableActionList := ⟨NanoP4Spec.tableActionList.ofValue⟩
+
+def tableActionList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableActionList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "tableActionReference" [])), .Atom (Q.a (.Operator ";"))])
+                "tableAction"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "tableActionList" [])), .Arg (Q.t (Q.varT "tableAction" []))])
+                "tableActionList"
+                []]))
+       [])
 
 inductive tableEntry where
   | lparen_rparen_colon_semi
@@ -3558,6 +4775,23 @@ def tableEntry.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableEntry
 
 instance : OfValue NanoP4Spec.tableEntry := ⟨NanoP4Spec.tableEntry.ofValue⟩
 
+def tableEntry.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableEntry")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "expression" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ":")),
+                    .Arg (Q.t (Q.varT "tableActionReference" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "tableEntry"
+                []]))
+       [])
+
 inductive tableEntryList where
   | _EMPTY
   | mk (tableEntryList : NanoP4Spec.tableEntryList) (tableEntry : NanoP4Spec.tableEntry)
@@ -3591,6 +4825,21 @@ def tableEntryList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableEn
 
 instance : OfValue NanoP4Spec.tableEntryList := ⟨NanoP4Spec.tableEntryList.ofValue⟩
 
+def tableEntryList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableEntryList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "tableEntryList" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "tableEntryList" [])), .Arg (Q.t (Q.varT "tableEntry" []))])
+                "tableEntryList"
+                []]))
+       [])
+
 inductive tableKeyProperty where
   | KEY_eq (tableKey : NanoP4Spec.tableKey)
 
@@ -3622,6 +4871,22 @@ def tableKeyProperty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.table
     | _ => none
 
 instance : OfValue NanoP4Spec.tableKeyProperty := ⟨NanoP4Spec.tableKeyProperty.ofValue⟩
+
+def tableKeyProperty.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableKeyProperty")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "KEY")),
+                    .Atom (Q.a (.Operator "=")),
+                    .Arg (Q.t (Q.varT "tableKey" []))])
+                "tableKeyProperty"
+                []]))
+       [])
 
 inductive tableActionsProperty where
   | ACTIONS_eq_lbrace_rbrace (tableActionList : NanoP4Spec.tableActionList)
@@ -3661,6 +4926,22 @@ def tableActionsProperty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
     | _ => none
 
 instance : OfValue NanoP4Spec.tableActionsProperty := ⟨NanoP4Spec.tableActionsProperty.ofValue⟩
+
+def tableActionsProperty.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableActionsProperty")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTIONS")),
+                    .Atom (Q.a (.Operator "=")),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "tableActionList" []))) (Q.a .RBrace)])
+                "tableActionsProperty"
+                []]))
+       [])
 
 inductive tableEntriesProperty where
   | CONST_ENTRIES_eq_lbrace_rbrace (tableEntryList : NanoP4Spec.tableEntryList)
@@ -3702,6 +4983,23 @@ def tableEntriesProperty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
     | _ => none
 
 instance : OfValue NanoP4Spec.tableEntriesProperty := ⟨NanoP4Spec.tableEntriesProperty.ofValue⟩
+
+def tableEntriesProperty.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableEntriesProperty")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONST")),
+                    .Atom (Q.a (.Keyword "ENTRIES")),
+                    .Atom (Q.a (.Operator "=")),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "tableEntryList" []))) (Q.a .RBrace)])
+                "tableEntriesProperty"
+                []]))
+       [])
 
 inductive tableProperties where
   | mk
@@ -3746,6 +5044,28 @@ def tableProperties.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableP
 
 instance : OfValue NanoP4Spec.tableProperties := ⟨NanoP4Spec.tableProperties.ofValue⟩
 
+def tableProperties.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableProperties")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "tableKeyProperty" [])),
+                    .Arg (Q.t (Q.varT "tableActionsProperty" []))])
+                "tableProperties"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "tableKeyProperty" [])),
+                    .Arg (Q.t (Q.varT "tableActionsProperty" [])),
+                    .Arg (Q.t (Q.varT "tableEntriesProperty" []))])
+                "tableProperties"
+                []]))
+       [])
+
 inductive tableDeclaration where
   | TABLE_lbrace_rbrace (name : NanoP4Spec.name) (tableProperties : NanoP4Spec.tableProperties)
 
@@ -3786,6 +5106,22 @@ def tableDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.table
 
 instance : OfValue NanoP4Spec.tableDeclaration := ⟨NanoP4Spec.tableDeclaration.ofValue⟩
 
+def tableDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "tableProperties" []))) (Q.a .RBrace)])
+                "tableDeclaration"
+                []]))
+       [])
+
 inductive controlTypeDeclaration where
   | CONTROL_lparen_rparen_semi (name : NanoP4Spec.name) (parameterList : NanoP4Spec.parameterList)
 
@@ -3825,6 +5161,23 @@ def controlTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
 
 instance : OfValue NanoP4Spec.controlTypeDeclaration := ⟨NanoP4Spec.controlTypeDeclaration.ofValue⟩
 
+def controlTypeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "controlTypeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "controlTypeDeclaration"
+                []]))
+       [])
+
 abbrev controlBody : Type := NanoP4Spec.blockStatement
 
 def controlBody.toValue (x : NanoP4Spec.controlBody) : Lang.Il.value := ToValue.toValue x
@@ -3837,6 +5190,9 @@ def controlBody.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.controlBod
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.controlBody := ⟨NanoP4Spec.controlBody.ofValue⟩
+
+def controlBody.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "controlBody") [] (Q.dt (.PlainT (Q.t (Q.varT "blockStatement" [])))) [])
 
 inductive controlLocalDeclaration where
   | semi (type : NanoP4Spec.type) (name : NanoP4Spec.name) (initializer : NanoP4Spec.initializer)
@@ -3903,6 +5259,30 @@ def controlLocalDeclaration.ofValue :
 instance : OfValue NanoP4Spec.controlLocalDeclaration :=
   ⟨NanoP4Spec.controlLocalDeclaration.ofValue⟩
 
+def controlLocalDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "controlLocalDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "type" [])),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Arg (Q.t (Q.varT "initializer" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "variableDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "tableProperties" []))) (Q.a .RBrace)])
+                "tableDeclaration"
+                []]))
+       [])
+
 inductive controlLocalDeclarationList where
   | _EMPTY
   | mk
@@ -3942,6 +5322,22 @@ def controlLocalDeclarationList.ofValue :
 
 instance : OfValue NanoP4Spec.controlLocalDeclarationList :=
   ⟨NanoP4Spec.controlLocalDeclarationList.ofValue⟩
+
+def controlLocalDeclarationList.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "controlLocalDeclarationList")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "controlLocalDeclarationList" [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "controlLocalDeclarationList" [])),
+                    .Arg (Q.t (Q.varT "controlLocalDeclaration" []))])
+                "controlLocalDeclarationList"
+                []]))
+       [])
 
 inductive controlDeclaration where
   | CONTROL_lparen_rparen_lbrace_APPLY_rbrace
@@ -3997,6 +5393,29 @@ def controlDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.con
 
 instance : OfValue NanoP4Spec.controlDeclaration := ⟨NanoP4Spec.controlDeclaration.ofValue⟩
 
+def controlDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "controlDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "controlLocalDeclarationList" [])),
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Arg (Q.t (Q.varT "controlBody" []))])
+                      (Q.a .RBrace)])
+                "controlDeclaration"
+                []]))
+       [])
+
 inductive packageTypeDeclaration where
   | PACKAGE_lparen_rparen_semi (name : NanoP4Spec.name) (parameterList : NanoP4Spec.parameterList)
 
@@ -4035,6 +5454,23 @@ def packageTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
     | _ => none
 
 instance : OfValue NanoP4Spec.packageTypeDeclaration := ⟨NanoP4Spec.packageTypeDeclaration.ofValue⟩
+
+def packageTypeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "packageTypeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "packageTypeDeclaration"
+                []]))
+       [])
 
 inductive typeDeclaration where
   | STRUCT_lbrace_rbrace (name : NanoP4Spec.name) (typeFieldList : NanoP4Spec.typeFieldList)
@@ -4172,6 +5608,53 @@ def typeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDe
     | _ => none
 
 instance : OfValue NanoP4Spec.typeDeclaration := ⟨NanoP4Spec.typeDeclaration.ofValue⟩
+
+def typeDeclaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeDeclaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "structTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "headerTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "parserTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "controlTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "packageTypeDeclaration"
+                []]))
+       [])
 
 inductive declaration where
   | lparen_rparen_semi
@@ -4504,6 +5987,112 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
 
 instance : OfValue NanoP4Spec.declaration := ⟨NanoP4Spec.declaration.ofValue⟩
 
+def declaration.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "declaration")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "type" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "argumentList" []))) (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "instantiation"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "actionDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "nameList" []))) (Q.a .RBrace)])
+                "matchKindDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (Q.varT "externMethodPrototypeList" [])))
+                      (Q.a .RBrace)])
+                "externObjectDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "parserLocalDeclarationList" [])),
+                          .Arg (Q.t (Q.varT "parserStateList" []))])
+                      (Q.a .RBrace)])
+                "parserDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Seq
+                         [.Arg (Q.t (Q.varT "controlLocalDeclarationList" [])),
+                          .Atom (Q.a (.Keyword "APPLY")),
+                          .Arg (Q.t (Q.varT "controlBody" []))])
+                      (Q.a .RBrace)])
+                "controlDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "structTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "typeFieldList" []))) (Q.a .RBrace)])
+                "headerTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "parserTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "controlTypeDeclaration"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "name" [])),
+                    .Brack (Q.a .LParen) (.Arg (Q.t (Q.varT "parameterList" []))) (Q.a .RParen),
+                    .Atom (Q.a (.Operator ";"))])
+                "packageTypeDeclaration"
+                []]))
+       [])
+
 inductive program where
   | _EMPTY
   | mk (program : NanoP4Spec.program) (declaration : NanoP4Spec.declaration)
@@ -4536,6 +6125,20 @@ def program.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.program
     | _ => none
 
 instance : OfValue NanoP4Spec.program := ⟨NanoP4Spec.program.ofValue⟩
+
+def program.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "program")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Tag "EMPTY"))) "program" [],
+              Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "program" [])), .Arg (Q.t (Q.varT "declaration" []))])
+                "program"
+                []]))
+       [])
 
 def nonTypeName.to_nameList : NanoP4Spec.nonTypeName → NanoP4Spec.nameList
   | ._ID x0 => ._ID x0

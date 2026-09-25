@@ -279,36 +279,86 @@ The theorem is not `⟦⌜d⌝⟧ = d`. The interpreter works on untyped IL
 values and backtracks; the shallow definition is typed and total. Every
 precedent (CakeML's proof-producing translator, Cogent's certifying
 compiler, certifying extraction for Coq) states a type-indexed
-refinement relation and discharges it syntax-directedly. So:
+refinement relation and discharges it syntax-directedly. As built (M2,
+`Refine/`, `Codegen/Validate.lean`, `Tactic/Refine.lean`):
 
-- Codegen generates, per IL type `τ`, a relation
-  `R τ : IL.Value → ⟦τ⟧ → Prop` between IL values and values of the
-  generated Lean type, mirroring CakeML's `INT`, `LIST_TYPE`, `PAIR_TYPE`.
-  IL is first-order, so no function-typed invariants are needed, which
-  removes the hardest part of CakeML's translator.
-- For a function `f : τ₁ → … → τₙ → τ`:
-  `Forall₂ R vs xs → interp ⌜f⌝ vs = some r → ∃ x, R τ r x ∧ f xs = some x`.
-  Completeness, the other direction, is a second phase and is stated only
-  where determinism is proved.
-- For a relation, the same statement against the inductive `Prop`
-  version, and separately `R.run i = some o → R i o` via
-  `partial_correctness`; both share the value relation.
-- The tactic is a fixed library: one lemma per IL expression and premise
-  form (`interp_var`, `interp_call`, `interp_case`, `interp_iter`,
-  `interp_prem_if`, …), per-type lemmas generated with each type, and a
-  syntax-directed driver whose recursive case comes from the definition's
-  own induction principle. Expect one generated induction step per
-  (mutual) definition and zero manual lines. Nobody gets `rfl`; plan on
-  rewriting from day one.
-- **Effort and risk.** One-time library comparable to CakeML's core, a
-  few weeks. Per definition, proof-checking time, not authoring, is the
-  bottleneck; Cogent reports about twelve generated proof lines per
-  source line. Measured from the first Nano-P4 output.
+- **The value relation** is one relation for every generated type:
+  `Rel v x := canon v = canon (toValue x)`, where `canon` erases the
+  notes and regions the interpreter never reads (and reduces the two
+  payloads its comparison does not look inside). `eq_iff_canon` proves
+  that the interpreter's `Value.eq` is exactly canonical equality, so
+  `Rel` is the kernel of the interpreter's own equality. IL is
+  first-order, so no function-typed invariants are needed.
+- **The statement**, per definition `X` with inputs `τ₁ … τₙ` (a
+  relation's outputs `σ` as a tuple):
+
+      theorem X.refines (fuel : Nat) (cfg : Config) (ctx : Ctx.t) (internal : Bool)
+          (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+          (hspec : HoldsSpec Lib.spec ctx.global)
+          (v₁ … vₙ : value) (p₁ : τ₁) … (pₙ : τₙ) (h₁ : Rel v₁ p₁) … :
+          Refines (fun vs (o : σ) => Outs vs [toValue o])
+            (invoke_rel fuel cfg internal ctx (Q.i "X") [v₁, …, vₙ])
+            (ExceptT.mk (Lib.X.run p₁ … pₙ))
+
+  `Refines P m n` says every defined result of the interpreter's `m` (a
+  success or a failure; divergence, which is fuel exhaustion, refines
+  anything) is matched by a defined result of the generated `n`: the
+  same failure kind, or values related by `P`. So the theorem covers
+  every fuel and every input, failures included, which is what makes a
+  rule group's `else` and a `does not hold` premise meaningful. A
+  function's statement relates the results by `Rel` directly.
+  `HoldsSpec Lib.spec g` says the global tables hold every quoted
+  definition (`Lib.spec` is the list of all `d.al`, as `Ctx.init` would
+  load them); the guard is off because the interpreter's dynamic type
+  checks are instrumentation, not meaning; the local function table is
+  empty because no definition in the fragment takes a function argument.
+- **Recursion.** A recursion group gets `X.refines_group : ∀ fuel,
+  stmt_X fuel ∧ …` by strong induction on the fuel, and a corollary per
+  member; a call inside the group uses the induction hypothesis at the
+  callee's smaller fuel, a call outside it the callee's theorem. Nothing
+  about `partial_fixpoint` is needed on this side: the generated
+  definition is only called, never unfolded below its own body.
+- **The tactic** `refine_al` is a lockstep symbolic execution. The
+  interpreter side is computed by `simp` with the interpreter's own
+  equation lemmas on the concrete quoted syntax, one fuel level at a time
+  (`cases` on the fuel at the head of the chain; the zero case is
+  divergence); the generated side is walked by the rules of
+  `Refine/Calc.lean`: a `have` binds, a call is paired with the
+  interpreter's invocation through the callee's theorem, a `match` or
+  `if` on a variable is split by `cases`, sequential choice alternative
+  by alternative, and at a `pure` the results are related by computing
+  `canon` on both sides. When the interpreter inspects a value whose
+  generated counterpart is a variable, that variable is split, which is
+  the case analysis the generated code performs too; the shape of the
+  interpreter's value then follows from the fact by a dozen inversion
+  lemmas. There is no per-construct lemma about the interpreter: the
+  interpreter's definitions are the lemmas, which is what makes the
+  library small and the port the only trusted text.
+- **The fragment.** `Codegen/Validate.unsupported` decides syntactically
+  which definitions get a theorem, closed under callees; the rest are
+  listed in the generated module with their reasons. Whatever the tactic
+  cannot close fails the build; nothing is `sorry`ed. At M2 the fragment
+  holds 18 of Nano-P4's 153 definitions, all functions: every relation
+  calls a builtin or iterates, so the relation form of the statement is
+  exercised only by hand (`.agents/notes/m2-phase-d.md`) until the
+  fragment grows (M3).
+- **What it does not cover.** The theorem quantifies over generated
+  values and their `toValue` images, so the generated *types* and their
+  `ToValue` instances are part of the statement, not checked by it: a
+  dropped variant case or a misplaced field is invisible to rung 3 and is
+  caught only by rung 2 (the decoder round trip on the corpus). The
+  table hypothesis `HoldsSpec` has its witness (`holdsSpec_of_init`: the
+  tables `Ctx.init` builds from the quoted spec satisfy it, so a run of
+  the interpreter on `NanoP4Spec.spec` is an instance); the quoting
+  `d.al` is trusted to be the export minus regions and hints (read
+  against the AST at review, not tested: an M3 item,
+  `.agents/roadmap.md`).
 - **Failure vs divergence.** `partial_fixpoint` rejects backtracking
   written with `<|>` because it is not monotone in the flat order. The
   interpreter therefore separates failure as data from divergence,
   returning `Option (Except Fail v)` or the equivalent transformer, and
-  this is decided before the port, not after.
+  this was decided before the port, not after. Completeness, the other
+  direction, is not stated (section 12).
 
 ### 5.2 Trusted vs checked
 
@@ -353,6 +403,10 @@ here is a bug.
 | `Value.Match.sub_` and `Type.Subst` take a fuel; `Match.sub_`'s `FuncT` case (function values, through `Type.Equiv`) yields `false`; `Subst.freshen_tparams` derives fresh names from the parameter's name; a higher-order substitution substitutes the head | the recursion is not structural; Nano-P4 has no function values (an M3 item); no global counter | `Runtime/Value/Match.lean`, `Runtime/Type/Subst.lean` |
 | The builtin dispatcher works on values through the typed ports; the `add` callback and `fresh_typeId` are not mirrored | one port per builtin file; the callback registers values for upstream's caches | `Interface/Builtin/Call.lean` |
 | A hyphenated upstream directory is a camel-cased Lean directory (`interp-al` is `InterpAl`) | a hyphen cannot be in a module name | `scripts/check-mirror.py` |
+| `is_iter_var_exp` recurses on the size of the expression (`termination_by`) rather than structurally | it descends through the phrase's payload, which structural recursion does not see; a fuel here would make a low-fuel run take the general iteration path instead of diverging, which rung 3 cannot allow | `Interp/InterpAl/Interp.lean` |
+| The refinement theorems are in one generated module after the spec files (`Refinement.lean`), with the quoted spec as a list and one `HoldsSpec` hypothesis | the theorems need every quoted definition (a callee's theorem needs its own callees' table entries), and one hypothesis over the whole spec avoids listing the transitive callees of every definition | `Codegen/Emit.lean`, `Codegen/Validate.lean` |
+| The `Q.*` quoting constructors and `mkPhrase` are reducible | the driver's `simp` must see through them definitionally: a rewrite under `decide` with a non-reducible definition leaves an ill-typed term | `Refine/Quote.lean`, `Util/Source.lean` |
+| `ToValue (α × β)` flattens a right-nested product into one IL tuple | the generator renders a spec tuple type as a right-nested product and its value as one flat tuple; a spec tuple nested inside a tuple (none in Nano-P4) would need a wrapper type (M3 trigger) | `Prelude/Value.lean` |
 | Mutual block grouping by dependency | Lean requires mutually recursive definitions in one `mutual` block | `Codegen/Funcs.lean` |
 
 ### 5.4 Per-construct encodings
@@ -438,6 +492,10 @@ p4-spectec-lean/
 │   │   ├── Value.lean            # ToValue, OfValue, equality through values
 │   │   ├── Eval.lean             # the Eval monad: Fail, orElse, monotonicity, run lemmas (M2)
 │   │   ├── Extern.lean, Num.lean, Iter.lean
+│   ├── Refine/                   # ours: rung 3 (M2)
+│   │   ├── Value.lean            # canon, Rel: IL values against generated values, up to notes
+│   │   ├── Quote.lean            # Q.*: the smart constructors the quoted definitions are built with
+│   │   └── Calc.lean             # Refines, its rules, Holds/HoldsSpec, exposure lemmas
 │   ├── Codegen/                  # NOT trusted: validated per definition (M2)
 │   │   ├── Names.lean            # the naming rule; Keywords.lean is generated from Lean's token table
 │   │   ├── Env.lean, Graph.lean, Fmt.lean   # spec environment; SCCs; the printer
@@ -446,14 +504,18 @@ p4-spectec-lean/
 │   │   ├── Funcs.lean            # FuncDecD, BuiltinDecD, TableDecD → def; the Externs class
 │   │   ├── Rels.lean             # RelD → run function
 │   │   ├── Props.lean            # RelD → Prop inductive, run-soundness theorems, audits (M2)
+│   │   ├── Reify.lean            # every definition quoted as Lean data, `d.al` (M2)
+│   │   ├── Validate.lean         # the refinement theorems and the fragment they cover (M2)
 │   │   ├── Emit.lean             # the plan: groups, module assignment, module text
 │   │   └── Main.lean             # `lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]`
 │   ├── Tactic/                   # the proof side (M2)
 │   │   ├── RunSound.lean         # run_sound, run_sound_group: symbolic execution against the Prop
+│   │   ├── Refine.lean           # refine_al: lockstep execution of the interpreter and the generated code
 │   │   └── Audit.lean            # #audit_axioms
 ├── P4SpecTecTest/                # test-only: decode test, the differential runners (Diff/NanoP4Run/, Diff/NanoP4Interp/)
 │
-├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it
+├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it,
+│                                 # then Refinement.lean: the quoted spec as a list and the rung 3 theorems
 ├── P4Spec/                       # GENERATED at M3; Targets/ hand-written, mirrors backend-sim/<target>/
 │
 ├── P4Lib/                        # M4; independent of the generated spec
@@ -480,10 +542,12 @@ Choices embedded in the tree:
 - Lake layout: importable modules under the root, test-only modules under
   a `Test` root, no Mathlib, one toolchain pin.
 
-Rung 3 lives in: `IL/Ast.lean` and `Semantics/*` (reference side,
-trusted), `Codegen/Types.lean` (value relations), `Codegen/Reify.lean`
-and `Codegen/Validate.lean` (generation side), `Tactic/Refine.lean`
-(proof side, where the real work is).
+Rung 3 lives in: `Interp/InterpAl/` and the runtime it needs (reference
+side, trusted), `Refine/` (the value relation, the quoting constructors
+and the refinement calculus), `Codegen/Reify.lean` and
+`Codegen/Validate.lean` (generation side), `Tactic/Refine.lean` (proof
+side, where the real work is), and `NanoP4Spec/Refinement.lean` (the
+generated theorems).
 
 ### P4Lib
 
@@ -605,3 +669,14 @@ cedar-spec, LNSym, Sail's Lean backend, Aeneas, Batteries, lean-mlir.
   not, review per section, never drop the diff check.
 - Completeness direction of the refinement theorems: stated only where
   determinism is proved; whether to pursue it at all is decided after M2.
+- Determinism at M2 (`Tactic/Det.lean`, `R.det : R i o → R i o' → o =
+  o'`): attempted on relations with one rule path, no `else` group, no
+  iterated premise, and callees that are themselves deterministic by
+  theorem. That leaves 2 of 77 Nano-P4 relations (`Var_init`,
+  `NanoSwitch_setup`): every other relation has several rule paths or
+  reaches one through its callees (`Expr_ok` has 16). Several paths need
+  a disjointness argument per pair of rules (their conclusions or
+  premises cannot both hold), which is a real proof, not bookkeeping;
+  upstream checks it dynamically in its deterministic mode. The finding
+  is that determinism of the typing relation is a per-rule-pair
+  obligation, and the tactic for it is M3 work if the goal is kept.

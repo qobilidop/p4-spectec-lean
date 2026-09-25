@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 
 /-! # NanoP4Spec.«0-stdlib»
 
@@ -50,6 +53,22 @@ def set.ofValue {τK : Type} [OfValue τK] : Nat → Lang.Il.value → Option (N
 
 instance {τK : Type} [OfValue τK] : OfValue (NanoP4Spec.set τK) := ⟨NanoP4Spec.set.ofValue⟩
 
+def set.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "set")
+       [Q.i "K"]
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Brack
+                   (Q.a .LBrace)
+                   (.Arg (Q.t (.IterT (Q.t (Q.varT "K" [])) .List)))
+                   (Q.a .RBrace))
+                "set"
+                [Q.t (Q.varT "K" [])]]))
+       [])
+
 inductive pair (τK : Type) (τV : Type) where
   | colon (x_1 : τK) (x_2 : τV)
 
@@ -82,6 +101,22 @@ def pair.ofValue {τK τV : Type} [OfValue τK] [OfValue τV] :
 instance {τK τV : Type} [OfValue τK] [OfValue τV] : OfValue (NanoP4Spec.pair τK τV) :=
   ⟨NanoP4Spec.pair.ofValue⟩
 
+def pair.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "pair")
+       [Q.i "K", Q.i "V"]
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "K" [])),
+                    .Atom (Q.a (.Operator ":")),
+                    .Arg (Q.t (Q.varT "V" []))])
+                "pair"
+                [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]]))
+       [])
+
 abbrev map (τK : Type) (τV : Type) : Type := NanoP4Spec.set (NanoP4Spec.pair τK τV)
 
 def map.toValue {τK τV : Type} [ToValue τK] [ToValue τV] (x : NanoP4Spec.map
@@ -101,13 +136,29 @@ def map.ofValue {τK τV : Type} [OfValue τK] [OfValue τV] :
 instance {τK τV : Type} [OfValue τK] [OfValue τV] : OfValue (NanoP4Spec.map τK τV) :=
   ⟨NanoP4Spec.map.ofValue⟩
 
+def map.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "map")
+       [Q.i "K", Q.i "V"]
+       (Q.dt
+          (.PlainT
+             (Q.t (Q.varT "set" [Q.t (Q.varT "pair" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])])]))))
+       [])
+
 def «$print_» {τX : Type} [ToValue τX] [BEq τX] (p0 : τX) : Option (Except Fail String) :=
   ExceptT.run
     (pure (P4.Unparse.print (ToValue.toValue p0)))
 
+def «$print_».al : Lang.Al.def :=
+  Q.d (.BuiltinDecD (Q.i "print_") [Q.i "X"] [Q.pm (.ExpP (Q.t (Q.varT "X" [])))] (Q.t .TextT) [])
+
 def «$strip_all_whitespace» (p0 : String) : Option (Except Fail String) :=
   ExceptT.run
     (pure (Builtin.Texts.strip_all_whitespace p0))
+
+def «$strip_all_whitespace».al : Lang.Al.def :=
+  Q.d (.BuiltinDecD (Q.i "strip_all_whitespace") [] [Q.pm (.ExpP (Q.t .TextT))] (Q.t .TextT) [])
 
 def «$ite» {τX : Type} [ToValue τX] [BEq τX] (p0 : Bool) (p1 : τX) (p2 : τX)
     : Option (Except Fail τX) :=
@@ -443,9 +494,27 @@ def «$rev_» {τX : Type} [ToValue τX] [BEq τX] (p0 : List τX) : Option (Exc
   ExceptT.run
     (pure (Builtin.Lists.rev_ p0))
 
+def «$rev_».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "rev_")
+       [Q.i "X"]
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "X" [])) .List)))]
+       (Q.t (.IterT (Q.t (Q.varT "X" [])) .List))
+       [])
+
 def «$distinct_» {τK : Type} [ToValue τK] [BEq τK] (p0 : List τK) : Option (Except Fail Bool) :=
   ExceptT.run
     (pure (Builtin.Lists.distinct_ p0))
+
+def «$distinct_».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "distinct_")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "K" [])) .List)))]
+       (Q.t .BoolT)
+       [])
 
 def «$assoc_» {τX τY : Type} [ToValue τX] [BEq τX] [ToValue τY] [BEq τY]
         (p0 : τX)
@@ -453,6 +522,17 @@ def «$assoc_» {τX τY : Type} [ToValue τX] [BEq τX] [ToValue τY] [BEq τY]
     : Option (Except Fail (Option τY)) :=
   ExceptT.run
     (pure (Builtin.Lists.assoc_ p0 p1))
+
+def «$assoc_».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "assoc_")
+       [Q.i "X", Q.i "Y"]
+       [Q.pm (.ExpP (Q.t (Q.varT "X" []))),
+        Q.pm
+          (.ExpP (Q.t (.IterT (Q.t (.TupleT [Q.t (Q.varT "X" []), Q.t (Q.varT "Y" [])])) .List)))]
+       (Q.t (.IterT (Q.t (Q.varT "Y" [])) .Opt))
+       [])
 
 def «$empty_set» {τK : Type} [ToValue τK] [BEq τK] : Option (Except Fail (NanoP4Spec.set τK)) :=
   ExceptT.run
@@ -535,6 +615,16 @@ def «$intersect_set» {τK : Type} [ToValue τK] [BEq τK]
              (match p1 with
                 | .lbrace_rbrace l => l))))
 
+def «$intersect_set».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "intersect_set")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])])))]
+       (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))
+       [])
+
 def «$union_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
     : Option (Except Fail (NanoP4Spec.set τK)) :=
   ExceptT.run
@@ -545,6 +635,16 @@ def «$union_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK
                 | .lbrace_rbrace l => l)
              (match p1 with
                 | .lbrace_rbrace l => l))))
+
+def «$union_set».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "union_set")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])])))]
+       (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))
+       [])
 
 def «$unions_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : List (NanoP4Spec.set τK))
     : Option (Except Fail (NanoP4Spec.set τK)) :=
@@ -558,6 +658,15 @@ def «$unions_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : List (NanoP4Spec.
                       | .lbrace_rbrace l => l))
                 p0))))
 
+def «$unions_set».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "unions_set")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (.IterT (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])])) .List)))]
+       (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))
+       [])
+
 def «$diff_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
     : Option (Except Fail (NanoP4Spec.set τK)) :=
   ExceptT.run
@@ -569,6 +678,16 @@ def «$diff_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK)
              (match p1 with
                 | .lbrace_rbrace l => l))))
 
+def «$diff_set».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "diff_set")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])])))]
+       (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))
+       [])
+
 def «$sub_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
     : Option (Except Fail Bool) :=
   ExceptT.run
@@ -579,6 +698,16 @@ def «$sub_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) 
           (match p1 with
              | .lbrace_rbrace l => l)))
 
+def «$sub_set».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "sub_set")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])])))]
+       (Q.t .BoolT)
+       [])
+
 def «$eq_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
     : Option (Except Fail Bool) :=
   ExceptT.run
@@ -588,6 +717,16 @@ def «$eq_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (
              | .lbrace_rbrace l => l)
           (match p1 with
              | .lbrace_rbrace l => l)))
+
+def «$eq_set».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "eq_set")
+       [Q.i "K"]
+       [Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "set" [Q.t (Q.varT "K" [])])))]
+       (Q.t .BoolT)
+       [])
 
 def «$empty_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
     : Option (Except Fail (NanoP4Spec.map τK τV)) :=
@@ -764,6 +903,16 @@ def «$find_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τ
              | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
           p1))
 
+def «$find_map».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "find_map")
+       [Q.i "K", Q.i "V"]
+       [Q.pm (.ExpP (Q.t (Q.varT "map" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "K" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "V" [])) .Opt))
+       [])
+
 def «$find_maps» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
         (p0 : List (NanoP4Spec.map τK τV))
         (p1 : τK)
@@ -777,6 +926,18 @@ def «$find_maps» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq �
                    | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l))
              p0)
           p1))
+
+def «$find_maps».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "find_maps")
+       [Q.i "K", Q.i "V"]
+       [Q.pm
+          (.ExpP
+             (Q.t (.IterT (Q.t (Q.varT "map" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])])) .List))),
+        Q.pm (.ExpP (Q.t (Q.varT "K" [])))]
+       (Q.t (.IterT (Q.t (Q.varT "V" [])) .Opt))
+       [])
 
 def «$add_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
         (p0 : NanoP4Spec.map τK τV)
@@ -794,6 +955,17 @@ def «$add_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV
                 p1
                 p2))))
 
+def «$add_map».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "add_map")
+       [Q.i "K", Q.i "V"]
+       [Q.pm (.ExpP (Q.t (Q.varT "map" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "K" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "V" [])))]
+       (Q.t (Q.varT "map" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]))
+       [])
+
 def «$update_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
         (p0 : NanoP4Spec.map τK τV)
         (p1 : τK)
@@ -809,5 +981,16 @@ def «$update_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq 
                    | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
                 p1
                 p2))))
+
+def «$update_map».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "update_map")
+       [Q.i "K", Q.i "V"]
+       [Q.pm (.ExpP (Q.t (Q.varT "map" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]))),
+        Q.pm (.ExpP (Q.t (Q.varT "K" []))),
+        Q.pm (.ExpP (Q.t (Q.varT "V" [])))]
+       (Q.t (Q.varT "map" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]))
+       [])
 
 end NanoP4Spec

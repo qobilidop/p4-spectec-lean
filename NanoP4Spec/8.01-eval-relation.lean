@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«8.00-eval-context»
 
 /-! # NanoP4Spec.«8.01-eval-relation»
@@ -66,6 +69,21 @@ def transitionResult.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.trans
 
 instance : OfValue NanoP4Spec.transitionResult := ⟨NanoP4Spec.transitionResult.ofValue⟩
 
+def transitionResult.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "transitionResult")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "ACCEPT"))) "transitionResult" [],
+              Q.tc (.Atom (Q.a (.Keyword "REJECT"))) "transitionResult" [],
+              Q.tc
+                (.Seq [.Atom (Q.a (.Keyword "STATE")), .Arg (Q.t (Q.varT "id" []))])
+                "transitionResult"
+                []]))
+       [])
+
 inductive actionCallee where
   | ACTION_lparen_rparen
       (callableId : NanoP4Spec.callableId)
@@ -108,6 +126,26 @@ def actionCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.actionCal
     | _ => none
 
 instance : OfValue NanoP4Spec.actionCallee := ⟨NanoP4Spec.actionCallee.ofValue⟩
+
+def actionCallee.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "actionCallee")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (Q.varT "callableId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "actionCallee"
+                []]))
+       [])
 
 inductive externMethodCallee where
   | EXTERN_METHOD_dot_lparen_rparen
@@ -157,6 +195,27 @@ def externMethodCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.ext
 
 instance : OfValue NanoP4Spec.externMethodCallee := ⟨NanoP4Spec.externMethodCallee.ofValue⟩
 
+def externMethodCallee.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externMethodCallee")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN_METHOD")),
+                    .Arg (Q.t (Q.varT "lvalue" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "callableId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "externMethodCallee"
+                []]))
+       [])
+
 inductive tableApplyMethodCallee where
   | TABLE_dot_APPLY_lbrace_rbrace
       (nameIR : NanoP4Spec.nameIR)
@@ -202,6 +261,24 @@ def tableApplyMethodCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
     | _ => none
 
 instance : OfValue NanoP4Spec.tableApplyMethodCallee := ⟨NanoP4Spec.tableApplyMethodCallee.ofValue⟩
+
+def tableApplyMethodCallee.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableApplyMethodCallee")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Atom (Q.a (.Keyword "APPLY")),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "tableProperties" []))) (Q.a .RBrace)])
+                "tableApplyMethodCallee"
+                []]))
+       [])
 
 inductive callee where
   | ACTION_lparen_rparen
@@ -310,6 +387,47 @@ def callee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callee
 
 instance : OfValue NanoP4Spec.callee := ⟨NanoP4Spec.callee.ofValue⟩
 
+def callee.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callee")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (Q.varT "callableId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen),
+                    .Arg (Q.t (Q.varT "blockStatement" []))])
+                "actionCallee"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN_METHOD")),
+                    .Arg (Q.t (Q.varT "lvalue" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "callableId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "externMethodCallee"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Atom (Q.a (.Operator ".")),
+                    .Atom (Q.a (.Keyword "APPLY")),
+                    .Brack (Q.a .LBrace) (.Arg (Q.t (Q.varT "tableProperties" []))) (Q.a .RBrace)])
+                "tableApplyMethodCallee"
+                []]))
+       [])
+
 def actionCallee.to_callee : NanoP4Spec.actionCallee → NanoP4Spec.callee
   | .ACTION_lparen_rparen x0 x1 x2 => .ACTION_lparen_rparen x0 x1 x2
 
@@ -349,6 +467,31 @@ class Externs where
     NanoP4Spec.callableId →
     (List NanoP4Spec.nameIR) →
     Option (Except Fail (NanoP4Spec.value × NanoP4Spec.evalContext))
+
+def ExternMethodCall_eval.al : Lang.Al.def :=
+  Q.d
+    (.ExternRelD
+       (Q.i "ExternMethodCall_eval")
+       (Q.nt
+          (.Infix
+             (.Arg (Q.t (Q.varT "evalContext" [])))
+             (Q.a .Turnstile)
+             (.Infix
+                (.Infix
+                   (.Seq
+                      [.Arg (Q.t (Q.varT "value" [])),
+                       .Atom (Q.a (.Operator ".")),
+                       .Arg (Q.t (Q.varT "callableId" [])),
+                       .Brack
+                         (Q.a .LParen)
+                         (.Arg (Q.t (.IterT (Q.t (Q.varT "nameIR" [])) .List)))
+                         (Q.a .RParen)])
+                   (Q.a .Colon)
+                   (.Arg (Q.t (Q.varT "value" []))))
+                (Q.a .Tilesturn)
+                (.Arg (Q.t (Q.varT "evalContext" []))))))
+       [0, 1, 2, 3]
+       [])
 
 def Expr_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : NanoP4Spec.expression)
     : Option (Except Fail NanoP4Spec.value) :=
@@ -1409,6 +1552,9 @@ theorem Lvalue_eval.run_sound
 
 #audit_axioms NanoP4Spec.Lvalue_eval.run_sound
 
+-- no determinism theorem: Lvalue_eval
+--   calls Expr_eval, which has no determinism theorem
+
 def Lvalue_eval.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -1511,6 +1657,9 @@ theorem VarDecl_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.VarDecl_eval.run_sound
+
+-- no determinism theorem: VarDecl_eval
+--   calls Expr_eval, which has no determinism theorem
 
 def VarDecl_eval.al : Lang.Al.def :=
   Q.d
@@ -1799,6 +1948,9 @@ theorem Callee_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Callee_eval.run_sound
+
+-- no determinism theorem: Callee_eval
+--   3 rule paths
 
 def Callee_eval.al : Lang.Al.def :=
   Q.d

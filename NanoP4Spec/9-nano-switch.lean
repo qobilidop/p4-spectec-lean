@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«8.14-eval-convention»
 
 /-! # NanoP4Spec.«9-nano-switch»
@@ -55,6 +58,17 @@ def forwardingDecision.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.for
 
 instance : OfValue NanoP4Spec.forwardingDecision := ⟨NanoP4Spec.forwardingDecision.ofValue⟩
 
+def forwardingDecision.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "forwardingDecision")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "FORWARD"))) "forwardingDecision" [],
+              Q.tc (.Atom (Q.a (.Keyword "DROP"))) "forwardingDecision" []]))
+       [])
+
 def Var_init.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.typeIR) (p2 : NanoP4Spec.nameIR)
     : Option (Except Fail NanoP4Spec.evalContext) :=
   ExceptT.run
@@ -93,6 +107,16 @@ theorem Var_init.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Var_init.run_sound
+
+theorem Var_init.det
+    {p0 : NanoP4Spec.evalContext}
+    {p1 : NanoP4Spec.typeIR}
+    {p2 : NanoP4Spec.nameIR}
+    {o0 o0' : NanoP4Spec.evalContext} :
+    NanoP4Spec.Var_init p0 p1 p2 o0 → NanoP4Spec.Var_init p0 p1 p2 o0' → o0 = o0' :=
+  by det
+
+#audit_axioms NanoP4Spec.Var_init.det
 
 def Var_init.al : Lang.Al.def :=
   Q.d
@@ -178,6 +202,9 @@ theorem NanoSwitch_init.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_init.run_sound
+
+-- no determinism theorem: NanoSwitch_init
+--   calls Program_ok, which has no determinism theorem
 
 def NanoSwitch_init.al : Lang.Al.def :=
   Q.d
@@ -313,6 +340,15 @@ theorem NanoSwitch_setup.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_setup.run_sound
+
+theorem NanoSwitch_setup.det
+    {p0 : NanoP4Spec.evalContext}
+    {p1 : NanoP4Spec.objectState}
+    {o0 o0' : NanoP4Spec.evalContext} :
+    NanoP4Spec.NanoSwitch_setup p0 p1 o0 → NanoP4Spec.NanoSwitch_setup p0 p1 o0' → o0 = o0' :=
+  by det
+
+#audit_axioms NanoP4Spec.NanoSwitch_setup.det
 
 def NanoSwitch_setup.al : Lang.Al.def :=
   Q.d
@@ -572,6 +608,9 @@ theorem NanoSwitch_parse.run_sound [Externs]
 
 #audit_axioms NanoP4Spec.NanoSwitch_parse.run_sound
 
+-- no determinism theorem: NanoSwitch_parse
+--   calls Parser_apply, which has no determinism theorem
+
 def NanoSwitch_parse.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -700,6 +739,9 @@ theorem NanoSwitch_filter.run_sound [Externs]
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_filter.run_sound
+
+-- no determinism theorem: NanoSwitch_filter
+--   calls Control_apply, which has no determinism theorem
 
 def NanoSwitch_filter.al : Lang.Al.def :=
   Q.d
@@ -856,6 +898,9 @@ theorem NanoSwitch_drive.run_sound [Externs]
   by run_sound
 
 #audit_axioms NanoP4Spec.NanoSwitch_drive.run_sound
+
+-- no determinism theorem: NanoSwitch_drive
+--   2 rule paths
 
 def NanoSwitch_drive.al : Lang.Al.def :=
   Q.d

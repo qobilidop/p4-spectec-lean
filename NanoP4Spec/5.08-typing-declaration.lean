@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.07-typing-argument»
 
 /-! # NanoP4Spec.«5.08-typing-declaration»
@@ -428,6 +431,9 @@ theorem ExternDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ExternDecl_ok.run_sound
+
+-- no determinism theorem: ExternDecl_ok
+--   iterated premise
 
 def ExternDecl_ok.al : Lang.Al.def :=
   Q.d
@@ -1023,6 +1029,9 @@ theorem TypeDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.TypeDecl_ok.run_sound
+
+-- no determinism theorem: TypeDecl_ok
+--   5 rule paths
 
 def TypeDecl_ok.al : Lang.Al.def :=
   Q.d

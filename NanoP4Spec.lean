@@ -27,6 +27,7 @@ import NanoP4Spec.«8.10-eval-control»
 import NanoP4Spec.«8.11-eval-table»
 import NanoP4Spec.«8.14-eval-convention»
 import NanoP4Spec.«9-nano-switch»
+import NanoP4Spec.Refinement
 
 /-!
 # NanoP4Spec

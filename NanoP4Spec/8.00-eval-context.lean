@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«7.1-load-declaration»
 
 /-! # NanoP4Spec.«8.00-eval-context»
@@ -34,6 +37,14 @@ def frame.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.frame
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.frame := ⟨NanoP4Spec.frame.ofValue⟩
+
+def frame.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "frame")
+       []
+       (Q.dt (.PlainT (Q.t (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t (Q.varT "value" [])]))))
+       [])
 
 structure globalEvalLayer where
   TYPE : NanoP4Spec.typeDefEnv
@@ -71,6 +82,20 @@ def globalEvalLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.global
 
 instance : OfValue NanoP4Spec.globalEvalLayer := ⟨NanoP4Spec.globalEvalLayer.ofValue⟩
 
+def globalEvalLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "globalEvalLayer")
+       []
+       (Q.dt
+          (.StructT
+             [(Q.a (.Keyword "TYPE"), Q.t (Q.varT "typeDefEnv" [])),
+              (Q.a (.Keyword "CALLABLE"), Q.t (Q.varT "callableDefEnv" [])),
+              (Q.a (.Keyword "FRAME"), Q.t (Q.varT "frame" [])),
+              (Q.a (.Keyword "PARSER"), Q.t (Q.varT "parserDeclarationIR" [])),
+              (Q.a (.Keyword "CONTROL"), Q.t (Q.varT "controlDeclarationIR" []))]))
+       [])
+
 structure blockEvalLayer where
   FRAME : NanoP4Spec.frame
 
@@ -91,6 +116,14 @@ def blockEvalLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.blockEv
 
 instance : OfValue NanoP4Spec.blockEvalLayer := ⟨NanoP4Spec.blockEvalLayer.ofValue⟩
 
+def blockEvalLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "blockEvalLayer")
+       []
+       (Q.dt (.StructT [(Q.a (.Keyword "FRAME"), Q.t (Q.varT "frame" []))]))
+       [])
+
 structure localEvalLayer where
   FRAMES : List NanoP4Spec.frame
 
@@ -110,6 +143,14 @@ def localEvalLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.localEv
     | _ => none
 
 instance : OfValue NanoP4Spec.localEvalLayer := ⟨NanoP4Spec.localEvalLayer.ofValue⟩
+
+def localEvalLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "localEvalLayer")
+       []
+       (Q.dt (.StructT [(Q.a (.Keyword "FRAMES"), Q.t (.IterT (Q.t (Q.varT "frame" [])) .List))]))
+       [])
 
 structure evalContext where
   GLOBAL : NanoP4Spec.globalEvalLayer
@@ -138,6 +179,18 @@ def evalContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.evalContex
     | _ => none
 
 instance : OfValue NanoP4Spec.evalContext := ⟨NanoP4Spec.evalContext.ofValue⟩
+
+def evalContext.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "evalContext")
+       []
+       (Q.dt
+          (.StructT
+             [(Q.a (.Keyword "GLOBAL"), Q.t (Q.varT "globalEvalLayer" [])),
+              (Q.a (.Keyword "BLOCK"), Q.t (Q.varT "blockEvalLayer" [])),
+              (Q.a (.Keyword "LOCAL"), Q.t (Q.varT "localEvalLayer" []))]))
+       [])
 
 def «$empty_frame» : Option (Except Fail NanoP4Spec.frame) :=
   ExceptT.run

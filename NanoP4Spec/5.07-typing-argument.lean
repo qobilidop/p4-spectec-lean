@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.06-typing-parameter»
 
 /-! # NanoP4Spec.«5.07-typing-argument»
@@ -60,6 +63,9 @@ theorem Argument_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Argument_ok.run_sound
+
+-- no determinism theorem: Argument_ok
+--   calls Expr_ok, which has no determinism theorem
 
 def Argument_ok.al : Lang.Al.def :=
   Q.d
@@ -166,6 +172,9 @@ theorem ArgumentList_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ArgumentList_ok.run_sound
+
+-- no determinism theorem: ArgumentList_ok
+--   iterated premise
 
 def ArgumentList_ok.al : Lang.Al.def :=
   Q.d

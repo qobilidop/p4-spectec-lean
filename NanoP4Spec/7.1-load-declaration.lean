@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«7.0-load-context»
 
 /-! # NanoP4Spec.«7.1-load-declaration»
@@ -375,6 +378,9 @@ theorem Decl_load.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Decl_load.run_sound
+
+-- no determinism theorem: Decl_load
+--   7 rule paths
 
 def Decl_load.al : Lang.Al.def :=
   Q.d
@@ -1510,6 +1516,9 @@ theorem Program_load.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Program_load.run_sound
+
+-- no determinism theorem: Program_load
+--   calls Decls_load, which has no determinism theorem
 
 def Program_load.al : Lang.Al.def :=
   Q.d

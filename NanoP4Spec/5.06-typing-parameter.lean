@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.04-typing-lvalue»
 
 /-! # NanoP4Spec.«5.06-typing-parameter»
@@ -79,6 +82,9 @@ theorem Parameter_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Parameter_ok.run_sound
+
+-- no determinism theorem: Parameter_ok
+--   calls Type_ok, which has no determinism theorem
 
 def Parameter_ok.al : Lang.Al.def :=
   Q.d
@@ -541,6 +547,9 @@ theorem ParameterList_ok.run_sound
 
 #audit_axioms NanoP4Spec.ParameterList_ok.run_sound
 
+-- no determinism theorem: ParameterList_ok
+--   calls Parameters_ok, which has no determinism theorem
+
 def ParameterList_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -681,6 +690,9 @@ theorem ExternMethod_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ExternMethod_ok.run_sound
+
+-- no determinism theorem: ExternMethod_ok
+--   calls ParameterList_ok, which has no determinism theorem
 
 def ExternMethod_ok.al : Lang.Al.def :=
   Q.d

@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«8.11-eval-table»
 
 /-! # NanoP4Spec.«8.14-eval-convention»
@@ -167,6 +170,9 @@ theorem Copy_in_arg.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Copy_in_arg.run_sound
+
+-- no determinism theorem: Copy_in_arg
+--   3 rule paths
 
 def Copy_in_arg.al : Lang.Al.def :=
   Q.d
@@ -909,6 +915,9 @@ theorem Copy_out_arg.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Copy_out_arg.run_sound
+
+-- no determinism theorem: Copy_out_arg
+--   2 rule paths
 
 def Copy_out_arg.al : Lang.Al.def :=
   Q.d
@@ -4547,6 +4556,9 @@ theorem ParserState_eval.run_sound [Externs]
 
 #audit_axioms NanoP4Spec.ParserState_eval.run_sound
 
+-- no determinism theorem: ParserState_eval
+--   calls Statements_eval, which has no determinism theorem
+
 def ParserState_eval.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -5217,6 +5229,9 @@ theorem Parser_apply.run_sound [Externs]
 
 #audit_axioms NanoP4Spec.Parser_apply.run_sound
 
+-- no determinism theorem: Parser_apply
+--   calls Copy_in, which has no determinism theorem
+
 def Parser_apply.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -5529,6 +5544,9 @@ theorem Control_apply.run_sound [Externs]
   by run_sound
 
 #audit_axioms NanoP4Spec.Control_apply.run_sound
+
+-- no determinism theorem: Control_apply
+--   calls Copy_in, which has no determinism theorem
 
 def Control_apply.al : Lang.Al.def :=
   Q.d

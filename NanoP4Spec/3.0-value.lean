@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«2.1-ir»
 
 /-! # NanoP4Spec.«3.0-value»
@@ -35,6 +38,9 @@ def integerValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integerVa
 
 instance : OfValue NanoP4Spec.integerValue := ⟨NanoP4Spec.integerValue.ofValue⟩
 
+def integerValue.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "integerValue") [] (Q.dt (.PlainT (Q.t (Q.varT "integerLiteral" [])))) [])
+
 inductive boolValue where
   | _B (b : Bool)
 
@@ -60,6 +66,14 @@ def boolValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.boolValue
     | _ => none
 
 instance : OfValue NanoP4Spec.boolValue := ⟨NanoP4Spec.boolValue.ofValue⟩
+
+def boolValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "boolValue")
+       []
+       (Q.dt (.VariantT [Q.tc (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.t .BoolT)]) "boolValue" []]))
+       [])
 
 inductive matchKindValue where
   | MATCH_KIND_dot (nameIR : NanoP4Spec.nameIR)
@@ -92,6 +106,22 @@ def matchKindValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchKi
     | _ => none
 
 instance : OfValue NanoP4Spec.matchKindValue := ⟨NanoP4Spec.matchKindValue.ofValue⟩
+
+def matchKindValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "matchKindValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "nameIR" []))])
+                "matchKindValue"
+                []]))
+       [])
 
 inductive baseValue where
   | W (n : Nat) (i : Int)
@@ -164,9 +194,38 @@ def baseValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseValue
 
 instance : OfValue NanoP4Spec.baseValue := ⟨NanoP4Spec.baseValue.ofValue⟩
 
+def baseValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "baseValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.t .BoolT)]) "boolValue" [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "nameIR" []))])
+                "matchKindValue"
+                []]))
+       [])
+
 abbrev objectState : Type := ExternValue
 
 
+
+def objectState.al : Lang.Al.def := Q.d (.ExternTypD (Q.i "objectState") [])
 
 mutual
 
@@ -378,6 +437,83 @@ instance : OfValue NanoP4Spec.fieldValue := ⟨NanoP4Spec.fieldValue.ofValue⟩
 
 instance : OfValue NanoP4Spec.value := ⟨NanoP4Spec.value.ofValue⟩
 
+def fieldValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "fieldValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "value" [])),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "fieldValue"
+                []]))
+       [])
+
+def value.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "value")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "W")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc
+                (.Seq
+                   [.Arg (Q.t (.NumT .NatT)), .Atom (Q.a (.Keyword "S")), .Arg (Q.t (.NumT .IntT))])
+                "integerLiteral"
+                [],
+              Q.tc (.Seq [.Atom (Q.a (.Tag "B")), .Arg (Q.t .BoolT)]) "boolValue" [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "MATCH_KIND")),
+                    .Atom (Q.a (.Operator ".")),
+                    .Arg (Q.t (Q.varT "nameIR" []))])
+                "matchKindValue"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                      (Q.a .RBrace)])
+                "structValue"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerValue"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKET")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "objectState" []))])
+                "packetValue"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Arg (Q.t (Q.varT "tableProperties" []))])
+                "tableValue"
+                []]))
+       [])
+
 inductive structValue where
   | STRUCT_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldValue : List NanoP4Spec.fieldValue)
 
@@ -418,6 +554,25 @@ def structValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.structValu
 
 instance : OfValue NanoP4Spec.structValue := ⟨NanoP4Spec.structValue.ofValue⟩
 
+def structValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "structValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                      (Q.a .RBrace)])
+                "structValue"
+                []]))
+       [])
+
 inductive headerValue where
   | HEADER_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldValue : List NanoP4Spec.fieldValue)
 
@@ -457,6 +612,25 @@ def headerValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.headerValu
     | _ => none
 
 instance : OfValue NanoP4Spec.headerValue := ⟨NanoP4Spec.headerValue.ofValue⟩
+
+def headerValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "headerValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerValue"
+                []]))
+       [])
 
 inductive dataValue where
   | STRUCT_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldValue : List NanoP4Spec.fieldValue)
@@ -523,6 +697,35 @@ def dataValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.dataValue
 
 instance : OfValue NanoP4Spec.dataValue := ⟨NanoP4Spec.dataValue.ofValue⟩
 
+def dataValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "dataValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                      (Q.a .RBrace)])
+                "structValue"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldValue" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerValue"
+                []]))
+       [])
+
 inductive packetValue where
   | PACKET (typeId : NanoP4Spec.typeId) (objectState : NanoP4Spec.objectState)
 
@@ -555,6 +758,22 @@ def packetValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.packetValu
 
 instance : OfValue NanoP4Spec.packetValue := ⟨NanoP4Spec.packetValue.ofValue⟩
 
+def packetValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "packetValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKET")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "objectState" []))])
+                "packetValue"
+                []]))
+       [])
+
 inductive tableValue where
   | TABLE (nameIR : NanoP4Spec.nameIR) (tableProperties : NanoP4Spec.tableProperties)
 
@@ -583,6 +802,22 @@ def tableValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableValue
     | _ => none
 
 instance : OfValue NanoP4Spec.tableValue := ⟨NanoP4Spec.tableValue.ofValue⟩
+
+def tableValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Arg (Q.t (Q.varT "tableProperties" []))])
+                "tableValue"
+                []]))
+       [])
 
 inductive objectValue where
   | PACKET (typeId : NanoP4Spec.typeId) (objectState : NanoP4Spec.objectState)
@@ -631,6 +866,29 @@ def objectValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.objectValu
     | _ => none
 
 instance : OfValue NanoP4Spec.objectValue := ⟨NanoP4Spec.objectValue.ofValue⟩
+
+def objectValue.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "objectValue")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKET")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "objectState" []))])
+                "packetValue"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "TABLE")),
+                    .Arg (Q.t (Q.varT "nameIR" [])),
+                    .Arg (Q.t (Q.varT "tableProperties" []))])
+                "tableValue"
+                []]))
+       [])
 
 def integerLiteral.to_value : NanoP4Spec.integerLiteral → NanoP4Spec.value
   | .W x0 x1 => .W x0 x1

@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.00-typing-context»
 
 /-! # NanoP4Spec.«5.01-typing-relation»
@@ -160,6 +163,9 @@ theorem Type_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Type_ok.run_sound
+
+-- no determinism theorem: Type_ok
+--   5 rule paths
 
 def Type_ok.al : Lang.Al.def :=
   Q.d
@@ -3323,6 +3329,9 @@ theorem TableKey_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.TableKey_ok.run_sound
+
+-- no determinism theorem: TableKey_ok
+--   calls Expr_ok, which has no determinism theorem
 
 def TableKey_ok.al : Lang.Al.def :=
   Q.d

@@ -269,6 +269,57 @@ settles is not repeated here.
   all state it this way and none obtained `rfl`; equality cannot hold
   between untyped backtracking evaluation and typed total definitions.
   (2026-09-25)
+- **The refinement theorem (rung 3) is stated over the interpreter port
+  with `Refines`, one value relation `Rel v x := canon v = canon
+  (toValue x)`, one table hypothesis `HoldsSpec Lib.spec ctx.global`, the
+  guard off, an empty local function table, and every fuel; a recursion
+  group by strong induction on the fuel.** Design section 5.1 has the
+  statement. Reasons: canonical equality is one definition with one
+  connecting lemma (`eq_iff_canon`) and a dozen inversion lemmas for
+  exposure, where an inductive similarity would be a second definition
+  to keep in step; `Refines` over defined results (failure kinds
+  included) is what makes `else` groups and `does not hold` premises
+  meaningful, and divergence refining anything is what makes every fuel
+  provable; one `HoldsSpec` over the whole quoted spec avoids listing the
+  transitive callees of every definition, so the theorems live in one
+  module after the spec files (`Refinement.lean`); the guard is
+  instrumentation, not meaning. `canon` is not idempotent on `ExternV`
+  (`Json.compress` is a `partial def` nothing can be proved about), so
+  equality tests are aligned by the congruence `eq_of_canon`, not by a
+  normal form. Confidence: medium; revisit if the full spec (M3) needs
+  facts about externs or function arguments. (2026-09-25)
+- **The driver tactic `refine_al` has no per-construct lemma library:
+  the interpreter's own equation lemmas, unfolded one fuel level at a
+  time by `simp`, are the lemmas; the generated side is walked by the
+  rules of `Refine/Calc.lean`; a definition whose helper matches on a
+  projection (conditional equations) is unfolded by name.** Reason: the
+  design's per-form lemmas (`interp_var`, `interp_call`, …) would restate
+  the interpreter, and every restatement is a second text to audit;
+  computing the interpreter on concrete quoted syntax leaves only the
+  pairing at effectful steps (calls, tests, results) to rules, which are
+  a dozen. The cost is proof time per definition (seconds per definition
+  at Nano-P4's size), recorded in the timing table. (2026-09-25)
+- **The fragment rung 3 covers is decided syntactically
+  (`Codegen/Validate.unsupported`), closed under callees, and reported in
+  the generated module; nothing is `sorry`ed.** Outside at M2: type
+  parameters, function-typed parameters, externs, calls of builtins,
+  casts and subtype checks, iterated expressions with a body and iterated
+  premises, indexing, slicing, path updates with indexing, membership.
+  Reason: the design's "emit the theorem only for the supported fragment
+  and list the rest" (section 5); the list is the M3 work order for
+  rung 3. (2026-09-25)
+- **Determinism theorems are generated only where the tactic `det`
+  proves them: one rule path, no `else` group, no iterated premise, and
+  every relation called is deterministic by theorem (closed under
+  callees, like the refinement fragment); the others are listed with
+  their reason.** 2 of 77 Nano-P4 relations qualify. Reason: with one
+  rule path, determinism is `cases` twice plus the callees' theorems and
+  injectivity of `some`/`ok`; with several, it needs a disjointness
+  argument per pair of rules, which is its own proof per relation; an
+  unconditional attempt fails the build on the first multi-path callee.
+  Confidence: high for the mechanism, low that per-pair disjointness is
+  automatable; revisit at M3 with the full spec's rule overlap measured.
+  (2026-09-25)
 - **Run-soundness is proved by one generic tactic, `run_sound`, and a
   recursive group's theorem by `run_sound_group` over Lean's
   `mutual_partial_correctness`.** The tactic executes the run function

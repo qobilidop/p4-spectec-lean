@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«3.2-bits»
 
 /-! # NanoP4Spec.«5.00-typing-context»
@@ -34,6 +37,14 @@ def typeDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDefEnv
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.typeDefEnv := ⟨NanoP4Spec.typeDefEnv.ofValue⟩
+
+def typeDefEnv.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeDefEnv")
+       []
+       (Q.dt (.PlainT (Q.t (Q.varT "map" [Q.t (Q.varT "typeId" []), Q.t (Q.varT "typeDefIR" [])]))))
+       [])
 
 inductive callableTypeDef where
   | ACTION (parameterIR : List NanoP4Spec.parameterIR)
@@ -83,6 +94,33 @@ def callableTypeDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callab
 
 instance : OfValue NanoP4Spec.callableTypeDef := ⟨NanoP4Spec.callableTypeDef.ofValue⟩
 
+def callableTypeDef.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callableTypeDef")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "ACTION")),
+                    .Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List))])
+                "callableTypeDef"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List))])
+                "callableTypeDef"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List))])
+                "callableTypeDef"
+                []]))
+       [])
+
 abbrev callableTypeDefEnv : Type := NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableTypeDef
 
 def callableTypeDefEnv.toValue (x : NanoP4Spec.callableTypeDefEnv) : Lang.Il.value :=
@@ -96,6 +134,17 @@ def callableTypeDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.cal
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.callableTypeDefEnv := ⟨NanoP4Spec.callableTypeDefEnv.ofValue⟩
+
+def callableTypeDefEnv.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "callableTypeDefEnv")
+       []
+       (Q.dt
+          (.PlainT
+             (Q.t
+                (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t (Q.varT "callableTypeDef" [])]))))
+       [])
 
 inductive varTypeIR where
   | mk (direction : NanoP4Spec.direction) (typeIR : NanoP4Spec.typeIR)
@@ -120,6 +169,19 @@ def varTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.varTypeIR
 
 instance : OfValue NanoP4Spec.varTypeIR := ⟨NanoP4Spec.varTypeIR.ofValue⟩
 
+def varTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "varTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Arg (Q.t (Q.varT "direction" [])), .Arg (Q.t (Q.varT "typeIR" []))])
+                "varTypeIR"
+                []]))
+       [])
+
 abbrev typeFrame : Type := NanoP4Spec.map NanoP4Spec.id NanoP4Spec.varTypeIR
 
 def typeFrame.toValue (x : NanoP4Spec.typeFrame) : Lang.Il.value := ToValue.toValue x
@@ -132,6 +194,14 @@ def typeFrame.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeFrame
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.typeFrame := ⟨NanoP4Spec.typeFrame.ofValue⟩
+
+def typeFrame.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeFrame")
+       []
+       (Q.dt (.PlainT (Q.t (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT "varTypeIR" [])]))))
+       [])
 
 structure globalTypingLayer where
   TYPE : NanoP4Spec.typeDefEnv
@@ -161,6 +231,18 @@ def globalTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.glob
 
 instance : OfValue NanoP4Spec.globalTypingLayer := ⟨NanoP4Spec.globalTypingLayer.ofValue⟩
 
+def globalTypingLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "globalTypingLayer")
+       []
+       (Q.dt
+          (.StructT
+             [(Q.a (.Keyword "TYPE"), Q.t (Q.varT "typeDefEnv" [])),
+              (Q.a (.Keyword "CALLABLE"), Q.t (Q.varT "callableTypeDefEnv" [])),
+              (Q.a (.Keyword "FRAME"), Q.t (Q.varT "typeFrame" []))]))
+       [])
+
 structure blockTypingLayer where
   FRAME : NanoP4Spec.typeFrame
 
@@ -180,6 +262,14 @@ def blockTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.block
     | _ => none
 
 instance : OfValue NanoP4Spec.blockTypingLayer := ⟨NanoP4Spec.blockTypingLayer.ofValue⟩
+
+def blockTypingLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "blockTypingLayer")
+       []
+       (Q.dt (.StructT [(Q.a (.Keyword "FRAME"), Q.t (Q.varT "typeFrame" []))]))
+       [])
 
 structure localTypingLayer where
   FRAMES : List NanoP4Spec.typeFrame
@@ -202,6 +292,15 @@ def localTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.local
     | _ => none
 
 instance : OfValue NanoP4Spec.localTypingLayer := ⟨NanoP4Spec.localTypingLayer.ofValue⟩
+
+def localTypingLayer.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "localTypingLayer")
+       []
+       (Q.dt
+          (.StructT [(Q.a (.Keyword "FRAMES"), Q.t (.IterT (Q.t (Q.varT "typeFrame" [])) .List))]))
+       [])
 
 structure typingContext where
   GLOBAL : NanoP4Spec.globalTypingLayer
@@ -231,6 +330,18 @@ def typingContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typingCo
 
 instance : OfValue NanoP4Spec.typingContext := ⟨NanoP4Spec.typingContext.ofValue⟩
 
+def typingContext.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typingContext")
+       []
+       (Q.dt
+          (.StructT
+             [(Q.a (.Keyword "GLOBAL"), Q.t (Q.varT "globalTypingLayer" [])),
+              (Q.a (.Keyword "BLOCK"), Q.t (Q.varT "blockTypingLayer" [])),
+              (Q.a (.Keyword "LOCAL"), Q.t (Q.varT "localTypingLayer" []))]))
+       [])
+
 inductive matchKey where
   | colon (typeIR : NanoP4Spec.typeIR) (nameIR : NanoP4Spec.nameIR)
 
@@ -259,6 +370,22 @@ def matchKey.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchKey
     | _ => none
 
 instance : OfValue NanoP4Spec.matchKey := ⟨NanoP4Spec.matchKey.ofValue⟩
+
+def matchKey.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "matchKey")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "typeIR" [])),
+                    .Atom (Q.a (.Operator ":")),
+                    .Arg (Q.t (Q.varT "nameIR" []))])
+                "matchKey"
+                []]))
+       [])
 
 inductive matchAction where
   | lparen_at_rparen
@@ -305,6 +432,27 @@ def matchAction.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchActio
 
 instance : OfValue NanoP4Spec.matchAction := ⟨NanoP4Spec.matchAction.ofValue⟩
 
+def matchAction.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "matchAction")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "callableId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Seq
+                         [.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)),
+                          .Atom (Q.a (.Operator "@")),
+                          .Arg (Q.t (.IterT (Q.t (Q.varT "argumentIR" [])) .List))])
+                      (Q.a .RParen)])
+                "matchAction"
+                []]))
+       [])
+
 structure tableContext where
   KEY : NanoP4Spec.matchKey
   ACTIONS : List NanoP4Spec.matchAction
@@ -327,6 +475,17 @@ def tableContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableCont
     | _ => none
 
 instance : OfValue NanoP4Spec.tableContext := ⟨NanoP4Spec.tableContext.ofValue⟩
+
+def tableContext.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableContext")
+       []
+       (Q.dt
+          (.StructT
+             [(Q.a (.Keyword "KEY"), Q.t (Q.varT "matchKey" [])),
+              (Q.a (.Keyword "ACTIONS"), Q.t (.IterT (Q.t (Q.varT "matchAction" [])) .List))]))
+       [])
 
 def «$empty_typeDefEnv»
     : Option (Except Fail (NanoP4Spec.map NanoP4Spec.typeId NanoP4Spec.typeDefIR)) :=

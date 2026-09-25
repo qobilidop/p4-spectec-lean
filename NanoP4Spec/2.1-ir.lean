@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«2.0-domain»
 
 /-! # NanoP4Spec.«2.1-ir»
@@ -79,6 +82,27 @@ def integerTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integerT
 
 instance : OfValue NanoP4Spec.integerTypeIR := ⟨NanoP4Spec.integerTypeIR.ofValue⟩
 
+def integerTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "integerTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "INT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .NatT))) (Q.a .RAngle)])
+                "integerTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "BIT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .NatT))) (Q.a .RAngle)])
+                "integerTypeIR"
+                []]))
+       [])
+
 inductive baseTypeIR where
   | INT_langle_rangle (n : Nat)
   | BIT_langle_rangle (n : Nat)
@@ -153,6 +177,29 @@ def baseTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseTypeIR
     | _ => none
 
 instance : OfValue NanoP4Spec.baseTypeIR := ⟨NanoP4Spec.baseTypeIR.ofValue⟩
+
+def baseTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "baseTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "INT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .NatT))) (Q.a .RAngle)])
+                "integerTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "BIT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .NatT))) (Q.a .RAngle)])
+                "integerTypeIR"
+                [],
+              Q.tc (.Atom (Q.a (.Keyword "BOOL"))) "baseTypeIR" [],
+              Q.tc (.Atom (Q.a (.Keyword "MATCH_KIND"))) "baseTypeIR" []]))
+       [])
 
 mutual
 
@@ -594,6 +641,154 @@ instance : OfValue NanoP4Spec.externMethodTypeDefEnv := ⟨NanoP4Spec.externMeth
 
 instance : OfValue NanoP4Spec.typeIR := ⟨NanoP4Spec.typeIR.ofValue⟩
 
+def parameterIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parameterIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "direction" [])),
+                    .Arg (Q.t (Q.varT "typeIR" [])),
+                    .Arg (Q.t (Q.varT "nameIR" []))])
+                "parameterIR"
+                []]))
+       [])
+
+def fieldTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "fieldTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "typeIR" [])),
+                    .Arg (Q.t (Q.varT "id" [])),
+                    .Atom (Q.a (.Operator ";"))])
+                "fieldTypeIR"
+                []]))
+       [])
+
+def externMethodTypeDefIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externMethodTypeDefIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "VOID")),
+                    .Arg (Q.t (Q.varT "callableId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "externMethodTypeDefIR"
+                []]))
+       [])
+
+def externMethodTypeDefEnv.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externMethodTypeDefEnv")
+       []
+       (Q.dt
+          (.PlainT
+             (Q.t
+                (Q.varT
+                   "map"
+                   [Q.t (Q.varT "callableId" []), Q.t (Q.varT "externMethodTypeDefIR" [])]))))
+       [])
+
+def typeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "INT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .NatT))) (Q.a .RAngle)])
+                "integerTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "BIT")),
+                    .Brack (Q.a .LAngle) (.Arg (Q.t (.NumT .NatT))) (Q.a .RAngle)])
+                "integerTypeIR"
+                [],
+              Q.tc (.Atom (Q.a (.Keyword "BOOL"))) "baseTypeIR" [],
+              Q.tc (.Atom (Q.a (.Keyword "MATCH_KIND"))) "baseTypeIR" [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "structTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "externMethodTypeDefEnv" []))])
+                "externObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "parserObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "controlObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "packageObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq [.Atom (Q.a (.Keyword "TABLE")), .Arg (Q.t (Q.varT "typeId" []))])
+                "tableObjectTypeIR"
+                []]))
+       [])
+
 inductive argumentIR where
   | hash (expression : NanoP4Spec.expression) (typeIR : NanoP4Spec.typeIR)
 
@@ -622,6 +817,22 @@ def argumentIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.argumentIR
     | _ => none
 
 instance : OfValue NanoP4Spec.argumentIR := ⟨NanoP4Spec.argumentIR.ofValue⟩
+
+def argumentIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "argumentIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Arg (Q.t (Q.varT "expression" [])),
+                    .Atom (Q.a (.Operator "#")),
+                    .Arg (Q.t (Q.varT "typeIR" []))])
+                "argumentIR"
+                []]))
+       [])
 
 inductive structTypeIR where
   | STRUCT_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
@@ -663,6 +874,25 @@ def structTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.structTyp
 
 instance : OfValue NanoP4Spec.structTypeIR := ⟨NanoP4Spec.structTypeIR.ofValue⟩
 
+def structTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "structTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "structTypeIR"
+                []]))
+       [])
+
 inductive headerTypeIR where
   | HEADER_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
 
@@ -702,6 +932,25 @@ def headerTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.headerTyp
     | _ => none
 
 instance : OfValue NanoP4Spec.headerTypeIR := ⟨NanoP4Spec.headerTypeIR.ofValue⟩
+
+def headerTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "headerTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerTypeIR"
+                []]))
+       [])
 
 inductive dataTypeIR where
   | STRUCT_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
@@ -768,6 +1017,35 @@ def dataTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.dataTypeIR
 
 instance : OfValue NanoP4Spec.dataTypeIR := ⟨NanoP4Spec.dataTypeIR.ofValue⟩
 
+def dataTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "dataTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "structTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerTypeIR"
+                []]))
+       [])
+
 inductive externObjectTypeIR where
   | EXTERN (typeId : NanoP4Spec.typeId) (externMethodTypeDefEnv : NanoP4Spec.externMethodTypeDefEnv)
 
@@ -799,6 +1077,22 @@ def externObjectTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.ext
     | _ => none
 
 instance : OfValue NanoP4Spec.externObjectTypeIR := ⟨NanoP4Spec.externObjectTypeIR.ofValue⟩
+
+def externObjectTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "externObjectTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "externMethodTypeDefEnv" []))])
+                "externObjectTypeIR"
+                []]))
+       [])
 
 inductive parserObjectTypeIR where
   | PARSER_lparen_rparen (typeId : NanoP4Spec.typeId) (parameterIR : List NanoP4Spec.parameterIR)
@@ -840,6 +1134,25 @@ def parserObjectTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.par
 
 instance : OfValue NanoP4Spec.parserObjectTypeIR := ⟨NanoP4Spec.parserObjectTypeIR.ofValue⟩
 
+def parserObjectTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "parserObjectTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "parserObjectTypeIR"
+                []]))
+       [])
+
 inductive controlObjectTypeIR where
   | CONTROL_lparen_rparen (typeId : NanoP4Spec.typeId) (parameterIR : List NanoP4Spec.parameterIR)
 
@@ -879,6 +1192,25 @@ def controlObjectTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.co
     | _ => none
 
 instance : OfValue NanoP4Spec.controlObjectTypeIR := ⟨NanoP4Spec.controlObjectTypeIR.ofValue⟩
+
+def controlObjectTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "controlObjectTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "controlObjectTypeIR"
+                []]))
+       [])
 
 inductive packageObjectTypeIR where
   | PACKAGE_lparen_rparen (typeId : NanoP4Spec.typeId) (parameterIR : List NanoP4Spec.parameterIR)
@@ -920,6 +1252,25 @@ def packageObjectTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.pa
 
 instance : OfValue NanoP4Spec.packageObjectTypeIR := ⟨NanoP4Spec.packageObjectTypeIR.ofValue⟩
 
+def packageObjectTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "packageObjectTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "packageObjectTypeIR"
+                []]))
+       [])
+
 inductive tableObjectTypeIR where
   | TABLE (typeId : NanoP4Spec.typeId)
 
@@ -945,6 +1296,19 @@ def tableObjectTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tabl
     | _ => none
 
 instance : OfValue NanoP4Spec.tableObjectTypeIR := ⟨NanoP4Spec.tableObjectTypeIR.ofValue⟩
+
+def tableObjectTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "tableObjectTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq [.Atom (Q.a (.Keyword "TABLE")), .Arg (Q.t (Q.varT "typeId" []))])
+                "tableObjectTypeIR"
+                []]))
+       [])
 
 inductive objectTypeIR where
   | EXTERN (typeId : NanoP4Spec.typeId) (externMethodTypeDefEnv : NanoP4Spec.externMethodTypeDefEnv)
@@ -1064,6 +1428,56 @@ def objectTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.objectTyp
 
 instance : OfValue NanoP4Spec.objectTypeIR := ⟨NanoP4Spec.objectTypeIR.ofValue⟩
 
+def objectTypeIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "objectTypeIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "externMethodTypeDefEnv" []))])
+                "externObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "parserObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "controlObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "packageObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq [.Atom (Q.a (.Keyword "TABLE")), .Arg (Q.t (Q.varT "typeId" []))])
+                "tableObjectTypeIR"
+                []]))
+       [])
+
 abbrev externTypeDefIR : Type := NanoP4Spec.externObjectTypeIR
 
 def externTypeDefIR.toValue (x : NanoP4Spec.externTypeDefIR) : Lang.Il.value := ToValue.toValue x
@@ -1076,6 +1490,9 @@ def externTypeDefIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.extern
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.externTypeDefIR := ⟨NanoP4Spec.externTypeDefIR.ofValue⟩
+
+def externTypeDefIR.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "externTypeDefIR") [] (Q.dt (.PlainT (Q.t (Q.varT "externObjectTypeIR" [])))) [])
 
 abbrev parserTypeDefIR : Type := NanoP4Spec.parserObjectTypeIR
 
@@ -1090,6 +1507,9 @@ def parserTypeDefIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parser
 
 instance : OfValue NanoP4Spec.parserTypeDefIR := ⟨NanoP4Spec.parserTypeDefIR.ofValue⟩
 
+def parserTypeDefIR.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "parserTypeDefIR") [] (Q.dt (.PlainT (Q.t (Q.varT "parserObjectTypeIR" [])))) [])
+
 abbrev controlTypeDefIR : Type := NanoP4Spec.controlObjectTypeIR
 
 def controlTypeDefIR.toValue (x : NanoP4Spec.controlTypeDefIR) : Lang.Il.value := ToValue.toValue x
@@ -1103,6 +1523,10 @@ def controlTypeDefIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.contr
 
 instance : OfValue NanoP4Spec.controlTypeDefIR := ⟨NanoP4Spec.controlTypeDefIR.ofValue⟩
 
+def controlTypeDefIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD (Q.i "controlTypeDefIR") [] (Q.dt (.PlainT (Q.t (Q.varT "controlObjectTypeIR" [])))) [])
+
 abbrev packageTypeDefIR : Type := NanoP4Spec.packageObjectTypeIR
 
 def packageTypeDefIR.toValue (x : NanoP4Spec.packageTypeDefIR) : Lang.Il.value := ToValue.toValue x
@@ -1115,6 +1539,10 @@ def packageTypeDefIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.packa
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.packageTypeDefIR := ⟨NanoP4Spec.packageTypeDefIR.ofValue⟩
+
+def packageTypeDefIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD (Q.i "packageTypeDefIR") [] (Q.dt (.PlainT (Q.t (Q.varT "packageObjectTypeIR" [])))) [])
 
 inductive objectTypeDefIR where
   | EXTERN (typeId : NanoP4Spec.typeId) (externMethodTypeDefEnv : NanoP4Spec.externMethodTypeDefEnv)
@@ -1222,6 +1650,52 @@ def objectTypeDefIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.object
     | _ => none
 
 instance : OfValue NanoP4Spec.objectTypeDefIR := ⟨NanoP4Spec.objectTypeDefIR.ofValue⟩
+
+def objectTypeDefIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "objectTypeDefIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "externMethodTypeDefEnv" []))])
+                "externObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "parserObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "controlObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "packageObjectTypeIR"
+                []]))
+       [])
 
 inductive typeDefIR where
   | STRUCT_lbrace_rbrace (typeId : NanoP4Spec.typeId) (fieldTypeIR : List NanoP4Spec.fieldTypeIR)
@@ -1379,6 +1853,72 @@ def typeDefIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDefIR
     | _ => none
 
 instance : OfValue NanoP4Spec.typeDefIR := ⟨NanoP4Spec.typeDefIR.ofValue⟩
+
+def typeDefIR.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "typeDefIR")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "STRUCT")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "structTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "HEADER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LBrace)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "fieldTypeIR" [])) .List)))
+                      (Q.a .RBrace)])
+                "headerTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "EXTERN")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Arg (Q.t (Q.varT "externMethodTypeDefEnv" []))])
+                "externObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PARSER")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "parserObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "CONTROL")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "controlObjectTypeIR"
+                [],
+              Q.tc
+                (.Seq
+                   [.Atom (Q.a (.Keyword "PACKAGE")),
+                    .Arg (Q.t (Q.varT "typeId" [])),
+                    .Brack
+                      (Q.a .LParen)
+                      (.Arg (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)))
+                      (Q.a .RParen)])
+                "packageObjectTypeIR"
+                []]))
+       [])
 
 def integerTypeIR.to_typeIR : NanoP4Spec.integerTypeIR → NanoP4Spec.typeIR
   | .INT_langle_rangle x0 => .INT_langle_rangle x0

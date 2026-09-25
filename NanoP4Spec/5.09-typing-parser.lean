@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.08-typing-declaration»
 
 /-! # NanoP4Spec.«5.09-typing-parser»
@@ -54,6 +57,9 @@ theorem ParserLocalDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDecl_ok.run_sound
+
+-- no determinism theorem: ParserLocalDecl_ok
+--   calls VarDecl_ok, which has no determinism theorem
 
 def ParserLocalDecl_ok.al : Lang.Al.def :=
   Q.d
@@ -391,6 +397,9 @@ theorem ParserLocalDeclList_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDeclList_ok.run_sound
+
+-- no determinism theorem: ParserLocalDeclList_ok
+--   calls ParserLocalDecls_ok, which has no determinism theorem
 
 def ParserLocalDeclList_ok.al : Lang.Al.def :=
   Q.d

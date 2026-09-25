@@ -410,6 +410,9 @@ structure Member where
   conclusionNamed : Format := Format.nil
   /-- The output types. -/
   outTypes : List Term := []
+  /-- For a relation: why no determinism theorem is attempted (one rule
+  path, no recursion, no iterated premise are required), or `none`. -/
+  detReason : Option String := some "not a relation"
   deriving Inhabited
 
 /-- The binders `(p0 : T0) (p1 : T1)` of the parameters, each after a
@@ -456,6 +459,31 @@ def corollary (externs : Bool) (m : Member) (thm : Option String) : Format :=
 /-- The axiom audit of a theorem. -/
 def audit (name : String) : Format := Format.text ("#audit_axioms " ++ name)
 
+/-- The determinism theorem `R.det` of a relation:
+`R ins outs → R ins outs' → outs = outs'`, by `det`. -/
+def detTheorem (externs : Bool) (m : Member) : Format :=
+  let ps := paramNames m.params.length
+  let ext := if externs then Format.text " [Externs]" else Format.nil
+  let n := m.nOuts
+  let outs := (List.range n).map fun k => s!"o{k}"
+  let outs' := (List.range n).map fun k => s!"o{k}'"
+  -- implicit: the theorem is applied to the two derivations directly
+  let obs := Format.join ((outs.zip outs' |>.zip m.outTypes).map fun ((o, o'), t) =>
+    Format.line ++ Format.text s!"\{{o} {o'} : " ++ t.fmt ++ "}")
+  let ins := Format.join ((ps.zip m.params).map fun (n, t) =>
+    Format.line ++ Format.text ("{" ++ n ++ " : ") ++ t.fmt ++ "}")
+  let rel := m.defName.replace ".run" ""
+  let app (os : List String) := (Term.call rel ((ps ++ os).map Term.atom)).fmt
+  let eqs := if n == 0 then Format.text "True"
+    else Format.joinSep ((outs.zip outs').map fun (o, o') => Format.text s!"{o} = {o'}")
+      (Format.text " ∧" ++ Format.line)
+  let stmt := Format.group (Format.nest 4 (app outs ++ " →" ++ Format.line ++ app outs' ++ " →" ++
+    Format.line ++ eqs))
+  let name := m.localName.replace ".run" "" ++ ".det"
+  Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
+    ext ++ ins ++ obs ++ " :" ++ Format.line ++ stmt ++ " :=")) ++
+    Format.nest 2 (Format.line ++ "by det")
+
 /-- The theorems of a group: the group theorem by `partial_correctness`
 when the group is recursive, and one corollary per relation. -/
 def groupTheorems (externs recursive : Bool) (members : List Member) : List Format := Id.run do
@@ -466,6 +494,9 @@ def groupTheorems (externs recursive : Bool) (members : List Member) : List Form
   if !recursive then
     for m in rels do
       out := out ++ [corollary externs m none, audit (m.defName ++ "_sound")]
+      match m.detReason with
+      | none => out := out ++ [detTheorem externs m, audit (m.defName.replace ".run" "" ++ ".det")]
+      | some r => out := out ++ [Format.text s!"-- no determinism theorem: {m.id}\n--   {r}"]
     return out
   let first := members.head!
   let groupName := first.defName ++ "_sound_group"
@@ -489,7 +520,7 @@ def groupTheorems (externs recursive : Bool) (members : List Member) : List Form
 def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
   let env := ctx.env
   match d.it with
-  | .RelD i nottyp inputs _ _ _ =>
+  | .RelD i nottyp inputs groups eg _ =>
     let args := (Mixfix.args nottyp.it).map (·.it)
     let (ins, outs) := splitArgs (inputs.map (·.toNat)) args
     let inTypes := ins.map (typTerm env [])
@@ -503,12 +534,26 @@ def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
     let outsNamed := (List.range n).map fun k => Term.atom s!"o{k}"
     let concl ← (relApp i.it (ps.map Term.atom) outsProj).run ctx |>.run' {}
     let conclNamed ← (relApp i.it (ps.map Term.atom) outsNamed).run ctx |>.run' {}
+    -- determinism is attempted on one rule path without iteration; a
+    -- second path can overlap the first, and an iterated premise needs
+    -- an induction the tactic does not do
+    let paths := (groups.map fun g => let (_, _, ps) := g.it; ps.length).sum
+    let prems := groups.flatMap (fun g =>
+      let (_, (_, _, ps), paths) := g.it
+      ps ++ paths.flatMap fun (_, ps, _) => ps) ++ (match eg with
+      | some e => let (_, (_, _, ps), (_, ps', _)) := e.it; ps ++ ps'
+      | none => [])
+    let iterated := prems.any fun p => match p.it with | .IterPr .. => true | _ => false
+    let detReason := if eg.isSome then some "else group"
+      else if paths != 1 then some s!"{paths} rule paths"
+      else if iterated then some "iterated premise"
+      else none
     pure (Member.mk i.it true (env.q (Names.relName i.it ++ ".run")) (Names.relName i.it ++ ".run")
-      inTypes (typTerm.prod outTypes) n concl conclNamed outTypes)
+      inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason)
   | .FuncDecD i _ params ret _ _ _ | .BuiltinDecD i _ params ret _ | .TableDecD i params ret _ _ =>
     pure (Member.mk i.it false (env.q (Names.funcName i.it)) (Names.funcName i.it)
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
-      Format.nil Format.nil [])
+      Format.nil Format.nil [] (some "not a relation"))
   | _ => throw s!"not a function or relation: {d.it.id.it}"
 
 end P4SpecTec.Codegen.Props

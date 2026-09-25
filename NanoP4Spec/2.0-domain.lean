@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«1-syntax»
 
 /-! # NanoP4Spec.«2.0-domain»
@@ -35,6 +38,25 @@ def id.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.id
 
 instance : OfValue NanoP4Spec.id := ⟨NanoP4Spec.id.ofValue⟩
 
+def id.al : Lang.Al.def :=
+  Q.d
+    (.FuncDecD
+       (Q.i "id")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "name" [])))]
+       (Q.t .TextT)
+       [Q.cl
+          [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))]
+          (Q.e
+             (.CallE
+                (Q.i "print_")
+                [Q.t (Q.varT "name" [])]
+                [Q.ar (.ExpA (Q.e (.VarE (Q.i "name")) (Q.varT "name" [])))])
+             .TextT)
+          []]
+       none
+       [])
+
 abbrev callableId : Type := String
 
 def callableId.toValue (x : NanoP4Spec.callableId) : Lang.Il.value := ToValue.toValue x
@@ -48,6 +70,9 @@ def callableId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableId
 
 instance : OfValue NanoP4Spec.callableId := ⟨NanoP4Spec.callableId.ofValue⟩
 
+def callableId.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "callableId") [] (Q.dt (.PlainT (Q.t .TextT))) [])
+
 abbrev nameIR : Type := String
 
 def nameIR.toValue (x : NanoP4Spec.nameIR) : Lang.Il.value := ToValue.toValue x
@@ -60,6 +85,8 @@ def nameIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nameIR
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.nameIR := ⟨NanoP4Spec.nameIR.ofValue⟩
+
+def nameIR.al : Lang.Al.def := Q.d (.TypD (Q.i "nameIR") [] (Q.dt (.PlainT (Q.t .TextT))) [])
 
 inductive scope where
   | GLOBAL
@@ -103,6 +130,18 @@ def scope.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.scope
 
 instance : OfValue NanoP4Spec.scope := ⟨NanoP4Spec.scope.ofValue⟩
 
+def scope.al : Lang.Al.def :=
+  Q.d
+    (.TypD
+       (Q.i "scope")
+       []
+       (Q.dt
+          (.VariantT
+             [Q.tc (.Atom (Q.a (.Keyword "GLOBAL"))) "scope" [],
+              Q.tc (.Atom (Q.a (.Keyword "BLOCK"))) "scope" [],
+              Q.tc (.Atom (Q.a (.Keyword "LOCAL"))) "scope" []]))
+       [])
+
 abbrev typeId : Type := NanoP4Spec.id
 
 def typeId.toValue (x : NanoP4Spec.typeId) : Lang.Il.value := ToValue.toValue x
@@ -115,6 +154,9 @@ def typeId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeId
   | fuel + 1, v => OfValue.ofValue fuel v
 
 instance : OfValue NanoP4Spec.typeId := ⟨NanoP4Spec.typeId.ofValue⟩
+
+def typeId.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "typeId") [] (Q.dt (.PlainT (Q.t (Q.varT "id" [])))) [])
 
 def «$id» (p0 : NanoP4Spec.name) : Option (Except Fail String) :=
   ExceptT.run

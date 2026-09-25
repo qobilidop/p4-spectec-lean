@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«8.09-eval-parser»
 
 /-! # NanoP4Spec.«8.10-eval-control»
@@ -110,6 +113,9 @@ theorem ControlLocalDecl_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDecl_eval.run_sound
+
+-- no determinism theorem: ControlLocalDecl_eval
+--   2 rule paths
 
 def ControlLocalDecl_eval.al : Lang.Al.def :=
   Q.d
@@ -581,6 +587,9 @@ theorem ControlLocalDeclList_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDeclList_eval.run_sound
+
+-- no determinism theorem: ControlLocalDeclList_eval
+--   calls ControlLocalDecls_eval, which has no determinism theorem
 
 def ControlLocalDeclList_eval.al : Lang.Al.def :=
   Q.d

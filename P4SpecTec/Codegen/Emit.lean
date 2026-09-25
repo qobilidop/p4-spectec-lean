@@ -1,6 +1,7 @@
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Reify
+import P4SpecTec.Codegen.Validate
 import P4SpecTec.Codegen.Graph
 
 /-!
@@ -10,8 +11,12 @@ relations, each followed by the `Prop` encoding of its relations and
 their run-soundness theorems), every group is assigned to the module of
 the last spec file it or its dependencies come from, and one module is
 written per spec file that has something to say, in spec order, each
-importing the previous. Design section 4.1 and the deviation "a recursive group
-spanning files is emitted in the module of the last file".
+importing the previous. Every definition is also quoted (`d.al`), and a
+last module, `Refinement`, holds the quoted spec as a list and the
+refinement theorems of rung 3 (`Codegen/Validate.lean`), which need the
+whole spec. Design section 4.1 and the deviations "a recursive group
+spanning files is emitted in the module of the last file" and "the
+refinement theorems are in one module after the spec files".
 -/
 
 namespace P4SpecTec.Codegen.Emit
@@ -99,7 +104,8 @@ def printHints (d : Lang.Al.def) : List String :=
   | _ => []
 
 /-- Generate the plan for a spec. -/
-def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List String) := do
+def plan (env : Env) (spec : Lang.Al.spec) :
+    Except String (List Unit × List String × Format) := do
   let withPrint := spec.flatMap printHints
   if !withPrint.isEmpty then
     throw s!"print hints are not supported yet (design 5.4); found on {withPrint}"
@@ -150,8 +156,11 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
     else joinDecls (members.map fun (tid, tparams, dt) => typeDecl env [] tid tparams dt)
     let encoders := if members.isEmpty then []
       else [toValueDecls env members, ofValueDecls env members]
+    let quotedTypes := group.filterMap fun id => match defById.get? id with
+      | some d => some (Reify.quoted (Names.typeName id) d)
+      | none => none
     let unitIdx := units.length
-    let allDecls := joinDecls (externDecls ++ [decls] ++ encoders)
+    let allDecls := joinDecls (externDecls ++ [decls] ++ encoders ++ quotedTypes)
     let u : Unit := { id := "T:" ++ ",".intercalate group, file := file, decls := allDecls }
     units := units ++ [u]
     for id in group do
@@ -179,7 +188,12 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
   let externsUnitFile := (externDefs.map fun d =>
     (typesOfDef d).map (typeUnitFile.getD · 0) ++ [fileIdx (Env.fileOf d)]).flatten.foldl max 0
   if !externDefs.isEmpty then
-    let u : Unit := { id := "X", file := externsUnitFile, decls := externsClass env externDefs }
+    let quotedExterns := externDefs.map fun d => match d.it with
+      | .ExternRelD i .. => Reify.quoted (Names.relName i.it) d
+      | _ => Reify.quoted (Names.funcName d.it.id.it) d
+    let u : Unit :=
+      { id := "X", file := externsUnitFile,
+        decls := joinDecls (externsClass env externDefs :: quotedExterns) }
     units := units ++ [u]
   -- functions and relations
   let funIds := spec.filterMap fun d => match d.it with
@@ -192,6 +206,11 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
   let funGroups := Graph.sccs funIds funDeps
   let mut unitFile : Std.HashMap String Nat := {}
   let mut needsExt : Std.HashMap String Bool := {}
+  let mut refinements : List Format := []
+  let mut covered := 0
+  let mut total := 0
+  let mut coveredIds : List String := []
+  let mut detIds : List String := []
   let ctxBase : Ctx := { env, externs := externNames }
   for group in funGroups do
     let recursive := Graph.isRecursive group funDeps
@@ -229,12 +248,23 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
         props := props ++
           [← Props.relInductive ctx ext i.it nottyp (inputs.map (·.toNat)) groups eg]
       members := members ++ [← Props.memberOf ctx d]
+    -- determinism is closed under callees: a relation premise on a
+    -- relation without its own determinism theorem leaves outputs open
+    members := members.map fun m =>
+      if m.isRel && m.detReason.isNone then
+        let relCallees := (calls m.id).filter fun c => env.rels.contains c && c != m.id
+        match relCallees.find? fun c => !detIds.contains c with
+        | some c => { m with detReason := some s!"calls {c}, which has no determinism theorem" }
+        | none => m
+      else m
+    detIds := detIds ++ (members.filter fun m => m.isRel && m.detReason.isNone).map (·.id)
     let theorems := Props.groupTheorems ext recursive members
     -- the quoted definitions, for the refinement theorems (rung 3)
     let quoted := group.filterMap fun id => match defById.get? id with
       | some d => match d.it with
         | .RelD i .. => some (Reify.quoted (Names.relName i.it) d)
-        | .FuncDecD i .. | .TableDecD i .. => some (Reify.quoted (Names.funcName i.it) d)
+        | .FuncDecD i .. | .TableDecD i .. | .BuiltinDecD i .. =>
+          some (Reify.quoted (Names.funcName i.it) d)
         | _ => none
       | none => none
     let text := joinDecls ([if recursive then mutualBlock decls else joinDecls decls] ++
@@ -245,13 +275,47 @@ def plan (env : Env) (spec : Lang.Al.spec) : Except String (List Unit × List St
     for id in group do
       unitFile := unitFile.insert id file
       needsExt := needsExt.insert id ext
-  pure (units, files)
+    -- the refinement theorems of the group (rung 3): the group is covered
+    -- when every member is in the fragment and every callee outside the
+    -- group is covered
+    let reasons := group.filterMap fun id => match defById.get? id with
+      | some d => (Validate.unsupported env externNames d).map fun r => (id, r)
+      | none => none
+    let uncoveredCallees := group.flatMap fun id =>
+      ((calls id).filter fun c => !group.contains c && !coveredIds.contains c &&
+        funIds.contains c).map fun c => (id, s!"calls {c}, which has no theorem")
+    let bodied := members.filter fun m => match env.funcs.get? m.id with
+      | some info => info.kind != .builtin
+      | none => true
+    let reasons := if bodied.isEmpty then []
+      else if ext then group.map fun id => (id, "extern")
+      else reasons ++ uncoveredCallees
+    refinements := refinements ++ Validate.groupTheorems env.lib recursive bodied reasons
+    if reasons.isEmpty then
+      covered := covered + bodied.length
+      coveredIds := coveredIds ++ bodied.map (·.id)
+    total := total + bodied.length
+  -- the quoted spec, in order, for the refinement theorems
+  let quotedNames := spec.filterMap fun d => match d.it with
+    | .RelD i .. | .ExternRelD i .. => some (env.q (Names.relName i.it) ++ ".al")
+    | .FuncDecD i .. | .TableDecD i .. | .BuiltinDecD i .. | .ExternDecD i .. =>
+      some (env.q (Names.funcName i.it) ++ ".al")
+    | .TypD i .. | .ExternTypD i .. => some (env.q (Names.typeName i.it) ++ ".al")
+    | .VarD .. => none
+  if quotedNames.length != quotedNames.eraseDups.length then
+    throw "a type and a relation share a name; their quoted definitions would clash"
+  -- an explicit chain of `::`: the list macro chunks a long literal into
+  -- nested `have`s, which the tactic's membership proofs cannot walk
+  let specDecl := Term.defn (Format.text "def spec : List Lang.Al.def")
+    (Format.text (" ::\n  ".intercalate quotedNames ++ " ::\n  []"))
+  let summary := Format.text s!"-- refinement theorems: {covered} of {total} definitions"
+  pure (units, files, joinDecls ([summary, specDecl] ++ refinements))
 
 
 /-- Generate every output file of a library. -/
 def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (List Output) := do
   let env := Env.ofSpec lib spec
-  let (units, files) ← plan env spec
+  let (units, files, refinement) ← plan env spec
   let used := (units.map (·.file)).eraseDups.mergeSort (· ≤ ·)
   let specRoot := Names.specRoot files
   let mut outs : List Output := []
@@ -266,7 +330,9 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
       if c.startsWith "«" then String.ofList (c.toList.drop 1 |>.dropLast) else c)
     let body := units.filter (·.file == i)
     let imports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
-      "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Refine.Quote\n" ++ (match prev with
+      "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Tactic.Det\n" ++
+      "import P4SpecTec.Refine.Quote\nimport P4SpecTec.Refine.Calc\n" ++
+      "import P4SpecTec.Tactic.Refine\n" ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
     let text := headerLine lib exportPath file ++ "\n" ++ imports ++ "\n" ++
@@ -274,6 +340,24 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     outs := outs ++ [{ path := s!"{lib}/{path}.lean", text }]
     prev := some module
     modules := modules ++ [module]
+  -- the refinement theorems, after every spec file
+  let refImports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
+    "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Refine.Quote\n" ++
+    "import P4SpecTec.Refine.Calc\nimport P4SpecTec.Tactic.Refine\n" ++ (match prev with
+    | some p => s!"import {lib}.{p}\n"
+    | none => "")
+  let refText := headerLine lib exportPath "every file (rung 3)" ++ "\n" ++ refImports ++ "\n" ++
+    String.join [
+      s!"/-! # {lib}.Refinement\n\nThe quoted specification as a list, and the refinement ",
+      "theorems of rung 3\n(design section 5.1): the AL interpreter run on each quoted ",
+      "definition refines\nthe generated code, by `refine_al`. Generated.\n-/\n\n",
+      "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
+      "set_option autoImplicit false\nset_option maxHeartbeats 4000000\n",
+      "-- the quoted spec is one deep `::` chain\nset_option maxRecDepth 8192\n\n",
+      "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
+      s!"namespace {lib}\n\n"] ++ render refinement ++ s!"\n\nend {lib}\n"
+  outs := outs ++ [{ path := s!"{lib}/Refinement.lean", text := refText }]
+  modules := modules ++ ["Refinement"]
   let root := headerLine lib exportPath "all files" ++ "\n" ++
     String.join (modules.map fun m => s!"import {lib}.{m}\n") ++
     s!"\n/-!\n# {lib}\n\nThe rendering of the specification exported to `{exportPath}`, " ++

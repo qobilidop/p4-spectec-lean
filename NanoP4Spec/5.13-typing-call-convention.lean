@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«5.11-typing-table»
 
 /-! # NanoP4Spec.«5.13-typing-call-convention»
@@ -108,6 +111,9 @@ theorem Call_convention_arg_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Call_convention_arg_ok.run_sound
+
+-- no determinism theorem: Call_convention_arg_ok
+--   3 rule paths
 
 def Call_convention_arg_ok.al : Lang.Al.def :=
   Q.d
@@ -2041,6 +2047,9 @@ theorem ParserState_ok.run_sound
 
 #audit_axioms NanoP4Spec.ParserState_ok.run_sound
 
+-- no determinism theorem: ParserState_ok
+--   calls Statements_ok, which has no determinism theorem
+
 def ParserState_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -2253,6 +2262,9 @@ theorem ParserStateList_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserStateList_ok.run_sound
+
+-- no determinism theorem: ParserStateList_ok
+--   iterated premise
 
 def ParserStateList_ok.al : Lang.Al.def :=
   Q.d
@@ -2594,6 +2606,9 @@ theorem TableAction_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.TableAction_ok.run_sound
+
+-- no determinism theorem: TableAction_ok
+--   2 rule paths
 
 def TableAction_ok.al : Lang.Al.def :=
   Q.d
@@ -3278,6 +3293,9 @@ theorem TableActionList_ok.run_sound
 
 #audit_axioms NanoP4Spec.TableActionList_ok.run_sound
 
+-- no determinism theorem: TableActionList_ok
+--   iterated premise
+
 def TableActionList_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -3571,6 +3589,9 @@ theorem TableEntry_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.TableEntry_ok.run_sound
+
+-- no determinism theorem: TableEntry_ok
+--   2 rule paths
 
 def TableEntry_ok.al : Lang.Al.def :=
   Q.d
@@ -4419,6 +4440,9 @@ theorem TableProperties_ok.run_sound
 
 #audit_axioms NanoP4Spec.TableProperties_ok.run_sound
 
+-- no determinism theorem: TableProperties_ok
+--   2 rule paths
+
 def TableProperties_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -4713,6 +4737,9 @@ theorem TableDecl_ok.run_sound
 
 #audit_axioms NanoP4Spec.TableDecl_ok.run_sound
 
+-- no determinism theorem: TableDecl_ok
+--   calls TableProperties_ok, which has no determinism theorem
+
 def TableDecl_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -4886,6 +4913,9 @@ theorem ControlLocalDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDecl_ok.run_sound
+
+-- no determinism theorem: ControlLocalDecl_ok
+--   2 rule paths
 
 def ControlLocalDecl_ok.al : Lang.Al.def :=
   Q.d
@@ -5310,6 +5340,9 @@ theorem ControlLocalDeclList_ok.run_sound
 
 #audit_axioms NanoP4Spec.ControlLocalDeclList_ok.run_sound
 
+-- no determinism theorem: ControlLocalDeclList_ok
+--   calls ControlLocalDecls_ok, which has no determinism theorem
+
 def ControlLocalDeclList_ok.al : Lang.Al.def :=
   Q.d
     (.RelD
@@ -5464,6 +5497,9 @@ theorem ActionDecl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ActionDecl_ok.run_sound
+
+-- no determinism theorem: ActionDecl_ok
+--   iterated premise
 
 def ActionDecl_ok.al : Lang.Al.def :=
   Q.d
@@ -5962,6 +5998,9 @@ theorem Decl_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Decl_ok.run_sound
+
+-- no determinism theorem: Decl_ok
+--   7 rule paths
 
 def Decl_ok.al : Lang.Al.def :=
   Q.d
@@ -7032,6 +7071,9 @@ theorem Program_ok.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.Program_ok.run_sound
+
+-- no determinism theorem: Program_ok
+--   calls Decls_ok, which has no determinism theorem
 
 def Program_ok.al : Lang.Al.def :=
   Q.d

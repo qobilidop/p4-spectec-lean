@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«8.04-eval-lvalue»
 
 /-! # NanoP4Spec.«8.09-eval-parser»
@@ -55,6 +58,9 @@ theorem ParserLocalDecl_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDecl_eval.run_sound
+
+-- no determinism theorem: ParserLocalDecl_eval
+--   calls VarDecl_eval, which has no determinism theorem
 
 def ParserLocalDecl_eval.al : Lang.Al.def :=
   Q.d
@@ -403,6 +409,9 @@ theorem ParserLocalDeclList_eval.run_sound
   by run_sound
 
 #audit_axioms NanoP4Spec.ParserLocalDeclList_eval.run_sound
+
+-- no determinism theorem: ParserLocalDeclList_eval
+--   calls ParserLocalDecls_eval, which has no determinism theorem
 
 def ParserLocalDeclList_eval.al : Lang.Al.def :=
   Q.d

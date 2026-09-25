@@ -4,13 +4,19 @@ Where the work stands now. Updated at every checkpoint; holds current
 state only.
 
 Last updated: 2026-09-25. **Active: milestone M2 (Nano-P4, rung 3 and
-the lemma library), on branch `m2-nano-p4`; phases A, B and C of the plan
-in `.agents/notes/m2-plan.md` are done** (fuel-free executable encoding
-in the `Eval` monad with `partial_fixpoint`; the `Prop` encoding of every
-relation with a generated, tactic-proved run-soundness theorem and an
-axiom audit; the AL interpreter ported to Lean and agreeing with upstream
-on the corpus as the second leg of rung 2). Phase D (value relations and
-the refinement theorems, rung 3) is next.
+the lemma library), on branch `m2-nano-p4`; phases A, B, C and D of the
+plan in `.agents/notes/m2-plan.md` are done** (fuel-free executable
+encoding in the `Eval` monad with `partial_fixpoint`; the `Prop` encoding
+of every relation with a generated, tactic-proved run-soundness theorem
+and an axiom audit; the AL interpreter ported to Lean and agreeing with
+upstream on the corpus as the second leg of rung 2; rung 3: every
+definition quoted, the value relation, the refinement calculus, generated
+refinement theorems proved by `refine_al` for the fragment it covers,
+`.agents/notes/m2-phase-d.md`). Phase E: the determinism attempt is
+done (2 of 77 relations, design section 12); the independent review of
+phase D is filed and its gate finding fixed; timing, the phase D/E
+commits, the merge of `main`'s Dependabot bumps, and the merge to `main`
+remain.
 
 ## Current state
 
@@ -23,27 +29,50 @@ the refinement theorems, rung 3) is next.
 | Prelude | `Runtime/Value/Value.lean` and `Interface/P4/Unparse.lean` mirror value construction, accessors, comparison and the printer; `Interface/Builtin/` ports every builtin file, with unit tests in `P4SpecTecTest/Builtins.lean` and the dispatcher on values `Call.lean`; `Prelude/` holds `ToValue`/`OfValue`, the `Eval` monad, numerics and iteration helpers | `m2-nano-p4` |
 | Interpreter | `Interp/InterpAl/{Backtrack,Ctx,Interp}.lean` mirror `interp/interp-al/` function by function, with fuel, over `Runtime/Value/Match.lean`, `Runtime/Type/{Typdef,Typ,Subst}.lean`, `Runtime/Dynamic/Var.lean`, `Runtime/DynamicAl/{Rel,Func}.lean`, `Lang/Hints/Input.lean`; `lake exe nano-p4-interp` (`P4SpecTecTest/Diff/NanoP4Interp/Main.lean`) runs `Program_ok` on the deep terms against the AL export | `m2-nano-p4` |
 | Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations in both encodings, run-soundness theorems with audits, `Externs` class, per-file modules, `--check`/`--update`; every definition in `Eval := ExceptT Fail Option`, recursive groups by `partial_fixpoint`, no fuel | `m2-nano-p4` |
-| Tactics | `P4SpecTec/Tactic/RunSound.lean`: `run_sound` (symbolic execution of a run function against its `Prop` constructor) and `run_sound_group` (over `mutual_partial_correctness`, matching conjuncts by function); `Tactic/Audit.lean`: `#audit_axioms` | `m2-nano-p4` |
+| Tactics | `P4SpecTec/Tactic/RunSound.lean`: `run_sound` (symbolic execution of a run function against its `Prop` constructor) and `run_sound_group` (over `mutual_partial_correctness`, matching conjuncts by function); `Tactic/Refine.lean`: `refine_al`, lockstep execution of the interpreter port and the generated code (design 5.1); `Tactic/Audit.lean`: `#audit_axioms` | `m2-nano-p4` |
+| Rung 3 | `Refine/Value.lean` (`canon`, `Rel`, `eq_iff_canon`), `Refine/Quote.lean`, `Refine/Calc.lean` (`Refines`, `Holds`, `HoldsSpec`, exposure lemmas); `Codegen/Reify.lean` quotes every definition (`d.al`), `Codegen/Validate.lean` states the theorems and decides the fragment; `NanoP4Spec/Refinement.lean` holds `spec` (the quoted spec as a list) and the theorems: 18 of 153 definitions are in the fragment (18 functions, 0 relations: no builtin calls, casts, subtype checks, iteration bodies, iterated premises, type parameters, externs, indexing), all 18 theorems proved and audited; the rest are listed there with reasons | `m2-nano-p4` |
 | Generated | `NanoP4Spec/`, 28 modules named after the spec files, 21k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations in both encodings (77 `Prop` inductives, 98 theorems: 77 `R.run_sound` and 21 group theorems, each audited); 65 `partial_fixpoint` definitions in 20 recursive groups | `m2-nano-p4` |
 | Rung 2 | `test/diff/run.py`, two legs: the generated `Program_ok.run` and the interpreter port each agree with the AL interpreter's verdict on 78 of 78 programs (48 pass, 30 fail: 32 positive, 21 negative, 25 exercises); for the 48 that pass, the output typing context equals upstream's value on both legs | `m2-nano-p4` |
-| Timing | `docs/timing-nano-p4.md`: 25.9 s over 28 modules including the monotonicity and soundness proofs (13.5 s before the theorems); `1-syntax` and `5.13-typing-call-convention` at about 3.3 s each are the largest | `m2-nano-p4` |
+| Timing | `docs/timing-nano-p4.md`: 807.7 s over 29 modules; `Refinement` (the 18 refinement theorems) is 773 s, about 43 s per theorem, the other 28 modules 35 s together. Proof-checking time, not authoring, is the cost, as the design predicted; the driver's `simp` calls on the interpreter's equations dominate (phase times under `refine_al.trace`) | `m2-nano-p4` |
 
 ## Last checked evidence
 
-2026-09-25, on `m2-nano-p4` after phase B, `scripts/check.sh` in the
-Nix shell: exit 0 (layout, text, imports, mirror, `lake build --wfail`
-with the 28 generated modules, their `partial_fixpoint` monotonicity
-proofs and the 98 run-soundness theorems with `#audit_axioms`,
-`lake test`, keyword table, `p4spectec-gen --check`, and the harness: 78
-of 78 verdicts agree, 48 output typing contexts equal). On `main` at
-`d8003ec`, CI run 36116792883: exit 0.
+2026-09-25, on `m2-nano-p4` with phases D and E, `scripts/check.sh` in
+the Nix shell: exit 0 (layout, text, imports, mirror, `lake build --wfail`
+with the 29 generated modules, the 18 refinement theorems, the 2
+determinism theorems and the 98 run-soundness theorems, each with
+`#audit_axioms`, `lake test`, keyword table, `p4spectec-gen --check`, and
+the harness: 78 of 78 verdicts agree on both legs, 48 output typing
+contexts equal). `main` has since moved (three Dependabot workflow bumps,
+merged by the user); not yet merged into the branch.
 
 ## Open threads
 
-- **Rung 3 (value relations, refinement theorems) is not started**:
-  phase D of the M2 plan. The interpreter port, the `Prop` encoding and
-  run-soundness are done; the completeness direction
-  (`R i o → R.run i = some (.ok o)`) is not stated (design section 12).
+- **Rung 3's proof time**: 43 s per theorem; at the full spec's size this
+  is the budget to watch. The profile is in the tactic's trace; caching
+  the simp set per module and splitting `Refinement.lean` per spec file
+  are the first levers.
+- **Rung 3 covers 18 of 153 definitions.** Growing the fragment is the
+  M3 work order for rung 3, in this order of payoff: builtin calls (a
+  lemma per builtin relating the port on values to the wrapper), iterated
+  expressions and premises (`sub_list`/`mapM` against the generated
+  `List.map`/`mapM`), casts and subtype checks (per-type lemmas about
+  `upcast`/`downcast`/`Match.sub` against the generated bridges), then
+  indexing, slicing, membership, type parameters, externs. The
+  completeness direction (`R i o → R.run i = some (.ok o)`) is not stated
+  (design section 12).
+- The tactic's own diagnostics (`set_option refine_al.trace true`: the
+  steps, the phase times) stay in `Tactic/Refine.lean`; the trace goes to
+  stderr so that a failing step does not discard it.
+- **Review findings on rung 3 open for M3** (`.agents/reviews/m2-phase-d.md`;
+  the `HoldsSpec` witness it asked for is proved, `holdsSpec_of_init`):
+  the quoting is trusted (a
+  decode-erase-compare test of `NanoP4Spec.spec` against the export is
+  the check to add); `Match.sub_`/`check'` answer `false` and
+  `Subst.subst_typ_inner` the identity at fuel zero, the class of wart
+  fixed in `is_iter_var_exp`, harmless while their fuel is the constant
+  1000 but in the way once casts enter the fragment; the codegen mutation
+  check the design promises has not been run.
 - The interpreter's `Value.Match.sub_` yields `false` for function values
   (`FuncT`), since `Type.Equiv` is not ported; Nano-P4 has none, the full
   spec has (M3).

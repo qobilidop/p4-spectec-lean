@@ -54,6 +54,28 @@ instance {α : Type} [ToValue α] : ToValue (List α) :=
 instance {α : Type} [ToValue α] : ToValue (Option α) :=
   ⟨fun x => Runtime.Value.Make.opt .TextT (x.map toValue)⟩
 
+/-- The components of a tuple, flattened: a right-nested product
+`A × B × C` is the IL tuple `(a, b, c)`, as the generator renders it. -/
+class ToValues (α : Type) where
+  /-- The component values. -/
+  toValues : α → List value
+
+export ToValues (toValues)
+
+/-- A non-product component is one value. -/
+instance (priority := low) {α : Type} [ToValue α] : ToValues α := ⟨fun x => [toValue x]⟩
+
+/-- A product contributes its head and the components of its tail. -/
+instance {α β : Type} [ToValue α] [ToValues β] : ToValues (α × β) :=
+  ⟨fun p => toValue p.1 :: toValues p.2⟩
+
+/-- A product is a flat IL tuple. -/
+instance {α β : Type} [ToValue α] [ToValues β] : ToValue (α × β) :=
+  ⟨fun p => Runtime.Value.Make.tuple .TextT (toValues p)⟩
+
+/-- The unit is the empty tuple. -/
+instance : ToValue Unit := ⟨fun _ => Runtime.Value.Make.tuple .TextT []⟩
+
 /-- Decoding of an IL value into a generated Lean type, with fuel: `none`
 when the value has another shape or the fuel runs out. Every generated
 type gets an instance. -/

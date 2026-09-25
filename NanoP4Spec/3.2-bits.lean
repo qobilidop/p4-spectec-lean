@@ -3,7 +3,10 @@
 import P4SpecTec.Prelude
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Tactic.Audit
+import P4SpecTec.Tactic.Det
 import P4SpecTec.Refine.Quote
+import P4SpecTec.Refine.Calc
+import P4SpecTec.Tactic.Refine
 import NanoP4Spec.«3.1-operations»
 
 /-! # NanoP4Spec.«3.2-bits»
@@ -35,6 +38,8 @@ def bit.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bit
 
 instance : OfValue NanoP4Spec.bit := ⟨NanoP4Spec.bit.ofValue⟩
 
+def bit.al : Lang.Al.def := Q.d (.TypD (Q.i "bit") [] (Q.dt (.PlainT (Q.t .BoolT))) [])
+
 abbrev bits : Type := List NanoP4Spec.bit
 
 def bits.toValue (x : NanoP4Spec.bits) : Lang.Il.value := ToValue.toValue x
@@ -48,21 +53,60 @@ def bits.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bits
 
 instance : OfValue NanoP4Spec.bits := ⟨NanoP4Spec.bits.ofValue⟩
 
+def bits.al : Lang.Al.def :=
+  Q.d (.TypD (Q.i "bits") [] (Q.dt (.PlainT (Q.t (.IterT (Q.t (Q.varT "bit" [])) .List)))) [])
+
 def «$bits_to_int_unsigned» (p0 : NanoP4Spec.bits) : Option (Except Fail Int) :=
   ExceptT.run
     (pure (Builtin.Numerics.bits_to_int_unsigned p0))
+
+def «$bits_to_int_unsigned».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "bits_to_int_unsigned")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "bits" [])))]
+       (Q.t (.NumT .IntT))
+       [])
 
 def «$bits_to_int_signed» (p0 : NanoP4Spec.bits) : Option (Except Fail Int) :=
   ExceptT.run
     (Eval.unmatch? (Builtin.Numerics.bits_to_int_signed p0))
 
+def «$bits_to_int_signed».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "bits_to_int_signed")
+       []
+       [Q.pm (.ExpP (Q.t (Q.varT "bits" [])))]
+       (Q.t (.NumT .IntT))
+       [])
+
 def «$int_to_bits_unsigned» (p0 : Nat) (p1 : Int) : Option (Except Fail NanoP4Spec.bits) :=
   ExceptT.run
     (Eval.unmatch? (Builtin.Numerics.int_to_bits_unsigned (Int.ofNat p0) p1))
 
+def «$int_to_bits_unsigned».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "int_to_bits_unsigned")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .NatT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (Q.varT "bits" []))
+       [])
+
 def «$int_to_bits_signed» (p0 : Nat) (p1 : Int) : Option (Except Fail NanoP4Spec.bits) :=
   ExceptT.run
     (Eval.unmatch? (Builtin.Numerics.int_to_bits_signed (Int.ofNat p0) p1))
+
+def «$int_to_bits_signed».al : Lang.Al.def :=
+  Q.d
+    (.BuiltinDecD
+       (Q.i "int_to_bits_signed")
+       []
+       [Q.pm (.ExpP (Q.t (.NumT .NatT))), Q.pm (.ExpP (Q.t (.NumT .IntT)))]
+       (Q.t (Q.varT "bits" []))
+       [])
 
 mutual
 
