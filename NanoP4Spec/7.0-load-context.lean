@@ -385,95 +385,96 @@ def callableDef.is_actionDeclarationIR : NanoP4Spec.callableDef → Bool
   | _ => false
 
 def «$empty_callableDefEnv»
-    (fuel : Nat) : Option (NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableDef) :=
-  (do
-     let tmp_0 ←
-         NanoP4Spec.«$empty_map» (τK := NanoP4Spec.callableId) (τV := NanoP4Spec.callableDef) fuel
-     pure tmp_0)
+    : Option (Except Fail (NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableDef)) :=
+  ExceptT.run
+    (do
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.callableId) (τV := NanoP4Spec.callableDef))
+       pure tmp_0)
 
-def «$make_loadContext»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext) : Option NanoP4Spec.loadContext :=
-  (do
-     let TC := p0
-     let tmp_0 ← NanoP4Spec.«$empty_callableDefEnv» fuel
-     let LC :=
-         ({
-            CALLABLE_TYPE := TC.GLOBAL.CALLABLE,
-            CALLABLE := tmp_0,
-            PARSER := (none : Option NanoP4Spec.parserDeclarationIR),
-            CONTROL := (none : Option
-               NanoP4Spec.controlDeclarationIR), } : NanoP4Spec.globalLoadLayer)
-     pure LC)
+def «$make_loadContext» (p0 : NanoP4Spec.typingContext)
+    : Option (Except Fail NanoP4Spec.loadContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_callableDefEnv»
+       have LC :=
+           ({
+              CALLABLE_TYPE := TC.GLOBAL.CALLABLE,
+              CALLABLE := tmp_0,
+              PARSER := (none : Option NanoP4Spec.parserDeclarationIR),
+              CONTROL := (none : Option
+                 NanoP4Spec.controlDeclarationIR), } : NanoP4Spec.globalLoadLayer)
+       pure LC)
 
-def «$find_callableDef_l»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.loadContext)
-    (p1 : NanoP4Spec.callableId) : Option NanoP4Spec.callableDef :=
-  (do
-     let LC := p0
-     let callableId := p1
-     let tmp_0 ←
-         NanoP4Spec.«$find_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableDef)
-           fuel
-           LC.CALLABLE
-           callableId
-     let callableDef'? := tmp_0
-     let _ ← Iter.check (Option.isSome callableDef'?)
-     let some callableDef := callableDef'? | none
-     pure callableDef)
+def «$find_callableDef_l» (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.callableId)
+    : Option (Except Fail NanoP4Spec.callableDef) :=
+  ExceptT.run
+    (do
+       have LC := p0
+       have callableId := p1
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$find_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableDef)
+                LC.CALLABLE
+                callableId)
+       have callableDef'? := tmp_0
+       let _ ← Eval.check (Option.isSome callableDef'?)
+       let some callableDef := callableDef'? | throw Fail.err
+       pure callableDef)
 
 def «$add_callableDef_l»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.loadContext)
-    (p1 : NanoP4Spec.callableId)
-    (p2 : NanoP4Spec.callableDef) : Option NanoP4Spec.loadContext :=
-  (do
-     let LC := p0
-     let callableId := p1
-     let callableDef := p2
-     let callableDefEnv := LC.CALLABLE
-     let tmp_0 ←
-         NanoP4Spec.«$dom_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableDef)
-           fuel
-           callableDefEnv
-     let tmp_1 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.callableId) fuel tmp_0 callableId
-     let _ ← Iter.check (!tmp_1)
-     let tmp_2 ←
-         NanoP4Spec.«$add_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableDef)
-           fuel
-           callableDefEnv
-           callableId
-           callableDef
-     let callableDefEnv' := tmp_2
-     let LC' :=
-         { LC with
-           CALLABLE := callableDefEnv', }
-     pure LC')
+        (p0 : NanoP4Spec.loadContext)
+        (p1 : NanoP4Spec.callableId)
+        (p2 : NanoP4Spec.callableDef)
+    : Option (Except Fail NanoP4Spec.loadContext) :=
+  ExceptT.run
+    (do
+       have LC := p0
+       have callableId := p1
+       have callableDef := p2
+       have callableDefEnv := LC.CALLABLE
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$dom_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableDef)
+                callableDefEnv)
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.callableId) tmp_0 callableId)
+       let _ ← Eval.check (!tmp_1)
+       let tmp_2 ←
+           ExceptT.mk
+             (NanoP4Spec.«$add_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableDef)
+                callableDefEnv
+                callableId
+                callableDef)
+       have callableDefEnv' := tmp_2
+       have LC' :=
+           { LC with
+             CALLABLE := callableDefEnv', }
+       pure LC')
 
-def «$find_callableTypeDef_l»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.loadContext)
-    (p1 : NanoP4Spec.callableId) : Option NanoP4Spec.callableTypeDef :=
-  (do
-     let LC := p0
-     let callableId := p1
-     let tmp_0 ←
-         NanoP4Spec.«$find_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableTypeDef)
-           fuel
-           LC.CALLABLE_TYPE
-           callableId
-     let callableTypeDef'? := tmp_0
-     let _ ← Iter.check (Option.isSome callableTypeDef'?)
-     let some callableTypeDef := callableTypeDef'? | none
-     pure callableTypeDef)
+def «$find_callableTypeDef_l» (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.callableId)
+    : Option (Except Fail NanoP4Spec.callableTypeDef) :=
+  ExceptT.run
+    (do
+       have LC := p0
+       have callableId := p1
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$find_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableTypeDef)
+                LC.CALLABLE_TYPE
+                callableId)
+       have callableTypeDef'? := tmp_0
+       let _ ← Eval.check (Option.isSome callableTypeDef'?)
+       let some callableTypeDef := callableTypeDef'? | throw Fail.err
+       pure callableTypeDef)
 
 end NanoP4Spec

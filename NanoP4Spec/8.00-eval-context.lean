@@ -136,468 +136,468 @@ def evalContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.evalContex
 
 instance : OfValue NanoP4Spec.evalContext := ⟨NanoP4Spec.evalContext.ofValue⟩
 
-def «$empty_frame» (fuel : Nat) : Option NanoP4Spec.frame :=
-  (do
-     let tmp_0 ← NanoP4Spec.«$empty_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.value) fuel
-     pure tmp_0)
+def «$empty_frame» : Option (Except Fail NanoP4Spec.frame) :=
+  ExceptT.run
+    (do
+       let tmp_0 ←
+           ExceptT.mk (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.value))
+       pure tmp_0)
 
-def «$make_evalContext»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.loadContext) : Option NanoP4Spec.evalContext :=
-  (do
-     let TC := p0
-     let LC := p1
-     let parserDeclarationIR'? := LC.PARSER
-     let _ ← Iter.check (Option.isSome parserDeclarationIR'?)
-     let some parserDeclarationIR := parserDeclarationIR'? | none
-     let controlDeclarationIR'? := LC.CONTROL
-     let _ ← Iter.check (Option.isSome controlDeclarationIR'?)
-     let some controlDeclarationIR := controlDeclarationIR'? | none
-     let tmp_0 ← NanoP4Spec.«$empty_frame» fuel
-     let globalEvalLayer :=
-         ({
-            TYPE := TC.GLOBAL.TYPE,
-            CALLABLE := LC.CALLABLE,
-            FRAME := tmp_0,
-            PARSER := parserDeclarationIR,
-            CONTROL := controlDeclarationIR, } : NanoP4Spec.globalEvalLayer)
-     let tmp_1 ← NanoP4Spec.«$empty_frame» fuel
-     let blockEvalLayer :=
-         ({
-            FRAME := tmp_1, } : NanoP4Spec.blockEvalLayer)
-     let tmp_2 ← NanoP4Spec.«$empty_frame» fuel
-     let localEvalLayer :=
-         ({
-            FRAMES := [tmp_2], } : NanoP4Spec.localEvalLayer)
-     let EC :=
-         ({
-            GLOBAL := globalEvalLayer,
-            BLOCK := blockEvalLayer,
-            LOCAL := localEvalLayer, } : NanoP4Spec.evalContext)
-     pure EC)
+def «$make_evalContext» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.loadContext)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have LC := p1
+       have parserDeclarationIR'? := LC.PARSER
+       let _ ← Eval.check (Option.isSome parserDeclarationIR'?)
+       let some parserDeclarationIR := parserDeclarationIR'? | throw Fail.err
+       have controlDeclarationIR'? := LC.CONTROL
+       let _ ← Eval.check (Option.isSome controlDeclarationIR'?)
+       let some controlDeclarationIR := controlDeclarationIR'? | throw Fail.err
+       let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+       have globalEvalLayer :=
+           ({
+              TYPE := TC.GLOBAL.TYPE,
+              CALLABLE := LC.CALLABLE,
+              FRAME := tmp_0,
+              PARSER := parserDeclarationIR,
+              CONTROL := controlDeclarationIR, } : NanoP4Spec.globalEvalLayer)
+       let tmp_1 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+       have blockEvalLayer :=
+           ({
+              FRAME := tmp_1, } : NanoP4Spec.blockEvalLayer)
+       let tmp_2 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+       have localEvalLayer :=
+           ({
+              FRAMES := [tmp_2], } : NanoP4Spec.localEvalLayer)
+       have EC :=
+           ({
+              GLOBAL := globalEvalLayer,
+              BLOCK := blockEvalLayer,
+              LOCAL := localEvalLayer, } : NanoP4Spec.evalContext)
+       pure EC)
 
-def «$inherit_e»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext) : Option NanoP4Spec.evalContext :=
-  (do
-     let scope := p0
-     let EC := p1
-     let _ ← Iter.check (match scope with
-        | NanoP4Spec.scope.GLOBAL => true
-        | _ => false)
-     let tmp_0 ← NanoP4Spec.«$empty_frame» fuel
-     let blockEvalLayer :=
-         ({
-            FRAME := tmp_0, } : NanoP4Spec.blockEvalLayer)
-     let tmp_1 ← NanoP4Spec.«$empty_frame» fuel
-     let localEvalLayer :=
-         ({
-            FRAMES := [tmp_1], } : NanoP4Spec.localEvalLayer)
-     pure { { EC with
-       BLOCK := blockEvalLayer, } with
-       LOCAL := localEvalLayer, }) <|>
-  ((do
-      let scope := p0
-      let EC := p1
-      let _ ← Iter.check (match scope with
-         | NanoP4Spec.scope.BLOCK => true
-         | _ => false)
-      let tmp_2 ← NanoP4Spec.«$empty_frame» fuel
-      let localEvalLayer :=
-          ({
-             FRAMES := [tmp_2], } : NanoP4Spec.localEvalLayer)
-      pure { EC with
-        LOCAL := localEvalLayer, }) <|>
-   (do
-      let scope := p0
-      let EC := p1
-      let _ ← Iter.check (match scope with
-         | NanoP4Spec.scope.LOCAL => true
-         | _ => false)
-      pure EC))
-
-def «$find_var_e»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.nameIR) : Option NanoP4Spec.value :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let scope := p0
-         let EC := p1
-         let nameIR := p2
-         let _ ← Iter.check (match scope with
-            | NanoP4Spec.scope.GLOBAL => true
+def «$inherit_e» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have EC := p1
+        let _ ← Eval.check (match scope with
+           | NanoP4Spec.scope.GLOBAL => true
+           | _ => false)
+        let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+        have blockEvalLayer :=
+            ({
+               FRAME := tmp_0, } : NanoP4Spec.blockEvalLayer)
+        let tmp_1 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+        have localEvalLayer :=
+            ({
+               FRAMES := [tmp_1], } : NanoP4Spec.localEvalLayer)
+        pure { { EC with
+          BLOCK := blockEvalLayer, } with
+          LOCAL := localEvalLayer, }) <|>
+     ((do
+         have scope := p0
+         have EC := p1
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.BLOCK => true
             | _ => false)
-         let frame := EC.GLOBAL.FRAME
-         let tmp_0 ←
-             NanoP4Spec.«$find_map»
-               (τK := NanoP4Spec.nameIR)
-               (τV := NanoP4Spec.value)
-               fuel
-               frame
-               nameIR
-         let value'? := tmp_0
-         let _ ← Iter.check (Option.isSome value'?)
-         let some value := value'? | none
-         pure value) <|>
-      ((do
-          let scope := p0
-          let EC := p1
-          let nameIR := p2
-          let _ ← Iter.check (match scope with
-             | NanoP4Spec.scope.BLOCK => true
-             | _ => false)
-          let frame := EC.BLOCK.FRAME
-          let tmp_1 ←
-              NanoP4Spec.«$find_map»
-                (τK := NanoP4Spec.nameIR)
-                (τV := NanoP4Spec.value)
-                fuel
-                frame
-                nameIR
-          let value'? := tmp_1
-          let _ ← Iter.check (Option.isSome value'?)
-          let some value := value'? | none
-          pure value) <|>
-       ((do
-           let scope := p0
-           let EC := p1
-           let nameIR := p2
-           let _ ← Iter.check (match scope with
-              | NanoP4Spec.scope.BLOCK => true
-              | _ => false)
-           let frame := EC.BLOCK.FRAME
-           let tmp_2 ←
-               NanoP4Spec.«$find_map»
+         let tmp_2 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+         have localEvalLayer :=
+             ({
+                FRAMES := [tmp_2], } : NanoP4Spec.localEvalLayer)
+         pure { EC with
+           LOCAL := localEvalLayer, }) <|>
+      (do
+         have scope := p0
+         have EC := p1
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.LOCAL => true
+            | _ => false)
+         pure EC)))
+
+def «$find_var_e» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : NanoP4Spec.nameIR)
+    : Option (Except Fail NanoP4Spec.value) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have EC := p1
+        have nameIR := p2
+        let _ ← Eval.check (match scope with
+           | NanoP4Spec.scope.GLOBAL => true
+           | _ => false)
+        have frame := EC.GLOBAL.FRAME
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$find_map»
                  (τK := NanoP4Spec.nameIR)
                  (τV := NanoP4Spec.value)
-                 fuel
                  frame
-                 nameIR
-           let _ ← Iter.check ((none : Option NanoP4Spec.value) == tmp_2)
-           let tmp_3 ← NanoP4Spec.«$find_var_e» fuel NanoP4Spec.scope.GLOBAL EC nameIR
-           pure tmp_3) <|>
-        ((do
-            let scope := p0
-            let EC := p1
-            let nameIR := p2
-            let _ ← Iter.check (match scope with
-               | NanoP4Spec.scope.LOCAL => true
-               | _ => false)
-            let «frame*» := EC.LOCAL.FRAMES
-            let tmp_4 ←
-                NanoP4Spec.«$find_maps»
-                  (τK := NanoP4Spec.nameIR)
-                  (τV := NanoP4Spec.value)
-                  fuel
-                  «frame*»
-                  nameIR
-            let value'? := tmp_4
-            let _ ← Iter.check (Option.isSome value'?)
-            let some value := value'? | none
-            pure value) <|>
-         (do
-            let scope := p0
-            let EC := p1
-            let nameIR := p2
-            let _ ← Iter.check (match scope with
-               | NanoP4Spec.scope.LOCAL => true
-               | _ => false)
-            let «frame*» := EC.LOCAL.FRAMES
-            let tmp_5 ←
-                NanoP4Spec.«$find_maps»
-                  (τK := NanoP4Spec.nameIR)
-                  (τV := NanoP4Spec.value)
-                  fuel
-                  «frame*»
-                  nameIR
-            let _ ← Iter.check ((none : Option NanoP4Spec.value) == tmp_5)
-            let tmp_6 ← NanoP4Spec.«$find_var_e» fuel NanoP4Spec.scope.BLOCK EC nameIR
-            pure tmp_6))))
-
-def «$add_var_e»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.nameIR)
-    (p3 : NanoP4Spec.value) : Option NanoP4Spec.evalContext :=
-  (do
-     let scope := p0
-     let EC := p1
-     let nameIR := p2
-     let value := p3
-     let _ ← Iter.check (match scope with
-        | NanoP4Spec.scope.GLOBAL => true
-        | _ => false)
-     let frame := EC.GLOBAL.FRAME
-     let tmp_0 ← NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) fuel frame
-     let tmp_1 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_0 nameIR
-     let _ ← Iter.check (!tmp_1)
-     let tmp_2 ←
-         NanoP4Spec.«$add_map»
-           (τK := NanoP4Spec.nameIR)
-           (τV := NanoP4Spec.value)
-           fuel
-           frame
-           nameIR
-           value
-     let frame' := tmp_2
-     let EC' :=
-         { EC with
-           GLOBAL.FRAME := frame', }
-     pure EC') <|>
-  ((do
-      let scope := p0
-      let EC := p1
-      let nameIR := p2
-      let value := p3
-      let _ ← Iter.check (match scope with
-         | NanoP4Spec.scope.BLOCK => true
-         | _ => false)
-      let frame := EC.BLOCK.FRAME
-      let tmp_3 ←
-          NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) fuel frame
-      let tmp_4 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_3 nameIR
-      let _ ← Iter.check (!tmp_4)
-      let tmp_5 ←
-          NanoP4Spec.«$add_map»
-            (τK := NanoP4Spec.nameIR)
-            (τV := NanoP4Spec.value)
-            fuel
-            frame
-            nameIR
-            value
-      let frame' := tmp_5
-      let EC' :=
-          { EC with
-            BLOCK.FRAME := frame', }
-      pure EC') <|>
-   (do
-      let scope := p0
-      let EC := p1
-      let nameIR := p2
-      let value := p3
-      let _ ← Iter.check (match scope with
-         | NanoP4Spec.scope.LOCAL => true
-         | _ => false)
-      let «frame*» := EC.LOCAL.FRAMES
-      let _ ← Iter.check (!(List.isEmpty «frame*»))
-      let frame_h :: «frame_t*» := «frame*» | none
-      let tmp_6 ←
-          NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) fuel frame_h
-      let tmp_7 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_6 nameIR
-      let _ ← Iter.check (!tmp_7)
-      let tmp_8 ←
-          NanoP4Spec.«$add_map»
-            (τK := NanoP4Spec.nameIR)
-            (τV := NanoP4Spec.value)
-            fuel
-            frame_h
-            nameIR
-            value
-      let frame_h' := tmp_8
-      let EC' :=
-          { EC with
-            LOCAL.FRAMES := frame_h' :: «frame_t*», }
-      pure EC'))
-
-def «$update_var_e»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.nameIR)
-    (p3 : NanoP4Spec.value) : Option NanoP4Spec.evalContext :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let scope := p0
-         let EC := p1
-         let nameIR := p2
-         let value := p3
-         let _ ← Iter.check (match scope with
-            | NanoP4Spec.scope.GLOBAL => true
+                 nameIR)
+        have value'? := tmp_0
+        let _ ← Eval.check (Option.isSome value'?)
+        let some value := value'? | throw Fail.err
+        pure value) <|>
+     ((do
+         have scope := p0
+         have EC := p1
+         have nameIR := p2
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.BLOCK => true
             | _ => false)
-         let frame := EC.GLOBAL.FRAME
-         let tmp_0 ←
-             NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) fuel frame
-         let tmp_1 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_0 nameIR
-         let _ ← Iter.check tmp_1
-         let tmp_2 ←
-             NanoP4Spec.«$update_map»
-               (τK := NanoP4Spec.nameIR)
-               (τV := NanoP4Spec.value)
-               fuel
-               frame
-               nameIR
-               value
-         let frame' := tmp_2
-         pure { EC with
-           GLOBAL.FRAME := frame', }) <|>
+         have frame := EC.BLOCK.FRAME
+         let tmp_1 ←
+             ExceptT.mk
+               (NanoP4Spec.«$find_map»
+                  (τK := NanoP4Spec.nameIR)
+                  (τV := NanoP4Spec.value)
+                  frame
+                  nameIR)
+         have value'? := tmp_1
+         let _ ← Eval.check (Option.isSome value'?)
+         let some value := value'? | throw Fail.err
+         pure value) <|>
       ((do
-          let scope := p0
-          let EC := p1
-          let nameIR := p2
-          let value := p3
-          let _ ← Iter.check (match scope with
+          have scope := p0
+          have EC := p1
+          have nameIR := p2
+          let _ ← Eval.check (match scope with
              | NanoP4Spec.scope.BLOCK => true
              | _ => false)
-          let frame := EC.BLOCK.FRAME
-          let tmp_3 ←
-              NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) fuel frame
-          let tmp_4 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_3 nameIR
-          let _ ← Iter.check tmp_4
-          let tmp_5 ←
-              NanoP4Spec.«$update_map»
-                (τK := NanoP4Spec.nameIR)
-                (τV := NanoP4Spec.value)
-                fuel
-                frame
-                nameIR
-                value
-          let frame' := tmp_5
-          pure { EC with
-            BLOCK.FRAME := frame', }) <|>
+          have frame := EC.BLOCK.FRAME
+          let tmp_2 ←
+              ExceptT.mk
+                (NanoP4Spec.«$find_map»
+                   (τK := NanoP4Spec.nameIR)
+                   (τV := NanoP4Spec.value)
+                   frame
+                   nameIR)
+          let _ ← Eval.check ((none : Option NanoP4Spec.value) == tmp_2)
+          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$find_var_e» NanoP4Spec.scope.GLOBAL EC nameIR)
+          pure tmp_3) <|>
        ((do
-           let scope := p0
-           let EC := p1
-           let nameIR := p2
-           let value := p3
-           let _ ← Iter.check (match scope with
-              | NanoP4Spec.scope.BLOCK => true
+           have scope := p0
+           have EC := p1
+           have nameIR := p2
+           let _ ← Eval.check (match scope with
+              | NanoP4Spec.scope.LOCAL => true
               | _ => false)
-           let frame := EC.BLOCK.FRAME
-           let tmp_6 ←
-               NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) fuel frame
-           let tmp_7 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_6 nameIR
-           let _ ← Iter.check (!tmp_7)
-           let tmp_8 ← NanoP4Spec.«$update_var_e» fuel NanoP4Spec.scope.GLOBAL EC nameIR value
-           pure tmp_8) <|>
+           have «frame*» := EC.LOCAL.FRAMES
+           let tmp_4 ←
+               ExceptT.mk
+                 (NanoP4Spec.«$find_maps»
+                    (τK := NanoP4Spec.nameIR)
+                    (τV := NanoP4Spec.value)
+                    «frame*»
+                    nameIR)
+           have value'? := tmp_4
+           let _ ← Eval.check (Option.isSome value'?)
+           let some value := value'? | throw Fail.err
+           pure value) <|>
+        (do
+           have scope := p0
+           have EC := p1
+           have nameIR := p2
+           let _ ← Eval.check (match scope with
+              | NanoP4Spec.scope.LOCAL => true
+              | _ => false)
+           have «frame*» := EC.LOCAL.FRAMES
+           let tmp_5 ←
+               ExceptT.mk
+                 (NanoP4Spec.«$find_maps»
+                    (τK := NanoP4Spec.nameIR)
+                    (τV := NanoP4Spec.value)
+                    «frame*»
+                    nameIR)
+           let _ ← Eval.check ((none : Option NanoP4Spec.value) == tmp_5)
+           let tmp_6 ← ExceptT.mk (NanoP4Spec.«$find_var_e» NanoP4Spec.scope.BLOCK EC nameIR)
+           pure tmp_6)))))
+  partial_fixpoint
+
+def «$add_var_e»
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.evalContext)
+        (p2 : NanoP4Spec.nameIR)
+        (p3 : NanoP4Spec.value)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have EC := p1
+        have nameIR := p2
+        have value := p3
+        let _ ← Eval.check (match scope with
+           | NanoP4Spec.scope.GLOBAL => true
+           | _ => false)
+        have frame := EC.GLOBAL.FRAME
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame)
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_0 nameIR)
+        let _ ← Eval.check (!tmp_1)
+        let tmp_2 ←
+            ExceptT.mk
+              (NanoP4Spec.«$add_map»
+                 (τK := NanoP4Spec.nameIR)
+                 (τV := NanoP4Spec.value)
+                 frame
+                 nameIR
+                 value)
+        have frame' := tmp_2
+        have EC' :=
+            { EC with
+              GLOBAL.FRAME := frame', }
+        pure EC') <|>
+     ((do
+         have scope := p0
+         have EC := p1
+         have nameIR := p2
+         have value := p3
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.BLOCK => true
+            | _ => false)
+         have frame := EC.BLOCK.FRAME
+         let tmp_3 ←
+             ExceptT.mk
+               (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame)
+         let tmp_4 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_3 nameIR)
+         let _ ← Eval.check (!tmp_4)
+         let tmp_5 ←
+             ExceptT.mk
+               (NanoP4Spec.«$add_map»
+                  (τK := NanoP4Spec.nameIR)
+                  (τV := NanoP4Spec.value)
+                  frame
+                  nameIR
+                  value)
+         have frame' := tmp_5
+         have EC' :=
+             { EC with
+               BLOCK.FRAME := frame', }
+         pure EC') <|>
+      (do
+         have scope := p0
+         have EC := p1
+         have nameIR := p2
+         have value := p3
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.LOCAL => true
+            | _ => false)
+         have «frame*» := EC.LOCAL.FRAMES
+         let _ ← Eval.check (!(List.isEmpty «frame*»))
+         let frame_h :: «frame_t*» := «frame*» | throw Fail.err
+         let tmp_6 ←
+             ExceptT.mk
+               (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame_h)
+         let tmp_7 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_6 nameIR)
+         let _ ← Eval.check (!tmp_7)
+         let tmp_8 ←
+             ExceptT.mk
+               (NanoP4Spec.«$add_map»
+                  (τK := NanoP4Spec.nameIR)
+                  (τV := NanoP4Spec.value)
+                  frame_h
+                  nameIR
+                  value)
+         have frame_h' := tmp_8
+         have EC' :=
+             { EC with
+               LOCAL.FRAMES := frame_h' :: «frame_t*», }
+         pure EC')))
+
+def «$update_var_e»
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.evalContext)
+        (p2 : NanoP4Spec.nameIR)
+        (p3 : NanoP4Spec.value)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have EC := p1
+        have nameIR := p2
+        have value := p3
+        let _ ← Eval.check (match scope with
+           | NanoP4Spec.scope.GLOBAL => true
+           | _ => false)
+        have frame := EC.GLOBAL.FRAME
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame)
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_0 nameIR)
+        let _ ← Eval.check tmp_1
+        let tmp_2 ←
+            ExceptT.mk
+              (NanoP4Spec.«$update_map»
+                 (τK := NanoP4Spec.nameIR)
+                 (τV := NanoP4Spec.value)
+                 frame
+                 nameIR
+                 value)
+        have frame' := tmp_2
+        pure { EC with
+          GLOBAL.FRAME := frame', }) <|>
+     ((do
+         have scope := p0
+         have EC := p1
+         have nameIR := p2
+         have value := p3
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.BLOCK => true
+            | _ => false)
+         have frame := EC.BLOCK.FRAME
+         let tmp_3 ←
+             ExceptT.mk
+               (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame)
+         let tmp_4 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_3 nameIR)
+         let _ ← Eval.check tmp_4
+         let tmp_5 ←
+             ExceptT.mk
+               (NanoP4Spec.«$update_map»
+                  (τK := NanoP4Spec.nameIR)
+                  (τV := NanoP4Spec.value)
+                  frame
+                  nameIR
+                  value)
+         have frame' := tmp_5
+         pure { EC with
+           BLOCK.FRAME := frame', }) <|>
+      ((do
+          have scope := p0
+          have EC := p1
+          have nameIR := p2
+          have value := p3
+          let _ ← Eval.check (match scope with
+             | NanoP4Spec.scope.BLOCK => true
+             | _ => false)
+          have frame := EC.BLOCK.FRAME
+          let tmp_6 ←
+              ExceptT.mk
+                (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame)
+          let tmp_7 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_6 nameIR)
+          let _ ← Eval.check (!tmp_7)
+          let tmp_8 ←
+              ExceptT.mk (NanoP4Spec.«$update_var_e» NanoP4Spec.scope.GLOBAL EC nameIR value)
+          pure tmp_8) <|>
+       ((do
+           have scope := p0
+           have EC := p1
+           have nameIR := p2
+           have value := p3
+           let _ ← Eval.check (match scope with
+              | NanoP4Spec.scope.LOCAL => true
+              | _ => false)
+           let _ ← Eval.check (([] : List NanoP4Spec.frame) == EC.LOCAL.FRAMES)
+           let tmp_9 ←
+               ExceptT.mk (NanoP4Spec.«$update_var_e» NanoP4Spec.scope.BLOCK EC nameIR value)
+           pure tmp_9) <|>
         ((do
-            let scope := p0
-            let EC := p1
-            let nameIR := p2
-            let value := p3
-            let _ ← Iter.check (match scope with
+            have scope := p0
+            have EC := p1
+            have nameIR := p2
+            have value := p3
+            let _ ← Eval.check (match scope with
                | NanoP4Spec.scope.LOCAL => true
                | _ => false)
-            let _ ← Iter.check (([] : List NanoP4Spec.frame) == EC.LOCAL.FRAMES)
-            let tmp_9 ← NanoP4Spec.«$update_var_e» fuel NanoP4Spec.scope.BLOCK EC nameIR value
-            pure tmp_9) <|>
-         ((do
-             let scope := p0
-             let EC := p1
-             let nameIR := p2
-             let value := p3
-             let _ ← Iter.check (match scope with
-                | NanoP4Spec.scope.LOCAL => true
-                | _ => false)
-             let «frame*» := EC.LOCAL.FRAMES
-             let _ ← Iter.check (!(List.isEmpty «frame*»))
-             let frame_h :: «frame_t*» := «frame*» | none
-             let tmp_10 ←
-                 NanoP4Spec.«$dom_map»
-                   (τK := NanoP4Spec.nameIR)
-                   (τV := NanoP4Spec.value)
-                   fuel
-                   frame_h
-             let tmp_11 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_10 nameIR
-             let _ ← Iter.check tmp_11
-             let tmp_12 ←
-                 NanoP4Spec.«$update_map»
-                   (τK := NanoP4Spec.nameIR)
-                   (τV := NanoP4Spec.value)
-                   fuel
-                   frame_h
-                   nameIR
-                   value
-             let frame_h' := tmp_12
-             pure { EC with
-               LOCAL.FRAMES := frame_h' :: «frame_t*», }) <|>
-          (do
-             let scope := p0
-             let EC := p1
-             let nameIR := p2
-             let value := p3
-             let _ ← Iter.check (match scope with
-                | NanoP4Spec.scope.LOCAL => true
-                | _ => false)
-             let «frame*» := EC.LOCAL.FRAMES
-             let _ ← Iter.check (!(List.isEmpty «frame*»))
-             let frame_h :: «frame_t*» := «frame*» | none
-             let tmp_13 ←
-                 NanoP4Spec.«$dom_map»
-                   (τK := NanoP4Spec.nameIR)
-                   (τV := NanoP4Spec.value)
-                   fuel
-                   frame_h
-             let tmp_14 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) fuel tmp_13 nameIR
-             let _ ← Iter.check (!tmp_14)
-             let EC_pop :=
-                 { EC with
-                   LOCAL.FRAMES := «frame_t*», }
-             let tmp_15 ← NanoP4Spec.«$update_var_e» fuel NanoP4Spec.scope.LOCAL EC_pop nameIR value
-             let EC_pop' := tmp_15
-             pure { EC_pop' with
-               LOCAL.FRAMES := frame_h :: EC_pop'.LOCAL.FRAMES, })))))
+            have «frame*» := EC.LOCAL.FRAMES
+            let _ ← Eval.check (!(List.isEmpty «frame*»))
+            let frame_h :: «frame_t*» := «frame*» | throw Fail.err
+            let tmp_10 ←
+                ExceptT.mk
+                  (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame_h)
+            let tmp_11 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_10 nameIR)
+            let _ ← Eval.check tmp_11
+            let tmp_12 ←
+                ExceptT.mk
+                  (NanoP4Spec.«$update_map»
+                     (τK := NanoP4Spec.nameIR)
+                     (τV := NanoP4Spec.value)
+                     frame_h
+                     nameIR
+                     value)
+            have frame_h' := tmp_12
+            pure { EC with
+              LOCAL.FRAMES := frame_h' :: «frame_t*», }) <|>
+         (do
+            have scope := p0
+            have EC := p1
+            have nameIR := p2
+            have value := p3
+            let _ ← Eval.check (match scope with
+               | NanoP4Spec.scope.LOCAL => true
+               | _ => false)
+            have «frame*» := EC.LOCAL.FRAMES
+            let _ ← Eval.check (!(List.isEmpty «frame*»))
+            let frame_h :: «frame_t*» := «frame*» | throw Fail.err
+            let tmp_13 ←
+                ExceptT.mk
+                  (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.nameIR) (τV := NanoP4Spec.value) frame_h)
+            let tmp_14 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.nameIR) tmp_13 nameIR)
+            let _ ← Eval.check (!tmp_14)
+            have EC_pop :=
+                { EC with
+                  LOCAL.FRAMES := «frame_t*», }
+            let tmp_15 ←
+                ExceptT.mk (NanoP4Spec.«$update_var_e» NanoP4Spec.scope.LOCAL EC_pop nameIR value)
+            have EC_pop' := tmp_15
+            pure { EC_pop' with
+              LOCAL.FRAMES := frame_h :: EC_pop'.LOCAL.FRAMES, }))))))
+  partial_fixpoint
 
-def «$find_callableDef_e»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.callableId) : Option NanoP4Spec.callableDef :=
-  (do
-     let EC := p0
-     let callableId := p1
-     let tmp_0 ←
-         NanoP4Spec.«$find_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableDef)
-           fuel
-           EC.GLOBAL.CALLABLE
-           callableId
-     let callableDef'? := tmp_0
-     let _ ← Iter.check (Option.isSome callableDef'?)
-     let some callableDef := callableDef'? | none
-     pure callableDef)
+def «$find_callableDef_e» (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.callableId)
+    : Option (Except Fail NanoP4Spec.callableDef) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       have callableId := p1
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$find_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableDef)
+                EC.GLOBAL.CALLABLE
+                callableId)
+       have callableDef'? := tmp_0
+       let _ ← Eval.check (Option.isSome callableDef'?)
+       let some callableDef := callableDef'? | throw Fail.err
+       pure callableDef)
 
-def «$find_typeDef_e»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.typeId) : Option NanoP4Spec.typeDefIR :=
-  (do
-     let EC := p0
-     let typeId := p1
-     let tmp_0 ←
-         NanoP4Spec.«$find_map»
-           (τK := NanoP4Spec.typeId)
-           (τV := NanoP4Spec.typeDefIR)
-           fuel
-           EC.GLOBAL.TYPE
-           typeId
-     let typeDefIR'? := tmp_0
-     let _ ← Iter.check (Option.isSome typeDefIR'?)
-     let some typeDefIR := typeDefIR'? | none
-     pure typeDefIR)
+def «$find_typeDef_e» (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.typeId)
+    : Option (Except Fail NanoP4Spec.typeDefIR) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       have typeId := p1
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$find_map»
+                (τK := NanoP4Spec.typeId)
+                (τV := NanoP4Spec.typeDefIR)
+                EC.GLOBAL.TYPE
+                typeId)
+       have typeDefIR'? := tmp_0
+       let _ ← Eval.check (Option.isSome typeDefIR'?)
+       let some typeDefIR := typeDefIR'? | throw Fail.err
+       pure typeDefIR)
 
-def «$enter_e» (fuel : Nat) (p0 : NanoP4Spec.evalContext) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC := p0
-     let tmp_0 ← NanoP4Spec.«$empty_frame» fuel
-     pure { EC with
-       LOCAL.FRAMES := tmp_0 :: EC.LOCAL.FRAMES, })
+def «$enter_e» (p0 : NanoP4Spec.evalContext) : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+       pure { EC with
+         LOCAL.FRAMES := tmp_0 :: EC.LOCAL.FRAMES, })
 
-def «$exit_e» (fuel : Nat) (p0 : NanoP4Spec.evalContext) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC := p0
-     let «frame*» := EC.LOCAL.FRAMES
-     let _ ← Iter.check (!(List.isEmpty «frame*»))
-     let frame_h :: «frame_t*» := «frame*» | none
-     pure { EC with
-       LOCAL.FRAMES := «frame_t*», })
+def «$exit_e» (p0 : NanoP4Spec.evalContext) : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       have «frame*» := EC.LOCAL.FRAMES
+       let _ ← Eval.check (!(List.isEmpty «frame*»))
+       let frame_h :: «frame_t*» := «frame*» | throw Fail.err
+       pure { EC with
+         LOCAL.FRAMES := «frame_t*», })
 
 end NanoP4Spec

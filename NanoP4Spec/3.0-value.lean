@@ -709,106 +709,105 @@ def value.is_tableValue : NanoP4Spec.value → Bool
   | .TABLE _ _ => true
   | _ => false
 
-def «$default» (fuel : Nat) (p0 : NanoP4Spec.typeIR) : Option NanoP4Spec.value :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let typeIR := p0
-         let _ ← Iter.check (NanoP4Spec.typeIR.is_integerTypeIR typeIR)
-         let tmp_0 ← NanoP4Spec.typeIR.of_integerTypeIR typeIR
-         let integerTypeIR := tmp_0
-         let _ ← Iter.check (match integerTypeIR with
-            | NanoP4Spec.integerTypeIR.BIT_langle_rangle _ => true
+def «$default» (p0 : NanoP4Spec.typeIR) : Option (Except Fail NanoP4Spec.value) :=
+  ExceptT.run
+    ((do
+        have typeIR := p0
+        let _ ← Eval.check (NanoP4Spec.typeIR.is_integerTypeIR typeIR)
+        let tmp_0 ← Eval.err? (NanoP4Spec.typeIR.of_integerTypeIR typeIR)
+        have integerTypeIR := tmp_0
+        let _ ← Eval.check (match integerTypeIR with
+           | NanoP4Spec.integerTypeIR.BIT_langle_rangle _ => true
+           | _ => false)
+        let .BIT_langle_rangle w := integerTypeIR | throw Fail.err
+        pure (NanoP4Spec.integerLiteral.to_value
+           (NanoP4Spec.integerLiteral.W w (Int.ofNat (0 : Nat))))) <|>
+     ((do
+         have typeIR := p0
+         let _ ← Eval.check (NanoP4Spec.typeIR.is_integerTypeIR typeIR)
+         let tmp_1 ← Eval.err? (NanoP4Spec.typeIR.of_integerTypeIR typeIR)
+         have integerTypeIR := tmp_1
+         let _ ← Eval.check (match integerTypeIR with
+            | NanoP4Spec.integerTypeIR.INT_langle_rangle _ => true
             | _ => false)
-         let .BIT_langle_rangle w := integerTypeIR | none
+         let .INT_langle_rangle w := integerTypeIR | throw Fail.err
          pure (NanoP4Spec.integerLiteral.to_value
-            (NanoP4Spec.integerLiteral.W w (Int.ofNat (0 : Nat))))) <|>
+            (NanoP4Spec.integerLiteral.S w (Int.ofNat (0 : Nat))))) <|>
       ((do
-          let typeIR := p0
-          let _ ← Iter.check (NanoP4Spec.typeIR.is_integerTypeIR typeIR)
-          let tmp_1 ← NanoP4Spec.typeIR.of_integerTypeIR typeIR
-          let integerTypeIR := tmp_1
-          let _ ← Iter.check (match integerTypeIR with
-             | NanoP4Spec.integerTypeIR.INT_langle_rangle _ => true
+          have typeIR := p0
+          let _ ← Eval.check (NanoP4Spec.typeIR.is_baseTypeIR typeIR)
+          let tmp_2 ← Eval.err? (NanoP4Spec.typeIR.of_baseTypeIR typeIR)
+          have baseTypeIR := tmp_2
+          let _ ← Eval.check (match baseTypeIR with
+             | NanoP4Spec.baseTypeIR.BOOL => true
              | _ => false)
-          let .INT_langle_rangle w := integerTypeIR | none
-          pure (NanoP4Spec.integerLiteral.to_value
-             (NanoP4Spec.integerLiteral.S w (Int.ofNat (0 : Nat))))) <|>
+          pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false))) <|>
        ((do
-           let typeIR := p0
-           let _ ← Iter.check (NanoP4Spec.typeIR.is_baseTypeIR typeIR)
-           let tmp_2 ← NanoP4Spec.typeIR.of_baseTypeIR typeIR
-           let baseTypeIR := tmp_2
-           let _ ← Iter.check (match baseTypeIR with
-              | NanoP4Spec.baseTypeIR.BOOL => true
-              | _ => false)
-           pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false))) <|>
-        ((do
-            let typeIR' := p0
-            let _ ← Iter.check (NanoP4Spec.typeIR.is_structTypeIR typeIR')
-            let tmp_3 ← NanoP4Spec.typeIR.of_structTypeIR typeIR'
-            let .STRUCT_lbrace_rbrace typeId «fieldTypeIR*» := tmp_3
-            let tmp_4 ←
-                List.mapM
-                  (fun (fieldTypeIR : NanoP4Spec.fieldTypeIR) =>
-                     (do
-                        let .semi typeIR id := fieldTypeIR
-                        pure (id, typeIR)))
-                  «fieldTypeIR*»
-            let «id*» := List.map (·.1) tmp_4
-            let «typeIR*» := List.map (·.2) tmp_4
-            let tmp_6 ←
-                List.mapM
-                  (fun (typeIR : NanoP4Spec.typeIR) =>
-                     (do
-                        let tmp_5 ← NanoP4Spec.«$default» fuel typeIR
-                        let value := tmp_5
-                        pure value))
-                  «typeIR*»
-            let «value*» := tmp_6
-            let tmp_7 ←
-                List.mapM
-                  (fun ((id, value) : NanoP4Spec.id × NanoP4Spec.value) =>
-                     (do
-                        let fieldValue := NanoP4Spec.fieldValue.semi value id
-                        pure fieldValue))
-                  (List.zip «id*» «value*»)
-            let «fieldValue*» := tmp_7
-            pure (NanoP4Spec.structValue.to_value
-               (NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue*»))) <|>
-         (do
-            let typeIR' := p0
-            let _ ← Iter.check (NanoP4Spec.typeIR.is_headerTypeIR typeIR')
-            let tmp_8 ← NanoP4Spec.typeIR.of_headerTypeIR typeIR'
-            let .HEADER_lbrace_rbrace typeId «fieldTypeIR*» := tmp_8
-            let tmp_9 ←
-                List.mapM
-                  (fun (fieldTypeIR : NanoP4Spec.fieldTypeIR) =>
-                     (do
-                        let .semi typeIR id := fieldTypeIR
-                        pure (id, typeIR)))
-                  «fieldTypeIR*»
-            let «id*» := List.map (·.1) tmp_9
-            let «typeIR*» := List.map (·.2) tmp_9
-            let tmp_11 ←
-                List.mapM
-                  (fun (typeIR : NanoP4Spec.typeIR) =>
-                     (do
-                        let tmp_10 ← NanoP4Spec.«$default» fuel typeIR
-                        let value := tmp_10
-                        pure value))
-                  «typeIR*»
-            let «value*» := tmp_11
-            let tmp_12 ←
-                List.mapM
-                  (fun ((id, value) : NanoP4Spec.id × NanoP4Spec.value) =>
-                     (do
-                        let fieldValue := NanoP4Spec.fieldValue.semi value id
-                        pure fieldValue))
-                  (List.zip «id*» «value*»)
-            let «fieldValue*» := tmp_12
-            pure (NanoP4Spec.headerValue.to_value
-               (NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue*»))))))
+           have typeIR' := p0
+           let _ ← Eval.check (NanoP4Spec.typeIR.is_structTypeIR typeIR')
+           let tmp_3 ← Eval.err? (NanoP4Spec.typeIR.of_structTypeIR typeIR')
+           let .STRUCT_lbrace_rbrace typeId «fieldTypeIR*» := tmp_3
+           let tmp_4 ←
+               List.mapM
+                 (fun (fieldTypeIR : NanoP4Spec.fieldTypeIR) =>
+                    (do
+                       let .semi typeIR id := fieldTypeIR
+                       pure (id, typeIR)))
+                 «fieldTypeIR*»
+           have «id*» := List.map (·.1) tmp_4
+           have «typeIR*» := List.map (·.2) tmp_4
+           let tmp_6 ←
+               List.mapM
+                 (fun (typeIR : NanoP4Spec.typeIR) =>
+                    (do
+                       let tmp_5 ← ExceptT.mk (NanoP4Spec.«$default» typeIR)
+                       have value := tmp_5
+                       pure value))
+                 «typeIR*»
+           have «value*» := tmp_6
+           let tmp_7 ←
+               List.mapM
+                 (fun ((id, value) : NanoP4Spec.id × NanoP4Spec.value) =>
+                    (do
+                       have fieldValue := NanoP4Spec.fieldValue.semi value id
+                       pure fieldValue))
+                 (List.zip «id*» «value*»)
+           have «fieldValue*» := tmp_7
+           pure (NanoP4Spec.structValue.to_value
+              (NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue*»))) <|>
+        (do
+           have typeIR' := p0
+           let _ ← Eval.check (NanoP4Spec.typeIR.is_headerTypeIR typeIR')
+           let tmp_8 ← Eval.err? (NanoP4Spec.typeIR.of_headerTypeIR typeIR')
+           let .HEADER_lbrace_rbrace typeId «fieldTypeIR*» := tmp_8
+           let tmp_9 ←
+               List.mapM
+                 (fun (fieldTypeIR : NanoP4Spec.fieldTypeIR) =>
+                    (do
+                       let .semi typeIR id := fieldTypeIR
+                       pure (id, typeIR)))
+                 «fieldTypeIR*»
+           have «id*» := List.map (·.1) tmp_9
+           have «typeIR*» := List.map (·.2) tmp_9
+           let tmp_11 ←
+               List.mapM
+                 (fun (typeIR : NanoP4Spec.typeIR) =>
+                    (do
+                       let tmp_10 ← ExceptT.mk (NanoP4Spec.«$default» typeIR)
+                       have value := tmp_10
+                       pure value))
+                 «typeIR*»
+           have «value*» := tmp_11
+           let tmp_12 ←
+               List.mapM
+                 (fun ((id, value) : NanoP4Spec.id × NanoP4Spec.value) =>
+                    (do
+                       have fieldValue := NanoP4Spec.fieldValue.semi value id
+                       pure fieldValue))
+                 (List.zip «id*» «value*»)
+           have «fieldValue*» := tmp_12
+           pure (NanoP4Spec.headerValue.to_value
+              (NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue*»)))))))
+  partial_fixpoint
 
 end NanoP4Spec

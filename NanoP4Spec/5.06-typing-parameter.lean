@@ -20,144 +20,144 @@ open P4SpecTec P4SpecTec.Prelude
 namespace NanoP4Spec
 
 def Parameter_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.typingContext)
-    (p2 : NanoP4Spec.parameter) : Option (NanoP4Spec.parameterIR × NanoP4Spec.typingContext) :=
-  (do
-     let scope := p0
-     let TC_0 := p1
-     let .mk direction type name := p2
-     (do
-        let tmp_0 ← NanoP4Spec.Type_ok.run fuel TC_0 type
-        let typeIR := tmp_0
-        let tmp_1 ← NanoP4Spec.«$id» fuel name
-        let nameIR := tmp_1
-        let parameterIR := NanoP4Spec.parameterIR.mk direction typeIR nameIR
-        let varTypeIR := NanoP4Spec.varTypeIR.mk direction typeIR
-        let tmp_2 ← NanoP4Spec.«$add_var_t» fuel scope TC_0 nameIR varTypeIR
-        let TC_1 := tmp_2
-        pure (parameterIR, TC_1)))
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.typingContext)
+        (p2 : NanoP4Spec.parameter)
+    : Option (Except Fail (NanoP4Spec.parameterIR × NanoP4Spec.typingContext)) :=
+  ExceptT.run
+    (do
+       have scope := p0
+       have TC_0 := p1
+       let .mk direction type name := p2
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
+          have typeIR := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
+          have nameIR := tmp_1
+          have parameterIR := NanoP4Spec.parameterIR.mk direction typeIR nameIR
+          have varTypeIR := NanoP4Spec.varTypeIR.mk direction typeIR
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$add_var_t» scope TC_0 nameIR varTypeIR)
+          have TC_1 := tmp_2
+          pure (parameterIR, TC_1)))
 
 def Parameters_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.typingContext)
-    (p2 : List
-       NanoP4Spec.parameter) : Option ((List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let scope := p0
-         let TC' := p1
-         let «parameter*» := p2
-         (do
-            let TC := TC'
-            let _ ← Iter.check («parameter*» == ([] : List NanoP4Spec.parameter))
-            pure (([] : List NanoP4Spec.parameterIR), TC)) <|>
-         (do
-            let TC_0 := TC'
-            let «parameter'*» := «parameter*»
-            let _ ← Iter.check (!(List.isEmpty «parameter'*»))
-            let parameter_h :: «parameter_t*» := «parameter'*» | none
-            let tmp_0 ← NanoP4Spec.Parameter_ok.run fuel scope TC_0 parameter_h
-            let (parameterIR_h, TC_1) := tmp_0
-            let tmp_1 ← NanoP4Spec.Parameters_ok.run fuel scope TC_1 «parameter_t*»
-            let («parameterIR_t*», TC_2) := tmp_1
-            pure (parameterIR_h :: «parameterIR_t*», TC_2)))
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.typingContext)
+        (p2 : List NanoP4Spec.parameter)
+    : Option (Except Fail ((List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext)) :=
+  ExceptT.run
+    (do
+       have scope := p0
+       have TC' := p1
+       have «parameter*» := p2
+       (do
+          have TC := TC'
+          let _ ← Eval.check («parameter*» == ([] : List NanoP4Spec.parameter))
+          pure (([] : List NanoP4Spec.parameterIR), TC)) <|>
+       (do
+          have TC_0 := TC'
+          have «parameter'*» := «parameter*»
+          let _ ← Eval.check (!(List.isEmpty «parameter'*»))
+          let parameter_h :: «parameter_t*» := «parameter'*» | throw Fail.err
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Parameter_ok.run scope TC_0 parameter_h)
+          let (parameterIR_h, TC_1) := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.Parameters_ok.run scope TC_1 «parameter_t*»)
+          let («parameterIR_t*», TC_2) := tmp_1
+          pure (parameterIR_h :: «parameterIR_t*», TC_2)))
+  partial_fixpoint
 
-def «$distinct_params» (fuel : Nat) (p0 : List NanoP4Spec.parameterIR) : Option Bool :=
-  (do
-     let «parameterIR*» := p0
-     let tmp_0 ←
-         List.mapM
-           (fun (parameterIR : NanoP4Spec.parameterIR) =>
-              (do
-                 let .mk _direction _typeIR nameIR := parameterIR
-                 pure (_direction, _typeIR, nameIR)))
-           «parameterIR*»
-     let «_direction*» := List.map (·.1) tmp_0
-     let «_typeIR*» := List.map (·.2.1) tmp_0
-     let «nameIR*» := List.map (·.2.2) tmp_0
-     let tmp_1 ← NanoP4Spec.«$distinct_» (τK := NanoP4Spec.nameIR) fuel «nameIR*»
-     pure tmp_1)
+def «$distinct_params» (p0 : List NanoP4Spec.parameterIR) : Option (Except Fail Bool) :=
+  ExceptT.run
+    (do
+       have «parameterIR*» := p0
+       let tmp_0 ←
+           List.mapM
+             (fun (parameterIR : NanoP4Spec.parameterIR) =>
+                (do
+                   let .mk _direction _typeIR nameIR := parameterIR
+                   pure (_direction, _typeIR, nameIR)))
+             «parameterIR*»
+       have «_direction*» := List.map (·.1) tmp_0
+       have «_typeIR*» := List.map (·.2.1) tmp_0
+       have «nameIR*» := List.map (·.2.2) tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.nameIR) «nameIR*»)
+       pure tmp_1)
 
 def ParameterList_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.typingContext)
-    (p2 : NanoP4Spec.parameterList) : Option ((List NanoP4Spec.parameterIR) ×
- NanoP4Spec.typingContext) :=
-  (do
-     let scope := p0
-     let TC_0 := p1
-     let parameterList := p2
-     (do
-        let tmp_0 ← NanoP4Spec.«$flatten_parameterList» fuel parameterList
-        let «parameter*» := tmp_0
-        let tmp_1 ← NanoP4Spec.Parameters_ok.run fuel scope TC_0 «parameter*»
-        let («parameterIR*», TC_1) := tmp_1
-        let tmp_2 ← NanoP4Spec.«$distinct_params» fuel «parameterIR*»
-        let _ ← Iter.check tmp_2
-        pure («parameterIR*», TC_1)))
-
-def ExternMethod_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.externMethodPrototype) : Option NanoP4Spec.externMethodTypeDefIR :=
-  (do
-     let TC := p0
-     let .semi functionPrototype := p1
-     (do
-        let .VOID_lparen_rparen name parameterList := functionPrototype
-        let tmp_0 ← NanoP4Spec.ParameterList_ok.run fuel NanoP4Spec.scope.LOCAL TC parameterList
-        let («parameterIR*», TC_body) := tmp_0
-        let tmp_1 ← NanoP4Spec.«$id» fuel name
-        let callableId := tmp_1
-        let externMethodTypeDefIR :=
-            NanoP4Spec.externMethodTypeDefIR.VOID_lparen_rparen callableId «parameterIR*»
-        pure externMethodTypeDefIR))
-
-def «$is_object_typeIR» (fuel : Nat) (p0 : NanoP4Spec.typeIR) : Option Bool :=
-  (do
-     let typeIR := p0
-     let _ ← Iter.check (NanoP4Spec.typeIR.is_parserObjectTypeIR typeIR)
-     let tmp_0 ← NanoP4Spec.typeIR.of_parserObjectTypeIR typeIR
-     let parserObjectTypeIR := tmp_0
-     pure true) <|>
-  ((do
-      let typeIR := p0
-      let _ ← Iter.check (NanoP4Spec.typeIR.is_controlObjectTypeIR typeIR)
-      let tmp_1 ← NanoP4Spec.typeIR.of_controlObjectTypeIR typeIR
-      let controlObjectTypeIR := tmp_1
-      pure true) <|>
-   ((do
-       let typeIR := p0
-       let _ ← Iter.check (NanoP4Spec.typeIR.is_packageObjectTypeIR typeIR)
-       let tmp_2 ← NanoP4Spec.typeIR.of_packageObjectTypeIR typeIR
-       let packageObjectTypeIR := tmp_2
-       pure true) <|>
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.typingContext)
+        (p2 : NanoP4Spec.parameterList)
+    : Option (Except Fail ((List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext)) :=
+  ExceptT.run
     (do
-       let typeIR := p0
-       pure false)))
+       have scope := p0
+       have TC_0 := p1
+       have parameterList := p2
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
+          have «parameter*» := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.Parameters_ok.run scope TC_0 «parameter*»)
+          let («parameterIR*», TC_1) := tmp_1
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$distinct_params» «parameterIR*»)
+          let _ ← Eval.check tmp_2
+          pure («parameterIR*», TC_1)))
 
-def «$no_object_params» (fuel : Nat) (p0 : List NanoP4Spec.parameterIR) : Option Bool :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let «parameterIR*» := p0
-         let _ ← Iter.check (List.isEmpty «parameterIR*»)
+def ExternMethod_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.externMethodPrototype)
+    : Option (Except Fail NanoP4Spec.externMethodTypeDefIR) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       let .semi functionPrototype := p1
+       (do
+          let .VOID_lparen_rparen name parameterList := functionPrototype
+          let tmp_0 ←
+              ExceptT.mk (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.LOCAL TC parameterList)
+          let («parameterIR*», TC_body) := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
+          have callableId := tmp_1
+          have externMethodTypeDefIR :=
+              NanoP4Spec.externMethodTypeDefIR.VOID_lparen_rparen callableId «parameterIR*»
+          pure externMethodTypeDefIR))
+
+def «$is_object_typeIR» (p0 : NanoP4Spec.typeIR) : Option (Except Fail Bool) :=
+  ExceptT.run
+    ((do
+        have typeIR := p0
+        let _ ← Eval.check (NanoP4Spec.typeIR.is_parserObjectTypeIR typeIR)
+        let tmp_0 ← Eval.err? (NanoP4Spec.typeIR.of_parserObjectTypeIR typeIR)
+        have parserObjectTypeIR := tmp_0
+        pure true) <|>
+     ((do
+         have typeIR := p0
+         let _ ← Eval.check (NanoP4Spec.typeIR.is_controlObjectTypeIR typeIR)
+         let tmp_1 ← Eval.err? (NanoP4Spec.typeIR.of_controlObjectTypeIR typeIR)
+         have controlObjectTypeIR := tmp_1
          pure true) <|>
-      (do
-         let «parameterIR*» := p0
-         let _ ← Iter.check (!(List.isEmpty «parameterIR*»))
-         let tmp_0 :: «parameterIR_t*» := «parameterIR*» | none
-         let .mk direction typeIR nameIR := tmp_0
-         let tmp_1 ← NanoP4Spec.«$is_object_typeIR» fuel typeIR
-         let _ ← Iter.check (!tmp_1)
-         let tmp_2 ← NanoP4Spec.«$no_object_params» fuel «parameterIR_t*»
-         pure tmp_2)
+      ((do
+          have typeIR := p0
+          let _ ← Eval.check (NanoP4Spec.typeIR.is_packageObjectTypeIR typeIR)
+          let tmp_2 ← Eval.err? (NanoP4Spec.typeIR.of_packageObjectTypeIR typeIR)
+          have packageObjectTypeIR := tmp_2
+          pure true) <|>
+       (do
+          have typeIR := p0
+          pure false))))
+
+def «$no_object_params» (p0 : List NanoP4Spec.parameterIR) : Option (Except Fail Bool) :=
+  ExceptT.run
+    ((do
+        have «parameterIR*» := p0
+        let _ ← Eval.check (List.isEmpty «parameterIR*»)
+        pure true) <|>
+     (do
+        have «parameterIR*» := p0
+        let _ ← Eval.check (!(List.isEmpty «parameterIR*»))
+        let tmp_0 :: «parameterIR_t*» := «parameterIR*» | throw Fail.err
+        let .mk direction typeIR nameIR := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$is_object_typeIR» typeIR)
+        let _ ← Eval.check (!tmp_1)
+        let tmp_2 ← ExceptT.mk (NanoP4Spec.«$no_object_params» «parameterIR_t*»)
+        pure tmp_2))
+  partial_fixpoint
 
 end NanoP4Spec

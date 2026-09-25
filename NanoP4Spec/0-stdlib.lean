@@ -98,264 +98,266 @@ def map.ofValue {τK τV : Type} [OfValue τK] [OfValue τV] :
 instance {τK τV : Type} [OfValue τK] [OfValue τV] : OfValue (NanoP4Spec.map τK τV) :=
   ⟨NanoP4Spec.map.ofValue⟩
 
-def «$print_» {τX : Type} [ToValue τX] [BEq τX] (fuel : Nat) (p0 : τX) : Option String :=
-  pure (P4.Unparse.print (ToValue.toValue p0))
+def «$print_» {τX : Type} [ToValue τX] [BEq τX] (p0 : τX) : Option (Except Fail String) :=
+  ExceptT.run
+    (pure (P4.Unparse.print (ToValue.toValue p0)))
 
-def «$strip_all_whitespace» (fuel : Nat) (p0 : String) : Option String :=
-  pure (Builtin.Texts.strip_all_whitespace p0)
+def «$strip_all_whitespace» (p0 : String) : Option (Except Fail String) :=
+  ExceptT.run
+    (pure (Builtin.Texts.strip_all_whitespace p0))
 
-def «$ite» {τX : Type} [ToValue τX] [BEq τX]
-    (fuel : Nat)
-    (p0 : Bool)
-    (p1 : τX)
-    (p2 : τX) : Option τX :=
-  (do
-     let b := p0
-     let X_t := p1
-     let X_f := p2
-     let _ ← Iter.check (b == true)
-     pure X_t) <|>
-  (do
-     let b := p0
-     let X_t := p1
-     let X_f := p2
-     let _ ← Iter.check (b == false)
-     pure X_f)
+def «$ite» {τX : Type} [ToValue τX] [BEq τX] (p0 : Bool) (p1 : τX) (p2 : τX)
+    : Option (Except Fail τX) :=
+  ExceptT.run
+    ((do
+        have b := p0
+        have X_t := p1
+        have X_f := p2
+        let _ ← Eval.check (b == true)
+        pure X_t) <|>
+     (do
+        have b := p0
+        have X_t := p1
+        have X_f := p2
+        let _ ← Eval.check (b == false)
+        pure X_f))
 
-def «$repeat_» {τX : Type} [ToValue τX] [BEq τX]
-    (fuel : Nat)
-    (p0 : τX)
-    (p1 : Nat) : Option (List τX) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let X := p0
-         let nat := p1
-         let _ ← Iter.check (nat == (0 : Nat))
-         pure ([] : List τX)) <|>
-      (do
-         let X := p0
-         let n := p1
-         let _ ← Iter.check (n != (0 : Nat))
-         let i := Num.natSub n (1 : Nat)
-         let _ ← Iter.check (decide (0 ≤ i))
-         let tmp_0 ← Num.toNat? i
-         let n' := tmp_0
-         let tmp_1 ← NanoP4Spec.«$repeat_» (τX := τX) fuel X n'
-         pure ([X] ++ tmp_1))
+def «$repeat_» {τX : Type} [ToValue τX] [BEq τX] (p0 : τX) (p1 : Nat)
+    : Option (Except Fail (List τX)) :=
+  ExceptT.run
+    ((do
+        have X := p0
+        have nat := p1
+        let _ ← Eval.check (nat == (0 : Nat))
+        pure ([] : List τX)) <|>
+     (do
+        have X := p0
+        have n := p1
+        let _ ← Eval.check (n != (0 : Nat))
+        have i := Num.natSub n (1 : Nat)
+        let _ ← Eval.check (decide (0 ≤ i))
+        let tmp_0 ← Eval.err? (Num.toNat? i)
+        have n' := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$repeat_» (τX := τX) X n')
+        pure ([X] ++ tmp_1)))
+  partial_fixpoint
 
-def «$exists_» (fuel : Nat) (p0 : List Bool) : Option Bool :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let «b*» := p0
-         let _ ← Iter.check (List.isEmpty «b*»)
-         pure false) <|>
-      (do
-         let «b*» := p0
-         let _ ← Iter.check (!(List.isEmpty «b*»))
-         let b_h :: «b_t*» := «b*» | none
-         let tmp_0 ← NanoP4Spec.«$exists_» fuel «b_t*»
-         pure (b_h || tmp_0))
+def «$exists_» (p0 : List Bool) : Option (Except Fail Bool) :=
+  ExceptT.run
+    ((do
+        have «b*» := p0
+        let _ ← Eval.check (List.isEmpty «b*»)
+        pure false) <|>
+     (do
+        have «b*» := p0
+        let _ ← Eval.check (!(List.isEmpty «b*»))
+        let b_h :: «b_t*» := «b*» | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$exists_» «b_t*»)
+        pure (b_h || tmp_0)))
+  partial_fixpoint
 
-def «$forall_» (fuel : Nat) (p0 : List Bool) : Option Bool :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let «b*» := p0
-         let _ ← Iter.check (List.isEmpty «b*»)
-         pure true) <|>
-      (do
-         let «b*» := p0
-         let _ ← Iter.check (!(List.isEmpty «b*»))
-         let b_h :: «b_t*» := «b*» | none
-         let tmp_0 ← NanoP4Spec.«$forall_» fuel «b_t*»
-         pure (b_h && tmp_0))
+def «$forall_» (p0 : List Bool) : Option (Except Fail Bool) :=
+  ExceptT.run
+    ((do
+        have «b*» := p0
+        let _ ← Eval.check (List.isEmpty «b*»)
+        pure true) <|>
+     (do
+        have «b*» := p0
+        let _ ← Eval.check (!(List.isEmpty «b*»))
+        let b_h :: «b_t*» := «b*» | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$forall_» «b_t*»)
+        pure (b_h && tmp_0)))
+  partial_fixpoint
 
-def «$rev_» {τX : Type} [ToValue τX] [BEq τX] (fuel : Nat) (p0 : List τX) : Option (List τX) :=
-  pure (Builtin.Lists.rev_ p0)
+def «$rev_» {τX : Type} [ToValue τX] [BEq τX] (p0 : List τX) : Option (Except Fail (List τX)) :=
+  ExceptT.run
+    (pure (Builtin.Lists.rev_ p0))
 
-def «$distinct_» {τK : Type} [ToValue τK] [BEq τK] (fuel : Nat) (p0 : List τK) : Option Bool :=
-  pure (Builtin.Lists.distinct_ p0)
+def «$distinct_» {τK : Type} [ToValue τK] [BEq τK] (p0 : List τK) : Option (Except Fail Bool) :=
+  ExceptT.run
+    (pure (Builtin.Lists.distinct_ p0))
 
 def «$assoc_» {τX τY : Type} [ToValue τX] [BEq τX] [ToValue τY] [BEq τY]
-    (fuel : Nat)
-    (p0 : τX)
-    (p1 : List (τX × τY)) : Option (Option τY) :=
-  pure (Builtin.Lists.assoc_ p0 p1)
+        (p0 : τX)
+        (p1 : List (τX × τY))
+    : Option (Except Fail (Option τY)) :=
+  ExceptT.run
+    (pure (Builtin.Lists.assoc_ p0 p1))
 
-def «$empty_set» {τK : Type} [ToValue τK] [BEq τK] (fuel : Nat) : Option (NanoP4Spec.set τK) :=
-  pure (NanoP4Spec.set.lbrace_rbrace ([] : List τK))
+def «$empty_set» {τK : Type} [ToValue τK] [BEq τK] : Option (Except Fail (NanoP4Spec.set τK)) :=
+  ExceptT.run
+    (pure (NanoP4Spec.set.lbrace_rbrace ([] : List τK)))
 
-def «$in_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.set τK)
-    (p1 : τK) : Option Bool :=
-  (do
-     let .lbrace_rbrace «K_e*» := p0
-     let K := p1
-     pure (List.elem K «K_e*»))
+def «$in_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : τK)
+    : Option (Except Fail Bool) :=
+  ExceptT.run
+    (do
+       let .lbrace_rbrace «K_e*» := p0
+       have K := p1
+       pure (List.elem K «K_e*»))
 
 def «$intersect_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.set τK)
-    (p1 : NanoP4Spec.set τK) : Option (NanoP4Spec.set τK) :=
-  pure
-    (NanoP4Spec.set.lbrace_rbrace
-       (Builtin.Sets.intersect_set
+        (p0 : NanoP4Spec.set τK)
+        (p1 : NanoP4Spec.set τK)
+    : Option (Except Fail (NanoP4Spec.set τK)) :=
+  ExceptT.run
+    (pure
+       (NanoP4Spec.set.lbrace_rbrace
+          (Builtin.Sets.intersect_set
+             (match p0 with
+                | .lbrace_rbrace l => l)
+             (match p1 with
+                | .lbrace_rbrace l => l))))
+
+def «$union_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
+    : Option (Except Fail (NanoP4Spec.set τK)) :=
+  ExceptT.run
+    (pure
+       (NanoP4Spec.set.lbrace_rbrace
+          (Builtin.Sets.union_set
+             (match p0 with
+                | .lbrace_rbrace l => l)
+             (match p1 with
+                | .lbrace_rbrace l => l))))
+
+def «$unions_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : List (NanoP4Spec.set τK))
+    : Option (Except Fail (NanoP4Spec.set τK)) :=
+  ExceptT.run
+    (pure
+       (NanoP4Spec.set.lbrace_rbrace
+          (Builtin.Sets.unions_set
+             (List.map
+                (fun s =>
+                   (match s with
+                      | .lbrace_rbrace l => l))
+                p0))))
+
+def «$diff_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
+    : Option (Except Fail (NanoP4Spec.set τK)) :=
+  ExceptT.run
+    (pure
+       (NanoP4Spec.set.lbrace_rbrace
+          (Builtin.Sets.diff_set
+             (match p0 with
+                | .lbrace_rbrace l => l)
+             (match p1 with
+                | .lbrace_rbrace l => l))))
+
+def «$sub_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
+    : Option (Except Fail Bool) :=
+  ExceptT.run
+    (pure
+       (Builtin.Sets.sub_set
           (match p0 with
              | .lbrace_rbrace l => l)
           (match p1 with
              | .lbrace_rbrace l => l)))
 
-def «$union_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.set τK)
-    (p1 : NanoP4Spec.set τK) : Option (NanoP4Spec.set τK) :=
-  pure
-    (NanoP4Spec.set.lbrace_rbrace
-       (Builtin.Sets.union_set
+def «$eq_set» {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 : NanoP4Spec.set τK)
+    : Option (Except Fail Bool) :=
+  ExceptT.run
+    (pure
+       (Builtin.Sets.eq_set
           (match p0 with
              | .lbrace_rbrace l => l)
           (match p1 with
              | .lbrace_rbrace l => l)))
-
-def «$unions_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : List (NanoP4Spec.set τK)) : Option (NanoP4Spec.set τK) :=
-  pure
-    (NanoP4Spec.set.lbrace_rbrace
-       (Builtin.Sets.unions_set
-          (List.map
-             (fun s =>
-                (match s with
-                   | .lbrace_rbrace l => l))
-             p0)))
-
-def «$diff_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.set τK)
-    (p1 : NanoP4Spec.set τK) : Option (NanoP4Spec.set τK) :=
-  pure
-    (NanoP4Spec.set.lbrace_rbrace
-       (Builtin.Sets.diff_set
-          (match p0 with
-             | .lbrace_rbrace l => l)
-          (match p1 with
-             | .lbrace_rbrace l => l)))
-
-def «$sub_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.set τK)
-    (p1 : NanoP4Spec.set τK) : Option Bool :=
-  pure
-    (Builtin.Sets.sub_set
-       (match p0 with
-          | .lbrace_rbrace l => l)
-       (match p1 with
-          | .lbrace_rbrace l => l))
-
-def «$eq_set» {τK : Type} [ToValue τK] [BEq τK]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.set τK)
-    (p1 : NanoP4Spec.set τK) : Option Bool :=
-  pure
-    (Builtin.Sets.eq_set
-       (match p0 with
-          | .lbrace_rbrace l => l)
-       (match p1 with
-          | .lbrace_rbrace l => l))
 
 def «$empty_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat) : Option (NanoP4Spec.map τK τV) :=
-  pure (NanoP4Spec.set.lbrace_rbrace ([] : List (NanoP4Spec.pair τK τV)))
+    : Option (Except Fail (NanoP4Spec.map τK τV)) :=
+  ExceptT.run
+    (pure (NanoP4Spec.set.lbrace_rbrace ([] : List (NanoP4Spec.pair τK τV))))
 
 def «$dom_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.map τK τV) : Option (NanoP4Spec.set τK) :=
-  (do
-     let .lbrace_rbrace tmp_0 := p0
-     let tmp_1 ←
-         List.mapM
-           (fun (elem : NanoP4Spec.pair τK τV) =>
-              (do
-                 let .colon K V := elem
-                 pure (K, V)))
-           tmp_0
-     let «K*» := List.map (·.1) tmp_1
-     let «V*» := List.map (·.2) tmp_1
-     pure (NanoP4Spec.set.lbrace_rbrace «K*»))
+        (p0 : NanoP4Spec.map τK τV)
+    : Option (Except Fail (NanoP4Spec.set τK)) :=
+  ExceptT.run
+    (do
+       let .lbrace_rbrace tmp_0 := p0
+       let tmp_1 ←
+           List.mapM
+             (fun (elem : NanoP4Spec.pair τK τV) =>
+                (do
+                   let .colon K V := elem
+                   pure (K, V)))
+             tmp_0
+       have «K*» := List.map (·.1) tmp_1
+       have «V*» := List.map (·.2) tmp_1
+       pure (NanoP4Spec.set.lbrace_rbrace «K*»))
 
 def «$codom_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.map τK τV) : Option (NanoP4Spec.set τV) :=
-  (do
-     let .lbrace_rbrace tmp_0 := p0
-     let tmp_1 ←
-         List.mapM
-           (fun (elem : NanoP4Spec.pair τK τV) =>
-              (do
-                 let .colon K V := elem
-                 pure (K, V)))
-           tmp_0
-     let «K*» := List.map (·.1) tmp_1
-     let «V*» := List.map (·.2) tmp_1
-     pure (NanoP4Spec.set.lbrace_rbrace «V*»))
+        (p0 : NanoP4Spec.map τK τV)
+    : Option (Except Fail (NanoP4Spec.set τV)) :=
+  ExceptT.run
+    (do
+       let .lbrace_rbrace tmp_0 := p0
+       let tmp_1 ←
+           List.mapM
+             (fun (elem : NanoP4Spec.pair τK τV) =>
+                (do
+                   let .colon K V := elem
+                   pure (K, V)))
+             tmp_0
+       have «K*» := List.map (·.1) tmp_1
+       have «V*» := List.map (·.2) tmp_1
+       pure (NanoP4Spec.set.lbrace_rbrace «V*»))
 
 def «$find_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.map τK τV)
-    (p1 : τK) : Option (Option τV) :=
-  pure
-    (Builtin.Maps.find_map
-       (match p0 with
-          | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
-       p1)
+        (p0 : NanoP4Spec.map τK τV)
+        (p1 : τK)
+    : Option (Except Fail (Option τV)) :=
+  ExceptT.run
+    (pure
+       (Builtin.Maps.find_map
+          (match p0 with
+             | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
+          p1))
 
 def «$find_maps» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat)
-    (p0 : List (NanoP4Spec.map τK τV))
-    (p1 : τK) : Option (Option τV) :=
-  pure
-    (Builtin.Maps.find_maps
-       (List.map
-          (fun m =>
-             (match m with
-                | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l))
-          p0)
-       p1)
+        (p0 : List (NanoP4Spec.map τK τV))
+        (p1 : τK)
+    : Option (Except Fail (Option τV)) :=
+  ExceptT.run
+    (pure
+       (Builtin.Maps.find_maps
+          (List.map
+             (fun m =>
+                (match m with
+                   | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l))
+             p0)
+          p1))
 
 def «$add_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.map τK τV)
-    (p1 : τK)
-    (p2 : τV) : Option (NanoP4Spec.map τK τV) :=
-  pure
-    (NanoP4Spec.set.lbrace_rbrace
-       (List.map
-          (fun (k, v) => NanoP4Spec.pair.colon k v)
-          (Builtin.Maps.add_map
-             (match p0 with
-                | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
-             p1
-             p2)))
+        (p0 : NanoP4Spec.map τK τV)
+        (p1 : τK)
+        (p2 : τV)
+    : Option (Except Fail (NanoP4Spec.map τK τV)) :=
+  ExceptT.run
+    (pure
+       (NanoP4Spec.set.lbrace_rbrace
+          (List.map
+             (fun (k, v) => NanoP4Spec.pair.colon k v)
+             (Builtin.Maps.add_map
+                (match p0 with
+                   | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
+                p1
+                p2))))
 
 def «$update_map» {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.map τK τV)
-    (p1 : τK)
-    (p2 : τV) : Option (NanoP4Spec.map τK τV) :=
-  pure
-    (NanoP4Spec.set.lbrace_rbrace
-       (List.map
-          (fun (k, v) => NanoP4Spec.pair.colon k v)
-          (Builtin.Maps.update_map
-             (match p0 with
-                | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
-             p1
-             p2)))
+        (p0 : NanoP4Spec.map τK τV)
+        (p1 : τK)
+        (p2 : τV)
+    : Option (Except Fail (NanoP4Spec.map τK τV)) :=
+  ExceptT.run
+    (pure
+       (NanoP4Spec.set.lbrace_rbrace
+          (List.map
+             (fun (k, v) => NanoP4Spec.pair.colon k v)
+             (Builtin.Maps.update_map
+                (match p0 with
+                   | .lbrace_rbrace l => List.map (fun | .colon k v => (k, v)) l)
+                p1
+                p2))))
 
 end NanoP4Spec

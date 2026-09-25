@@ -19,286 +19,281 @@ open P4SpecTec P4SpecTec.Prelude
 
 namespace NanoP4Spec
 
-def ParserLocalDecl_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.parserLocalDeclaration) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let variableDeclaration := p1
-     (do
-        let tmp_0 ← NanoP4Spec.VarDecl_eval.run fuel NanoP4Spec.scope.BLOCK EC_0 variableDeclaration
-        let EC_1 := tmp_0
-        pure EC_1))
+def ParserLocalDecl_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.parserLocalDeclaration)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have variableDeclaration := p1
+       (do
+          let tmp_0 ←
+              ExceptT.mk
+                (NanoP4Spec.VarDecl_eval.run NanoP4Spec.scope.BLOCK EC_0 variableDeclaration)
+          have EC_1 := tmp_0
+          pure EC_1))
 
 def ParserLocalDecls_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : List NanoP4Spec.parserLocalDeclaration) : Option NanoP4Spec.evalContext :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let EC' := p0
-         let «parserLocalDeclaration*» := p1
-         (do
-            let EC := EC'
-            let _ ← Iter.check («parserLocalDeclaration*» ==
-             ([] : List NanoP4Spec.parserLocalDeclaration))
-            pure EC) <|>
-         (do
-            let EC_0 := EC'
-            let «parserLocalDeclaration'*» := «parserLocalDeclaration*»
-            let _ ← Iter.check (!(List.isEmpty «parserLocalDeclaration'*»))
-            let parserLocalDeclaration_h :: «parserLocalDeclaration_t*» :=
-                «parserLocalDeclaration'*» | none
-            let tmp_0 ← NanoP4Spec.ParserLocalDecl_eval.run fuel EC_0 parserLocalDeclaration_h
-            let EC_1 := tmp_0
-            let tmp_1 ← NanoP4Spec.ParserLocalDecls_eval.run fuel EC_1 «parserLocalDeclaration_t*»
-            let EC_2 := tmp_1
-            pure EC_1))
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : List NanoP4Spec.parserLocalDeclaration)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC' := p0
+       have «parserLocalDeclaration*» := p1
+       (do
+          have EC := EC'
+          let _ ← Eval.check («parserLocalDeclaration*» ==
+           ([] : List NanoP4Spec.parserLocalDeclaration))
+          pure EC) <|>
+       (do
+          have EC_0 := EC'
+          have «parserLocalDeclaration'*» := «parserLocalDeclaration*»
+          let _ ← Eval.check (!(List.isEmpty «parserLocalDeclaration'*»))
+          let parserLocalDeclaration_h :: «parserLocalDeclaration_t*» :=
+              «parserLocalDeclaration'*» | throw Fail.err
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.ParserLocalDecl_eval.run EC_0 parserLocalDeclaration_h)
+          have EC_1 := tmp_0
+          let tmp_1 ←
+              ExceptT.mk (NanoP4Spec.ParserLocalDecls_eval.run EC_1 «parserLocalDeclaration_t*»)
+          have EC_2 := tmp_1
+          pure EC_1))
+  partial_fixpoint
 
 def ParserLocalDeclList_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.parserLocalDeclarationList) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let parserLocalDeclarationList := p1
-     (do
-        let tmp_0 ← NanoP4Spec.«$flatten_parserLocalDeclarationList» fuel parserLocalDeclarationList
-        let «parserLocalDeclaration*» := tmp_0
-        let tmp_1 ← NanoP4Spec.ParserLocalDecls_eval.run fuel EC_0 «parserLocalDeclaration*»
-        let EC_1 := tmp_1
-        pure EC_1))
-
-def «$find_parserState»
-    (fuel : Nat)
-    (p0 : List NanoP4Spec.parserState)
-    (p1 : NanoP4Spec.nameIR) : Option (Option NanoP4Spec.parserState) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let «parserState*» := p0
-         let nameIR := p1
-         let _ ← Iter.check (List.isEmpty «parserState*»)
-         pure (none : Option NanoP4Spec.parserState)) <|>
-      ((do
-          let «parserState*» := p0
-          let nameIR_target := p1
-          let _ ← Iter.check (!(List.isEmpty «parserState*»))
-          let parserState_h :: «parserState_t*» := «parserState*» | none
-          let .STATE_lbrace_rbrace name _statementList _transitionStatement := parserState_h
-          let tmp_0 ← NanoP4Spec.«$id» fuel name
-          let _ ← Iter.check (tmp_0 == nameIR_target)
-          pure (some parserState_h)) <|>
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : NanoP4Spec.parserLocalDeclarationList)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have parserLocalDeclarationList := p1
        (do
-          let «parserState*» := p0
-          let nameIR_target := p1
-          let _ ← Iter.check (!(List.isEmpty «parserState*»))
-          let parserState_h :: «parserState_t*» := «parserState*» | none
-          let .STATE_lbrace_rbrace name _statementList _transitionStatement := parserState_h
-          let tmp_1 ← NanoP4Spec.«$id» fuel name
-          let _ ← Iter.check (tmp_1 != nameIR_target)
-          let tmp_2 ← NanoP4Spec.«$find_parserState» fuel «parserState_t*» nameIR_target
-          pure tmp_2))
+          let tmp_0 ←
+              ExceptT.mk
+                (NanoP4Spec.«$flatten_parserLocalDeclarationList» parserLocalDeclarationList)
+          have «parserLocalDeclaration*» := tmp_0
+          let tmp_1 ←
+              ExceptT.mk (NanoP4Spec.ParserLocalDecls_eval.run EC_0 «parserLocalDeclaration*»)
+          have EC_1 := tmp_1
+          pure EC_1))
 
-def «$match_case_value»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.value)
-    (p1 : List (NanoP4Spec.name × NanoP4Spec.value)) : Option (Option NanoP4Spec.name) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+def «$find_parserState» (p0 : List NanoP4Spec.parserState) (p1 : NanoP4Spec.nameIR)
+    : Option (Except Fail (Option NanoP4Spec.parserState)) :=
+  ExceptT.run
+    ((do
+        have «parserState*» := p0
+        have nameIR := p1
+        let _ ← Eval.check (List.isEmpty «parserState*»)
+        pure (none : Option NanoP4Spec.parserState)) <|>
+     ((do
+         have «parserState*» := p0
+         have nameIR_target := p1
+         let _ ← Eval.check (!(List.isEmpty «parserState*»))
+         let parserState_h :: «parserState_t*» := «parserState*» | throw Fail.err
+         let .STATE_lbrace_rbrace name _statementList _transitionStatement := parserState_h
+         let tmp_0 ← ExceptT.mk (NanoP4Spec.«$id» name)
+         let _ ← Eval.check (tmp_0 == nameIR_target)
+         pure (some parserState_h)) <|>
       (do
-         let value := p0
-         let «(name, value)*» := p1
-         let _ ← Iter.check (List.isEmpty «(name, value)*»)
-         pure (none : Option NanoP4Spec.name)) <|>
-      ((do
-          let value := p0
-          let «(name, value)*» := p1
-          let _ ← Iter.check (!(List.isEmpty «(name, value)*»))
-          let tmp_0 :: tmp_1 := «(name, value)*» | none
-          let (name_case_h, value_case_h) := tmp_0
-          let tmp_2 ←
-              List.mapM
-                (fun (elem : NanoP4Spec.name × NanoP4Spec.value) =>
-                   (do
-                      let (name_case_t, value_case_t) := elem
-                      pure (name_case_t, value_case_t)))
-                tmp_1
-          let «name_case_t*» := List.map (·.1) tmp_2
-          let «value_case_t*» := List.map (·.2) tmp_2
-          let tmp_3 ← NanoP4Spec.«$bin_eq» fuel value value_case_h
-          let _ ← Iter.check tmp_3
-          pure (some name_case_h)) <|>
-       (do
-          let value := p0
-          let «(name, value)*» := p1
-          let _ ← Iter.check (!(List.isEmpty «(name, value)*»))
-          let tmp_4 :: tmp_5 := «(name, value)*» | none
-          let (name_case_h, value_case_h) := tmp_4
-          let tmp_6 ←
-              List.mapM
-                (fun (elem : NanoP4Spec.name × NanoP4Spec.value) =>
-                   (do
-                      let (name_case_t, value_case_t) := elem
-                      pure (name_case_t, value_case_t)))
-                tmp_5
-          let «name_case_t*» := List.map (·.1) tmp_6
-          let «value_case_t*» := List.map (·.2) tmp_6
-          let tmp_7 ← NanoP4Spec.«$bin_eq» fuel value value_case_h
-          let _ ← Iter.check (!tmp_7)
-          let tmp_8 ←
-              NanoP4Spec.«$match_case_value»
-                fuel
-                value
-                (List.map
-                   (fun ((name_case_t, value_case_t) : NanoP4Spec.name × NanoP4Spec.value) =>
-                      (name_case_t, value_case_t))
-                   (List.zip «name_case_t*» «value_case_t*»))
-          pure tmp_8))
+         have «parserState*» := p0
+         have nameIR_target := p1
+         let _ ← Eval.check (!(List.isEmpty «parserState*»))
+         let parserState_h :: «parserState_t*» := «parserState*» | throw Fail.err
+         let .STATE_lbrace_rbrace name _statementList _transitionStatement := parserState_h
+         let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
+         let _ ← Eval.check (tmp_1 != nameIR_target)
+         let tmp_2 ← ExceptT.mk (NanoP4Spec.«$find_parserState» «parserState_t*» nameIR_target)
+         pure tmp_2)))
+  partial_fixpoint
+
+def «$match_case_value» (p0 : NanoP4Spec.value) (p1 : List (NanoP4Spec.name × NanoP4Spec.value))
+    : Option (Except Fail (Option NanoP4Spec.name)) :=
+  ExceptT.run
+    ((do
+        have value := p0
+        have «(name, value)*» := p1
+        let _ ← Eval.check (List.isEmpty «(name, value)*»)
+        pure (none : Option NanoP4Spec.name)) <|>
+     ((do
+         have value := p0
+         have «(name, value)*» := p1
+         let _ ← Eval.check (!(List.isEmpty «(name, value)*»))
+         let tmp_0 :: tmp_1 := «(name, value)*» | throw Fail.err
+         let (name_case_h, value_case_h) := tmp_0
+         let tmp_2 ←
+             List.mapM
+               (fun (elem : NanoP4Spec.name × NanoP4Spec.value) =>
+                  (do
+                     let (name_case_t, value_case_t) := elem
+                     pure (name_case_t, value_case_t)))
+               tmp_1
+         have «name_case_t*» := List.map (·.1) tmp_2
+         have «value_case_t*» := List.map (·.2) tmp_2
+         let tmp_3 ← ExceptT.mk (NanoP4Spec.«$bin_eq» value value_case_h)
+         let _ ← Eval.check tmp_3
+         pure (some name_case_h)) <|>
+      (do
+         have value := p0
+         have «(name, value)*» := p1
+         let _ ← Eval.check (!(List.isEmpty «(name, value)*»))
+         let tmp_4 :: tmp_5 := «(name, value)*» | throw Fail.err
+         let (name_case_h, value_case_h) := tmp_4
+         let tmp_6 ←
+             List.mapM
+               (fun (elem : NanoP4Spec.name × NanoP4Spec.value) =>
+                  (do
+                     let (name_case_t, value_case_t) := elem
+                     pure (name_case_t, value_case_t)))
+               tmp_5
+         have «name_case_t*» := List.map (·.1) tmp_6
+         have «value_case_t*» := List.map (·.2) tmp_6
+         let tmp_7 ← ExceptT.mk (NanoP4Spec.«$bin_eq» value value_case_h)
+         let _ ← Eval.check (!tmp_7)
+         let tmp_8 ←
+             ExceptT.mk
+               (NanoP4Spec.«$match_case_value»
+                  value
+                  (List.map
+                     (fun ((name_case_t, value_case_t) : NanoP4Spec.name × NanoP4Spec.value) =>
+                        (name_case_t, value_case_t))
+                     (List.zip «name_case_t*» «value_case_t*»)))
+         pure tmp_8)))
+  partial_fixpoint
 
 mutual
 
-def ParserTransition_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.transitionStatement) : Option NanoP4Spec.transitionResult :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let EC := p0
-         let .TRANSITION stateExpression := p1
-         (do
-            let stateExpression' := stateExpression
-            let _ ← Iter.check (match stateExpression' with
+def ParserTransition_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.transitionStatement)
+    : Option (Except Fail NanoP4Spec.transitionResult) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       let .TRANSITION stateExpression := p1
+       (do
+          have stateExpression' := stateExpression
+          let _ ← Eval.check (match stateExpression' with
+             | NanoP4Spec.stateExpression.semi _ => true
+             | _ => false)
+          let .semi name := stateExpression' | throw Fail.err
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$id» name)
+          let _ ← Eval.check (tmp_0 == "accept")
+          pure NanoP4Spec.transitionResult.ACCEPT) <|>
+       ((do
+           have stateExpression' := stateExpression
+           let _ ← Eval.check (match stateExpression' with
+              | NanoP4Spec.stateExpression.semi _ => true
+              | _ => false)
+           let .semi name := stateExpression' | throw Fail.err
+           let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
+           let _ ← Eval.check (tmp_1 == "reject")
+           pure NanoP4Spec.transitionResult.REJECT) <|>
+        ((do
+            have stateExpression' := stateExpression
+            let _ ← Eval.check (match stateExpression' with
                | NanoP4Spec.stateExpression.semi _ => true
                | _ => false)
-            let .semi name := stateExpression' | none
-            let tmp_0 ← NanoP4Spec.«$id» fuel name
-            let _ ← Iter.check (tmp_0 == "accept")
-            pure NanoP4Spec.transitionResult.ACCEPT) <|>
-         ((do
-             let stateExpression' := stateExpression
-             let _ ← Iter.check (match stateExpression' with
-                | NanoP4Spec.stateExpression.semi _ => true
-                | _ => false)
-             let .semi name := stateExpression' | none
-             let tmp_1 ← NanoP4Spec.«$id» fuel name
-             let _ ← Iter.check (tmp_1 == "reject")
-             pure NanoP4Spec.transitionResult.REJECT) <|>
-          ((do
-              let stateExpression' := stateExpression
-              let _ ← Iter.check (match stateExpression' with
-                 | NanoP4Spec.stateExpression.semi _ => true
-                 | _ => false)
-              let .semi name := stateExpression' | none
-              let tmp_2 ← NanoP4Spec.«$id» fuel name
-              let nameIR := tmp_2
-              let _ ← Iter.check ((nameIR != "accept") && (nameIR != "reject"))
-              pure (NanoP4Spec.transitionResult.STATE nameIR)) <|>
-           (do
-              let stateExpression' := stateExpression
-              let _ ← Iter.check (NanoP4Spec.stateExpression.is_selectExpression stateExpression')
-              let tmp_3 ← NanoP4Spec.stateExpression.of_selectExpression stateExpression'
-              let selectExpression := tmp_3
-              let tmp_4 ← NanoP4Spec.ParserSelect_eval.run fuel EC selectExpression
-              let transitionResult := tmp_4
-              pure transitionResult))))
+            let .semi name := stateExpression' | throw Fail.err
+            let tmp_2 ← ExceptT.mk (NanoP4Spec.«$id» name)
+            have nameIR := tmp_2
+            let _ ← Eval.check ((nameIR != "accept") && (nameIR != "reject"))
+            pure (NanoP4Spec.transitionResult.STATE nameIR)) <|>
+         (do
+            have stateExpression' := stateExpression
+            let _ ← Eval.check (NanoP4Spec.stateExpression.is_selectExpression stateExpression')
+            let tmp_3 ← Eval.err? (NanoP4Spec.stateExpression.of_selectExpression stateExpression')
+            have selectExpression := tmp_3
+            let tmp_4 ← ExceptT.mk (NanoP4Spec.ParserSelect_eval.run EC selectExpression)
+            have transitionResult := tmp_4
+            pure transitionResult))))
+  partial_fixpoint
 
-def ParserSelect_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.selectExpression) : Option NanoP4Spec.transitionResult :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let EC := p0
-         let selectExpression := p1
-         (do
-            let .SELECT_lparen_rparen_lbrace_rbrace expression selectCaseList := selectExpression
-            let tmp_0 ← NanoP4Spec.Expr_eval.run fuel NanoP4Spec.scope.LOCAL EC expression
-            let value := tmp_0
-            let tmp_1 ← NanoP4Spec.«$flatten_selectCaseList» fuel selectCaseList
-            let «selectCase*» := tmp_1
-            let tmp_2 ←
-                List.mapM
-                  (fun (selectCase : NanoP4Spec.selectCase) =>
-                     (do
-                        let .colon_semi expression_case name_case := selectCase
-                        pure (expression_case, name_case)))
-                  «selectCase*»
-            let «expression_case*» := List.map (·.1) tmp_2
-            let «name_case*» := List.map (·.2) tmp_2
-            let tmp_4 ←
-                List.mapM
-                  (fun (expression_case : NanoP4Spec.expression) =>
-                     (do
-                        let tmp_3 ←
-                            NanoP4Spec.Expr_eval.run fuel NanoP4Spec.scope.LOCAL EC expression_case
-                        let value_case := tmp_3
-                        pure value_case))
-                  «expression_case*»
-            let «value_case*» := tmp_4
-            let tmp_5 ←
-                NanoP4Spec.«$match_case_value»
-                  fuel
-                  value
-                  (List.map
-                     (fun ((name_case, value_case) : NanoP4Spec.name × NanoP4Spec.value) =>
-                        (name_case, value_case))
-                     (List.zip «name_case*» «value_case*»))
-            let name? := tmp_5
-            let _ ← Iter.check (Option.isSome name?)
-            let some name_match := name? | none
-            let tmp_6 ←
-                NanoP4Spec.ParserTransition_eval.run
-                  fuel
-                  EC
-                  (NanoP4Spec.transitionStatement.TRANSITION
-                     (NanoP4Spec.stateExpression.semi name_match))
-            let transitionResult := tmp_6
-            pure transitionResult) <|>
-         (do
-            let .SELECT_lparen_rparen_lbrace_rbrace expression selectCaseList := selectExpression
-            let tmp_7 ← NanoP4Spec.Expr_eval.run fuel NanoP4Spec.scope.LOCAL EC expression
-            let value := tmp_7
-            let tmp_8 ← NanoP4Spec.«$flatten_selectCaseList» fuel selectCaseList
-            let «selectCase*» := tmp_8
-            let tmp_9 ←
-                List.mapM
-                  (fun (selectCase : NanoP4Spec.selectCase) =>
-                     (do
-                        let .colon_semi expression_case name_case := selectCase
-                        pure (expression_case, name_case)))
-                  «selectCase*»
-            let «expression_case*» := List.map (·.1) tmp_9
-            let «name_case*» := List.map (·.2) tmp_9
-            let tmp_11 ←
-                List.mapM
-                  (fun (expression_case : NanoP4Spec.expression) =>
-                     (do
-                        let tmp_10 ←
-                            NanoP4Spec.Expr_eval.run fuel NanoP4Spec.scope.LOCAL EC expression_case
-                        let value_case := tmp_10
-                        pure value_case))
-                  «expression_case*»
-            let «value_case*» := tmp_11
-            let tmp_12 ←
-                NanoP4Spec.«$match_case_value»
-                  fuel
-                  value
-                  (List.map
-                     (fun ((name_case, value_case) : NanoP4Spec.name × NanoP4Spec.value) =>
-                        (name_case, value_case))
-                     (List.zip «name_case*» «value_case*»))
-            let _ ← Iter.check ((none : Option NanoP4Spec.name) == tmp_12)
-            pure NanoP4Spec.transitionResult.REJECT))
+def ParserSelect_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.selectExpression)
+    : Option (Except Fail NanoP4Spec.transitionResult) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       have selectExpression := p1
+       (do
+          let .SELECT_lparen_rparen_lbrace_rbrace expression selectCaseList := selectExpression
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
+          have value := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_selectCaseList» selectCaseList)
+          have «selectCase*» := tmp_1
+          let tmp_2 ←
+              List.mapM
+                (fun (selectCase : NanoP4Spec.selectCase) =>
+                   (do
+                      let .colon_semi expression_case name_case := selectCase
+                      pure (expression_case, name_case)))
+                «selectCase*»
+          have «expression_case*» := List.map (·.1) tmp_2
+          have «name_case*» := List.map (·.2) tmp_2
+          let tmp_4 ←
+              List.mapM
+                (fun (expression_case : NanoP4Spec.expression) =>
+                   (do
+                      let tmp_3 ←
+                          ExceptT.mk
+                            (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression_case)
+                      have value_case := tmp_3
+                      pure value_case))
+                «expression_case*»
+          have «value_case*» := tmp_4
+          let tmp_5 ←
+              ExceptT.mk
+                (NanoP4Spec.«$match_case_value»
+                   value
+                   (List.map
+                      (fun ((name_case, value_case) : NanoP4Spec.name × NanoP4Spec.value) =>
+                         (name_case, value_case))
+                      (List.zip «name_case*» «value_case*»)))
+          have name? := tmp_5
+          let _ ← Eval.check (Option.isSome name?)
+          let some name_match := name? | throw Fail.err
+          let tmp_6 ←
+              ExceptT.mk
+                (NanoP4Spec.ParserTransition_eval.run
+                   EC
+                   (NanoP4Spec.transitionStatement.TRANSITION
+                      (NanoP4Spec.stateExpression.semi name_match)))
+          have transitionResult := tmp_6
+          pure transitionResult) <|>
+       (do
+          let .SELECT_lparen_rparen_lbrace_rbrace expression selectCaseList := selectExpression
+          let tmp_7 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
+          have value := tmp_7
+          let tmp_8 ← ExceptT.mk (NanoP4Spec.«$flatten_selectCaseList» selectCaseList)
+          have «selectCase*» := tmp_8
+          let tmp_9 ←
+              List.mapM
+                (fun (selectCase : NanoP4Spec.selectCase) =>
+                   (do
+                      let .colon_semi expression_case name_case := selectCase
+                      pure (expression_case, name_case)))
+                «selectCase*»
+          have «expression_case*» := List.map (·.1) tmp_9
+          have «name_case*» := List.map (·.2) tmp_9
+          let tmp_11 ←
+              List.mapM
+                (fun (expression_case : NanoP4Spec.expression) =>
+                   (do
+                      let tmp_10 ←
+                          ExceptT.mk
+                            (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression_case)
+                      have value_case := tmp_10
+                      pure value_case))
+                «expression_case*»
+          have «value_case*» := tmp_11
+          let tmp_12 ←
+              ExceptT.mk
+                (NanoP4Spec.«$match_case_value»
+                   value
+                   (List.map
+                      (fun ((name_case, value_case) : NanoP4Spec.name × NanoP4Spec.value) =>
+                         (name_case, value_case))
+                      (List.zip «name_case*» «value_case*»)))
+          let _ ← Eval.check ((none : Option NanoP4Spec.name) == tmp_12)
+          pure NanoP4Spec.transitionResult.REJECT))
+  partial_fixpoint
 
 end
 

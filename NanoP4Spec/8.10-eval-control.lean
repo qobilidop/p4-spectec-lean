@@ -20,81 +20,92 @@ open P4SpecTec P4SpecTec.Prelude
 namespace NanoP4Spec
 
 def ControlLocalDecl_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.controlLocalDeclaration) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let controlLocalDeclaration := p1
-     let _ ← Iter.check (NanoP4Spec.controlLocalDeclaration.is_variableDeclaration
-        controlLocalDeclaration)
-     let tmp_0 ← NanoP4Spec.controlLocalDeclaration.of_variableDeclaration controlLocalDeclaration
-     let variableDeclaration := tmp_0
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : NanoP4Spec.controlLocalDeclaration)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    ((do
+        have EC_0 := p0
+        have controlLocalDeclaration := p1
+        let _ ← Eval.check (NanoP4Spec.controlLocalDeclaration.is_variableDeclaration
+           controlLocalDeclaration)
+        let tmp_0 ←
+            Eval.err?
+              (NanoP4Spec.controlLocalDeclaration.of_variableDeclaration controlLocalDeclaration)
+        have variableDeclaration := tmp_0
+        (do
+           let tmp_1 ←
+               ExceptT.mk
+                 (NanoP4Spec.VarDecl_eval.run NanoP4Spec.scope.BLOCK EC_0 variableDeclaration)
+           have EC_1 := tmp_1
+           pure EC_1)) <|>
      (do
-        let tmp_1 ← NanoP4Spec.VarDecl_eval.run fuel NanoP4Spec.scope.BLOCK EC_0 variableDeclaration
-        let EC_1 := tmp_1
-        pure EC_1)) <|>
-  (do
-     let EC_0 := p0
-     let controlLocalDeclaration := p1
-     let _ ← Iter.check (NanoP4Spec.controlLocalDeclaration.is_tableDeclaration
-        controlLocalDeclaration)
-     let tmp_2 ← NanoP4Spec.controlLocalDeclaration.of_tableDeclaration controlLocalDeclaration
-     let .TABLE_lbrace_rbrace name tableProperties := tmp_2
-     (do
-        let tmp_3 ← NanoP4Spec.«$id» fuel name
-        let nameIR := tmp_3
-        let tableValue := NanoP4Spec.tableValue.TABLE nameIR tableProperties
-        let tmp_4 ←
-            NanoP4Spec.«$add_var_e»
-              fuel
-              NanoP4Spec.scope.BLOCK
-              EC_0
-              nameIR
-              (NanoP4Spec.tableValue.to_value tableValue)
-        let EC_1 := tmp_4
-        pure EC_1))
+        have EC_0 := p0
+        have controlLocalDeclaration := p1
+        let _ ← Eval.check (NanoP4Spec.controlLocalDeclaration.is_tableDeclaration
+           controlLocalDeclaration)
+        let tmp_2 ←
+            Eval.err?
+              (NanoP4Spec.controlLocalDeclaration.of_tableDeclaration controlLocalDeclaration)
+        let .TABLE_lbrace_rbrace name tableProperties := tmp_2
+        (do
+           let tmp_3 ← ExceptT.mk (NanoP4Spec.«$id» name)
+           have nameIR := tmp_3
+           have tableValue := NanoP4Spec.tableValue.TABLE nameIR tableProperties
+           let tmp_4 ←
+               ExceptT.mk
+                 (NanoP4Spec.«$add_var_e»
+                    NanoP4Spec.scope.BLOCK
+                    EC_0
+                    nameIR
+                    (NanoP4Spec.tableValue.to_value tableValue))
+           have EC_1 := tmp_4
+           pure EC_1)))
 
 def ControlLocalDecls_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : List NanoP4Spec.controlLocalDeclaration) : Option NanoP4Spec.evalContext :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let EC' := p0
-         let «controlLocalDeclaration*» := p1
-         (do
-            let EC := EC'
-            let _ ← Iter.check («controlLocalDeclaration*» ==
-             ([] : List NanoP4Spec.controlLocalDeclaration))
-            pure EC) <|>
-         (do
-            let EC_0 := EC'
-            let «controlLocalDeclaration'*» := «controlLocalDeclaration*»
-            let _ ← Iter.check (!(List.isEmpty «controlLocalDeclaration'*»))
-            let controlLocalDeclaration_h :: «controlLocalDeclaration_t*» :=
-                «controlLocalDeclaration'*» | none
-            let tmp_0 ← NanoP4Spec.ControlLocalDecl_eval.run fuel EC_0 controlLocalDeclaration_h
-            let EC_1 := tmp_0
-            let tmp_1 ← NanoP4Spec.ControlLocalDecls_eval.run fuel EC_1 «controlLocalDeclaration_t*»
-            let EC_2 := tmp_1
-            pure EC_2))
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : List NanoP4Spec.controlLocalDeclaration)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC' := p0
+       have «controlLocalDeclaration*» := p1
+       (do
+          have EC := EC'
+          let _ ← Eval.check («controlLocalDeclaration*» ==
+           ([] : List NanoP4Spec.controlLocalDeclaration))
+          pure EC) <|>
+       (do
+          have EC_0 := EC'
+          have «controlLocalDeclaration'*» := «controlLocalDeclaration*»
+          let _ ← Eval.check (!(List.isEmpty «controlLocalDeclaration'*»))
+          let controlLocalDeclaration_h :: «controlLocalDeclaration_t*» :=
+              «controlLocalDeclaration'*» | throw Fail.err
+          let tmp_0 ←
+              ExceptT.mk (NanoP4Spec.ControlLocalDecl_eval.run EC_0 controlLocalDeclaration_h)
+          have EC_1 := tmp_0
+          let tmp_1 ←
+              ExceptT.mk (NanoP4Spec.ControlLocalDecls_eval.run EC_1 «controlLocalDeclaration_t*»)
+          have EC_2 := tmp_1
+          pure EC_2))
+  partial_fixpoint
 
 def ControlLocalDeclList_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.controlLocalDeclarationList) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let controlLocalDeclarationList := p1
-     (do
-        let tmp_0 ←
-            NanoP4Spec.«$flatten_controlLocalDeclarationList» fuel controlLocalDeclarationList
-        let «controlLocalDeclaration*» := tmp_0
-        let tmp_1 ← NanoP4Spec.ControlLocalDecls_eval.run fuel EC_0 «controlLocalDeclaration*»
-        let EC_1 := tmp_1
-        pure EC_1))
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : NanoP4Spec.controlLocalDeclarationList)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have controlLocalDeclarationList := p1
+       (do
+          let tmp_0 ←
+              ExceptT.mk
+                (NanoP4Spec.«$flatten_controlLocalDeclarationList» controlLocalDeclarationList)
+          have «controlLocalDeclaration*» := tmp_0
+          let tmp_1 ←
+              ExceptT.mk (NanoP4Spec.ControlLocalDecls_eval.run EC_0 «controlLocalDeclaration*»)
+          have EC_1 := tmp_1
+          pure EC_1))
 
 end NanoP4Spec

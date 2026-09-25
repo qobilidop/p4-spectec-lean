@@ -19,79 +19,71 @@ open P4SpecTec P4SpecTec.Prelude
 
 namespace NanoP4Spec
 
-def «$split_dataplane_parameters»
-    (fuel : Nat)
-    (p0 : List
-       NanoP4Spec.parameterIR) : Option ((List NanoP4Spec.parameterIR) ×
- (List NanoP4Spec.parameterIR)) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+def «$split_dataplane_parameters» (p0 : List NanoP4Spec.parameterIR)
+    : Option (Except Fail ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.parameterIR))) :=
+  ExceptT.run
+    ((do
+        have «parameterIR*» := p0
+        let _ ← Eval.check (List.isEmpty «parameterIR*»)
+        pure (([] : List NanoP4Spec.parameterIR), ([] : List NanoP4Spec.parameterIR))) <|>
+     ((do
+         have «parameterIR*» := p0
+         let _ ← Eval.check (!(List.isEmpty «parameterIR*»))
+         let parameterIR_h :: «parameterIR_t*» := «parameterIR*» | throw Fail.err
+         let .mk direction _typeIR _nameIR := parameterIR_h
+         let _ ← Eval.check (match direction with
+            | NanoP4Spec.direction._EMPTY => true
+            | _ => false)
+         let tmp_0 ← ExceptT.mk (NanoP4Spec.«$split_dataplane_parameters» «parameterIR_t*»)
+         let («parameterIR_data*», «parameterIR_control*») := tmp_0
+         pure («parameterIR_data*», parameterIR_h :: «parameterIR_control*»)) <|>
       (do
-         let «parameterIR*» := p0
-         let _ ← Iter.check (List.isEmpty «parameterIR*»)
-         pure (([] : List NanoP4Spec.parameterIR), ([] : List NanoP4Spec.parameterIR))) <|>
-      ((do
-          let «parameterIR*» := p0
-          let _ ← Iter.check (!(List.isEmpty «parameterIR*»))
-          let parameterIR_h :: «parameterIR_t*» := «parameterIR*» | none
-          let .mk direction _typeIR _nameIR := parameterIR_h
-          let _ ← Iter.check (match direction with
-             | NanoP4Spec.direction._EMPTY => true
-             | _ => false)
-          let tmp_0 ← NanoP4Spec.«$split_dataplane_parameters» fuel «parameterIR_t*»
-          let («parameterIR_data*», «parameterIR_control*») := tmp_0
-          pure («parameterIR_data*», parameterIR_h :: «parameterIR_control*»)) <|>
-       (do
-          let «parameterIR*» := p0
-          let _ ← Iter.check (!(List.isEmpty «parameterIR*»))
-          let parameterIR_h :: «parameterIR_t*» := «parameterIR*» | none
-          let .mk direction _typeIR _nameIR := parameterIR_h
-          let _ ← Iter.check (direction != NanoP4Spec.direction._EMPTY)
-          let tmp_1 ← NanoP4Spec.«$split_dataplane_parameters» fuel «parameterIR_t*»
-          let («parameterIR_data*», «parameterIR_control*») := tmp_1
-          pure (parameterIR_h :: «parameterIR_data*», «parameterIR_control*»)))
+         have «parameterIR*» := p0
+         let _ ← Eval.check (!(List.isEmpty «parameterIR*»))
+         let parameterIR_h :: «parameterIR_t*» := «parameterIR*» | throw Fail.err
+         let .mk direction _typeIR _nameIR := parameterIR_h
+         let _ ← Eval.check (direction != NanoP4Spec.direction._EMPTY)
+         let tmp_1 ← ExceptT.mk (NanoP4Spec.«$split_dataplane_parameters» «parameterIR_t*»)
+         let («parameterIR_data*», «parameterIR_control*») := tmp_1
+         pure (parameterIR_h :: «parameterIR_data*», «parameterIR_control*»))))
+  partial_fixpoint
 
-def «$find_action'»
-    (fuel : Nat)
-    (p0 : List NanoP4Spec.matchAction)
-    (p1 : NanoP4Spec.callableId) : Option (Option
-   ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR))) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+def «$find_action'» (p0 : List NanoP4Spec.matchAction) (p1 : NanoP4Spec.callableId)
+    : Option (Except Fail (Option
+       ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) :=
+  ExceptT.run
+    ((do
+        have «matchAction*» := p0
+        have callableId := p1
+        let _ ← Eval.check (List.isEmpty «matchAction*»)
+        pure (none : Option ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) <|>
+     ((do
+         have «matchAction*» := p0
+         have callableId_target := p1
+         let _ ← Eval.check (!(List.isEmpty «matchAction*»))
+         let matchAction_h :: «matchAction_t*» := «matchAction*» | throw Fail.err
+         let .lparen_at_rparen callableId «parameterIR*» «argumentIR*» := matchAction_h
+         let _ ← Eval.check (callableId == callableId_target)
+         pure (some («parameterIR*», «argumentIR*»))) <|>
       (do
-         let «matchAction*» := p0
-         let callableId := p1
-         let _ ← Iter.check (List.isEmpty «matchAction*»)
-         pure (none : Option ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) <|>
-      ((do
-          let «matchAction*» := p0
-          let callableId_target := p1
-          let _ ← Iter.check (!(List.isEmpty «matchAction*»))
-          let matchAction_h :: «matchAction_t*» := «matchAction*» | none
-          let .lparen_at_rparen callableId «parameterIR*» «argumentIR*» := matchAction_h
-          let _ ← Iter.check (callableId == callableId_target)
-          pure (some («parameterIR*», «argumentIR*»))) <|>
-       (do
-          let «matchAction*» := p0
-          let callableId_target := p1
-          let _ ← Iter.check (!(List.isEmpty «matchAction*»))
-          let matchAction_h :: «matchAction_t*» := «matchAction*» | none
-          let .lparen_at_rparen callableId «parameterIR*» «argumentIR*» := matchAction_h
-          let _ ← Iter.check (callableId != callableId_target)
-          let tmp_0 ← NanoP4Spec.«$find_action'» fuel «matchAction_t*» callableId_target
-          pure tmp_0))
+         have «matchAction*» := p0
+         have callableId_target := p1
+         let _ ← Eval.check (!(List.isEmpty «matchAction*»))
+         let matchAction_h :: «matchAction_t*» := «matchAction*» | throw Fail.err
+         let .lparen_at_rparen callableId «parameterIR*» «argumentIR*» := matchAction_h
+         let _ ← Eval.check (callableId != callableId_target)
+         let tmp_0 ← ExceptT.mk (NanoP4Spec.«$find_action'» «matchAction_t*» callableId_target)
+         pure tmp_0)))
+  partial_fixpoint
 
-def «$find_action»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.tableContext)
-    (p1 : NanoP4Spec.callableId) : Option (Option
-   ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR))) :=
-  (do
-     let TBLC := p0
-     let callableId := p1
-     let tmp_0 ← NanoP4Spec.«$find_action'» fuel TBLC.ACTIONS callableId
-     pure tmp_0)
+def «$find_action» (p0 : NanoP4Spec.tableContext) (p1 : NanoP4Spec.callableId)
+    : Option (Except Fail (Option
+       ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) :=
+  ExceptT.run
+    (do
+       have TBLC := p0
+       have callableId := p1
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$find_action'» TBLC.ACTIONS callableId)
+       pure tmp_0)
 
 end NanoP4Spec

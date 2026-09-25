@@ -19,76 +19,72 @@ open P4SpecTec P4SpecTec.Prelude
 
 namespace NanoP4Spec
 
-def TableKey_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.tableKey) : Option NanoP4Spec.value :=
-  (do
-     let EC := p0
-     let .lbrace_colon_semi_rbrace expression name := p1
-     (do
-        let tmp_0 ← NanoP4Spec.Expr_eval.run fuel NanoP4Spec.scope.LOCAL EC expression
-        let value := tmp_0
-        pure value))
+def TableKey_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.tableKey)
+    : Option (Except Fail NanoP4Spec.value) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       let .lbrace_colon_semi_rbrace expression name := p1
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
+          have value := tmp_0
+          pure value))
 
 def «$match_entry_value»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.value)
-    (p1 : List
-       (NanoP4Spec.tableActionReference ×
-        NanoP4Spec.value)) : Option (Option NanoP4Spec.tableActionReference) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+        (p0 : NanoP4Spec.value)
+        (p1 : List (NanoP4Spec.tableActionReference × NanoP4Spec.value))
+    : Option (Except Fail (Option NanoP4Spec.tableActionReference)) :=
+  ExceptT.run
+    ((do
+        have value := p0
+        have «(tableActionReference, value)*» := p1
+        let _ ← Eval.check (List.isEmpty «(tableActionReference, value)*»)
+        pure (none : Option NanoP4Spec.tableActionReference)) <|>
+     ((do
+         have value := p0
+         have «(tableActionReference, value)*» := p1
+         let _ ← Eval.check (!(List.isEmpty «(tableActionReference, value)*»))
+         let tmp_0 :: tmp_1 := «(tableActionReference, value)*» | throw Fail.err
+         let (tableActionReference_h, value_h) := tmp_0
+         let tmp_2 ←
+             List.mapM
+               (fun (elem : NanoP4Spec.tableActionReference × NanoP4Spec.value) =>
+                  (do
+                     let (tableActionReference_t, value_t) := elem
+                     pure (tableActionReference_t, value_t)))
+               tmp_1
+         have «tableActionReference_t*» := List.map (·.1) tmp_2
+         have «value_t*» := List.map (·.2) tmp_2
+         let tmp_3 ← ExceptT.mk (NanoP4Spec.«$bin_eq» value value_h)
+         let _ ← Eval.check tmp_3
+         pure (some tableActionReference_h)) <|>
       (do
-         let value := p0
-         let «(tableActionReference, value)*» := p1
-         let _ ← Iter.check (List.isEmpty «(tableActionReference, value)*»)
-         pure (none : Option NanoP4Spec.tableActionReference)) <|>
-      ((do
-          let value := p0
-          let «(tableActionReference, value)*» := p1
-          let _ ← Iter.check (!(List.isEmpty «(tableActionReference, value)*»))
-          let tmp_0 :: tmp_1 := «(tableActionReference, value)*» | none
-          let (tableActionReference_h, value_h) := tmp_0
-          let tmp_2 ←
-              List.mapM
-                (fun (elem : NanoP4Spec.tableActionReference × NanoP4Spec.value) =>
-                   (do
-                      let (tableActionReference_t, value_t) := elem
-                      pure (tableActionReference_t, value_t)))
-                tmp_1
-          let «tableActionReference_t*» := List.map (·.1) tmp_2
-          let «value_t*» := List.map (·.2) tmp_2
-          let tmp_3 ← NanoP4Spec.«$bin_eq» fuel value value_h
-          let _ ← Iter.check tmp_3
-          pure (some tableActionReference_h)) <|>
-       (do
-          let value := p0
-          let «(tableActionReference, value)*» := p1
-          let _ ← Iter.check (!(List.isEmpty «(tableActionReference, value)*»))
-          let tmp_4 :: tmp_5 := «(tableActionReference, value)*» | none
-          let (tableActionReference_h, value_h) := tmp_4
-          let tmp_6 ←
-              List.mapM
-                (fun (elem : NanoP4Spec.tableActionReference × NanoP4Spec.value) =>
-                   (do
-                      let (tableActionReference_t, value_t) := elem
-                      pure (tableActionReference_t, value_t)))
-                tmp_5
-          let «tableActionReference_t*» := List.map (·.1) tmp_6
-          let «value_t*» := List.map (·.2) tmp_6
-          let tmp_7 ← NanoP4Spec.«$bin_eq» fuel value value_h
-          let _ ← Iter.check (!tmp_7)
-          let tmp_8 ←
-              NanoP4Spec.«$match_entry_value»
-                fuel
-                value
-                (List.map
-                   (fun ((tableActionReference_t, value_t) :
-                         NanoP4Spec.tableActionReference × NanoP4Spec.value) =>
-                      (tableActionReference_t, value_t))
-                   (List.zip «tableActionReference_t*» «value_t*»))
-          pure tmp_8))
+         have value := p0
+         have «(tableActionReference, value)*» := p1
+         let _ ← Eval.check (!(List.isEmpty «(tableActionReference, value)*»))
+         let tmp_4 :: tmp_5 := «(tableActionReference, value)*» | throw Fail.err
+         let (tableActionReference_h, value_h) := tmp_4
+         let tmp_6 ←
+             List.mapM
+               (fun (elem : NanoP4Spec.tableActionReference × NanoP4Spec.value) =>
+                  (do
+                     let (tableActionReference_t, value_t) := elem
+                     pure (tableActionReference_t, value_t)))
+               tmp_5
+         have «tableActionReference_t*» := List.map (·.1) tmp_6
+         have «value_t*» := List.map (·.2) tmp_6
+         let tmp_7 ← ExceptT.mk (NanoP4Spec.«$bin_eq» value value_h)
+         let _ ← Eval.check (!tmp_7)
+         let tmp_8 ←
+             ExceptT.mk
+               (NanoP4Spec.«$match_entry_value»
+                  value
+                  (List.map
+                     (fun ((tableActionReference_t, value_t) :
+                           NanoP4Spec.tableActionReference × NanoP4Spec.value) =>
+                        (tableActionReference_t, value_t))
+                     (List.zip «tableActionReference_t*» «value_t*»)))
+         pure tmp_8)))
+  partial_fixpoint
 
 end NanoP4Spec

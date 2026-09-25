@@ -341,283 +341,277 @@ def callee.is_tableApplyMethodCallee : NanoP4Spec.callee → Bool
   | _ => false
 
 class Externs where
-  ExternMethodCall_eval : Nat →
-    NanoP4Spec.evalContext →
+  ExternMethodCall_eval : NanoP4Spec.evalContext →
     NanoP4Spec.value →
     NanoP4Spec.callableId →
     (List NanoP4Spec.nameIR) →
-    Option (NanoP4Spec.value × NanoP4Spec.evalContext)
+    Option (Except Fail (NanoP4Spec.value × NanoP4Spec.evalContext))
 
-def Expr_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.expression) : Option NanoP4Spec.value :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let scope := p0
-         let EC := p1
-         let expression := p2
-         let _ ← Iter.check (NanoP4Spec.expression.is_booleanLiteral expression)
-         let tmp_0 ← NanoP4Spec.expression.of_booleanLiteral expression
-         let booleanLiteral := tmp_0
-         (do
-            let _ ← Iter.check (booleanLiteral == NanoP4Spec.booleanLiteral.TRUE)
-            pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B true))) <|>
-         (do
-            let _ ← Iter.check (booleanLiteral == NanoP4Spec.booleanLiteral.FALSE)
-            pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false)))) <|>
+def Expr_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : NanoP4Spec.expression)
+    : Option (Except Fail NanoP4Spec.value) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have EC := p1
+        have expression := p2
+        let _ ← Eval.check (NanoP4Spec.expression.is_booleanLiteral expression)
+        let tmp_0 ← Eval.err? (NanoP4Spec.expression.of_booleanLiteral expression)
+        have booleanLiteral := tmp_0
+        (do
+           let _ ← Eval.check (booleanLiteral == NanoP4Spec.booleanLiteral.TRUE)
+           pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B true))) <|>
+        (do
+           let _ ← Eval.check (booleanLiteral == NanoP4Spec.booleanLiteral.FALSE)
+           pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false)))) <|>
+     ((do
+         have scope := p0
+         have EC := p1
+         have expression := p2
+         let _ ← Eval.check (NanoP4Spec.expression.is_integerLiteral expression)
+         let tmp_1 ← Eval.err? (NanoP4Spec.expression.of_integerLiteral expression)
+         have integerLiteral := tmp_1
+         pure (NanoP4Spec.integerLiteral.to_value integerLiteral)) <|>
       ((do
-          let scope := p0
-          let EC := p1
-          let expression := p2
-          let _ ← Iter.check (NanoP4Spec.expression.is_integerLiteral expression)
-          let tmp_1 ← NanoP4Spec.expression.of_integerLiteral expression
-          let integerLiteral := tmp_1
-          pure (NanoP4Spec.integerLiteral.to_value integerLiteral)) <|>
+          have scope := p0
+          have EC := p1
+          have expression := p2
+          let _ ← Eval.check (NanoP4Spec.expression.is_nonTypeName expression)
+          let tmp_2 ← Eval.err? (NanoP4Spec.expression.of_nonTypeName expression)
+          have name := tmp_2
+          (do
+             let tmp_3 ← ExceptT.mk (NanoP4Spec.«$id» name)
+             have nameIR := tmp_3
+             let tmp_4 ← ExceptT.mk (NanoP4Spec.«$find_var_e» scope EC nameIR)
+             have value := tmp_4
+             pure value)) <|>
        ((do
-           let scope := p0
-           let EC := p1
-           let expression := p2
-           let _ ← Iter.check (NanoP4Spec.expression.is_nonTypeName expression)
-           let tmp_2 ← NanoP4Spec.expression.of_nonTypeName expression
-           let name := tmp_2
+           have scope := p0
+           have EC := p1
+           have expression' := p2
+           let _ ← Eval.check (NanoP4Spec.expression.is_unaryExpression expression')
+           let tmp_5 ← Eval.err? (NanoP4Spec.expression.of_unaryExpression expression')
+           let .mk unop expression := tmp_5
            (do
-              let tmp_3 ← NanoP4Spec.«$id» fuel name
-              let nameIR := tmp_3
-              let tmp_4 ← NanoP4Spec.«$find_var_e» fuel scope EC nameIR
-              let value := tmp_4
-              pure value)) <|>
+              let tmp_6 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC expression)
+              have value := tmp_6
+              let tmp_7 ← ExceptT.mk (NanoP4Spec.«$un_op» unop value)
+              have value' := tmp_7
+              pure value')) <|>
         ((do
-            let scope := p0
-            let EC := p1
-            let expression' := p2
-            let _ ← Iter.check (NanoP4Spec.expression.is_unaryExpression expression')
-            let tmp_5 ← NanoP4Spec.expression.of_unaryExpression expression'
-            let .mk unop expression := tmp_5
+            have scope := p0
+            have EC := p1
+            have expression := p2
+            let _ ← Eval.check (NanoP4Spec.expression.is_binaryExpression expression)
+            let tmp_8 ← Eval.err? (NanoP4Spec.expression.of_binaryExpression expression)
+            let .mk expression_l binop expression_r := tmp_8
             (do
-               let tmp_6 ← NanoP4Spec.Expr_eval.run fuel scope EC expression
-               let value := tmp_6
-               let tmp_7 ← NanoP4Spec.«$un_op» fuel unop value
-               let value' := tmp_7
-               pure value')) <|>
+               let tmp_9 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC expression_l)
+               have value_l := tmp_9
+               let tmp_10 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC expression_r)
+               have value_r := tmp_10
+               let tmp_11 ← ExceptT.mk (NanoP4Spec.«$bin_op» binop value_l value_r)
+               have value := tmp_11
+               pure value)) <|>
          ((do
-             let scope := p0
-             let EC := p1
-             let expression := p2
-             let _ ← Iter.check (NanoP4Spec.expression.is_binaryExpression expression)
-             let tmp_8 ← NanoP4Spec.expression.of_binaryExpression expression
-             let .mk expression_l binop expression_r := tmp_8
+             have scope := p0
+             have EC := p1
+             have expression := p2
+             let _ ← Eval.check (NanoP4Spec.expression.is_memberAccessExpression expression)
+             let tmp_12 ← Eval.err? (NanoP4Spec.expression.of_memberAccessExpression expression)
+             let .dot memberAccessBase member := tmp_12
              (do
-                let tmp_9 ← NanoP4Spec.Expr_eval.run fuel scope EC expression_l
-                let value_l := tmp_9
-                let tmp_10 ← NanoP4Spec.Expr_eval.run fuel scope EC expression_r
-                let value_r := tmp_10
-                let tmp_11 ← NanoP4Spec.«$bin_op» fuel binop value_l value_r
-                let value := tmp_11
-                pure value)) <|>
-          ((do
-              let scope := p0
-              let EC := p1
-              let expression := p2
-              let _ ← Iter.check (NanoP4Spec.expression.is_memberAccessExpression expression)
-              let tmp_12 ← NanoP4Spec.expression.of_memberAccessExpression expression
-              let .dot memberAccessBase member := tmp_12
-              (do
-                 let tmp_13 ← NanoP4Spec.Expr_eval.run fuel scope EC memberAccessBase
-                 let value_base := tmp_13
-                 let value := value_base
-                 let _ ← Iter.check (NanoP4Spec.value.is_structValue value)
-                 let tmp_14 ← NanoP4Spec.value.of_structValue value
-                 let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_14
-                 let tmp_15 ←
-                     List.mapM
-                       (fun (fieldValue : NanoP4Spec.fieldValue) =>
-                          (do
-                             let .semi value_field nameIR_field := fieldValue
-                             pure (nameIR_field, value_field)))
-                       «fieldValue*»
-                 let «nameIR_field*» := List.map (·.1) tmp_15
-                 let «value_field*» := List.map (·.2) tmp_15
-                 let tmp_16 ← NanoP4Spec.«$id» fuel member
-                 let nameIR := tmp_16
-                 let tmp_17 ←
-                     NanoP4Spec.«$assoc_»
-                       (τX := NanoP4Spec.nameIR)
-                       (τY := NanoP4Spec.value)
-                       fuel
-                       nameIR
-                       (List.map
-                          (fun ((nameIR_field, value_field) :
-                                NanoP4Spec.nameIR × NanoP4Spec.value) =>
-                             (nameIR_field, value_field))
-                          (List.zip «nameIR_field*» «value_field*»))
-                 let value'? := tmp_17
-                 let _ ← Iter.check (Option.isSome value'?)
-                 let some value_member := value'? | none
-                 pure value_member) <|>
-              (do
-                 let tmp_18 ← NanoP4Spec.Expr_eval.run fuel scope EC memberAccessBase
-                 let value_base := tmp_18
-                 let value := value_base
-                 let _ ← Iter.check (NanoP4Spec.value.is_headerValue value)
-                 let tmp_19 ← NanoP4Spec.value.of_headerValue value
-                 let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_19
-                 let tmp_20 ←
-                     List.mapM
-                       (fun (fieldValue : NanoP4Spec.fieldValue) =>
-                          (do
-                             let .semi value_field nameIR_field := fieldValue
-                             pure (nameIR_field, value_field)))
-                       «fieldValue*»
-                 let «nameIR_field*» := List.map (·.1) tmp_20
-                 let «value_field*» := List.map (·.2) tmp_20
-                 let tmp_21 ← NanoP4Spec.«$id» fuel member
-                 let nameIR := tmp_21
-                 let tmp_22 ←
-                     NanoP4Spec.«$assoc_»
-                       (τX := NanoP4Spec.nameIR)
-                       (τY := NanoP4Spec.value)
-                       fuel
-                       nameIR
-                       (List.map
-                          (fun ((nameIR_field, value_field) :
-                                NanoP4Spec.nameIR × NanoP4Spec.value) =>
-                             (nameIR_field, value_field))
-                          (List.zip «nameIR_field*» «value_field*»))
-                 let value'? := tmp_22
-                 let _ ← Iter.check (Option.isSome value'?)
-                 let some value_member := value'? | none
-                 pure value_member)) <|>
-           (do
-              let scope := p0
-              let EC := p1
-              let expression' := p2
-              let _ ← Iter.check (NanoP4Spec.expression.is_parenthesizedExpression expression')
-              let tmp_23 ← NanoP4Spec.expression.of_parenthesizedExpression expression'
-              let .lparen_rparen expression := tmp_23
-              (do
-                 let tmp_24 ← NanoP4Spec.Expr_eval.run fuel scope EC expression
-                 let value := tmp_24
-                 pure value)))))))
+                let tmp_13 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC memberAccessBase)
+                have value_base := tmp_13
+                have value := value_base
+                let _ ← Eval.check (NanoP4Spec.value.is_structValue value)
+                let tmp_14 ← Eval.err? (NanoP4Spec.value.of_structValue value)
+                let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_14
+                let tmp_15 ←
+                    List.mapM
+                      (fun (fieldValue : NanoP4Spec.fieldValue) =>
+                         (do
+                            let .semi value_field nameIR_field := fieldValue
+                            pure (nameIR_field, value_field)))
+                      «fieldValue*»
+                have «nameIR_field*» := List.map (·.1) tmp_15
+                have «value_field*» := List.map (·.2) tmp_15
+                let tmp_16 ← ExceptT.mk (NanoP4Spec.«$id» member)
+                have nameIR := tmp_16
+                let tmp_17 ←
+                    ExceptT.mk
+                      (NanoP4Spec.«$assoc_»
+                         (τX := NanoP4Spec.nameIR)
+                         (τY := NanoP4Spec.value)
+                         nameIR
+                         (List.map
+                            (fun ((nameIR_field, value_field) :
+                                  NanoP4Spec.nameIR × NanoP4Spec.value) =>
+                               (nameIR_field, value_field))
+                            (List.zip «nameIR_field*» «value_field*»)))
+                have value'? := tmp_17
+                let _ ← Eval.check (Option.isSome value'?)
+                let some value_member := value'? | throw Fail.err
+                pure value_member) <|>
+             (do
+                let tmp_18 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC memberAccessBase)
+                have value_base := tmp_18
+                have value := value_base
+                let _ ← Eval.check (NanoP4Spec.value.is_headerValue value)
+                let tmp_19 ← Eval.err? (NanoP4Spec.value.of_headerValue value)
+                let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_19
+                let tmp_20 ←
+                    List.mapM
+                      (fun (fieldValue : NanoP4Spec.fieldValue) =>
+                         (do
+                            let .semi value_field nameIR_field := fieldValue
+                            pure (nameIR_field, value_field)))
+                      «fieldValue*»
+                have «nameIR_field*» := List.map (·.1) tmp_20
+                have «value_field*» := List.map (·.2) tmp_20
+                let tmp_21 ← ExceptT.mk (NanoP4Spec.«$id» member)
+                have nameIR := tmp_21
+                let tmp_22 ←
+                    ExceptT.mk
+                      (NanoP4Spec.«$assoc_»
+                         (τX := NanoP4Spec.nameIR)
+                         (τY := NanoP4Spec.value)
+                         nameIR
+                         (List.map
+                            (fun ((nameIR_field, value_field) :
+                                  NanoP4Spec.nameIR × NanoP4Spec.value) =>
+                               (nameIR_field, value_field))
+                            (List.zip «nameIR_field*» «value_field*»)))
+                have value'? := tmp_22
+                let _ ← Eval.check (Option.isSome value'?)
+                let some value_member := value'? | throw Fail.err
+                pure value_member)) <|>
+          (do
+             have scope := p0
+             have EC := p1
+             have expression' := p2
+             let _ ← Eval.check (NanoP4Spec.expression.is_parenthesizedExpression expression')
+             let tmp_23 ← Eval.err? (NanoP4Spec.expression.of_parenthesizedExpression expression')
+             let .lparen_rparen expression := tmp_23
+             (do
+                let tmp_24 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC expression)
+                have value := tmp_24
+                pure value))))))))
+  partial_fixpoint
 
-def Lvalue_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.lvalue) : Option NanoP4Spec.value :=
-  (do
-     let scope := p0
-     let EC := p1
-     let lvalue := p2
-     (do
-        let tmp_0 ← NanoP4Spec.«$expression_of_lvalue» fuel lvalue
-        let expression := tmp_0
-        let tmp_1 ← NanoP4Spec.Expr_eval.run fuel scope EC expression
-        let value := tmp_1
-        pure value))
+def Lvalue_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : NanoP4Spec.lvalue)
+    : Option (Except Fail NanoP4Spec.value) :=
+  ExceptT.run
+    (do
+       have scope := p0
+       have EC := p1
+       have lvalue := p2
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$expression_of_lvalue» lvalue)
+          have expression := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC expression)
+          have value := tmp_1
+          pure value))
 
 def VarDecl_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.variableDeclaration) : Option NanoP4Spec.evalContext :=
-  (do
-     let scope := p0
-     let EC_0 := p1
-     let .semi type name tmp_0 := p2
-     let .eq expression := tmp_0
-     (do
-        let tmp_1 ← NanoP4Spec.Expr_eval.run fuel scope EC_0 expression
-        let value := tmp_1
-        let tmp_2 ← NanoP4Spec.«$id» fuel name
-        let nameIR := tmp_2
-        let tmp_3 ← NanoP4Spec.«$add_var_e» fuel scope EC_0 nameIR value
-        let EC_1 := tmp_3
-        pure EC_1))
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.evalContext)
+        (p2 : NanoP4Spec.variableDeclaration)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have scope := p0
+       have EC_0 := p1
+       let .semi type name tmp_0 := p2
+       let .eq expression := tmp_0
+       (do
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC_0 expression)
+          have value := tmp_1
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$id» name)
+          have nameIR := tmp_2
+          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$add_var_e» scope EC_0 nameIR value)
+          have EC_1 := tmp_3
+          pure EC_1))
 
-def Callee_eval.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.evalContext)
-    (p2 : NanoP4Spec.lvalue) : Option NanoP4Spec.callee :=
-  (do
-     let scope := p0
-     let EC := p1
-     let lvalue := p2
-     let _ ← Iter.check (NanoP4Spec.lvalue.is_nonTypeName lvalue)
-     let tmp_0 ← NanoP4Spec.lvalue.of_nonTypeName lvalue
-     let referenceExpression := tmp_0
-     (do
-        let tmp_1 ← NanoP4Spec.«$id» fuel referenceExpression
-        let callableId := tmp_1
-        let tmp_2 ← NanoP4Spec.«$find_callableDef_e» fuel EC callableId
-        let callableDef := tmp_2
-        let _ ← Iter.check (NanoP4Spec.callableDef.is_actionDeclarationIR callableDef)
-        let tmp_3 ← NanoP4Spec.callableDef.of_actionDeclarationIR callableDef
-        let actionDeclarationIR := tmp_3
-        let .ACTION_lparen_rparen _nameIR «parameterIR*» blockStatement := actionDeclarationIR
-        let actionCallee :=
-            NanoP4Spec.actionCallee.ACTION_lparen_rparen callableId «parameterIR*» blockStatement
-        pure (NanoP4Spec.actionCallee.to_callee actionCallee))) <|>
-  ((do
-      let scope := p0
-      let EC := p1
-      let lvalue := p2
-      let _ ← Iter.check (match lvalue with
-         | NanoP4Spec.lvalue.dot _ _ => true
-         | _ => false)
-      let .dot lvalue_base member := lvalue | none
+def Callee_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : NanoP4Spec.lvalue)
+    : Option (Except Fail NanoP4Spec.callee) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have EC := p1
+        have lvalue := p2
+        let _ ← Eval.check (NanoP4Spec.lvalue.is_nonTypeName lvalue)
+        let tmp_0 ← Eval.err? (NanoP4Spec.lvalue.of_nonTypeName lvalue)
+        have referenceExpression := tmp_0
+        (do
+           let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» referenceExpression)
+           have callableId := tmp_1
+           let tmp_2 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_e» EC callableId)
+           have callableDef := tmp_2
+           let _ ← Eval.check (NanoP4Spec.callableDef.is_actionDeclarationIR callableDef)
+           let tmp_3 ← Eval.err? (NanoP4Spec.callableDef.of_actionDeclarationIR callableDef)
+           have actionDeclarationIR := tmp_3
+           let .ACTION_lparen_rparen _nameIR «parameterIR*» blockStatement := actionDeclarationIR
+           have actionCallee :=
+               NanoP4Spec.actionCallee.ACTION_lparen_rparen callableId «parameterIR*» blockStatement
+           pure (NanoP4Spec.actionCallee.to_callee actionCallee))) <|>
+     ((do
+         have scope := p0
+         have EC := p1
+         have lvalue := p2
+         let _ ← Eval.check (match lvalue with
+            | NanoP4Spec.lvalue.dot _ _ => true
+            | _ => false)
+         let .dot lvalue_base member := lvalue | throw Fail.err
+         (do
+            let tmp_4 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC lvalue_base)
+            have value := tmp_4
+            let _ ← Eval.check (NanoP4Spec.value.is_packetValue value)
+            let tmp_5 ← Eval.err? (NanoP4Spec.value.of_packetValue value)
+            have packetValue := tmp_5
+            let .PACKET typeId objectState := packetValue
+            let tmp_6 ← ExceptT.mk (NanoP4Spec.«$id» member)
+            have callableId := tmp_6
+            let tmp_7 ← ExceptT.mk (NanoP4Spec.«$find_typeDef_e» EC typeId)
+            have typeDefIR := tmp_7
+            let _ ← Eval.check (NanoP4Spec.typeDefIR.is_externObjectTypeIR typeDefIR)
+            let tmp_8 ← Eval.err? (NanoP4Spec.typeDefIR.of_externObjectTypeIR typeDefIR)
+            let .EXTERN _typeId externMethodTypeDefEnv := tmp_8
+            let tmp_9 ←
+                ExceptT.mk
+                  (NanoP4Spec.«$find_map»
+                     (τK := NanoP4Spec.callableId)
+                     (τV := NanoP4Spec.externMethodTypeDefIR)
+                     externMethodTypeDefEnv
+                     callableId)
+            have externMethodTypeDefIR? := tmp_9
+            let _ ← Eval.check (Option.isSome externMethodTypeDefIR?)
+            let some tmp_10 := externMethodTypeDefIR? | throw Fail.err
+            let .VOID_lparen_rparen _callableId «parameterIR*» := tmp_10
+            have externMethodCallee :=
+                NanoP4Spec.externMethodCallee.EXTERN_METHOD_dot_lparen_rparen
+                  lvalue_base
+                  callableId
+                  «parameterIR*»
+            pure (NanoP4Spec.externMethodCallee.to_callee externMethodCallee))) <|>
       (do
-         let tmp_4 ← NanoP4Spec.Lvalue_eval.run fuel scope EC lvalue_base
-         let value := tmp_4
-         let _ ← Iter.check (NanoP4Spec.value.is_packetValue value)
-         let tmp_5 ← NanoP4Spec.value.of_packetValue value
-         let packetValue := tmp_5
-         let .PACKET typeId objectState := packetValue
-         let tmp_6 ← NanoP4Spec.«$id» fuel member
-         let callableId := tmp_6
-         let tmp_7 ← NanoP4Spec.«$find_typeDef_e» fuel EC typeId
-         let typeDefIR := tmp_7
-         let _ ← Iter.check (NanoP4Spec.typeDefIR.is_externObjectTypeIR typeDefIR)
-         let tmp_8 ← NanoP4Spec.typeDefIR.of_externObjectTypeIR typeDefIR
-         let .EXTERN _typeId externMethodTypeDefEnv := tmp_8
-         let tmp_9 ←
-             NanoP4Spec.«$find_map»
-               (τK := NanoP4Spec.callableId)
-               (τV := NanoP4Spec.externMethodTypeDefIR)
-               fuel
-               externMethodTypeDefEnv
-               callableId
-         let externMethodTypeDefIR? := tmp_9
-         let _ ← Iter.check (Option.isSome externMethodTypeDefIR?)
-         let some tmp_10 := externMethodTypeDefIR? | none
-         let .VOID_lparen_rparen _callableId «parameterIR*» := tmp_10
-         let externMethodCallee :=
-             NanoP4Spec.externMethodCallee.EXTERN_METHOD_dot_lparen_rparen
-               lvalue_base
-               callableId
-               «parameterIR*»
-         pure (NanoP4Spec.externMethodCallee.to_callee externMethodCallee))) <|>
-   (do
-      let scope := p0
-      let EC := p1
-      let lvalue := p2
-      let _ ← Iter.check (match lvalue with
-         | NanoP4Spec.lvalue.dot _ _ => true
-         | _ => false)
-      let .dot lvalue_base member := lvalue | none
-      (do
-         let tmp_11 ← NanoP4Spec.Lvalue_eval.run fuel scope EC lvalue_base
-         let value := tmp_11
-         let _ ← Iter.check (NanoP4Spec.value.is_tableValue value)
-         let tmp_12 ← NanoP4Spec.value.of_tableValue value
-         let tableValue := tmp_12
-         let .TABLE nameIR tableProperties := tableValue
-         let tableApplyMethodCallee :=
-             NanoP4Spec.tableApplyMethodCallee.TABLE_dot_APPLY_lbrace_rbrace nameIR tableProperties
-         pure (NanoP4Spec.tableApplyMethodCallee.to_callee tableApplyMethodCallee))))
+         have scope := p0
+         have EC := p1
+         have lvalue := p2
+         let _ ← Eval.check (match lvalue with
+            | NanoP4Spec.lvalue.dot _ _ => true
+            | _ => false)
+         let .dot lvalue_base member := lvalue | throw Fail.err
+         (do
+            let tmp_11 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC lvalue_base)
+            have value := tmp_11
+            let _ ← Eval.check (NanoP4Spec.value.is_tableValue value)
+            let tmp_12 ← Eval.err? (NanoP4Spec.value.of_tableValue value)
+            have tableValue := tmp_12
+            let .TABLE nameIR tableProperties := tableValue
+            have tableApplyMethodCallee :=
+                NanoP4Spec.tableApplyMethodCallee.TABLE_dot_APPLY_lbrace_rbrace
+                  nameIR
+                  tableProperties
+            pure (NanoP4Spec.tableApplyMethodCallee.to_callee tableApplyMethodCallee)))))
 
 end NanoP4Spec

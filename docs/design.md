@@ -172,14 +172,19 @@ Decisions:
   IDE responsive, makes every codegen change a reviewable diff, and
   keeps generated files mirroring their sources. Every prior art emits
   text; Wasm's monolithic outputs are the scale warning.
-- **Recursion strategy.** M1 threads an explicit `fuel : Nat` through
-  every generated function and run function, uniformly; a recursive group
-  consumes one unit per call. The intended order, structural recursion
-  where the spec is structural, then `partial_fixpoint` for mutually
-  recursive `Option` functions (unfolding equations and the
-  `partial_correctness` induction principle), then fuel, is decided at M2
-  with the failure/divergence split that makes the executable
-  encoding's `<|>` monotone. Never `partial`.
+- **Recursion strategy (M2).** Every generated definition is written in
+  the monad `Eval := ExceptT Fail Option` (`Prelude/Eval.lean`): failure
+  is data (`Fail.err`, `Fail.unmatch`, upstream's `Err` and `Unmatch`),
+  divergence is `none`, and sequential choice `Eval.orElse` retries only
+  on `unmatch`, as upstream's `choose_sequential` does, which makes it
+  monotone. A recursive group is defined by `partial_fixpoint`, which
+  yields unfolding equations and the `partial_correctness` induction
+  principle the soundness proofs use; for that principle a definition's
+  type is `Option (Except Fail T)` and its body `ExceptT.run` of the
+  `do` block, with calls lifted by `ExceptT.mk`. Non-recursive
+  definitions are plain `def`s. Structural recursion is not used even
+  where it would work, so every group has the same proof principle. M1
+  used explicit fuel; no fuel remains. Never `partial`.
 - **Relations are emitted in both encodings** from one pass: an
   inductive `Prop` with one constructor per rule for proofs (from M2), and
   an executable `Option`-returning function `R.run` from the inputs the
@@ -310,13 +315,13 @@ here is a bug.
 
 | Deviation | Why Lean needs it | Where |
 |---|---|---|
-| Explicit fuel on every generated function and run function (M1); `partial_fixpoint` where the M2 monad allows | Lean requires a termination argument or a monotone fixpoint; the spec's recursion is not always structural, and `<|>` on `Option` is not monotone | `Codegen/Funcs.lean`, `Codegen/Rels.lean` |
+| Recursive groups defined by `partial_fixpoint` in `Eval := ExceptT Fail Option`, definitions typed `Option (Except Fail T)` with `ExceptT.run`/`ExceptT.mk` around bodies and calls; pure variable bindings are `have`, not `let` | Lean requires a termination argument or a monotone fixpoint; the spec's recursion is not always structural; `partial_correctness` is derived only for `Option`-typed definitions; the monotonicity tactic cannot eliminate a match on a `let`-bound variable | `Prelude/Eval.lean`, `Codegen/Funcs.lean`, `Codegen/Rels.lean`, `Codegen/Fmt.lean` |
 | A recursive group spanning spec files is emitted in the last file's module | a `mutual` block cannot cross files | `Codegen/Emit.lean` |
 | Type aliases are unfolded in the constructor arguments of a recursive group | the kernel's nested-inductive check does not see through an `abbrev` | `Codegen/Types.lean` |
 | Every reference to a generated name is qualified with the library name; type parameters are `τX` | spec variables are named after their types and would shadow them | `Codegen/Names.lean` |
 | Equality on generated types is equality of their IL values | `deriving BEq` on nested inductives is opaque; value equality is upstream's `Value.eq` | `Codegen/Types.lean`, `Prelude/Value.lean` |
 | In the IL mirror, `iterexp`, `iterprem` and `typorigin'` are named inductives, EL hints are raw JSON, `Bigint.t` is `Nat`/`Int`, the polymorphic-variant unions are flat inductives | the kernel rejects a pair holding a list of a type being declared; the EL is not mirrored; Lean has no bigint or open unions | `IL/Ast.lean` |
-| Failure (`Unmatch`) and error (`Err`) both become `none` in the executable encoding; division and modulus by zero and `^` (which upstream aborts on) are `none` too; an `Err` inside a `does not hold` premise therefore counts as the premise holding, where upstream propagates the error | one `Option` monad at M1; the split arrives with the M2 monad, which must keep `Err` distinct at `IfNotHoldPr` | `Codegen/Exp.lean`, `Prelude/Num.lean` |
+| Failures upstream reports as OCaml exceptions or `assert false` (division and modulus by zero, `^`, a failed downcast, a pattern shape that does not match, an optionality mismatch) are `Fail.err` in the executable encoding, the kind upstream never backtracks over | Lean has no exceptions; none of these is reachable on the guarded AL, and `err` is the nearest kind | `Codegen/Exp.lean`, `Prelude/Num.lean`, `Prelude/Eval.lean` |
 | Each relation emitted twice, `Prop` (M2) and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean` |
 | Iterated premises encoded as `∀ x ∈ xs, …` and definitional `Forall₂`, not nested inductive predicates (M2) | Lean's kernel does not support nested inductive predicates with indices (lean4#1964) | `Codegen/Rels.lean`, `Prelude/Iter.lean` |
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
@@ -402,6 +407,7 @@ p4-spectec-lean/
 │   ├── Interp/                   # M2, TRUSTED: mirrors interp/interp-al/ file by file
 │   ├── Prelude/                  # ours: the runtime aggregate the generated code imports
 │   │   ├── Value.lean            # ToValue, OfValue, equality through values
+│   │   ├── Eval.lean             # the Eval monad: Fail, orElse, monotonicity, run lemmas (M2)
 │   │   ├── Extern.lean, Num.lean, Iter.lean
 │   ├── Codegen/                  # NOT trusted: validated per definition (M2)
 │   │   ├── Names.lean            # the naming rule; Keywords.lean is generated from Lean's token table

@@ -5189,306 +5189,281 @@ def expression.is_identifier : NanoP4Spec.expression → Bool
   | ._ID _ => true
   | _ => false
 
-def «$flatten_nameList» (fuel : Nat) (p0 : NanoP4Spec.nameList) : Option (List NanoP4Spec.name) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let nameList := p0
-         let _ ← Iter.check (NanoP4Spec.nameList.is_nonTypeName nameList)
-         let tmp_0 ← NanoP4Spec.nameList.of_nonTypeName nameList
-         let name := tmp_0
-         pure [name]) <|>
-      (do
-         let nameList' := p0
-         let _ ← Iter.check (match nameList' with
-            | NanoP4Spec.nameList.comma _ _ => true
-            | _ => false)
-         let .comma nameList name := nameList' | none
-         let tmp_1 ← NanoP4Spec.«$flatten_nameList» fuel nameList
-         pure (tmp_1 ++ [name]))
+def «$flatten_nameList» (p0 : NanoP4Spec.nameList) : Option (Except Fail (List NanoP4Spec.name)) :=
+  ExceptT.run
+    ((do
+        have nameList := p0
+        let _ ← Eval.check (NanoP4Spec.nameList.is_nonTypeName nameList)
+        let tmp_0 ← Eval.err? (NanoP4Spec.nameList.of_nonTypeName nameList)
+        have name := tmp_0
+        pure [name]) <|>
+     (do
+        have nameList' := p0
+        let _ ← Eval.check (match nameList' with
+           | NanoP4Spec.nameList.comma _ _ => true
+           | _ => false)
+        let .comma nameList name := nameList' | throw Fail.err
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_nameList» nameList)
+        pure (tmp_1 ++ [name])))
+  partial_fixpoint
 
-def «$flatten_parameterList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.parameterList) : Option (List NanoP4Spec.parameter) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+def «$flatten_parameterList» (p0 : NanoP4Spec.parameterList)
+    : Option (Except Fail (List NanoP4Spec.parameter)) :=
+  ExceptT.run
+    ((do
+        have parameterList := p0
+        let _ ← Eval.check (match parameterList with
+           | NanoP4Spec.parameterList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.parameter)) <|>
+     ((do
+         have parameterList := p0
+         let _ ← Eval.check (NanoP4Spec.parameterList.is_parameter parameterList)
+         let tmp_0 ← Eval.err? (NanoP4Spec.parameterList.of_parameter parameterList)
+         have parameter := tmp_0
+         pure [parameter]) <|>
       (do
-         let parameterList := p0
-         let _ ← Iter.check (match parameterList with
-            | NanoP4Spec.parameterList._EMPTY => true
+         have parameterList := p0
+         let _ ← Eval.check (NanoP4Spec.parameterList.is_nonEmptyParameterList parameterList)
+         let tmp_1 ← Eval.err? (NanoP4Spec.parameterList.of_nonEmptyParameterList parameterList)
+         have nonEmptyParameterList' := tmp_1
+         let _ ← Eval.check (match nonEmptyParameterList' with
+            | NanoP4Spec.nonEmptyParameterList.comma _ _ => true
             | _ => false)
-         pure ([] : List NanoP4Spec.parameter)) <|>
-      ((do
-          let parameterList := p0
-          let _ ← Iter.check (NanoP4Spec.parameterList.is_parameter parameterList)
-          let tmp_0 ← NanoP4Spec.parameterList.of_parameter parameterList
-          let parameter := tmp_0
-          pure [parameter]) <|>
-       (do
-          let parameterList := p0
-          let _ ← Iter.check (NanoP4Spec.parameterList.is_nonEmptyParameterList parameterList)
-          let tmp_1 ← NanoP4Spec.parameterList.of_nonEmptyParameterList parameterList
-          let nonEmptyParameterList' := tmp_1
-          let _ ← Iter.check (match nonEmptyParameterList' with
-             | NanoP4Spec.nonEmptyParameterList.comma _ _ => true
-             | _ => false)
-          let .comma nonEmptyParameterList parameter := nonEmptyParameterList' | none
-          let tmp_2 ←
-              NanoP4Spec.«$flatten_parameterList»
-                fuel
-                (NanoP4Spec.nonEmptyParameterList.to_parameterList nonEmptyParameterList)
-          pure (tmp_2 ++ [parameter])))
+         let .comma nonEmptyParameterList parameter := nonEmptyParameterList' | throw Fail.err
+         let tmp_2 ←
+             ExceptT.mk
+               (NanoP4Spec.«$flatten_parameterList»
+                  (NanoP4Spec.nonEmptyParameterList.to_parameterList nonEmptyParameterList))
+         pure (tmp_2 ++ [parameter]))))
+  partial_fixpoint
 
-def «$flatten_argumentList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.argumentList) : Option (List NanoP4Spec.argument) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+def «$flatten_argumentList» (p0 : NanoP4Spec.argumentList)
+    : Option (Except Fail (List NanoP4Spec.argument)) :=
+  ExceptT.run
+    ((do
+        have argumentList := p0
+        let _ ← Eval.check (match argumentList with
+           | NanoP4Spec.argumentList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.argument)) <|>
+     ((do
+         have argumentList := p0
+         let _ ← Eval.check (NanoP4Spec.argumentList.is_expression argumentList)
+         let tmp_0 ← Eval.err? (NanoP4Spec.argumentList.of_expression argumentList)
+         have argument := tmp_0
+         pure [argument]) <|>
       (do
-         let argumentList := p0
-         let _ ← Iter.check (match argumentList with
-            | NanoP4Spec.argumentList._EMPTY => true
+         have argumentList := p0
+         let _ ← Eval.check (NanoP4Spec.argumentList.is_argumentListNonEmpty argumentList)
+         let tmp_1 ← Eval.err? (NanoP4Spec.argumentList.of_argumentListNonEmpty argumentList)
+         have argumentListNonEmpty' := tmp_1
+         let _ ← Eval.check (match argumentListNonEmpty' with
+            | NanoP4Spec.argumentListNonEmpty.comma _ _ => true
             | _ => false)
-         pure ([] : List NanoP4Spec.argument)) <|>
-      ((do
-          let argumentList := p0
-          let _ ← Iter.check (NanoP4Spec.argumentList.is_expression argumentList)
-          let tmp_0 ← NanoP4Spec.argumentList.of_expression argumentList
-          let argument := tmp_0
-          pure [argument]) <|>
-       (do
-          let argumentList := p0
-          let _ ← Iter.check (NanoP4Spec.argumentList.is_argumentListNonEmpty argumentList)
-          let tmp_1 ← NanoP4Spec.argumentList.of_argumentListNonEmpty argumentList
-          let argumentListNonEmpty' := tmp_1
-          let _ ← Iter.check (match argumentListNonEmpty' with
-             | NanoP4Spec.argumentListNonEmpty.comma _ _ => true
-             | _ => false)
-          let .comma argumentListNonEmpty argument := argumentListNonEmpty' | none
-          let tmp_2 ←
-              NanoP4Spec.«$flatten_argumentList»
-                fuel
-                (NanoP4Spec.argumentListNonEmpty.to_argumentList argumentListNonEmpty)
-          pure (tmp_2 ++ [argument])))
+         let .comma argumentListNonEmpty argument := argumentListNonEmpty' | throw Fail.err
+         let tmp_2 ←
+             ExceptT.mk
+               (NanoP4Spec.«$flatten_argumentList»
+                  (NanoP4Spec.argumentListNonEmpty.to_argumentList argumentListNonEmpty))
+         pure (tmp_2 ++ [argument]))))
+  partial_fixpoint
 
-def «$flatten_statementList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.statementList) : Option (List NanoP4Spec.statement) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let statementList := p0
-         let _ ← Iter.check (match statementList with
-            | NanoP4Spec.statementList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.statement)) <|>
-      (do
-         let statementList' := p0
-         let _ ← Iter.check (match statementList' with
-            | NanoP4Spec.statementList.mk _ _ => true
-            | _ => false)
-         let .mk statementList statement := statementList' | none
-         let tmp_0 ← NanoP4Spec.«$flatten_statementList» fuel statementList
-         pure (tmp_0 ++ [statement]))
+def «$flatten_statementList» (p0 : NanoP4Spec.statementList)
+    : Option (Except Fail (List NanoP4Spec.statement)) :=
+  ExceptT.run
+    ((do
+        have statementList := p0
+        let _ ← Eval.check (match statementList with
+           | NanoP4Spec.statementList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.statement)) <|>
+     (do
+        have statementList' := p0
+        let _ ← Eval.check (match statementList' with
+           | NanoP4Spec.statementList.mk _ _ => true
+           | _ => false)
+        let .mk statementList statement := statementList' | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_statementList» statementList)
+        pure (tmp_0 ++ [statement])))
+  partial_fixpoint
 
-def «$flatten_typeFieldList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typeFieldList) : Option (List NanoP4Spec.typeField) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let typeFieldList := p0
-         let _ ← Iter.check (match typeFieldList with
-            | NanoP4Spec.typeFieldList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.typeField)) <|>
-      (do
-         let typeFieldList' := p0
-         let _ ← Iter.check (match typeFieldList' with
-            | NanoP4Spec.typeFieldList.mk _ _ => true
-            | _ => false)
-         let .mk typeFieldList typeField := typeFieldList' | none
-         let tmp_0 ← NanoP4Spec.«$flatten_typeFieldList» fuel typeFieldList
-         pure (tmp_0 ++ [typeField]))
+def «$flatten_typeFieldList» (p0 : NanoP4Spec.typeFieldList)
+    : Option (Except Fail (List NanoP4Spec.typeField)) :=
+  ExceptT.run
+    ((do
+        have typeFieldList := p0
+        let _ ← Eval.check (match typeFieldList with
+           | NanoP4Spec.typeFieldList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.typeField)) <|>
+     (do
+        have typeFieldList' := p0
+        let _ ← Eval.check (match typeFieldList' with
+           | NanoP4Spec.typeFieldList.mk _ _ => true
+           | _ => false)
+        let .mk typeFieldList typeField := typeFieldList' | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_typeFieldList» typeFieldList)
+        pure (tmp_0 ++ [typeField])))
+  partial_fixpoint
 
-def «$flatten_externMethodPrototypeList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.externMethodPrototypeList) : Option (List NanoP4Spec.externMethodPrototype) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let externMethodPrototypeList := p0
-         let _ ← Iter.check (match externMethodPrototypeList with
-            | NanoP4Spec.externMethodPrototypeList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.externMethodPrototype)) <|>
-      (do
-         let externMethodPrototypeList' := p0
-         let _ ← Iter.check (match externMethodPrototypeList' with
-            | NanoP4Spec.externMethodPrototypeList.mk _ _ => true
-            | _ => false)
-         let .mk externMethodPrototypeList externMethodPrototype :=
-             externMethodPrototypeList' | none
-         let tmp_0 ← NanoP4Spec.«$flatten_externMethodPrototypeList» fuel externMethodPrototypeList
-         pure (tmp_0 ++ [externMethodPrototype]))
+def «$flatten_externMethodPrototypeList» (p0 : NanoP4Spec.externMethodPrototypeList)
+    : Option (Except Fail (List NanoP4Spec.externMethodPrototype)) :=
+  ExceptT.run
+    ((do
+        have externMethodPrototypeList := p0
+        let _ ← Eval.check (match externMethodPrototypeList with
+           | NanoP4Spec.externMethodPrototypeList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.externMethodPrototype)) <|>
+     (do
+        have externMethodPrototypeList' := p0
+        let _ ← Eval.check (match externMethodPrototypeList' with
+           | NanoP4Spec.externMethodPrototypeList.mk _ _ => true
+           | _ => false)
+        let .mk externMethodPrototypeList externMethodPrototype :=
+            externMethodPrototypeList' | throw Fail.err
+        let tmp_0 ←
+            ExceptT.mk (NanoP4Spec.«$flatten_externMethodPrototypeList» externMethodPrototypeList)
+        pure (tmp_0 ++ [externMethodPrototype])))
+  partial_fixpoint
 
-def «$flatten_selectCaseList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.selectCaseList) : Option (List NanoP4Spec.selectCase) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let selectCaseList := p0
-         let _ ← Iter.check (match selectCaseList with
-            | NanoP4Spec.selectCaseList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.selectCase)) <|>
-      (do
-         let selectCaseList' := p0
-         let _ ← Iter.check (match selectCaseList' with
-            | NanoP4Spec.selectCaseList.mk _ _ => true
-            | _ => false)
-         let .mk selectCaseList selectCase := selectCaseList' | none
-         let tmp_0 ← NanoP4Spec.«$flatten_selectCaseList» fuel selectCaseList
-         pure (tmp_0 ++ [selectCase]))
+def «$flatten_selectCaseList» (p0 : NanoP4Spec.selectCaseList)
+    : Option (Except Fail (List NanoP4Spec.selectCase)) :=
+  ExceptT.run
+    ((do
+        have selectCaseList := p0
+        let _ ← Eval.check (match selectCaseList with
+           | NanoP4Spec.selectCaseList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.selectCase)) <|>
+     (do
+        have selectCaseList' := p0
+        let _ ← Eval.check (match selectCaseList' with
+           | NanoP4Spec.selectCaseList.mk _ _ => true
+           | _ => false)
+        let .mk selectCaseList selectCase := selectCaseList' | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_selectCaseList» selectCaseList)
+        pure (tmp_0 ++ [selectCase])))
+  partial_fixpoint
 
-def «$flatten_parserStateList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.parserStateList) : Option (List NanoP4Spec.parserState) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let parserStateList := p0
-         let _ ← Iter.check (NanoP4Spec.parserStateList.is_parserState parserStateList)
-         let tmp_0 ← NanoP4Spec.parserStateList.of_parserState parserStateList
-         let parserState := tmp_0
-         pure [parserState]) <|>
-      (do
-         let parserStateList' := p0
-         let _ ← Iter.check (match parserStateList' with
-            | NanoP4Spec.parserStateList.mk _ _ => true
-            | _ => false)
-         let .mk parserStateList parserState := parserStateList' | none
-         let tmp_1 ← NanoP4Spec.«$flatten_parserStateList» fuel parserStateList
-         pure (tmp_1 ++ [parserState]))
+def «$flatten_parserStateList» (p0 : NanoP4Spec.parserStateList)
+    : Option (Except Fail (List NanoP4Spec.parserState)) :=
+  ExceptT.run
+    ((do
+        have parserStateList := p0
+        let _ ← Eval.check (NanoP4Spec.parserStateList.is_parserState parserStateList)
+        let tmp_0 ← Eval.err? (NanoP4Spec.parserStateList.of_parserState parserStateList)
+        have parserState := tmp_0
+        pure [parserState]) <|>
+     (do
+        have parserStateList' := p0
+        let _ ← Eval.check (match parserStateList' with
+           | NanoP4Spec.parserStateList.mk _ _ => true
+           | _ => false)
+        let .mk parserStateList parserState := parserStateList' | throw Fail.err
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_parserStateList» parserStateList)
+        pure (tmp_1 ++ [parserState])))
+  partial_fixpoint
 
-def «$flatten_parserLocalDeclarationList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.parserLocalDeclarationList) : Option (List
-   NanoP4Spec.parserLocalDeclaration) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let parserLocalDeclarationList := p0
-         let _ ← Iter.check (match parserLocalDeclarationList with
-            | NanoP4Spec.parserLocalDeclarationList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.parserLocalDeclaration)) <|>
-      (do
-         let parserLocalDeclarationList' := p0
-         let _ ← Iter.check (match parserLocalDeclarationList' with
-            | NanoP4Spec.parserLocalDeclarationList.mk _ _ => true
-            | _ => false)
-         let .mk parserLocalDeclarationList parserLocalDeclaration :=
-             parserLocalDeclarationList' | none
-         let tmp_0 ←
-             NanoP4Spec.«$flatten_parserLocalDeclarationList» fuel parserLocalDeclarationList
-         pure (tmp_0 ++ [parserLocalDeclaration]))
+def «$flatten_parserLocalDeclarationList» (p0 : NanoP4Spec.parserLocalDeclarationList)
+    : Option (Except Fail (List NanoP4Spec.parserLocalDeclaration)) :=
+  ExceptT.run
+    ((do
+        have parserLocalDeclarationList := p0
+        let _ ← Eval.check (match parserLocalDeclarationList with
+           | NanoP4Spec.parserLocalDeclarationList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.parserLocalDeclaration)) <|>
+     (do
+        have parserLocalDeclarationList' := p0
+        let _ ← Eval.check (match parserLocalDeclarationList' with
+           | NanoP4Spec.parserLocalDeclarationList.mk _ _ => true
+           | _ => false)
+        let .mk parserLocalDeclarationList parserLocalDeclaration :=
+            parserLocalDeclarationList' | throw Fail.err
+        let tmp_0 ←
+            ExceptT.mk (NanoP4Spec.«$flatten_parserLocalDeclarationList» parserLocalDeclarationList)
+        pure (tmp_0 ++ [parserLocalDeclaration])))
+  partial_fixpoint
 
-def «$flatten_tableActionList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.tableActionList) : Option (List NanoP4Spec.tableAction) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let tableActionList := p0
-         let _ ← Iter.check (NanoP4Spec.tableActionList.is_tableAction tableActionList)
-         let tmp_0 ← NanoP4Spec.tableActionList.of_tableAction tableActionList
-         let tableAction := tmp_0
-         pure [tableAction]) <|>
-      (do
-         let tableActionList' := p0
-         let _ ← Iter.check (match tableActionList' with
-            | NanoP4Spec.tableActionList.mk _ _ => true
-            | _ => false)
-         let .mk tableActionList tableAction := tableActionList' | none
-         let tmp_1 ← NanoP4Spec.«$flatten_tableActionList» fuel tableActionList
-         pure (tmp_1 ++ [tableAction]))
+def «$flatten_tableActionList» (p0 : NanoP4Spec.tableActionList)
+    : Option (Except Fail (List NanoP4Spec.tableAction)) :=
+  ExceptT.run
+    ((do
+        have tableActionList := p0
+        let _ ← Eval.check (NanoP4Spec.tableActionList.is_tableAction tableActionList)
+        let tmp_0 ← Eval.err? (NanoP4Spec.tableActionList.of_tableAction tableActionList)
+        have tableAction := tmp_0
+        pure [tableAction]) <|>
+     (do
+        have tableActionList' := p0
+        let _ ← Eval.check (match tableActionList' with
+           | NanoP4Spec.tableActionList.mk _ _ => true
+           | _ => false)
+        let .mk tableActionList tableAction := tableActionList' | throw Fail.err
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_tableActionList» tableActionList)
+        pure (tmp_1 ++ [tableAction])))
+  partial_fixpoint
 
-def «$flatten_tableEntryList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.tableEntryList) : Option (List NanoP4Spec.tableEntry) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let tableEntryList := p0
-         let _ ← Iter.check (match tableEntryList with
-            | NanoP4Spec.tableEntryList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.tableEntry)) <|>
-      (do
-         let tableEntryList' := p0
-         let _ ← Iter.check (match tableEntryList' with
-            | NanoP4Spec.tableEntryList.mk _ _ => true
-            | _ => false)
-         let .mk tableEntryList tableEntry := tableEntryList' | none
-         let tmp_0 ← NanoP4Spec.«$flatten_tableEntryList» fuel tableEntryList
-         pure (tmp_0 ++ [tableEntry]))
+def «$flatten_tableEntryList» (p0 : NanoP4Spec.tableEntryList)
+    : Option (Except Fail (List NanoP4Spec.tableEntry)) :=
+  ExceptT.run
+    ((do
+        have tableEntryList := p0
+        let _ ← Eval.check (match tableEntryList with
+           | NanoP4Spec.tableEntryList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.tableEntry)) <|>
+     (do
+        have tableEntryList' := p0
+        let _ ← Eval.check (match tableEntryList' with
+           | NanoP4Spec.tableEntryList.mk _ _ => true
+           | _ => false)
+        let .mk tableEntryList tableEntry := tableEntryList' | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_tableEntryList» tableEntryList)
+        pure (tmp_0 ++ [tableEntry])))
+  partial_fixpoint
 
-def «$flatten_controlLocalDeclarationList»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.controlLocalDeclarationList) : Option (List
-   NanoP4Spec.controlLocalDeclaration) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let controlLocalDeclarationList := p0
-         let _ ← Iter.check (match controlLocalDeclarationList with
-            | NanoP4Spec.controlLocalDeclarationList._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.controlLocalDeclaration)) <|>
-      (do
-         let controlLocalDeclarationList' := p0
-         let _ ← Iter.check (match controlLocalDeclarationList' with
-            | NanoP4Spec.controlLocalDeclarationList.mk _ _ => true
-            | _ => false)
-         let .mk controlLocalDeclarationList controlLocalDeclaration :=
-             controlLocalDeclarationList' | none
-         let tmp_0 ←
-             NanoP4Spec.«$flatten_controlLocalDeclarationList» fuel controlLocalDeclarationList
-         pure (tmp_0 ++ [controlLocalDeclaration]))
+def «$flatten_controlLocalDeclarationList» (p0 : NanoP4Spec.controlLocalDeclarationList)
+    : Option (Except Fail (List NanoP4Spec.controlLocalDeclaration)) :=
+  ExceptT.run
+    ((do
+        have controlLocalDeclarationList := p0
+        let _ ← Eval.check (match controlLocalDeclarationList with
+           | NanoP4Spec.controlLocalDeclarationList._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.controlLocalDeclaration)) <|>
+     (do
+        have controlLocalDeclarationList' := p0
+        let _ ← Eval.check (match controlLocalDeclarationList' with
+           | NanoP4Spec.controlLocalDeclarationList.mk _ _ => true
+           | _ => false)
+        let .mk controlLocalDeclarationList controlLocalDeclaration :=
+            controlLocalDeclarationList' | throw Fail.err
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$flatten_controlLocalDeclarationList» controlLocalDeclarationList)
+        pure (tmp_0 ++ [controlLocalDeclaration])))
+  partial_fixpoint
 
-def «$flatten_program»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.program) : Option (List NanoP4Spec.declaration) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let program := p0
-         let _ ← Iter.check (match program with
-            | NanoP4Spec.program._EMPTY => true
-            | _ => false)
-         pure ([] : List NanoP4Spec.declaration)) <|>
-      (do
-         let program' := p0
-         let _ ← Iter.check (match program' with
-            | NanoP4Spec.program.mk _ _ => true
-            | _ => false)
-         let .mk program declaration := program' | none
-         let tmp_0 ← NanoP4Spec.«$flatten_program» fuel program
-         pure (tmp_0 ++ [declaration]))
+def «$flatten_program» (p0 : NanoP4Spec.program)
+    : Option (Except Fail (List NanoP4Spec.declaration)) :=
+  ExceptT.run
+    ((do
+        have program := p0
+        let _ ← Eval.check (match program with
+           | NanoP4Spec.program._EMPTY => true
+           | _ => false)
+        pure ([] : List NanoP4Spec.declaration)) <|>
+     (do
+        have program' := p0
+        let _ ← Eval.check (match program' with
+           | NanoP4Spec.program.mk _ _ => true
+           | _ => false)
+        let .mk program declaration := program' | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_program» program)
+        pure (tmp_0 ++ [declaration])))
+  partial_fixpoint
 
 end NanoP4Spec

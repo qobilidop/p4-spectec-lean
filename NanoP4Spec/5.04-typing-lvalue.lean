@@ -19,85 +19,82 @@ open P4SpecTec P4SpecTec.Prelude
 
 namespace NanoP4Spec
 
-def «$expression_is_lvalue» (fuel : Nat) (p0 : NanoP4Spec.expression) : Option Bool :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let expression := p0
-         let _ ← Iter.check (NanoP4Spec.expression.is_nonTypeName expression)
-         let tmp_0 ← NanoP4Spec.expression.of_nonTypeName expression
-         let referenceExpression := tmp_0
+def «$expression_is_lvalue» (p0 : NanoP4Spec.expression) : Option (Except Fail Bool) :=
+  ExceptT.run
+    ((do
+        have expression := p0
+        let _ ← Eval.check (NanoP4Spec.expression.is_nonTypeName expression)
+        let tmp_0 ← Eval.err? (NanoP4Spec.expression.of_nonTypeName expression)
+        have referenceExpression := tmp_0
+        pure true) <|>
+     ((do
+         have expression := p0
+         let _ ← Eval.check (NanoP4Spec.expression.is_memberAccessExpression expression)
+         let tmp_1 ← Eval.err? (NanoP4Spec.expression.of_memberAccessExpression expression)
+         have memberAccessExpression := tmp_1
          pure true) <|>
       ((do
-          let expression := p0
-          let _ ← Iter.check (NanoP4Spec.expression.is_memberAccessExpression expression)
-          let tmp_1 ← NanoP4Spec.expression.of_memberAccessExpression expression
-          let memberAccessExpression := tmp_1
-          pure true) <|>
-       ((do
-           let expression' := p0
-           let _ ← Iter.check (NanoP4Spec.expression.is_parenthesizedExpression expression')
-           let tmp_2 ← NanoP4Spec.expression.of_parenthesizedExpression expression'
-           let .lparen_rparen expression := tmp_2
-           let tmp_3 ← NanoP4Spec.«$expression_is_lvalue» fuel expression
-           pure tmp_3) <|>
-        (do
-           let expression := p0
-           pure false)))
-
-def «$expression_of_lvalue» (fuel : Nat) (p0 : NanoP4Spec.lvalue) : Option NanoP4Spec.expression :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let lvalue := p0
-         let _ ← Iter.check (NanoP4Spec.lvalue.is_nonTypeName lvalue)
-         let tmp_0 ← NanoP4Spec.lvalue.of_nonTypeName lvalue
-         let referenceExpression := tmp_0
-         pure (NanoP4Spec.nonTypeName.to_expression referenceExpression)) <|>
-      ((do
-          let lvalue := p0
-          let _ ← Iter.check (match lvalue with
-             | NanoP4Spec.lvalue.dot _ _ => true
-             | _ => false)
-          let .dot lvalue_base member := lvalue | none
-          let tmp_1 ← NanoP4Spec.«$expression_of_lvalue» fuel lvalue_base
-          pure (NanoP4Spec.memberAccessExpression.to_expression
-             (NanoP4Spec.memberAccessExpression.dot tmp_1 member))) <|>
+          have expression' := p0
+          let _ ← Eval.check (NanoP4Spec.expression.is_parenthesizedExpression expression')
+          let tmp_2 ← Eval.err? (NanoP4Spec.expression.of_parenthesizedExpression expression')
+          let .lparen_rparen expression := tmp_2
+          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$expression_is_lvalue» expression)
+          pure tmp_3) <|>
        (do
-          let lvalue' := p0
-          let _ ← Iter.check (match lvalue' with
-             | NanoP4Spec.lvalue.lparen_rparen _ => true
-             | _ => false)
-          let .lparen_rparen lvalue := lvalue' | none
-          let tmp_2 ← NanoP4Spec.«$expression_of_lvalue» fuel lvalue
-          pure (NanoP4Spec.parenthesizedExpression.to_expression
-             (NanoP4Spec.parenthesizedExpression.lparen_rparen tmp_2))))
+          have expression := p0
+          pure false))))
+  partial_fixpoint
 
-def «$lvalue_of_expression» (fuel : Nat) (p0 : NanoP4Spec.expression) : Option NanoP4Spec.lvalue :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
+def «$expression_of_lvalue» (p0 : NanoP4Spec.lvalue) : Option (Except Fail NanoP4Spec.expression) :=
+  ExceptT.run
+    ((do
+        have lvalue := p0
+        let _ ← Eval.check (NanoP4Spec.lvalue.is_nonTypeName lvalue)
+        let tmp_0 ← Eval.err? (NanoP4Spec.lvalue.of_nonTypeName lvalue)
+        have referenceExpression := tmp_0
+        pure (NanoP4Spec.nonTypeName.to_expression referenceExpression)) <|>
+     ((do
+         have lvalue := p0
+         let _ ← Eval.check (match lvalue with
+            | NanoP4Spec.lvalue.dot _ _ => true
+            | _ => false)
+         let .dot lvalue_base member := lvalue | throw Fail.err
+         let tmp_1 ← ExceptT.mk (NanoP4Spec.«$expression_of_lvalue» lvalue_base)
+         pure (NanoP4Spec.memberAccessExpression.to_expression
+            (NanoP4Spec.memberAccessExpression.dot tmp_1 member))) <|>
       (do
-         let expression := p0
-         let _ ← Iter.check (NanoP4Spec.expression.is_nonTypeName expression)
-         let tmp_0 ← NanoP4Spec.expression.of_nonTypeName expression
-         let referenceExpression := tmp_0
-         pure (NanoP4Spec.nonTypeName.to_lvalue referenceExpression)) <|>
-      ((do
-          let expression := p0
-          let _ ← Iter.check (NanoP4Spec.expression.is_memberAccessExpression expression)
-          let tmp_1 ← NanoP4Spec.expression.of_memberAccessExpression expression
-          let .dot memberAccessBase member := tmp_1
-          let tmp_2 ← NanoP4Spec.«$lvalue_of_expression» fuel memberAccessBase
-          pure (NanoP4Spec.lvalue.dot tmp_2 member)) <|>
-       (do
-          let expression' := p0
-          let _ ← Iter.check (NanoP4Spec.expression.is_parenthesizedExpression expression')
-          let tmp_3 ← NanoP4Spec.expression.of_parenthesizedExpression expression'
-          let .lparen_rparen expression := tmp_3
-          let tmp_4 ← NanoP4Spec.«$lvalue_of_expression» fuel expression
-          pure (NanoP4Spec.lvalue.lparen_rparen tmp_4)))
+         have lvalue' := p0
+         let _ ← Eval.check (match lvalue' with
+            | NanoP4Spec.lvalue.lparen_rparen _ => true
+            | _ => false)
+         let .lparen_rparen lvalue := lvalue' | throw Fail.err
+         let tmp_2 ← ExceptT.mk (NanoP4Spec.«$expression_of_lvalue» lvalue)
+         pure (NanoP4Spec.parenthesizedExpression.to_expression
+            (NanoP4Spec.parenthesizedExpression.lparen_rparen tmp_2)))))
+  partial_fixpoint
+
+def «$lvalue_of_expression» (p0 : NanoP4Spec.expression) : Option (Except Fail NanoP4Spec.lvalue) :=
+  ExceptT.run
+    ((do
+        have expression := p0
+        let _ ← Eval.check (NanoP4Spec.expression.is_nonTypeName expression)
+        let tmp_0 ← Eval.err? (NanoP4Spec.expression.of_nonTypeName expression)
+        have referenceExpression := tmp_0
+        pure (NanoP4Spec.nonTypeName.to_lvalue referenceExpression)) <|>
+     ((do
+         have expression := p0
+         let _ ← Eval.check (NanoP4Spec.expression.is_memberAccessExpression expression)
+         let tmp_1 ← Eval.err? (NanoP4Spec.expression.of_memberAccessExpression expression)
+         let .dot memberAccessBase member := tmp_1
+         let tmp_2 ← ExceptT.mk (NanoP4Spec.«$lvalue_of_expression» memberAccessBase)
+         pure (NanoP4Spec.lvalue.dot tmp_2 member)) <|>
+      (do
+         have expression' := p0
+         let _ ← Eval.check (NanoP4Spec.expression.is_parenthesizedExpression expression')
+         let tmp_3 ← Eval.err? (NanoP4Spec.expression.of_parenthesizedExpression expression')
+         let .lparen_rparen expression := tmp_3
+         let tmp_4 ← ExceptT.mk (NanoP4Spec.«$lvalue_of_expression» expression)
+         pure (NanoP4Spec.lvalue.lparen_rparen tmp_4))))
+  partial_fixpoint
 
 end NanoP4Spec

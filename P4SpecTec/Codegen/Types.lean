@@ -411,7 +411,7 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
           Term.paren (.doBlock [
             Term.letStmt (Format.text "some " ++ (Term.list (anames.map Term.atom)).fmt)
               (.call "Prelude.Value.caseArgs"
-                [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) true,
+                [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) (some "none"),
             Format.text "pure " ++
               (Term.call (env.q (Names.typeName i.it) ++ "." ++ cname) decs).arg])
         .paren (.matchOn (.proj v "it") [
@@ -486,7 +486,7 @@ def ofValueDecls (env : Env) (group : List (String × List String × deftyp')) :
           Term.paren (.doBlock [
             Term.letStmt (Format.text "some " ++ (Term.list (anames.map Term.atom)).fmt)
               (.call "Prelude.Value.caseArgs"
-                [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) true,
+                [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) (some "none"),
             Format.text "pure " ++
               (Term.call (env.q (Names.typeName tid) ++ "." ++ cname) decs).arg])
         Format.text "| fuel + 1, v => " ++ (Term.matchOn (.atom "v.it") [

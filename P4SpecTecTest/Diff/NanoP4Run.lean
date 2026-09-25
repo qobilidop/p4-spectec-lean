@@ -10,14 +10,13 @@ into the generated `program` type and run through the generated
 `Program_ok.run`. One line per program: `<path> <verdict>` where the
 verdict is `pass` (succeeds, and its output typing context equals the
 value in `<name>.outputs.json` when that file exists), `pass-outputs-differ`,
-`fail` (`none` at the working fuel and at twice it), `fuel` (`none` only at
-the working fuel), `decode-error` or `read-error`. The harness in
-`test/diff/` compares the verdicts with upstream's.
+`fail` (an `Err` or `Unmatch`), `decode-error` or `read-error`. The
+harness in `test/diff/` compares the verdicts with upstream's.
 -/
 
 open P4SpecTec P4SpecTec.Prelude
 
-/-- Fuel for the executable relations: enough for any program of the corpus. -/
+/-- Fuel for the value decoders: enough for any program of the corpus. -/
 def fuel : Nat := 1000000
 
 /-- The outputs upstream recorded for a program, if any: the `.outputs.json`
@@ -43,19 +42,16 @@ def check (path : String) : IO String := do
       match NanoP4Spec.program.ofValue fuel v with
       | none => pure "decode-error"
       | some prog =>
-        match NanoP4Spec.Program_ok.run fuel prog with
-        | some tc =>
+        match NanoP4Spec.Program_ok.run prog with
+        | some (.ok tc) =>
           match ← expectedOutputs path with
           | some [expected] =>
             pure (if Runtime.Value.eq (toValue tc) expected then "pass"
               else "pass-outputs-differ")
           | some _ => pure "pass-outputs-differ"
           | none => pure "pass"
-        | none =>
-          -- distinguish exhaustion from rejection: rejection is stable in the fuel
-          match NanoP4Spec.Program_ok.run (2 * fuel) prog with
-          | some _ => pure "fuel"
-          | none => pure "fail"
+        | some (.error _) => pure "fail"
+        | none => pure "diverge"
 
 /-- Run every program named on the command line. -/
 def main (args : List String) : IO UInt32 := do

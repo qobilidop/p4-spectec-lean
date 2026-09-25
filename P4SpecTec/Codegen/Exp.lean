@@ -3,14 +3,15 @@ import P4SpecTec.Codegen.Types
 /-!
 Expressions, patterns and premises to Lean, in the executable encoding.
 
-The target is a `do` block in the `Option` monad, where `none` is the
-interpreter's backtracking failure (`Unmatch`; an `Err`, which upstream
-never backtracks over, is `none` too: design section 5.3). Every
-expression compiles to a pure term in A-normal form: sub-expressions that
-can fail (calls, downcasts, indexing, slicing) are hoisted into `let x ←`
+The target is a `do` block in the `Eval` monad (`Prelude/Eval.lean`):
+failure is data, `Fail.unmatch` for what the interpreter backtracks over
+and `Fail.err` for what it does not, and `none` is divergence, so that
+`partial_fixpoint` accepts the recursive definitions. Every expression
+compiles to a pure term in A-normal form: sub-expressions that can fail
+(calls, downcasts, indexing, slicing) are hoisted into `let x ←`
 statements of the enclosing block, so the term itself is total. Patterns
-(`assign_exp` upstream) become `let` bindings with `| none` on refutable
-shapes, and premises become statements.
+(`assign_exp` upstream) become `let` bindings with `| throw Fail.err` on
+refutable shapes, and premises become statements.
 
 Per-construct encodings (design section 5.4), each at its case below:
 
@@ -20,7 +21,8 @@ Per-construct encodings (design section 5.4), each at its case below:
   length guards upstream inserts make a mismatch unreachable.
 - Numeric operators follow `Num.bin`: subtraction of naturals is an
   integer; division and modulus truncate.
-- Every call passes the fuel through unchanged.
+- Every call is lifted into the monad with `ExceptT.mk`; the callee has the
+  type `Option (Except Fail T)` that `partial_correctness` needs.
 -/
 
 namespace P4SpecTec.Codegen.Exp
@@ -78,9 +80,10 @@ def doOf (stmts : List Format) (result : Term) : Term :=
 def doOfM (stmts : List Format) (result : Term) : Term :=
   if stmts.isEmpty then result else .paren (.doBlock (stmts ++ [result.fmt]))
 
-/-- `a <|> b <|> ...`; `none` for no alternatives. -/
+/-- `a <|> b <|> ...`, sequential choice (`Eval.orElse` through the `OrElse`
+instance of `Eval`); a mismatch for no alternatives. -/
 def alternatives : List Term → Term
-  | [] => .atom "none"
+  | [] => .atom "(throw Fail.unmatch)"
   | [t] => t
   | t :: ts => .binop "<|>" t (alternatives ts)
 
@@ -138,6 +141,9 @@ partial def iterVar? (e : exp) : Option (String × List iter) :=
 /-- The Lean name of a variable. -/
 def var (id : String) (iters : List iter) : Term := .atom (Names.varName id iters)
 
+/-- The fallback of a refutable pattern: upstream's `assign_exp` error. -/
+def noMatch : Option String := some "throw Fail.err"
+
 /-- The zipped list of several bound lists, and the binder destructuring it. -/
 def zipped (lists : List Term) (names : List String) : Term × String :=
   match lists, names with
@@ -157,8 +163,8 @@ def zipBinder (pat : String) (types : List Term) : Format :=
 /-- Bind `o` to the projection `proj` of every element of the list `t`; a
 single variable needs no projection. -/
 def unzipStmt (o t proj : String) : Format :=
-  if proj.isEmpty then Term.letStmt (Format.text o) (.atom t)
-  else Term.letStmt (Format.text o) (Term.call "List.map" [.atom s!"(·{proj})", .atom t])
+  if proj.isEmpty then Term.haveStmt o (.atom t)
+  else Term.haveStmt o (Term.call "List.map" [.atom s!"(·{proj})", .atom t])
 
 /-- The projections of a tuple of `n` components, for unzipping. -/
 def projections (n : Nat) : List String :=
@@ -283,11 +289,11 @@ partial def compileExp (e : exp) : CgM Term := do
     | .SubOp, .NatT => pure (.call "Num.natSub" [l, r])
     | .SubOp, _ => pure (.binop "-" l r)
     | .MulOp, _ => pure (.binop "*" l r)
-    | .DivOp, .NatT => hoist (.call "Num.natDiv?" [l, r])
-    | .DivOp, _ => hoist (.call "Num.intDiv?" [l, r])
-    | .ModOp, .NatT => hoist (.call "Num.natMod?" [l, r])
-    | .ModOp, _ => hoist (.call "Num.intMod?" [l, r])
-    | .PowOp, _ => hoist (.call "Num.pow?" [l, r])
+    | .DivOp, .NatT => hoistErr (.call "Num.natDiv?" [l, r])
+    | .DivOp, _ => hoistErr (.call "Num.intDiv?" [l, r])
+    | .ModOp, .NatT => hoistErr (.call "Num.natMod?" [l, r])
+    | .ModOp, _ => hoistErr (.call "Num.intMod?" [l, r])
+    | .PowOp, _ => hoistErr (.call "Num.pow?" [l, r])
   | .CmpE op _ a b =>
     let l ← compileExp a
     let r ← compileExp b
@@ -304,7 +310,7 @@ partial def compileExp (e : exp) : CgM Term := do
   | .DownCastE typ a =>
     let t ← compileExp a
     let m ← castDown typ.it a.note t
-    hoist m
+    hoistErr m
   | .SubE a typ _ =>
     let t ← compileExp a
     isSub typ.it a.note t
@@ -350,16 +356,16 @@ partial def compileExp (e : exp) : CgM Term := do
     let tb ← compileExp b
     let ti ← compileExp i
     match env.resolve b.note, env.resolve i.note with
-    | .TextT, _ => hoist (.call "Iter.idxText" [tb, ti])
-    | _, .NumT .IntT => hoist (.call "Iter.idxInt" [tb, ti])
-    | _, _ => hoist (.call "Iter.idx" [tb, ti])
+    | .TextT, _ => hoistErr (.call "Iter.idxText" [tb, ti])
+    | _, .NumT .IntT => hoistErr (.call "Iter.idxInt" [tb, ti])
+    | _, _ => hoistErr (.call "Iter.idx" [tb, ti])
   | .SliceE b l h =>
     let tb ← compileExp b
     let tl ← compileExp l
     let th ← compileExp h
     match env.resolve b.note with
-    | .TextT => hoist (.call "Iter.sliceText" [tb, tl, th])
-    | _ => hoist (.call "Iter.slice" [tb, tl, th])
+    | .TextT => hoistErr (.call "Iter.sliceText" [tb, tl, th])
+    | _ => hoistErr (.call "Iter.slice" [tb, tl, th])
   | .UpdE b p f =>
     let tb ← compileExp b
     let tf ← compileExp f
@@ -379,17 +385,20 @@ partial def compileExp (e : exp) : CgM Term := do
       | .DefA d => pure (.atom (Names.funcName d.it))
     let f := if ctx.externs.contains i.it then env.q ("Externs." ++ Names.funcName i.it)
       else env.q (Names.funcName i.it)
-    hoist (.call f (named ++ [.atom "fuel"] ++ argTerms))
+    hoist (.call "ExceptT.mk" [.call f (named ++ argTerms)])
   | .IterE inner ie =>
     match iterVar? e with
     | some (i, is) => pure (var i is)
     | none => compileIter inner ie.iter ie.vars
 
-/-- Hoist an `Option` term into a temporary. -/
+/-- Hoist an `Eval` term into a temporary. -/
 partial def hoist (m : Term) : CgM Term := do
   let t ← fresh
   emit (Term.bindStmt t m)
   pure (.atom t)
+
+/-- Hoist an `Option` term whose `none` is an error (`Eval.err?`). -/
+partial def hoistErr (m : Term) : CgM Term := hoist (.call "Eval.err?" [m])
 
 /-- The field chain of a dotted path, innermost first; `none` for indexing. -/
 partial def dotPath (p : path) : Option (List String) :=
@@ -426,7 +435,7 @@ partial def compileIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) : 
       hoist (.paren (.matchOn (.tuple outers) [
         (Format.text somePat, doOf stmts (.call "some" [body])),
         (Format.text nonePat, .atom "pure none"),
-        (Format.text "_", .atom "none")]))
+        (Format.text "_", .atom "throw Fail.err")]))
 
 end
 
@@ -437,10 +446,10 @@ mutual
 /-- Bind the pattern `p` to the term `v`: statements. -/
 partial def assign (p : exp) (v : Term) : CgM Unit := do
   match iterVar? p with
-  | some (i, is) => emit (Term.letStmt (Format.text (Names.varName i is)) v)
+  | some (i, is) => emit (Term.haveStmt (Names.varName i is) v)
   | none =>
   match p.it with
-  | .VarE i => emit (Term.letStmt (Format.text (Names.varName i.it [])) v)
+  | .VarE i => emit (Term.haveStmt (Names.varName i.it []) v)
   | .TupleE ps =>
     let (names, todo) ← binders ps
     emit (Term.letStmt (Term.tuple (names.map Term.atom)).fmt v)
@@ -450,7 +459,7 @@ partial def assign (p : exp) (v : Term) : CgM Unit := do
     let (names, todo) ← binders (Mixfix.args notexp)
     -- the dotted form: `let C a := v` would define a local function `C`
     let dotted := "." ++ (ctor.splitOn ".").getLast!
-    emit (Term.letStmt (Term.patApp dotted names) v refutable)
+    emit (Term.letStmt (Term.patApp dotted names) v (if refutable then noMatch else none))
     for (q, n) in todo do assign q (.atom n)
   | .StrE fields =>
     let (names, todo) ← binders (fields.map (·.2))
@@ -458,16 +467,16 @@ partial def assign (p : exp) (v : Term) : CgM Unit := do
     for (q, n) in todo do assign q (.atom n)
   | .OptE (some q) =>
     let (names, todo) ← binders [q]
-    emit (Term.letStmt (Format.text s!"some {names.head!}") v true)
+    emit (Term.letStmt (Format.text s!"some {names.head!}") v noMatch)
     for (q, n) in todo do assign q (.atom n)
-  | .OptE none => emit (Format.text "let _ ← Iter.check " ++ (Term.call "Option.isNone" [v]).arg)
+  | .OptE none => emit (Term.letStmt (Format.text "none") v noMatch)
   | .ListE ps =>
     let (names, todo) ← binders ps
-    emit (Term.letStmt (Term.list (names.map Term.atom)).fmt v true)
+    emit (Term.letStmt (Term.list (names.map Term.atom)).fmt v noMatch)
     for (q, n) in todo do assign q (.atom n)
   | .ConsE h t =>
     let (names, todo) ← binders [h, t]
-    emit (Term.letStmt (Format.text s!"{names[0]!} :: {names[1]!}") v true)
+    emit (Term.letStmt (Format.text s!"{names[0]!} :: {names[1]!}") v noMatch)
     for (q, n) in todo do assign q (.atom n)
   | .IterE inner ie => assignIter inner ie.iter ie.vars v
   | _ => fail s!"unsupported pattern"
@@ -509,7 +518,7 @@ partial def assignIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) (v 
       (Format.text "none", .call "pure" [noneRes]),
       (Format.text "some elem", doOf stmts someRes)])))
     for (o, proj) in outers.zip (projections outers.length) do
-      emit (Format.text s!"let {o} := {t}{proj}")
+      emit (Term.haveStmt o (.atom s!"{t}{proj}"))
 
 end
 
@@ -520,7 +529,7 @@ def relCall (id : String) (ins : List Term) : CgM Term := do
   let ctx ← read
   let f := if ctx.externs.contains id then ctx.env.q ("Externs." ++ Names.relName id)
     else ctx.env.q (Names.relName id ++ ".run")
-  pure (.call f (.atom "fuel" :: ins))
+  pure (.call "ExceptT.mk" [.call f ins])
 
 /-- Split a relation's arguments into inputs and outputs by the hint. -/
 def splitArgs {α : Type} (inputs : List Nat) (args : List α) : List α × List α :=
@@ -551,15 +560,15 @@ partial def compilePrem (p : prem) : CgM Unit := do
       for (q, n) in todo do assign q (.atom n)
   | .IfPr e =>
     let t ← compileExp e
-    emit (Format.text "let _ ← Iter.check " ++ t.arg)
+    emit (Format.text "let _ ← Eval.check " ++ t.arg)
   | .IfHoldPr i notexp =>
     let inTerms ← (Mixfix.args notexp).mapM compileExp
     let call ← relCall i.it inTerms
-    emit (Format.text "let _ ← Iter.check " ++ (Term.proj call "isSome").fmt)
+    emit (Term.bindStmt "_" call)
   | .IfNotHoldPr i notexp =>
     let inTerms ← (Mixfix.args notexp).mapM compileExp
     let call ← relCall i.it inTerms
-    emit (Format.text "let _ ← Iter.check " ++ (Term.proj call "isNone").fmt)
+    emit (Term.bindStmt "_" (.call "Eval.notHold" [call]))
   | .LetPr l r =>
     let t ← compileExp r
     assign l t
@@ -580,7 +589,7 @@ partial def iterPrem (q : prem) (iter : iter) (bound bind : List Lang.Il.var) : 
   match iter with
   | .List =>
     if bound.isEmpty then
-      for o in bindOut do emit (Format.text s!"let {o} := []")
+      for o in bindOut do emit (Term.haveStmt o (.atom "[]"))
     else
       let (z, pat) := zipped boundOut boundIn
       let b := zipBinder pat boundTypes
@@ -593,16 +602,16 @@ partial def iterPrem (q : prem) (iter : iter) (bound bind : List Lang.Il.var) : 
     if bound.isEmpty then
       -- `sub_opt ctx []` is `Some ctx`: the premise runs once and binds `some`
       for st in stmts do emit st
-      for (o, n) in bindOut.zip bindIn do emit (Format.text s!"let {o} := some {n}")
+      for (o, n) in bindOut.zip bindIn do emit (Term.haveStmt o (.atom s!"some {n}"))
     else
       let somePat := "(" ++ ", ".intercalate (boundIn.map fun n => s!"some {n}") ++ ")"
       let nonePat := "(" ++ ", ".intercalate (boundIn.map fun _ => "none") ++ ")"
       let arms := [(Format.text somePat, doOf stmts someRes),
         (Format.text nonePat, Term.call "pure" [noneRes])] ++
-        (if bound.length > 1 then [(Format.text "_", Term.atom "none")] else [])
+        (if bound.length > 1 then [(Format.text "_", Term.atom "throw Fail.err")] else [])
       emit (Term.bindStmt t (Term.paren (.matchOn (.tuple boundOut) arms)))
       for (o, proj) in bindOut.zip (projections bindOut.length) do
-        emit (Format.text s!"let {o} := {t}{proj}")
+        emit (Term.haveStmt o (.atom s!"{t}{proj}"))
 
 end
 

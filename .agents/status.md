@@ -3,12 +3,11 @@
 Where the work stands now. Updated at every checkpoint; holds current
 state only.
 
-Last updated: 2026-09-25. **Milestone M1 (Nano-P4, rungs 1 and 2) is
-closed; nothing is active.** The executable rendering of the Nano-P4
-spec builds, kernel-checks, and agrees with upstream on the whole Nano-P4
-corpus. M2 (rung 3 and the lemma library; design section 10) is the next
-scope; the `Prop` encoding of relations and the fuel-free recursion
-strategy are its first items (open threads below).
+Last updated: 2026-09-25. **Active: milestone M2 (Nano-P4, rung 3 and
+the lemma library), on branch `m2-nano-p4`; phase A of the plan in
+`.agents/notes/m2-plan.md` is done** (fuel-free executable encoding in
+the `Eval` monad with `partial_fixpoint`; rung 2 still 78 of 78). Phase
+B (the `Prop` encoding and run-soundness theorems) is next.
 
 ## Current state
 
@@ -19,41 +18,29 @@ strategy are its first items (open threads below).
 | Export | `elab -json`, `algo -json` and `nano parse -json` from `upstream/patches/0001-json-export.patch`; `exports/nano-p4.al.json` (8.5 MB), 78 booted programs with upstream's verdicts under `exports/programs/nano-p4/` | `main` |
 | Deep embedding | `P4SpecTec/Lang/Il/Ast.lean`, `Lang/Al/Ast.lean` and their JSON decoders mirror `lang/il/ast.ml`, `lang/al/ast.ml` at the same paths; `scripts/check-mirror.py` derives every mirrored pair from the paths and checks constructor lists and order | `main` |
 | Prelude | `Runtime/Value/Value.lean` and `Interface/P4/Unparse.lean` mirror value comparison and the printer; `Interface/Builtin/` ports every builtin file, with unit tests in `P4SpecTecTest/Builtins.lean`; `Prelude/` holds `ToValue`/`OfValue`, numerics and iteration helpers | `main` |
-| Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations (executable), `Externs` class, per-file modules, `--check`/`--update` | `main` |
-| Generated | `NanoP4Spec/`, 28 modules named after the spec files, 13.5k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations | `main` |
+| Codegen | `lake exe p4spectec-gen`: types, subtype bridges, functions, builtins, relations (executable), `Externs` class, per-file modules, `--check`/`--update`; every definition in `Eval := ExceptT Fail Option`, recursive groups by `partial_fixpoint`, no fuel | `m2-nano-p4` |
+| Generated | `NanoP4Spec/`, 28 modules named after the spec files, 17k lines, builds with `--wfail`; 161 types, 76 functions, 77 relations; 65 `partial_fixpoint` definitions in 20 recursive groups | `m2-nano-p4` |
 | Rung 2 | `test/diff/run.py`: 78 of 78 programs agree with the AL interpreter's `Program_ok` verdict (48 pass, 30 fail: 32 positive, 21 negative, 25 exercises); for the 48 that pass, the output typing context equals upstream's value | `main` |
-| Timing | `docs/timing-nano-p4.md`: about 12 s over 28 modules; `1-syntax` at about 3 s is the largest | `main` |
+| Timing | `docs/timing-nano-p4.md`: 13.5 s over 28 modules with the monotonicity proofs; `1-syntax` at about 3 s is the largest | `m2-nano-p4` |
 
 ## Last checked evidence
 
-2026-09-25, on `main` at `d8003ec` (M1 merged, plus the CI fix for the
-pin check), CI run 36116792883: exit 0. Locally, on the same tree,
-`nix develop --command scripts/check.sh`: exit 0. That run covered the
-layout and text checks, the path-driven mirror check (20 modules),
-`lake build --wfail` of every library including the 28 generated modules,
-`lake test` (the decode test: 8/26/76/161/1/77/1 definitions by kind; the
-builtin unit tests), the keyword-table check, `p4spectec-gen --check` (28
-files up to date), and the harness: 78 of 78 verdicts agree with the AL
-interpreter, and the 48 output typing contexts equal upstream's values.
-Upstream itself was built with `scripts/build-upstream.sh` in
-`nix develop .#upstream` (OCaml 5.5.0, dune 3.23.1 from the locked
-nixpkgs).
+2026-09-25, on `m2-nano-p4` after phase A, `scripts/check.sh` in the
+Nix shell: exit 0 (layout, text, imports, mirror, `lake build --wfail`
+with the 28 generated modules and their `partial_fixpoint` monotonicity
+proofs, `lake test`, keyword table, `p4spectec-gen --check`, and the
+harness: 78 of 78 verdicts agree, 48 output typing contexts equal). On
+`main` at `d8003ec`, CI run 36116792883: exit 0.
 
 ## Open threads
 
-- **`Prop` encoding of relations (design section 4.1) not generated.** The
-  executable encoding is complete; the `Prop` inductive per relation is
-  deferred to M2 because its treatment of function calls depends on the
-  fuel-free recursion strategy M2 decides (a hypothesis `f args = some r`
-  needs a fuel today). Recorded in decisions, "Generated code".
+- **`Prop` encoding of relations (design section 4.1) not generated
+  yet.** Phase B of the M2 plan; its shape is fixed in the plan note (a
+  call is `f args = some (.ok x)`, iterated premises are `∀`-facts along
+  the zip, no `∃`/`∧`/`∨` around a relation).
 - **Packet leg of rung 2** (nano-switch simulation) is M3 by the design
   ("target instances arrive with the packet leg"); the `Externs` class is
   generated, no instance exists yet.
-- **Recursion strategy is uniform fuel** (every generated function and run
-  function takes `fuel : Nat` first; recursive groups consume one per
-  call). The decision's "structural first" ordering is revisited at M2 with
-  the counts from Nano-P4: 12 recursive function groups, 8 recursive
-  relation groups (`lake exe p4spectec-gen` plan).
 - Path updates with indexing (`e[p[i] = v]`) are rejected by codegen;
   Nano-P4 has none. Needed for M3.
 - `fresh_typeId` (a stateful builtin) has no port; not used by Nano-P4.

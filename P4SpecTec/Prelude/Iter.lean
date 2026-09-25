@@ -8,11 +8,6 @@ the interpreter's failure conditions (`eval_idx_exp`, `eval_slice_exp`,
 
 namespace P4SpecTec.Prelude.Iter
 
-/-- An `if` premise: `none` unless the condition holds. `guard` is not used
-because Lean pushes the `Bool` coercion into `match` arms and then finds no
-`Decidable` instance. -/
-def check (b : Bool) : Option Unit := if b then some () else none
-
 /-- `xs[i]` for a natural index. -/
 def idx {α : Type} (xs : List α) (i : Nat) : Option α := xs[i]?
 

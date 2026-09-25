@@ -19,209 +19,204 @@ open P4SpecTec P4SpecTec.Prelude
 
 namespace NanoP4Spec
 
-def Decl_load.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.loadContext)
-    (p1 : NanoP4Spec.declaration) : Option NanoP4Spec.loadContext :=
-  (do
-     let LC_0 := p0
-     let declaration := p1
-     let _ ← Iter.check (NanoP4Spec.declaration.is_instantiation declaration)
-     let tmp_0 ← NanoP4Spec.declaration.of_instantiation declaration
-     let .lparen_rparen_semi type argumentList name := tmp_0
-     let _ ← Iter.check (NanoP4Spec.type.is_typeIdentifier type)
-     let tmp_1 ← NanoP4Spec.type.of_typeIdentifier type
-     let ._TID typeId_target := tmp_1
-     (do
-        let tmp_2 ← NanoP4Spec.«$flatten_argumentList» fuel argumentList
-        let «argument*» := tmp_2
-        let _ ← Iter.check (decide ((0 : Nat) < (List.length «argument*»)))
-        let tmp_3 ← Iter.idx «argument*» (0 : Nat)
-        let expression := tmp_3
-        let _ ← Iter.check (NanoP4Spec.expression.is_callExpression expression)
-        let tmp_4 ← NanoP4Spec.expression.of_callExpression expression
-        let .lparen_rparen tmp_5 _argumentList := tmp_4
-        let ._TID callableId_parser := tmp_5
-        let tmp_6 ← NanoP4Spec.«$find_callableDef_l» fuel LC_0 callableId_parser
-        let callableDef := tmp_6
-        let _ ← Iter.check (NanoP4Spec.callableDef.is_parserDeclarationIR callableDef)
-        let tmp_7 ← NanoP4Spec.callableDef.of_parserDeclarationIR callableDef
-        let parserDeclarationIR := tmp_7
-        let _ ← Iter.check (decide ((1 : Nat) < (List.length «argument*»)))
-        let tmp_8 ← Iter.idx «argument*» (1 : Nat)
-        let expression' := tmp_8
-        let _ ← Iter.check (NanoP4Spec.expression.is_callExpression expression')
-        let tmp_9 ← NanoP4Spec.expression.of_callExpression expression'
-        let .lparen_rparen tmp_10 _argumentList' := tmp_9
-        let ._TID callableId_control := tmp_10
-        let tmp_11 ← NanoP4Spec.«$find_callableDef_l» fuel LC_0 callableId_control
-        let callableDef' := tmp_11
-        let _ ← Iter.check (NanoP4Spec.callableDef.is_controlDeclarationIR callableDef')
-        let tmp_12 ← NanoP4Spec.callableDef.of_controlDeclarationIR callableDef'
-        let controlDeclarationIR := tmp_12
-        let LC_1 :=
-            { { LC_0 with
-              PARSER := some parserDeclarationIR, } with
-              CONTROL := some controlDeclarationIR, }
-        pure LC_1)) <|>
-  ((do
-      let LC_0 := p0
-      let declaration := p1
-      let _ ← Iter.check (NanoP4Spec.declaration.is_actionDeclaration declaration)
-      let tmp_13 ← NanoP4Spec.declaration.of_actionDeclaration declaration
-      let actionDeclaration := tmp_13
-      (do
-         let .ACTION_lparen_rparen name_action _parameterList blockStatement := actionDeclaration
-         let tmp_14 ← NanoP4Spec.«$id» fuel name_action
-         let callableId := tmp_14
-         let tmp_15 ← NanoP4Spec.«$find_callableTypeDef_l» fuel LC_0 callableId
-         let callableTypeDef := tmp_15
-         let _ ← Iter.check (match callableTypeDef with
-            | NanoP4Spec.callableTypeDef.ACTION _ => true
-            | _ => false)
-         let .ACTION «parameterIR*» := callableTypeDef | none
-         let actionDeclarationIR :=
-             NanoP4Spec.actionDeclarationIR.ACTION_lparen_rparen
-               callableId
-               «parameterIR*»
-               blockStatement
-         let tmp_16 ←
-             NanoP4Spec.«$add_callableDef_l»
-               fuel
-               LC_0
-               callableId
-               (NanoP4Spec.actionDeclarationIR.to_callableDef actionDeclarationIR)
-         let LC_1 := tmp_16
-         pure LC_1)) <|>
-   ((do
-       let LC := p0
-       let declaration := p1
-       let _ ← Iter.check (NanoP4Spec.declaration.is_matchKindDeclaration declaration)
-       let tmp_17 ← NanoP4Spec.declaration.of_matchKindDeclaration declaration
-       let .MATCH_KIND_lbrace_rbrace nameList := tmp_17
-       pure LC) <|>
+def Decl_load.run (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.declaration)
+    : Option (Except Fail NanoP4Spec.loadContext) :=
+  ExceptT.run
     ((do
-        let LC := p0
-        let declaration := p1
-        let _ ← Iter.check (NanoP4Spec.declaration.is_externObjectDeclaration declaration)
-        let tmp_18 ← NanoP4Spec.declaration.of_externObjectDeclaration declaration
-        let externDeclaration := tmp_18
-        pure LC) <|>
+        have LC_0 := p0
+        have declaration := p1
+        let _ ← Eval.check (NanoP4Spec.declaration.is_instantiation declaration)
+        let tmp_0 ← Eval.err? (NanoP4Spec.declaration.of_instantiation declaration)
+        let .lparen_rparen_semi type argumentList name := tmp_0
+        let _ ← Eval.check (NanoP4Spec.type.is_typeIdentifier type)
+        let tmp_1 ← Eval.err? (NanoP4Spec.type.of_typeIdentifier type)
+        let ._TID typeId_target := tmp_1
+        (do
+           let tmp_2 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
+           have «argument*» := tmp_2
+           let _ ← Eval.check (decide ((0 : Nat) < (List.length «argument*»)))
+           let tmp_3 ← Eval.err? (Iter.idx «argument*» (0 : Nat))
+           have expression := tmp_3
+           let _ ← Eval.check (NanoP4Spec.expression.is_callExpression expression)
+           let tmp_4 ← Eval.err? (NanoP4Spec.expression.of_callExpression expression)
+           let .lparen_rparen tmp_5 _argumentList := tmp_4
+           let ._TID callableId_parser := tmp_5
+           let tmp_6 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_l» LC_0 callableId_parser)
+           have callableDef := tmp_6
+           let _ ← Eval.check (NanoP4Spec.callableDef.is_parserDeclarationIR callableDef)
+           let tmp_7 ← Eval.err? (NanoP4Spec.callableDef.of_parserDeclarationIR callableDef)
+           have parserDeclarationIR := tmp_7
+           let _ ← Eval.check (decide ((1 : Nat) < (List.length «argument*»)))
+           let tmp_8 ← Eval.err? (Iter.idx «argument*» (1 : Nat))
+           have expression' := tmp_8
+           let _ ← Eval.check (NanoP4Spec.expression.is_callExpression expression')
+           let tmp_9 ← Eval.err? (NanoP4Spec.expression.of_callExpression expression')
+           let .lparen_rparen tmp_10 _argumentList' := tmp_9
+           let ._TID callableId_control := tmp_10
+           let tmp_11 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_l» LC_0 callableId_control)
+           have callableDef' := tmp_11
+           let _ ← Eval.check (NanoP4Spec.callableDef.is_controlDeclarationIR callableDef')
+           let tmp_12 ← Eval.err? (NanoP4Spec.callableDef.of_controlDeclarationIR callableDef')
+           have controlDeclarationIR := tmp_12
+           have LC_1 :=
+               { { LC_0 with
+                 PARSER := some parserDeclarationIR, } with
+                 CONTROL := some controlDeclarationIR, }
+           pure LC_1)) <|>
      ((do
-         let LC_0 := p0
-         let declaration := p1
-         let _ ← Iter.check (NanoP4Spec.declaration.is_parserDeclaration declaration)
-         let tmp_19 ← NanoP4Spec.declaration.of_parserDeclaration declaration
-         let parserDeclaration := tmp_19
+         have LC_0 := p0
+         have declaration := p1
+         let _ ← Eval.check (NanoP4Spec.declaration.is_actionDeclaration declaration)
+         let tmp_13 ← Eval.err? (NanoP4Spec.declaration.of_actionDeclaration declaration)
+         have actionDeclaration := tmp_13
          (do
-            let .PARSER_lparen_rparen_lbrace_rbrace
-                    name
-                    parameterList
-                    parserLocalDeclarationList
-                    parserStateList :=
-                parserDeclaration
-            let tmp_20 ← NanoP4Spec.«$id» fuel name
-            let callableId := tmp_20
-            let tmp_21 ← NanoP4Spec.«$find_callableTypeDef_l» fuel LC_0 callableId
-            let callableTypeDef := tmp_21
-            let _ ← Iter.check (match callableTypeDef with
-               | NanoP4Spec.callableTypeDef.PARSER _ => true
+            let .ACTION_lparen_rparen name_action _parameterList blockStatement := actionDeclaration
+            let tmp_14 ← ExceptT.mk (NanoP4Spec.«$id» name_action)
+            have callableId := tmp_14
+            let tmp_15 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
+            have callableTypeDef := tmp_15
+            let _ ← Eval.check (match callableTypeDef with
+               | NanoP4Spec.callableTypeDef.ACTION _ => true
                | _ => false)
-            let .PARSER «parameterIR*» := callableTypeDef | none
-            let parserDeclarationIR :=
-                NanoP4Spec.parserDeclarationIR.PARSER_lparen_rparen_lbrace_rbrace
+            let .ACTION «parameterIR*» := callableTypeDef | throw Fail.err
+            have actionDeclarationIR :=
+                NanoP4Spec.actionDeclarationIR.ACTION_lparen_rparen
                   callableId
                   «parameterIR*»
-                  parserLocalDeclarationList
-                  parserStateList
-            let tmp_22 ←
-                NanoP4Spec.«$add_callableDef_l»
-                  fuel
-                  LC_0
-                  callableId
-                  (NanoP4Spec.parserDeclarationIR.to_callableDef parserDeclarationIR)
-            let LC_1 := tmp_22
+                  blockStatement
+            let tmp_16 ←
+                ExceptT.mk
+                  (NanoP4Spec.«$add_callableDef_l»
+                     LC_0
+                     callableId
+                     (NanoP4Spec.actionDeclarationIR.to_callableDef actionDeclarationIR))
+            have LC_1 := tmp_16
             pure LC_1)) <|>
       ((do
-          let LC_0 := p0
-          let declaration := p1
-          let _ ← Iter.check (NanoP4Spec.declaration.is_controlDeclaration declaration)
-          let tmp_23 ← NanoP4Spec.declaration.of_controlDeclaration declaration
-          let controlDeclaration := tmp_23
+          have LC := p0
+          have declaration := p1
+          let _ ← Eval.check (NanoP4Spec.declaration.is_matchKindDeclaration declaration)
+          let tmp_17 ← Eval.err? (NanoP4Spec.declaration.of_matchKindDeclaration declaration)
+          let .MATCH_KIND_lbrace_rbrace nameList := tmp_17
+          pure LC) <|>
+       ((do
+           have LC := p0
+           have declaration := p1
+           let _ ← Eval.check (NanoP4Spec.declaration.is_externObjectDeclaration declaration)
+           let tmp_18 ← Eval.err? (NanoP4Spec.declaration.of_externObjectDeclaration declaration)
+           have externDeclaration := tmp_18
+           pure LC) <|>
+        ((do
+            have LC_0 := p0
+            have declaration := p1
+            let _ ← Eval.check (NanoP4Spec.declaration.is_parserDeclaration declaration)
+            let tmp_19 ← Eval.err? (NanoP4Spec.declaration.of_parserDeclaration declaration)
+            have parserDeclaration := tmp_19
+            (do
+               let .PARSER_lparen_rparen_lbrace_rbrace
+                       name
+                       parameterList
+                       parserLocalDeclarationList
+                       parserStateList :=
+                   parserDeclaration
+               let tmp_20 ← ExceptT.mk (NanoP4Spec.«$id» name)
+               have callableId := tmp_20
+               let tmp_21 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
+               have callableTypeDef := tmp_21
+               let _ ← Eval.check (match callableTypeDef with
+                  | NanoP4Spec.callableTypeDef.PARSER _ => true
+                  | _ => false)
+               let .PARSER «parameterIR*» := callableTypeDef | throw Fail.err
+               have parserDeclarationIR :=
+                   NanoP4Spec.parserDeclarationIR.PARSER_lparen_rparen_lbrace_rbrace
+                     callableId
+                     «parameterIR*»
+                     parserLocalDeclarationList
+                     parserStateList
+               let tmp_22 ←
+                   ExceptT.mk
+                     (NanoP4Spec.«$add_callableDef_l»
+                        LC_0
+                        callableId
+                        (NanoP4Spec.parserDeclarationIR.to_callableDef parserDeclarationIR))
+               have LC_1 := tmp_22
+               pure LC_1)) <|>
+         ((do
+             have LC_0 := p0
+             have declaration := p1
+             let _ ← Eval.check (NanoP4Spec.declaration.is_controlDeclaration declaration)
+             let tmp_23 ← Eval.err? (NanoP4Spec.declaration.of_controlDeclaration declaration)
+             have controlDeclaration := tmp_23
+             (do
+                let .CONTROL_lparen_rparen_lbrace_APPLY_rbrace
+                        name
+                        parameterList
+                        controlLocalDeclarationList
+                        controlBody :=
+                    controlDeclaration
+                let tmp_24 ← ExceptT.mk (NanoP4Spec.«$id» name)
+                have callableId := tmp_24
+                let tmp_25 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
+                have callableTypeDef := tmp_25
+                let _ ← Eval.check (match callableTypeDef with
+                   | NanoP4Spec.callableTypeDef.CONTROL _ => true
+                   | _ => false)
+                let .CONTROL «parameterIR*» := callableTypeDef | throw Fail.err
+                have controlDeclarationIR :=
+                    NanoP4Spec.controlDeclarationIR.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
+                      callableId
+                      «parameterIR*»
+                      controlLocalDeclarationList
+                      controlBody
+                let tmp_26 ←
+                    ExceptT.mk
+                      (NanoP4Spec.«$add_callableDef_l»
+                         LC_0
+                         callableId
+                         (NanoP4Spec.controlDeclarationIR.to_callableDef controlDeclarationIR))
+                have LC_1 := tmp_26
+                pure LC_1)) <|>
           (do
-             let .CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-                     name
-                     parameterList
-                     controlLocalDeclarationList
-                     controlBody :=
-                 controlDeclaration
-             let tmp_24 ← NanoP4Spec.«$id» fuel name
-             let callableId := tmp_24
-             let tmp_25 ← NanoP4Spec.«$find_callableTypeDef_l» fuel LC_0 callableId
-             let callableTypeDef := tmp_25
-             let _ ← Iter.check (match callableTypeDef with
-                | NanoP4Spec.callableTypeDef.CONTROL _ => true
-                | _ => false)
-             let .CONTROL «parameterIR*» := callableTypeDef | none
-             let controlDeclarationIR :=
-                 NanoP4Spec.controlDeclarationIR.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-                   callableId
-                   «parameterIR*»
-                   controlLocalDeclarationList
-                   controlBody
-             let tmp_26 ←
-                 NanoP4Spec.«$add_callableDef_l»
-                   fuel
-                   LC_0
-                   callableId
-                   (NanoP4Spec.controlDeclarationIR.to_callableDef controlDeclarationIR)
-             let LC_1 := tmp_26
-             pure LC_1)) <|>
+             have LC := p0
+             have declaration := p1
+             let _ ← Eval.check (NanoP4Spec.declaration.is_typeDeclaration declaration)
+             let tmp_27 ← Eval.err? (NanoP4Spec.declaration.of_typeDeclaration declaration)
+             have typeDeclaration := tmp_27
+             pure LC)))))))
+
+def Decls_load.run (p0 : NanoP4Spec.loadContext) (p1 : List NanoP4Spec.declaration)
+    : Option (Except Fail NanoP4Spec.loadContext) :=
+  ExceptT.run
+    (do
+       have LC_0 := p0
+       have «declaration*» := p1
        (do
-          let LC := p0
-          let declaration := p1
-          let _ ← Iter.check (NanoP4Spec.declaration.is_typeDeclaration declaration)
-          let tmp_27 ← NanoP4Spec.declaration.of_typeDeclaration declaration
-          let typeDeclaration := tmp_27
-          pure LC))))))
+          let _ ← Eval.check («declaration*» == ([] : List NanoP4Spec.declaration))
+          pure LC_0) <|>
+       (do
+          have «declaration'*» := «declaration*»
+          let _ ← Eval.check (!(List.isEmpty «declaration'*»))
+          let declaration_h :: «declaration_t*» := «declaration'*» | throw Fail.err
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Decl_load.run LC_0 declaration_h)
+          have LC_1 := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.Decls_load.run LC_1 «declaration_t*»)
+          have LC_2 := tmp_1
+          pure LC_2))
+  partial_fixpoint
 
-def Decls_load.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.loadContext)
-    (p1 : List NanoP4Spec.declaration) : Option NanoP4Spec.loadContext :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let LC_0 := p0
-         let «declaration*» := p1
-         (do
-            let _ ← Iter.check («declaration*» == ([] : List NanoP4Spec.declaration))
-            pure LC_0) <|>
-         (do
-            let «declaration'*» := «declaration*»
-            let _ ← Iter.check (!(List.isEmpty «declaration'*»))
-            let declaration_h :: «declaration_t*» := «declaration'*» | none
-            let tmp_0 ← NanoP4Spec.Decl_load.run fuel LC_0 declaration_h
-            let LC_1 := tmp_0
-            let tmp_1 ← NanoP4Spec.Decls_load.run fuel LC_1 «declaration_t*»
-            let LC_2 := tmp_1
-            pure LC_2))
-
-def Program_load.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.program) : Option NanoP4Spec.loadContext :=
-  (do
-     let TC := p0
-     let program := p1
-     (do
-        let tmp_0 ← NanoP4Spec.«$flatten_program» fuel program
-        let «declaration*» := tmp_0
-        let tmp_1 ← NanoP4Spec.«$make_loadContext» fuel TC
-        let LC := tmp_1
-        let tmp_2 ← NanoP4Spec.Decls_load.run fuel LC «declaration*»
-        let LC' := tmp_2
-        pure LC'))
+def Program_load.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.program)
+    : Option (Except Fail NanoP4Spec.loadContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have program := p1
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_program» program)
+          have «declaration*» := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$make_loadContext» TC)
+          have LC := tmp_1
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.Decls_load.run LC «declaration*»)
+          have LC' := tmp_2
+          pure LC'))
 
 end NanoP4Spec

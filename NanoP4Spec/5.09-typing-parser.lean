@@ -19,55 +19,58 @@ open P4SpecTec P4SpecTec.Prelude
 
 namespace NanoP4Spec
 
-def ParserLocalDecl_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.parserLocalDeclaration) : Option NanoP4Spec.typingContext :=
-  (do
-     let TC_0 := p0
-     let variableDeclaration := p1
-     (do
-        let tmp_0 ← NanoP4Spec.VarDecl_ok.run fuel NanoP4Spec.scope.BLOCK TC_0 variableDeclaration
-        let TC_1 := tmp_0
-        pure TC_1))
+def ParserLocalDecl_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.parserLocalDeclaration)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC_0 := p0
+       have variableDeclaration := p1
+       (do
+          let tmp_0 ←
+              ExceptT.mk (NanoP4Spec.VarDecl_ok.run NanoP4Spec.scope.BLOCK TC_0 variableDeclaration)
+          have TC_1 := tmp_0
+          pure TC_1))
 
 def ParserLocalDecls_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : List NanoP4Spec.parserLocalDeclaration) : Option NanoP4Spec.typingContext :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let TC_0 := p0
-         let «parserLocalDeclaration*» := p1
-         (do
-            let _ ← Iter.check («parserLocalDeclaration*» ==
-             ([] : List NanoP4Spec.parserLocalDeclaration))
-            pure TC_0) <|>
-         (do
-            let «parserLocalDeclaration'*» := «parserLocalDeclaration*»
-            let _ ← Iter.check (!(List.isEmpty «parserLocalDeclaration'*»))
-            let parserLocalDeclaration_h :: «parserLocalDeclaration_t*» :=
-                «parserLocalDeclaration'*» | none
-            let tmp_0 ← NanoP4Spec.ParserLocalDecl_ok.run fuel TC_0 parserLocalDeclaration_h
-            let TC_1 := tmp_0
-            let tmp_1 ← NanoP4Spec.ParserLocalDecls_ok.run fuel TC_1 «parserLocalDeclaration_t*»
-            let TC_2 := tmp_1
-            pure TC_2))
+        (p0 : NanoP4Spec.typingContext)
+        (p1 : List NanoP4Spec.parserLocalDeclaration)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC_0 := p0
+       have «parserLocalDeclaration*» := p1
+       (do
+          let _ ← Eval.check («parserLocalDeclaration*» ==
+           ([] : List NanoP4Spec.parserLocalDeclaration))
+          pure TC_0) <|>
+       (do
+          have «parserLocalDeclaration'*» := «parserLocalDeclaration*»
+          let _ ← Eval.check (!(List.isEmpty «parserLocalDeclaration'*»))
+          let parserLocalDeclaration_h :: «parserLocalDeclaration_t*» :=
+              «parserLocalDeclaration'*» | throw Fail.err
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.ParserLocalDecl_ok.run TC_0 parserLocalDeclaration_h)
+          have TC_1 := tmp_0
+          let tmp_1 ←
+              ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run TC_1 «parserLocalDeclaration_t*»)
+          have TC_2 := tmp_1
+          pure TC_2))
+  partial_fixpoint
 
 def ParserLocalDeclList_ok.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.parserLocalDeclarationList) : Option NanoP4Spec.typingContext :=
-  (do
-     let TC_0 := p0
-     let parserLocalDeclarationList := p1
-     (do
-        let tmp_0 ← NanoP4Spec.«$flatten_parserLocalDeclarationList» fuel parserLocalDeclarationList
-        let «parserLocalDeclaration*» := tmp_0
-        let tmp_1 ← NanoP4Spec.ParserLocalDecls_ok.run fuel TC_0 «parserLocalDeclaration*»
-        let TC_1 := tmp_1
-        pure TC_1))
+        (p0 : NanoP4Spec.typingContext)
+        (p1 : NanoP4Spec.parserLocalDeclarationList)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC_0 := p0
+       have parserLocalDeclarationList := p1
+       (do
+          let tmp_0 ←
+              ExceptT.mk
+                (NanoP4Spec.«$flatten_parserLocalDeclarationList» parserLocalDeclarationList)
+          have «parserLocalDeclaration*» := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run TC_0 «parserLocalDeclaration*»)
+          have TC_1 := tmp_1
+          pure TC_1))
 
 end NanoP4Spec

@@ -45,139 +45,137 @@ def bits.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bits
 
 instance : OfValue NanoP4Spec.bits := ⟨NanoP4Spec.bits.ofValue⟩
 
-def «$bits_to_int_unsigned» (fuel : Nat) (p0 : NanoP4Spec.bits) : Option Int :=
-  pure (Builtin.Numerics.bits_to_int_unsigned p0)
+def «$bits_to_int_unsigned» (p0 : NanoP4Spec.bits) : Option (Except Fail Int) :=
+  ExceptT.run
+    (pure (Builtin.Numerics.bits_to_int_unsigned p0))
 
-def «$bits_to_int_signed» (fuel : Nat) (p0 : NanoP4Spec.bits) : Option Int :=
-  Builtin.Numerics.bits_to_int_signed p0
+def «$bits_to_int_signed» (p0 : NanoP4Spec.bits) : Option (Except Fail Int) :=
+  ExceptT.run
+    (Eval.unmatch? (Builtin.Numerics.bits_to_int_signed p0))
 
-def «$int_to_bits_unsigned» (fuel : Nat) (p0 : Nat) (p1 : Int) : Option NanoP4Spec.bits :=
-  Builtin.Numerics.int_to_bits_unsigned (Int.ofNat p0) p1
+def «$int_to_bits_unsigned» (p0 : Nat) (p1 : Int) : Option (Except Fail NanoP4Spec.bits) :=
+  ExceptT.run
+    (Eval.unmatch? (Builtin.Numerics.int_to_bits_unsigned (Int.ofNat p0) p1))
 
-def «$int_to_bits_signed» (fuel : Nat) (p0 : Nat) (p1 : Int) : Option NanoP4Spec.bits :=
-  Builtin.Numerics.int_to_bits_signed (Int.ofNat p0) p1
+def «$int_to_bits_signed» (p0 : Nat) (p1 : Int) : Option (Except Fail NanoP4Spec.bits) :=
+  ExceptT.run
+    (Eval.unmatch? (Builtin.Numerics.int_to_bits_signed (Int.ofNat p0) p1))
 
 mutual
 
-def «$write_value_from_bits'»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.value)
-    (p1 : NanoP4Spec.bits) : Option (NanoP4Spec.value × NanoP4Spec.bits) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let value := p0
-         let «b*» := p1
-         let _ ← Iter.check (NanoP4Spec.value.is_integerLiteral value)
-         let tmp_0 ← NanoP4Spec.value.of_integerLiteral value
-         let integerLiteral := tmp_0
-         let _ ← Iter.check (match integerLiteral with
-            | NanoP4Spec.integerLiteral.W _ _ => true
+def «$write_value_from_bits'» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
+    : Option (Except Fail (NanoP4Spec.value × NanoP4Spec.bits)) :=
+  ExceptT.run
+    ((do
+        have value := p0
+        have «b*» := p1
+        let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+        let tmp_0 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
+        have integerLiteral := tmp_0
+        let _ ← Eval.check (match integerLiteral with
+           | NanoP4Spec.integerLiteral.W _ _ => true
+           | _ => false)
+        let .W w _i := integerLiteral | throw Fail.err
+        let tmp_1 ← Eval.err? (Iter.slice «b*» (0 : Nat) w)
+        have «b_h*» := tmp_1
+        have i' := Num.natSub (List.length «b*») w
+        let _ ← Eval.check (decide (0 ≤ i'))
+        let tmp_2 ← Eval.err? (Num.toNat? i')
+        have n_t := tmp_2
+        let tmp_3 ← Eval.err? (Iter.slice «b*» w n_t)
+        have «b_t*» := tmp_3
+        let tmp_4 ← ExceptT.mk (NanoP4Spec.«$bits_to_int_unsigned» «b_h*»)
+        let tmp_5 ← ExceptT.mk (NanoP4Spec.«$int_to_bitstr» (Int.ofNat w) tmp_4)
+        have i := tmp_5
+        pure (NanoP4Spec.integerLiteral.to_value (NanoP4Spec.integerLiteral.W w i), «b_t*»)) <|>
+     ((do
+         have value := p0
+         have «b*» := p1
+         let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+         let tmp_6 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
+         have integerLiteral := tmp_6
+         let _ ← Eval.check (match integerLiteral with
+            | NanoP4Spec.integerLiteral.S _ _ => true
             | _ => false)
-         let .W w _i := integerLiteral | none
-         let tmp_1 ← Iter.slice «b*» (0 : Nat) w
-         let «b_h*» := tmp_1
-         let i' := Num.natSub (List.length «b*») w
-         let _ ← Iter.check (decide (0 ≤ i'))
-         let tmp_2 ← Num.toNat? i'
-         let n_t := tmp_2
-         let tmp_3 ← Iter.slice «b*» w n_t
-         let «b_t*» := tmp_3
-         let tmp_4 ← NanoP4Spec.«$bits_to_int_unsigned» fuel «b_h*»
-         let tmp_5 ← NanoP4Spec.«$int_to_bitstr» fuel (Int.ofNat w) tmp_4
-         let i := tmp_5
-         pure (NanoP4Spec.integerLiteral.to_value (NanoP4Spec.integerLiteral.W w i), «b_t*»)) <|>
+         let .S w _i := integerLiteral | throw Fail.err
+         let tmp_7 ← Eval.err? (Iter.slice «b*» (0 : Nat) w)
+         have «b_h*» := tmp_7
+         have i' := Num.natSub (List.length «b*») w
+         let _ ← Eval.check (decide (0 ≤ i'))
+         let tmp_8 ← Eval.err? (Num.toNat? i')
+         have n_t := tmp_8
+         let tmp_9 ← Eval.err? (Iter.slice «b*» w n_t)
+         have «b_t*» := tmp_9
+         let tmp_10 ← ExceptT.mk (NanoP4Spec.«$bits_to_int_signed» «b_h*»)
+         let tmp_11 ← ExceptT.mk (NanoP4Spec.«$int_to_bitstr» (Int.ofNat w) tmp_10)
+         have i := tmp_11
+         pure (NanoP4Spec.integerLiteral.to_value (NanoP4Spec.integerLiteral.S w i), «b_t*»)) <|>
       ((do
-          let value := p0
-          let «b*» := p1
-          let _ ← Iter.check (NanoP4Spec.value.is_integerLiteral value)
-          let tmp_6 ← NanoP4Spec.value.of_integerLiteral value
-          let integerLiteral := tmp_6
-          let _ ← Iter.check (match integerLiteral with
-             | NanoP4Spec.integerLiteral.S _ _ => true
-             | _ => false)
-          let .S w _i := integerLiteral | none
-          let tmp_7 ← Iter.slice «b*» (0 : Nat) w
-          let «b_h*» := tmp_7
-          let i' := Num.natSub (List.length «b*») w
-          let _ ← Iter.check (decide (0 ≤ i'))
-          let tmp_8 ← Num.toNat? i'
-          let n_t := tmp_8
-          let tmp_9 ← Iter.slice «b*» w n_t
-          let «b_t*» := tmp_9
-          let tmp_10 ← NanoP4Spec.«$bits_to_int_signed» fuel «b_h*»
-          let tmp_11 ← NanoP4Spec.«$int_to_bitstr» fuel (Int.ofNat w) tmp_10
-          let i := tmp_11
-          pure (NanoP4Spec.integerLiteral.to_value (NanoP4Spec.integerLiteral.S w i), «b_t*»)) <|>
+          have value := p0
+          have «b*» := p1
+          let _ ← Eval.check (NanoP4Spec.value.is_boolValue value)
+          let tmp_12 ← Eval.err? (NanoP4Spec.value.of_boolValue value)
+          let ._B _b := tmp_12
+          let _ ← Eval.check (!(List.isEmpty «b*»))
+          let b_h :: «b_t*» := «b*» | throw Fail.err
+          pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B b_h), «b_t*»)) <|>
        ((do
-           let value := p0
-           let «b*» := p1
-           let _ ← Iter.check (NanoP4Spec.value.is_boolValue value)
-           let tmp_12 ← NanoP4Spec.value.of_boolValue value
-           let ._B _b := tmp_12
-           let _ ← Iter.check (!(List.isEmpty «b*»))
-           let b_h :: «b_t*» := «b*» | none
-           pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B b_h), «b_t*»)) <|>
-        ((do
-            let value := p0
-            let «b*» := p1
-            let _ ← Iter.check (NanoP4Spec.value.is_structValue value)
-            let tmp_13 ← NanoP4Spec.value.of_structValue value
-            let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_13
-            let tmp_14 ← NanoP4Spec.«$write_value_fields_from_bits'» fuel «fieldValue*» «b*»
-            let («fieldValue'*», «b_rest*») := tmp_14
-            pure (NanoP4Spec.structValue.to_value
-               (NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue'*»),
-             «b_rest*»)) <|>
-         (do
-            let value := p0
-            let «b*» := p1
-            let _ ← Iter.check (NanoP4Spec.value.is_headerValue value)
-            let tmp_15 ← NanoP4Spec.value.of_headerValue value
-            let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_15
-            let tmp_16 ← NanoP4Spec.«$write_value_fields_from_bits'» fuel «fieldValue*» «b*»
-            let («fieldValue'*», «b_rest*») := tmp_16
-            pure (NanoP4Spec.headerValue.to_value
-               (NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue'*»),
-             «b_rest*»)))))
+           have value := p0
+           have «b*» := p1
+           let _ ← Eval.check (NanoP4Spec.value.is_structValue value)
+           let tmp_13 ← Eval.err? (NanoP4Spec.value.of_structValue value)
+           let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_13
+           let tmp_14 ← ExceptT.mk (NanoP4Spec.«$write_value_fields_from_bits'» «fieldValue*» «b*»)
+           let («fieldValue'*», «b_rest*») := tmp_14
+           pure (NanoP4Spec.structValue.to_value
+              (NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue'*»),
+            «b_rest*»)) <|>
+        (do
+           have value := p0
+           have «b*» := p1
+           let _ ← Eval.check (NanoP4Spec.value.is_headerValue value)
+           let tmp_15 ← Eval.err? (NanoP4Spec.value.of_headerValue value)
+           let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_15
+           let tmp_16 ← ExceptT.mk (NanoP4Spec.«$write_value_fields_from_bits'» «fieldValue*» «b*»)
+           let («fieldValue'*», «b_rest*») := tmp_16
+           pure (NanoP4Spec.headerValue.to_value
+              (NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue'*»),
+            «b_rest*»))))))
+  partial_fixpoint
 
-def «$write_value_fields_from_bits'»
-    (fuel : Nat)
-    (p0 : List NanoP4Spec.fieldValue)
-    (p1 : NanoP4Spec.bits) : Option ((List NanoP4Spec.fieldValue) × NanoP4Spec.bits) :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let «fieldValue*» := p0
-         let «b*» := p1
-         let _ ← Iter.check (List.isEmpty «fieldValue*»)
-         pure (([] : List NanoP4Spec.fieldValue), «b*»)) <|>
-      (do
-         let «fieldValue*» := p0
-         let «b*» := p1
-         let _ ← Iter.check (!(List.isEmpty «fieldValue*»))
-         let tmp_0 :: «fieldValue_t*» := «fieldValue*» | none
-         let .semi value id := tmp_0
-         let tmp_1 ← NanoP4Spec.«$write_value_from_bits'» fuel value «b*»
-         let (value', «b_mid*») := tmp_1
-         let tmp_2 ← NanoP4Spec.«$write_value_fields_from_bits'» fuel «fieldValue_t*» «b_mid*»
-         let («fieldValue_t'*», «b_rest*») := tmp_2
-         pure ((NanoP4Spec.fieldValue.semi value' id) :: «fieldValue_t'*», «b_rest*»))
+def «$write_value_fields_from_bits'» (p0 : List NanoP4Spec.fieldValue) (p1 : NanoP4Spec.bits)
+    : Option (Except Fail ((List NanoP4Spec.fieldValue) × NanoP4Spec.bits)) :=
+  ExceptT.run
+    ((do
+        have «fieldValue*» := p0
+        have «b*» := p1
+        let _ ← Eval.check (List.isEmpty «fieldValue*»)
+        pure (([] : List NanoP4Spec.fieldValue), «b*»)) <|>
+     (do
+        have «fieldValue*» := p0
+        have «b*» := p1
+        let _ ← Eval.check (!(List.isEmpty «fieldValue*»))
+        let tmp_0 :: «fieldValue_t*» := «fieldValue*» | throw Fail.err
+        let .semi value id := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$write_value_from_bits'» value «b*»)
+        let (value', «b_mid*») := tmp_1
+        let tmp_2 ←
+            ExceptT.mk (NanoP4Spec.«$write_value_fields_from_bits'» «fieldValue_t*» «b_mid*»)
+        let («fieldValue_t'*», «b_rest*») := tmp_2
+        pure ((NanoP4Spec.fieldValue.semi value' id) :: «fieldValue_t'*», «b_rest*»)))
+  partial_fixpoint
 
 end
 
-def «$write_value_from_bits»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.value)
-    (p1 : NanoP4Spec.bits) : Option NanoP4Spec.value :=
-  (do
-     let value := p0
-     let «b*» := p1
-     let tmp_0 ← NanoP4Spec.«$write_value_from_bits'» fuel value «b*»
-     let (value', «bit*») := tmp_0
-     let _ ← Iter.check (List.isEmpty «bit*»)
-     pure value')
+def «$write_value_from_bits» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
+    : Option (Except Fail NanoP4Spec.value) :=
+  ExceptT.run
+    (do
+       have value := p0
+       have «b*» := p1
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$write_value_from_bits'» value «b*»)
+       let (value', «bit*») := tmp_0
+       let _ ← Eval.check (List.isEmpty «bit*»)
+       pure value')
 
 end NanoP4Spec

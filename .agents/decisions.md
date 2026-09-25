@@ -154,16 +154,22 @@ settles is not repeated here.
   every other definition stays in its file's module, and modules import
   each other in spec order. Nano-P4's typing relations form one such
   group. (2026-09-25)
-- **Every generated function and run function takes `fuel : Nat` first,
-  and a recursive group consumes one unit per call.** M1 uses this
-  uniformly instead of the "structural first" ordering because
-  `partial_fixpoint` rejects the `<|>` backtracking of the executable
-  encoding (not monotone on `Option`), and structural recursion fails
-  wherever a rule recurses on a projected subterm (`e as T`). Counts at
-  M1: 12 recursive function groups, 8 recursive relation groups. Revisit
-  at M2 with the failure/divergence split, which makes `<|>` monotone
-  and allows `partial_fixpoint` without fuel; the run functions' fuel is
-  then removed. (2026-09-25)
+- **Generated code is written in `Eval := ExceptT Fail Option` and every
+  recursive group is a `partial_fixpoint`; no fuel.** `Fail` is `err |
+  unmatch` (upstream's `Err` and `Unmatch` without traces), `none` is
+  divergence, and `Eval.orElse` retries only on `unmatch`
+  (`choose_sequential`), which is monotone; two monotonicity lemmas
+  (`ExceptT.mk`, `orElse`, plus `notHold`) are all Lean needs beyond
+  its own. A definition's type is `Option (Except Fail T)` with
+  `ExceptT.run` around the body and `ExceptT.mk` around calls, because
+  `partial_correctness` is derived only for `Option`-typed definitions.
+  Pure variable bindings are `have`, since the monotonicity tactic cannot
+  eliminate a match on a `let`-bound variable. Reason: the M1 fuel was a
+  placeholder; `partial_correctness` is the induction principle the
+  run-soundness proofs use, and Nano-P4's 20 recursive groups (12 of
+  functions, 8 of relations) all pass the monotonicity tactic, the
+  whole library building in 14 s. Supersedes the M1 fuel decision.
+  (2026-09-25)
 - **The `Prop` encoding of relations is generated at M2, not M1.** Its
   hypotheses for function calls depend on the fuel decision above (a
   hypothesis `f args = some r` needs a fuel today), so writing it now
@@ -209,16 +215,14 @@ settles is not repeated here.
   Wasm, which is smaller than P4; Sail's RISC-V Lean output is 175k
   lines; encoding choices are cheap to change only early. Supersedes the
   same-day decision to wait for M3. (2026-09-25, revised the same day)
-- **Recursion strategy: structural first, `partial_fixpoint` for
-  mutually recursive `Option` functions, explicit fuel last, never
-  `partial`.** Reason: `partial_fixpoint` yields unfolding equations and
-  the `partial_correctness` induction principle the soundness theorems
-  need, and removes the fuel deviation from the list, which the
-  correct-by-construction principle prefers. The interpreter must
-  separate failure (data) from divergence (bottom), because `<|>` on
-  `Option` is not monotone. Confidence: high in the ordering, medium in
-  how many definitions each tier catches; revisit at M1 with counts.
-  (2026-09-25)
+- **Recursion strategy: `partial_fixpoint` for every recursive group,
+  structural recursion for none, never `partial`.** Reason: one proof
+  principle (`partial_correctness`) for every group keeps the generated
+  soundness proofs uniform; a structurally recursive definition would
+  need its own induction principle and gain nothing, since the
+  executable encoding is never used in a termination argument. The
+  interpreter port (M2) uses the same monad and the same principle.
+  Supersedes the "structural first" ordering. (2026-09-25)
 - **Three Lean-specific encodings from M1:** iterated premises as
   `∀ x ∈ xs` and definitional `Forall₂` (lean4#1964), `BEq` not
   `DecidableEq` on nested inductives (lean4#2329), numerics as `Nat`,

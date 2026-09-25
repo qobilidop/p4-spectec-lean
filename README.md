@@ -4,10 +4,11 @@ A compiler from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)'s
 IL to Lean 4, validated per definition against a Lean formalization of the
 IL, plus a small P4 primitives library.
 
-Status: milestone M1 done. The Nano-P4 specification (34 files, 161
-types, 76 functions, 77 relations) is rendered into Lean as executable
-definitions that kernel-check and agree with upstream's interpreter on
-all 78 programs of upstream's Nano-P4 corpus. The design is
+Status: milestone M1 done, M2 in progress. The Nano-P4 specification
+(34 files, 161 types, 76 functions, 77 relations) is rendered into Lean
+as executable definitions (`partial_fixpoint`, no fuel) that
+kernel-check and agree with upstream's interpreter on all 78 programs of
+upstream's Nano-P4 corpus. The design is
 [`docs/design.md`](docs/design.md); the entry point for working here is
 [`AGENTS.md`](AGENTS.md).
 

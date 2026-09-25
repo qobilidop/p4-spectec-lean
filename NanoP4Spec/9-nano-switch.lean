@@ -52,147 +52,146 @@ def forwardingDecision.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.for
 
 instance : OfValue NanoP4Spec.forwardingDecision := ⟨NanoP4Spec.forwardingDecision.ofValue⟩
 
-def Var_init.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.typeIR)
-    (p2 : NanoP4Spec.nameIR) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let typeIR := p1
-     let nameIR := p2
-     (do
-        let tmp_0 ← NanoP4Spec.«$default» fuel typeIR
-        let value := tmp_0
-        let tmp_1 ← NanoP4Spec.«$add_var_e» fuel NanoP4Spec.scope.GLOBAL EC_0 nameIR value
-        let EC_1 := tmp_1
-        pure EC_1))
+def Var_init.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.typeIR) (p2 : NanoP4Spec.nameIR)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have typeIR := p1
+       have nameIR := p2
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$default» typeIR)
+          have value := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$add_var_e» NanoP4Spec.scope.GLOBAL EC_0 nameIR value)
+          have EC_1 := tmp_1
+          pure EC_1))
 
-def NanoSwitch_init.run (fuel : Nat) (p0 : NanoP4Spec.program) : Option NanoP4Spec.evalContext :=
-  (do
-     let program := p0
-     (do
-        let tmp_0 ← NanoP4Spec.Program_ok.run fuel program
-        let TC := tmp_0
-        let tmp_1 ← NanoP4Spec.Program_load.run fuel TC program
-        let LC := tmp_1
-        let tmp_2 ← NanoP4Spec.«$make_evalContext» fuel TC LC
-        let EC := tmp_2
-        pure EC))
+def NanoSwitch_init.run (p0 : NanoP4Spec.program) : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have program := p0
+       (do
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Program_ok.run program)
+          have TC := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.Program_load.run TC program)
+          have LC := tmp_1
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$make_evalContext» TC LC)
+          have EC := tmp_2
+          pure EC))
 
-def NanoSwitch_setup.run
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.objectState) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let objectState_packet := p1
-     (do
-        let packetValue := NanoP4Spec.packetValue.PACKET "packet_in" objectState_packet
-        let tmp_0 ← NanoP4Spec.«$empty_frame» fuel
-        let EC_1 :=
-            { EC_0 with
-              GLOBAL.FRAME := tmp_0, }
-        let tmp_1 ←
-            NanoP4Spec.«$add_var_e»
-              fuel
-              NanoP4Spec.scope.GLOBAL
-              EC_1
-              "packet_in"
-              (NanoP4Spec.packetValue.to_value packetValue)
-        let EC_2 := tmp_1
-        let tmp_2 ← NanoP4Spec.«$find_typeDef_e» fuel EC_1 "Header"
-        let tmp_3 ← NanoP4Spec.«$typeIR_of_typeDefIR» fuel tmp_2
-        let typeIR_header := tmp_3
-        let tmp_4 ← NanoP4Spec.Var_init.run fuel EC_2 typeIR_header "hdr"
-        let EC_3 := tmp_4
-        let tmp_5 ←
-            NanoP4Spec.Var_init.run
-              fuel
-              EC_3
-              (NanoP4Spec.baseTypeIR.to_typeIR NanoP4Spec.baseTypeIR.BOOL)
-              "accept"
-        let EC_4 := tmp_5
-        pure EC_4))
+def NanoSwitch_setup.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectState)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have objectState_packet := p1
+       (do
+          have packetValue := NanoP4Spec.packetValue.PACKET "packet_in" objectState_packet
+          let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+          have EC_1 :=
+              { EC_0 with
+                GLOBAL.FRAME := tmp_0, }
+          let tmp_1 ←
+              ExceptT.mk
+                (NanoP4Spec.«$add_var_e»
+                   NanoP4Spec.scope.GLOBAL
+                   EC_1
+                   "packet_in"
+                   (NanoP4Spec.packetValue.to_value packetValue))
+          have EC_2 := tmp_1
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$find_typeDef_e» EC_1 "Header")
+          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$typeIR_of_typeDefIR» tmp_2)
+          have typeIR_header := tmp_3
+          let tmp_4 ← ExceptT.mk (NanoP4Spec.Var_init.run EC_2 typeIR_header "hdr")
+          have EC_3 := tmp_4
+          let tmp_5 ←
+              ExceptT.mk
+                (NanoP4Spec.Var_init.run
+                   EC_3
+                   (NanoP4Spec.baseTypeIR.to_typeIR NanoP4Spec.baseTypeIR.BOOL)
+                   "accept")
+          have EC_4 := tmp_5
+          pure EC_4))
 
-def «$nanoswitch_forwarding»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext) : Option NanoP4Spec.forwardingDecision :=
-  (do
-     let EC := p0
-     let tmp_0 ← NanoP4Spec.«$find_var_e» fuel NanoP4Spec.scope.GLOBAL EC "accept"
-     let _ ← Iter.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B true)) == tmp_0)
-     pure NanoP4Spec.forwardingDecision.FORWARD) <|>
-  (do
-     let EC := p0
-     let tmp_1 ← NanoP4Spec.«$find_var_e» fuel NanoP4Spec.scope.GLOBAL EC "accept"
-     let _ ← Iter.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false)) == tmp_1)
-     pure NanoP4Spec.forwardingDecision.DROP)
+def «$nanoswitch_forwarding» (p0 : NanoP4Spec.evalContext)
+    : Option (Except Fail NanoP4Spec.forwardingDecision) :=
+  ExceptT.run
+    ((do
+        have EC := p0
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$find_var_e» NanoP4Spec.scope.GLOBAL EC "accept")
+        let _ ← Eval.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B true)) == tmp_0)
+        pure NanoP4Spec.forwardingDecision.FORWARD) <|>
+     (do
+        have EC := p0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$find_var_e» NanoP4Spec.scope.GLOBAL EC "accept")
+        let _ ← Eval.check ((NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B false)) ==
+         tmp_1)
+        pure NanoP4Spec.forwardingDecision.DROP))
 
 def NanoSwitch_parse.run [Externs]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.parserDeclarationIR) : Option (NanoP4Spec.transitionResult ×
- NanoP4Spec.evalContext) :=
-  (do
-     let EC_0 := p0
-     let parserDeclarationIR := p1
-     (do
-        let «argument*» :=
-            [NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "packet_in"),
-             NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr")]
-        let tmp_0 ← NanoP4Spec.Parser_apply.run fuel EC_0 «argument*» parserDeclarationIR
-        let (transitionResult, EC_1) := tmp_0
-        pure (transitionResult, EC_1)))
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : NanoP4Spec.parserDeclarationIR)
+    : Option (Except Fail (NanoP4Spec.transitionResult × NanoP4Spec.evalContext)) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have parserDeclarationIR := p1
+       (do
+          have «argument*» :=
+              [NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "packet_in"),
+               NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr")]
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.Parser_apply.run EC_0 «argument*» parserDeclarationIR)
+          let (transitionResult, EC_1) := tmp_0
+          pure (transitionResult, EC_1)))
 
 def NanoSwitch_filter.run [Externs]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.controlDeclarationIR) : Option NanoP4Spec.evalContext :=
-  (do
-     let EC_0 := p0
-     let controlDeclarationIR := p1
-     (do
-        let «argument*» :=
-            [NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr"),
-             NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "accept")]
-        let tmp_0 ← NanoP4Spec.Control_apply.run fuel EC_0 «argument*» controlDeclarationIR
-        let EC_1 := tmp_0
-        pure EC_1))
+        (p0 : NanoP4Spec.evalContext)
+        (p1 : NanoP4Spec.controlDeclarationIR)
+    : Option (Except Fail NanoP4Spec.evalContext) :=
+  ExceptT.run
+    (do
+       have EC_0 := p0
+       have controlDeclarationIR := p1
+       (do
+          have «argument*» :=
+              [NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "hdr"),
+               NanoP4Spec.identifier.to_expression (NanoP4Spec.identifier._ID "accept")]
+          let tmp_0 ←
+              ExceptT.mk (NanoP4Spec.Control_apply.run EC_0 «argument*» controlDeclarationIR)
+          have EC_1 := tmp_0
+          pure EC_1))
 
-def NanoSwitch_drive.run [Externs]
-    (fuel : Nat)
-    (p0 : NanoP4Spec.evalContext)
-    (p1 : NanoP4Spec.objectState) : Option (NanoP4Spec.forwardingDecision ×
- NanoP4Spec.evalContext) :=
-  (do
-     let EC := p0
-     let objectState_packet := p1
-     (do
-        let parserDeclarationIR := EC.GLOBAL.PARSER
-        let controlDeclarationIR := EC.GLOBAL.CONTROL
-        let tmp_0 ← NanoP4Spec.NanoSwitch_setup.run fuel EC objectState_packet
-        let EC_0 := tmp_0
-        let tmp_1 ← NanoP4Spec.NanoSwitch_parse.run fuel EC_0 parserDeclarationIR
-        let (transitionResult, EC_1) := tmp_1
-        let _ ← Iter.check (match transitionResult with
-           | NanoP4Spec.transitionResult.REJECT => true
-           | _ => false)
-        pure (NanoP4Spec.forwardingDecision.DROP, EC_1)) <|>
-     (do
-        let parserDeclarationIR := EC.GLOBAL.PARSER
-        let controlDeclarationIR := EC.GLOBAL.CONTROL
-        let tmp_2 ← NanoP4Spec.NanoSwitch_setup.run fuel EC objectState_packet
-        let EC_0 := tmp_2
-        let tmp_3 ← NanoP4Spec.NanoSwitch_parse.run fuel EC_0 parserDeclarationIR
-        let (transitionResult, EC_1) := tmp_3
-        let _ ← Iter.check (match transitionResult with
-           | NanoP4Spec.transitionResult.ACCEPT => true
-           | _ => false)
-        let tmp_4 ← NanoP4Spec.NanoSwitch_filter.run fuel EC_1 controlDeclarationIR
-        let EC_2 := tmp_4
-        let tmp_5 ← NanoP4Spec.«$nanoswitch_forwarding» fuel EC_2
-        let forwardingDecision := tmp_5
-        pure (forwardingDecision, EC_2)))
+def NanoSwitch_drive.run [Externs] (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectState)
+    : Option (Except Fail (NanoP4Spec.forwardingDecision × NanoP4Spec.evalContext)) :=
+  ExceptT.run
+    (do
+       have EC := p0
+       have objectState_packet := p1
+       (do
+          have parserDeclarationIR := EC.GLOBAL.PARSER
+          have controlDeclarationIR := EC.GLOBAL.CONTROL
+          let tmp_0 ← ExceptT.mk (NanoP4Spec.NanoSwitch_setup.run EC objectState_packet)
+          have EC_0 := tmp_0
+          let tmp_1 ← ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run EC_0 parserDeclarationIR)
+          let (transitionResult, EC_1) := tmp_1
+          let _ ← Eval.check (match transitionResult with
+             | NanoP4Spec.transitionResult.REJECT => true
+             | _ => false)
+          pure (NanoP4Spec.forwardingDecision.DROP, EC_1)) <|>
+       (do
+          have parserDeclarationIR := EC.GLOBAL.PARSER
+          have controlDeclarationIR := EC.GLOBAL.CONTROL
+          let tmp_2 ← ExceptT.mk (NanoP4Spec.NanoSwitch_setup.run EC objectState_packet)
+          have EC_0 := tmp_2
+          let tmp_3 ← ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run EC_0 parserDeclarationIR)
+          let (transitionResult, EC_1) := tmp_3
+          let _ ← Eval.check (match transitionResult with
+             | NanoP4Spec.transitionResult.ACCEPT => true
+             | _ => false)
+          let tmp_4 ← ExceptT.mk (NanoP4Spec.NanoSwitch_filter.run EC_1 controlDeclarationIR)
+          have EC_2 := tmp_4
+          let tmp_5 ← ExceptT.mk (NanoP4Spec.«$nanoswitch_forwarding» EC_2)
+          have forwardingDecision := tmp_5
+          pure (forwardingDecision, EC_2)))
 
 end NanoP4Spec

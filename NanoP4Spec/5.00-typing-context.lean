@@ -326,427 +326,439 @@ def tableContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableCont
 instance : OfValue NanoP4Spec.tableContext := ⟨NanoP4Spec.tableContext.ofValue⟩
 
 def «$empty_typeDefEnv»
-    (fuel : Nat) : Option (NanoP4Spec.map NanoP4Spec.typeId NanoP4Spec.typeDefIR) :=
-  (do
-     let tmp_0 ← NanoP4Spec.«$empty_map» (τK := NanoP4Spec.typeId) (τV := NanoP4Spec.typeDefIR) fuel
-     pure tmp_0)
+    : Option (Except Fail (NanoP4Spec.map NanoP4Spec.typeId NanoP4Spec.typeDefIR)) :=
+  ExceptT.run
+    (do
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.typeId) (τV := NanoP4Spec.typeDefIR))
+       pure tmp_0)
 
-def «$params_of_callableTypeDef»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.callableTypeDef) : Option (List NanoP4Spec.parameterIR) :=
-  (do
-     let callableTypeDef := p0
-     let _ ← Iter.check (match callableTypeDef with
-        | NanoP4Spec.callableTypeDef.ACTION _ => true
-        | _ => false)
-     let .ACTION «parameterIR*» := callableTypeDef | none
-     pure «parameterIR*») <|>
-  ((do
-      let callableTypeDef := p0
-      let _ ← Iter.check (match callableTypeDef with
-         | NanoP4Spec.callableTypeDef.PARSER _ => true
-         | _ => false)
-      let .PARSER «parameterIR*» := callableTypeDef | none
-      pure «parameterIR*») <|>
-   (do
-      let callableTypeDef := p0
-      let _ ← Iter.check (match callableTypeDef with
-         | NanoP4Spec.callableTypeDef.CONTROL _ => true
-         | _ => false)
-      let .CONTROL «parameterIR*» := callableTypeDef | none
-      pure «parameterIR*»))
+def «$params_of_callableTypeDef» (p0 : NanoP4Spec.callableTypeDef)
+    : Option (Except Fail (List NanoP4Spec.parameterIR)) :=
+  ExceptT.run
+    ((do
+        have callableTypeDef := p0
+        let _ ← Eval.check (match callableTypeDef with
+           | NanoP4Spec.callableTypeDef.ACTION _ => true
+           | _ => false)
+        let .ACTION «parameterIR*» := callableTypeDef | throw Fail.err
+        pure «parameterIR*») <|>
+     ((do
+         have callableTypeDef := p0
+         let _ ← Eval.check (match callableTypeDef with
+            | NanoP4Spec.callableTypeDef.PARSER _ => true
+            | _ => false)
+         let .PARSER «parameterIR*» := callableTypeDef | throw Fail.err
+         pure «parameterIR*») <|>
+      (do
+         have callableTypeDef := p0
+         let _ ← Eval.check (match callableTypeDef with
+            | NanoP4Spec.callableTypeDef.CONTROL _ => true
+            | _ => false)
+         let .CONTROL «parameterIR*» := callableTypeDef | throw Fail.err
+         pure «parameterIR*»)))
 
 def «$empty_callableTypeDefEnv»
-    (fuel : Nat) : Option (NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableTypeDef) :=
-  (do
-     let tmp_0 ←
-         NanoP4Spec.«$empty_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableTypeDef)
-           fuel
-     pure tmp_0)
+    : Option (Except Fail (NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableTypeDef)) :=
+  ExceptT.run
+    (do
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$empty_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableTypeDef))
+       pure tmp_0)
 
-def «$empty_typeFrame» (fuel : Nat) : Option (NanoP4Spec.map NanoP4Spec.id NanoP4Spec.varTypeIR) :=
-  (do
-     let tmp_0 ← NanoP4Spec.«$empty_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR) fuel
-     pure tmp_0)
+def «$empty_typeFrame» : Option (Except Fail (NanoP4Spec.map NanoP4Spec.id NanoP4Spec.varTypeIR)) :=
+  ExceptT.run
+    (do
+       let tmp_0 ←
+           ExceptT.mk (NanoP4Spec.«$empty_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR))
+       pure tmp_0)
 
-def «$empty_typingContext» (fuel : Nat) : Option NanoP4Spec.typingContext :=
-  (do
-     let tmp_0 ← NanoP4Spec.«$empty_typeDefEnv» fuel
-     let tmp_1 ← NanoP4Spec.«$empty_callableTypeDefEnv» fuel
-     let tmp_2 ← NanoP4Spec.«$empty_typeFrame» fuel
-     let globalTypingLayer :=
-         ({
-            TYPE := tmp_0,
-            CALLABLE := tmp_1,
-            FRAME := tmp_2, } : NanoP4Spec.globalTypingLayer)
-     let tmp_3 ← NanoP4Spec.«$empty_typeFrame» fuel
-     let blockTypingLayer :=
-         ({
-            FRAME := tmp_3, } : NanoP4Spec.blockTypingLayer)
-     let tmp_4 ← NanoP4Spec.«$empty_typeFrame» fuel
-     let localTypingLayer :=
-         ({
-            FRAMES := [tmp_4], } : NanoP4Spec.localTypingLayer)
-     let TC :=
-         ({
-            GLOBAL := globalTypingLayer,
-            BLOCK := blockTypingLayer,
-            LOCAL := localTypingLayer, } : NanoP4Spec.typingContext)
-     pure TC)
+def «$empty_typingContext» : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_typeDefEnv»
+       let tmp_1 ← ExceptT.mk NanoP4Spec.«$empty_callableTypeDefEnv»
+       let tmp_2 ← ExceptT.mk NanoP4Spec.«$empty_typeFrame»
+       have globalTypingLayer :=
+           ({
+              TYPE := tmp_0,
+              CALLABLE := tmp_1,
+              FRAME := tmp_2, } : NanoP4Spec.globalTypingLayer)
+       let tmp_3 ← ExceptT.mk NanoP4Spec.«$empty_typeFrame»
+       have blockTypingLayer :=
+           ({
+              FRAME := tmp_3, } : NanoP4Spec.blockTypingLayer)
+       let tmp_4 ← ExceptT.mk NanoP4Spec.«$empty_typeFrame»
+       have localTypingLayer :=
+           ({
+              FRAMES := [tmp_4], } : NanoP4Spec.localTypingLayer)
+       have TC :=
+           ({
+              GLOBAL := globalTypingLayer,
+              BLOCK := blockTypingLayer,
+              LOCAL := localTypingLayer, } : NanoP4Spec.typingContext)
+       pure TC)
 
-def «$enter_t» (fuel : Nat) (p0 : NanoP4Spec.typingContext) : Option NanoP4Spec.typingContext :=
-  (do
-     let TC := p0
-     let tmp_0 ← NanoP4Spec.«$empty_typeFrame» fuel
-     pure { TC with
-       LOCAL.FRAMES := tmp_0 :: TC.LOCAL.FRAMES, })
+def «$enter_t» (p0 : NanoP4Spec.typingContext) : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_typeFrame»
+       pure { TC with
+         LOCAL.FRAMES := tmp_0 :: TC.LOCAL.FRAMES, })
 
-def «$exit_t» (fuel : Nat) (p0 : NanoP4Spec.typingContext) : Option NanoP4Spec.typingContext :=
-  (do
-     let TC := p0
-     let «typeFrame*» := TC.LOCAL.FRAMES
-     let _ ← Iter.check (!(List.isEmpty «typeFrame*»))
-     let typeFrame_h :: «typeFrame_t*» := «typeFrame*» | none
-     pure { TC with
-       LOCAL.FRAMES := «typeFrame_t*», })
+def «$exit_t» (p0 : NanoP4Spec.typingContext) : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have «typeFrame*» := TC.LOCAL.FRAMES
+       let _ ← Eval.check (!(List.isEmpty «typeFrame*»))
+       let typeFrame_h :: «typeFrame_t*» := «typeFrame*» | throw Fail.err
+       pure { TC with
+         LOCAL.FRAMES := «typeFrame_t*», })
 
 def «$add_var_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.typingContext)
-    (p2 : NanoP4Spec.id)
-    (p3 : NanoP4Spec.varTypeIR) : Option NanoP4Spec.typingContext :=
-  (do
-     let scope := p0
-     let TC := p1
-     let id := p2
-     let varTypeIR := p3
-     let _ ← Iter.check (match scope with
-        | NanoP4Spec.scope.GLOBAL => true
-        | _ => false)
-     let typeFrame := TC.GLOBAL.FRAME
-     let tmp_0 ←
-         NanoP4Spec.«$dom_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR) fuel typeFrame
-     let tmp_1 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.id) fuel tmp_0 id
-     let _ ← Iter.check (!tmp_1)
-     let tmp_2 ←
-         NanoP4Spec.«$add_map»
-           (τK := NanoP4Spec.id)
-           (τV := NanoP4Spec.varTypeIR)
-           fuel
-           typeFrame
-           id
-           varTypeIR
-     let typeFrame' := tmp_2
-     let TC' :=
-         { TC with
-           GLOBAL.FRAME := typeFrame', }
-     pure TC') <|>
-  ((do
-      let scope := p0
-      let TC := p1
-      let id := p2
-      let varTypeIR := p3
-      let _ ← Iter.check (match scope with
-         | NanoP4Spec.scope.BLOCK => true
-         | _ => false)
-      let typeFrame := TC.BLOCK.FRAME
-      let tmp_3 ←
-          NanoP4Spec.«$dom_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR) fuel typeFrame
-      let tmp_4 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.id) fuel tmp_3 id
-      let _ ← Iter.check (!tmp_4)
-      let tmp_5 ←
-          NanoP4Spec.«$add_map»
-            (τK := NanoP4Spec.id)
-            (τV := NanoP4Spec.varTypeIR)
-            fuel
-            typeFrame
-            id
-            varTypeIR
-      let typeFrame' := tmp_5
-      let TC' :=
-          { TC with
-            BLOCK.FRAME := typeFrame', }
-      pure TC') <|>
-   (do
-      let scope := p0
-      let TC := p1
-      let id := p2
-      let varTypeIR := p3
-      let _ ← Iter.check (match scope with
-         | NanoP4Spec.scope.LOCAL => true
-         | _ => false)
-      let «typeFrame*» := TC.LOCAL.FRAMES
-      let _ ← Iter.check (!(List.isEmpty «typeFrame*»))
-      let typeFrame_h :: «typeFrame_t*» := «typeFrame*» | none
-      let tmp_6 ←
-          NanoP4Spec.«$dom_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR) fuel typeFrame_h
-      let tmp_7 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.id) fuel tmp_6 id
-      let _ ← Iter.check (!tmp_7)
-      let tmp_8 ←
-          NanoP4Spec.«$add_map»
-            (τK := NanoP4Spec.id)
-            (τV := NanoP4Spec.varTypeIR)
-            fuel
-            typeFrame_h
-            id
-            varTypeIR
-      let typeFrame_h' := tmp_8
-      let TC' :=
-          { TC with
-            LOCAL.FRAMES := typeFrame_h' :: «typeFrame_t*», }
-      pure TC'))
-
-def «$add_vars_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.typingContext)
-    (p2 : List NanoP4Spec.id)
-    (p3 : List NanoP4Spec.varTypeIR) : Option NanoP4Spec.typingContext :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let scope := p0
-         let TC := p1
-         let «id*» := p2
-         let «varTypeIR*» := p3
-         let _ ← Iter.check (List.isEmpty «id*»)
-         let _ ← Iter.check (List.isEmpty «varTypeIR*»)
-         pure TC) <|>
-      (do
-         let scope := p0
-         let TC := p1
-         let «id*» := p2
-         let «varTypeIR*» := p3
-         let _ ← Iter.check (!(List.isEmpty «id*»))
-         let id_h :: «id_t*» := «id*» | none
-         let _ ← Iter.check (!(List.isEmpty «varTypeIR*»))
-         let varTypeIR_h :: «varTypeIR_t*» := «varTypeIR*» | none
-         let tmp_0 ← NanoP4Spec.«$add_var_t» fuel scope TC id_h varTypeIR_h
-         let TC' := tmp_0
-         let tmp_1 ← NanoP4Spec.«$add_vars_t» fuel scope TC' «id_t*» «varTypeIR_t*»
-         let TC'' := tmp_1
-         pure TC'')
-
-def «$add_callableDef_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.callableId)
-    (p2 : NanoP4Spec.callableTypeDef) : Option NanoP4Spec.typingContext :=
-  (do
-     let TC := p0
-     let callableId := p1
-     let callableTypeDef := p2
-     let callableTypeDefEnv := TC.GLOBAL.CALLABLE
-     let tmp_0 ←
-         NanoP4Spec.«$dom_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableTypeDef)
-           fuel
-           callableTypeDefEnv
-     let tmp_1 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.callableId) fuel tmp_0 callableId
-     let _ ← Iter.check (!tmp_1)
-     let tmp_2 ←
-         NanoP4Spec.«$add_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableTypeDef)
-           fuel
-           callableTypeDefEnv
-           callableId
-           callableTypeDef
-     let callableTypeDefEnv' := tmp_2
-     let TC' :=
-         { TC with
-           GLOBAL.CALLABLE := callableTypeDefEnv', }
-     pure TC')
-
-def «$add_typeDef_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.typeId)
-    (p2 : NanoP4Spec.typeDefIR) : Option NanoP4Spec.typingContext :=
-  (do
-     let TC := p0
-     let typeId := p1
-     let typeDefIR := p2
-     let typeDefEnv := TC.GLOBAL.TYPE
-     let tmp_0 ←
-         NanoP4Spec.«$dom_map»
-           (τK := NanoP4Spec.typeId)
-           (τV := NanoP4Spec.typeDefIR)
-           fuel
-           typeDefEnv
-     let tmp_1 ← NanoP4Spec.«$in_set» (τK := NanoP4Spec.typeId) fuel tmp_0 typeId
-     let _ ← Iter.check (!tmp_1)
-     let tmp_2 ←
-         NanoP4Spec.«$add_map»
-           (τK := NanoP4Spec.typeId)
-           (τV := NanoP4Spec.typeDefIR)
-           fuel
-           typeDefEnv
-           typeId
-           typeDefIR
-     let typeDefEnv' := tmp_2
-     let TC' :=
-         { TC with
-           GLOBAL.TYPE := typeDefEnv', }
-     pure TC')
-
-def «$find_var_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.scope)
-    (p1 : NanoP4Spec.typingContext)
-    (p2 : NanoP4Spec.id) : Option NanoP4Spec.varTypeIR :=
-  match fuel with
-    | 0 => none
-    | fuel + 1 =>
-      (do
-         let scope := p0
-         let TC := p1
-         let id := p2
-         let _ ← Iter.check (match scope with
-            | NanoP4Spec.scope.GLOBAL => true
-            | _ => false)
-         let typeFrame := TC.GLOBAL.FRAME
-         let tmp_0 ←
-             NanoP4Spec.«$find_map»
-               (τK := NanoP4Spec.id)
-               (τV := NanoP4Spec.varTypeIR)
-               fuel
-               typeFrame
-               id
-         let varTypeIR'? := tmp_0
-         let _ ← Iter.check (Option.isSome varTypeIR'?)
-         let some varTypeIR := varTypeIR'? | none
-         pure varTypeIR) <|>
-      ((do
-          let scope := p0
-          let TC := p1
-          let id := p2
-          let _ ← Iter.check (match scope with
-             | NanoP4Spec.scope.BLOCK => true
-             | _ => false)
-          let typeFrame := TC.BLOCK.FRAME
-          let tmp_1 ←
-              NanoP4Spec.«$find_map»
-                (τK := NanoP4Spec.id)
-                (τV := NanoP4Spec.varTypeIR)
-                fuel
-                typeFrame
-                id
-          let varTypeIR'? := tmp_1
-          let _ ← Iter.check (Option.isSome varTypeIR'?)
-          let some varTypeIR := varTypeIR'? | none
-          pure varTypeIR) <|>
-       ((do
-           let scope := p0
-           let TC := p1
-           let id := p2
-           let _ ← Iter.check (match scope with
-              | NanoP4Spec.scope.BLOCK => true
-              | _ => false)
-           let typeFrame := TC.BLOCK.FRAME
-           let tmp_2 ←
-               NanoP4Spec.«$find_map»
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.typingContext)
+        (p2 : NanoP4Spec.id)
+        (p3 : NanoP4Spec.varTypeIR)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have TC := p1
+        have id := p2
+        have varTypeIR := p3
+        let _ ← Eval.check (match scope with
+           | NanoP4Spec.scope.GLOBAL => true
+           | _ => false)
+        have typeFrame := TC.GLOBAL.FRAME
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR) typeFrame)
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.id) tmp_0 id)
+        let _ ← Eval.check (!tmp_1)
+        let tmp_2 ←
+            ExceptT.mk
+              (NanoP4Spec.«$add_map»
                  (τK := NanoP4Spec.id)
                  (τV := NanoP4Spec.varTypeIR)
-                 fuel
                  typeFrame
                  id
-           let _ ← Iter.check ((none : Option NanoP4Spec.varTypeIR) == tmp_2)
-           let tmp_3 ← NanoP4Spec.«$find_var_t» fuel NanoP4Spec.scope.GLOBAL TC id
-           pure tmp_3) <|>
-        ((do
-            let scope := p0
-            let TC := p1
-            let id := p2
-            let _ ← Iter.check (match scope with
-               | NanoP4Spec.scope.LOCAL => true
-               | _ => false)
-            let «typeFrame*» := TC.LOCAL.FRAMES
-            let tmp_4 ←
-                NanoP4Spec.«$find_maps»
+                 varTypeIR)
+        have typeFrame' := tmp_2
+        have TC' :=
+            { TC with
+              GLOBAL.FRAME := typeFrame', }
+        pure TC') <|>
+     ((do
+         have scope := p0
+         have TC := p1
+         have id := p2
+         have varTypeIR := p3
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.BLOCK => true
+            | _ => false)
+         have typeFrame := TC.BLOCK.FRAME
+         let tmp_3 ←
+             ExceptT.mk
+               (NanoP4Spec.«$dom_map» (τK := NanoP4Spec.id) (τV := NanoP4Spec.varTypeIR) typeFrame)
+         let tmp_4 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.id) tmp_3 id)
+         let _ ← Eval.check (!tmp_4)
+         let tmp_5 ←
+             ExceptT.mk
+               (NanoP4Spec.«$add_map»
                   (τK := NanoP4Spec.id)
                   (τV := NanoP4Spec.varTypeIR)
-                  fuel
-                  «typeFrame*»
+                  typeFrame
                   id
-            let varTypeIR'? := tmp_4
-            let _ ← Iter.check (Option.isSome varTypeIR'?)
-            let some varTypeIR := varTypeIR'? | none
-            pure varTypeIR) <|>
-         (do
-            let scope := p0
-            let TC := p1
-            let id := p2
-            let _ ← Iter.check (match scope with
-               | NanoP4Spec.scope.LOCAL => true
-               | _ => false)
-            let «typeFrame*» := TC.LOCAL.FRAMES
-            let tmp_5 ←
-                NanoP4Spec.«$find_maps»
+                  varTypeIR)
+         have typeFrame' := tmp_5
+         have TC' :=
+             { TC with
+               BLOCK.FRAME := typeFrame', }
+         pure TC') <|>
+      (do
+         have scope := p0
+         have TC := p1
+         have id := p2
+         have varTypeIR := p3
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.LOCAL => true
+            | _ => false)
+         have «typeFrame*» := TC.LOCAL.FRAMES
+         let _ ← Eval.check (!(List.isEmpty «typeFrame*»))
+         let typeFrame_h :: «typeFrame_t*» := «typeFrame*» | throw Fail.err
+         let tmp_6 ←
+             ExceptT.mk
+               (NanoP4Spec.«$dom_map»
                   (τK := NanoP4Spec.id)
                   (τV := NanoP4Spec.varTypeIR)
-                  fuel
-                  «typeFrame*»
+                  typeFrame_h)
+         let tmp_7 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.id) tmp_6 id)
+         let _ ← Eval.check (!tmp_7)
+         let tmp_8 ←
+             ExceptT.mk
+               (NanoP4Spec.«$add_map»
+                  (τK := NanoP4Spec.id)
+                  (τV := NanoP4Spec.varTypeIR)
+                  typeFrame_h
                   id
-            let _ ← Iter.check ((none : Option NanoP4Spec.varTypeIR) == tmp_5)
-            let tmp_6 ← NanoP4Spec.«$find_var_t» fuel NanoP4Spec.scope.BLOCK TC id
-            pure tmp_6))))
+                  varTypeIR)
+         have typeFrame_h' := tmp_8
+         have TC' :=
+             { TC with
+               LOCAL.FRAMES := typeFrame_h' :: «typeFrame_t*», }
+         pure TC')))
 
-def «$find_typeDef_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.typeId) : Option NanoP4Spec.typeDefIR :=
-  (do
-     let TC := p0
-     let typeId := p1
-     let tmp_0 ←
-         NanoP4Spec.«$find_map»
-           (τK := NanoP4Spec.typeId)
-           (τV := NanoP4Spec.typeDefIR)
-           fuel
-           TC.GLOBAL.TYPE
-           typeId
-     let typeDefIR'? := tmp_0
-     let _ ← Iter.check (Option.isSome typeDefIR'?)
-     let some typeDefIR := typeDefIR'? | none
-     pure typeDefIR)
+def «$add_vars_t»
+        (p0 : NanoP4Spec.scope)
+        (p1 : NanoP4Spec.typingContext)
+        (p2 : List NanoP4Spec.id)
+        (p3 : List NanoP4Spec.varTypeIR)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have TC := p1
+        have «id*» := p2
+        have «varTypeIR*» := p3
+        let _ ← Eval.check (List.isEmpty «id*»)
+        let _ ← Eval.check (List.isEmpty «varTypeIR*»)
+        pure TC) <|>
+     (do
+        have scope := p0
+        have TC := p1
+        have «id*» := p2
+        have «varTypeIR*» := p3
+        let _ ← Eval.check (!(List.isEmpty «id*»))
+        let id_h :: «id_t*» := «id*» | throw Fail.err
+        let _ ← Eval.check (!(List.isEmpty «varTypeIR*»))
+        let varTypeIR_h :: «varTypeIR_t*» := «varTypeIR*» | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$add_var_t» scope TC id_h varTypeIR_h)
+        have TC' := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$add_vars_t» scope TC' «id_t*» «varTypeIR_t*»)
+        have TC'' := tmp_1
+        pure TC''))
+  partial_fixpoint
 
-def «$find_callableTypeDef_t»
-    (fuel : Nat)
-    (p0 : NanoP4Spec.typingContext)
-    (p1 : NanoP4Spec.callableId) : Option NanoP4Spec.callableTypeDef :=
-  (do
-     let TC := p0
-     let callableId := p1
-     let tmp_0 ←
-         NanoP4Spec.«$find_map»
-           (τK := NanoP4Spec.callableId)
-           (τV := NanoP4Spec.callableTypeDef)
-           fuel
-           TC.GLOBAL.CALLABLE
-           callableId
-     let callableTypeDef'? := tmp_0
-     let _ ← Iter.check (Option.isSome callableTypeDef'?)
-     let some callableTypeDef := callableTypeDef'? | none
-     pure callableTypeDef)
+def «$add_callableDef_t»
+        (p0 : NanoP4Spec.typingContext)
+        (p1 : NanoP4Spec.callableId)
+        (p2 : NanoP4Spec.callableTypeDef)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have callableId := p1
+       have callableTypeDef := p2
+       have callableTypeDefEnv := TC.GLOBAL.CALLABLE
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$dom_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableTypeDef)
+                callableTypeDefEnv)
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.callableId) tmp_0 callableId)
+       let _ ← Eval.check (!tmp_1)
+       let tmp_2 ←
+           ExceptT.mk
+             (NanoP4Spec.«$add_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableTypeDef)
+                callableTypeDefEnv
+                callableId
+                callableTypeDef)
+       have callableTypeDefEnv' := tmp_2
+       have TC' :=
+           { TC with
+             GLOBAL.CALLABLE := callableTypeDefEnv', }
+       pure TC')
 
-def «$typeIR_of_typeDefIR» (fuel : Nat) (p0 : NanoP4Spec.typeDefIR) : Option NanoP4Spec.typeIR :=
-  (do
-     let typeDefIR := p0
-     let _ ← Iter.check (NanoP4Spec.typeDefIR.is_dataTypeIR typeDefIR)
-     let tmp_0 ← NanoP4Spec.typeDefIR.of_dataTypeIR typeDefIR
-     let dataTypeIR := tmp_0
-     pure (NanoP4Spec.dataTypeIR.to_typeIR dataTypeIR)) <|>
-  (do
-     let typeDefIR := p0
-     let _ ← Iter.check (NanoP4Spec.typeDefIR.is_objectTypeDefIR typeDefIR)
-     let tmp_1 ← NanoP4Spec.typeDefIR.of_objectTypeDefIR typeDefIR
-     let objectTypeDefIR := tmp_1
-     pure (NanoP4Spec.objectTypeDefIR.to_typeIR objectTypeDefIR))
+def «$add_typeDef_t»
+        (p0 : NanoP4Spec.typingContext)
+        (p1 : NanoP4Spec.typeId)
+        (p2 : NanoP4Spec.typeDefIR)
+    : Option (Except Fail NanoP4Spec.typingContext) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have typeId := p1
+       have typeDefIR := p2
+       have typeDefEnv := TC.GLOBAL.TYPE
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$dom_map»
+                (τK := NanoP4Spec.typeId)
+                (τV := NanoP4Spec.typeDefIR)
+                typeDefEnv)
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$in_set» (τK := NanoP4Spec.typeId) tmp_0 typeId)
+       let _ ← Eval.check (!tmp_1)
+       let tmp_2 ←
+           ExceptT.mk
+             (NanoP4Spec.«$add_map»
+                (τK := NanoP4Spec.typeId)
+                (τV := NanoP4Spec.typeDefIR)
+                typeDefEnv
+                typeId
+                typeDefIR)
+       have typeDefEnv' := tmp_2
+       have TC' :=
+           { TC with
+             GLOBAL.TYPE := typeDefEnv', }
+       pure TC')
+
+def «$find_var_t» (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.typingContext) (p2 : NanoP4Spec.id)
+    : Option (Except Fail NanoP4Spec.varTypeIR) :=
+  ExceptT.run
+    ((do
+        have scope := p0
+        have TC := p1
+        have id := p2
+        let _ ← Eval.check (match scope with
+           | NanoP4Spec.scope.GLOBAL => true
+           | _ => false)
+        have typeFrame := TC.GLOBAL.FRAME
+        let tmp_0 ←
+            ExceptT.mk
+              (NanoP4Spec.«$find_map»
+                 (τK := NanoP4Spec.id)
+                 (τV := NanoP4Spec.varTypeIR)
+                 typeFrame
+                 id)
+        have varTypeIR'? := tmp_0
+        let _ ← Eval.check (Option.isSome varTypeIR'?)
+        let some varTypeIR := varTypeIR'? | throw Fail.err
+        pure varTypeIR) <|>
+     ((do
+         have scope := p0
+         have TC := p1
+         have id := p2
+         let _ ← Eval.check (match scope with
+            | NanoP4Spec.scope.BLOCK => true
+            | _ => false)
+         have typeFrame := TC.BLOCK.FRAME
+         let tmp_1 ←
+             ExceptT.mk
+               (NanoP4Spec.«$find_map»
+                  (τK := NanoP4Spec.id)
+                  (τV := NanoP4Spec.varTypeIR)
+                  typeFrame
+                  id)
+         have varTypeIR'? := tmp_1
+         let _ ← Eval.check (Option.isSome varTypeIR'?)
+         let some varTypeIR := varTypeIR'? | throw Fail.err
+         pure varTypeIR) <|>
+      ((do
+          have scope := p0
+          have TC := p1
+          have id := p2
+          let _ ← Eval.check (match scope with
+             | NanoP4Spec.scope.BLOCK => true
+             | _ => false)
+          have typeFrame := TC.BLOCK.FRAME
+          let tmp_2 ←
+              ExceptT.mk
+                (NanoP4Spec.«$find_map»
+                   (τK := NanoP4Spec.id)
+                   (τV := NanoP4Spec.varTypeIR)
+                   typeFrame
+                   id)
+          let _ ← Eval.check ((none : Option NanoP4Spec.varTypeIR) == tmp_2)
+          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$find_var_t» NanoP4Spec.scope.GLOBAL TC id)
+          pure tmp_3) <|>
+       ((do
+           have scope := p0
+           have TC := p1
+           have id := p2
+           let _ ← Eval.check (match scope with
+              | NanoP4Spec.scope.LOCAL => true
+              | _ => false)
+           have «typeFrame*» := TC.LOCAL.FRAMES
+           let tmp_4 ←
+               ExceptT.mk
+                 (NanoP4Spec.«$find_maps»
+                    (τK := NanoP4Spec.id)
+                    (τV := NanoP4Spec.varTypeIR)
+                    «typeFrame*»
+                    id)
+           have varTypeIR'? := tmp_4
+           let _ ← Eval.check (Option.isSome varTypeIR'?)
+           let some varTypeIR := varTypeIR'? | throw Fail.err
+           pure varTypeIR) <|>
+        (do
+           have scope := p0
+           have TC := p1
+           have id := p2
+           let _ ← Eval.check (match scope with
+              | NanoP4Spec.scope.LOCAL => true
+              | _ => false)
+           have «typeFrame*» := TC.LOCAL.FRAMES
+           let tmp_5 ←
+               ExceptT.mk
+                 (NanoP4Spec.«$find_maps»
+                    (τK := NanoP4Spec.id)
+                    (τV := NanoP4Spec.varTypeIR)
+                    «typeFrame*»
+                    id)
+           let _ ← Eval.check ((none : Option NanoP4Spec.varTypeIR) == tmp_5)
+           let tmp_6 ← ExceptT.mk (NanoP4Spec.«$find_var_t» NanoP4Spec.scope.BLOCK TC id)
+           pure tmp_6)))))
+  partial_fixpoint
+
+def «$find_typeDef_t» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.typeId)
+    : Option (Except Fail NanoP4Spec.typeDefIR) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have typeId := p1
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$find_map»
+                (τK := NanoP4Spec.typeId)
+                (τV := NanoP4Spec.typeDefIR)
+                TC.GLOBAL.TYPE
+                typeId)
+       have typeDefIR'? := tmp_0
+       let _ ← Eval.check (Option.isSome typeDefIR'?)
+       let some typeDefIR := typeDefIR'? | throw Fail.err
+       pure typeDefIR)
+
+def «$find_callableTypeDef_t» (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.callableId)
+    : Option (Except Fail NanoP4Spec.callableTypeDef) :=
+  ExceptT.run
+    (do
+       have TC := p0
+       have callableId := p1
+       let tmp_0 ←
+           ExceptT.mk
+             (NanoP4Spec.«$find_map»
+                (τK := NanoP4Spec.callableId)
+                (τV := NanoP4Spec.callableTypeDef)
+                TC.GLOBAL.CALLABLE
+                callableId)
+       have callableTypeDef'? := tmp_0
+       let _ ← Eval.check (Option.isSome callableTypeDef'?)
+       let some callableTypeDef := callableTypeDef'? | throw Fail.err
+       pure callableTypeDef)
+
+def «$typeIR_of_typeDefIR» (p0 : NanoP4Spec.typeDefIR) : Option (Except Fail NanoP4Spec.typeIR) :=
+  ExceptT.run
+    ((do
+        have typeDefIR := p0
+        let _ ← Eval.check (NanoP4Spec.typeDefIR.is_dataTypeIR typeDefIR)
+        let tmp_0 ← Eval.err? (NanoP4Spec.typeDefIR.of_dataTypeIR typeDefIR)
+        have dataTypeIR := tmp_0
+        pure (NanoP4Spec.dataTypeIR.to_typeIR dataTypeIR)) <|>
+     (do
+        have typeDefIR := p0
+        let _ ← Eval.check (NanoP4Spec.typeDefIR.is_objectTypeDefIR typeDefIR)
+        let tmp_1 ← Eval.err? (NanoP4Spec.typeDefIR.of_objectTypeDefIR typeDefIR)
+        have objectTypeDefIR := tmp_1
+        pure (NanoP4Spec.objectTypeDefIR.to_typeIR objectTypeDefIR)))
 
 end NanoP4Spec

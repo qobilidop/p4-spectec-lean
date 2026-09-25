@@ -113,10 +113,11 @@ def typeId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeId
 
 instance : OfValue NanoP4Spec.typeId := ⟨NanoP4Spec.typeId.ofValue⟩
 
-def «$id» (fuel : Nat) (p0 : NanoP4Spec.name) : Option String :=
-  (do
-     let name := p0
-     let tmp_0 ← NanoP4Spec.«$print_» (τX := NanoP4Spec.name) fuel name
-     pure tmp_0)
+def «$id» (p0 : NanoP4Spec.name) : Option (Except Fail String) :=
+  ExceptT.run
+    (do
+       have name := p0
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$print_» (τX := NanoP4Spec.name) name)
+       pure tmp_0)
 
 end NanoP4Spec
