@@ -1,0 +1,3949 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "cases": [
+    {
+      "name": "next-numbered",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "SeqE",
+                              [
+                                {
+                                  "it": [
+                                    "HoleE",
+                                    [
+                                      "Next"
+                                    ]
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                },
+                                {
+                                  "it": [
+                                    "HoleE",
+                                    [
+                                      "Num",
+                                      1
+                                    ]
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                },
+                                {
+                                  "it": [
+                                    "HoleE",
+                                    [
+                                      "Next"
+                                    ]
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                },
+                                {
+                                  "it": [
+                                    "HoleE",
+                                    [
+                                      "Num",
+                                      0
+                                    ]
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                }
+                              ]
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 1,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 0,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 2,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "A B B A"
+    },
+    {
+      "name": "fuse",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "FuseE",
+                              {
+                                "it": [
+                                  "HoleE",
+                                  [
+                                    "Next"
+                                  ]
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              },
+                              {
+                                "it": [
+                                  "FuseE",
+                                  {
+                                    "it": [
+                                      "TextE",
+                                      ""
+                                    ],
+                                    "note": null,
+                                    "at": {
+                                      "left": {
+                                        "file": "",
+                                        "line": 0,
+                                        "column": 0
+                                      },
+                                      "right": {
+                                        "file": "",
+                                        "line": 0,
+                                        "column": 0
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  },
+                                  {
+                                    "it": [
+                                      "HoleE",
+                                      [
+                                        "Num",
+                                        1
+                                      ]
+                                    ],
+                                    "note": null,
+                                    "at": {
+                                      "left": {
+                                        "file": "",
+                                        "line": 0,
+                                        "column": 0
+                                      },
+                                      "right": {
+                                        "file": "",
+                                        "line": 0,
+                                        "column": 0
+                                      }
+                                    }
+                                  }
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              }
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 7,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 6,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 8,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "AB"
+    },
+    {
+      "name": "seq-empty",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "SeqE",
+                              [
+                                {
+                                  "it": [
+                                    "HoleE",
+                                    [
+                                      "Next"
+                                    ]
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                },
+                                {
+                                  "it": [
+                                    "TextE",
+                                    ""
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                },
+                                {
+                                  "it": [
+                                    "HoleE",
+                                    [
+                                      "Next"
+                                    ]
+                                  ],
+                                  "note": null,
+                                  "at": {
+                                    "left": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    },
+                                    "right": {
+                                      "file": "",
+                                      "line": 0,
+                                      "column": 0
+                                    }
+                                  }
+                                }
+                              ]
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 13,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 12,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 14,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "A  B"
+    },
+    {
+      "name": "brack-empty-text",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "BrackE",
+                              {
+                                "it": [
+                                  "LBrace"
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              {
+                                "it": [
+                                  "TextE",
+                                  ""
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              {
+                                "it": [
+                                  "RBrace"
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              }
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 19,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 18,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 20,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "{ }"
+    },
+    {
+      "name": "brack-empty-atom",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "BrackE",
+                              {
+                                "it": [
+                                  "LBrace"
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              {
+                                "it": [
+                                  "AtomE",
+                                  {
+                                    "it": [
+                                      "Tag",
+                                      "silent"
+                                    ],
+                                    "note": null,
+                                    "at": {
+                                      "left": {
+                                        "file": "",
+                                        "line": 0,
+                                        "column": 0
+                                      },
+                                      "right": {
+                                        "file": "",
+                                        "line": 0,
+                                        "column": 0
+                                      }
+                                    }
+                                  }
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              {
+                                "it": [
+                                  "RBrace"
+                                ],
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              }
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 25,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 24,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 26,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "{  }"
+    },
+    {
+      "name": "type-alpha",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "TextE",
+                              "hinted"
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 50,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 49,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 51,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "hinted"
+    },
+    {
+      "name": "type-beta-default",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "TextE",
+                              "hinted"
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 47,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 46,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 48,
+          "typ": [
+            "VarT",
+            {
+              "it": "beta",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "wrap A B"
+    },
+    {
+      "name": "empty-table-default",
+      "spec": [],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "A"
+                  ],
+                  "note": {
+                    "vid": 44,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 197996951
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 43,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 45,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1413060669
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "wrap A B"
+    },
+    {
+      "name": "unused-unsupported-argument",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "TextE",
+                              "hinted"
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "StructV",
+                    []
+                  ],
+                  "note": {
+                    "vid": 33,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 0
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 41,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 42,
+          "typ": [
+            "VarT",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 1717606132
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "hinted"
+    },
+    {
+      "name": "nested-value-hint",
+      "spec": [
+        {
+          "it": [
+            "TypD",
+            {
+              "it": "alpha",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            [],
+            {
+              "it": [
+                "VariantT",
+                [
+                  [
+                    {
+                      "it": [
+                        "Seq",
+                        [
+                          [
+                            "Atom",
+                            {
+                              "it": [
+                                "Keyword",
+                                "WRAP"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ],
+                          [
+                            "Arg",
+                            {
+                              "it": [
+                                "TextT"
+                              ],
+                              "note": null,
+                              "at": {
+                                "left": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                },
+                                "right": {
+                                  "file": "",
+                                  "line": 0,
+                                  "column": 0
+                                }
+                              }
+                            }
+                          ]
+                        ]
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    {
+                      "it": [
+                        {
+                          "it": "alpha",
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        },
+                        []
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    [
+                      {
+                        "it": {
+                          "hintid": {
+                            "it": "print",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          "hintexp": {
+                            "it": [
+                              "TextE",
+                              "hinted"
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        },
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      }
+                    ]
+                  ]
+                ]
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "note": null,
+          "at": {
+            "left": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            },
+            "right": {
+              "file": "",
+              "line": 0,
+              "column": 0
+            }
+          }
+        }
+      ],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Seq",
+            [
+              [
+                "Atom",
+                {
+                  "it": [
+                    "Keyword",
+                    "WRAP"
+                  ],
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "CaseV",
+                    [
+                      "Seq",
+                      [
+                        [
+                          "Atom",
+                          {
+                            "it": [
+                              "Keyword",
+                              "WRAP"
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        ],
+                        [
+                          "Arg",
+                          {
+                            "it": [
+                              "TextV",
+                              "A"
+                            ],
+                            "note": {
+                              "vid": 38,
+                              "typ": [
+                                "TextT"
+                              ],
+                              "vhash": 197996951
+                            },
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        ],
+                        [
+                          "Arg",
+                          {
+                            "it": [
+                              "TextV",
+                              "B"
+                            ],
+                            "note": {
+                              "vid": 37,
+                              "typ": [
+                                "TextT"
+                              ],
+                              "vhash": 306990974
+                            },
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          }
+                        ]
+                      ]
+                    ]
+                  ],
+                  "note": {
+                    "vid": 39,
+                    "typ": [
+                      "VarT",
+                      {
+                        "it": "alpha",
+                        "note": null,
+                        "at": {
+                          "left": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          },
+                          "right": {
+                            "file": "",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      },
+                      []
+                    ],
+                    "vhash": 1413060669
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ],
+              [
+                "Arg",
+                {
+                  "it": [
+                    "TextV",
+                    "B"
+                  ],
+                  "note": {
+                    "vid": 36,
+                    "typ": [
+                      "TextT"
+                    ],
+                    "vhash": 306990974
+                  },
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ],
+        "note": {
+          "vid": 40,
+          "typ": [
+            "VarT",
+            {
+              "it": "beta",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 425330263
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "wrap hinted B"
+    },
+    {
+      "name": "unicode-text",
+      "spec": [],
+      "value": {
+        "it": [
+          "TextV",
+          "éΩ\n"
+        ],
+        "note": {
+          "vid": 35,
+          "typ": [
+            "TextT"
+          ],
+          "vhash": 531909006
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "\\195\\169\\206\\169\\n"
+    },
+    {
+      "name": "ascii-only-atom-case",
+      "spec": [],
+      "value": {
+        "it": [
+          "CaseV",
+          [
+            "Atom",
+            {
+              "it": [
+                "Keyword",
+                "MIXÉΩ"
+              ],
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            }
+          ]
+        ],
+        "note": {
+          "vid": 34,
+          "typ": [
+            "VarT",
+            {
+              "it": "unicode",
+              "note": null,
+              "at": {
+                "left": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                },
+                "right": {
+                  "file": "",
+                  "line": 0,
+                  "column": 0
+                }
+              }
+            },
+            []
+          ],
+          "vhash": 837267972
+        },
+        "at": {
+          "left": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          },
+          "right": {
+            "file": "",
+            "line": 0,
+            "column": 0
+          }
+        }
+      },
+      "output": "mixÉΩ"
+    }
+  ]
+}

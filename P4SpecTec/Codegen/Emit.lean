@@ -3,6 +3,7 @@ import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Validate
 import P4SpecTec.Codegen.Graph
+import P4SpecTec.Codegen.PrintHints
 
 /-!
 The plan and the modules: definitions are grouped into recursion groups
@@ -118,8 +119,7 @@ def typesOfDef (d : Lang.Al.def) : List String :=
   let body := (expsOfDef d).flatMap fun e => Env.typeRefs e.note ++ castTypes e
   sig ++ body
 
-/-- The `print` hints of a definition: not supported yet, so their presence
-fails generation loudly rather than printing values the wrong way. -/
+/-- The `print` hints of a definition, for the capability census. -/
 def printHints (d : Lang.Al.def) : List String :=
   let hintsOf (hs : List Lang.Il.hint) : List String :=
     hs.filterMap fun h =>
@@ -136,9 +136,8 @@ def printHints (d : Lang.Al.def) : List String :=
 /-- Generate the plan for a spec. -/
 def plan (env : Env) (spec : Lang.Al.spec) :
     Except String (List Unit × List String × RefPlan) := do
-  let withPrint := spec.flatMap printHints
-  if !withPrint.isEmpty then
-    throw s!"print hints are not supported yet (design 5.4); found on {withPrint}"
+  let printEnv ← P4.Unparse.hints_of_spec_al spec
+  PrintHints.validate env spec printEnv
   let files := (spec.map Env.fileOf).eraseDups
   let fileIdx (f : String) : Nat := (files.idxOf? f).getD 0
   -- Spec namespaces overlap: Nano-P4 has a type `id` and a function `$id`.
@@ -169,6 +168,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     | none => []
   let typeGroups := Graph.sccs typeIds typeDeps
   let mut units : List Unit := []
+  if !printEnv.isEmpty then
+    units := [{ id := "H:print", file := 0, decls := ← PrintHints.tableDecl printEnv }]
   let mut unitOfType : Std.HashMap String Nat := {}   -- type id → unit index
   let mut typeUnitFile : Std.HashMap String Nat := {}
   for group in typeGroups do

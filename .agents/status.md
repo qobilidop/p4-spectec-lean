@@ -22,9 +22,12 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B stage
+## Active M3B print-hint stage
 
-- Branch `m3b-subtype-bridges`, based on PR #5 head `038a502`.
+- Branch `m3b-print-hints`, based on subtype PR #6 head `b458a61`.
+- PR #5 passed remote CI and merged as `4df4954`. PR #6 is now based
+  on `main`, independently reviewed and locally green; remote CI is
+  pending. Preserve its meaningful implementation/workflow commits.
 - Preserve full subtype applications through collection, bridge naming,
   signatures and placement. Two independent read-only audits found all
   thirteen failures are erased `continueResult<X>` arguments, not a need
@@ -39,14 +42,32 @@ correctness requirements or destructive published-history changes.
   read-only review found no high/medium findings; report is
   `.agents/reviews/m3b-subtypes.md`. GPT-6 Sol authored focused tests;
   GPT-6 Astra handled implementation and independent semantics audits.
-- PR #5 CI run `36182784164` was still in progress at the latest check;
-  its final revision must pass before merging.
-- Next after subtype bridges: print-hint semantics. Selection depends on
-  runtime type notes, which generated casts do not preserve. Independent
-  audit found identical print policies across all 567 bridge pairs at
-  this pin; constructor/alias provenance still needs checking. Turn
-  compatibility into a checked invariant, not an assumption. Do not
-  simply remove the print-hint rejection.
+- Print-hint implementation is integrated: structural alternation port,
+  strict JSON decoder, note-aware printer, literal generated tables,
+  policy-compatibility checks, and spec-configured interpreter printing.
+  All 190 hints validate. All 2,120 case origins and 567 subtype pairs
+  preserve policies; actual variant/case notes are checked on CaseE nodes.
+  The full table elaborated and matched decoded policies independently.
+- Twelve fixtures observed directly from pinned upstream cover printer
+  behavior, including unused unprintable arguments and Unicode. The
+  first run exposed byte-escaping and ASCII-lowercasing bugs; fixed.
+  Printer, builtin and interpreter outputs are now checked. The fixture
+  revision must match upstream HEAD; selected printer failures must be
+  `Fail.err`. Review findings are fixed, report in
+  `.agents/reviews/m3b-print-hints.md`.
+- The new full local gate passed (exit 0, no skipped gates), including
+  the rebuilt proofs, 78 verdicts/48 outputs on both differential legs,
+  342 quotations, twelve printer observations and the full-P4 census.
+  An earlier run's shell exited 2 after its script was edited while
+  running; the stable script passed `bash -n` and a fresh complete run.
+  Generated Nano changes only its print builtin wrapper, now using
+  checked printing and hard errors. The unchanged full export gets past
+  print hints and rejects indexed path updates (expected probe exit 1).
+- Next: six indexed updates at this pin, two text and four list updates.
+  Preserve base/replacement/index evaluation order and upstream bounds.
+  Stateful fresh IDs follow; investigate effects/backtracking before
+  choosing a representation. Hinted-print refinement remains outside
+  the current note-erasing relation's claims.
 
 ## M3A checkpoint
 
@@ -175,8 +196,9 @@ completion gates: they remain blocked on the measured M3B–M3F work.
 - Path updates with indexing (`e[p[i] = v]`) are rejected by codegen;
   Nano-P4 has none. Needed for M3.
 - `fresh_typeId` (a stateful builtin) has no port; not used by Nano-P4.
-- `print` hints are rejected by codegen (Nano-P4 has none); hint-driven
-  printing is needed for the full spec at M3. The AL's `subcheck` is not
+- `print` hints are supported under checked policy compatibility; a
+  hinted-print refinement theorem still needs a stronger value/environment
+  contract. The AL's `subcheck` is not
   consulted for subtype checks: codegen asserts that a shared case has the
   same argument types on both sides and fails otherwise.
 - The M1 review (in git history, `.agents/reviews/m1-nano-p4.md`, deleted by `bfecb2e`; read it at `bfecb2e^`, before

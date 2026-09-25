@@ -124,6 +124,19 @@ settles is not repeated here.
 
 ## Generated code
 
+- **Print with validated type-and-mixop policies, not a changed value
+  representation.** All 190 hints decode; all 2,120 variant origins and
+  567 bridge pairs preserve policy selection at the pin. Enforce these
+  conditions, plus actual variant/case constructor notes, during codegen.
+  Emit literal hint data and configure the interpreter from the source
+  spec. Reject unsupported forms, bounds errors and incompatible policy
+  changes. Reason: the runtime note selects the hint, but a static type
+  note is observationally sufficient under the checked invariant; a
+  mixop-only global table would conflate unrelated families. No change
+  to `Rel` or refinement coverage is implied: arbitrary decoded notes and
+  the printer-table contract still need M3C/M3E evidence. Confidence:
+  high for the checked pinned scope; revisit if a new export violates
+  policy compatibility. (2026-09-25)
 - **Specialize variant bridges by full type applications.** The thirteen
   full-P4 `continueResult` failures were erased arguments, not different
   payload semantics. Match upstream `runtime/type/sub.ml`: instantiate

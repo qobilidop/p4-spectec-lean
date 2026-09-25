@@ -169,11 +169,16 @@ def census (spec : Lang.Al.spec) : Json := Id.run do
   let fileCounts := files.map fun f => Json.mkObj [
     ("file", toJson f), ("definitions", toJson (spec.filter (Env.fileOf · == f)).length)]
   let counts := kinds.map fun k => (k, toJson (spec.filter (fun d => kind d.it == k)).length)
+  let printTable := do
+    let hints ← P4.Unparse.hints_of_spec_al spec
+    PrintHints.validate env spec hints
+    PrintHints.tableDecl hints
   return Json.mkObj [
     ("scope", toJson
       "Emission probes and syntactic estimates only; no full-P4 Lean build or proofs"),
     ("definitions", toJson spec.length), ("counts", Json.mkObj counts),
     ("files", toJson fileCounts), ("printHints", toJson printHints),
+    ("printHintTableEmission", probe printTable),
     ("typeGroups", toJson typeReports), ("callableGroups", toJson groupReports),
     ("callables", toJson reports), ("subtypeBridges", toJson bridges),
     ("refinementEligible", toJson covered),

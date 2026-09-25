@@ -7,6 +7,7 @@ import P4SpecTec.Codegen.Graph
 import P4SpecTec.Codegen.Keywords
 import P4SpecTec.Codegen.Names
 import P4SpecTec.Codegen.Props
+import P4SpecTec.Codegen.PrintHints
 import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Types
@@ -23,6 +24,8 @@ import P4SpecTec.Interface.Builtin.Sets
 import P4SpecTec.Interface.Builtin.Texts
 import P4SpecTec.Interface.P4.Unparse
 import P4SpecTec.Lang.Al.Ast
+import P4SpecTec.Lang.Hints.Alter
+import P4SpecTec.Lang.Hints.AlterJson
 import P4SpecTec.Interp.InterpAl.Backtrack
 import P4SpecTec.Interp.InterpAl.Ctx
 import P4SpecTec.Interp.InterpAl.Interp

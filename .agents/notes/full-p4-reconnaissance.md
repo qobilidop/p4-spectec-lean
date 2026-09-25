@@ -77,13 +77,13 @@ further. There are no function/relation raw-name collisions in this pin.
 
 ## Current generation barriers
 
-Running the ordinary generator on the unchanged export stops at print
-hints. Independently probing each callable and subtype bridge exposes
-the following additional failures without disabling that check:
+The ordinary generator on the unchanged export now accepts print hints
+after validating their syntax and policy compatibility, then stops at
+indexed path updates. Independent probes report:
 
 | Component | Result |
 |---|---|
-| Print hints | 190 occurrences on 67 type definitions |
+| Print hints | 190 occurrences on 67 types; all decode, validate and emit a literal table |
 | Executable callable emission | 1,051 of 1,055 emit text; 4 reject |
 | Inductive relation emission | 255 of 256 emit text; 1 rejects |
 | Subtype bridge emission | 567 of 567 instantiated pairs emit text (M3B; baseline 554) |
@@ -104,6 +104,18 @@ Genuine mismatches, missing cases and malformed applications still fail.
 The census records both heads and complete rendered application types.
 Compiled synthetic regression fixtures cover two specializations of one
 head pair; the full bridge set has only one specialization per head pair.
+
+The print-hint slice ports alternation and note-aware printing, emits the
+validated table as literal Lean data, and initializes the interpreter's
+print extension from the same AL spec. All 2,120 case origins and 567
+bridge pairs preserve optional hint policies; every CaseE must name an
+actual variant/case when hints are active. The entire 190-entry table was
+elaborated and compared with decoded policies. Twelve pinned upstream
+observations run through printer, builtin and interpreter on each gate.
+They exposed and fixed byte-escaping and ASCII-lowercasing discrepancies.
+This checks static note changes, not arbitrary external input notes or
+hinted-print refinement; `.agents/notes/print-hint-audit.md` details that
+boundary and oracle reproduction.
 
 These are **first-error diagnostics per independently probed component**.
 Successful emission does not establish that a declaration type-checks,
@@ -132,7 +144,7 @@ whether to unfold aliases.
 
 These counts are from successful individual emission probes, before
 module assembly. The two largest type groups have 20 and 16 members.
-The successful executable and `Prop` probes alone total 109,168 lines
+The successful executable and `Prop` probes alone total 109,169 lines
 (108,607 before specialized bridge names);
 this excludes types, value adapters, quotations and proofs. It is a
 partial text-volume measurement, not a final generated-library size.
@@ -196,8 +208,11 @@ compare until its generated library builds.
    byte-identical, the full-P4 quotation check passes, and per-module
    timing is recorded. The first slice preserves the thirteen
    `continueResult` specializations without relaxing payload invariance.
-   Next is hint-driven printing, including the runtime type-note
-   provenance that selects the hint policy.
+   The second slice supports hint-driven printing under checked policy
+   compatibility. Next are the six indexed updates at this pin: two text
+   replacements and four list replacements. No indexed prefix or slice
+   update appears in the current export; unsupported synthetic forms must
+   continue to fail explicitly until implemented.
 2. **M3C: full-P4 differential validation.** Extend program exports and
    both Lean runners to upstream's P4 frontend, typing and instantiation
    relations, using upstream's exclusions. Port `Type.Equiv` for function
@@ -232,3 +247,26 @@ compare until its generated library builds.
 This order makes rendering failures, interpreter disagreements, target
 work and theorem coverage independently measurable. M3A closes only the
 reconnaissance and quotation-check work; these later phases remain open.
+
+## Following the print-hint slice
+
+Read-only AL census: 152 updates, of which 146 use only root/dotted paths
+and six use `RootP/IdxP`. Two are text replacements in `$replace_text'`
+and `$replace_text_except'`; four replace list values in `Lvalue_write`.
+There are no slice updates or nested index prefixes at this pin.
+Upstream evaluates the base, replacement, then path expressions; indexed
+access checks bounds, and text replacement requires one byte. Existing
+`Iter.setIdx` covers list updates. Text helpers currently use Unicode
+characters where OCaml uses bytes; that must be considered explicitly,
+not concealed by ASCII-only fixtures. Synthetic unsupported paths should
+remain rejected until faithful general access/rebuild support exists.
+
+Fresh IDs need real effects, not a pure placeholder. Upstream's
+`Builtin.Call.Make` counter starts at zero per interface/process and
+returns `FRESH__<old counter>` before incrementing. Its reset function has
+no caller in the pinned library/binaries; ordinary interface initialization
+does not reset it. Failed sequential alternatives consume identifiers:
+backtracking does not roll the counter back. Any state encoding therefore
+must carry updated state even on `Fail.unmatch`; putting state inside a
+failure result that discards it would be wrong. Effect-interface design
+is still pending, with codegen/Prop/refinement consequences to audit.

@@ -146,7 +146,7 @@ def map.al : Lang.Al.def :=
 
 def «$print_» {τX : Type} [ToValue τX] [BEq τX] (p0 : τX) : Option (Except Fail String) :=
   ExceptT.run
-    (pure (P4.Unparse.print (ToValue.toValue p0)))
+    (Eval.err? (Except.toOption (P4.Unparse.printWithHints [] (ToValue.toValue p0))))
 
 def «$print_».al : Lang.Al.def :=
   Q.d (.BuiltinDecD (Q.i "print_") [Q.i "X"] [Q.pm (.ExpP (Q.t (Q.varT "X" [])))] (Q.t .TextT) [])

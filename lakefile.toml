@@ -69,3 +69,8 @@ root = "P4SpecTecTest.Quote.Main"
 [[lean_exe]]
 name = "p4spectec-census"
 root = "P4SpecTecTest.Census.Main"
+
+# Exact print-hint outputs observed from the pinned upstream printer.
+[[lean_exe]]
+name = "check-print"
+root = "P4SpecTecTest.Print.Main"
