@@ -440,6 +440,20 @@ settles is not repeated here.
 
 - **No git tags.** Compaction and archiving rely on git history alone;
   the user does not want tags. (2026-09-25)
-- **Small self-contained changes commit directly to `main`;
-  multi-commit or build-affecting work gets a branch.** Decided by
-  judgment per change, stated in one line when committing. (2026-09-24)
+- **PRs by default; direct-to-main only for trivial, non-behavioral
+  maintenance.** User approved tightening the earlier small-change
+  exception: small code changes can carry substantial risk. Code, proofs,
+  dependencies, exports, build/CI changes and substantive policy use PRs
+  with independent review and passing remote CI, in addition to the local
+  pre-push gate. Routine typos, formatting and status updates may go
+  directly to main. Autonomous completion does not require an additional
+  human approval unless repository protections require one. Reason: test
+  on Linux before landing and retain a coherent review record without
+  unnecessary ceremony for trivial maintenance. (2026-09-25)
+- **PR descriptions explain rationale, evidence and limitations.**
+  Adapted from GitHub's reviewer guidance and Google's engineering
+  practices at the user's request. The actionable policy and source
+  links live in `AGENTS.md`, not a second instruction file or a verbose
+  mandatory template. Reason: a PR must remain understandable without
+  agent chat history; review guidance should be proportional to risk.
+  (2026-09-25)

@@ -22,6 +22,14 @@ later phases; M3A measures their obligations.
 ## M3A checkpoint
 
 - Branch: `m3a-full-p4`, based on `384adea`.
+- Delivered in PR #5 at `b5448c9`; follow-up records the user-approved
+  PR-default policy and researched PR-writing guidance in `AGENTS.md`
+  and decisions. It changes no runtime code or repository protection
+  settings. Follow-up independent review passed (report:
+  `.agents/reviews/pr-workflow.md`); full local gate and whitespace check
+  passed, exit 0. PR #5's description is being updated with rationale,
+  approach, concrete validation, limitations and a short review order.
+  Remote CI must pass on the final PR revision before merging.
 - Confirmed only the expected four patched upstream OCaml files were dirty.
 - Read the resume documents, exporter, generator entry point, quotation
   emitter, fragment classifier and differential harness.
@@ -52,7 +60,7 @@ later phases; M3A measures their obligations.
   `.agents/reviews/`; all code findings fixed. Later storage and size-guard
   reviews passed. Documentation findings (remaining IL/AL contradictions)
   fixed; final documentation-placement review passed. Full gate after
-  relocation: exit 0. Ready for branch delivery; remote CI is not part
+  relocation: exit 0. Delivered in PR #5; remote CI is not part
   of this local evidence and must be checked before merging.
 - Next scoped work is M3B, not automatic completion of all M3: inspect
   the thirteen failing `continueResult` subtype bridges against AL

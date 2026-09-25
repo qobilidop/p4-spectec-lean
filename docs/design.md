@@ -697,8 +697,7 @@ Armv8 model in Coq at all. So:
   GitHub Pages site in three stages: none until M1; doc-gen4 API
   reference after M1; a Verso site with checked examples at M4.
 - **No license header per file.**
-- **Commits** follow Chris Beams' rules with a body that says why. Small
-  self-contained changes go directly to `main`.
+- **Contribution workflow and PR-writing policy** live in `AGENTS.md`.
 - **Independent read-only review after each step.**
 
 ## 9. Downstream use

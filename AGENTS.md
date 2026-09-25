@@ -172,14 +172,35 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 - **Commits**: Chris Beams' seven rules; imperative subject under 50
   characters; a body that says why, not what. One logical change per
   commit. Agent commits end with a `Co-Authored-By: <agent> <email>`
-  trailer. Small self-contained changes go directly to `main`;
-  multi-commit or build-affecting work gets a branch.
+  trailer. Use a branch and PR by default, even for small code changes.
+  Direct-to-`main` is reserved for trivial, non-behavioral maintenance
+  (typos, formatting, routine status updates), never changes to code,
+  proofs, dependencies, exports, build/CI behavior or substantive policy.
+  PRs need independent review and passing remote CI before merging;
+  the local full gate is still required before pushing. A separate human
+  approval is not required when autonomous completion was authorized;
+  all repository protection requirements still apply.
+- **PR descriptions are a durable explanation for reviewers.** Use a
+  specific, outcome-focused title. Lead with the problem and why the
+  change is needed; summarize the approach and consequential tradeoffs,
+  not a file-by-file changelog. Supply enough context to stand alone
+  without chat history; link supporting issues/designs rather than
+  making readers reconstruct the rationale from them. Record exact
+  validation commands and results, distinguishing local tests, remote
+  CI, and checks not run. State meaningful risks, compatibility changes
+  and scope limits. For complex diffs, give a short review order and
+  identify where judgment is needed. Scale the length to the change;
+  omit empty sections and boilerplate. Re-read the description against
+  the final diff before merging and update stale claims.
+  This follows [GitHub's review guidance](https://docs.github.com/en/pull-requests/concepts/helping-others-review-your-changes)
+  and [Google's change-description guidance](https://google.github.io/eng-practices/review/developer/cl-descriptions.html).
 - **Unfinished work is a pushed branch** with a work-in-progress commit
   saying what it holds and lacks, never an uncommitted worktree.
 - **A push is gated on the recorded exit status** of the full gate, never
   on a command that reads a log.
 - **Independent read-only review after each step**, filed under
-  `.agents/reviews/`, findings fixed on `main`.
+  `.agents/reviews/`; fix findings on the working branch before merging
+  to `main` (or before a permitted direct push).
 
 ## Checkpoints and compaction
 
