@@ -12,8 +12,9 @@
 # 6. Generated code is current: the keyword table matches the toolchain and
 #    the committed NanoP4Spec/ is byte-identical to what the generator
 #    writes from exports/nano-p4.al.json.
-# 7. Rung 2: the generated typing relation agrees with upstream's verdict on
-#    every exported Nano-P4 program (test/diff/run.py).
+# 7. Rung 2: the generated typing relation and the Lean port of the AL
+#    interpreter agree with upstream's verdict on every exported Nano-P4
+#    program (test/diff/run.py, both legs).
 # A missing lake is a failure, not a skip, unless P4SPECTEC_SKIP_LEAN=1 says
 # so explicitly.
 set -euo pipefail

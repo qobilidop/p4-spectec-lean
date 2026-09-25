@@ -54,7 +54,7 @@ instance {α β γ} [Inhabited α] [Inhabited β] [Inhabited γ] : Inhabited (in
   ⟨{ it := default, note := default, «at» := default }⟩
 
 /-- Mirrors `( $ )`: a phrase at a region. -/
-def mkPhrase {α : Type} (it : α) (region : region := no_region) : phrase α :=
+@[reducible] def mkPhrase {α : Type} (it : α) (region : region := no_region) : phrase α :=
   { it, note := (), «at» := region }
 
 end P4SpecTec.Util.Source

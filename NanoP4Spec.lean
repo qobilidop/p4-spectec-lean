@@ -27,6 +27,26 @@ import NanoP4Spec.«8.10-eval-control»
 import NanoP4Spec.«8.11-eval-table»
 import NanoP4Spec.«8.14-eval-convention»
 import NanoP4Spec.«9-nano-switch»
+import NanoP4Spec.Refinement.Spec
+import NanoP4Spec.Refinement.exists_
+import NanoP4Spec.Refinement.forall_
+import NanoP4Spec.Refinement.flatten_statementList
+import NanoP4Spec.Refinement.flatten_typeFieldList
+import NanoP4Spec.Refinement.flatten_externMethodPrototypeList
+import NanoP4Spec.Refinement.flatten_selectCaseList
+import NanoP4Spec.Refinement.flatten_parserLocalDeclarationList
+import NanoP4Spec.Refinement.flatten_tableEntryList
+import NanoP4Spec.Refinement.flatten_controlLocalDeclarationList
+import NanoP4Spec.Refinement.flatten_program
+import NanoP4Spec.Refinement.params_of_callableTypeDef
+import NanoP4Spec.Refinement.exit_t
+import NanoP4Spec.Refinement.split_dataplane_parameters
+import NanoP4Spec.Refinement.find_action_p
+import NanoP4Spec.Refinement.find_action
+import NanoP4Spec.Refinement.directionless_trailing_p
+import NanoP4Spec.Refinement.exit_e
+import NanoP4Spec.Refinement.update_fieldValue
+import NanoP4Spec.Refinement
 
 /-!
 # NanoP4Spec

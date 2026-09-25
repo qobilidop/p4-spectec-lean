@@ -2,13 +2,14 @@ import Lean.Data.Json.Printer
 import P4SpecTec.Lang.Il.Ast
 
 /-!
-Values at runtime: construction, comparison and equality. Mirrors
-`p4spec/lib/runtime/value/value.ml` (`Value.Make`, `Value.compare`,
-`Value.eq`), under upstream's module name `Runtime.Value` as the
-namespace, without the unique-id and hash shortcuts, which are
-performance devices (design section 5.3): comparison is structural.
-The hashing, mixop parsing and `Get` accessors of the OCaml are not
-needed by generated code and are not mirrored.
+Values at runtime: construction, accessors, comparison and equality.
+Mirrors `p4spec/lib/runtime/value/value.ml` (`Value.Make`, `Value.Get`,
+`Value.compare`, `Value.eq`), under upstream's module name
+`Runtime.Value` as the namespace, without the unique-id and hash
+shortcuts, which are performance devices (design section 5.3):
+comparison is structural. The hashing, the mixop parsing from strings and
+the `Get.mtch` tables of the OCaml are not mirrored; an accessor returns
+`none` where the OCaml raises.
 -/
 
 namespace P4SpecTec.Runtime.Value
@@ -37,6 +38,11 @@ def nat (n : Nat) : value := mk (.NumT .NatT) (.NumV (.Nat n))
 /-- Mirrors `Make.int`. -/
 def int (i : Int) : value := mk (.NumT .IntT) (.NumV (.Int i))
 
+/-- Mirrors `Make.num`. -/
+def num : Num.t → value
+  | .Nat n => nat n
+  | .Int i => int i
+
 /-- Mirrors `Make.text`. -/
 def text (s : String) : value := mk .TextT (.TextV s)
 
@@ -56,7 +62,50 @@ def opt (t : typ') (v : Option value) : value := mk t (.OptV v)
 /-- Mirrors `Make.list`. -/
 def list (t : typ') (vs : List value) : value := mk t (.ListV vs)
 
+/-- Mirrors `Make.func`: a function value noted with its type. -/
+def func (id : Lang.Il.id) (tparams : List tparam) (typs_params : List typ) (typ : typ) : value :=
+  mk (.FuncT tparams typs_params typ) (.FuncV id)
+
+/-- Mirrors `Make.extern`. -/
+def extern (t : typ') (json : Lean.Json) : value := mk t (.ExternV json)
+
 end Make
+
+/-! Mirrors `Value.Get`: the accessors, `none` where the OCaml raises. -/
+namespace Get
+
+/-- Mirrors `Get.bool`. -/
+def bool (v : value) : Option Bool := match v.it with | .BoolV b => some b | _ => none
+
+/-- Mirrors `Get.num`. -/
+def num (v : value) : Option Num.t := match v.it with | .NumV n => some n | _ => none
+
+/-- Mirrors `Get.text`. -/
+def text (v : value) : Option String := match v.it with | .TextV s => some s | _ => none
+
+/-- Mirrors `Get.str`. -/
+def str (v : value) : Option (List valuefield) :=
+  match v.it with | .StructV fs => some fs | _ => none
+
+/-- Mirrors `Get.case`. -/
+def case (v : value) : Option valuecase := match v.it with | .CaseV c => some c | _ => none
+
+/-- Mirrors `Get.tuple`. -/
+def tuple (v : value) : Option (List value) := match v.it with | .TupleV vs => some vs | _ => none
+
+/-- Mirrors `Get.opt`. -/
+def opt (v : value) : Option (Option value) := match v.it with | .OptV o => some o | _ => none
+
+/-- Mirrors `Get.list`. -/
+def list (v : value) : Option (List value) := match v.it with | .ListV vs => some vs | _ => none
+
+/-- Mirrors `Get.func`. -/
+def func (v : value) : Option Lang.Il.id := match v.it with | .FuncV i => some i | _ => none
+
+/-- Mirrors `Get.extern`. -/
+def extern (v : value) : Option Lean.Json := match v.it with | .ExternV j => some j | _ => none
+
+end Get
 
 /-- The tag of a value constructor, in declaration order, for `compare`. -/
 def tag : value' → Nat

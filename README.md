@@ -4,10 +4,14 @@ A compiler from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)'s
 IL to Lean 4, validated per definition against a Lean formalization of the
 IL, plus a small P4 primitives library.
 
-Status: milestone M1 done. The Nano-P4 specification (34 files, 161
-types, 76 functions, 77 relations) is rendered into Lean as executable
-definitions that kernel-check and agree with upstream's interpreter on
-all 78 programs of upstream's Nano-P4 corpus. The design is
+Status: milestone M1 done, M2 in progress. The Nano-P4 specification
+(34 files, 161 types, 76 functions, 77 relations) is rendered into Lean
+as executable definitions (`partial_fixpoint`, no fuel) that
+kernel-check and agree with upstream's interpreter on all 78 programs of
+upstream's Nano-P4 corpus, and as inductive relations with a generated,
+machine-checked soundness theorem for every one of the 77 relations. The
+AL interpreter is ported to Lean, file by file, and agrees with upstream
+on the same corpus. The design is
 [`docs/design.md`](docs/design.md); the entry point for working here is
 [`AGENTS.md`](AGENTS.md).
 
@@ -15,7 +19,7 @@ all 78 programs of upstream's Nano-P4 corpus. The design is
 
 | Path | What |
 |---|---|
-| `P4SpecTec/` | core library: the IL and AL deep embeddings, the prelude and mirrored runtime, the code generator (the IL semantics and validation tactic arrive at M2) |
+| `P4SpecTec/` | core library: the IL and AL deep embeddings, the prelude and mirrored runtime, the AL interpreter port, the code generator, the proof tactics |
 | `P4SpecTecTest/` | test-only modules for the core library |
 | `P4Lib/` | P4 primitives for downstream users; independent of the generated specs |
 | `NanoP4Spec/` | the pilot specification, generated from `exports/nano-p4.al.json` |

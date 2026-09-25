@@ -99,10 +99,18 @@ def patApp (head : String) (args : List String) : Format :=
   Format.group (Format.nest 4 (Format.text head ++
     Format.join (args.map fun a => Format.line ++ Format.text a)))
 
-/-- A `let pat := v` statement, optionally with `| none`, breaking after `:=`. -/
-def letStmt (pat : Format) (v : Term) (refutable : Bool := false) : Format :=
+/-- A `let pat := v` statement, with `| alt` when the pattern is refutable,
+breaking after `:=`. -/
+def letStmt (pat : Format) (v : Term) (alt : Option String := none) : Format :=
   Format.group (Format.nest 4 (Format.text "let " ++ pat ++ " :=" ++ Format.line ++ v.fmt ++
-    (if refutable then Format.text " | none" else Format.nil)))
+    (match alt with | some a => Format.text (" | " ++ a) | none => Format.nil)))
+
+/-- A `have x := v` statement: a pure binding of a variable. `have`, not
+`let`, because the monotonicity tactic of `partial_fixpoint` cannot
+eliminate a match on a `let`-bound variable, and a `have` is a beta-redex
+the proofs reduce. -/
+def haveStmt (x : String) (v : Term) : Format :=
+  Format.group (Format.nest 4 (Format.text s!"have {x} :=" ++ Format.line ++ v.fmt))
 
 /-- A `let x ← m` statement, breaking after `←`. -/
 def bindStmt (x : String) (m : Term) : Format :=
@@ -111,6 +119,12 @@ def bindStmt (x : String) (m : Term) : Format :=
 /-- A function type `A → B → C`, breaking after arrows. -/
 def arrows (ts : List Format) : Format :=
   Format.group (Format.nest 2 (Format.joinSep ts (Format.text " →" ++ Format.line)))
+
+/-- A declaration head `def name binders : T :=`; the result type moves to
+its own line when the head does not fit. -/
+def sig (name : String) (binders : Format) (ret : Format) : Format :=
+  Format.group (Format.nest 4 (Format.text s!"def {name}" ++ binders ++ Format.line ++ ": " ++
+    ret ++ " :="))
 
 /-- A declaration head `def name binders : T :=` and its body on a new
 line when the body does not fit. -/

@@ -172,19 +172,41 @@ Decisions:
   IDE responsive, makes every codegen change a reviewable diff, and
   keeps generated files mirroring their sources. Every prior art emits
   text; Wasm's monolithic outputs are the scale warning.
-- **Recursion strategy.** M1 threads an explicit `fuel : Nat` through
-  every generated function and run function, uniformly; a recursive group
-  consumes one unit per call. The intended order, structural recursion
-  where the spec is structural, then `partial_fixpoint` for mutually
-  recursive `Option` functions (unfolding equations and the
-  `partial_correctness` induction principle), then fuel, is decided at M2
-  with the failure/divergence split that makes the executable
-  encoding's `<|>` monotone. Never `partial`.
-- **Relations are emitted in both encodings** from one pass: an
-  inductive `Prop` with one constructor per rule for proofs (from M2), and
-  an executable `Option`-returning function `R.run` from the inputs the
-  hint names to the outputs (M1), linked by a generated theorem
-  `R.run i = some o → R i o` (M2).
+- **Recursion strategy (M2).** Every generated definition is written in
+  the monad `Eval := ExceptT Fail Option` (`Prelude/Eval.lean`): failure
+  is data (`Fail.err`, `Fail.unmatch`, upstream's `Err` and `Unmatch`),
+  divergence is `none`, and sequential choice `Eval.orElse` retries only
+  on `unmatch`, as upstream's `choose_sequential` does, which makes it
+  monotone. A recursive group is defined by `partial_fixpoint`, which
+  yields unfolding equations and the `partial_correctness` induction
+  principle the soundness proofs use; for that principle a definition's
+  type is `Option (Except Fail T)` and its body `ExceptT.run` of the
+  `do` block, with calls lifted by `ExceptT.mk`. Non-recursive
+  definitions are plain `def`s. Structural recursion is not used even
+  where it would work, so every group has the same proof principle. M1
+  used explicit fuel; no fuel remains. Never `partial`.
+- **Relations are emitted in both encodings** from one compilation of
+  the rule paths: the executable function `R.run` from the inputs the
+  hint names to the outputs (M1), and an inductive `R : args → Prop` in
+  notation order with one constructor per rule path (M2). The
+  constructor's implicit arguments are the variables the path binds; its
+  hypotheses are the path's statements in the same A-normal form as the
+  run function (a hoisted call is `f args = some (.ok x)`, an `if` is
+  `e = true`, a rule premise is the relation applied, an iterated premise
+  is a pointwise fact along the zip of its lists); pure bindings and
+  pattern matches are substituted. Each relation gets the theorem
+  `R.run_sound : R.run i = some (.ok o) → R i o`, proved by the generic
+  tactic `run_sound` (`P4SpecTec/Tactic/RunSound.lean`): a symbolic
+  execution of the run function with the `Eval.run_*` lemmas, the
+  induction hypotheses of `partial_correctness` for the group's members,
+  the earlier `run_sound` theorems for other relations, and the
+  constructor of the rule path taken. A recursive group's theorem comes
+  from Lean's `mutual_partial_correctness` through `run_sound_group`,
+  which matches the principle's conjuncts to the generated statement by
+  their function, since Lean orders the members of a group in its own
+  way. Every generated theorem is followed by `#audit_axioms`
+  (`P4SpecTec/Tactic/Audit.lean`), which fails on any axiom outside
+  `propext`, `Classical.choice` and `Quot.sound`.
 - **Externs and builtins become fields of a generated class.** Target
   instances are ports of upstream's OCaml target code. Every extern call
   in generated code goes through this one interface, so a free-monad
@@ -227,9 +249,10 @@ Four rungs. We build rungs 1 to 3. Rung 4 is deliberately out of scope.
    cannot pass silently.
 2. **Differential testing.** Run the generated executable relations and
    upstream's interpreter on the same corpus; compare typing verdicts,
-   IR, instantiation results, and output packets. Also run the Lean IL
-   interpreter itself (on the deep terms) against upstream's on a subset,
-   which directly tests the semantics port. Ported builtins get generated
+   IR, instantiation results, and output packets. Also run the Lean AL
+   interpreter itself on the deep terms against upstream's (the second
+   leg, `nano-p4-interp`, on the whole Nano-P4 corpus), which directly
+   tests the semantics port. Ported builtins get generated
    unit-test obligations from upstream's test outputs. Mutation checks on
    both sides: mutate codegen and require rung 3 to fail; mutate the
    semantics port and require rung 2 to catch it.
@@ -256,36 +279,86 @@ The theorem is not `⟦⌜d⌝⟧ = d`. The interpreter works on untyped IL
 values and backtracks; the shallow definition is typed and total. Every
 precedent (CakeML's proof-producing translator, Cogent's certifying
 compiler, certifying extraction for Coq) states a type-indexed
-refinement relation and discharges it syntax-directedly. So:
+refinement relation and discharges it syntax-directedly. As built (M2,
+`Refine/`, `Codegen/Validate.lean`, `Tactic/Refine.lean`):
 
-- Codegen generates, per IL type `τ`, a relation
-  `R τ : IL.Value → ⟦τ⟧ → Prop` between IL values and values of the
-  generated Lean type, mirroring CakeML's `INT`, `LIST_TYPE`, `PAIR_TYPE`.
-  IL is first-order, so no function-typed invariants are needed, which
-  removes the hardest part of CakeML's translator.
-- For a function `f : τ₁ → … → τₙ → τ`:
-  `Forall₂ R vs xs → interp ⌜f⌝ vs = some r → ∃ x, R τ r x ∧ f xs = some x`.
-  Completeness, the other direction, is a second phase and is stated only
-  where determinism is proved.
-- For a relation, the same statement against the inductive `Prop`
-  version, and separately `R.run i = some o → R i o` via
-  `partial_correctness`; both share the value relation.
-- The tactic is a fixed library: one lemma per IL expression and premise
-  form (`interp_var`, `interp_call`, `interp_case`, `interp_iter`,
-  `interp_prem_if`, …), per-type lemmas generated with each type, and a
-  syntax-directed driver whose recursive case comes from the definition's
-  own induction principle. Expect one generated induction step per
-  (mutual) definition and zero manual lines. Nobody gets `rfl`; plan on
-  rewriting from day one.
-- **Effort and risk.** One-time library comparable to CakeML's core, a
-  few weeks. Per definition, proof-checking time, not authoring, is the
-  bottleneck; Cogent reports about twelve generated proof lines per
-  source line. Measured from the first Nano-P4 output.
+- **The value relation** is one relation for every generated type:
+  `Rel v x := canon v = canon (toValue x)`, where `canon` erases the
+  notes and regions the interpreter never reads (and reduces the two
+  payloads its comparison does not look inside). `eq_iff_canon` proves
+  that the interpreter's `Value.eq` is exactly canonical equality, so
+  `Rel` is the kernel of the interpreter's own equality. IL is
+  first-order, so no function-typed invariants are needed.
+- **The statement**, per definition `X` with inputs `τ₁ … τₙ` (a
+  relation's outputs `σ` as a tuple):
+
+      theorem X.refines (fuel : Nat) (cfg : Config) (ctx : Ctx.t) (internal : Bool)
+          (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+          (hspec : HoldsSpec Lib.spec ctx.global)
+          (v₁ … vₙ : value) (p₁ : τ₁) … (pₙ : τₙ) (h₁ : Rel v₁ p₁) … :
+          Refines (fun vs (o : σ) => Outs vs [toValue o])
+            (invoke_rel fuel cfg internal ctx (Q.i "X") [v₁, …, vₙ])
+            (ExceptT.mk (Lib.X.run p₁ … pₙ))
+
+  `Refines P m n` says every defined result of the interpreter's `m` (a
+  success or a failure; divergence, which is fuel exhaustion, refines
+  anything) is matched by a defined result of the generated `n`: the
+  same failure kind, or values related by `P`. So the theorem covers
+  every fuel and every input, failures included, which is what makes a
+  rule group's `else` and a `does not hold` premise meaningful. A
+  function's statement relates the results by `Rel` directly.
+  `HoldsSpec Lib.spec g` says the global tables hold every quoted
+  definition (`Lib.spec` is the list of all `d.al`, as `Ctx.init` would
+  load them); the guard is off because the interpreter's dynamic type
+  checks are instrumentation, not meaning; the local function table is
+  empty because no definition in the fragment takes a function argument.
+- **Recursion.** A recursion group gets `X.refines_group : ∀ fuel,
+  stmt_X fuel ∧ …` by strong induction on the fuel, and a corollary per
+  member; a call inside the group uses the induction hypothesis at the
+  callee's smaller fuel, a call outside it the callee's theorem. Nothing
+  about `partial_fixpoint` is needed on this side: the generated
+  definition is only called, never unfolded below its own body.
+- **The tactic** `refine_al` is a lockstep symbolic execution. The
+  interpreter side is computed by `simp` with the interpreter's own
+  equation lemmas on the concrete quoted syntax, one fuel level at a time
+  (`cases` on the fuel at the head of the chain; the zero case is
+  divergence); the generated side is walked by the rules of
+  `Refine/Calc.lean`: a `have` binds, a call is paired with the
+  interpreter's invocation through the callee's theorem, a `match` or
+  `if` on a variable is split by `cases`, sequential choice alternative
+  by alternative, and at a `pure` the results are related by computing
+  `canon` on both sides. When the interpreter inspects a value whose
+  generated counterpart is a variable, that variable is split, which is
+  the case analysis the generated code performs too; the shape of the
+  interpreter's value then follows from the fact by a dozen inversion
+  lemmas. There is no per-construct lemma about the interpreter: the
+  interpreter's definitions are the lemmas, which is what makes the
+  library small and the port the only trusted text.
+- **The fragment.** `Codegen/Validate.unsupported` decides syntactically
+  which definitions get a theorem, closed under callees; the rest are
+  listed in the generated module with their reasons. Whatever the tactic
+  cannot close fails the build; nothing is `sorry`ed. At M2 the fragment
+  holds 18 of Nano-P4's 153 definitions, all functions: every relation
+  calls a builtin or iterates, so the relation form of the statement is
+  exercised only in development, not in the build, until the
+  fragment grows (M3).
+- **What it does not cover.** The theorem quantifies over generated
+  values and their `toValue` images, so the generated *types* and their
+  `ToValue` instances are part of the statement, not checked by it: a
+  dropped variant case or a misplaced field is invisible to rung 3 and is
+  caught only by rung 2 (the decoder round trip on the corpus). The
+  table hypothesis `HoldsSpec` has its witness (`holdsSpec_of_init`: the
+  tables `Ctx.init` builds from the quoted spec satisfy it, so a run of
+  the interpreter on `NanoP4Spec.spec` is an instance); the quoting
+  `d.al` is trusted to be the export minus regions and hints (read
+  against the AST at review, not tested: an M3 item,
+  `.agents/roadmap.md`).
 - **Failure vs divergence.** `partial_fixpoint` rejects backtracking
   written with `<|>` because it is not monotone in the flat order. The
   interpreter therefore separates failure as data from divergence,
   returning `Option (Except Fail v)` or the equivalent transformer, and
-  this is decided before the port, not after.
+  this was decided before the port, not after. Completeness, the other
+  direction, is not stated (section 12).
 
 ### 5.2 Trusted vs checked
 
@@ -294,7 +367,7 @@ refinement relation and discharges it syntax-directedly. So:
 | Lean 4 kernel | trusted | standard | |
 | Upstream parser and elaborator (OCaml) | trusted | defines what the spec means; shared with the official P4 spec toolchain | that the spec is P4 |
 | JSON dump of the IL | trusted | tiny and structural; round-trip tested against upstream's IL printer | |
-| `P4SpecTec.Interp` (AL interpreter in Lean, M2) | trusted | the spec of the compiler; mirrors upstream's AL interpreter file by file; cross-checked by rung 2 | agreement with SL or PL interpreters |
+| `P4SpecTec.Interp_al` (the AL interpreter in Lean, with `Runtime.Value.Match`, `Runtime.Type.*`, `Runtime.Dynamic*`, `Builtin.Call`) | trusted | the spec of the compiler; mirrors upstream's `interp/interp-al/` file by file and function by function; cross-checked by the second leg of rung 2 (`nano-p4-interp`: the port on the deep terms of the corpus against the AL export, 78 of 78 verdicts and 48 of 48 outputs agree) | agreement with SL or PL interpreters |
 | `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the default printer, file by file | hint-driven printing (rejected by codegen until supported) |
 | `P4SpecTec.Interface.Builtin` | trusted | ports of upstream builtins, one file per file, at the OCaml file's path; unit tests in `P4SpecTecTest/Builtins.lean` (generated obligations from upstream outputs are planned) | |
 | `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
@@ -310,20 +383,30 @@ here is a bug.
 
 | Deviation | Why Lean needs it | Where |
 |---|---|---|
-| Explicit fuel on every generated function and run function (M1); `partial_fixpoint` where the M2 monad allows | Lean requires a termination argument or a monotone fixpoint; the spec's recursion is not always structural, and `<|>` on `Option` is not monotone | `Codegen/Funcs.lean`, `Codegen/Rels.lean` |
+| Recursive groups defined by `partial_fixpoint` in `Eval := ExceptT Fail Option`, definitions typed `Option (Except Fail T)` with `ExceptT.run`/`ExceptT.mk` around bodies and calls; pure variable bindings are `have`, not `let` | Lean requires a termination argument or a monotone fixpoint; the spec's recursion is not always structural; `partial_correctness` is derived only for `Option`-typed definitions; the monotonicity tactic cannot eliminate a match on a `let`-bound variable | `Prelude/Eval.lean`, `Codegen/Funcs.lean`, `Codegen/Rels.lean`, `Codegen/Fmt.lean` |
 | A recursive group spanning spec files is emitted in the last file's module | a `mutual` block cannot cross files | `Codegen/Emit.lean` |
 | Type aliases are unfolded in the constructor arguments of a recursive group | the kernel's nested-inductive check does not see through an `abbrev` | `Codegen/Types.lean` |
 | Every reference to a generated name is qualified with the library name; type parameters are `τX` | spec variables are named after their types and would shadow them | `Codegen/Names.lean` |
 | Equality on generated types is equality of their IL values | `deriving BEq` on nested inductives is opaque; value equality is upstream's `Value.eq` | `Codegen/Types.lean`, `Prelude/Value.lean` |
 | In the IL mirror, `iterexp`, `iterprem` and `typorigin'` are named inductives, EL hints are raw JSON, `Bigint.t` is `Nat`/`Int`, the polymorphic-variant unions are flat inductives | the kernel rejects a pair holding a list of a type being declared; the EL is not mirrored; Lean has no bigint or open unions | `IL/Ast.lean` |
-| Failure (`Unmatch`) and error (`Err`) both become `none` in the executable encoding; division and modulus by zero and `^` (which upstream aborts on) are `none` too; an `Err` inside a `does not hold` premise therefore counts as the premise holding, where upstream propagates the error | one `Option` monad at M1; the split arrives with the M2 monad, which must keep `Err` distinct at `IfNotHoldPr` | `Codegen/Exp.lean`, `Prelude/Num.lean` |
-| Each relation emitted twice, `Prop` (M2) and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean` |
-| Iterated premises encoded as `∀ x ∈ xs, …` and definitional `Forall₂`, not nested inductive predicates (M2) | Lean's kernel does not support nested inductive predicates with indices (lean4#1964) | `Codegen/Rels.lean`, `Prelude/Iter.lean` |
+| Failures upstream reports as OCaml exceptions or `assert false` (division and modulus by zero, `^`, a failed downcast, a pattern shape that does not match, an optionality mismatch) are `Fail.err` in the executable encoding, the kind upstream never backtracks over | Lean has no exceptions; none of these is reachable on the guarded AL, and `err` is the nearest kind | `Codegen/Exp.lean`, `Prelude/Num.lean`, `Prelude/Eval.lean` |
+| Each relation emitted twice, `Prop` and executable | a `Prop` cannot be run; an executable function cannot be reasoned about by rule induction | `Codegen/Rels.lean`, `Codegen/Props.lean` |
+| In the `Prop` encoding an iterated premise is `∀ elems collected, (elems, collected) ∈ List.zip lists tmp → …` with the length equation beside it; its relation-free facts sit under `∃` for their temporaries, each relation fact is an implication from those facts, and the ∀-bound names are the spec's | the kernel rejects a relation under `∃`, `∧` or `∨` inside its own constructors ("nested inductive datatypes parameters cannot contain local variables") and accepts it under `∀` and `→` | `Codegen/Props.lean` |
+| A `does not hold` premise is `R'.run args = some (.error Fail.unmatch)` in the `Prop` encoding; an `else` group carries no negation of the other groups | a relation cannot occur negatively in its own definition; the executable encoding orders the `else` group last and keeps the meaning | `Codegen/Props.lean` |
+| A temporary the spec does not name (the collected list of an iteration, a hoisted call whose result is matched by a pattern) is a constructor argument named `tmp_n` | the AL has no name for it | `Codegen/Props.lean` |
 | `BEq` instances, not `DecidableEq`, on nested inductives | `DecidableEq` deriving fails on nested inductives (lean4#2329) | `Codegen/Types.lean` |
 | Numerics as `Nat`, `Int` and `Rat` with explicit conversions | Lean has no unified number type; collapsing to `Nat`, as the Wasm Lean branch does, is wrong | `Prelude/Num.lean` |
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
-| Failure and divergence separated in the interpreter's return type (M2) | `partial_fixpoint` needs monotonicity; `<|>` on `Option` is not monotone | `Interp/` |
-| No mutable context, caching, hooks, backtraces (M2) | pure functions; these are instrumentation, not meaning | `Interp/` |
+| The interpreter runs in `Eval` too, and every function of its recursive block takes a fuel, one unit per call; `none` is exhaustion | the block's recursion is not structural (aliases unfold, rules call rules); a fuel keeps the port's shape the OCaml's and makes induction on the evaluation an induction on `Nat` for rung 3; `partial_fixpoint` over the whole block was the alternative and was not needed | `Interp/InterpAl/Interp.lean` |
+| No mutable context, caching, hooks, backtraces, deterministic mode; the global tables are immutable hash maps, the local environments association lists; the extern implementations and the guard flag are a `Config` parameter | pure functions; these are instrumentation and checks, not meaning | `Interp/InterpAl/` |
+| `'a backtrack` is `Eval`; failure traces are dropped; a `debug` premise prints nothing; upstream's exceptions and failed assertions are `Fail.err` | `Eval` is the one monad of the port and of the generated code; Lean has no exceptions | `Interp/InterpAl/Backtrack.lean`, `Interp.lean` |
+| `Value.Match.sub_` and `Type.Subst` take a fuel; `Match.sub_`'s `FuncT` case (function values, through `Type.Equiv`) yields `false`; `Subst.freshen_tparams` derives fresh names from the parameter's name; a higher-order substitution substitutes the head | the recursion is not structural; Nano-P4 has no function values (an M3 item); no global counter | `Runtime/Value/Match.lean`, `Runtime/Type/Subst.lean` |
+| The builtin dispatcher works on values through the typed ports; the `add` callback and `fresh_typeId` are not mirrored | one port per builtin file; the callback registers values for upstream's caches | `Interface/Builtin/Call.lean` |
+| A hyphenated upstream directory is a camel-cased Lean directory (`interp-al` is `InterpAl`) | a hyphen cannot be in a module name | `scripts/check-mirror.py` |
+| `is_iter_var_exp` recurses on the size of the expression (`termination_by`) rather than structurally | it descends through the phrase's payload, which structural recursion does not see; a fuel here would make a low-fuel run take the general iteration path instead of diverging, which rung 3 cannot allow | `Interp/InterpAl/Interp.lean` |
+| The refinement theorems are in one generated module after the spec files (`Refinement.lean`), with the quoted spec as a list and one `HoldsSpec` hypothesis | the theorems need every quoted definition (a callee's theorem needs its own callees' table entries), and one hypothesis over the whole spec avoids listing the transitive callees of every definition | `Codegen/Emit.lean`, `Codegen/Validate.lean` |
+| The `Q.*` quoting constructors and `mkPhrase` are reducible | the driver's `simp` must see through them definitionally: a rewrite under `decide` with a non-reducible definition leaves an ill-typed term | `Refine/Quote.lean`, `Util/Source.lean` |
+| `ToValue (α × β)` flattens a right-nested product into one IL tuple | the generator renders a spec tuple type as a right-nested product and its value as one flat tuple; a spec tuple nested inside a tuple (none in Nano-P4) would need a wrapper type (M3 trigger) | `Prelude/Value.lean` |
 | Mutual block grouping by dependency | Lean requires mutually recursive definitions in one `mutual` block | `Codegen/Funcs.lean` |
 
 ### 5.4 Per-construct encodings
@@ -343,6 +426,7 @@ applies instead, each documented in the module that implements it.
 | Tables (`table dec`) | a function by cases over the rows |
 | Builtins (`builtin dec`) | a wrapper around the port of the same OCaml file under `Interface/Builtin/`; sets and maps unwrapped to element lists; `print_` uses the hint-free printer, and codegen rejects a spec with `print` hints |
 | Values of generated types | `ToValue` (structural) and `OfValue fuel` (decoder) instances per type, for programs, printing and equality |
+| Relation, `Prop` encoding | `inductive R : args → Prop`, one constructor per rule path named by `Names.ruleName` (`rule<k>` when the spec names neither group nor rule), implicit arguments for the path's variables with the types the AL notes give, hypotheses in statement order; `R.run_sound` per relation, `<first>.run_sound_group` per recursive group, `#audit_axioms` after each |
 
 ### 5.5 Test sources (all from upstream)
 
@@ -396,26 +480,42 @@ p4-spectec-lean/
 │   ├── Util/Source.lean          # mirrors util/source.ml; Util/Yojson.lean is ours (decoding helpers)
 │   ├── Lang/Xl/, Lang/Il/, Lang/Al/   # mirror lang/xl/, lang/il/ast.ml, lang/al/ast.ml; Json.lean beside each is ours
 │   ├── Domain/Atom.lean, Domain/Mixfix.lean   # mirror domain/
-│   ├── Runtime/Value/Value.lean  # TRUSTED: mirrors runtime/value/value.ml (Make, compare, eq)
+│   ├── Runtime/Value/Value.lean  # TRUSTED: mirrors runtime/value/value.ml (Make, Get, compare, eq)
+│   ├── Runtime/Value/Match.lean  # TRUSTED: mirrors runtime/value/match.ml (subtyping of values)
+│   ├── Runtime/Type/             # TRUSTED: mirrors runtime/type/{typdef,typ,subst}.ml
+│   ├── Runtime/Dynamic/Var.lean, Runtime/DynamicAl/{Rel,Func}.lean   # TRUSTED: the environments' keys and entries
 │   ├── Interface/P4/Unparse.lean # TRUSTED: mirrors interface/p4/unparse.ml (the printer)
-│   ├── Interface/Builtin/        # TRUSTED: mirrors interface/builtin/ file by file
-│   ├── Interp/                   # M2, TRUSTED: mirrors interp/interp-al/ file by file
+│   ├── Interface/Builtin/        # TRUSTED: mirrors interface/builtin/ file by file; Call.lean is the dispatcher on values
+│   ├── Lang/Hints/Input.lean     # mirrors lang/hints/input.ml (input positions, split and combine)
+│   ├── Interp/InterpAl/          # TRUSTED: mirrors interp/interp-al/{backtrack,ctx,interp}.ml (M2)
 │   ├── Prelude/                  # ours: the runtime aggregate the generated code imports
 │   │   ├── Value.lean            # ToValue, OfValue, equality through values
+│   │   ├── Eval.lean             # the Eval monad: Fail, orElse, monotonicity, run lemmas (M2)
 │   │   ├── Extern.lean, Num.lean, Iter.lean
+│   ├── Refine/                   # ours: rung 3 (M2)
+│   │   ├── Value.lean            # canon, Rel: IL values against generated values, up to notes
+│   │   ├── Quote.lean            # Q.*: the smart constructors the quoted definitions are built with
+│   │   └── Calc.lean             # Refines, its rules, Holds/HoldsSpec, exposure lemmas
 │   ├── Codegen/                  # NOT trusted: validated per definition (M2)
 │   │   ├── Names.lean            # the naming rule; Keywords.lean is generated from Lean's token table
 │   │   ├── Env.lean, Graph.lean, Fmt.lean   # spec environment; SCCs; the printer
 │   │   ├── Types.lean            # TypD → inductive / structure / abbrev, ToValue/OfValue, subtype bridges
 │   │   ├── Exp.lean              # expressions, patterns, premises in A-normal form
 │   │   ├── Funcs.lean            # FuncDecD, BuiltinDecD, TableDecD → def; the Externs class
-│   │   ├── Rels.lean             # RelD → run function (Prop encoding at M2)
+│   │   ├── Rels.lean             # RelD → run function
+│   │   ├── Props.lean            # RelD → Prop inductive, run-soundness theorems, audits (M2)
+│   │   ├── Reify.lean            # every definition quoted as Lean data, `d.al` (M2)
+│   │   ├── Validate.lean         # the refinement theorems and the fragment they cover (M2)
 │   │   ├── Emit.lean             # the plan: groups, module assignment, module text
 │   │   └── Main.lean             # `lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]`
-│   ├── Tactic/                   # M2
-├── P4SpecTecTest/                # test-only: decode test, the differential runner (Diff/NanoP4Run.lean)
+│   ├── Tactic/                   # the proof side (M2)
+│   │   ├── RunSound.lean         # run_sound, run_sound_group: symbolic execution against the Prop
+│   │   ├── Refine.lean           # refine_al: lockstep execution of the interpreter and the generated code
+│   │   └── Audit.lean            # #audit_axioms
+├── P4SpecTecTest/                # test-only: decode test, the differential runners (Diff/NanoP4Run/, Diff/NanoP4Interp/)
 │
-├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it
+├── NanoP4Spec/                   # GENERATED, committed, diffed in CI; one module per Nano-P4 spec file, named as it,
+│                                 # then Refinement.lean: the quoted spec as a list and the rung 3 theorems
 ├── P4Spec/                       # GENERATED at M3; Targets/ hand-written, mirrors backend-sim/<target>/
 │
 ├── P4Lib/                        # M4; independent of the generated spec
@@ -442,10 +542,12 @@ Choices embedded in the tree:
 - Lake layout: importable modules under the root, test-only modules under
   a `Test` root, no Mathlib, one toolchain pin.
 
-Rung 3 lives in: `IL/Ast.lean` and `Semantics/*` (reference side,
-trusted), `Codegen/Types.lean` (value relations), `Codegen/Reify.lean`
-and `Codegen/Validate.lean` (generation side), `Tactic/Refine.lean`
-(proof side, where the real work is).
+Rung 3 lives in: `Interp/InterpAl/` and the runtime it needs (reference
+side, trusted), `Refine/` (the value relation, the quoting constructors
+and the refinement calculus), `Codegen/Reify.lean` and
+`Codegen/Validate.lean` (generation side), `Tactic/Refine.lean` (proof
+side, where the real work is), and `NanoP4Spec/Refinement.lean` (the
+generated theorems).
 
 ### P4Lib
 
@@ -567,3 +669,14 @@ cedar-spec, LNSym, Sail's Lean backend, Aeneas, Batteries, lean-mlir.
   not, review per section, never drop the diff check.
 - Completeness direction of the refinement theorems: stated only where
   determinism is proved; whether to pursue it at all is decided after M2.
+- Determinism at M2 (`Tactic/Det.lean`, `R.det : R i o → R i o' → o =
+  o'`): attempted on relations with one rule path, no `else` group, no
+  iterated premise, and callees that are themselves deterministic by
+  theorem. That leaves 2 of 77 Nano-P4 relations (`Var_init`,
+  `NanoSwitch_setup`): every other relation has several rule paths or
+  reaches one through its callees (`Expr_ok` has 16). Several paths need
+  a disjointness argument per pair of rules (their conclusions or
+  premises cannot both hold), which is a real proof, not bookkeeping;
+  upstream checks it dynamically in its deterministic mode. The finding
+  is that determinism of the typing relation is a per-rule-pair
+  obligation, and the tactic for it is M3 work if the goal is kept.
