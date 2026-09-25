@@ -169,10 +169,20 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   a confidence and revisit trigger when uncertain.
 - **`.agents/status.md` is updated at every checkpoint**: exact checks
   run, skipped gates, remaining obligations, next concrete step.
-- **Commits**: Chris Beams' seven rules; imperative subject under 50
-  characters; a body that says why, not what. One logical change per
-  commit. Agent commits end with a `Co-Authored-By: <agent> <email>`
-  trailer. Use a branch and PR by default, even for small code changes.
+- **Commit messages** follow [Chris Beams](https://cbea.ms/git-commit/)
+  and [Git's contribution guidance](https://git-scm.com/docs/SubmittingPatches).
+  Use a specific, capitalized imperative subject under 50 characters,
+  without a final period. Separate the body with a blank line and wrap
+  prose at 72 columns (leave URLs and required trailers intact). Explain
+  the prior problem, intended outcome and why this approach was chosen;
+  include consequential alternatives or compatibility effects when
+  relevant. Do not merely restate the diff or depend on chat/PR context.
+  Keep one logical change per commit, including its tests and necessary
+  documentation; split unrelated work instead of hiding it behind a
+  vague subject. A PR explains the whole proposal; each commit explains
+  its own change. Inspect the staged diff and final message before
+  committing. Agent commits end with the required coauthor trailer.
+- **PRs are the default**, even for small code changes.
   Direct-to-`main` is reserved for trivial, non-behavioral maintenance
   (typos, formatting, routine status updates), never changes to code,
   proofs, dependencies, exports, build/CI behavior or substantive policy.
@@ -194,6 +204,11 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   the final diff before merging and update stale claims.
   This follows [GitHub's review guidance](https://docs.github.com/en/pull-requests/concepts/helping-others-review-your-changes)
   and [Google's change-description guidance](https://google.github.io/eng-practices/review/developer/cl-descriptions.html).
+- **User-required AI disclosure in PRs.** Identify the tool and its role in
+  implementation, tests, documentation and review as applicable. Separate
+  AI-agent review from human review; do not imply human approval or
+  inspection that did not occur. Commit coauthor trailers do not replace
+  this PR-level disclosure.
 - **Unfinished work is a pushed branch** with a work-in-progress commit
   saying what it holds and lacks, never an uncommitted worktree.
 - **A push is gated on the recorded exit status** of the full gate, never

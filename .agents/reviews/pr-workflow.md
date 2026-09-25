@@ -14,3 +14,10 @@ full-P4 support, records the quotation bug and storage tradeoffs, and
 separates local evidence from remote CI. Corrected the review-order path
 to `P4SpecTec/Codegen/Emit.lean`. Publishing the description remains gated
 on the final local validation result, recorded in status.
+
+Follow-up review of commit-message guidance and AI disclosure: no blocking
+findings. The explicit Beams/Git rules preserve the existing convention
+and required coauthor trailer. The PR accurately attributes implementation,
+writing and separate AI-agent reviews without implying human review.
+Labeled AI disclosure as user-required so the adjacent GitHub/Google
+references are not misrepresented as its source.

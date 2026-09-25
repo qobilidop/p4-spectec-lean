@@ -30,6 +30,16 @@ later phases; M3A measures their obligations.
   passed, exit 0. PR #5's description is being updated with rationale,
   approach, concrete validation, limitations and a short review order.
   Remote CI must pass on the final PR revision before merging.
+- PR description revised at `9e45ed7`. The user also requested learning
+  commit-message practice; Beams and Git's own contribution guide were
+  consulted. Follow-up makes the existing convention explicit and fixes
+  body wrapping prospectively, without rewriting published commits.
+  The user requested explicit PR-level AI disclosure too; the PR-writing
+  policy now requires truthful authorship/review roles and distinguishes
+  separate AI-agent review from human review. PR #5's disclosure is
+  published. Follow-up independent review passed; full local gate and
+  whitespace check passed, exit 0. The policy-only follow-up is ready
+  to commit and push; remote CI remains a separate pre-merge obligation.
 - Confirmed only the expected four patched upstream OCaml files were dirty.
 - Read the resume documents, exporter, generator entry point, quotation
   emitter, fragment classifier and differential harness.

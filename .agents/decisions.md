@@ -438,6 +438,13 @@ settles is not repeated here.
 
 ## Process
 
+- **Make the existing commit-message convention explicit.** Retain
+  Beams' style and the under-50-character subject, spell out 72-column
+  prose wrapping and rationale, and adopt Git's emphasis on atomic
+  changes and self-contained explanations. Reason: naming a guide alone
+  did not prevent unwrapped bodies in recent commits. Apply prospectively;
+  do not rewrite published history for cosmetic cleanup. Source links
+  and actionable instructions are in `AGENTS.md`. (2026-09-25)
 - **No git tags.** Compaction and archiving rely on git history alone;
   the user does not want tags. (2026-09-25)
 - **PRs by default; direct-to-main only for trivial, non-behavioral
@@ -457,3 +464,7 @@ settles is not repeated here.
   mandatory template. Reason: a PR must remain understandable without
   agent chat history; review guidance should be proportional to risk.
   (2026-09-25)
+- **Disclose AI use in PR descriptions**, including authorship and
+  review roles; do not present separate AI-agent reviews as human review.
+  User explicitly requested transparency at the PR level, beyond commit
+  coauthor trailers. The actionable rule is in `AGENTS.md`. (2026-09-25)
