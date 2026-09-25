@@ -452,6 +452,25 @@ alternatives; a recursive structural-rule fixture checks this approach
 with `partial_fixpoint`. This is a calculus and proof fixture, not yet a
 stateful AL-interpreter refinement theorem or generated full-P4 coverage.
 
+One effect-parameterized AL evaluator now supports both the existing pure
+`Eval` interface and explicit-state `StateEval`. Stateful function and
+relation entry points require an initial counter and return its final value
+on success or either failure kind. Table initialization does not reset a
+session; callers decide when to reset or continue it. Fresh allocation,
+backtracking, negation, extern callbacks and tracing use this same carrier.
+The existing pure Nano refinement statements remain unchanged. This shared
+interpreter does not by itself provide stateful generated code or refinement
+proofs, or establish guarded higher-order full-P4 execution.
+
+The state oracle records 15 pinned upstream observations: ten complete
+AL/session cases and five direct fresh-builtin cases. Complete AL runs in
+sequential, cache-free, guard-disabled mode. It compares payloads and exact
+post-state; upstream's public entry points collapse internal hard errors
+and mismatches, so only the direct primitive cases compare failure tags
+exactly. Signed wrap and invalid arity are primitive observations, not
+complete-AL coverage. The fixture is checked on every gate and can be
+regenerated from the pinned upstream interpreter.
+
 ### 5.2 Trusted vs checked
 
 | Component | Status | Why | Does not establish |
@@ -494,12 +513,12 @@ here is a bug.
 | Structural equality for values | the OCaml unique-id scheme is a performance device tied to a mutable allocator | `Runtime/Value/Value.lean` |
 | Generated variant values carry static type notes when converted back to IL values; printing is admitted only when constructor origins and subtype bridges preserve the selected hint policy | the typed representation omits runtime note provenance; a checked compatibility condition avoids adding otherwise unused metadata | `Codegen/PrintHints.lean`, `Codegen/Types.lean` |
 | `Alter.OtherH` retains raw EL JSON; unsupported print expressions fail generation, and invalid placeholders or unprintable values return errors | EL is not otherwise embedded and Lean has no OCaml exceptions; all 190 hints at the pin use the six supported alternation forms | `Lang/Hints/Alter.lean`, `Lang/Hints/AlterJson.lean`, `Interface/P4/Unparse.lean` |
-| The interpreter runs in `Eval` too, and every function of its recursive block takes a fuel, one unit per call; `none` is exhaustion | the block's recursion is not structural (aliases unfold, rules call rules); a fuel keeps the port's shape the OCaml's and makes induction on the evaluation an induction on `Nat` for rung 3; `partial_fixpoint` over the whole block was the alternative and was not needed | `Interp/InterpAl/Interp.lean` |
+| One effect-parameterized interpreter specializes to `Eval` or `StateEval`; every function of its recursive block takes fuel, one unit per call; `none` is exhaustion | the recursion is not structural; fuel preserves the port's shape and supports induction on evaluation. A shared evaluator avoids duplicating the trusted control flow when adding state | `Interp/Effects.lean`, `Interp/InterpAl/Interp.lean` |
 | No mutable context, caching, hooks, backtraces, deterministic mode; the global tables are immutable hash maps, the local environments association lists; the extern implementations and the guard flag are a `Config` parameter | pure functions, with a sequential-mode comparison boundary; deterministic checking can consume extra fresh identifiers, so stateful comparisons must use upstream `det=false` | `Interp/InterpAl/` |
-| `'a backtrack` is `Eval`; failure traces are dropped; a `debug` premise prints nothing; upstream's exceptions and failed assertions are `Fail.err` | `Eval` is the one monad of the port and of the generated code; Lean has no exceptions | `Interp/InterpAl/Backtrack.lean`, `Interp.lean` |
+| Pure context/runtime helpers retain `Eval` and are lifted into the evaluator's carrier; failure traces are dropped; interpreter `debug` premises evaluate but do not print their expressions; exceptions and failed assertions become `Fail.err` | pure helpers need no state; Lean uses explicit error data. Stateful tracing observes the actual result once without resetting or rerunning it | `Interp/InterpAl/Backtrack.lean`, `Interp/Effects.lean`, `Interp/InterpAl/Interp.lean` |
 | `Value.Match.sub_` and `Type.Subst` take a fuel; `Match.sub_`'s `FuncT` case (function values, through `Type.Equiv`) yields `false`; `Subst.freshen_tparams` derives fresh names from the parameter's name; a higher-order substitution substitutes the head | the recursion is not structural; Nano-P4 has no function values (an M3 item); no global counter | `Runtime/Value/Match.lean`, `Runtime/Type/Subst.lean` |
-| The builtin dispatcher works on values through the typed ports; the `add` callback and `fresh_typeId` are not mirrored | one port per builtin file; the callback registers values for upstream's caches | `Interface/Builtin/Call.lean` |
-| An experimental fresh-ID primitive uses explicit `ExceptT Fail (StateT (BitVec 63) Option)` state, retaining allocations on failure and negation; not yet integrated into codegen or the interpreter | pure Lean has no global mutable counter; signed 63-bit wrapping matches OCaml `int` on the pinned 64-bit platforms, not 32-bit hosts; callers explicitly choose session/reset boundaries | `Prelude/StateEval.lean` |
+| The builtin dispatcher works on values through typed ports; stateful interpreter dispatch additionally implements `fresh_typeId` after zero-arity validation, but omits `add` registration | one port per builtin file; registration is used by upstream's omitted caches. The pure specialization still has no fresh allocation | `Interface/Builtin/Call.lean`, `Interp/Effects.lean` |
+| Fresh IDs use explicit `ExceptT Fail (StateT (BitVec 63) Option)` state, retaining allocations on failure and negation; integrated into the interpreter, not yet codegen | pure Lean has no global mutable counter; signed 63-bit wrapping matches OCaml `int` on the pinned 64-bit platforms, not 32-bit hosts; callers explicitly choose session/reset boundaries | `Prelude/StateEval.lean`, `Interp/Effects.lean` |
 | A hyphenated upstream directory is a camel-cased Lean directory (`interp-al` is `InterpAl`) | a hyphen cannot be in a module name | `scripts/check-mirror.py` |
 | `is_iter_var_exp` recurses on the size of the expression (`termination_by`) rather than structurally | it descends through the phrase's payload, which structural recursion does not see; a fuel here would make a low-fuel run take the general iteration path instead of diverging, which rung 3 cannot allow | `Interp/InterpAl/Interp.lean` |
 | The refinement theorems are in generated modules after the spec files: `Refinement/Spec` (the quoted spec as a list), one module per recursion group importing its callees' groups, and `Refinement` gathering them with the coverage; one `HoldsSpec` hypothesis over the whole spec | the theorems need every quoted definition (a callee's theorem needs its own callees' table entries), and one hypothesis over the whole spec avoids listing the transitive callees of every definition; a module per group lets Lake recheck only the groups an edit touches, and independent groups in parallel; only these modules import the refinement calculus and tactic, so editing the tactic leaves the spec modules built | `Codegen/Emit.lean`, `Codegen/Validate.lean` |

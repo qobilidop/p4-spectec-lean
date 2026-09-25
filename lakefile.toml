@@ -79,3 +79,8 @@ root = "P4SpecTecTest.Print.Main"
 [[lean_exe]]
 name = "check-text-builtins"
 root = "P4SpecTecTest.Text.Main"
+
+# Stateful AL interpreter observations from the pinned upstream revision.
+[[lean_exe]]
+name = "check-state-oracle"
+root = "P4SpecTecTest.StateOracle.Main"

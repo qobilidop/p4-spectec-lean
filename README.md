@@ -8,8 +8,10 @@ the representations and this trust boundary are explained in
 [the design](docs/design.md#31-representations-and-the-compiler-boundary).
 
 Status: milestones M1 and M2 done; M3 has started with the full P4 export
-and a capability census. Full P4 generation still needs print hints,
-indexed path updates, stateful fresh identifiers and some subtype bridges.
+and a capability census. Print hints, root-index list/byte-text updates and
+parameterized subtype bridges now emit; stateful fresh identifiers remain
+the explicit emission blocker. A shared pure/stateful AL interpreter is
+available, but stateful generation and its proofs are still in progress.
 The Nano-P4 specification (34 files, 161 types, 76 functions, 77
 relations) is rendered into Lean as executable definitions
 (`partial_fixpoint`, no fuel) that kernel-check and agree with upstream's

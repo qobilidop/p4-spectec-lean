@@ -1,0 +1,164 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "cases": [
+    {
+      "name": "allocate",
+      "scope": "full-al",
+      "operation": "allocate",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__0"
+      },
+      "counter": 1
+    },
+    {
+      "name": "extern-retry",
+      "scope": "full-al",
+      "operation": "externalRetry",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__1"
+      },
+      "counter": 2
+    },
+    {
+      "name": "callback",
+      "scope": "full-al",
+      "operation": "through",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__0"
+      },
+      "counter": 1
+    },
+    {
+      "name": "retry",
+      "scope": "full-al",
+      "operation": "retry",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__1"
+      },
+      "counter": 2
+    },
+    {
+      "name": "stop",
+      "scope": "full-al",
+      "operation": "stop",
+      "seed": 0,
+      "result": {
+        "status": "unmatch"
+      },
+      "counter": 1
+    },
+    {
+      "name": "negative",
+      "scope": "full-al",
+      "operation": "negative",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "first:FRESH__1"
+      },
+      "counter": 2
+    },
+    {
+      "name": "negative-success",
+      "scope": "full-al",
+      "operation": "negativeSuccess",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "fallback:FRESH__1"
+      },
+      "counter": 2
+    },
+    {
+      "name": "negative-error",
+      "scope": "full-al",
+      "operation": "negativeError",
+      "seed": 0,
+      "result": {
+        "status": "unmatch"
+      },
+      "counter": 1
+    },
+    {
+      "name": "shared",
+      "scope": "full-al",
+      "operation": "shared",
+      "seed": 0,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__1"
+      },
+      "counter": 2
+    },
+    {
+      "name": "resume-after-failure",
+      "scope": "full-al-session",
+      "seed": 0,
+      "first": {
+        "status": "unmatch"
+      },
+      "firstCounter": 1,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__1"
+      },
+      "counter": 2
+    },
+    {
+      "name": "fresh-valid",
+      "scope": "primitive",
+      "seed": 7,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__7"
+      },
+      "counter": 8
+    },
+    {
+      "name": "fresh-type-arity",
+      "scope": "primitive",
+      "seed": 7,
+      "result": {
+        "status": "unmatch"
+      },
+      "counter": 7
+    },
+    {
+      "name": "fresh-value-arity",
+      "scope": "primitive",
+      "seed": 7,
+      "result": {
+        "status": "unmatch"
+      },
+      "counter": 7
+    },
+    {
+      "name": "fresh-wrap-max",
+      "scope": "primitive",
+      "seed": 4611686018427387903,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__4611686018427387903"
+      },
+      "counter": -4611686018427387904
+    },
+    {
+      "name": "fresh-wrap-min",
+      "scope": "primitive",
+      "seed": -4611686018427387904,
+      "result": {
+        "status": "ok",
+        "text": "FRESH__-4611686018427387904"
+      },
+      "counter": -4611686018427387903
+    }
+  ]
+}

@@ -22,7 +22,44 @@ reasonable reversible decisions, record uncertainty for later review,
 and do not wait for routine choices. This does not authorize weakening
 correctness requirements or destructive published-history changes.
 
-## Active M3B byte-semantics integration
+## Active M3B shared-interpreter integration
+
+- Branch `m3b-effect-integration`, based on byte PR #12 head `e1c5555`.
+  Integrated isolated effect commits `a81265d` and `21ee889`, with explicit
+  String-to-ByteText encoding at fresh dispatch and checked decoding only
+  in the ASCII test observer. One evaluator supports Eval/StateEval,
+  carrier-matched externs, failure-retaining choice/negation and explicit
+  stateful session entry points. No stateful generator/proof claim.
+- Author's isolated core, test root and all Nano proof builds exited 0.
+  Independent review has no outstanding findings. A low test-sensitivity
+  finding was fixed with distinguishable negation alternatives; the
+  read-only reversed-negation mutation fails exactly those two assertions.
+  Primary core + StateInterp focused build exited 0 after byte integration.
+  Narrow integration review passed, including hard-text-failure state
+  retention and raw-byte preservation. The full primary gate exited 0 with
+  no skips, including rebuilt Nano proofs and all existing oracles/corpus
+  checks. Durable state-oracle commit `59525a2` is now integrated with byte
+  adapters: upstream regeneration, focused build and all 15 comparisons
+  exited 0. Root independent review fixed primitive failure-kind sensitivity
+  and required exact mode/scope documentation. The oracle-integrated full
+  gate exited 0 with no skips, including all 15 observations and ten corrupt
+  fixture rejections. Sol independently reviewed the root's byte/JSON/CLI
+  adapters and gate hooks with no findings. Publication and remote CI are
+  next. Oracle review: `.agents/reviews/m3b-state-oracle.md`.
+  Evidence: `.agents/notes/effect-interpreter.md` and
+  `.agents/reviews/m3b-effect-interpreter.md`.
+- Parallel next work: the recursive rejected-prefix fixture `981cc0b`,
+  reviewed as `9c95fba`, is frozen in `p4-spectec-lean-state-proof-prototype`
+  and not yet integrated. It proves exact recursive failure-state transport
+  using stronger all-outcome motives. Executable state codegen is active in
+  the former byte worktree (`m3b-state-codegen`); state Prop/run-soundness
+  work is isolated in `p4-spectec-lean-state-props`. Shared mode/attempt/
+  statement APIs are coordinated. Production state generation remains
+  explicitly rejected until structural propositions and proofs are ready.
+- Next: finish integrated interpreter review/gate and publish; continue
+  state oracle and proof prototype before enabling generator state mode.
+
+## Completed M3B byte-semantics integration
 
 - Branch `m3b-byte-integration`, based on state-calculus PR #11 head
   `f07ddad`. The byte worktree integrates ByteText through IL/runtime,
@@ -51,9 +88,8 @@ correctness requirements or destructive published-history changes.
   exited 0 with no skipped gates, including all Nano proofs, both corpus
   legs, classified text/printer oracles, quotations, JSON sensitivity and
   the updated census. Read-only review has no outstanding high/medium
-  findings: `.agents/reviews/m3b-byte-integration.md`. Remote CI remains
-  pending. Next: publish the PR, then reconcile the reviewed effect
-  interpreter and add durable stateful upstream observations.
+  findings: `.agents/reviews/m3b-byte-integration.md`. PR #12 is published;
+  remote CI remains pending. Interpreter integration is active above.
 - PRs #9 (fresh-state foundation) and #10 (byte foundation) passed CI and
   merged. PR #11 (state calculus) also passed CI and merged into main.
   The shared effect interpreter is implemented and locally checked in
