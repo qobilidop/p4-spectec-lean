@@ -97,9 +97,10 @@ settles is not repeated here.
   300 seconds. The original uniform 60-second limit killed the unchanged
   baseline on CI run `36260016481`, despite passing locally. The Lean
   heartbeat ceiling and proof obligations are unchanged; timeouts remain
-  harness failures, never accepted mutant rejections. Confidence: medium
-  until remote validation; revisit if measured CI proof times approach the
-  new bound rather than repeatedly raising it. (2026-09-26)
+  harness failures, never accepted mutant rejections. Local and remote CI
+  passed at `395022a` (run `36261314804`). Confidence: high for this fixture;
+  revisit if measured CI proof times approach the new bound rather than
+  repeatedly raising it. (2026-09-26)
 
 - **Resume bounded corpus shards only under an exact execution identity.**
   Recheck pins/snapshot/inventory and rebuild both toolchains; use a locked,
@@ -259,11 +260,11 @@ settles is not repeated here.
   generator does not compute it; naming a wrong set would fail for the
   wrong reason. Hand-written theorems keep the exact-set check, LNSym
   and lean-mlir practice. (2026-09-25, revised the same day)
-- **CI uses `lean-action` for toolchain and `.lake` caching only; the gate
-  is `scripts/check.sh` in both places.** One command locally and in CI.
-  The workflow also checks the upstream pin is an ancestor of upstream
-  `main`. Reason: Aeneas's pin-is-forward check; cedar-spec's uncached CI
-  is the alternative to avoid. (2026-09-25)
+- **CI uses the pinned Nix shell and caches elan and `.lake`; the gate
+  is `scripts/check.sh` locally and in CI.** The workflow also checks that
+  the upstream pin is reachable from `main` or `gsoc-nano-spec`, and that
+  Nano-P4's pin is on its `main`. Reason: reproducible checks with cached
+  toolchains and explicit pin provenance. (2026-09-26)
 - **Mirrored modules keep upstream names, including `snake_case`; our own
   code follows Lean style.** Reason: the side-by-side audit is the
   point of mirroring; renaming to Lean style would break it. (2026-09-25)
@@ -680,6 +681,24 @@ settles is not repeated here.
   Upstream is an input, not a downstream. (2026-09-25)
 
 ## Documentation
+
+- **Use `docs/related-work.md` for the polished literature synthesis.**
+  The user chose the title "Related Work" and a matching filename. Organize
+  comparisons around generated semantics, certification and P4 verification,
+  with primary citations, explicit guarantee boundaries and implications for
+  developers and users. Keep historical design critique in working notes,
+  not in the related-work document. This replaces
+  `docs/prior-arts-comparison.md`. (2026-09-26)
+
+- **Describe the goal as a certifying compiler, not a verified generator.**
+  Use "proof-producing semantics translation" for the technical mechanism:
+  generated correspondence proofs are checked per artifact against the AL
+  reference. "Certified" is not inherently wrong, but is less explicit about
+  the architecture and coverage. Keep the README opening goal-focused and
+  record partial Nano certification and incomplete full-P4 support in Status.
+  Reason: distinguish ambition from delivered guarantees without implying a
+  universal correctness theorem for the generator. The sourced discussion is
+  `.agents/notes/compiler-certification.md`. (2026-09-26)
 
 - **Markdown for design and working notes; doc-gen4 for API reference
   once there is a public surface; a Verso site at M4.** Reason: the

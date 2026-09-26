@@ -2,8 +2,8 @@ import P4SpecTec.Prelude.Eval
 import Init.Data.BitVec.Basic
 
 /-!
-An explicit-state foundation for upstream's fresh identifiers. This is an
-experiment, not yet the monad of generated code or of the AL interpreter.
+The explicit-state carrier for upstream's fresh identifiers, used by the
+stateful AL interpreter and code generation for specs declaring `fresh_typeId`.
 The allocation operation follows `interface/builtin/fresh.ml`; choice and
 negation follow `interp/interp-al/{backtrack,interp}.ml` at the upstream pin.
 

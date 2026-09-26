@@ -1,20 +1,44 @@
-# P4-SpecTec in Lean 4
+# P4-SpecTec to Lean 4
 
-A compiler from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s
-algorithmic language (AL) to executable definitions and inductive relations
-in Lean 4.
+A [certifying compiler](https://xavierleroy.org/publi/compiler-certif.pdf#page=2)
+from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic language
+(AL) to executable definitions and inductive relations in Lean 4.
 
-[Nano-P4](https://github.com/pacokwon/nano-p4-spec) is the current working
-example. Full P4 support and proof coverage are incomplete.
+## Status
 
-## Why this project?
+- [Nano-P4](https://github.com/pacokwon/nano-p4-spec): generated semantics,
+  differential tests, and a checked verification example. Certification
+  coverage is partial.
+- Full P4 support and broader proof coverage are in progress.
+
+## Rationale
+
+### Why this project?
+
+We aim to provide a reference for P4 verification in Lean 4 that stays aligned
+with the evolving language specification.
 
 - **Follow the evolving P4 specification.** P4-SpecTec has been
-  [conditionally adopted as the official P4 specification authoring toolchain](https://p4lang.github.io/p4-spec/docs/P4-16-working-spec.html).
+  [conditionally adopted as the official P4 language specification authoring toolchain](https://p4lang.github.io/p4-spec/docs/P4-16-working-spec.html).
   Generating our Lean model from it helps us track specification changes.
-- **Provide a reference for verification in Lean 4.** Use the model to prove
-  properties of P4. Other Lean libraries can build models that make proofs
-  easier, then prove that those models agree with this reference.
+- **Support proof-friendly models.** Other Lean libraries can model P4 in
+  ways that make proofs easier, then prove agreement with this reference.
+
+### Why a certifying compiler?
+
+Our goal is to generate a correctness proof alongside each translated definition,
+rather than prove the generator itself correct. This lets us adapt the generator
+as P4-SpecTec evolves while independently checking its outputs in Lean.
+
+Certification happens when we build the language model. Downstream users can
+reuse that checked model without repeating certification for each P4 program.
+
+## Design principles
+
+- **Mirror the reference semantics.** Preserve upstream structure and names
+  rather than independently redesigning the reference model.
+- **Certify generated models.** Check correspondence with an explicit AL
+  reference, not just whether the generated code compiles.
 
 ## Build and check
 
@@ -32,6 +56,7 @@ This builds the project and runs the checks used by CI.
 
 - [Checked field-update proof](NanoP4Proofs/FieldUpdate/Example.lean)
 - [Design and verification boundaries](docs/design.md)
+- [Related Work](docs/related-work.md)
 - [Development guide](AGENTS.md)
 
 ## License

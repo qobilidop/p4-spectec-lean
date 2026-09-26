@@ -26,7 +26,7 @@ while a handwritten AL interpreter in Lean supplies the reference for
 translation certificates. The benefit of the generated interface must
 be demonstrated by a consumer proof; execution speed is an unmeasured
 potential benefit, not a delivered claim. The
-[prior-art comparison](prior-arts-comparison.md) distinguishes this
+[related-work discussion](related-work.md) distinguishes this
 approach from IL-to-prover generation and other certifying compilers.
 
 > We aim to generate a usable Lean model and prove that it implements
@@ -580,8 +580,10 @@ may be skipped only when its terminating executions succeed and preserve
 state. Divergence remains unconstrained by one-way partial correctness.
 `RejectedPrefix` records the states consumed by earlier mismatching
 alternatives; a recursive structural-rule fixture checks this approach
-with `partial_fixpoint`. This is a calculus and proof fixture, not yet a
-stateful AL-interpreter refinement theorem or generated full-P4 coverage.
+with `partial_fixpoint`. Bounded AL-interpreter correspondence now covers the
+actual emitted fresh allocator, and scalar stateful-function certificates are
+checked in fixtures. Production stateful planning remains explicitly rejected
+by `Codegen/Emit.lean`; these results are not generated full-P4 coverage.
 Further bounded fixtures handle recursive calls inside rejected attempts
 and ordered structural recursive premises. Stronger partial-correctness
 motives carry exact all-outcome realization alongside successful structural
@@ -657,7 +659,7 @@ here is a bug.
 | Checked type expansion, equivalence and nested parameter conversion use bounded fuel; nonempty substitution through `FuncT` is explicitly unsupported until upstream's separate `Type.Fresh` state is modeled | these recursions are not structurally bounded by input values; inventing deterministic names can change returned types, so unsupported allocation is an error rather than fabricated data | `Runtime/Type/Expand.lean`, `Runtime/Type/Equiv.lean`, `Runtime/Type/Typ.lean`, `Runtime/DynamicAl/Func.lean` |
 | Function equivalence pairs binders with private NUL-prefixed markers before alias expansion; it does not allocate or expose upstream `Type.Fresh` names or advance that separate counter; mixfix comparison omits OCaml's physical-identity shortcut | a result-only Boolean comparison needs alpha-renaming, not observable names; the current boundary is well-formed parsed identifiers and bounded signatures, not future substitution after consumed type-fresh allocations or malformed identity-sharing inputs | `Runtime/Type/Equiv.lean` |
 | The builtin dispatcher works on values through typed ports; stateful interpreter dispatch additionally implements `fresh_typeId` after zero-arity validation, but omits `add` registration | one port per builtin file; registration is used by upstream's omitted caches. The pure specialization still has no fresh allocation | `Interface/Builtin/Call.lean`, `Interp/Effects.lean` |
-| Fresh IDs use explicit `ExceptT Fail (StateT (BitVec 63) Option)` state, retaining allocations on failure and negation; integrated into the interpreter, not yet codegen | pure Lean has no global mutable counter; signed 63-bit wrapping matches OCaml `int` on the pinned 64-bit platforms, not 32-bit hosts; callers explicitly choose session/reset boundaries | `Prelude/StateEval.lean`, `Interp/Effects.lean` |
+| Fresh IDs use explicit `ExceptT Fail (StateT (BitVec 63) Option)` state, retaining allocations on failure and negation; integrated into the interpreter and bounded emitter fixtures, with production stateful planning still rejected | pure Lean has no global mutable counter; signed 63-bit wrapping matches OCaml `int` on the pinned 64-bit platforms, not 32-bit hosts; callers explicitly choose session/reset boundaries | `Prelude/StateEval.lean`, `Interp/Effects.lean`, `Codegen/Mode.lean` |
 | A hyphenated upstream directory is a camel-cased Lean directory (`interp-al` is `InterpAl`) | a hyphen cannot be in a module name | `scripts/check-mirror.py` |
 | `is_iter_var_exp` recurses on the size of the expression (`termination_by`) rather than structurally | it descends through the phrase's payload, which structural recursion does not see; a fuel here would make a low-fuel run take the general iteration path instead of diverging, which rung 3 cannot allow | `Interp/InterpAl/Interp.lean` |
 | The refinement theorems are in generated modules after the spec files: `Refinement/Spec` (the quoted spec as a list), one module per recursion group importing its callees' groups, and `Refinement` gathering them with the coverage; one `HoldsSpec` hypothesis over the whole spec | the theorems need every quoted definition (a callee's theorem needs its own callees' table entries), and one hypothesis over the whole spec avoids listing the transitive callees of every definition; a module per group lets Lake recheck only the groups an edit touches, and independent groups in parallel; only these modules import the refinement calculus and tactic, so editing the tactic leaves the spec modules built | `Codegen/Emit.lean`, `Codegen/Validate.lean` |
@@ -940,8 +942,8 @@ preserve paused M3 work and its unchanged gates.
   build times. Target instances arrive with the packet leg of rung 2.
   M3A exports the pinned full spec and measures the remaining obligations;
   generation now passes validated print hints and root-index list and byte
-  text updates. Independent emission probes still identify stateful fresh
-  identifiers as a barrier. M3B fixes
+  text updates. Stateful emitters and proof fixtures exist, but production
+  stateful planning remains blocked on their integration. M3B fixes
   thirteen subtype bridges by retaining their type
   arguments; all 567 bridge pairs now emit text. These probes are not
   evidence of a full-P4 build or proof coverage.

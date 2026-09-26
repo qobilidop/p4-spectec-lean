@@ -26,8 +26,9 @@ Documentation is split by purpose and audience:
 
 | File | Holds |
 |---|---|
-| `docs/prior-arts-comparison.md` | sourced comparison of the design with related work |
+| `docs/related-work.md` | related work on generated semantics, certification and P4 verification |
 | `.agents/notes/design-review.md` | advisory design critique and proposed priorities |
+| `.agents/notes/compiler-certification.md` | terminology discussion, closest certification precedents and sourced reading notes |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
 | `.agents/decisions.md` | the decisions in force, by topic, each with its reason and date |
 | `.agents/roadmap.md` | backlog beyond the milestones in the design |
@@ -81,8 +82,8 @@ python3 scripts/spec-snapshot.py unpack exports/p4.al.json  # verified full-P4 e
 ```
 
 Keep `main` green. Check exit codes, not output. CI
-(`.github/workflows/ci.yml`) runs the same `scripts/check.sh` after
-`lean-action` installs the toolchain and restores the `.lake` cache, and
+(`.github/workflows/ci.yml`) runs the same `scripts/check.sh` in Nix, with
+the elan toolchain and `.lake` build artifacts cached by their pins, and
 checks that the upstream submodule commit is on upstream `main` or on its
 `gsoc-nano-spec` branch, where Nano-P4 lives until it lands on `main`
 (decisions, "Pins"). The `upstream/p4-spectec` working tree is expected
@@ -122,7 +123,7 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 - **The Lean package and namespace are `P4SpecTec`.** `SpecTec` alone
   names the Wasm-DSL project and is not used here.
 - **Every external input is pinned**: P4-SpecTec by commit (the
-  submodule), the opam repository by commit (`scripts/build-upstream.sh`),
+  submodule), the Nix/OCaml environment by `flake.lock`,
   Lean by `lean-toolchain`, Batteries by tag in `lakefile.toml`.
 - **Keep the repository lean; do not commit very large files.** Prefer
   reproducible generation or small, losslessly compressed snapshots for

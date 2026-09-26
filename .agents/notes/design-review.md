@@ -3,7 +3,8 @@
 Date: 2026-09-25. Reviewed baseline:
 `c215d102758c00b829a50085e1e271185a176613`.
 
-Requested companion to [the prior-art comparison](../../docs/prior-arts-comparison.md).
+Requested companion to the prior-art comparison, now rewritten as
+[Related Work](../../docs/related-work.md).
 This note records critique, suggested priorities, and questions from the review.
 The user subsequently adopted the bounded direction below, now incorporated
 in the design and decision register. Other recommendations remain advisory.

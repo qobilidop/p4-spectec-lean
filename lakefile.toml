@@ -1,10 +1,10 @@
-# p4spectec: a compiler from P4-SpecTec's IL to Lean 4, its runtime prelude,
+# p4spectec: a compiler from P4-SpecTec's AL to Lean 4, its runtime prelude,
 # the generated P4 specifications, and a small P4 primitives library.
 # See docs/design.md section 6 for what each library holds.
 name = "p4spectec"
 version = "0.0.1"
-# Test and lint drivers are not default targets; `lake test` and `lake lint`
-# run them. Warnings fail the build through `lake build --wfail` in
+# The test driver is not a default target; `lake test` runs it.
+# Warnings fail the build through `lake build --wfail` in
 # scripts/check.sh, not through warningAsError, which would also rewrite the
 # severities that #guard_msgs tests observe.
 defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec", "NanoP4Proofs"]
@@ -20,7 +20,7 @@ name = "batteries"
 git = "https://github.com/leanprover-community/batteries"
 rev = "v4.34.0"
 
-# Core: IL deep embedding, IL semantics, prelude, codegen, validation tactic.
+# Core: IL/AL syntax, AL semantics, prelude, codegen, validation tactics.
 [[lean_lib]]
 name = "P4SpecTec"
 
