@@ -8,7 +8,7 @@ that initialization succeeds. Only finite definition names are computed.
 This module is our own consumer support, not an upstream mirror.
 -/
 
-namespace NanoP4Proofs.FieldUpdate.Environment
+namespace ExampleProofs.NanoP4FieldUpdate.Environment
 
 -- Match the quoted specification's existing proof budgets for its deep list.
 set_option maxHeartbeats 4000000
@@ -26,7 +26,7 @@ def global : Ctx.global := Refine.Init.global NanoP4Spec.spec
 theorem initEqOk : Ctx.init NanoP4Spec.spec = .ok global :=
   Refine.Init.initEqOk _ nanoKeysUnique
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Environment.initEqOk' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Environment.initEqOk' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms initEqOk
 #audit_axioms initEqOk
@@ -35,7 +35,7 @@ theorem initEqOk : Ctx.init NanoP4Spec.spec = .ok global :=
 theorem holdsSpec : Refine.HoldsSpec NanoP4Spec.spec global :=
   Refine.holdsSpec_of_init initEqOk
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Environment.holdsSpec' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Environment.holdsSpec' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms holdsSpec
 #audit_axioms holdsSpec
@@ -46,9 +46,9 @@ def ctx : Ctx.t := Ctx.empty global
 /-- The initialized consumer context has no local function overrides. -/
 theorem localFenvEmpty : ctx.local.fenv = [] := rfl
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Environment.localFenvEmpty' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Environment.localFenvEmpty' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms localFenvEmpty
 #audit_axioms localFenvEmpty
 
-end NanoP4Proofs.FieldUpdate.Environment
+end ExampleProofs.NanoP4FieldUpdate.Environment

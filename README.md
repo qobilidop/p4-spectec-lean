@@ -52,9 +52,13 @@ nix develop --command scripts/check.sh
 
 This builds the project and runs the checks used by CI.
 
+`nix develop --command lake build` builds the libraries without downstream
+examples. Build those explicitly with `nix develop --command lake build ExampleProofs`;
+the full check above includes them.
+
 ## Start here
 
-- [Checked field-update proof](NanoP4Proofs/FieldUpdate/Example.lean)
+- [Checked field-update proof](ExampleProofs/NanoP4FieldUpdate/Example.lean)
 - [Certification and its limits](docs/certification.md)
 - [Design](docs/design.md)
 - [Performance](docs/performance.md)

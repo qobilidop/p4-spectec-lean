@@ -1,5 +1,5 @@
-import NanoP4Proofs.FieldUpdate.Semantics
-import NanoP4Proofs.FieldUpdate.Representation
+import ExampleProofs.NanoP4FieldUpdate.Semantics
+import ExampleProofs.NanoP4FieldUpdate.Representation
 
 /-!
 First-match laws for the generated Nano-P4 field update, including duplicate names.
@@ -7,7 +7,7 @@ Commutation concerns distinct names and already evaluated replacement values; it
 reorder expression evaluation or claim that arbitrary P4 assignment statements commute.
 -/
 
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 open NanoP4Spec P4SpecTec P4SpecTec.Prelude
 
@@ -15,7 +15,7 @@ open NanoP4Spec P4SpecTec P4SpecTec.Prelude
 theorem updateNil (name : nameIR) (replacement : value) :
     update [] name replacement = [] := rfl
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateNil' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateNil' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateNil
 
@@ -24,7 +24,7 @@ theorem updateHead (old replacement : value) (name : nameIR) (tail : List fieldV
     update (.semi old name :: tail) name replacement = .semi replacement name :: tail := by
   simp [update, nameEq]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateHead' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateHead' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateHead
 
@@ -35,7 +35,7 @@ theorem updateConsOfNe (old replacement : value) (stored name : nameIR)
       .semi old stored :: update tail name replacement := by
   simp [update, nameEq, h]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateConsOfNe' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateConsOfNe' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateConsOfNe
 
@@ -53,7 +53,7 @@ theorem updateNames (fields : List fieldValue) (name : nameIR) (replacement : va
       · simp only [updateConsOfNe old replacement stored name tail h]
         exact congrArg (stored :: ·) ih
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateNames' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateNames' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateNames
 
@@ -63,7 +63,7 @@ theorem updateLength (fields : List fieldValue) (name : nameIR) (replacement : v
   simpa only [names, List.length_map] using
     congrArg List.length (updateNames fields name replacement)
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateLength' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateLength' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateLength
 
@@ -85,7 +85,7 @@ theorem updateOfAbsent (fields : List fieldValue) (name : nameIR) (replacement :
         exact List.mem_cons_of_mem stored h
       rw [updateConsOfNe old replacement stored name tail different, ih tailAbsent]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateOfAbsent' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateOfAbsent' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateOfAbsent
 
@@ -110,7 +110,7 @@ theorem updateFirst (front suffix : List fieldValue) (name : nameIR)
       simp only [List.cons_append, updateConsOfNe payload replacement stored name _ different,
         ih tailAbsent]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateFirst' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateFirst' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateFirst
 
@@ -134,7 +134,7 @@ theorem updateCommute (fields : List fieldValue) (left right : nameIR)
             updateConsOfNe old rightValue stored right _ hr,
             updateConsOfNe old leftValue stored left _ hl, ih]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.updateCommute' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.updateCommute' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms updateCommute
 
@@ -155,7 +155,7 @@ theorem generatedCommute (fields : List fieldValue) (left right : nameIR)
     some (.ok (update (update fields right rightValue) left leftValue))
   rw [updateCommute fields left right leftValue rightValue different]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.generatedCommute' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.generatedCommute' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms generatedCommute
 
@@ -179,8 +179,8 @@ theorem generatedFieldsUpdate (fields : List Field) (name : ByteText) (replaceme
         simp [updateFields, generatedFields, Field.generated, update, h] at ih ⊢
       exact ih
 
-/-- info: 'NanoP4Proofs.FieldUpdate.generatedFieldsUpdate' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.generatedFieldsUpdate' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms generatedFieldsUpdate
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate

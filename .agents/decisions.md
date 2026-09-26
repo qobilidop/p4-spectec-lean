@@ -1,5 +1,19 @@
 # Decisions
 
+## Library and example boundary (2026-09-26)
+
+Use `ExampleProofs/NanoP4FieldUpdate/` for the bounded downstream case, with
+its tests beside the proofs. Do not keep compatibility modules under the old
+`NanoP4Proofs` namespace: the rename is an intentional example import-path
+change, not a semantics or theorem change. `ExampleProofs` is excluded from
+default targets and explicitly built by the full gate. Reusable libraries
+must not depend on examples or test-only modules, even through local helpers;
+check actual import headers with the pinned Lean parser. Reusable support
+remains in `P4SpecTec.Refine`. Reason: users must be able to distinguish the
+provided libraries from demonstrations without weakening example validation.
+Confidence high; revisit classification when adding another library or a
+different public proof interface.
+
 ## Documentation responsibilities (2026-09-26)
 
 Keep user-facing current capabilities, certification guarantees, coverage
@@ -343,7 +357,7 @@ settles is not repeated here.
 
 - **Package and stress-test the existing field-update certificate before
   expanding coverage.** Keep the checked obligation bundle in
-  `NanoP4Proofs/FieldUpdate/Certificate.lean`, with its mutation runner and
+  `ExampleProofs/NanoP4FieldUpdate/Certificate.lean`, with its mutation runner and
   runner contract tests beside it under `test/`. The user explicitly prefers
   related proof and validation code together. Extract only the existing
   specification-independent initialization support into `Refine/Init.lean`;
@@ -363,7 +377,7 @@ settles is not repeated here.
   `update_fieldValue`, preserve duplicates/first-match behavior and absent-key
   identity, and discharge representation and initialized-environment
   obligations. This is not arbitrary P4 assignment reordering or full-P4
-  certification. Handwritten proofs live in `NanoP4Proofs/FieldUpdate/`, with
+  certification. Handwritten proofs live in `ExampleProofs/NanoP4FieldUpdate/`, with
   the checked walkthrough in `Example.lean`; no separate tutorial, planning
   note, or field-update test module initially. Existing generated files stay
   untouched. Reason: demonstrate a complete useful source connection before
@@ -668,12 +682,13 @@ settles is not repeated here.
   for (a theorem the tactic cannot close fails the build). The two
   debugging entry points `run_sound_execute` and `run_sound_close` drive
   it step by step. (2026-09-25)
-- **Rung 3 is defence in depth, not a smaller trusted base.** It moves
-  trust from the generator to the interpreter port, which is reviewable
-  side by side with upstream and cross-checked by rung 2. Both line
-  counts are measured and reported. Reason: Sail's authors note a
-  translation's semantics is "effectively defined by this translation";
-  the claim must be honest. (2026-09-25)
+- **Rung 3 removes generator/tactic trust relative to the chosen reference.**
+  It does not prove the interpreter port, runtime support, exporter or upstream
+  frontend faithful to intended P4. Do not assert comparative trusted-base
+  size without measurements. Reason: align the decision register with the
+  revised Design and Certification distinction between a checked translation
+  theorem and upstream fidelity; the prior "moves trust" slogan was too
+  absolute. (2026-09-26)
 - **A generated per-relation lemma library** (inversion per rule,
   run-soundness, a determinism theorem attempt whose failures are
   reported as spec findings) is part of the public surface from M2.

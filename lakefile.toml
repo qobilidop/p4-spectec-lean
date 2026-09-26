@@ -1,13 +1,14 @@
 # p4spectec: a compiler from P4-SpecTec's AL to Lean 4, its runtime prelude,
 # the generated P4 specifications, and a small P4 primitives library.
-# See docs/design.md section 6 for what each library holds.
+# See docs/design.md section 4.2 for the library dependency boundaries.
 name = "p4spectec"
 version = "0.0.1"
-# The test driver is not a default target; `lake test` runs it.
+# Tests and downstream examples are not default targets. The full gate runs
+# `lake test` and explicitly builds ExampleProofs.
 # Warnings fail the build through `lake build --wfail` in
 # scripts/check.sh, not through warningAsError, which would also rewrite the
 # severities that #guard_msgs tests observe.
-defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec", "NanoP4Proofs"]
+defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec"]
 testDriver = "P4SpecTecTest"
 
 [leanOptions]
@@ -43,9 +44,9 @@ name = "NanoP4Spec"
 [[lean_lib]]
 name = "P4Spec"
 
-# Handwritten consumer proofs over the generated Nano semantics.
+# Downstream verification examples; not a reusable semantics/proof library.
 [[lean_lib]]
-name = "NanoP4Proofs"
+name = "ExampleProofs"
 
 # The compiler: reads AL exports and writes one generated .lean module per
 # upstream spec file. `--update` refreshes committed output; CI diffs it.

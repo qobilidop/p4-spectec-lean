@@ -276,10 +276,10 @@ from the word “certificate”. See the [verification contract](design.md#5-ver
 **Evaluate complete uses, not just generated coverage.** At this baseline,
 [generated AL refinement](../NanoP4Spec/Refinement.lean) covers 18 of 153 Nano
 definitions in one direction. The handwritten
-[field-update certificate](../NanoP4Proofs/FieldUpdate/Certificate.lean)
+[field-update certificate](../ExampleProofs/NanoP4FieldUpdate/Certificate.lean)
 additionally establishes representation coverage, initialization and two-way
 terminating correspondence on its scalar domain. The
-[example](../NanoP4Proofs/FieldUpdate/Example.lean) transfers distinct-name update
+[example](../ExampleProofs/NanoP4FieldUpdate/Example.lean) transfers distinct-name update
 commutation to reference executions. It does not certify arbitrary P4
 assignment reordering, all Nano-P4, or full P4.
 

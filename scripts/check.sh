@@ -4,11 +4,12 @@
 # 1. Layout the design and AGENTS.md rely on; no CLAUDE.md; docs/ does not
 #    link into .agents/.
 # 2. Text hygiene (scripts/check-text.sh).
-# 3. Every module is imported by its library root (scripts/check-imports.sh).
+# 3. Every module is imported by its root; reusable libraries do not import
+#    downstream examples or test-only modules.
 # 4. Mirror checks: mirrored modules have upstream's constructors in
 #    upstream's order (scripts/check-mirror.py).
 # 5. Lean: `lake build --wfail` (warnings fail, and a `sorry` is a warning),
-#    then `lake test`.
+#    then `lake test` and an explicit ExampleProofs build.
 # 6. Generated code is current: the keyword table matches the toolchain and
 #    the committed NanoP4Spec/ is byte-identical to what the generator
 #    writes from exports/nano-p4.al.json.
@@ -30,10 +31,10 @@ for path in \
   AGENTS.md README.md LICENSE docs/design.md docs/lean-pitfalls.md \
   .agents/status.md .agents/decisions.md .agents/roadmap.md \
   lakefile.toml lake-manifest.json lean-toolchain \
-  P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean NanoP4Proofs.lean \
+  P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean ExampleProofs.lean \
   P4SpecTec/Codegen/Main.lean P4SpecTec/Codegen/Keywords.lean \
-  P4SpecTec/Refine/Init.lean NanoP4Proofs/FieldUpdate/Certificate.lean \
-  NanoP4Proofs/FieldUpdate/test/run.py NanoP4Proofs/FieldUpdate/test/test_runner.py \
+  P4SpecTec/Refine/Init.lean ExampleProofs/NanoP4FieldUpdate/Certificate.lean \
+  ExampleProofs/NanoP4FieldUpdate/test/run.py ExampleProofs/NanoP4FieldUpdate/test/test_runner.py \
   upstream/p4-spectec/README.md upstream/nano-p4-spec/README.md \
   upstream/patches/0001-json-export.patch \
   exports/nano-p4.al.json.gz exports/nano-p4.al.json.sha256 \
@@ -41,6 +42,8 @@ for path in \
   exports/programs/nano-p4 scripts/spec-snapshot.py test/snapshot/test_snapshot.py \
   scripts/check-file-sizes.py test/snapshot/test_file_sizes.py test/diff/test_json_boundary.py \
   scripts/check-text.py scripts/test-check-text.py scripts/test-build-upstream.py \
+  scripts/check-library-boundaries.py scripts/test-library-boundaries.py \
+  scripts/library-imports.lean \
   .agents/notes/p4-census.json P4SpecTecTest/Quote/Main.lean P4SpecTecTest/Census/Main.lean \
   test/print/observed.json test/print/run.py test/print/probe.ml \
   P4SpecTecTest/Print/Main.lean P4SpecTecTest/Text/Main.lean \
@@ -97,10 +100,10 @@ python3 "$root/scripts/test-check-text.py" || fail=1
 python3 "$root/scripts/test-build-upstream.py" || fail=1
 python3 "$root/scripts/check-file-sizes.py" || fail=1
 python3 "$root/test/snapshot/test_file_sizes.py" || fail=1
-"$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec NanoP4Proofs || fail=1
+"$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec ExampleProofs || fail=1
 python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
 python3 "$root/test/snapshot/test_snapshot.py" || { say "snapshot tests failed"; fail=1; }
-python3 "$root/NanoP4Proofs/FieldUpdate/test/test_runner.py" \
+python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/test_runner.py" \
   || { say "field-update mutation runner contract tests failed"; fail=1; }
 bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
 python3 "$root/scripts/test-fetch-p4c.py" || { say "p4c restore tests failed"; fail=1; }
@@ -128,8 +131,14 @@ for name in nano-p4 p4; do
 done
 
 if command -v lake >/dev/null 2>&1; then
+  (cd "$root" && lake env python3 "$root/scripts/check-library-boundaries.py") \
+    || { say "library boundary check failed"; fail=1; }
+  (cd "$root" && lake env python3 "$root/scripts/test-library-boundaries.py" --lean) \
+    || { say "library boundary regression tests failed"; fail=1; }
   (cd "$root" && lake build --wfail) || { say "lake build --wfail failed"; fail=1; }
   (cd "$root" && lake test) || { say "lake test failed"; fail=1; }
+  (cd "$root" && lake build --wfail ExampleProofs) \
+    || { say "ExampleProofs build failed"; fail=1; }
   "$root/scripts/gen-keywords.sh" --check || { say "keyword table is stale"; fail=1; }
   (cd "$root" && lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --check) \
     || { say "NanoP4Spec/ is stale; run: lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --update"; fail=1; }
@@ -141,7 +150,7 @@ if command -v lake >/dev/null 2>&1; then
     check-nano-target check-nano-packet check-nano-driver check-nano-verify) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
-  python3 "$root/NanoP4Proofs/FieldUpdate/test/run.py" \
+  python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }
   (cd "$root" && lake exe check-text-builtins) \

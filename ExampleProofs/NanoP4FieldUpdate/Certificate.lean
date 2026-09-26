@@ -1,5 +1,5 @@
-import NanoP4Proofs.FieldUpdate.Correspondence
-import NanoP4Proofs.FieldUpdate.Laws
+import ExampleProofs.NanoP4FieldUpdate.Correspondence
+import ExampleProofs.NanoP4FieldUpdate.Laws
 
 /-!
 # Checked field-update certificate
@@ -30,7 +30,7 @@ The axiom audit checks their transitive logical dependencies. This is one
 bounded certificate, not a generator-wide coverage or dependency census.
 -/
 
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
@@ -122,9 +122,9 @@ theorem certificate : Certificate where
   composedObservations := referenceObservesIff
   independentUpdates := updateCommute
 
-/-- info: 'NanoP4Proofs.FieldUpdate.certificate' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.certificate' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms certificate
 #audit_axioms certificate
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate

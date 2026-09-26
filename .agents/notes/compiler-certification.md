@@ -217,8 +217,9 @@ guarantee as our goal.
 - Keep source identity, representation coverage, environments and proof
   direction explicit. Kernel acceptance alone does not choose the claim.
 - Use downstream examples to evaluate usability while keeping their code
-  separate from provided libraries. The approved destination is
-  `ExampleProofs/NanoP4FieldUpdate/`; that refactor is paused for README review.
+  separate from provided libraries. The field-update case lives in
+  `ExampleProofs/NanoP4FieldUpdate/`; reusable proof support remains in
+  `P4SpecTec.Refine`.
 - The closest-approach assessment is a synthesis of the cited work, not a
   first-of-its-kind claim or an exhaustive ranking of compiler research.
 

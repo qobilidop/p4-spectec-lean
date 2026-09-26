@@ -1,7 +1,7 @@
 import NanoP4Spec.Refinement.update_fieldValue
-import NanoP4Proofs.FieldUpdate.Semantics
-import NanoP4Proofs.FieldUpdate.Environment
-import NanoP4Proofs.FieldUpdate.Representation
+import ExampleProofs.NanoP4FieldUpdate.Semantics
+import ExampleProofs.NanoP4FieldUpdate.Environment
+import ExampleProofs.NanoP4FieldUpdate.Representation
 
 /-!
 # Finite-fuel correspondence for field updates
@@ -16,7 +16,7 @@ not a proof of the surrounding lvalue evaluation or arbitrary expression effects
 open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine P4SpecTec.Interp_al
 open Lean Elab Tactic Meta
 open P4SpecTec.Lang.Il P4SpecTec.Domain
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 set_option maxHeartbeats 4000000
 set_option maxRecDepth 8192
@@ -170,8 +170,8 @@ local elab "field_update_step" : tactic => do
     `(Lean.Parser.Tactic.simpLemma| $(mkIdent n):ident)
   let procs ← s.procs.mapM fun n => `(Lean.Parser.Tactic.simpLemma| ↓ $(mkIdent n):ident)
   let all : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (args ++ procs)
-  let av := mkIdent `NanoP4Proofs.FieldUpdate.assignVar
-  let ai := mkIdent `NanoP4Proofs.FieldUpdate.assignIter
+  let av := mkIdent `ExampleProofs.NanoP4FieldUpdate.assignVar
+  let ai := mkIdent `ExampleProofs.NanoP4FieldUpdate.assignIter
   evalTactic (← `(tactic| simp only [$all,*, ↓ $av:ident, ↓ $ai:ident]))
 
 
@@ -574,7 +574,7 @@ theorem alRealizesUpdate
     exact forwardSuccess (7 * xs.length + 33) cfg ctx internal hguard hfenv hspec
       _ rawName rawValue fields name replacement hfields hname hvalue output ho
 
-/-- info: 'NanoP4Proofs.FieldUpdate.alRealizesUpdate' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.alRealizesUpdate' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms alRealizesUpdate
 #audit_axioms alRealizesUpdate
@@ -623,7 +623,7 @@ theorem referenceSound (fuel : Nat) (fields : List NanoP4Spec.fieldValue)
   | ok output => exact ⟨output, rfl, hrel⟩
   | error e => exact False.elim hrel
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceSound' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceSound' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceSound
 
@@ -650,7 +650,7 @@ theorem referenceWritesSound (firstFuel secondFuel : Nat) (fields : List Field)
     exact referenceSound secondFuel _ right rightValue.generated middle
       (toValue right) (toValue rightValue.generated) hmiddle rfl rfl result hresult
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceWritesSound' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceWritesSound' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceWritesSound
 
@@ -668,7 +668,7 @@ theorem referenceObservationSound (fields : List Field) (rawFields : Lang.Il.val
   cases Except.ok.inj hout
   exact hobs.symm.trans hrel
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceObservationSound' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceObservationSound' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceObservationSound
 
@@ -684,7 +684,7 @@ theorem referenceRealizes (fields : List NanoP4Spec.fieldValue) (name : ByteText
     Environment.localFenvEmpty Environment.holdsSpec rawFields rawName rawReplacement
     fields name replacement hfields hname hvalue
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceRealizes' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceRealizes' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceRealizes
 
@@ -709,7 +709,7 @@ theorem referenceWritesRealize (fields : List Field) (rawFields : Lang.Il.value)
   rw [Refine.run_bind, hfirst]
   exact hsecond
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceWritesRealize' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceWritesRealize' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceWritesRealize
 
@@ -730,8 +730,8 @@ theorem referenceObservesIff (fields : List Field) (rawFields : Lang.Il.value)
       referenceWritesRealize fields rawFields hfields left right leftValue rightValue
     exact ⟨firstFuel, secondFuel, output, hrun, hrel.trans h.symm⟩
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceObservesIff' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceObservesIff' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceObservesIff
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate

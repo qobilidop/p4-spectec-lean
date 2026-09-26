@@ -1,4 +1,4 @@
-import NanoP4Proofs.FieldUpdate.Certificate
+import ExampleProofs.NanoP4FieldUpdate.Certificate
 
 /-!
 # Independent field writes commute
@@ -48,9 +48,9 @@ the certificate and runs the colocated tests as part of the normal gate.
 For focused work after dependencies are built:
 
 ```sh
-nix develop --command lake build --wfail NanoP4Proofs P4SpecTecTest
-nix develop --command python3 NanoP4Proofs/FieldUpdate/test/test_runner.py
-nix develop --command python3 NanoP4Proofs/FieldUpdate/test/run.py
+nix develop --command lake build --wfail ExampleProofs P4SpecTecTest
+nix develop --command python3 ExampleProofs/NanoP4FieldUpdate/test/test_runner.py
+nix develop --command python3 ExampleProofs/NanoP4FieldUpdate/test/run.py
 ```
 
 The runner uses small temporary Lean modules, not extra worktrees or edits to
@@ -75,7 +75,7 @@ quotation identical, except in the deliberately changed-quotation case. This
 tests a generated artifact, not a mutation of the generator implementation.
 -/
 
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 open P4SpecTec P4SpecTec.Prelude
 
@@ -102,7 +102,7 @@ theorem independentWritesCommute (fields : List Field) (left right : ByteText)
       rightValue.generated leftValue.generated).run :=
   generatedCommute _ _ _ _ _ different
 
-/-- info: 'NanoP4Proofs.FieldUpdate.independentWritesCommute' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.independentWritesCommute' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms independentWritesCommute
 
@@ -121,7 +121,7 @@ theorem duplicateExample (name : ByteText) (first later replacement : Scalar) :
     [.semi replacement.generated name, .semi later.generated name] :=
   updateHead _ _ _ _
 
-/-- info: 'NanoP4Proofs.FieldUpdate.duplicateExample' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.duplicateExample' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms duplicateExample
 
@@ -132,7 +132,7 @@ theorem absentExample (stored missing : ByteText) (old replacement : Scalar)
       [.semi old.generated stored] := by
   rw [updateConsOfNe _ _ _ _ _ different, updateNil]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.absentExample' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.absentExample' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms absentExample
 
@@ -173,7 +173,7 @@ theorem referenceWritesExist (rawFields : Lang.Il.value) (source : SourceFields 
     referenceWritesRealize fields rawFields hfields left right leftValue rightValue
   exact ⟨Refine.canon output, firstFuel, secondFuel, output, hrun, rfl⟩
 
-/-- info: 'NanoP4Proofs.FieldUpdate.referenceWritesExist' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.referenceWritesExist' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms referenceWritesExist
 
@@ -191,8 +191,8 @@ theorem independentReferenceWritesCommute
     certificate.independentUpdates _ left right
       leftValue.generated rightValue.generated different]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.independentReferenceWritesCommute' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.independentReferenceWritesCommute' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms independentReferenceWritesCommute
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate

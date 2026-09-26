@@ -3,7 +3,7 @@
 Implementation planning, separate from the intended architecture in
 `docs/design.md`. The first consumer
 checkpoint, brought forward from M4, is complete: bounded field-update
-correspondence and commutation are checked in `NanoP4Proofs/FieldUpdate/`.
+correspondence and commutation are checked in `ExampleProofs/NanoP4FieldUpdate/`.
 No IL backend or broad redesign is scheduled. Broader M3 and the backlog
 below remain paused; an item becomes work only when the user scopes it.
 
@@ -22,10 +22,10 @@ Moved here from Design so milestones do not masquerade as architecture:
   The first bounded consumer proof was brought forward and is complete;
   that does not close the broader library/interface work.
 
-The approved library/example separation remains a distinct later task:
-`ExampleProofs/NanoP4FieldUpdate/`, with examples removed from default client
-builds but retained explicitly in the gate. No implementation change is part
-of the documentation checkpoint.
+The library/example separation uses `ExampleProofs/NanoP4FieldUpdate/`,
+excluded from default client builds and retained explicitly in the full gate.
+An import-boundary check prevents reusable libraries from depending on
+examples or test-only modules. This changes organization, not proof coverage.
 
 ## Backlog
 

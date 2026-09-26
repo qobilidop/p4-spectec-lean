@@ -102,7 +102,7 @@ The precise refinement statement and proof machinery are in
 
 ## A complete bounded example
 
-The [field-update certificate](../NanoP4Proofs/FieldUpdate/Certificate.lean)
+The [field-update certificate](../ExampleProofs/NanoP4FieldUpdate/Certificate.lean)
 packages proof terms for the actual generated `update_fieldValue`, its quoted
 definition, representation coverage, successful reference initialization and
 both directions of correspondence. The reverse direction supplies finite
@@ -114,11 +114,18 @@ absent names leave the list unchanged. The domain is a shape restriction,
 not a P4 typing or numeric-range theorem. Nested payloads, printing and
 externs are excluded.
 
-The [worked example](../NanoP4Proofs/FieldUpdate/Example.lean) transfers
+The [worked example](../ExampleProofs/NanoP4FieldUpdate/Example.lean) transfers
 commutation of updates to distinct names, with already evaluated replacement
 values, to reference executions. It does not justify reordering arbitrary P4
 assignments whose expressions may have effects. The proof and its mutation
 tests stay beside the example code.
+
+`ExampleProofs` is a downstream example library, not reusable semantics or
+proof infrastructure. It is excluded from the default `lake build`, but the
+full gate explicitly builds it and runs its colocated tests. Reusable
+libraries cannot import example or test-only modules; the gate checks that
+boundary, including indirect local imports. Reusable initialization and
+refinement support remain under `P4SpecTec.Refine`.
 
 ## What remains trusted?
 
@@ -161,7 +168,7 @@ name. Targeted checks, after the normal build has prepared dependencies, are:
 
 ```sh
 nix develop --command lake build NanoP4Spec.Refinement
-nix develop --command lake build NanoP4Proofs.FieldUpdate.Certificate
+nix develop --command lake build ExampleProofs.NanoP4FieldUpdate.Certificate
 nix develop --command lake exe check-quotes
 ```
 

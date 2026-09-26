@@ -6,7 +6,7 @@ The domain includes every generated value and field name, including duplicate fi
 Replacement values are already evaluated; this interface makes no claim about expression effects.
 -/
 
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 open NanoP4Spec P4SpecTec P4SpecTec.Prelude
 
@@ -27,7 +27,7 @@ theorem nameEq (left right : nameIR) : (left == right) = true ↔ left = right :
   simp only [beq_iff_eq]
   exact ByteText.compare_eq_iff_eq left right
 
-/-- info: 'NanoP4Proofs.FieldUpdate.nameEq' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.nameEq' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms nameEq
 
@@ -55,8 +55,8 @@ theorem generatedEqUpdate (fields : List fieldValue) (name : nameIR) (replacemen
       cases h : (stored == name) <;>
         simp only [update, bne, h, ih] <;> rfl
 
-/-- info: 'NanoP4Proofs.FieldUpdate.generatedEqUpdate' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.generatedEqUpdate' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms generatedEqUpdate
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate

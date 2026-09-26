@@ -15,7 +15,7 @@ Nested records, packet/table objects, printing and source parsing are outside
 this example. The correspondence profile disables dynamic guards.
 -/
 
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 open P4SpecTec P4SpecTec.Lang.Il P4SpecTec.Domain P4SpecTec.Prelude
 
@@ -70,4 +70,4 @@ def SourceScalar (v : value) : Prop :=
 def SourceFields (v : value) : Prop :=
   ∃ fs : List Field, Refine.canon v = Refine.canon (sourceFields fs)
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate

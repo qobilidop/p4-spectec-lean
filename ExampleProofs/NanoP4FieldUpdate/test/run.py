@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bounded semantic mutations, using scratch copies and compiled dependencies.
 
-Run inside nix develop after lake build NanoP4Proofs and lake test. These
+Run inside nix develop after lake build ExampleProofs and lake test. These
 observations exercise three separate boundaries; they are not additional proofs.
 """
 
@@ -52,7 +52,7 @@ def probe(case, nonce):
     quote = "def «$update_fieldValue».al" + extract(
         generated, "def «$update_fieldValue».al", "def Lvalue_write.run")
     # The quotation is followed by no helper declarations at this pin.
-    representation = (ROOT / "NanoP4Proofs/FieldUpdate/Representation.lean").read_text()
+    representation = (ROOT / "ExampleProofs/NanoP4FieldUpdate/Representation.lean").read_text()
     scalar = "def Scalar.generated" + extract(
         representation, "def Scalar.generated", "/-- Embed an independently represented field")
     if case == "behavior":
@@ -69,13 +69,13 @@ def probe(case, nonce):
                            'Scratch.«$update_fieldValue»', 1)
     scalar = replace_once(scalar, "def Scalar.generated", "def scalarGenerated")
     export = json.dumps(str(ROOT / "exports/nano-p4.al.json"))
-    return f'''import NanoP4Proofs.FieldUpdate.Correspondence
+    return f'''import ExampleProofs.NanoP4FieldUpdate.Correspondence
 import P4SpecTecTest.Quote
 set_option linter.missingDocs false
 set_option linter.unusedVariables false
 set_option maxHeartbeats 1000000
 open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
-open NanoP4Proofs.FieldUpdate
+open ExampleProofs.NanoP4FieldUpdate
 namespace Scratch
 {helper}
 {quote}
@@ -117,9 +117,9 @@ def validate(case, nonce, returncode, stdout, stderr):
 def proof_probe(case, nonce):
     """Replay checked proof bodies against the independently compiled scratch definitions."""
     definitions = probe(case, nonce).split("def main : IO UInt32 := do", 1)[0]
-    semantics = (ROOT / "NanoP4Proofs/FieldUpdate/Semantics.lean").read_text()
+    semantics = (ROOT / "ExampleProofs/NanoP4FieldUpdate/Semantics.lean").read_text()
     behavior = "theorem generatedEqUpdate" + extract(
-        semantics, "theorem generatedEqUpdate", "/-- info: 'NanoP4Proofs.FieldUpdate.generatedEqUpdate'")
+        semantics, "theorem generatedEqUpdate", "/-- info: 'ExampleProofs.NanoP4FieldUpdate.generatedEqUpdate'")
     behavior = replace_exact(behavior, 'NanoP4Spec.«$update_fieldValue»',
                              'Scratch.«$update_fieldValue»', 3)
     emitted = (ROOT / "NanoP4Spec/Refinement/update_fieldValue.lean").read_text()
@@ -132,10 +132,10 @@ def proof_probe(case, nonce):
     if case != "quotation":
         definitions += ("example : Scratch.«$update_fieldValue».al = "
                         "NanoP4Spec.«$update_fieldValue».al := rfl\n")
-    representation = (ROOT / "NanoP4Proofs/FieldUpdate/Representation.lean").read_text()
+    representation = (ROOT / "ExampleProofs/NanoP4FieldUpdate/Representation.lean").read_text()
     adequacy = "theorem sourceRel" + extract(
         representation, "theorem Scalar.sourceRel",
-        "/-- info: 'NanoP4Proofs.FieldUpdate.Scalar.sourceRel'")
+        "/-- info: 'ExampleProofs.NanoP4FieldUpdate.Scalar.sourceRel'")
     adequacy = replace_once(adequacy, "s.generated", "(Scratch.scalarGenerated s)")
     obligations = refinement if case == "behavior" else adequacy if case == "representation" else (
         behavior + "\n" + adequacy if case == "quotation" else

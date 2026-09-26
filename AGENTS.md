@@ -39,7 +39,7 @@ Documentation is split by purpose and audience:
 | `.agents/reviews/` | independent review reports for the current work |
 | `.agents/notes/full-p4-reconnaissance.md` | full-P4 census findings and the remaining M3 phases |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
-| `NanoP4Proofs/FieldUpdate/` | bounded consumer proof, checked `Certificate.lean`, `Example.lean` walkthrough and colocated `test/` |
+| `ExampleProofs/NanoP4FieldUpdate/` | bounded consumer proof, checked `Certificate.lean`, `Example.lean` walkthrough and colocated `test/` |
 
 `.agents/` is a hidden directory; `rg` and `fd` skip it unless told to
 include hidden files. Git history is the archive; nothing is tagged.
@@ -75,6 +75,7 @@ scripts/export-spec.sh      # regenerate exports/<name>.al.json (upstream shell)
 scripts/export-program.sh   # re-boot the Nano-P4 corpus with upstream's verdicts (upstream shell)
 scripts/fetch-p4c.sh        # optional pinned full-P4 sample/include checkout under .artifacts/
 scripts/check-mirror.py     # mirrored modules have upstream's constructors in order
+lake env python3 scripts/check-library-boundaries.py  # libraries cannot import examples/tests
 scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token table
 scripts/time-elab.sh <Lib>  # per-module build durations; see docs/performance.md
 lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]   # the compiler
@@ -172,9 +173,15 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   `propext`, `Classical.choice` and `Quot.sound`. `native_decide` is not
   used in proofs: it adds the `Lean.ofReduceBool` axiom, which the audit
   rejects.
+- **Downstream examples live in `ExampleProofs/`**, outside default targets.
+  The full gate explicitly builds them and runs colocated example tests.
+  Reusable libraries (`P4SpecTec`, `P4Lib`, `NanoP4Spec`, `P4Spec`) must not
+  import examples or test-only modules, directly or through local helpers.
+  Keep reusable proof support in the library, not in an example namespace.
 - **Generated code** carries a grep-able first line naming the generator
   and its input, and a fixed preamble of options. Generated modules live
-  in their own library so a default build can skip them.
+  in their own libraries; default targets include the provided libraries,
+  not the downstream examples.
 - **Every decision the design does not settle** goes in
   `.agents/decisions.md` under its topic, with reason and date, and with
   a confidence and revisit trigger when uncertain.

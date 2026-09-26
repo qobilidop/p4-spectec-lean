@@ -1,4 +1,4 @@
-import NanoP4Proofs.FieldUpdate.Domain
+import ExampleProofs.NanoP4FieldUpdate.Domain
 import NanoP4Spec.«3.0-value»
 import P4SpecTec.Refine.Calc
 
@@ -10,7 +10,7 @@ representation. The scope is stated in `Domain`, not inferred from the generated
 encoder. Decoder bounds below concern scalar values only, not nested records.
 -/
 
-namespace NanoP4Proofs.FieldUpdate
+namespace ExampleProofs.NanoP4FieldUpdate
 
 open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
@@ -32,7 +32,7 @@ def generatedFields (fs : List Field) : List NanoP4Spec.fieldValue := fs.map Fie
 theorem Scalar.sourceRel (s : Scalar) : Rel s.source s.generated := by
   cases s <;> rfl
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Scalar.sourceRel' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Scalar.sourceRel' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Scalar.sourceRel
 
@@ -41,7 +41,7 @@ theorem Field.sourceRel (f : Field) : Rel f.source f.generated := by
   cases f with
   | mk s n => cases s <;> rfl
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Field.sourceRel' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Field.sourceRel' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Field.sourceRel
 
@@ -58,7 +58,7 @@ theorem sourceFieldsRel (fs : List Field) : Rel (sourceFields fs) (generatedFiel
         Refine.canons ((generatedFields fs).map toValue)
     rw [show Refine.canon f.source = Refine.canon (toValue f.generated) from f.sourceRel, ih]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.sourceFieldsRel' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.sourceFieldsRel' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms sourceFieldsRel
 
@@ -68,7 +68,7 @@ theorem scalarCoverage {v : Lang.Il.value} (h : SourceScalar v) :
   obtain ⟨s, h⟩ := h
   exact ⟨s, h.trans s.sourceRel⟩
 
-/-- info: 'NanoP4Proofs.FieldUpdate.scalarCoverage' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.scalarCoverage' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms scalarCoverage
 
@@ -78,7 +78,7 @@ theorem fieldsCoverage {v : Lang.Il.value} (h : SourceFields v) :
   obtain ⟨fs, h⟩ := h
   exact ⟨fs, h.trans (sourceFieldsRel fs)⟩
 
-/-- info: 'NanoP4Proofs.FieldUpdate.fieldsCoverage' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.fieldsCoverage' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms fieldsCoverage
 
@@ -86,7 +86,7 @@ theorem fieldsCoverage {v : Lang.Il.value} (h : SourceFields v) :
 theorem scalarEncodingValid (s : Scalar) : SourceScalar (toValue s.generated) :=
   ⟨s, s.sourceRel.symm⟩
 
-/-- info: 'NanoP4Proofs.FieldUpdate.scalarEncodingValid' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.scalarEncodingValid' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms scalarEncodingValid
 
@@ -95,7 +95,7 @@ theorem fieldsEncodingValid (fs : List Field) :
     SourceFields (toValue (generatedFields fs)) :=
   ⟨fs, (sourceFieldsRel fs).symm⟩
 
-/-- info: 'NanoP4Proofs.FieldUpdate.fieldsEncodingValid' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.fieldsEncodingValid' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms fieldsEncodingValid
 
@@ -114,7 +114,7 @@ theorem Scalar.decodeGenerated (s : Scalar) (fuel : Nat) :
       NanoP4Spec.id.ofValue, NanoP4Spec.typeId.toValue, NanoP4Spec.nameIR.toValue,
       NanoP4Spec.callableId.toValue, NanoP4Spec.id.toValue]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Scalar.decodeGenerated' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Scalar.decodeGenerated' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Scalar.decodeGenerated
 
@@ -132,7 +132,7 @@ theorem Scalar.decodeSource (s : Scalar) (fuel : Nat) :
       NanoP4Spec.typeId.ofValue, NanoP4Spec.nameIR.ofValue, NanoP4Spec.callableId.ofValue,
       NanoP4Spec.id.ofValue]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Scalar.decodeSource' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Scalar.decodeSource' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Scalar.decodeSource
 
@@ -153,7 +153,7 @@ theorem Field.decodeGenerated (f : Field) (fuel : Nat) :
       NanoP4Spec.callableId.ofValue, NanoP4Spec.id.ofValue, NanoP4Spec.nameIR.toValue,
       NanoP4Spec.callableId.toValue, NanoP4Spec.id.toValue]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Field.decodeGenerated' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Field.decodeGenerated' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Field.decodeGenerated
 
@@ -171,7 +171,7 @@ theorem Field.decodeSource (f : Field) (fuel : Nat) :
       OfValue.ofValue, Runtime.Value.Make.text, NanoP4Spec.typeId.ofValue,
       NanoP4Spec.nameIR.ofValue, NanoP4Spec.callableId.ofValue, NanoP4Spec.id.ofValue]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Field.decodeSource' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Field.decodeSource' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Field.decodeSource
 
@@ -186,7 +186,7 @@ theorem decodeFields (fs : List Field) (fuel : Nat) :
     simp only [List.map_cons, List.mapM_cons, f.decodeSource, ih]
     rfl
 
-/-- info: 'NanoP4Proofs.FieldUpdate.decodeFields' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.decodeFields' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms decodeFields
 
@@ -200,7 +200,7 @@ theorem Scalar.sourceInjective (a b : Scalar) :
       Runtime.Value.Make.int, Runtime.Value.Make.bool, Runtime.Value.Make.text,
       Util.Source.info.mk.injEq, Value.atom, Util.Source.mkPhrase]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Scalar.sourceInjective' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Scalar.sourceInjective' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Scalar.sourceInjective
 
@@ -216,7 +216,7 @@ theorem Field.sourceInjective (a b : Field) :
         Util.Source.info.mk.injEq, Field.mk.injEq] using
         and_congr (av.sourceInjective bv) (Iff.rfl (a := an = bn))
 
-/-- info: 'NanoP4Proofs.FieldUpdate.Field.sourceInjective' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.Field.sourceInjective' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Field.sourceInjective
 
@@ -233,8 +233,8 @@ theorem sourceFieldsInjective (as bs : List Field) :
     | nil => simp [canons]
     | cons b bs => simp [canons, a.sourceInjective b, ih]
 
-/-- info: 'NanoP4Proofs.FieldUpdate.sourceFieldsInjective' depends on axioms:
+/-- info: 'ExampleProofs.NanoP4FieldUpdate.sourceFieldsInjective' depends on axioms:
     [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms sourceFieldsInjective
 
-end NanoP4Proofs.FieldUpdate
+end ExampleProofs.NanoP4FieldUpdate
