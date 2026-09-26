@@ -48,6 +48,24 @@ settles is not repeated here.
   type-fresh fidelity. Revisit before supporting nested function
   substitution or claiming guarded full-P4 coverage. (2026-09-25)
 
+- **Export full-P4 AL observations through fresh per-relation processes.**
+  Match `run -al` with cache on, deterministic and guard checks off; boot
+  the same program separately for `Program_ok` and `Program_inst`, compare
+  the boot JSON, and record exact typed outputs and fresh counters. Keep
+  complete runtime observations compressed and ignored; commit only small
+  reproducible digest fixtures. Verify the pinned upstream HEAD, its exact
+  four-file export patch and a current Dune build before linking the probe.
+  Normalize only source-region fields in fixture digests; semantic value
+  strings remain literal. Require the four-case manifest and schema, and
+  count only CLI exit 1 with diagnostic output as a negative verdict.
+  Reason: the CLI reports only verdicts,
+  `Program_inst` internally invokes `Program_ok`, and one shared mutable
+  session would move fresh IDs. The public AL API collapses internal
+  `Err` and `Unmatch`, so fixture classes are limited to its observable
+  syntax, unmatch, abort and pass outcomes. Confidence: high for the
+  bounded pinned observations; revisit memory and storage policy before
+  corpus-scale use. Revised after independent review. (2026-09-25)
+
 - **Restore full-P4 corpus sources as a sparse ignored p4c checkout.**
   Derive the commit and HTTPS URL from the pinned P4-SpecTec gitlink and
   committed `.gitmodules`, not branch tips or mutable configuration. Fetch

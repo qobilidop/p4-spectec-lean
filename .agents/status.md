@@ -57,7 +57,7 @@ census reports zero executable emission failures and 256 explicit pure-Prop
 rejections, with no generated stateful refinement candidates. This records
 text emission, not full-P4 elaboration. The integrated full
 `scripts/check.sh` exited 0 with no skips, including both Nano differential
-legs, all existing oracles and the refreshed census. Remote CI remains owed.
+legs, all existing oracles and the refreshed census. Final remote CI passed.
 
 PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
 now has an all-fuel exact-state refinement boundary, with explicit disabled
@@ -66,9 +66,30 @@ review passed. That checkpoint is now merged into this integration branch;
 the combined revision, including the actual-emitted allocator refinement
 fixture, passed a fresh full `scripts/check.sh` (exit 0, no skips).
 The fixture independently passed a 75-job build and direct Lean elaboration;
-review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. Published as PR #17;
-remote CI must pass on its final revision before merging. Recursive proof
-integration and production enablement continue separately.
+review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. PR #17's final
+remote Gate passed in 12m11s (run `36205479916`), and it merged as `b08ab8e`.
+Recursive proof integration and production enablement continue separately.
+
+## Active checkpoint: bounded full-P4 oracle
+
+- Branch `m3c-p4-oracle-publish` integrates reviewed adapter revisions
+  `16a2d57` and `997d0ab`. All four initial medium findings are resolved;
+  independent AI-agent code and gate-plumbing reviews found no issues.
+- The ordinary gate requires six adapter files and runs twelve offline
+  contract tests. It does not download p4c, build OCaml or run the real
+  full-P4 oracle. Independent focused checks exited 0: twelve offline tests,
+  four pinned cases with eight CLI comparisons, and additional in-memory
+  sensitivity tests. Exact commands and limits are in
+  `.agents/reviews/m3c-p4-oracle-adapter.md` and the corresponding note.
+- Published as PR #18 at `093dc4e` after its frozen full gate exited 0
+  without skips and its relocated real oracle check exited 0. Remote Gate
+  `36205678753` passed in 1m52s. PR #17's merge required a status-only
+  conflict resolution against current main `b08ab8e`; source merged cleanly.
+  The merged revision's frozen full gate exited 0 with no skips, including
+  all twelve offline oracle tests and the updated generator census. Final
+  remote CI is required before landing.
+- This is an upstream-side oracle only, not Lean replay, a corpus denominator
+  or full-P4 generation/refinement evidence.
 
 ## Merged checkpoint: pinned corpus preparation
 
@@ -144,8 +165,10 @@ integration and production enablement continue separately.
   `/Users/qobilidop/my/work/p4-spectec-lean-state-oracle`, branch
   `m3b-state-oracle`, note `.agents/notes/full-p4-corpus-prep.md`.
   The pinned sparse sample/include checkout is restored. The boot/result
-  oracle adapter remains to be implemented. Regression files alone do not
-  establish the canonical corpus denominator. No full-corpus boot claim.
+  oracle adapter is reviewed and published as PR #18; its merge with current
+  main passed a new full local gate and needs final remote CI. The bounded
+  observations
+  are not the canonical corpus denominator or a full-corpus boot claim.
 - Next: checkpoint proof fixtures; independently review and integrate
   executable/proof generators; establish stateful refinement; regenerate
   and elaborate full P4. Then M3C corpus/fidelity, M3D targets (NanoSwitch,
