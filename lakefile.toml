@@ -7,7 +7,7 @@ version = "0.0.1"
 # run them. Warnings fail the build through `lake build --wfail` in
 # scripts/check.sh, not through warningAsError, which would also rewrite the
 # severities that #guard_msgs tests observe.
-defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec"]
+defaultTargets = ["P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec", "NanoP4Proofs"]
 testDriver = "P4SpecTecTest"
 
 [leanOptions]
@@ -42,6 +42,10 @@ name = "NanoP4Spec"
 # The full P4 specification, generated from exports/p4.al.json (M3).
 [[lean_lib]]
 name = "P4Spec"
+
+# Handwritten consumer proofs over the generated Nano semantics.
+[[lean_lib]]
+name = "NanoP4Proofs"
 
 # The compiler: reads AL exports and writes one generated .lean module per
 # upstream spec file. `--update` refreshes committed output; CI diffs it.

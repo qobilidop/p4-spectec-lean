@@ -315,6 +315,20 @@ settles is not repeated here.
 
 ## Generated code
 
+- **Certify a bounded Nano field-update consumer example before resuming
+  broader M3 expansion.** The user approved retaining AL and both execution
+  paths, proving two-way terminating correspondence for a scalar field-list
+  domain, and transferring distinct-field update commutation. Use actual
+  `update_fieldValue`, preserve duplicates/first-match behavior and absent-key
+  identity, and discharge representation and initialized-environment
+  obligations. This is not arbitrary P4 assignment reordering or full-P4
+  certification. Handwritten proofs live in `NanoP4Proofs/FieldUpdate/`, with
+  the checked walkthrough in `Example.lean`; no separate tutorial, planning
+  note, or field-update test module initially. Existing generated files stay
+  untouched. Reason: demonstrate a complete useful source connection before
+  widening coverage. Confidence: high in the bounded scope; revisit the proof
+  interface after the example. Broader M3 remains paused. (2026-09-25)
+
 - **Use checked root-index updates and reject unsupported path shapes.**
   The four list updates landed separately; the two text updates now use
   the integrated byte representation, preserving invalid-UTF-8 results

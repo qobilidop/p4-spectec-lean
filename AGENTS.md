@@ -33,6 +33,7 @@ Documentation is split by purpose and audience:
 | `.agents/reviews/` | independent review reports for the current work |
 | `.agents/notes/full-p4-reconnaissance.md` | full-P4 census findings and the remaining M3 phases |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
+| `NanoP4Proofs/FieldUpdate/` | handwritten bounded consumer proof and checked `Example.lean` walkthrough |
 
 `.agents/` is a hidden directory; `rg` and `fd` skip it unless told to
 include hidden files. Git history is the archive; nothing is tagged.

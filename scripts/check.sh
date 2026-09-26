@@ -29,7 +29,7 @@ for path in \
   AGENTS.md README.md LICENSE docs/design.md docs/lean-pitfalls.md \
   .agents/status.md .agents/decisions.md .agents/roadmap.md \
   lakefile.toml lake-manifest.json lean-toolchain \
-  P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean \
+  P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean NanoP4Proofs.lean \
   P4SpecTec/Codegen/Main.lean P4SpecTec/Codegen/Keywords.lean \
   upstream/p4-spectec/README.md upstream/nano-p4-spec/README.md \
   upstream/patches/0001-json-export.patch \
@@ -91,7 +91,7 @@ fi
 "$root/scripts/check-text.sh" || fail=1
 python3 "$root/scripts/check-file-sizes.py" || fail=1
 python3 "$root/test/snapshot/test_file_sizes.py" || fail=1
-"$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec || fail=1
+"$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec NanoP4Proofs || fail=1
 python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
 python3 "$root/test/snapshot/test_snapshot.py" || { say "snapshot tests failed"; fail=1; }
 bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
