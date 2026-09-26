@@ -315,6 +315,21 @@ settles is not repeated here.
 
 ## Generated code
 
+- **Package and stress-test the existing field-update certificate before
+  expanding coverage.** Keep the checked obligation bundle in
+  `NanoP4Proofs/FieldUpdate/Certificate.lean`, with its mutation runner and
+  runner contract tests beside it under `test/`. The user explicitly prefers
+  related proof and validation code together. Extract only the existing
+  specification-independent initialization support into `Refine/Init.lean`;
+  keep the scalar representation and finite-fuel realization handwritten.
+  Run mutants in temporary scratch modules, never alter committed generated
+  files. Baselines must pass and each mutant must fail at its intended
+  boundary; arbitrary compilation failures, stale results and timeouts are
+  harness failures. This is a bounded certificate and sensitivity check,
+  not automatic reverse-certificate generation or new full-P4 coverage.
+  Reason: make the completed example inspectable and repeatable before
+  broadening work. (2026-09-26)
+
 - **Certify a bounded Nano field-update consumer example before resuming
   broader M3 expansion.** The user approved retaining AL and both execution
   paths, proving two-way terminating correspondence for a scalar field-list

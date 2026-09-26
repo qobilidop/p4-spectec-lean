@@ -1,5 +1,4 @@
-import NanoP4Proofs.FieldUpdate.Laws
-import NanoP4Proofs.FieldUpdate.Correspondence
+import NanoP4Proofs.FieldUpdate.Certificate
 
 /-!
 # Independent field writes commute
@@ -24,6 +23,56 @@ theorem permitting arbitrary P4 assignment statements to be reordered: their
 right-hand-side expressions and lvalue evaluation can have dependencies or
 effects. Nested payloads, packet/table objects, printing, and source parsing
 are outside the scalar correspondence profile.
+
+## Inspecting the certificate
+
+`Certificate.lean` is the checked report for this slice. The proof `certificate`
+bundles obligations over actual definitions, not a manually maintained list of
+names. `sourceCoverage`, `encodingValid`, `decoderRoundTrip` and
+`observationFaithful` describe representation adequacy. `initialized`,
+`environmentHolds`, `noOverrides` and `sourceMember` discharge the concrete
+environment and quoted-spec membership. `generatedMeaning`,
+`referenceToGenerated` and `generatedToReference` connect the actual executable
+and reference in both directions. `composedObservations` and
+`independentUpdates` are consumed by the final reference theorem below.
+
+Initialization support is reusable in `P4SpecTec.Refine.Init`. The scalar
+representation proofs and the clause-by-clause finite-fuel realization remain
+handwritten and specific to this slice. This checkpoint neither generates
+reverse certificates automatically nor adds new source-domain coverage.
+
+## Repeating the checks
+
+From the repository root, `nix develop --command scripts/check.sh` builds
+the certificate and runs the colocated tests as part of the normal gate.
+For focused work after dependencies are built:
+
+```sh
+nix develop --command lake build --wfail NanoP4Proofs P4SpecTecTest
+nix develop --command python3 NanoP4Proofs/FieldUpdate/test/test_runner.py
+nix develop --command python3 NanoP4Proofs/FieldUpdate/test/run.py
+```
+
+The runner uses small temporary Lean modules, not extra worktrees or edits to
+tracked generated files. It first requires an unchanged baseline, then tests
+behavior, quotation and representation mutations separately. Changed executable
+and representation definitions must compile independently before their proof
+obligations are challenged. A timeout, missing mutation or unrelated compilation
+error is a harness failure, never evidence that a semantic boundary worked.
+The final JSON report is a result of this invocation, not a committed snapshot.
+These selected mutations establish sensitivity to those defects, not complete
+fault coverage or proof of the upstream-to-Lean reference port.
+
+| Deliberate defect | Required rejection |
+| --- | --- |
+| Keep the old payload | Generated AL refinement proof; concrete reference comparison |
+| Rename the quotation | Independent comparison with the decoded export |
+| Use the signed constructor for unsigned data | Representation proof; concrete observation |
+
+The unchanged emitted refinement proof is replayed against the scratch helper
+and the original Nano specification. A kernel equality check keeps its source
+quotation identical, except in the deliberately changed-quotation case. This
+tests a generated artifact, not a mutation of the generator implementation.
 -/
 
 namespace NanoP4Proofs.FieldUpdate
@@ -137,9 +186,10 @@ theorem independentReferenceWritesCommute
     ReferenceObserves rawFields left right leftValue rightValue observation ↔
       ReferenceObserves rawFields right left rightValue leftValue observation := by
   obtain ⟨fields, hfields⟩ := fieldsCoverage source
-  rw [referenceObservesIff fields rawFields hfields,
-    referenceObservesIff fields rawFields hfields,
-    updateCommute _ left right leftValue.generated rightValue.generated different]
+  rw [certificate.composedObservations fields rawFields hfields,
+    certificate.composedObservations fields rawFields hfields,
+    certificate.independentUpdates _ left right
+      leftValue.generated rightValue.generated different]
 
 /-- info: 'NanoP4Proofs.FieldUpdate.independentReferenceWritesCommute' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/

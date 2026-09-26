@@ -79,6 +79,21 @@ outside this consumer claim.
 This success is not certification of all Nano-P4 or full P4. Existing M3
 work and correctness gates remain; broader expansion is paused.
 
+The [checked certificate](../NanoP4Proofs/FieldUpdate/Certificate.lean)
+packages the actual representation, initialization, generated-meaning and
+two-way reference obligations as proof fields. The consumer uses its
+composition and commutation fields. Membership in the initialized quoted spec
+is kernel-checked; identity with the decoded export remains the separate
+quotation check. This is not a generic certificate generator or a claim that
+all dependencies of arbitrary entry points are certified.
+
+Specification-independent initialization lemmas live in `Refine/Init.lean`.
+The scalar representation and clause-by-clause finite-fuel realization remain
+handwritten. The example's sensitivity tests live beside it under
+`NanoP4Proofs/FieldUpdate/test/`; temporary mutants never replace tracked
+generated files. The ordinary gate runs the baseline, intended-boundary
+rejection checks and tests of the runner's own failure classification.
+
 Use the result to decide what abstraction lemmas or public proof interface
 are needed. An IL-oriented interface or interpreter-only alternative can
 be revisited if the example exposes a concrete problem; neither is a new

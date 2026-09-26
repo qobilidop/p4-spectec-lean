@@ -3,6 +3,7 @@ import NanoP4Proofs.FieldUpdate.Representation
 import NanoP4Proofs.FieldUpdate.Semantics
 import NanoP4Proofs.FieldUpdate.Environment
 import NanoP4Proofs.FieldUpdate.Correspondence
+import NanoP4Proofs.FieldUpdate.Certificate
 import NanoP4Proofs.FieldUpdate.Laws
 import NanoP4Proofs.FieldUpdate.Example
 

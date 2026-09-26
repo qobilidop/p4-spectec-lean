@@ -17,6 +17,7 @@
 #    program (test/diff/run.py, both legs).
 # 8. Quoted Nano-P4 AL matches the decoded export, except regions/hints/VarD.
 # 9. The full P4 export decodes and its reconnaissance report is current.
+# 10. The bounded field-update certificate's mutations fail at the intended boundaries.
 # A missing lake is a failure, not a skip, unless P4SPECTEC_SKIP_LEAN=1 says
 # so explicitly.
 set -euo pipefail
@@ -31,6 +32,8 @@ for path in \
   lakefile.toml lake-manifest.json lean-toolchain \
   P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean NanoP4Proofs.lean \
   P4SpecTec/Codegen/Main.lean P4SpecTec/Codegen/Keywords.lean \
+  P4SpecTec/Refine/Init.lean NanoP4Proofs/FieldUpdate/Certificate.lean \
+  NanoP4Proofs/FieldUpdate/test/run.py NanoP4Proofs/FieldUpdate/test/test_runner.py \
   upstream/p4-spectec/README.md upstream/nano-p4-spec/README.md \
   upstream/patches/0001-json-export.patch \
   exports/nano-p4.al.json.gz exports/nano-p4.al.json.sha256 \
@@ -94,6 +97,8 @@ python3 "$root/test/snapshot/test_file_sizes.py" || fail=1
 "$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec NanoP4Proofs || fail=1
 python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
 python3 "$root/test/snapshot/test_snapshot.py" || { say "snapshot tests failed"; fail=1; }
+python3 "$root/NanoP4Proofs/FieldUpdate/test/test_runner.py" \
+  || { say "field-update mutation runner contract tests failed"; fail=1; }
 bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
 python3 "$root/scripts/test-fetch-p4c.py" || { say "p4c restore tests failed"; fail=1; }
 python3 "$root/test/p4-oracle/test_contract.py" \
@@ -133,6 +138,8 @@ if command -v lake >/dev/null 2>&1; then
     check-nano-target check-nano-packet check-nano-driver check-nano-verify) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
+  python3 "$root/NanoP4Proofs/FieldUpdate/test/run.py" \
+    || { say "field-update certificate sensitivity checks failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }
   (cd "$root" && lake exe check-text-builtins) \
     || { say "text builtin oracle check failed"; fail=1; }

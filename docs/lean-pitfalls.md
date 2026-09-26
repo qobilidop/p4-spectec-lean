@@ -32,3 +32,7 @@ From the rung 3 driver (`P4SpecTec/Tactic/Refine.lean`), 2026-09-25:
 - A named hole `?x` reused across two `cases` in one tactic run refers to the first goal of that name; use anonymous `?_`.
 - `cases` on a fuel inside a match alternative or continuation copies the whole remaining proof into a zero branch that does not diverge; split fuel only at the head.
 - Hypotheses left by `cases` are inaccessible, so `mkIdent userName` cannot reach them; build terms from `FVarId`s. Tactic error recovery can admit goals silently: wrap a custom tactic in `withoutRecover`.
+
+From field-update certificate sensitivity tests (2026-09-26):
+
+- `refine_al` infers the generated library from the theorem's declaration name, and uses it to find quoted definitions and generated value encoders. Replaying an emitted proof under an arbitrary scratch theorem namespace can fail even for an unchanged function. Give the replay theorem a fresh name under the original generated library, keep its original `HoldsSpec`, and change only the executable helper reference. Require the baseline proof and source-quotation equality to pass before interpreting a mutant's failure.

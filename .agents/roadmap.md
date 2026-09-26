@@ -33,8 +33,10 @@ Rung 3 beyond M2's fragment (the M3 work order, in order of payoff):
   something at fuel zero instead of diverging (the class of wart fixed in
   `is_iter_var_exp`); recursion on size, as there, before casts enter the
   fragment.
-- The codegen mutation check the design promises (mutate the generator,
-  require rung 3 to fail).
+- Broader codegen mutation checks (mutate the generator, require rung 3 to
+  fail). The colocated field-update tests replay an emitted AL refinement
+  proof against one mutated generated helper; this is bounded artifact
+  sensitivity, not mutation coverage of the generator implementation.
 - A spec tuple nested inside a tuple needs a wrapper type: `ToValue (α ×
   β)` flattens.
 
