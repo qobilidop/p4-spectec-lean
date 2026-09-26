@@ -60,6 +60,11 @@ root = "P4SpecTecTest.Diff.NanoP4Run.Main"
 name = "nano-p4-interp"
 root = "P4SpecTecTest.Diff.NanoP4Interp.Main"
 
+# Full-P4 interpreter replay against the pinned typed-value oracle.
+[[lean_exe]]
+name = "p4-interp-replay"
+root = "P4SpecTecTest.Diff.P4Interp.Main"
+
 # The compiled quoted AST must match the current export, modulo regions/hints.
 [[lean_exe]]
 name = "check-quotes"

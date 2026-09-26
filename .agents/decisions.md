@@ -1,5 +1,21 @@
 # Decisions
 
+## Bounded generated state refinement (2026-09-25)
+
+Generated state refinement uses separate `StateValidate` eligibility and
+`state_refine_al` automation, while reusing pure value/context normalization.
+It preserves the existing `StateRefines` contract: every terminating
+interpreter outcome, exact final state, both failure tags, and arbitrary fuel.
+The first slice admits scalar first-order functions, direct fresh allocation,
+variable binding, if/debug premises, ordered fallback, and literal natural
+division; other constructs and recursive groups remain explicit exclusions.
+Production selection must propagate missing callee contracts through the
+dependency graph. Missing contracts fail loudly rather than unfolding callees
+without a bound or emitting success-only theorems. Confidence: high for the
+audited emitted fixtures; revisit eligibility and normalization performance
+when applying it to full-P4 generated definitions. This is an increment, not
+closure of the full stateful refinement obligation.
+
 The decisions in force, grouped by topic, each with its reason and the
 date it was made. A register, not a diary: a superseded entry is
 rewritten in place with the new date and reason; an entry whose subject
@@ -47,6 +63,24 @@ settles is not repeated here.
   Confidence: high for bounded observed comparisons, not whole-session
   type-fresh fidelity. Revisit before supporting nested function
   substitution or claiming guarded full-P4 coverage. (2026-09-25)
+
+- **Replay full-P4 AL observations through a bounded P4-specific Lean
+  configuration.** Regenerate and validate the four pinned oracle cases
+  before replay; seed `StateEval` from each exact post-boot counter, disable
+  the guard, compare semantic outputs and exact final counters, and treat
+  fuel exhaustion as distinct from upstream's public failure class. Mirror
+  only the pinned placeholder simulator's `init_objectState` and
+  `init_archState` externs in this replay configuration; the generic AL
+  interpreter retains its explicit `Extern.none` default. Reason: the
+  positive regression requires the placeholder extern to instantiate,
+  while broad or invented extern behavior would hide fidelity gaps. Syntax
+  observations have no Lean AL execution and are labelled separately.
+  Reject mode/config mismatches and counters outside signed 63-bit range
+  before evaluation, including on syntax observations; otherwise a
+  malformed counter silently wraps at `FreshState.ofInt`. Check real Lean
+  decoder/evaluator mutations in the bounded harness.
+  Confidence: high for these four observations; revisit extern coverage
+  and memory use before extending to the corpus. (2026-09-25)
 
 - **Export full-P4 AL observations through fresh per-relation processes.**
   Match `run -al` with cache on, deterministic and guard checks off; boot
