@@ -1,0 +1,117 @@
+{
+  "cases": [
+    {
+      "name": "basic-routing",
+      "source": "p4c",
+      "path": "testdata/p4_16_samples/basic_routing-bmv2.p4",
+      "expected": {
+        "bootSha256": "e35449c51b74edd0830a137e8b96109c5ce9ebc75f5e0d6585b5fae298facfc9",
+        "relations": {
+          "Program_ok": {
+            "class": "pass",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 38,
+            "outputsSha256": "d589d7e0197222f209c52c24cf6d32cc53457812e30c1b83f56fd430bf76e2e9",
+            "outputArity": 1,
+            "diagnosticSha256": null
+          },
+          "Program_inst": {
+            "class": "pass",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 38,
+            "outputsSha256": "a3347dd1995f0419457e177c60effe11071cc6d2181de46d4eb50160d1b48b50",
+            "outputArity": 2,
+            "diagnosticSha256": null
+          }
+        }
+      }
+    },
+    {
+      "name": "positive-regression",
+      "source": "upstream",
+      "path": "testdata/regression/pos/issue-212.p4",
+      "expected": {
+        "bootSha256": "7f504be8508352a2900f95bf720e2b64a3a293660a03fc2e906b9ca577633778",
+        "relations": {
+          "Program_ok": {
+            "class": "pass",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 0,
+            "outputsSha256": "38e077203a873c02a7716f6c398723e59e8d8be5d032c8107f3aa8616485c4fb",
+            "outputArity": 1,
+            "diagnosticSha256": null
+          },
+          "Program_inst": {
+            "class": "pass",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 0,
+            "outputsSha256": "893dd8f1354237b700f882e2078e97642dcfd23d2ad38f61e619f5cacadd3f1c",
+            "outputArity": 2,
+            "diagnosticSha256": null
+          }
+        }
+      }
+    },
+    {
+      "name": "negative-regression",
+      "source": "upstream",
+      "path": "testdata/regression/neg/issue-204.p4",
+      "expected": {
+        "bootSha256": "d8771439529d2c7d05992e474d17a12fdee02bf4d5ed67a1f104e78210c8f0c8",
+        "relations": {
+          "Program_ok": {
+            "class": "unmatch",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 0,
+            "outputsSha256": null,
+            "outputArity": null,
+            "diagnosticSha256": "157f12a00384f6d6a49bf4b4879a2c3d217ebdad2653b0659a1507c5f816b42a"
+          },
+          "Program_inst": {
+            "class": "unmatch",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 0,
+            "outputsSha256": null,
+            "outputArity": null,
+            "diagnosticSha256": "ce2f1c304c2196bd72ad76666cbcc40c81d96b0896c97787d9794d1621fe48e5"
+          }
+        }
+      }
+    },
+    {
+      "name": "syntax-error",
+      "source": "repo",
+      "path": "test/p4-oracle/invalid.p4",
+      "expected": {
+        "bootSha256": null,
+        "relations": {
+          "Program_ok": {
+            "class": "syntax",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 0,
+            "outputsSha256": null,
+            "outputArity": null,
+            "diagnosticSha256": "2caf5f5fe58762991e7952853dcdeecb9838cf7caf923c97e21bbf8bed871b39"
+          },
+          "Program_inst": {
+            "class": "syntax",
+            "counterBefore": 0,
+            "counterAfterBoot": 0,
+            "counterAfter": 0,
+            "outputsSha256": null,
+            "outputArity": null,
+            "diagnosticSha256": "2caf5f5fe58762991e7952853dcdeecb9838cf7caf923c97e21bbf8bed871b39"
+          }
+        }
+      }
+    }
+  ],
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3"
+}

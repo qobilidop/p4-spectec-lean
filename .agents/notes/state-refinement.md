@@ -70,8 +70,19 @@ the fixture in the frozen implementation tree (exit 0), finding no correctness
 issues in this bounded contract. Review: `.agents/reviews/m3c-state-refinement.md`.
 The independent PR branch's full pinned `scripts/check.sh` exited 0 with no
 skips, including both Nano differential legs, quotations, print/text/state
-oracles, transport sensitivity, and the full-P4 census. Remote CI remains
-pending. Root is separately integrating and reviewing production generation;
+oracles, transport sensitivity, and the full-P4 census. PR #19's initial
+remote Gate passed on `c54e4eb` in 5m25s (run `36207315308`). The subsequent
+merge of main `ea9533d` had only a status conflict, independently reviewed
+by root with both requested documentation corrections applied. Refinement
+source remains byte-identical to `c54e4eb`. The repeated frozen full gate
+exited 0 with no skips, including the twelve incoming oracle contract tests:
+
+```sh
+nix develop /Users/qobilidop/my/work/p4-spectec-lean --command /Users/qobilidop/my/work/p4-spectec-lean-state-refinement-pr/scripts/check.sh
+```
+
+Final merged-head remote CI remains owed before landing.
+Root is separately integrating and reviewing production generation;
 it is not part of this PR. These results do not imply full-P4 elaboration or
 refinement coverage.
 

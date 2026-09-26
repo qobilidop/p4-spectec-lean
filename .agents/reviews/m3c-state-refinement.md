@@ -31,3 +31,14 @@ made during that port. The implementing agent subsequently ran the full
 pinned `scripts/check.sh` on the PR tree: exit 0, no skips. This is integration
 validation, separate from the reviewer's direct check. Remote CI remains
 required before merge.
+
+## Main reconciliation review
+
+After PR #18 merged as `ea9533d`, its reviewed oracle changes merged into
+PR #19 without source conflicts. Root independently reviewed the only
+conflict resolution, `.agents/status.md`, and requested correction of stale
+oracle-CI wording and bullet indentation; both are fixed. The four bounded
+refinement implementation/test modules remain byte-identical to `c54e4eb`.
+The reconciling agent then observed the repeated full frozen local gate exit
+0 with no skips (command recorded in the working note). This does not repeat
+or broaden the original semantic review. Final merged-head CI remains owed.
