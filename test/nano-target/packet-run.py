@@ -34,11 +34,8 @@ def main():
     revision = oracle.revision_guard(args.upstream)
     spec_pin = subprocess.check_output(
         ["git", "-C", str(ROOT), "rev-parse", "HEAD:upstream/nano-p4-spec"], text=True).strip()
-    actual_pin = subprocess.check_output(
-        ["git", "-C", str(args.spec), "rev-parse", "HEAD"], text=True).strip()
-    if actual_pin != spec_pin:
-        raise SystemExit("Nano spec revision differs from gitlink")
-    subprocess.run(["git", "-C", str(args.spec), "diff", "--exit-code", "HEAD"], check=True)
+    spec_guard = load("nano_packet_spec_guard", ROOT / "scripts/check-spec-pin.py")
+    spec_guard.revision_guard(args.spec, spec_pin)
     oracle.PROBE = ROOT / "test/nano-target/packet-probe.ml"
     oracle.SCRATCH = ROOT / ".artifacts/nano-packet-oracle"
     executable = oracle.compile_probe(args.upstream)

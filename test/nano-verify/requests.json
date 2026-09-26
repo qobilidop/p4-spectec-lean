@@ -1,0 +1,21 @@
+[
+  {"entry":"core","check":"true","failure":"none","shape":"valid"},
+  {"entry":"core","check":"false","failure":"none","shape":"valid"},
+  {"entry":"function","check":"true","failure":"none","shape":"valid"},
+  {"entry":"ExternFunctionCall_eval","check":"false","failure":"none","shape":"valid"},
+  {"entry":"core","check":"bare","failure":"none","shape":"valid"},
+  {"entry":"core","check":"inner","failure":"none","shape":"valid"},
+  {"entry":"core","check":"tag","failure":"none","shape":"valid"},
+  {"entry":"core","check":"true","failure":"unmatch1","shape":"valid"},
+  {"entry":"core","check":"true","failure":"abort1","shape":"valid"},
+  {"entry":"core","check":"true","failure":"unmatch2","shape":"valid"},
+  {"entry":"core","check":"bare","failure":"abort2","shape":"valid"},
+  {"entry":"function","check":"true","failure":"none","shape":"arity"},
+  {"entry":"function","check":"true","failure":"none","shape":"name"},
+  {"entry":"function","check":"true","failure":"none","shape":"list"},
+  {"entry":"function","check":"true","failure":"none","shape":"element"},
+  {"entry":"function","check":"true","failure":"none","shape":"order"},
+  {"entry":"ExternFunctionCall_eval","check":"true","failure":"none","shape":"static_assert"},
+  {"entry":"ExternFunctionCall_eval_lctk","check":"true","failure":"none","shape":"valid"},
+  {"entry":"unknown","check":"true","failure":"none","shape":"valid"}
+]

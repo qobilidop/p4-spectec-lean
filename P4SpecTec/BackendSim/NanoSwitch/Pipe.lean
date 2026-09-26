@@ -1,4 +1,5 @@
 import P4SpecTec.BackendSim.Core.Object
+import P4SpecTec.BackendSim.Core.Func
 import P4SpecTec.Interp.InterpAl.Interp
 import P4SpecTec.Runtime.Sim.Io
 
@@ -8,7 +9,9 @@ PacketIn extract, initialization, packet driver and the extern dispatch boundary
 results remain raw objectState ExternV, exactly as at the pin, not repaired
 PACKET values. This is not a generated typed NanoP4Spec.Externs instance.
 
-Boot, STF handling, verify and other architecture interfaces are not ported.
+Boot, STF handling, static_assert and other architecture interfaces are not ported.
+The verify dispatch preserves upstream's full-P4 lookup ABI; the pinned Nano
+grammar/AL has no extern-function path that can successfully invoke it.
 Callbacks are explicit StateEval computations; their caller
 owns interpreter fuel/configuration. This module introduces no hidden fuel,
 resets, mutable trampoline or repeated evaluation of callback outcomes.
@@ -26,7 +29,7 @@ inductive «extern» where
   deriving BEq, Repr
 
 /-- Explicit substitute for the pinned mutable Spec.Func.call trampoline. -/
-abbrev Call := String → List typ → List value → StateEval value
+abbrev Call := SpecImpl.Func.Call
 
 /-- Construct a named type note without inventing runtime state. -/
 def varT (name : String) : typ' := .VarT (mkPhrase name) []
@@ -55,6 +58,19 @@ def init_arch_state : value := Value.Make.extern (varT "archState") .null
 def eval_extern_init (values_input : List value) : StateEval value := do
   let [_, _, _] := values_input | throw .err
   pure (Value.Make.extern (varT "objectState") .null)
+
+/-- Dynamic function dispatch, preserving upstream getter order and verify's callback ABI. -/
+def eval_extern_func_call (call : Call) (values_input : List value) :
+    StateEval (List value) := do
+  let [value_ctx, value_arch, value_name_func, value_names_param] := values_input
+    | throw .err
+  let name_func ← required (Value.Get.text value_name_func)
+  let names_param ← required (Value.Get.list value_names_param)
+  let names_param ← names_param.mapM fun v => required (Value.Get.text v)
+  unless name_func == ByteText.ofString "verify" &&
+      names_param == [ByteText.ofString "check", ByteText.ofString "toSignal"] do throw .err
+  let (value_ctx, value_arch, value_callResult) ← Core.Func.verify call value_ctx value_arch
+  pure [value_ctx, value_arch, value_callResult]
 
 /-- Dynamic extract, preserving callback order, all callback outcomes and raw result shape. -/
 def eval_extern_method_call (call : Call) (values_input : List value) :
@@ -108,10 +124,12 @@ def drive_pipe (call : RelCall) (value_ctx value_arch : value) (rx : Runtime.Sim
   pure (value_ctx, value_arch, if forward then [(port_in, packet_bytes)] else [])
 
 /-- Bounded dynamic extern interface; unported functions are explicit hard errors.
-This does not claim support for upstream's verify function, boot or STF handling. -/
+Verify is a direct dynamic API, not a claim of Nano source-level reachability. -/
 def externInterface (call : Call) : Interp_al.Interp.Extern StateEval where
   eval_extern_rel := fun name args =>
-    if name == "ExternMethodCall_eval" then eval_extern_method_call call args else throw .err
+    if name == "ExternFunctionCall_eval" then eval_extern_func_call call args
+    else if name == "ExternMethodCall_eval" then eval_extern_method_call call args
+    else throw .err
   eval_extern_func := fun name _ args =>
     if name == "init_objectState" then eval_extern_init args
     else if name == "init_archState" then pure init_arch_state

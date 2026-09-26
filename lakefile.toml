@@ -109,3 +109,8 @@ root = "P4SpecTecTest.NanoPacket.Main"
 [[lean_exe]]
 name = "check-nano-driver"
 root = "P4SpecTecTest.NanoDriver.Main"
+
+# Shared verify and Nano dispatch; Nano source-level verify remains unreachable.
+[[lean_exe]]
+name = "check-nano-verify"
+root = "P4SpecTecTest.NanoVerify.Main"

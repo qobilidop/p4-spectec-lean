@@ -11,7 +11,41 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active isolated increment: dynamic Nano packet driver
+## Active isolated increment: shared verify and Nano dispatch
+
+Branch `m3d-nano-verify` starts at driver checkpoint `2635a32`; the original
+driver worktree is untouched. Partial SpecImpl.Func/Unpack and Core.Func
+mirrors implement verify, with faithful full-P4 lookup ABI, both lookups
+before Boolean unpacking, exact result shapes/notes and retained StateEval
+failure post-state. Nano dynamic function dispatch is wired, but the pinned
+Nano grammar/AL has no extern-function call path and its lookup ABI differs.
+An actual upstream/Lean AL rejection probe records unmatch, not successful
+Nano verify coverage. Nineteen original-target direct cases match; five
+replay mutations and seven offline contract tests pass. Combined focused
+build exits 0 (108 jobs); final direct replay and exact-pin recheck pass,
+including explicit AL configuration and before/after counter 0. Existing
+24 target cases, eleven driver cases and six-success/one-guarded-failure
+real packet replay remain green. Import, width, size and whitespace checks
+pass. Root independent semantic review, nineteen-case exact-pin re-observation,
+nineteen Lean cases/five mutations and seven contracts all pass. Review found
+the capture spec guard accepted repository subdirectories and untracked
+inputs; a shared exact-root/pin/clean-tree guard now fixes both capture
+runners. Six independent guard regressions pass, including ignored inputs.
+Narrow offline gate wiring is independently reviewed; shell syntax, both
+contract suites and the 98-job verify executable build/replay pass. Reviews:
+`m3d-nano-verify.md`, `m3d-nano-verify-gate.md`. Reviewed checkpoint
+`cf1832f` is reconciled locally with published main `1f5cfc0`; only status
+and the additive gate union required conflict resolution. Reviewed verify,
+driver and packet source/fixtures are preserved. Root independent reconciliation
+review and 52 combined offline contracts pass; report:
+`m3d-verify-main-reconcile.md`. The complete local gate exited 0 without skips
+(`.artifacts/verify-main-full-gate.exit`). Final-head remote CI and publication
+remain owed. The user requested a pause after this nearest checkpoint;
+no new refinement or target implementation is authorized to start before
+the planned pause and handoff.
+See `.agents/notes/nano-verify.md` and `test/nano-verify/README.md`.
+
+## Inherited isolated increment: dynamic Nano packet driver
 
 Branch `m3d-nano-driver`, worktree `p4-spectec-lean-nano-driver`, starts at
 reviewed target checkpoint `96078a0`; the original target tree is frozen.
@@ -37,13 +71,12 @@ Root independently reviewed the implementation and repeated the eleven
 direct observations, eleven contracts, original-driver packet sessions and
 Lean replay/mutations (all exit 0), with no findings. Root's narrow gate
 wiring is independently reviewed and its focused checks pass. Reports:
-`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. Local checkpoint `2635a32`
-is reconciled with published main `d039786` (PR #24). Independent source
-preservation and union-gate review found no issues; 39 focused contracts
-pass. Report: `m3d-driver-main-reconcile.md`. The combined full gate exited
-0 without skips; its actual exit is recorded in
-`.artifacts/driver-main-full-gate.exit`. Publication and final-head remote
-CI remain owed. This gate does not validate the unmerged full-P4 generation.
+`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. Driver checkpoint `0b06901`
+passed its combined full local gate and final remote Gate `36217460543`;
+PR #25 merged as `1f5cfc0`, now reconciled here. Its main reconciliation
+review is `m3d-driver-main-reconcile.md`: source preservation, union gate
+and 39 focused contracts passed before that final gate. These published
+checks do not validate the new verify increment or unmerged full-P4 generation.
 
 ## Published checkpoint: bounded corpus shard
 
