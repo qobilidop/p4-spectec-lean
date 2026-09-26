@@ -304,8 +304,20 @@ partial def useMembership : TacticM Unit := do
         execute [h']
         mapMFacts
 
-/-- Close the goal by a terminal step. -/
-partial def closeGoal : TacticM Unit := do
+/-- Try an extension transactionally: only closing every current goal counts.
+A false result, an exception, or any remaining goal restores the entire state. -/
+def tryCloseExtension (extra : TacticM Bool) : TacticM Bool := do
+  let saved ← saveState
+  try
+    if (← extra) && (← openGoals (← getGoals)).isEmpty then return true
+  catch _ => pure ()
+  saved.restore
+  pure false
+
+/-- Close by the standard terminal steps, with an optional transactional rule.
+The extension runs after trivial/assumption, before structural decomposition,
+and is reused inside constructor subgoals. False/no-progress restores state. -/
+partial def closeGoalWith (extra : TacticM Bool) : TacticM Unit := do
   setGoals (← openGoals (← getGoals))
   if (← getGoals).isEmpty then return
   let goal ← getMainGoal
@@ -322,6 +334,8 @@ where
       evalTactic (← `(tactic| trivial))
     else if ← tryTac (evalTactic (← `(tactic| assumption))) then
       pure ()
+    else if ← tryCloseExtension extra then
+      pure ()
     else if ty.isForall then
       let _ ← introAll
       evalTactic (← `(tactic| subst_vars))
@@ -331,7 +345,7 @@ where
       let mut out := #[]
       for g in goals do
         setGoals [g]
-        closeGoal
+        closeGoalWith extra
         out := out ++ (← openGoals (← getGoals)).toArray
       setGoals out.toList
     else if ty.isAppOfArity ``Exists 2 then
@@ -342,7 +356,7 @@ where
         if ← g.isAssigned then continue
         if ← g.withContext do isProp (← instantiateMVars (← g.getType)) then
           setGoals [g]
-          closeGoal
+          closeGoalWith extra
       for g in goals do
         unless ← g.isAssigned do throwError "run_sound: witness not determined"
       setGoals []
@@ -352,7 +366,7 @@ where
       let mut out := #[]
       for g in goals do
         setGoals [g]
-        closeGoal
+        closeGoalWith extra
         out := out ++ (← openGoals (← getGoals)).toArray
       setGoals out.toList
     else if ty.eq?.isSome then
@@ -383,7 +397,7 @@ where
             for g in props do
               if ← g.isAssigned then continue
               setGoals [g]
-              closeGoal
+              closeGoalWith extra
               unless (← openGoals (← getGoals)).isEmpty do
                 throwError "goal left open:{Lean.MessageData.ofGoal (← getMainGoal)}"
             for g in goals do
@@ -399,6 +413,9 @@ where
       | _ => throwError "run_sound: cannot close {ty}"
     else
       throwError "run_sound: cannot close {ty}"
+
+/-- The unchanged default constructor search, with no additional terminal rule. -/
+def closeGoal : TacticM Unit := closeGoalWith (pure false)
 
 /-- Symbolically execute one hypothesis: a step of `run_sound`, for
 diagnosing a generated theorem the whole tactic cannot close. -/

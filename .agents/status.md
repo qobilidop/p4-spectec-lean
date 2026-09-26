@@ -11,25 +11,43 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active checkpoint: recovered stateful generation and refinement
+## Active checkpoint: generator integration
 
-- Recovered the interrupted session from repository notes, saved transcripts
-  and all six surviving worktrees. Primary `main` was `7d9d356`, including
-  merged PRs #14 and #15; its only modification was the expected upstream
-  export patch. Existing uncommitted generator/proof work is preserved.
-- Root branch `m3b-state-refinement` connects actual AL fresh-function
-  dispatch to `StateRefines` for every fuel and initial counter. The table
-  contract is `Holds` with no local callback shadowing; guards are explicitly
-  disabled. Fixtures compose dispatch through both failures, retry and
-  negation and reject a resetting allocator by kernel proof. Focused
-  `lake build --wfail P4SpecTecTest.StateRefinement P4SpecTec` exited 0
-  (69 jobs). Full `scripts/check.sh` exited 0 with no skips. Independent
-  read-only review found no correctness issues; both files re-elaborated
-  directly with axiom audits (exit 0 each). Remote CI remains owed. This
-  is a reusable proof boundary, not generated full-P4 refinement.
-- Executable and structural proof authors resumed their respective saved
-  worktrees. The M3C oracle adapter is being implemented in a new isolated
-  worktree from the merged baseline. No milestone completion is claimed.
+Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional
+structural iteration now emits auxiliary predicates with explicit captured
+indices and proves successful runs using ordered chains. Nested, joint,
+shadowed and pattern-bound captures are exercised by actual-emission tests.
+The build `lake build --wfail P4SpecTec P4SpecTecTest.StateProps` in the pinned
+Nix shell exited 0 (72 jobs), as did text and diff-whitespace checks.
+The isolated checkpoint's focused results were independently rechecked
+in the integration below; they did not alone authorize a push. See
+`.agents/notes/state-props.md`. Next: independent review, then recursive SCC
+all-outcome realization and structural soundness; production remains disabled.
+
+The executable checkpoint `e0d7219` and structural proof checkpoints
+`381dd6a`, `25ad4f2`, `815b671` are integrated on
+`m3b-generator-integration`. The reproduced review findings are fixed.
+Root independently checked the integrated 78-job focused build and direct
+StateProps re-elaboration (both exit 0); reviews are
+`.agents/reviews/m3b-state-codegen-followup.md` and
+`.agents/reviews/m3b-state-iteration.md`. Production stateful generation
+remains guarded until recursive run-soundness is integrated. The refreshed
+census reports zero executable emission failures and 256 explicit pure-Prop
+rejections, with no generated stateful refinement candidates. This records
+text emission, not full-P4 elaboration. The integrated full
+`scripts/check.sh` exited 0 with no skips, including both Nano differential
+legs, all existing oracles and the refreshed census. Remote CI remains owed.
+
+PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
+now has an all-fuel exact-state refinement boundary, with explicit disabled
+guards and declaration lookup hypotheses. Its full local gate and independent
+review passed. That checkpoint is now merged into this integration branch;
+the combined revision, including the actual-emitted allocator refinement
+fixture, passed a fresh full `scripts/check.sh` (exit 0, no skips).
+The fixture independently passed a 75-job build and direct Lean elaboration;
+review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. Published as PR #17;
+remote CI must pass on its final revision before merging. Recursive proof
+integration and production enablement continue separately.
 
 ## Merged checkpoint: pinned corpus preparation
 

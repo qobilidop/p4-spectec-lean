@@ -3,7 +3,7 @@ import P4SpecTec.Codegen.Types
 /-!
 Expressions, patterns and premises to Lean, in the executable encoding.
 
-The target is a `do` block in the `Eval` monad (`Prelude/Eval.lean`):
+The target is a `do` block in `Eval` or explicit-state `StateEval`:
 failure is data, `Fail.unmatch` for what the interpreter backtracks over
 and `Fail.err` for what it does not, and `none` is divergence, so that
 `partial_fixpoint` accepts the recursive definitions. Every expression
@@ -22,7 +22,8 @@ Per-construct encodings (design section 5.4), each at its case below:
 - Numeric operators follow `Num.bin`: subtraction of naturals is an
   integer; division and modulus truncate.
 - Every call is lifted into the monad with `ExceptT.mk`; the callee has the
-  type `Option (Except Fail T)` that `partial_correctness` needs.
+  raw Option-result ABI that `partial_correctness` needs, with a final state
+  parameter in stateful mode. Calls never supply or reset that state.
 -/
 
 namespace P4SpecTec.Codegen.Exp
@@ -42,6 +43,8 @@ structure Ctx where
   tmpPrefix : String := "tmp_"
   /-- Names of extern functions and relations, called through `Externs`. -/
   externs : List String := []
+  /-- Lexically bound callable arguments, resolved before globals/externs. -/
+  callbacks : List String := []
 
 /-- The fallback of a refutable pattern: upstream's `assign_exp` error. -/
 def noMatch : Option String := some "throw Fail.err"
@@ -73,6 +76,10 @@ inductive Stmt where
   of inner variables, of type `resTy`) is collected into `x : List resTy`. -/
   | mapM (x : String) (resTy : Term) (binder : Format) (elems : List (String × Term))
       (body : List Stmt) (result : Term) (z : Term)
+  /-- Optional premises retain their structural body: all inputs present run
+  `body` and yield `someResult`; all absent yield `noneResult`; mixed inputs fail. -/
+  | optM (x : String) (ty : Term) (elems : List (String × Term))
+      (body : List Stmt) (someResult noneResult : Term) (options : List Term)
   /-- `let x ← m` for any other monadic term (option iterations). -/
   | bind (x : String) (ty : Term) (m : Term)
 
@@ -81,19 +88,34 @@ def doOfRendered (stmts : List Format) (result : Term) : Term :=
   if stmts.isEmpty then .call "pure" [result]
   else .paren (.doBlock (stmts ++ [Format.text "pure " ++ result.arg]))
 
-/-- Print a statement. -/
-partial def Stmt.render : Stmt → Format
+/-- Print a statement and every nested block in its selected carrier. -/
+partial def Stmt.renderWith (mode : ExecMode) : Stmt → Format
   | .call x _ f => Term.bindStmt x (.call "ExceptT.mk" [f])
-  | .opt x _ o => Term.bindStmt x (.call "Eval.err?" [o])
+  | .opt x _ o => Term.bindStmt x (mode.lift (.call "Eval.err?" [o]))
   | .rel x _ _ _ _ m => Term.bindStmt x m
-  | .notHold _ _ _ m => Term.bindStmt "_" (.call "Eval.notHold" [m])
-  | .check b => Format.text "let _ ← Eval.check " ++ b.arg
+  | .notHold _ _ _ m => Term.bindStmt "_"
+      (.call (if mode == .pure then "Eval.notHold" else "StateEval.notHold") [m])
+  | .check b =>
+    if mode == .pure then Format.text "let _ ← Eval.check " ++ b.arg
+    else Term.bindStmt "_" (mode.lift (.call "Eval.check" [b]))
   | .have_ x v => Term.haveStmt x v
   | .letPat pat _ _ v refutable => Term.letStmt pat v (if refutable then noMatch else none)
   | .mapM x _ binder _ body result z =>
     Term.bindStmt x
-      (Term.call "List.mapM" [.lamF binder (doOfRendered (body.map render) result), z])
+      (Term.call "List.mapM"
+        [.lamF binder (doOfRendered (body.map (renderWith mode)) result), z])
+  | .optM x _ elems body someResult noneResult options =>
+    let somePat := "(" ++ ", ".intercalate (elems.map fun (n, _) => s!"some {n}") ++ ")"
+    let nonePat := "(" ++ ", ".intercalate (elems.map fun _ => "none") ++ ")"
+    let arms := [(Format.text somePat,
+      doOfRendered (body.map (renderWith mode)) someResult),
+      (Format.text nonePat, Term.call "pure" [noneResult])] ++
+      (if elems.length > 1 then [(Format.text "_", Term.atom "throw Fail.err")] else [])
+    Term.bindStmt x (Term.paren (.matchOn (.tuple options) arms))
   | .bind x _ m => Term.bindStmt x m
+
+/-- Backward-compatible pure rendering. -/
+def Stmt.render (stmt : Stmt) : Format := stmt.renderWith .pure
 
 /-- The statements hoisted so far and the temporary counter. -/
 structure St where
@@ -126,9 +148,18 @@ def subBlock {α : Type} (m : CgM α) : CgM (α × List Stmt) := do
 /-- A `do` block from statements and a final pure result. -/
 def doOf (stmts : List Stmt) (result : Term) : Term := doOfRendered (stmts.map Stmt.render) result
 
+/-- Render every statement, including nested iterations, in the selected carrier. -/
+def doOfWith (mode : ExecMode) (stmts : List Stmt) (result : Term) : Term :=
+  doOfRendered (stmts.map (Stmt.renderWith mode)) result
+
 /-- A `do` block from statements and a final monadic term. -/
 def doOfM (stmts : List Stmt) (result : Term) : Term :=
   if stmts.isEmpty then result else .paren (.doBlock (stmts.map Stmt.render ++ [result.fmt]))
+
+/-- Mode-aware block ending in a monadic term. -/
+def doOfMWith (mode : ExecMode) (stmts : List Stmt) (result : Term) : Term :=
+  if stmts.isEmpty then result
+  else .paren (.doBlock (stmts.map (Stmt.renderWith mode) ++ [result.fmt]))
 
 /-- `a <|> b <|> ...`, sequential choice (`Eval.orElse` through the `OrElse`
 instance of `Eval`); a mismatch for no alternatives. -/
@@ -445,6 +476,8 @@ partial def compileExp (e : exp) : CgM Term := do
       | _ => fail "sliced path updates are not supported (design section 5.4)"
   | .CallE i targs args =>
     let ctx ← read
+    if ctx.callbacks.contains i.it && !targs.isEmpty then
+      fail "polymorphic callback applications are not supported"
     let info := match env.funcs.get? i.it with
       | some info => info
       | none => { kind := .defined, tparams := [], params := [], ret := .TextT, file := "" }
@@ -452,8 +485,18 @@ partial def compileExp (e : exp) : CgM Term := do
       Term.atomicRaw (Format.text s!"({Names.tparamName p} := " ++ (typTerm env [] t.it).fmt ++ ")")
     let argTerms ← args.mapM fun a => match a.it with
       | .ExpA x => compileExp x
-      | .DefA d => pure (.atom (Names.funcName d.it))
-    let f := if ctx.externs.contains i.it then env.q ("Externs." ++ Names.funcName i.it)
+      | .DefA d => do
+        unless ctx.callbacks.contains d.it do
+          match env.funcs.get? d.it with
+          | some info =>
+            if info.kind == .builtin || info.kind == .extern then
+              fail "raw builtin/extern callback aliases are not supported"
+          | none => fail s!"unknown function argument: {d.it}"
+        pure (.atom (if ctx.callbacks.contains d.it then Names.funcName d.it
+          else if ctx.externs.contains d.it then env.q ("Externs." ++ Names.funcName d.it)
+          else env.q (Names.funcName d.it)))
+    let f := if ctx.callbacks.contains i.it then Names.funcName i.it
+      else if ctx.externs.contains i.it then env.q ("Externs." ++ Names.funcName i.it)
       else env.q (Names.funcName i.it)
     let t ← fresh
     emit (.call t (← typOf e.note) (.call f (named ++ argTerms)))
@@ -500,20 +543,22 @@ partial def compileIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) : 
         emit (.mapM t (← typOf inner.note) b (inners.zip types) stmts body z)
         pure (.atom t)
   | .Opt =>
-    if vars.isEmpty then pure (.call "some" [body])
-    else if stmts.isEmpty then
+    if vars.isEmpty then
+      for stmt in stmts do emit stmt
+      pure (.call "some" [body])
+    else if stmts.isEmpty && vars.length == 1 then
       match outers, inners with
       | [o], [n] => pure (.call "Option.map" [.lam [n] body, o])
-      | _, _ =>
-        let binds := (inners.zip outers).map fun (n, o) => Format.text s!"let {n} ← " ++ o.fmt
-        pure (doOfRendered binds body)
+      | _, _ => fail "internal error: optional-expression binder count"
     else
       let somePat := "(" ++ ", ".intercalate (inners.map fun n => s!"some {n}") ++ ")"
       let nonePat := "(" ++ ", ".intercalate (inners.map fun _ => "none") ++ ")"
-      hoist (← typOf (.IterT (mkPhrase inner.note) .Opt)) (.paren (.matchOn (.tuple outers) [
-        (Format.text somePat, doOf stmts (.call "some" [body])),
-        (Format.text nonePat, .atom "pure none"),
-        (Format.text "_", .atom "throw Fail.err")]))
+      let arms := [
+        (Format.text somePat, doOfWith (← read).env.mode stmts (.call "some" [body])),
+        (Format.text nonePat, Term.atom "pure none")] ++
+        (if vars.length > 1 then [(Format.text "_", Term.atom "throw Fail.err")] else [])
+      hoist (← typOf (.IterT (mkPhrase inner.note) .Opt))
+        (.paren (.matchOn (.tuple outers) arms))
 
 end
 
@@ -607,7 +652,7 @@ partial def assignIter (inner : exp) (iter : iter) (vars : List Lang.Il.var) (v 
     emit (.bind t (tupleType (innerTypes.map fun ty => Term.call "Option" [ty]))
       (Term.paren (.matchOn v [
         (Format.text "none", .call "pure" [noneRes]),
-        (Format.text "some elem", doOf stmts someRes)])))
+        (Format.text "some elem", doOfWith (← read).env.mode stmts someRes)])))
     for (o, proj) in outers.zip (projections outers.length) do
       emit (.have_ o (.atom s!"{t}{proj}"))
 
@@ -678,7 +723,7 @@ partial def compilePrem (p : prem) : CgM Unit := do
     let t ← compileExp r
     assign l t
   | .IterPr q ip => iterPrem q ip.iter ip.vars_bound ip.vars_bind
-  | .DebugPr _ => pure ()
+  | .DebugPr e => let _ ← compileExp e; pure ()
 
 /-- An iterated premise: run the premise per batch of bound values and
 collect the binding variables. Mirrors `eval_iter_prem`. -/
@@ -712,11 +757,14 @@ partial def iterPrem (q : prem) (iter : iter) (bound bind : List Lang.Il.var) : 
     else
       let somePat := "(" ++ ", ".intercalate (boundIn.map fun n => s!"some {n}") ++ ")"
       let nonePat := "(" ++ ", ".intercalate (boundIn.map fun _ => "none") ++ ")"
-      let arms := [(Format.text somePat, doOf stmts someRes),
+      let arms := [(Format.text somePat, doOfWith (← read).env.mode stmts someRes),
         (Format.text nonePat, Term.call "pure" [noneRes])] ++
         (if bound.length > 1 then [(Format.text "_", Term.atom "throw Fail.err")] else [])
-      emit (.bind t (tupleType (bindTypes.map fun ty => Term.call "Option" [ty]))
-        (Term.paren (.matchOn (.tuple boundOut) arms)))
+      let resultTy := tupleType (bindTypes.map fun ty => Term.call "Option" [ty])
+      if (← read).env.mode == .freshState then
+        emit (.optM t resultTy (boundIn.zip boundTypes) stmts someRes noneRes boundOut)
+      else
+        emit (.bind t resultTy (Term.paren (.matchOn (.tuple boundOut) arms)))
       for (o, proj) in bindOut.zip (projections bindOut.length) do
         emit (.have_ o (.atom s!"{t}{proj}"))
 
@@ -727,7 +775,7 @@ def compileBody (prems : List prem) (result : List exp) : CgM Term := do
   let ((), stmts) ← subBlock do
     for p in prems do compilePrem p
   let (res, stmts2) ← subBlock (result.mapM compileExp)
-  pure (doOf (stmts ++ stmts2) (.tuple res))
+  pure (doOfWith (← read).env.mode (stmts ++ stmts2) (.tuple res))
 
 /-- Run a compilation for one definition. -/
 def run {α : Type} (ctx : Ctx) (m : CgM α) : Except String α :=
@@ -814,16 +862,27 @@ def pairsOfSpec (env : Env) (spec : Lang.Al.spec) : List (typ' × typ') :=
   pairs.foldl (init := []) fun acc (s, t) =>
     if acc.any (fun (a, b) => typEq s a && typEq t b) then acc else acc ++ [(s, t)]
 
-/-- The functions an expression calls. -/
-partial def callsOfExp (e : exp) : List String :=
-  (match e.it with | .CallE i _ _ => [i.it] | _ => []) ++ (pairsOfExp.children e).flatMap callsOfExp
+/-- Global calls and function arguments, excluding lexically bound callbacks. -/
+partial def callsOfExpBound (locals : List String) (e : exp) : List String :=
+  let global (s : String) := if locals.contains s then [] else [s]
+  (match e.it with
+    | .CallE i _ args => global i.it ++ args.flatMap (fun a => match a.it with
+        | .DefA d => global d.it
+        | _ => [])
+    | _ => []) ++ (pairsOfExp.children e).flatMap (callsOfExpBound locals)
 
-/-- The relations and functions a premise calls. -/
-partial def callsOfPrem (p : prem) : List String :=
+/-- Global dependencies of an expression with no local callbacks. -/
+def callsOfExp (e : exp) : List String := callsOfExpBound [] e
+
+/-- Dependencies of a premise, respecting locally bound callable arguments. -/
+partial def callsOfPremBound (locals : List String) (p : prem) : List String :=
   (match p.it with
     | .RulePr i _ _ | .IfHoldPr i _ | .IfNotHoldPr i _ => [i.it]
-    | _ => []) ++ (expsOfPrem p).flatMap callsOfExp ++
-    (match p.it with | .IterPr q _ => callsOfPrem q | _ => [])
+    | _ => []) ++ (expsOfPrem p).flatMap (callsOfExpBound locals) ++
+    (match p.it with | .IterPr q _ => callsOfPremBound locals q | _ => [])
+
+/-- Global dependencies of a premise with no local callbacks. -/
+def callsOfPrem (p : prem) : List String := callsOfPremBound [] p
 
 /-- The relations and functions a definition calls. -/
 def callsOfDef (d : Lang.Al.def) : List String :=
@@ -842,11 +901,19 @@ def callsOfDef (d : Lang.Al.def) : List String :=
       | none => [])
   | .FuncDecD _ _ _ _ clauses ec _ =>
     let ofClause (c : clause) : List String :=
-      let (_, out, prems) := c.it
-      ofExp out ++ prems.flatMap ofPrem
+      let (args, out, prems) := c.it
+      let locals := args.filterMap fun a => match a.it with
+        | .DefA d => some d.it
+        | _ => none
+      callsOfExpBound locals out ++ prems.flatMap (callsOfPremBound locals)
     clauses.flatMap ofClause ++ (match ec with | some c => ofClause c | none => [])
   | .TableDecD _ _ _ rows _ =>
-    rows.flatMap fun r => let (_, _, out, prems) := r.it; ofExp out ++ prems.flatMap ofPrem
+    rows.flatMap fun r =>
+      let (_, args, out, prems) := r.it
+      let locals := args.filterMap fun a => match a.it with
+        | .DefA d => some d.it
+        | _ => none
+      callsOfExpBound locals out ++ prems.flatMap (callsOfPremBound locals)
   | _ => []
 
 end P4SpecTec.Codegen.Exp

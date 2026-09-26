@@ -9,11 +9,14 @@ import P4SpecTecTest.Alter
 import P4SpecTecTest.PrintPolicies
 import P4SpecTecTest.Updates
 import P4SpecTecTest.StateEval
+import P4SpecTecTest.StateCodegen
 import P4SpecTecTest.StateCalc
 import P4SpecTecTest.StateInterp
 import P4SpecTecTest.StateRefinement
+import P4SpecTecTest.StateGeneratedRefinement
 import P4SpecTecTest.RecursivePrefix
 import P4SpecTecTest.StateRules
+import P4SpecTecTest.StateProps
 
 /-!
 # P4SpecTecTest

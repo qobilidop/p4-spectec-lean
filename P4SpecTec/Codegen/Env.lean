@@ -1,6 +1,7 @@
 import Std.Data.HashMap
 import P4SpecTec.Lang.Al.Ast
 import P4SpecTec.Codegen.Names
+import P4SpecTec.Codegen.Mode
 
 /-!
 The spec environment the compiler consults: every definition by name,
@@ -64,6 +65,8 @@ structure RelInfo where
 
 /-- The environment. -/
 structure Env where
+  /-- Uniform execution carrier selected from builtin declarations. -/
+  mode : ExecMode := .pure
   /-- The generated library's name, the namespace every reference is qualified with. -/
   lib : String := "Spec"
   /-- Types by name. -/
@@ -86,7 +89,7 @@ def q (env : Env) (name : String) : String := env.lib ++ "." ++ name
 
 /-- Build the environment from a spec. -/
 def ofSpec (lib : String) (spec : Lang.Al.spec) : Env := Id.run do
-  let mut env : Env := { lib, defs := spec }
+  let mut env : Env := { lib, defs := spec, mode := ExecMode.ofSpec spec }
   for d in spec do
     let file := fileOf d
     match d.it with
