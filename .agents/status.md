@@ -13,6 +13,24 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
 ## Active checkpoint: generator integration
 
+Bounded refinement PR branch `m3c-state-refinement-pr`, based on merged main
+`b08ab8e`, integrates reviewed implementation `de73566`: new
+`Codegen.StateValidate` and `state_refine_al` emit and prove
+exact all-outcome state contracts for first-order scalar functions and the
+actual fresh builtin. Actual-emission fixtures cover fresh dispatch, consumed
+rejected prefixes, boolean selection, nested function calls, scalar aliases,
+debug allocation, final mismatch, and a hard error that prevents fallback.
+The pinned `lake build --wfail P4SpecTec P4SpecTecTest.StateValidate` exited 0
+(78 jobs; final fixture elaboration 37 seconds); import completeness, text,
+and diff-whitespace checks exited 0. Root independently read the complete
+implementation and directly re-elaborated the emitted fixture (exit 0), with
+no correctness findings; `.agents/reviews/m3c-state-refinement.md` records
+the review and the required production dependency/exclusion handling.
+The full pinned `scripts/check.sh` on this PR branch exited 0 with no skips,
+including both Nano differential legs, quotation/oracle checks and the full-P4
+census. Remote CI remains owed. Production Emit integration is explicitly out
+of this PR. See `.agents/notes/state-refinement.md`.
+
 Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional
 structural iteration now emits auxiliary predicates with explicit captured
 indices and proves successful runs using ordered chains. Nested, joint,
@@ -45,9 +63,9 @@ review passed. That checkpoint is now merged into this integration branch;
 the combined revision, including the actual-emitted allocator refinement
 fixture, passed a fresh full `scripts/check.sh` (exit 0, no skips).
 The fixture independently passed a 75-job build and direct Lean elaboration;
-review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. Published as PR #17;
-remote CI must pass on its final revision before merging. Recursive proof
-integration and production enablement continue separately.
+review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. PR #17 passed remote
+CI and merged as `b08ab8e`. Recursive proof integration and production
+enablement continue separately.
 
 ## Merged checkpoint: pinned corpus preparation
 
