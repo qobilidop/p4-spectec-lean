@@ -7,11 +7,15 @@ Current checkpoint, updated 2026-09-26.
 The Nano-P4 scope is settled and published as `da631a9`, with both core
 semantics and target composition required by
 [Design section 9](../docs/design.md#9-nano-p4-scope-and-acceptance).
-The user then requested a concrete plan. The
-[Nano certification plan](notes/nano-certification.md) now sequences deliverables,
-dependencies and exit checks from inventory through full release evidence.
-This is planning only; no proof expansion, target integration or broader
-full-P4 M3 implementation has started.
+The user approved autonomous implementation of the
+[Nano certification plan](notes/nano-certification.md), with deliberate model
+selection and bounded delegation. N0 is implemented and independently reviewed;
+N1 feasibility work is active. The full Nano scope is authorized; broader
+full-P4 M3 remains paused. The completion inventory records 350 declarations
+and 888 obligations: 95 existing compiled claim bindings, 793 unresolved.
+Generated Nano proof coverage has not increased. Sol owns bounded target
+execution probes; Astra handles recursive reverse proofs and printing contracts;
+root integrates and reviews. No shared emitter changes are underway.
 
 ## Validation and publication evidence
 
@@ -21,6 +25,18 @@ full-P4 M3 implementation has started.
 - Scope commit `da631a9988298bb8705f2e9d0df3306092454f40` passed
   [CI run 36274433502](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36274433502),
   verified while preparing the plan. The scope publication obligation is closed.
+- Plan commit `1f0c334c799a7f7affb7cea85e73c15f23abf326` passed
+  [CI run 36275102021](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36275102021).
+  Its publication obligation is closed.
+- N0 implementation: 15 completion tests and 19 corpus tests pass. The ordinary
+  checker passes; strict core/all checks return the expected exit 1. Independent
+  review has no remaining blocking findings; evidence and reviewed blob identities
+  are retained in the Nano plan. Full
+  `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
+  passed with actual exit 0, no skips (session 77137,
+  `.artifacts/nano-n0-realize-gate.log`), including the pending reusable reverse
+  calculus. Final documentation evidence edits receive text/whitespace checks.
+  Publication and exact-revision remote CI remain pending.
 - Planning checkpoint: dependency closures were recomputed from current
   coverage metadata; proof and target boundaries were inspected read-only.
   Independent plan review found no blocking issue; a wording clarification
@@ -63,10 +79,14 @@ full-P4 M3 implementation has started.
 The bounded field-update source connection is complete. Generated Nano
 refinement remains 18/153 in one direction; production full-P4 generation and
 general reverse automation remain incomplete. Broader M3 stays paused.
-[Roadmap](roadmap.md) routes the concrete plan. Next implementation scope to
-agree: N0's complete obligation inventory, then N1's reverse correspondence,
-target representation and printing probes. Do not resume broader M3 or treat
-this planning task as authorization to implement the milestone.
+[Roadmap](roadmap.md) routes the concrete plan. Publish N0 and the reviewed
+reverse calculus, then finish N1 with actual recursive Nano proofs, the raw
+extern receiver continuation and printing adequacy. The existing `value` codec
+cannot represent successful extract's raw `ExternV`; a runtime representation
+extension needs a generator/subtype audit before adoption. Fixed inner-fuel
+probes have found no counterexample under `guard=false`; no general safety
+theorem is established. Routine implementation, review and validation choices
+are authorized; preserve the agreed scope and trust boundary.
 
 The expected four-file upstream export patch remains applied. The finished
 `docs/repository-review` branch is retained from the prior refactor; no refs,

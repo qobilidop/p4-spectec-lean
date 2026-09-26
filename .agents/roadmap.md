@@ -1,7 +1,7 @@
 # Roadmap
 
-Deferred work, not execution authorization. Updated 2026-09-26.
-Broader M3 remains paused; choose a bounded scope with the user before starting.
+Updated 2026-09-26. Nano completion is authorized; other backlog remains deferred.
+Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
 ## Milestones and entry points
@@ -26,15 +26,16 @@ The next major milestone is
 [complete Nano-P4 support and certification](../docs/design.md#9-nano-p4-scope-and-acceptance).
 The design owns acceptance criteria; the
 [implementation plan](notes/nano-certification.md) owns concrete deliverables,
-dependencies and exit checks. Neither starts implementation. Both core semantics
-and target composition must close. Broader full-P4 M3 remains paused.
+dependencies and exit checks. The user approved autonomous implementation,
+starting with N0/N1. Both core semantics and target composition must close.
+Broader full-P4 M3 remains paused.
 
 The plan proceeds from the complete obligation inventory (N0), through early
 reverse-proof/target/printing feasibility probes (N1), reusable contracts (N2),
 full core coverage (N3), target composition (N4), the whole-program proof (N5),
 and release evidence (N6). Target and consumer work begin alongside core work;
-their integration exits depend on checked core contracts. Start with N0 and
-the bounded N1 probes, not disconnected helper-proof counts.
+their integration exits depend on checked core contracts. N0 is implemented
+and reviewed; N1 reverse-proof, target and printing feasibility probes are active.
 
 ## Candidate next work
 

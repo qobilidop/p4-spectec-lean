@@ -1,0 +1,2955 @@
+{
+  "schemaVersion": 1,
+  "pins": {
+    "upstream/p4-spectec": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+    "upstream/nano-p4-spec": "60dfd9912011bd5b1746ac88b26b58f7b3981991"
+  },
+  "profile": {
+    "cache": false,
+    "dynamicGuards": false,
+    "sequential": true
+  },
+  "includes": [
+    {
+      "path": "nano-p4/include/nano_core.p4",
+      "sha256": "a897adc55a78ca90c40193e15812ab53a86aa4bfddddd3db20b1b950f62d987c"
+    },
+    {
+      "path": "nano-p4/include/nano_model.p4",
+      "sha256": "136668ad4e758ec6626d4fa7cafd09a45607cf7fabd4ca87b5fa7bcab724d4c6"
+    }
+  ],
+  "specification": [
+    {
+      "path": "0-stdlib.watsup",
+      "sha256": "98db2d509336a9603833e38629514cef9865ffc546a205509697dedfbb4ff136"
+    },
+    {
+      "path": "1-syntax.watsup",
+      "sha256": "f9f4211c714cbe98388cd80cba7ce03c06f5850ff0698f3b67c6b042a78293ff"
+    },
+    {
+      "path": "2.0-domain.watsup",
+      "sha256": "f32a67e7dfedcd53d01486c965f6a1970324312c9afc6eedaca92cd43b33e028"
+    },
+    {
+      "path": "2.1-ir.watsup",
+      "sha256": "63eaf2970f795415e76b5010aa8af9438ea85ba50f8350afcd9207d29773be66"
+    },
+    {
+      "path": "3.0-value.watsup",
+      "sha256": "af6045516a89099034508151479b13207f33d7419bf348ea5ab7c2bf1d490989"
+    },
+    {
+      "path": "3.1-operations.watsup",
+      "sha256": "574529b44fabd40555ae273e76b82b6fd967ababefb4fe1b30b8ee8c3d52f597"
+    },
+    {
+      "path": "3.2-bits.watsup",
+      "sha256": "5fdf0c85c15345395f39ed77ec49e9a82b17e4e71a04cfd9f590fb2983ca8856"
+    },
+    {
+      "path": "5.00-typing-context.watsup",
+      "sha256": "927faa071a2062053cf83812812da15f69074ac0fe3e8c4cce3fc7ae70b51335"
+    },
+    {
+      "path": "5.01-typing-relation.watsup",
+      "sha256": "57552d7c4cb384406a9ced92424411e726862f3327d0c001ca6ac1991805c133"
+    },
+    {
+      "path": "5.02-typing-type.watsup",
+      "sha256": "db6379daf6f6f1ae47d48e092de4b6da8703c5a7b6c22d3d0debad8ce3bb854f"
+    },
+    {
+      "path": "5.03-typing-expression.watsup",
+      "sha256": "dee39f21c82e2035e520f03b98fa221b21cf699fb61d6d58d24d0b75f5674ddd"
+    },
+    {
+      "path": "5.04-typing-lvalue.watsup",
+      "sha256": "a61493a28b5514e23c0007dfcb1f106b10075c209ee2c0467c37d66ba08bf7f4"
+    },
+    {
+      "path": "5.05-typing-statement.watsup",
+      "sha256": "5424ddd1ca514c5a653d493ae92d58b31be4e769a9bd4a9b9ff4fa0dfc15897c"
+    },
+    {
+      "path": "5.06-typing-parameter.watsup",
+      "sha256": "2aa59efce805eaa061daee7f0dc4bc6702195c5b330a6632a60fccacb2530e79"
+    },
+    {
+      "path": "5.07-typing-argument.watsup",
+      "sha256": "c21cc053d0e73578051d1c222543cf2b6753dabd2bde295e02527c778579cf6e"
+    },
+    {
+      "path": "5.08-typing-declaration.watsup",
+      "sha256": "58907c125b928a003c1b0b42bf4811d01d39db3eca0634c599c9fc870d0f7cbc"
+    },
+    {
+      "path": "5.09-typing-parser.watsup",
+      "sha256": "7e1c8287b1bcedf52a5f43d0b5e5c651ec76b9b545e84eae42bd2f64615f559c"
+    },
+    {
+      "path": "5.10-typing-control.watsup",
+      "sha256": "508f4f9621d5f3be2c9af2d0b67f253c75961681d2e2caf1f97a5b0997e430dd"
+    },
+    {
+      "path": "5.11-typing-table.watsup",
+      "sha256": "8d691e49020f53f80714c329b716a11729fa505c4228e7e8b4e5e66c58a3f0c2"
+    },
+    {
+      "path": "5.12-typing-extern.watsup",
+      "sha256": "bfd1f55221f0f567861137a34d4e83a7216b557ba7cf52ea3ab58a121280a2b8"
+    },
+    {
+      "path": "5.13-typing-call-convention.watsup",
+      "sha256": "8748a540f4b59cbf463b0a491556d6dc677cd345a4698a66aec47f8c175f5088"
+    },
+    {
+      "path": "7.0-load-context.watsup",
+      "sha256": "0dc7f270422b83a73bb5aac876bad1b1827b15e8b473aeaf1b6a037cdae76aa2"
+    },
+    {
+      "path": "7.1-load-declaration.watsup",
+      "sha256": "763e7cf99a4b7606ec2cd1da78036e8bff035e03a62c3b6b9ba2fff2c60f711b"
+    },
+    {
+      "path": "8.00-eval-context.watsup",
+      "sha256": "05ef89f768b4586c070151b9bfd5e81eb6be0ed848578703f8d6c3245b151004"
+    },
+    {
+      "path": "8.01-eval-relation.watsup",
+      "sha256": "cf5db13d6294859b29525324d830c838cf24122d8ff09feff4e9f3cdd247f5a0"
+    },
+    {
+      "path": "8.03-eval-expression.watsup",
+      "sha256": "04e149f863d3bbff35467c6bef5675006fc37fd5c97e473772311e7bf776b742"
+    },
+    {
+      "path": "8.04-eval-lvalue.watsup",
+      "sha256": "ae340d687b242437cefc67f130ef52e59eb06b8b2148838ed2a9fbae4dc909b7"
+    },
+    {
+      "path": "8.05-eval-statement.watsup",
+      "sha256": "636cebf517a3ab2cc7fcde32091dd6b0d606eb188d15010f8b34a2cdcb74794a"
+    },
+    {
+      "path": "8.09-eval-parser.watsup",
+      "sha256": "3531ade8b6f25ac51ceea863408f95d62c30735f284f9f63577c2bdae8bbbd55"
+    },
+    {
+      "path": "8.10-eval-control.watsup",
+      "sha256": "316670fde6d64470ce2bd7475543f69b2a64ed333afd02d267fc3ac1ff2ad595"
+    },
+    {
+      "path": "8.11-eval-table.watsup",
+      "sha256": "1db67ed237e4b18014ad79b0cfbb3523db9d634bf7d15c29a481fc2182a7ef52"
+    },
+    {
+      "path": "8.13-eval-call.watsup",
+      "sha256": "2f02ddc20d363021e50fb6894b13ae0131dcc678a390584d7e35b10fa1bea6f5"
+    },
+    {
+      "path": "8.14-eval-convention.watsup",
+      "sha256": "607ea0dbfc9e8826eca9b46169f01522848ee8e6c3660b87b96cf8192ed56a82"
+    },
+    {
+      "path": "9-nano-switch.watsup",
+      "sha256": "44a2a3703465da01265adf190ef348781cccd594941e5ed51b77cfae452b1e46"
+    }
+  ],
+  "cases": [
+    {
+      "id": "corpus:typing:exercise/3.1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.1.p4",
+        "sha256": "d229aadd79ab80a25d4cfcbe070386a074270028754d5d00eea60e421a36cb4e"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.1.json",
+          "sha256": "203a6367de743dcd2b6a19a87e7f0fba9207922d0bd1814163e012e816280ab7"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.1.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.1.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.1.outputs.json",
+          "sha256": "29e90ecb62bd35a44c963086ed9a1ea5c498dee0afad34cff4f1b20af8582f4a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.2",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.2.p4",
+        "sha256": "ceb2bf6464208df0e1791018a30305c7eff3f72b7cd78fa50b550406e9038830"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.2.json",
+          "sha256": "eb922f78e4264a0faa49af40bae1f3b65a1e9ced5c4ebc751110a3ce89ccb868"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.2.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.2.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.2.outputs.json",
+          "sha256": "d3f518840d2b71e4eb983c7a24c71a203d18e2c6990eb82a65159edc4ae49159"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.3",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.3.p4",
+        "sha256": "3bb585f551179dd75c0debb62493e186ee39682c9c2362883ebbf390bc9bff21"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.3.json",
+          "sha256": "146601a6fb43cf8b3921a186f66088cf72d2c4e2cb0482927a44f4794f5eb372"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.3.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.3.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.3.outputs.json",
+          "sha256": "3cd5b44f0008437d30afed1bdff9f12288c490359f0fc2c073ee509e1ebe8e81"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.4.1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.4.1.p4",
+        "sha256": "01018eccd36f65444ce85de40b1db35dd1216b0ce780f373eb49afd8a3e87339"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.1.json",
+          "sha256": "1f187f80bc384f1ffd505aa63c2fc40421ff0323b57b8fd2d252947e8e4c154a"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.1.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.1.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.1.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.4.2",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.4.2.p4",
+        "sha256": "ba454276a989eb370d0be8178506867ca1e0caf9809350bc6485eb84b3681895"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.2.json",
+          "sha256": "a3b943127f33996654ffe7975f137d02746121ba7b274e7ee1d48c7b326f42dc"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.2.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.2.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.2.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.4",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.4.p4",
+        "sha256": "cda490a5664626f2a39d526ca63321da747ac5c2c0a4e7347cd5df2ee1604b0f"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.json",
+          "sha256": "1f18db4204b911ac3f358f9145feea2ad6a3220339b17a787ea15e3ddd5a3fc6"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.4.outputs.json",
+          "sha256": "7b760631c5bfb8bd5c6f528c7da57bd76577cf307dd3a74e8254c6a1d4065e8d"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.5.1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.5.1.p4",
+        "sha256": "b6543d2d0a6a768b0a094275fddeabe68b229e1a0aabbfd838e4cda96d0e68f4"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.1.json",
+          "sha256": "ec530e15521c730aeeabb1747f931e44cae6e13152568a3caf292855743df7d9"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.1.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.1.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.1.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.5.2",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.5.2.p4",
+        "sha256": "5281f9de1bff8374e3f3de3eb90e275ad2a73520d6e9389245c8d06cf8ec089c"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.2.json",
+          "sha256": "6f40db4c0f98aa4e977e6fe41c2e8390b73b24e505b8d2426cc32a73a21f5f31"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.2.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.2.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.2.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.5",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.5.p4",
+        "sha256": "2eef9b1d83746fe24a6114a77d442e69552712de5b9f2f19e4b72a5de58aba5d"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.json",
+          "sha256": "712f11431dda719f92dfa8023b4c190e2409b7e133fd0f7cfcc1a023ba2828fb"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.5.outputs.json",
+          "sha256": "a54d48a33e1cdabc40dd3e1f570e8573f411753790f8147ba728f71da3a2cdd3"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.6.1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.6.1.p4",
+        "sha256": "013654d5bbe0301ba11ffe99a8ba0b37fa3f2f5ce004012ce702c7a980396ce6"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.1.json",
+          "sha256": "982c206d1fac237741869bb15404fa1e082c4eb9370890496bebfc90469e10cf"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.1.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.1.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.1.outputs.json",
+          "sha256": "026889737d5884269cacb74b413fbf9a5d70f7b7d90564778bd0f010ac519e6f"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.6.2",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.6.2.p4",
+        "sha256": "0343bf33d6307054ea9a4964fb3bc86fcc0e6070f75db385fb3ea9110365bcd2"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.2.json",
+          "sha256": "9ef41f23595cbde69bc146ddc31fac8a8d130d3d754b9b97ee0d3eb421765b9f"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.2.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.2.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.2.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.6.3",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.6.3.p4",
+        "sha256": "e084519ce4e69e88902122dc5b89ed61d81335d173f83cf4229f21d0a04acad6"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.3.json",
+          "sha256": "8cd1ccd7006d7ae1356a3176dba49c7bd874f6776e45ac98a4fc22500efe7be7"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.3.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.3.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.3.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.6",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.6.p4",
+        "sha256": "ce65dbf26f9026267a9eaab460a625c75feb4955c2f0e96ba2e1001cea38bb7a"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.json",
+          "sha256": "010ec48505688afcaeb9e119fae20d29f39fc08c098f6d116fb0b798527cdea8"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.6.outputs.json",
+          "sha256": "0b99f032504afd47ce8c3152438d37906e7edf8cc27269444cb8bd839a67527b"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.7.1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.7.1.p4",
+        "sha256": "9e3f8a4ec2ed4da1a43864876914208b7083d0d843a68248ee92d565512cf535"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.1.json",
+          "sha256": "11660f9ec8954e613d55d26513e4f5507d54835e6e9bc9cb4a6949b7dad79cfa"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.1.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.1.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.1.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.7.2",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.7.2.p4",
+        "sha256": "1ecbd60bdbf9598c68493a37581276e7887f0319e20486dfb889fb0ac3ce7819"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.2.json",
+          "sha256": "facccfcb8f54578c107bc33115ae3e9dba3aceefb0370470107aefe8ab4f920a"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.2.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.2.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.2.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.7",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.7.p4",
+        "sha256": "7f28ec9181894a3d370beb8211ad5972b3b5e571fb61ca334f0d7f1bb37335b5"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.json",
+          "sha256": "28b312a2ea874b8431b31763f7ea8462493e6b3fc1fc73cb1ad12e8226e03f2d"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.7.outputs.json",
+          "sha256": "2ebe51f166388a18f5948a5bec11c666bb22246bb6fe02b1db4d10323c54d865"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.8",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.8.p4",
+        "sha256": "3acc285dd154364f58c270d453bea1e5938d2aa4a81bf8930456e3873065c4f5"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.8.json",
+          "sha256": "8cfa741af1a84bbc8836ed22db1191fb75321f405cc07336f14d35b644fbfd5b"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.8.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.8.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.8.outputs.json",
+          "sha256": "a22b5458eaa9a87bcfcbeb08c5225bbd584d5fa980b491e6f4993b8c6b3933c4"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/3.9",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/3.9.p4",
+        "sha256": "0c035281d774d7caa6cd4cf7e6e00642484bf77218b04f8cf24a3a02e0a9aacf"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/3.9.json",
+          "sha256": "63fbe441e496cb69c87434b638e05d69930f1f32e26caca9b89d615bcfe3b2f3"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.9.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.9.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/3.9.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.1.p4",
+        "sha256": "36fb520330dae414b357b4882c8bb1123c904459d9af3f5538a4c939c6732e1e"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.1.json",
+          "sha256": "8c811dd3b027c5bcd6adb45c70748b87fc62eb983174b8a5bbf76401337f84c3"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.1.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.1.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.1.outputs.json",
+          "sha256": "44c5ae5dbfaaa5a1374ab8475597aee946b963587051a75d641da99728aec47a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.1",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.1.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:exercise/5.1",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.3",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.3.p4",
+        "sha256": "a5f5e4d70140ffd6045df6867a469714148932253b9399a5db65e0e7d0be236a"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.3.json",
+          "sha256": "b38326fb36e2cc14863f1c02ea0bcd5921afa8a740978468f3e0f06703ec1da8"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.3.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.3.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.3.outputs.json",
+          "sha256": "3240c1d97b05e4dcc3f8e162f2ef3100f45095ba8522317be4998b3f48e4a4f2"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.3",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.3.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:exercise/5.3",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.4",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.4.p4",
+        "sha256": "1dab2c9990d1b306ece60351a462da86c35c6e86067f66012b49d110459bd795"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.4.json",
+          "sha256": "754d494414db40e99cd7a072f57dce6781646b4616f6a4048e3d80b2bbc24ba0"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.4.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.4.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.4.outputs.json",
+          "sha256": "6f3efe47ee178a95dbc5ea92b910974e1f313d2dfa5dbf6e492d1d03a60fbf00"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.4",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.4.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:exercise/5.4",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.5",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.5.p4",
+        "sha256": "31ca14118825492008981f82ec9b1bf5aea1582e9dac5f7f4739803de7a31f4b"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.5.json",
+          "sha256": "b38846bc9cecfa5083f47f94346af73edcce291908056aa9219d6e452da369f7"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.5.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.5.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.5.outputs.json",
+          "sha256": "cddee9e01d964b73b4040f308bf0af73d8dd319e5b4a5ff8df421a9ca864a77a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.5",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.5.stf",
+        "sha256": "59daeed599964bd43b0abffaf588525ca82c034486ab6f9641625d6a7b19184b"
+      },
+      "programId": "corpus:typing:exercise/5.5",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.6",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.6.p4",
+        "sha256": "98d403418fef6c0ca2a08caec075c4bb59c379abe6f5df9fd6d98478b608f155"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.6.json",
+          "sha256": "28c8b8e01faa4710e063fd87ab1c64b35ebe5f213f7fa2257081f975fb19d00f"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.6.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.6.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.6.outputs.json",
+          "sha256": "732ab59cd1f0484af1989c8ba24fb1ddfb5c9db36902179e14cd161c5e66a0af"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.6",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.6.stf",
+        "sha256": "f386eb98307305ed7a339460f17df1f810903c0465f3e9e5305506869e875253"
+      },
+      "programId": "corpus:typing:exercise/5.6",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.7",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.7.p4",
+        "sha256": "c3e19d065d18ad82136aa3bd35cb385a1cb3c8914359b4591e3ab9fe29c790d3"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.7.json",
+          "sha256": "cabc47182a28ebd63122c818987bb83d82973a3d7697fa217b7b56934b137089"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.7.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.7.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.7.outputs.json",
+          "sha256": "2ced3f26c8147c587339daac9c3d972671e1bf01aebff0635ddd08775453f5ed"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.7",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.7.stf",
+        "sha256": "f386eb98307305ed7a339460f17df1f810903c0465f3e9e5305506869e875253"
+      },
+      "programId": "corpus:typing:exercise/5.7",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:exercise/5.8",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.8.p4",
+        "sha256": "9ca23ac630b382dac1eb28edd44ad031ea2a93e61375fade51023efdc0f50d3f"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/exercise/5.8.json",
+          "sha256": "12cad988fbd488ba9fcdabfd8ecb4c522e0fa606c5cca09c1e74b8b12b16421b"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.8.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.8.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/exercise/5.8.outputs.json",
+          "sha256": "8f56ce984cd7ffb72808f45d43c9005c86052a0e7291a54f98618f12e7fc42bf"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:exercise/5.8",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/exercise/5.8.stf",
+        "sha256": "216d268d133cb6b51ddf76ea438a16dc23cb04142c7e4737006532fd0e74424d"
+      },
+      "programId": "corpus:typing:exercise/5.8",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:negative/action-multiple-params-wrong-order",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/action-multiple-params-wrong-order.p4",
+        "sha256": "5cbe791977c022840c799c6d106a7ed5f3e785f5cf3be1e92e324392ecbd7195"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/action-multiple-params-wrong-order.json",
+          "sha256": "d6e1f3c64fba02046c4ae642a08765f23f65a0bf4a0ff32cadc714e28a74eee3"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/action-multiple-params-wrong-order.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/action-multiple-params-wrong-order.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/action-multiple-params-wrong-order.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bit-arith-mixed-widths",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bit-arith-mixed-widths.p4",
+        "sha256": "cb43b53cb78878e80d23101ea7ff5b86212ef83c5b0fa05623761769bd1818f4"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bit-arith-mixed-widths.json",
+          "sha256": "047c8c36ed0a1c3012c75330a514ec6effae8589d89e02ff328c4f74c529d8c7"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-arith-mixed-widths.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-arith-mixed-widths.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-arith-mixed-widths.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bit-compare-bool-vs-bit",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bit-compare-bool-vs-bit.p4",
+        "sha256": "2a10274a2d899a50650271f5f66173ed23466d8e7e3e27aa9e2129960e8c921f"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-bool-vs-bit.json",
+          "sha256": "a540a46921df2d41b54074b925b65d89ed69dd330de1599043da8ccfa3f649d2"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-bool-vs-bit.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-bool-vs-bit.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-bool-vs-bit.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bit-compare-literal-bool-operand",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bit-compare-literal-bool-operand.p4",
+        "sha256": "33f252958bd3a3fec93d2bcab2cca713964e27c88dc64855febcdc4649b62fb8"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-literal-bool-operand.json",
+          "sha256": "a09e716b80fa6d4ed3eb7d3b4ef91b399ea265403269da3d734bdfe6814c60b3"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-literal-bool-operand.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-literal-bool-operand.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-literal-bool-operand.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bit-compare-lt-mixed-widths",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bit-compare-lt-mixed-widths.p4",
+        "sha256": "ebabf9561d852f2167bfc29d2db7ed1ca7f6db81721dadb2cfa10a3c8621d80a"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-lt-mixed-widths.json",
+          "sha256": "0c08f3ad23fa4602e8278d4203909b9ac128c760b78ea03bd85adab98e839b08"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-lt-mixed-widths.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-lt-mixed-widths.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-compare-lt-mixed-widths.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bit-logical-mixed-widths",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bit-logical-mixed-widths.p4",
+        "sha256": "e278e49798d6df8f4eefe64bc8d3364241ac67ae7dd61be49eea8f9ed6adbec6"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bit-logical-mixed-widths.json",
+          "sha256": "6ee9150587039732e174565a16727897c3c76b7616f1a9c266f08eec74dffd7c"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-logical-mixed-widths.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-logical-mixed-widths.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bit-logical-mixed-widths.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bitwise-not-bool",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bitwise-not-bool.p4",
+        "sha256": "f81edc52248eaeaf31905a3895411a786137d829737068220dc43ce28098a264"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bitwise-not-bool.json",
+          "sha256": "958d8ba91b35dd6761a6878516fd51663614b6eec238d73d1005c6eb202c40a9"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bitwise-not-bool.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bitwise-not-bool.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bitwise-not-bool.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/bool-literal-arith-on-bool",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/bool-literal-arith-on-bool.p4",
+        "sha256": "d5ed6a38e0908e1c17b9794a397eee9690b6b02d2e93df5543a37ccea1d5ec76"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/bool-literal-arith-on-bool.json",
+          "sha256": "929d8d441b5ed59db8e6d75dbd28d73a1ee82767b6ebb8514e006f1b7614ed0e"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bool-literal-arith-on-bool.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bool-literal-arith-on-bool.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/bool-literal-arith-on-bool.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/conditional-nested-non-bool-condition",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/conditional-nested-non-bool-condition.p4",
+        "sha256": "fd2b1558513d0493471a5bf39c72081170b8d1d1bc28d8808113bd83ee04c57a"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/conditional-nested-non-bool-condition.json",
+          "sha256": "c7f038422db8f4648c8fdc019a536cb7272a9e45a7c4a00a6d37f4228a15fbf3"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/conditional-nested-non-bool-condition.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/conditional-nested-non-bool-condition.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/conditional-nested-non-bool-condition.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/field-access-assign-wrong-type",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/field-access-assign-wrong-type.p4",
+        "sha256": "dfe06d174d13c9d0e94d37f6908caca4b2a401512751e6717d4bda4a379cad0e"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/field-access-assign-wrong-type.json",
+          "sha256": "1a4fc08599a9233d11b0917fef6a241e859baedf94a9651b5a9659d1cce99767"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/field-access-assign-wrong-type.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/field-access-assign-wrong-type.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/field-access-assign-wrong-type.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/logical-not-on-bit",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/logical-not-on-bit.p4",
+        "sha256": "47da87d52bedd33716786b6621f349ef5a90f23f39158a6e27a3bd9e786b8d74"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/logical-not-on-bit.json",
+          "sha256": "de8f34aff21847f74c24cb21bfd4dc863772849b62b2898554fd5eed31cfa313"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/logical-not-on-bit.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/logical-not-on-bit.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/logical-not-on-bit.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/parser-local-var-wrong-select-type",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/parser-local-var-wrong-select-type.p4",
+        "sha256": "7a302df60fafe8385ab7aa924e4f50ea147475f3bbb49ff62601515d80ef6445"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/parser-local-var-wrong-select-type.json",
+          "sha256": "6fe1481db5439d246a65eabe2f4713710477ce04e3788e29d892851cc1675d08"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/parser-local-var-wrong-select-type.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/parser-local-var-wrong-select-type.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/parser-local-var-wrong-select-type.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/table-actions-duplicate-name",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/table-actions-duplicate-name.p4",
+        "sha256": "f42ab27d14889b9c5f1f13c5c3aa64d4dd15ef375505e45a3f6e3bcce3ea7b35"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-duplicate-name.json",
+          "sha256": "3bf8fed69bad3d608d59d3f350907ab3b7e28841cf03d07b0f4791857b6068e8"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-duplicate-name.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-duplicate-name.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-duplicate-name.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/table-actions-no-data-plane-params",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/table-actions-no-data-plane-params.p4",
+        "sha256": "fb6ca01174d7dfcab441d1479902ccf8626d2243717906fa24fcd0bcec1a22a7"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-no-data-plane-params.json",
+          "sha256": "a56d1447eef43bcd45f2506314788923d66ed8e768fb225aab3f187cfc36ea8e"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-no-data-plane-params.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-no-data-plane-params.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-actions-no-data-plane-params.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/table-const-entries-action-not-in-list",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/table-const-entries-action-not-in-list.p4",
+        "sha256": "5c3d2f20b47355e705c1fd7a87b6763a10f002f7505323fe7cd48e079d35bcd8"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/table-const-entries-action-not-in-list.json",
+          "sha256": "6357131e6a14a0d75caf871285ecf4ae4aca9faf3e7d405038f51d60dae7e06d"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-const-entries-action-not-in-list.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-const-entries-action-not-in-list.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-const-entries-action-not-in-list.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/table-with-action-arg-entry-data-mismatch",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/table-with-action-arg-entry-data-mismatch.p4",
+        "sha256": "e72ff125ae6b1019c4bf27d459c61c148056d38809fbf34cd6ced4463c2a4993"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/table-with-action-arg-entry-data-mismatch.json",
+          "sha256": "4440817d9d84fda3da6277895112ee1a1c16b8034503beb8d465bd31e1f05b2b"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-with-action-arg-entry-data-mismatch.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-with-action-arg-entry-data-mismatch.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/table-with-action-arg-entry-data-mismatch.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/write-to-in-parameter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/write-to-in-parameter.p4",
+        "sha256": "12817595af96e74aa2ac51c9d8dd928253ee3f23942168d3ce995a97db8f03a8"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/write-to-in-parameter.json",
+          "sha256": "738d8d66d2cc3462ba33af593364ae9086fc28bfe1f724b4f00c2e259e30fcaf"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/write-to-in-parameter.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/write-to-in-parameter.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/write-to-in-parameter.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/wrong-action-arg-type",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/wrong-action-arg-type.p4",
+        "sha256": "13d5f251bcac374bceb67a2ab6772efbcd1350da1e7595f7a146f4658233cc19"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-action-arg-type.json",
+          "sha256": "f9e71a8976375d5cfe3ef5597684651678ce4eff2010bd1c75183e8433c8d0f9"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-action-arg-type.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-action-arg-type.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-action-arg-type.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/wrong-arg-type",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/wrong-arg-type.p4",
+        "sha256": "00e50a497b4cb663fe1d7a682eef45423d510faf2f9f0e0c95fa96b2e80f0332"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-arg-type.json",
+          "sha256": "f265652b28a9c02ea3bfa092ccf713c7f0a053637214a8a6ff6003d42506970c"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-arg-type.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-arg-type.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-arg-type.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/wrong-entry-key-type",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/wrong-entry-key-type.p4",
+        "sha256": "5b13997c17ddec795b5ea81d4cc032b7e904be7d4975a89605bb04c6d86d594f"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-entry-key-type.json",
+          "sha256": "f1db3d32bf7fd56d2ad25f0086cf49829a32b7695bada5a06ca6e1793e23aad6"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-entry-key-type.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-entry-key-type.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-entry-key-type.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:negative/wrong-width",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/negative/wrong-width.p4",
+        "sha256": "d06d3a56691550fe5ff68ade62b0edee5d2f4ace10aa0ec3eb919167ab451391"
+      },
+      "upstreamVerdict": "fail",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-width.json",
+          "sha256": "dbfedf70fee5ea18c4909fa18cf436b362b79f165192dd86c3bdab9c9d1fa48a"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-width.verdict",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-width.verdict.sl",
+          "sha256": "2056a28ea38a000f3a3328cb7fabe330638d3258affe1a869e3f92986222d997"
+        },
+        {
+          "path": "exports/programs/nano-p4/negative/wrong-width.diagnostic",
+          "sha256": "85f3391074b254978e90b7fec0fc55660f3c708aab5623cb699336b70bd7c33a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:typing:positive/action-call-table-1",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/action-call-table-1.p4",
+        "sha256": "efd326b3b1904d713c8bf0e9c41d57e16a50bc1f3150cf86b0730334d10facfb"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-1.json",
+          "sha256": "51e423cd7dd87bde1fba15315ce566881966ea5c695ec9ca9babdfce41624149"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-1.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-1.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-1.outputs.json",
+          "sha256": "bff7f11bfdad214a6d8f7d4d919b090824e4a85096e52310a41d662831173cff"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/action-call-table-1",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/action-call-table-1.stf",
+        "sha256": "70181ddcb2b5d8e4de7e6db4faef53b6a430579311b064d008f6d8fcc9dd11e3"
+      },
+      "programId": "corpus:typing:positive/action-call-table-1",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/action-call-table-2",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/action-call-table-2.p4",
+        "sha256": "95cc6c1e235aeeffb01078afac327d984e27452efc119106069960324633a091"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-2.json",
+          "sha256": "9990bce65320001271217c80a5991079a8e96cf1bc78edbc6b9f2e8355610546"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-2.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-2.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call-table-2.outputs.json",
+          "sha256": "542bfc3e18cd37d95ff05681305f0b2adb92b78d3c072c180b5a7e117d25dbd6"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/action-call-table-2",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/action-call-table-2.stf",
+        "sha256": "20c3969d22e99ea72a8d9191e62344a1d367ae05cf91ad35d0b304e8c1090077"
+      },
+      "programId": "corpus:typing:positive/action-call-table-2",
+      "observations": [
+        {
+          "path": "test/nano-target/packet-observed.json.gz",
+          "rawSha256": "a1b2f29418bd38c9b956e643f1e6052984e3eef5ca578f8f81ea2bb1aaabb8be",
+          "caseIndex": 2,
+          "outcome": "pass",
+          "category": "upstream-packet-observation"
+        }
+      ],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/action-call",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/action-call.p4",
+        "sha256": "e7bbb309242bab7f303069b8d27acdf8a53f9d43987ca820e57f102eca0c4780"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/action-call.json",
+          "sha256": "8ba52cf8df313cf37342477226f7cca3a4c22817bbac266232756d0bd1640b9d"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/action-call.outputs.json",
+          "sha256": "e7575eb6f5600a0e65b92fb9d659dd5b7eaac682956375be9b734bfbe63b7027"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/action-call",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/action-call.stf",
+        "sha256": "2961425328e78ccf6feda720cf78ace161b0f6cf3a1184a729918882d432955d"
+      },
+      "programId": "corpus:typing:positive/action-call",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/bit-arith",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-arith.p4",
+        "sha256": "9739d9512d0f4983e370a9f5ecde1f9101b18a9fbba055aeb5a1da8bffcc222a"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/bit-arith.json",
+          "sha256": "fb32ca20e7c291f11f39fc5320309abdeabbcbb0052af07575dd869a260b9f82"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-arith.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-arith.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-arith.outputs.json",
+          "sha256": "b3635944bcad184a153a1e8318a3b2f66d17c4858b782a17a3b7cfdd217fcb29"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/bit-arith",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-arith.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/bit-arith",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/bit-compare-literal",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-compare-literal.p4",
+        "sha256": "9a47bc3d25068e7ed4a7c6adb50068dba8b6b314bd1b0f884369c2b256beaa9a"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-literal.json",
+          "sha256": "eba4465ca75a52ae7accc9c2ec8cb972a8dd3b1a68292ec1740fe0e6169dad03"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-literal.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-literal.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-literal.outputs.json",
+          "sha256": "da5cc85b8a0510d6d528f0fa96a37ec3252828040f48ed918fe3d28404edbfe7"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/bit-compare-literal",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-compare-literal.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/bit-compare-literal",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/bit-compare-lt",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-compare-lt.p4",
+        "sha256": "4b06a73de9b472778795fcb0c6238e056a97d0c1b684518ec1326053602fa9f4"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-lt.json",
+          "sha256": "0bb69db415611a9c8e94fb12db9fab631a5908f7d1d89c36f670a1b9c529073d"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-lt.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-lt.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare-lt.outputs.json",
+          "sha256": "c07f5b37d26a5b6aaeff1541f527551d5596b1dc607d91444478f0dd01439cb8"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/bit-compare-lt",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-compare-lt.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/bit-compare-lt",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/bit-compare",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-compare.p4",
+        "sha256": "aba3b073daabe22dc98496e8c4cd7fd104afbd6c3485aec7155ef1009575243e"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare.json",
+          "sha256": "d634a46b4adc65dbe0b000f0fa87d80c00b6c1de03bbcdcb1eb23b37dae51282"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-compare.outputs.json",
+          "sha256": "ddc252b902a8314aabf646e153699228a88410fe218cb11c39284ee970851a8b"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/bit-compare",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-compare.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/bit-compare",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/bit-logical",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-logical.p4",
+        "sha256": "ccc6e9c59272522ba595cccf37df6706f2268b20b3d2d5ed89e912959ba37c9b"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/bit-logical.json",
+          "sha256": "44bbf782da62e21c9208a12c0ef3a010a884a0940563d88a43423ac995621ab5"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-logical.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-logical.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bit-logical.outputs.json",
+          "sha256": "cda8b001355b16112d25656ee437ce8ad93a4972b55cd34f33ba952764532e21"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/bit-logical",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/bit-logical.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/bit-logical",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/bool-literal",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/bool-literal.p4",
+        "sha256": "122fe170a4eaaf5b80e039b73e51aa6667cae9534e48311dbba59f242e106b83"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/bool-literal.json",
+          "sha256": "6d7acc80483603c9b47e973c827cb7e2e0303f6619359cab5a88be5274c5775d"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bool-literal.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bool-literal.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/bool-literal.outputs.json",
+          "sha256": "25874d3a5c7aa9f9e87a7997fec103c3a6727ff3a327faa46aebcbbbee01175c"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/bool-literal",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/bool-literal.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/bool-literal",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/conditional-nested",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/conditional-nested.p4",
+        "sha256": "af5733c5433e7990171f618f524449d342ef16f206ba62f29b7ec6965532ca41"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/conditional-nested.json",
+          "sha256": "a968b8e30f9a8541ead378c0bee9a0e78d71cf85ed1585a7452dbb70f650ccfa"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/conditional-nested.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/conditional-nested.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/conditional-nested.outputs.json",
+          "sha256": "345fda3201c4b9d05d9d80a476484e3f91ecbd0396765b4a6e05388b05465090"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/conditional-nested",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/conditional-nested.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/conditional-nested",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/dst-broadcast",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/dst-broadcast.p4",
+        "sha256": "2df5f09f71623fbc6aa7d4545c34bea7308e67e00c0cac9b270d829944c2e8f4"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/dst-broadcast.json",
+          "sha256": "592da8f48ed68957008b73b8c9b97436a7460dc53c5712c5b10e20bf8f1d875d"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/dst-broadcast.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/dst-broadcast.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/dst-broadcast.outputs.json",
+          "sha256": "0bd44205748f652ddba5276952bd4ce77b95cc1aa633f42798ddd5eee97cde1f"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/dst-broadcast",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/dst-broadcast.stf",
+        "sha256": "ff085dba43bb6b2742d587e69f015d2924b8c0a6feb937c8327e869bf73db63f"
+      },
+      "programId": "corpus:typing:positive/dst-broadcast",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/field-access",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/field-access.p4",
+        "sha256": "4eaa5e8062d38f8b75b0c2061b4102aacb23c2e2c67c4464a759db91938faf98"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/field-access.json",
+          "sha256": "1f19ee77f11d32378d6a55f98fcc31e0748f9f7c889629548a4863a55b846541"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/field-access.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/field-access.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/field-access.outputs.json",
+          "sha256": "1086c1a2bfcb5eeb98ef140aa9317bafa95871226654d13d8fae5f36227483ee"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/field-access",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/field-access.stf",
+        "sha256": "78e9231d06445dbb759d088bdbcea4b9df613155dfd6c6c220947f21d040941d"
+      },
+      "programId": "corpus:typing:positive/field-access",
+      "observations": [
+        {
+          "path": "test/nano-target/packet-observed.json.gz",
+          "rawSha256": "a1b2f29418bd38c9b956e643f1e6052984e3eef5ca578f8f81ea2bb1aaabb8be",
+          "caseIndex": 1,
+          "outcome": "pass",
+          "category": "upstream-packet-observation"
+        }
+      ],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/free-pass",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/free-pass.p4",
+        "sha256": "d229aadd79ab80a25d4cfcbe070386a074270028754d5d00eea60e421a36cb4e"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/free-pass.json",
+          "sha256": "0049ddc3194220935ba341d88bbed1d4fae8490865b9e5b9a86574107c7deddd"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/free-pass.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/free-pass.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/free-pass.outputs.json",
+          "sha256": "9bc452c4d680f854ef5dcc38ea9b194ba3b585f93e5e20427ce86a79953437b9"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/free-pass",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/free-pass.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/free-pass",
+      "observations": [
+        {
+          "path": "test/nano-target/packet-observed.json.gz",
+          "rawSha256": "a1b2f29418bd38c9b956e643f1e6052984e3eef5ca578f8f81ea2bb1aaabb8be",
+          "caseIndex": 0,
+          "outcome": "pass",
+          "category": "upstream-packet-observation"
+        }
+      ],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/global-action-multiple-params",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/global-action-multiple-params.p4",
+        "sha256": "b3b7f0bfdd78b12ad1e234bbab5c7252da25ae45f2f73dc744075d555938945a"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/global-action-multiple-params.json",
+          "sha256": "2b38db2b604322b2b2fd817fea3f2cfb4a768a13527a1abc6d1d2bdf03dc3cee"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/global-action-multiple-params.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/global-action-multiple-params.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/global-action-multiple-params.outputs.json",
+          "sha256": "a4e67d8d64a3cf30ddda4c6b229b7c3fac506da717e97315ab4241fbff3b2c04"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/global-action-multiple-params",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/global-action-multiple-params.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/global-action-multiple-params",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/global-action",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/global-action.p4",
+        "sha256": "96709ecbe32ea1eeda178a407c3d879664c22fc1413481ad2015f56a825b553d"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/global-action.json",
+          "sha256": "20df4ccb3d192c5a75d46f0d1abc04afc22e2f7f88ac87fbcbe2fb54ebe5f1c9"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/global-action.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/global-action.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/global-action.outputs.json",
+          "sha256": "322dfb18d76a589ffc974ddd059ec056ae1c872afda00c983fbf673f72576868"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/global-action",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/global-action.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/global-action",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/multi-state",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/multi-state.p4",
+        "sha256": "de7e9f9ecd0e87db83dae091e6cbec51a986dffd720dd3f083b26abde49eca35"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/multi-state.json",
+          "sha256": "d2623127f06e8fa28cceca4965aa7b435213ef139981c3475373579bce584f63"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/multi-state.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/multi-state.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/multi-state.outputs.json",
+          "sha256": "404abd03685a1fbdce4ee825f0fc837fbe367569c26a3623700b00c94518661f"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/multi-state",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/multi-state.stf",
+        "sha256": "bee46b4ed59a840b2b435430f705cd7dc1ce35949965955558df0546c17165b2"
+      },
+      "programId": "corpus:typing:positive/multi-state",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/nanonet-ignore-flag",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/nanonet-ignore-flag.p4",
+        "sha256": "fbbbae758cfbbd83a776367397b0ca881df62a934d901e0388d25fa2c09f03cd"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-ignore-flag.json",
+          "sha256": "4b5cdafa00979da56c2e54c8de9a074341c93d0aa3e9c0ecf6fe2ae5eb7121d0"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-ignore-flag.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-ignore-flag.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-ignore-flag.outputs.json",
+          "sha256": "c1dbfb977432ea835dc8669b7ad5d4ad419a27106d35959137e4f2d5c8da9c1b"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/nanonet-ignore-flag",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/nanonet-ignore-flag.stf",
+        "sha256": "7e7c4b75c5eafcb8ce1a7eb692ca29021ea041753aac8fd715c2af18fd96a0c1"
+      },
+      "programId": "corpus:typing:positive/nanonet-ignore-flag",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/nanonet-src-dst-filter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/nanonet-src-dst-filter.p4",
+        "sha256": "8bb2a87ebcc8fd8c29c58342923307e9bcdd2a01a4071e851cdb8dccb98c7596"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-src-dst-filter.json",
+          "sha256": "295766aa7da218d0f74733361453715d4d127de164642748d3ba6e41d0baa189"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-src-dst-filter.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-src-dst-filter.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-src-dst-filter.outputs.json",
+          "sha256": "498a3b33a3ff7aad7c8639baab9bf580b888c776abca1ced0db45ba0a9f6fab8"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/nanonet-src-dst-filter",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/nanonet-src-dst-filter.stf",
+        "sha256": "8daed66b79aa3854f1f3027cd62f0b3b33b4b7a42232ac614dc5f8aa4295560a"
+      },
+      "programId": "corpus:typing:positive/nanonet-src-dst-filter",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/nanonet-type-dispatch",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/nanonet-type-dispatch.p4",
+        "sha256": "2126bc0f7209d53f4ac3610a671b19be2428cf98d7c8d5b0c65fc0ce7da25e95"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-type-dispatch.json",
+          "sha256": "10875446ef18e50a8162bb7dcaae12f9d4536a1914b0242aebcbe74e9e55e290"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-type-dispatch.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-type-dispatch.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/nanonet-type-dispatch.outputs.json",
+          "sha256": "e1f3c77aa7dfff5cf31a95e8d8e2a44351905b8f07a7f76939e87b63bc33e239"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/nanonet-type-dispatch",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/nanonet-type-dispatch.stf",
+        "sha256": "a643e1a946590baee56e3df02f13d6a9cc47150c8c8e36f86ba26f29b5bd5355"
+      },
+      "programId": "corpus:typing:positive/nanonet-type-dispatch",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/not-equal",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/not-equal.p4",
+        "sha256": "8babda3a9ad280727133a4ca1b355476bc21cd95bb91dafddd6f5f0463eaf780"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/not-equal.json",
+          "sha256": "06e593e04dc6b6978cb8c3bf70a1b861d64f5a7f69983b3b832df6709000dce1"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/not-equal.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/not-equal.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/not-equal.outputs.json",
+          "sha256": "010744acf8e3cf94b2809da1c3e58b0791503cb0daf6e10e79ad58b097df97ca"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/not-equal",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/not-equal.stf",
+        "sha256": "964bd4d304a4092507ed85097bc635f0a9f87ca46382620f00e40ff6ed3f686d"
+      },
+      "programId": "corpus:typing:positive/not-equal",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/packet-type-filter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/packet-type-filter.p4",
+        "sha256": "3a78d924038bdc51aa1a9b1712771af54d1b4d17abf754f89cc181d352f4dbbf"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/packet-type-filter.json",
+          "sha256": "d510a90c9b139075bb84418626b2d79256a436ec81270f9cd7e347758beb16af"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/packet-type-filter.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/packet-type-filter.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/packet-type-filter.outputs.json",
+          "sha256": "6422b91a2ab7900706cbd168fd1f4e0fb1e91cfcc3d2698d96eee63756455653"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/packet-type-filter",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/packet-type-filter.stf",
+        "sha256": "f386eb98307305ed7a339460f17df1f810903c0465f3e9e5305506869e875253"
+      },
+      "programId": "corpus:typing:positive/packet-type-filter",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/parser-assign-then-filter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/parser-assign-then-filter.p4",
+        "sha256": "7a9c26758a19c42c44a3fbfc2dd899d37d789ea0e0b770b2af4a12923b494293"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/parser-assign-then-filter.json",
+          "sha256": "34b46daea8b4a02fd1d0de4e95f18170a8fa29bacbb0e9c8ba84be348bb2955c"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/parser-assign-then-filter.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/parser-assign-then-filter.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/parser-assign-then-filter.outputs.json",
+          "sha256": "e00419b97b8c37a236f9f105619b8a6b457549ee2341994567a2961e48a79247"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/parser-assign-then-filter",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/parser-assign-then-filter.stf",
+        "sha256": "5a1a2ea6604b6333ea400af8d8a3d70cdc345ca85cbb1a9b86d73a5e6c78718e"
+      },
+      "programId": "corpus:typing:positive/parser-assign-then-filter",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/parser-local-var",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/parser-local-var.p4",
+        "sha256": "0236769c25fa2098fce2e16036ea033ed6cfaf39e080776decaf09d9a64708dc"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/parser-local-var.json",
+          "sha256": "6e522c4fab8096378ee4d763ba5788f0ebcfa75034b55ae1dac8b053b77ec8d7"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/parser-local-var.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/parser-local-var.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/parser-local-var.outputs.json",
+          "sha256": "4039f12a02f3cb143425150efa82ea357cf0ab258ce3954295660c5889b8e454"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/parser-local-var",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/parser-local-var.stf",
+        "sha256": "f386eb98307305ed7a339460f17df1f810903c0465f3e9e5305506869e875253"
+      },
+      "programId": "corpus:typing:positive/parser-local-var",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/select-default",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/select-default.p4",
+        "sha256": "810e1c1571c7882f6379807ed9e6e1a5caecf3907c647652dc7669e74c1a5ae4"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/select-default.json",
+          "sha256": "d21c870cd4250a66b7db50de2b124f8a9ce5fdcd2201635c7b99f7af9bedf63f"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-default.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-default.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-default.outputs.json",
+          "sha256": "02b86335aecbc1425a5cb8372d8f26fea1ec31e34cf64d6fcce0cc6e1cdcc60b"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/select-default",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/select-default.stf",
+        "sha256": "a643e1a946590baee56e3df02f13d6a9cc47150c8c8e36f86ba26f29b5bd5355"
+      },
+      "programId": "corpus:typing:positive/select-default",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/select-then-filter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/select-then-filter.p4",
+        "sha256": "e784c5c93671edb1f81ade667f4967845a89db714986d521dee7df7d914c83f8"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/select-then-filter.json",
+          "sha256": "db53ecc7e352fb7e447d6181c1f58619ab5809b34475ed3bb638e57ef894c4a8"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-then-filter.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-then-filter.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-then-filter.outputs.json",
+          "sha256": "160756f27e1f61ebd17e0db65f4f2f0561ed9437793f6b7f2a62b1496cc4a8b9"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/select-then-filter",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/select-then-filter.stf",
+        "sha256": "aa26c4a37f4b4111dbf8d9468cc9c41b5aeb6d481ba46bb60ab7fd3f716e7ec9"
+      },
+      "programId": "corpus:typing:positive/select-then-filter",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/select-two-states",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/select-two-states.p4",
+        "sha256": "e55004bcea758431905986d6fcc37b24cc2808dbce8378fae1b8a9d4c539d008"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/select-two-states.json",
+          "sha256": "a387b6e16b34036c56db9123f09e165dfc8990c58214725989b98b71b79cdc0c"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-two-states.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-two-states.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/select-two-states.outputs.json",
+          "sha256": "ba785bbdde941bcab02ba36ea86fccb72055af2b6fcb4ab619d9e2d9c155d2e1"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/select-two-states",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/select-two-states.stf",
+        "sha256": "82ea7b377f6062af4a82053ea60e659dab11b554da79e1a2b3b491e5d19962bb"
+      },
+      "programId": "corpus:typing:positive/select-two-states",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/src-addr-filter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/src-addr-filter.p4",
+        "sha256": "9b0b534bccf87969408a476b528465219ec95e8dbe7f203aae58060af4bf4b5c"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/src-addr-filter.json",
+          "sha256": "52b3cd1ce8dbd54c62469005d408723d89e79ecd69a89c243b6354a4d4b7d9ad"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-addr-filter.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-addr-filter.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-addr-filter.outputs.json",
+          "sha256": "5a959895e0e439663d926cefa975951e5d95bd7ae22e928571f9224e5fd416bc"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/src-addr-filter",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/src-addr-filter.stf",
+        "sha256": "e53c913e396720572bf9fd0247670c22c733152a034a24314efb8b95ae4cbf2a"
+      },
+      "programId": "corpus:typing:positive/src-addr-filter",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/src-dst-check",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/src-dst-check.p4",
+        "sha256": "702271213c599672bab377ed877a047e665ff293d232d426d2b0456da26394bc"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/src-dst-check.json",
+          "sha256": "5b9e66f275551ec323a74e7c4bbfb0dfb0146c556edbbdd0ca278b8f337f3b5d"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-dst-check.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-dst-check.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-dst-check.outputs.json",
+          "sha256": "5a223ca714fc59c2861222453fc38885ebd38fd09631bad204cefd7ed8e7ccc4"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/src-dst-check",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/src-dst-check.stf",
+        "sha256": "bc8aacb568f2fc9c5bf59963d0fe43e372f271d24cb739184b5960109f88f054"
+      },
+      "programId": "corpus:typing:positive/src-dst-check",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/src-protocol-filter",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/src-protocol-filter.p4",
+        "sha256": "daf566eafecfcffbc1d9e22f2e37fdc3008258de510c78dfdd8d3616a64e2f46"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/src-protocol-filter.json",
+          "sha256": "d76eab646df2b557876c8eebbb627bc9f10dcaef02fe898690bea0760f85f98d"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-protocol-filter.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-protocol-filter.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/src-protocol-filter.outputs.json",
+          "sha256": "b1ff1a39ee0cf2d32864107e9cf358f4050c5bcddde13ac0a52280fecb7fc145"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/src-protocol-filter",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/src-protocol-filter.stf",
+        "sha256": "e7c3097443fb724be032d8d6bb2e57c41368f3849497be7f909a15d17728faa3"
+      },
+      "programId": "corpus:typing:positive/src-protocol-filter",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/table-const-entries",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/table-const-entries.p4",
+        "sha256": "60234a24d566ec5ca33eeb4b53586b1150a2088fdac61b86d9dd32a56cc64187"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/table-const-entries.json",
+          "sha256": "0f20504920a4a1c9f2f5de1d3f18eb6e29d74d7ca9ba7f56d8cf4488b96c3c0e"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-const-entries.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-const-entries.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-const-entries.outputs.json",
+          "sha256": "8c436f854fdd65cc59961a8bfef58d004d881bc62a551a463d0217f61788ddfc"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/table-const-entries",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/table-const-entries.stf",
+        "sha256": "d87d507500affe4f4b552e5c7593a8ee532f924c10576298681f500497995267"
+      },
+      "programId": "corpus:typing:positive/table-const-entries",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/table-no-entries",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/table-no-entries.p4",
+        "sha256": "dd1351b0f0b31beafecb8a2cfb4362e95afc27a2088bb9b8db0a2c7485450b5d"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/table-no-entries.json",
+          "sha256": "2cf46e4a72322fe9071a4937482d53baaf490cf4e0ff5a9cf0df43550edc3a09"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-no-entries.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-no-entries.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-no-entries.outputs.json",
+          "sha256": "8d05d294b3a8bc77d5b416d33b6e0d5644f425c87fd6799bdbfa2d71ba6c06e0"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/table-no-entries",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/table-no-entries.stf",
+        "sha256": "fb6faaca432681f73816287057f65f77bb01c432a20ec9c89c2260dabb297802"
+      },
+      "programId": "corpus:typing:positive/table-no-entries",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    },
+    {
+      "id": "corpus:typing:positive/table-with-action-arg",
+      "kind": "typing",
+      "source": {
+        "path": "nano-p4/testdata/positive/table-with-action-arg.p4",
+        "sha256": "52e4d24b7f25d815734ff2dbb336295c91f49dc87eee3a861ddcc8c9215bbde4"
+      },
+      "upstreamVerdict": "pass",
+      "observationCategory": "upstream-typing-export",
+      "observations": [
+        {
+          "path": "exports/programs/nano-p4/positive/table-with-action-arg.json",
+          "sha256": "5810ce7b6283c3c2ab7e00bac85606b3fff893020135783dbac6fc22f3bb10d6"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-with-action-arg.verdict",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-with-action-arg.verdict.sl",
+          "sha256": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
+        },
+        {
+          "path": "exports/programs/nano-p4/positive/table-with-action-arg.outputs.json",
+          "sha256": "46696fdf82d08ddfda379d2469570bb4c1594b0d8f68b34305eb10dc74fc7e4a"
+        }
+      ],
+      "missingObservations": [],
+      "requiredEvidence": "generated-and-reference-typing-replay"
+    },
+    {
+      "id": "corpus:packet:positive/table-with-action-arg",
+      "kind": "packet",
+      "source": {
+        "path": "nano-p4/testdata/positive/table-with-action-arg.stf",
+        "sha256": "78becea3eb1c34a6bb85968e232877482fd8ebfea556d12700db1d87100316db"
+      },
+      "programId": "corpus:typing:positive/table-with-action-arg",
+      "observations": [],
+      "requiredEvidence": "generated-reference-upstream-packet-replay"
+    }
+  ]
+}

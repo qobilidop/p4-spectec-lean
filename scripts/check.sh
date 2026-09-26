@@ -35,6 +35,9 @@ for path in \
   P4SpecTec/Codegen/Main.lean P4SpecTec/Codegen/Keywords.lean \
   P4SpecTec/Codegen/Coverage.lean P4SpecTec/Codegen/Coverage/Check.lean \
   NanoP4Spec/coverage.json \
+  NanoP4Spec/completion.json scripts/nano-certification.py \
+  test/completion/test_completion.py test/nano-certification/corpus.py \
+  test/nano-certification/corpus.json test/nano-certification/test_corpus.py \
   P4SpecTec/Refine/Init.lean ExampleProofs/NanoP4FieldUpdate/Certificate.lean \
   ExampleProofs/NanoP4FieldUpdate/test/run.py ExampleProofs/NanoP4FieldUpdate/test/test_runner.py \
   upstream/p4-spectec/README.md upstream/nano-p4-spec/README.md \
@@ -100,6 +103,8 @@ fi
 "$root/scripts/check-text.sh" || fail=1
 python3 "$root/scripts/test-check-text.py" || fail=1
 python3 "$root/scripts/test-build-upstream.py" || fail=1
+python3 "$root/test/completion/test_completion.py" || fail=1
+python3 "$root/test/nano-certification/test_corpus.py" || fail=1
 python3 "$root/scripts/check-file-sizes.py" || fail=1
 python3 "$root/test/snapshot/test_file_sizes.py" || fail=1
 "$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec ExampleProofs || fail=1
@@ -151,8 +156,10 @@ if command -v lake >/dev/null 2>&1; then
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
     check-nano-target check-nano-packet check-nano-driver check-nano-verify) \
     || { say "reconnaissance tools failed to build"; fail=1; }
-  (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
-  (cd "$root" && lake exe check-coverage) || { say "coverage check failed"; fail=1; }
+  # Completion diagnostics include the existing compiled-claim/quotation checks.
+  # Strict completion remains deliberately failing until all obligations close.
+  python3 "$root/scripts/nano-certification.py" \
+    || { say "Nano completion inventory/coverage/quotation check failed"; fail=1; }
   python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }

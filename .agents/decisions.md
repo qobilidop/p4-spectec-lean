@@ -19,8 +19,11 @@ core semantics and target composition as separate required acceptance stages.
 [Design section 9](../docs/design.md#9-nano-p4-scope-and-acceptance) owns the
 scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
-authorized settling this scope; this documentation task does not itself
-restart implementation or broader M3. Confidence high in the milestone choice;
+first authorized settling this scope and then explicitly approved autonomous
+implementation of the Nano plan, starting with N0/N1. Broader full-P4 M3 remains
+paused. Use Luna for bounded inventories, Sol for bounded implementation/tests,
+and Astra for difficult semantics/proofs and independent review, with explicit
+ownership and one integrator. Confidence high in the milestone choice;
 schedule remains uncertain until reverse proofs and target representation
 blockers are investigated. Revisit scope only through an explicit design
 decision, not by excluding difficult cases from coverage.

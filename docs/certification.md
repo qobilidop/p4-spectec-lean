@@ -63,6 +63,52 @@ supported. Its capability census is an emission probe, not certificate coverage.
 The stronger handwritten field-update certificate remains a separate consumer
 artifact and does not increase the generated forward or reverse coverage.
 
+### Nano completion inventory
+
+The [completion inventory](../NanoP4Spec/completion.json) supplements callable
+coverage with all 350 source declarations, including types and variables,
+and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
+It references existing theorem claims rather than duplicating their statements.
+The current 888 obligations have 95 compiled claim bindings (18 forward and
+77 run-soundness); 793 remain unresolved. These counts are neither behavioral
+coverage nor estimates of remaining effort. Even a definition with a forward
+binding still needs its reverse, domain and environment obligations.
+
+Dependencies conservatively combine the callable/SCC graph, named source-type
+references (including notes), primitive/container representations and profile
+prerequisites. They guide implementation; they do not prove semantic
+composition or make an unimplemented contract checker available. Typing replay
+belongs to the core stage; packet replay additionally belongs to the target.
+
+The checker regenerates the inventory, checks source identities and the pinned
+corpus, and invokes the existing compiled coverage and quotation checks. There
+is no editable `checked` flag. Contract kinds without a statement/checker
+adapter remain unresolved, including the complete source-identity obligation
+beyond the existing normalized quotation comparison. Review and release
+evidence are recorded obligations, not kernel theorems or metadata verdicts.
+
+The [corpus inventory](../test/nano-certification/corpus.json) retains 78 programs
+and 39 STF sessions. Upstream observations exist for all typing cases and three
+STF sessions; 36 packet sessions still lack observations. Stored observations
+are inputs to replay, not proof that both Lean paths agree. The completion
+inventory keeps all 117 replay obligations open until checked evidence is wired
+to them; this does not negate the existing bounded replay tests.
+
+Normal checking accepts an accurately reported incomplete inventory. Strict
+checking returns a nonzero exit while the selected stage has unresolved
+obligations (`target` includes core prerequisites; `all` includes release
+evidence). Neither stage is complete today:
+
+```sh
+nix develop --command python3 scripts/nano-certification.py
+nix develop --command python3 scripts/nano-certification.py --require-complete all
+```
+
+After changing source or evidence, regenerate metadata with
+`python3 test/nano-certification/corpus.py --update` followed by
+`python3 scripts/nano-certification.py --update`, both inside the pinned shell.
+Regeneration itself is not validation or certification.
+
 ### Implementation boundaries
 
 These limitations describe the implementation, not the intended design:
