@@ -47,15 +47,18 @@ and independently verified all six source Git-object hashes. Reviews:
 Local reviewed checkpoint `96078a0` is reconciled with published main
 `2c85f1b` (PR #22). Independent review confirms both source sets unchanged,
 the union gate retained and 22 focused contracts plus shell syntax passing.
-Report: `m3d-nano-reconcile.md`. Root's combined full gate is running;
-publication and final-head CI remain owed.
+Report: `m3d-nano-reconcile.md`. Root's combined full gate on this reconciled
+source exited 0 without skips, including both 78-program Nano legs, 48 output
+contexts, quotation/oracle/census checks and the new packet replay/contracts.
+Actual exit is recorded in `.artifacts/nano-target-full-gate.exit` before
+publication. Final-head remote CI remains owed.
 Pinned direct and real-program probes confirm NanoSwitch extract
 returns raw ExternV objectState where the spec declares `value`. Three
 unguarded AL STF cases pass upstream; guarded `field-access` fails after
 that extern result. This cannot be silently repaired by a generated typed
 adapter. Evidence, scope and next steps:
 `.agents/notes/nano-target-boundary.md` and `test/nano-target/README.md`.
-Next: reconcile current main, run the full gate, and publish this checkpoint;
+Next: publish this locally gated checkpoint and verify final-head remote CI;
 then continue the faithful driver projection within authorized M3D scope.
 No milestone completion yet.
 

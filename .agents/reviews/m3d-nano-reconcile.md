@@ -43,3 +43,21 @@ with the in-progress merge and exited 2 on unresolved markers, before the
 root's final resolution; it is not a passing gate or evidence about the
 resolved snapshot. Full-gate success and final-head remote CI remain
 separate publication requirements.
+
+## Final validation status checkpoint
+
+2026-09-25, separate read-only status/log review by the corpus oracle agent,
+Codex (GPT-6 Sol). Reviewed only the final status working diff and validation
+evidence; no implementation changes or duplicate gate execution.
+
+No findings. The status correctly replaces the running-gate claim with local
+gate success, retains final-head remote CI as owed, and does not expand the
+bounded direct/relation replay into boot/STF/full-simulator coverage.
+Reviewer read `.artifacts/nano-target-full-gate.exit` as exactly `0` and
+checked the matching log: both 78-program differential legs agree, 48 output
+contexts compare, 342 quotations match, the 24 direct target observations
+and all seven packet-relation events match, the five mutation checks pass,
+the census checks 1,689 definitions, and the final verdict is
+`[check] all checks passed`. No `SKIPPED` or `FAILED` markers occur.
+Root owns the actual full-gate process/exit recording; this review verifies
+the durable local evidence and status wording, not final remote CI.
