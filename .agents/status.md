@@ -28,8 +28,28 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   directly with axiom audits (exit 0 each). Remote CI remains owed. This
   is a reusable proof boundary, not generated full-P4 refinement.
 - Executable and structural proof authors resumed their respective saved
-  worktrees. The M3C oracle adapter is being implemented in a new isolated
-  worktree from the merged baseline. No milestone completion is claimed.
+  worktrees. The bounded M3C oracle adapter is reviewed and being published
+  independently from current main. No milestone completion is claimed.
+
+## Active checkpoint: bounded full-P4 oracle
+
+- Branch `m3c-p4-oracle-publish`, based on `origin/main` `87e9181`, integrates
+  reviewed adapter revisions `16a2d57` and `997d0ab` without importing their
+  older status snapshot. Source provenance, semantic-path digests, fixed
+  fixture/schema checks and CLI failure classification passed independent
+  AI-agent re-review; all four initial medium findings are resolved.
+- The ordinary gate requires the adapter files and runs twelve offline
+  contract tests. It does not download p4c, build OCaml or run the real
+  full-P4 oracle. Independent focused checks at `997d0ab` exited 0: twelve
+  offline tests, four pinned cases with eight CLI comparisons, and extra
+  in-memory sensitivity tests. Exact commands and review boundaries are in
+  `.agents/reviews/m3c-p4-oracle-adapter.md`.
+- The frozen integration full gate exited 0 with no skips. The publication
+  tree's real four-case/eight-CLI comparison also exited 0. Root independently
+  reviewed the gate plumbing and reran twelve offline tests and shell syntax
+  (exit 0 each), with no findings. Exact commands are in the adapter note.
+  Remote CI remains pending. This is an upstream-side oracle only, not Lean replay,
+  a corpus denominator or full-P4 generation/refinement evidence.
 
 ## Merged checkpoint: pinned corpus preparation
 
@@ -105,8 +125,19 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   `/Users/qobilidop/my/work/p4-spectec-lean-state-oracle`, branch
   `m3b-state-oracle`, note `.agents/notes/full-p4-corpus-prep.md`.
   The pinned sparse sample/include checkout is restored. The boot/result
-  oracle adapter remains to be implemented. Regression files alone do not
-  establish the canonical corpus denominator. No full-corpus boot claim.
+  oracle adapter is reviewed on branch `m3c-p4-oracle-adapter` and is being
+  published independently on `m3c-p4-oracle-publish`. Four bounded
+  inputs have exact typed boot/output digests, result classes and counters
+  checked against the pinned AL interpreter in separate relation sessions;
+  pinned CLI verdict parity also passed. Independent review found four
+  medium contract gaps; fixes and re-review are complete. Twelve offline
+  sensitivity tests and the focused four-case check independently exited 0.
+  Notes:
+  `.agents/notes/full-p4-oracle-adapter.md` and
+  `.agents/reviews/m3c-p4-oracle-adapter.md`. Regression files alone do
+  not establish the canonical corpus denominator. The publication branch's
+  full gate passed; remote CI remains required. No full-corpus
+  boot or Lean agreement claim.
 - Next: checkpoint proof fixtures; independently review and integrate
   executable/proof generators; establish stateful refinement; regenerate
   and elaborate full P4. Then M3C corpus/fidelity, M3D targets (NanoSwitch,
