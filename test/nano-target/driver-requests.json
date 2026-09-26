@@ -1,0 +1,13 @@
+[
+  {"decision":"forward","port":7,"payload":"aB09"},
+  {"decision":"forward","port":-1,"payload":""},
+  {"decision":"forward","port":4611686018427387903,"payload":"F"},
+  {"decision":"forward","port":-4611686018427387904,"payload":"ff"},
+  {"decision":"drop","port":2,"payload":"FFFF"},
+  {"decision":"noncase","port":3,"payload":"AA"},
+  {"decision":"sequence","port":4,"payload":"AA"},
+  {"decision":"unmatch","port":5,"payload":"AA"},
+  {"decision":"abort","port":6,"payload":"AA"},
+  {"decision":"arity","port":8,"payload":"AA"},
+  {"decision":"forward","port":9,"payload":"g0"}
+]

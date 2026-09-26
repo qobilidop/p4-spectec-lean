@@ -11,7 +11,37 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active isolated checkpoint: bounded dynamic Nano target
+## Active isolated increment: dynamic Nano packet driver
+
+Branch `m3d-nano-driver`, worktree `p4-spectec-lean-nano-driver`, starts at
+reviewed target checkpoint `96078a0`; the original target tree is frozen.
+New partial Runtime.Sim.Io aliases and NanoSwitch.Pipe.drive_pipe preserve
+the original signed-host port, hex payload and architecture; only the exact
+optional FORWARD shape transmits. Raw PacketIn objectState is passed to the
+explicit StateEval relation callback. Invalid hex/arity and unsupported host
+ports are hard errors; callback failure post-state and divergence propagate.
+Focused Pipe and check-nano-packet builds passed. Original upstream-driver
+capture and Lean replay both exited 0: six successful full driver outputs
+and one guarded failure (Lean err), alongside all existing relation checks.
+Transmission/counter mutations are rejected. Eleven offline fixture schema
+tests passed. Schema 2 stores independent driver inputs/outputs: 8,510,069
+raw bytes / 305,049 gzip bytes; root approved a 16 MiB expanded bound with
+the unchanged 1 MiB compressed bound. Direct 11-case driver fixture capture,
+Lean replay and exact-pin re-observation passed. The four-session original
+driver fixture re-observation also passed. Combined focused build
+`lake build --wfail check-nano-target check-nano-packet check-nano-driver
+P4SpecTecTest.NanoTarget` exited 0 (97 jobs); import completeness, explicit
+Lean width and diff-whitespace checks exited 0. Initial direct-probe API-name
+and test-only type-equality compile errors were fixed before these checks.
+Root independently reviewed the implementation and repeated the eleven
+direct observations, eleven contracts, original-driver packet sessions and
+Lean replay/mutations (all exit 0), with no findings. Root's narrow gate
+wiring is independently reviewed and its focused checks pass. Reports:
+`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. No full gate, commit, push
+or support-completion claim for this increment. Next: local checkpoint,
+reconcile the latest published main, then combined full gate and final CI.
+
+## Inherited checkpoint: bounded dynamic Nano target
 
 Branch `m3d-nano-target` starts at `e31c1e8`, the merged PR #21 baseline.
 The partial Core.Object and NanoSwitch.Pipe ports now implement checked
@@ -44,7 +74,9 @@ remaining findings in this bounded scope. Root reran ten offline contracts,
 the six-success/one-failure Lean replay with five mutations (all exit 0),
 and independently verified all six source Git-object hashes. Reviews:
 `m3d-nano-primitives.md`, `m3d-nano-packet.md`, `m3d-nano-gate.md`.
-No full gate, commit or push yet; main reconciliation is next.
+Publication follow-up: this inherited target checkpoint merged as PR #23,
+main `186d43a`, after full local gate and remote Gate `36215801356` passed
+on `65609db`. Its main reconciliation is not yet in this driver branch.
 Pinned direct and real-program probes confirm NanoSwitch extract
 returns raw ExternV objectState where the spec declares `value`. Three
 unguarded AL STF cases pass upstream; guarded `field-access` fails after

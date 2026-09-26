@@ -1,0 +1,529 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "scope": "dynamic-driver",
+  "cases": [
+    {
+      "request": {
+        "decision": "forward",
+        "port": 7,
+        "payload": "aB09"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": [
+          [
+            7,
+            "aB09"
+          ]
+        ]
+      }
+    },
+    {
+      "request": {
+        "decision": "forward",
+        "port": -1,
+        "payload": ""
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": [
+          [
+            -1,
+            ""
+          ]
+        ]
+      }
+    },
+    {
+      "request": {
+        "decision": "forward",
+        "port": 4611686018427387903,
+        "payload": "F"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": [
+          [
+            4611686018427387903,
+            "F"
+          ]
+        ]
+      }
+    },
+    {
+      "request": {
+        "decision": "forward",
+        "port": -4611686018427387904,
+        "payload": "ff"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": [
+          [
+            -4611686018427387904,
+            "ff"
+          ]
+        ]
+      }
+    },
+    {
+      "request": {
+        "decision": "drop",
+        "port": 2,
+        "payload": "FFFF"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": []
+      }
+    },
+    {
+      "request": {
+        "decision": "noncase",
+        "port": 3,
+        "payload": "AA"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": []
+      }
+    },
+    {
+      "request": {
+        "decision": "sequence",
+        "port": 4,
+        "payload": "AA"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "pass",
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              true
+            ],
+            "note": {
+              "vid": 7,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1231
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "TextV",
+              "arch"
+            ],
+            "note": {
+              "vid": 2,
+              "typ": [
+                "TextT"
+              ],
+              "vhash": 268949013
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ],
+        "txs": []
+      }
+    },
+    {
+      "request": {
+        "decision": "unmatch",
+        "port": 5,
+        "payload": "AA"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "unmatch"
+      }
+    },
+    {
+      "request": {
+        "decision": "abort",
+        "port": 6,
+        "payload": "AA"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "abort"
+      }
+    },
+    {
+      "request": {
+        "decision": "arity",
+        "port": 8,
+        "payload": "AA"
+      },
+      "result": {
+        "called": true,
+        "counterAfter": 1,
+        "class": "assertion"
+      }
+    },
+    {
+      "request": {
+        "decision": "forward",
+        "port": 9,
+        "payload": "g0"
+      },
+      "result": {
+        "called": false,
+        "counterAfter": 0,
+        "class": "assertion"
+      }
+    }
+  ]
+}

@@ -75,8 +75,30 @@ had accepted; exact callback shape checks now guard that boundary.
 The full typed four-session observations are stored losslessly as a
 154 KB gzip snapshot, with exact source hashes and bounded decoding.
 `test/nano-target/README.md` defines comparison scope and reproduction.
-The port still excludes boot, driver/STF, verify, and a typed Externs
+The inherited target checkpoint excludes boot, driver/STF, verify, and a typed Externs
 instance. Existing unguarded packet outputs do not distinguish a repaired
 PACKET receiver; the guarded outcome and direct-handler oracle do.
 Independent final review and full gate are pending, so this is not yet a
 published support claim or completion of M3D.
+
+## Isolated driver increment
+
+`m3d-nano-driver` adds a faithful partial dynamic drive_pipe and Runtime.Sim.Io
+type aliases. It invokes an explicit StateEval relation callback, with no
+implicit fuel or reset, then exactly matches optional Atom FORWARD. Noncase
+and singleton-sequence decisions drop. Ports must fit the pinned OCaml
+signed-63-bit range; unsupported Int inputs reject before callbacks instead
+of silently wrapping. Original port, payload and architecture are retained.
+No typed PACKET repair, boot or STF parser is introduced.
+
+The schema-2 packet probe wraps the original upstream drive_pipe and captures
+its full inputs and outputs independently of relation observations. Actual
+AL-versus-Lean replay passed six driver successes and the guarded failure,
+including exact tx lists and counter. It still starts from upstream booted
+contexts and does not establish whole-simulator/STF correctness. Full retained
+contexts double raw fixture size to 8,510,069 bytes (305,049 compressed), so
+the explicitly reviewed expansion bound is now 16 MiB; compressed bound
+remains 1 MiB. Separate direct original-driver observations cover malformed
+drop, port extremes, invalid hex and allocation before failure. All 11 direct
+observations now replay and re-observe exactly; the four-session packet fixture
+also re-observes exactly. Source review remains pending; no gate or publication yet.

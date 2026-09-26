@@ -37,7 +37,7 @@ def validate(bundle):
     expected = {"schemaVersion", "upstreamRevision", "nanoSpecRevision", "mode",
                 "cache", "det", "relation", "cases"}
     if (set(bundle) != expected or type(bundle["schemaVersion"]) is not int
-            or bundle["schemaVersion"] != 1):
+            or bundle["schemaVersion"] != 2):
         raise ValueError("wrong packet fixture schema")
     if (bundle["upstreamRevision"] != "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3"
             or bundle["nanoSpecRevision"] != "60dfd9912011bd5b1746ac88b26b58f7b3981991"
@@ -62,14 +62,22 @@ def validate(bundle):
         if (case["programSha256"], case["stfSha256"]) != SOURCE_HASHES[name]:
             raise ValueError("source digest differs from pinned Git object")
         observation = case["observation"]
-        if (set(observation) != {"stfResult", "events"}
+        if (set(observation) != {"stfResult", "events", "driverEvents"}
                 or observation["stfResult"] != outcome
-                or len(observation["events"]) != count):
+                or not isinstance(observation["events"], list)
+                or not isinstance(observation["driverEvents"], list)
+                or len(observation["events"]) != count
+                or len(observation["driverEvents"]) != count):
             raise ValueError("wrong packet observation shape")
-        for event in observation["events"]:
+        for driver, event in ([(False, e) for e in observation["events"]]
+                              + [(True, e) for e in observation["driverEvents"]]):
             fields = {"class", "inputs", "counterBefore", "counterAfter"}
+            if driver:
+                fields.add("rx")
             if outcome == "pass":
                 fields.add("outputs")
+                if driver:
+                    fields.add("txs")
             if set(event) != fields or event["class"] != outcome:
                 raise ValueError("wrong packet event class")
             for key in ("counterBefore", "counterAfter"):
@@ -81,6 +89,19 @@ def validate(bundle):
                 if (not isinstance(values, list) or len(values) != 2
                         or not all(oracle.typed_value(v) for v in values)):
                     raise ValueError("malformed typed packet values")
+            if driver:
+                packets = [event["rx"]]
+                if outcome == "pass":
+                    if not isinstance(event["txs"], list):
+                        raise ValueError("malformed driver transmissions")
+                    packets += event["txs"]
+                for packet in packets:
+                    if (not isinstance(packet, list) or len(packet) != 2
+                            or type(packet[0]) is not int
+                            or not -(2**62) <= packet[0] < 2**62
+                            or not isinstance(packet[1], str)
+                            or any(ord(c) > 127 for c in packet[1])):
+                        raise ValueError("malformed driver packet")
 
 
 def strict_object(pairs):
@@ -104,8 +125,8 @@ def read():
     if len(packed) > 1024 * 1024:
         raise ValueError("packet fixture compressed size exceeds bound")
     with gzip.GzipFile(fileobj=io.BytesIO(packed)) as stream:
-        data = stream.read(8 * 1024 * 1024 + 1)
-    if len(data) > 8 * 1024 * 1024:
+        data = stream.read(16 * 1024 * 1024 + 1)
+    if len(data) > 16 * 1024 * 1024:
         raise ValueError("packet fixture expanded size exceeds bound")
     digest = hashlib.sha256(data).hexdigest()
     if PACKET.with_suffix(".json.sha256").read_text() != f"{digest}  {PACKET.name}\n":

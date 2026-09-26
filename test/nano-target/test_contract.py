@@ -21,7 +21,7 @@ class Contract(unittest.TestCase):
                              for c in self.bundle["cases"]), 7)
 
     def test_envelope(self):
-        for key, bad in [("schemaVersion", True), ("schemaVersion", 2),
+        for key, bad in [("schemaVersion", True), ("schemaVersion", 1),
                          ("upstreamRevision", "bad"), ("nanoSpecRevision", "bad"),
                          ("cache", True), ("det", True), ("relation", "Program_ok")]:
             with self.subTest(key=key, bad=bad), self.assertRaises(ValueError):
@@ -53,6 +53,14 @@ class Contract(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
             fixture.strict_json('{"schemaVersion":1,"schemaVersion":1}')
 
+    def test_driver_shape(self):
+        for key, value in [("rx", [True, "AA"]), ("rx", [2**62, "AA"]),
+                           ("rx", [0, "é"]), ("txs", "bad"), ("outputs", [])]:
+            bad = copy.deepcopy(self.bundle)
+            bad["cases"][0]["observation"]["driverEvents"][0][key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                fixture.validate(bad)
+
     def test_nonfinite_constants(self):
         for value in ("NaN", "Infinity", "-Infinity"):
             with self.assertRaisesRegex(ValueError, "nonfinite JSON constant"):
@@ -74,7 +82,7 @@ class Contract(unittest.TestCase):
         self.check_bad_file(b"x" * (1024 * 1024 + 1), "compressed size")
 
     def test_expanded_bound(self):
-        self.check_bad_file(gzip.compress(b"x" * (8 * 1024 * 1024 + 1), mtime=0),
+        self.check_bad_file(gzip.compress(b"x" * (16 * 1024 * 1024 + 1), mtime=0),
                             "expanded size")
 
 

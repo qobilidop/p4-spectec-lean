@@ -99,3 +99,8 @@ root = "P4SpecTecTest.NanoTargetOracle.Main"
 [[lean_exe]]
 name = "check-nano-packet"
 root = "P4SpecTecTest.NanoPacket.Main"
+
+# Original dynamic Nano driver observations, including failure post-state.
+[[lean_exe]]
+name = "check-nano-driver"
+root = "P4SpecTecTest.NanoDriver.Main"
