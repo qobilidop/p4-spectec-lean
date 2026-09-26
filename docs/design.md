@@ -5,55 +5,93 @@ review (section 11) and again at the end of M1 for what building the
 pilot taught (the AL as the export, fuel, module grouping, the naming
 rule). The compiler input and the reference interpreter are AL, the
 algorithmic representation produced from IL by upstream's `algo` pass.
-Section 3 distinguishes these stages and their historical names.
-Diagrams: https://claude.ai/artifact/XCUhcd9cSsC4qBu2TjkiUJ (private).
+Section 3 distinguishes these stages and their historical names. The
+2026-09-25 architecture discussion settled the direction and correctness
+target in sections 1.1 and 5: retain the AL backend and prove one complete
+consumer example before broader expansion. That bounded field-update
+example is now complete; broader M3 remains paused and incomplete.
 
 ## 1. Goal and thesis
 
-A compiler from P4-SpecTec's AL (algorithmic language) to Lean 4, written in
-Lean, reusing the upstream OCaml frontend, elaborator and algorithmization pass, with
-every generated definition validated by a machine-checked theorem. Plus a
-small Lean library for P4 primitives that downstream verification projects
-can import without the generated spec.
+A compiler from P4-SpecTec's AL (algorithmic language) to Lean 4, written
+in Lean and reusing upstream's OCaml frontend, elaborator and
+algorithmization pass. Its goal is a usable P4-specific Lean library
+whose executable behavior is connected by checked proofs to an explicit
+AL reference semantics. A small P4 primitives library is planned for
+downstream verification projects.
 
-**Thesis.** Existing spec-DSL-to-prover backends (Ott, Lem, Sail, Wasm
-SpecTec's Rocq and Lean backends) are unverified pretty-printers whose
-output is only partly usable: Wasm SpecTec needed about fifteen IL-to-IL
-passes before Rocq would accept its spec, and the generated Wasm 2.0 file
-still has 64 axioms and 69 recursive functions turned into relations
-because termination could not be shown; the Lean branch has 116 opaque
-definitions and no proofs against it. P4-SpecTec's AL is different in
-kind: elaboration followed by algorithmization makes every rule algorithmic, with explicit
-dataflow, no existentials, and side conditions for partial patterns. That
-is most of the middlend Wasm had to build, done upstream, once. So:
+**Thesis.** AL already exposes executable dataflow. This makes it a
+practical starting point for generating functions and logical rules,
+while a handwritten AL interpreter in Lean supplies the reference for
+translation certificates. The benefit of the generated interface must
+be demonstrated by a consumer proof; execution speed is an unmeasured
+potential benefit, not a delivered claim. The
+[prior-art comparison](prior-arts-comparison.md) distinguishes this
+approach from IL-to-prover generation and other certifying compilers.
 
-> Because P4-SpecTec's AL is algorithmic, P4's mechanized semantics can be
-> rendered into Lean as ordinary computable functions and rule-indexed
-> inductive relations with nothing opaque, and that rendering can be
-> validated definition by definition against a Lean formalization of the
-> AL, in the manner of proof-producing translation.
+> We aim to generate a usable Lean model and prove that it implements
+> our explicit AL reference semantics, for a documented supported domain.
 
-**Claims.** Each has one experiment and one way to fail.
+**Targets, not blanket current guarantees:**
 
-| Claim | Experiment | Fails if |
+| Target | Evidence required | Current boundary |
 |---|---|---|
-| 1. Complete rendering | every definition of the pinned spec renders and kernel-checks | any `opaque`, `axiom`, `sorry` or `partial` in generated code |
-| 2. Agrees with upstream | the executable rendering answers the p4c corpus as upstream's interpreter does | an unexplained divergence |
-| 3. Validated per definition | every generated definition carries a refinement theorem against the AL interpreter, proved by a generic tactic | a theorem the tactic cannot close |
-| 4. Usable for proofs | a generated lemma library per relation, including a determinism theorem, that upstream only checks dynamically | a relation whose determinism cannot be stated or a downstream proof that needs hand-written adapters |
+| Complete rendering | every definition of the pinned specification generates and kernel-checks, with no generated `opaque`, `axiom`, `sorry`, or `partial`, and all existing axiom/build gates | Nano generates; full P4 remains in progress |
+| Agreement with upstream | differential verdicts and outputs under matched configurations, with exclusions explicit | recorded Nano typing corpus, bounded builtin/state and packet/driver observations; no complete target or whole-corpus result |
+| Translation correctness | same terminating observable behavior in both directions, with representation and environment obligations, composed from definition certificates | generated AL certificates cover 18 Nano functions in one direction; handwritten field-update proofs establish both directions on a scalar source domain |
+| Proof usability | a useful consumer theorem transferred through a complete certified dependency chain | bounded field-update commutation transferred to reference executions; broader public proof interface remains open |
 
-The project is self-contained. It depends on upstream P4-SpecTec and on
-Lean, and on nothing else. It stays independent of upstream: upstream may
-use it as a reference, but adoption is never a design criterion.
-Downstream projects consume it; they do not shape it (section 9).
+The project keeps its semantic scope independent of any one consumer.
+Consumer proofs inform the interface and establish its usefulness
+(section 9); upstream adoption is not a success criterion.
+
+### 1.1 Agreed direction and first consumer checkpoint
+
+Retain AL as input, the handwritten Lean AL interpreter as the reference,
+and the generated P4-specific model as the consumer interface. Do not
+build an IL backend or undertake a broad redesign now. The current
+statement-by-statement logical encoding is an implementation baseline;
+its suitability as the long-term proof API remains to be demonstrated.
+
+The first acceptance checkpoint required one small, useful example joining
+the correctness argument to a downstream theorem, identifying:
+
+1. A pinned source definition or entry point and its dependency closure.
+2. The supported input representations, environment, execution mode,
+   extern assumptions, and observable outcomes.
+3. Both directions of executable correspondence described in section 5,
+   with the required representations and dependencies covered.
+4. A consumer property stated through the Lean interface and transferred
+   to the corresponding reference executions.
+
+The checked [field-update example](../NanoP4Proofs/FieldUpdate/Example.lean)
+now meets this bounded checkpoint. It connects the actual generated
+`update_fieldValue` to the quoted AL reference, discharges representation
+and initialized-environment obligations, and transfers distinct-name
+commutation for already evaluated replacement values. The scalar source
+domain includes W/S/B/MATCH_KIND payloads and ordered finite field lists;
+duplicates retain first-match behavior and absent names leave the list
+unchanged. Reference realization supplies finite fuel, not a termination
+assumption. The domain is a shape profile, not a P4 typing or range theorem.
+Nested payloads, printing, externs and arbitrary assignment reordering are
+outside this consumer claim.
+
+This success is not certification of all Nano-P4 or full P4. Existing M3
+work and correctness gates remain; broader expansion is paused.
+
+Use the result to decide what abstraction lemmas or public proof interface
+are needed. An IL-oriented interface or interpreter-only alternative can
+be revisited if the example exposes a concrete problem; neither is a new
+backend commitment or the next implementation task.
 
 ## 2. Principles
 
 ### 2.1 Correct by construction first, proofs second
 
-Every place a reviewer can confirm correctness by inspection is a place
-that needs no proof. So the design maximizes those places and spends
-proof effort only on what is left. Concretely:
+Mirroring makes the manually ported reference semantics easier to audit
+and maintain. It is a trust-management practice, not a proof that OCaml
+and Lean behavior agree. Translation certificates and differential tests
+provide separate evidence. Concretely:
 
 - **The IL deep embedding mirrors `ast.ml` exactly.** Same type names,
   constructor names, constructor order, field order, and comments. One
@@ -209,10 +247,10 @@ spec files → Parse → Elaborate → IL → Algo → AL ──┐
                                                             ▼
                                                    P4Spec/<Section>/<File>.lean  (committed, diffed in CI)
                                                      types      inductive / structure / abbrev
-                                                     functions  def, structural or partial_fixpoint
-                                                     relations  inductive R : Prop  +  def R.run : Option
+                                                     functions  plain def or partial_fixpoint
+                                                     relations  inductive R : Prop + executable R.run
                                                      ⌜d⌝, refinement theorems, lemma library
-                                                     class P4Spec.Target  (externs and builtins)
+                                                     class Externs  (external operation signatures)
                                                      ▲ imports P4SpecTec.Prelude
                                                      ▲ instantiated by P4Spec.Targets.*
 ```
@@ -222,11 +260,12 @@ Decisions:
 - **Almost nothing in OCaml.** The JSON dump is a small patch to upstream.
   Everything else is Lean, including the compiler: the IL deep embedding
   must exist in Lean for validation anyway, so the generator and the
-  validator share one AST and one decoder; Lean's own formatter gives
-  canonical output and its token table gives correct keyword escaping;
-  and a generator in Lean could one day be verified, one in OCaml never.
-- **The compiler takes a list of spec files**, not a fixed directory, so a
-  consumer can add an architecture or a contract written in SpecTec.
+  validator share one AST and one decoder. The emitter uses `Std.Format`
+  and Lean's token table for formatting and keyword escaping. This is an
+  engineering choice, not a claim that an OCaml generator cannot be verified.
+- **The compiler takes an AL JSON export.** Upstream prepares that export
+  from specification files; a consumer can include an architecture or a
+  contract written in SpecTec in the upstream input.
 - **Text emission, one module per upstream spec file.** The generator
   prints `Std.Format` with its own printer at 100 columns and writes
   ordinary `.lean` files that Lake builds like any other module; keyword
@@ -274,38 +313,106 @@ Decisions:
   way. Every generated theorem is followed by `#audit_axioms`
   (`P4SpecTec/Tactic/Audit.lean`), which fails on any axiom outside
   `propext`, `Classical.choice` and `Quot.sound`.
-- **Externs and builtins become fields of a generated class.** Target
-  instances are ports of upstream's OCaml target code. Every extern call
-  in generated code goes through this one interface, so a free-monad
-  outcome interface (what Sail needed for concurrency and symbolic
-  execution) can replace it later without touching generated code.
+- **Extern signatures become fields of a generated class.** Bounded dynamic
+  Nano target/driver ports exist, but a complete generated typed target
+  implementation remains open. Builtin declarations get generated wrappers
+  over the handwritten primitive library. Signatures alone are not semantic contracts; a complete
+  example must discharge or expose the relevant implementation assumptions.
 
 ### 4.2 Program flow
 
-The spec files are the P4 *language* specification. A `.p4` file is a
-value of the generated program type: data, not code. It needs a parser and
-a decoder, not a second compiler.
+The spec files describe the P4 *language*. An individual `.p4` program
+is parsed and represented as data. Its program JSON is distinct from
+the specification's AL JSON. The compiler generates the language model
+once; it does not generate a new Lean function for every P4 program.
 
+The current Nano-P4 typing harness has two paths:
+
+```text
+prog.p4 → upstream preprocess/parse/boot → program JSON → generic program value
+                                                               │
+                         ┌─────────────────────────────────────┴──────────┐
+                         ▼                                                ▼
+              decode as NanoP4Spec.program                     Lean AL interpreter
+                         │                                    + loaded AL specification
+                         ▼                                                │
+              generated Program_ok.run                        interpret "Program_ok"
+                         │                                                │
+                         ▼                                                ▼
+                    typing result                                   typing result
 ```
-prog.p4 + p4c/p4include → Preprocess → Parse → Boot (P4 AST → IL value) → --json
-                                                                              │
-                                                                              ▼
-                                                        prog.json ──▶ decode : IL.Value → P4Spec.program
-                                                                              │
-                                                                              ▼
-                                                        prog : P4Spec.program
-                                                          #eval Program_ok.run ctx prog
-                                                          theorem : Program_ok ctx prog ir
-                                                          sim [Target := V1Model] prog pkt
-```
+
+The runners are `P4SpecTecTest/Diff/NanoP4Run/Main.lean` and
+`P4SpecTecTest/Diff/NanoP4Interp/Main.lean`. The latter reads
+`exports/nano-p4.al.json` and initializes the handwritten interpreter
+before applying the rules to program values. It does not import the
+generated Nano-P4 library. Bounded packet and driver replay starts from
+upstream-captured booted inputs; it is not a Lean boot/STF implementation
+or a complete architecture/extern path.
 
 - No P4 parser in Lean. The grammar is large, has a C-style preprocessor,
   and upstream's parser is the one the differential tests trust.
-- Deep embedding first. A shallow embedding (P4 program → Lean functions)
-  is a separate later compiler, proved correct against this semantics.
-  Out of scope.
+- A shallow embedding (P4 program → Lean functions) would be a separate
+  later compiler, proved correct against this semantics. Out of scope.
+
+### 4.3 Why retain both execution paths?
+
+The handwritten interpreter in `P4SpecTec/Interp/InterpAl/Interp.lean`
+defines the reference meaning of supported AL. The generated functions
+provide a P4-specific interface intended to be convenient to run and
+reason about. Correspondence proofs connect them; one interpreter alone
+would suffice to execute programs, but would not provide that generated
+interface. The consumer checkpoint tests whether the interface earns
+its additional compiler and proof machinery.
+
+The compiler emits `.lean` files, including theorem statements and proof
+scripts. A separate Lean build executes handwritten proof automation and
+checks the resulting proofs. These proofs are not recomputed per program
+or packet. Both execution paths use manually implemented support code;
+agreement between them is not independent proof of the reference's
+fidelity to upstream or to intended P4 behavior.
 
 ## 5. Verification and validation
+
+**Correctness target.** For the declared supported inputs and corresponding
+environments, the generated executable model and the handwritten Lean AL
+reference have the same terminating observable behavior. This requires:
+
+- Reference-to-generated correspondence: every terminating reference
+  outcome is matched by a generated outcome.
+- Generated-to-reference realization: every terminating generated outcome
+  is matched by a reference execution with some sufficient fuel.
+
+Outcomes include related success values, the relevant failure kinds, and
+observable state changes. The current stateful boundary requires exact
+final-counter equality, including on failures. Each example must declare
+its input representation, configuration, extern contracts, and observations;
+printing or packet output needs a suitable observation contract if included.
+The supported domain cannot silently exclude behavior the claim concerns:
+for a type checker, rejecting ill-typed but representable programs matters.
+
+This target does not require proving termination for every input. Exhaustion
+at one reference fuel is not a semantic failure or evidence of divergence.
+The reverse direction requires an actual finite execution witness, not just
+determinism. Neither direction alone establishes both-way agreement.
+
+The target concerns executable semantics. A generated logical relation may
+be a sound overapproximation; `run_sound` then supports transferring universal
+properties, but does not establish that each relational witness is executable.
+Do not assume exactness or determinism of every generated relation.
+
+There are three separate evidence boundaries:
+
+| Question | Evidence |
+|---|---|
+| Are generated declarations and proofs valid Lean? | kernel checking and axiom audits |
+| Does the generated executable implement the chosen AL meaning? | correspondence proofs with source identity, representation, dependency, and environment obligations |
+| Does that Lean reference match upstream and intended P4? | manual port review and differential/conformance evidence; no end-to-end proof is claimed |
+
+The completed field-update example establishes the second boundary in both
+directions for its scalar source domain and transfers a consumer theorem.
+The general generated certificates still establish only the forward
+direction for the fragment in section 5.1.
 
 Four rungs. We build rungs 1 to 3. Rung 4 is deliberately out of scope.
 
@@ -328,9 +435,13 @@ Four rungs. We build rungs 1 to 3. Rung 4 is deliberately out of scope.
    each definition `d`, codegen emits the shallow Lean definition `d`,
    the quoted IL term `⌜d⌝` (a structural copy of the JSON as Lean data),
    and a refinement theorem (section 5.1) discharged by a generic tactic.
-   A failing tactic fails the build. Codegen is therefore not trusted.
-4. **Verified translation function.** Not practical: Lean's own elaborator
-   is unverified. Not planned.
+   A failing tactic fails the build. Within the certified fragment, the
+   proof checks the stated executable correspondence rather than trusting
+   the emitter. Source identity and representation adequacy remain separate
+   obligations. The two-way target above extends the current certificates.
+4. **Verified translation function.** A universal theorem about the whole
+   compiler is not planned. Per-artifact certification is the chosen
+   approach; an unverified elaborator does not make alternatives impossible.
 
 **What rung 3 buys, honestly.** It does not shrink the trusted base; it
 moves it from the generator to the interpreter port. Sail's authors put
@@ -342,8 +453,10 @@ design measures both line counts and reports them.
 
 ### 5.1 The refinement theorem
 
-The theorem is not `⟦⌜d⌝⟧ = d`. The interpreter works on untyped IL
-values and backtracks; the shallow definition is typed and total. Every
+This section describes the current one-way theorem, not the two-way target
+above. The theorem is not `⟦⌜d⌝⟧ = d`. The interpreter works on generic IL
+values and backtracks; the generated definition uses specific types and
+models potentially partial computation. Every
 precedent (CakeML's proof-producing translator, Cogent's certifying
 compiler, certifying extraction for Coq) states a type-indexed
 refinement relation and discharges it syntax-directedly. As built (M2,
@@ -354,8 +467,10 @@ refinement relation and discharges it syntax-directedly. As built (M2,
   notes and regions the interpreter never reads (and reduces the two
   payloads its comparison does not look inside). `eq_iff_canon` proves
   that the interpreter's `Value.eq` is exactly canonical equality, so
-  `Rel` is the kernel of the interpreter's own equality. IL is
-  first-order, so no function-typed invariants are needed.
+  `Rel` is the kernel of the interpreter's own equality. The certified
+  fragment is first-order; full AL has higher-order features requiring
+  additional contracts. Equality compatibility alone does not establish
+  compatibility with every observation, such as hinted printing.
 - **The statement**, per definition `X` with inputs `τ₁ … τₙ` (a
   relation's outputs `σ` as a tuple):
 
@@ -368,8 +483,8 @@ refinement relation and discharges it syntax-directedly. As built (M2,
             (ExceptT.mk (Lib.X.run p₁ … pₙ))
 
   `Refines P m n` says every defined result of the interpreter's `m` (a
-  success or a failure; divergence, which is fuel exhaustion, refines
-  anything) is matched by a defined result of the generated `n`: the
+  success or a failure; fuel exhaustion imposes no obligation) is matched
+  by a defined result of the generated `n`: the
   same failure kind, or values related by `P`. So the theorem covers
   every fuel and every input, failures included, which is what makes a
   rule group's `else` and a `does not hold` premise meaningful. A
@@ -438,8 +553,9 @@ refinement relation and discharges it syntax-directedly. As built (M2,
   written with `<|>` because it is not monotone in the flat order. The
   interpreter therefore separates failure as data from divergence,
   returning `Option (Except Fail v)` or the equivalent transformer, and
-  this was decided before the port, not after. Completeness, the other
-  direction, is not stated (section 12).
+  this was decided before the port, not after. General reverse realization
+  is not generated. The handwritten field-update proof supplies this
+  direction for its bounded domain (sections 1.1 and 5).
 
 The experimental stateful calculus (`Refine/StateCalc.lean`) strengthens
 the result relation with exact final-counter equality for every terminating
@@ -487,7 +603,7 @@ regenerated from the pinned upstream interpreter.
 | `P4SpecTec.Interp_al` (the AL interpreter in Lean, with `Runtime.Value.Match`, `Runtime.Type.*`, `Runtime.Dynamic*`, `Builtin.Call`) | trusted | the spec of the compiler; mirrors upstream's `interp/interp-al/` file by file and function by function; cross-checked by the second leg of rung 2 (`nano-p4-interp`: the port on the deep terms of the corpus against the AL export, 78 of 78 verdicts and 48 of 48 outputs agree) | agreement with SL or PL interpreters |
 | `P4SpecTec.Runtime.Value.Value`, `Interface.P4.Unparse` | trusted | ports of value comparison and the note-aware printer, file by file; 12 printer fixtures compared with pinned upstream observations on every gate | hinted-print refinement or arbitrary external-value note provenance |
 | `P4SpecTec.Interface.Builtin` | trusted | ports of upstream builtins, one file per file, at the OCaml file's path; unit tests in `P4SpecTecTest/Builtins.lean` (generated obligations from upstream outputs are planned) | |
-| `P4Spec.Targets.*` | trusted | ports of upstream target code; tested by the packet leg of rung 2 | that any target is a real device |
+| Dynamic Nano target/driver ports under `P4SpecTec.BackendSim` | trusted within the documented bounded profile | pinned direct and captured-input packet/driver observations; shared verify preserves upstream's ABI and the actual Nano incompatibility | complete generated typed target, Lean boot/STF support, all packet behavior, or fidelity to a real device |
 | `P4SpecTec.Codegen` | checked within the supported fragment | 18 Nano-P4 definitions validated by rung 3; all Nano-P4 quotations compared with the export | correctness of definitions outside the refinement fragment |
 | Generated `NanoP4Spec`; planned `P4Spec` | checked to the recorded coverage | Nano-P4 is kernel-checked and differential-tested, with refinement for 18 definitions; full-P4 generation is still blocked | full-P4 correctness before M3's remaining phases |
 | Lean elaborator and compiler | checked / trusted | the kernel checks elaboration; the compiler is trusted for `#eval` and differential runs only | |
@@ -769,19 +885,26 @@ Armv8 model in Coq at all. So:
 
 p4blo (github.com/qobilidop/p4blo) is the motivating consumer: it wants
 to prove its own architecture-free P4 IR semantics equivalent to
-P4-SpecTec's, using this rendering. That is its problem to solve; this
-project takes nothing from it. What a consumer of that kind needs from us,
-and what we provide regardless of consumer:
+P4-SpecTec's, using this rendering. That downstream equivalence remains
+its responsibility. This project's first consumer theorem validates a
+complete source connection and guides the proof interface without making
+the semantic core specific to p4blo. Consumers need:
 
 - **A stable, versioned public surface.** Generated names, module split,
-  the two relation encodings, and the per-relation lemma library are an
-  API once imported. The naming rule is settled in the pilot and frozen;
-  later changes are breaking. CHERI and Morello survived years of model
-  changes only because lemma statements were generated with the model.
+  the two relation encodings, and the per-relation lemma library already
+  affect clients. Preserve the current naming contract; later changes are
+  breaking. The final public proof API is open: proved wrappers or
+  abstraction lemmas may be added based on the first consumer example.
 - **Extra spec files as ordinary input** (section 4.1).
 - **Externs as parameters** through one interface (section 4.1).
 
 ## 10. Milestones
+
+**First consumer checkpoint, complete:** the field-update example in section
+1.1 establishes two-way executable correspondence and transfers distinct-name
+commutation on its scalar source domain. It brought the first downstream proof
+forward from M4. This does not complete M3 or authorize broader expansion;
+preserve paused M3 work and its unchanged gates.
 
 - **M1, Nano-P4, rungs 1 and 2.** JSON dump patch, upstream built in the
   Nix shell, deep embedding, codegen for types, functions and relations
@@ -806,8 +929,9 @@ and what we provide regardless of consumer:
   evidence of a full-P4 build or proof coverage.
   The 108 source inputs become 80 top-level source-region files in AL;
   the final Lean module count is not yet known.
-- **M4, P4Lib and the site.** BitVec bridge, packet types, first
-  downstream proof, Verso site.
+- **M4, P4Lib and the site.** BitVec bridge, packet types, broader
+  downstream examples, Verso site. The first consumer proof is now the
+  earlier acceptance checkpoint above.
 
 ## 11. Prior art consulted
 
@@ -829,8 +953,12 @@ cedar-spec, LNSym, Sail's Lean backend, Aeneas, Batteries, lean-mlir.
   stack regardless.
 - Whether the full spec's generated modules stay reviewable as diffs; if
   not, review per section, never drop the diff check.
-- Completeness direction of the refinement theorems: stated only where
-  determinism is proved; whether to pursue it at all is decided after M2.
+- How to extend generated-to-reference realization beyond the completed
+  field-update domain. This direction is required by the agreed target;
+  determinism alone does not supply the terminating reference witness.
+- Which proof interface the consumer example needs: the existing logical
+  relations, proved abstractions over AL-derived definitions, or eventually
+  a different representation. No IL backend is scheduled now.
 - Determinism at M2 (`Tactic/Det.lean`, `R.det : R i o → R i o' → o =
   o'`): attempted on relations with one rule path, no `else` group, no
   iterated premise, and callees that are themselves deterministic by

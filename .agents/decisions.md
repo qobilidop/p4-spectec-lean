@@ -327,7 +327,12 @@ settles is not repeated here.
   note, or field-update test module initially. Existing generated files stay
   untouched. Reason: demonstrate a complete useful source connection before
   widening coverage. Confidence: high in the bounded scope; revisit the proof
-  interface after the example. Broader M3 remains paused. (2026-09-25)
+  interface after the example. The bounded checkpoint is now complete
+  (PR #27); broader M3 remains paused. Retaining AL, the handwritten reference
+  and the generated interface remains the agreed direction. No IL backend
+  or broad redesign is scheduled; alternative interfaces remain advisory
+  unless a concrete consumer need justifies them. (2026-09-25; completion
+  reconciled 2026-09-26)
 
 - **Use checked root-index updates and reject unsupported path shapes.**
   The four list updates landed separately; the two text updates now use
@@ -543,17 +548,18 @@ settles is not repeated here.
   ordering, while successful text emission and syntactic proof eligibility
   establish neither elaboration nor correctness. (2026-09-25)
 
-- **Rung 3 is proof-producing translation, and the theorem is a
-  type-indexed refinement, not equality.** Per IL type a value relation
-  between IL values and generated Lean values; per definition, related
-  inputs and interpreter success imply shallow success with a related
-  output; a fixed per-construct lemma library and a syntax-directed
-  driver discharge it, with the recursive case from the definition's own
-  induction principle. Completeness is a second phase, only where
-  determinism is proved. Reason: CakeML, Cogent and certifying extraction
-  all state it this way and none obtained `rfl`; equality cannot hold
-  between untyped backtracking evaluation and typed total definitions.
-  (2026-09-25)
+- **Rung 3 uses correspondence across representations.** Current generated
+  `Refines` certificates match every defined reference outcome, success or
+  failure, to a generated outcome under related inputs and environments.
+  The completed field-update example also establishes generated-to-reference
+  realization with a finite fuel witness for its scalar source domain.
+  Determinism alone cannot supply that witness.
+  Reason: the agreed target is two-way agreement on terminating observable
+  behavior; neither global termination nor equality of differently typed
+  values is required. The general generated certificate coverage is unchanged.
+  The existing lockstep tactic is described in its separate entry below.
+  (2026-09-25, revised after the correctness discussion; bounded completion
+  reconciled 2026-09-26)
 - **The refinement theorem (rung 3) is stated over the interpreter port
   with `Refines`, one value relation `Rel v x := canon v = canon
   (toValue x)`, one table hypothesis `HoldsSpec Lib.spec ctx.global`, the
@@ -638,13 +644,13 @@ settles is not repeated here.
   decoder; Lean's formatter and token table give canonical output and
   correct escaping; a Lean generator could one day be verified. Upstream
   adoption is not a criterion (the user, 2026-09-25). (2026-09-25)
-- **The goal is stated as a thesis with four claims** (design section
-  1): complete rendering with nothing opaque, agreement with upstream,
-  a refinement theorem per definition, and a generated lemma library
-  usable for proofs. Reason: the prior-art review found the design
-  stated an instrumental goal with no success criteria; the thesis rests
-  on P4-SpecTec's IL being algorithmic, which is what Wasm's backends
-  lacked. (2026-09-25)
+- **Separate targets from delivered guarantees in the thesis.** Design
+  section 1 distinguishes complete rendering, upstream agreement, executable
+  correspondence, and proof usability. The completed field-update example
+  supplies bounded consumer evidence; generation counts alone do not. Reason:
+  the user requested a concrete meaning of correctness and a bounded next milestone.
+  Existing axiom audits and full-P4 completion gates remain mandatory.
+  (2026-09-25, revised after the correctness discussion)
 - **The differential harness reuses upstream's `excludes/` lists** for
   p4c programs P4-SpecTec cannot handle, rather than maintaining its own.
   Upstream is an input, not a downstream. (2026-09-25)

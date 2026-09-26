@@ -26,10 +26,13 @@ Documentation is split by purpose and audience:
 
 | File | Holds |
 |---|---|
+| `docs/prior-arts-comparison.md` | sourced comparison of the design with related work |
+| `.agents/notes/design-review.md` | advisory design critique and proposed priorities |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
 | `.agents/decisions.md` | the decisions in force, by topic, each with its reason and date |
 | `.agents/roadmap.md` | backlog beyond the milestones in the design |
 | `.agents/notes/` | live working notes |
+| `.agents/notes/archive.md` | retired experimental history, artifacts and recovery instructions |
 | `.agents/reviews/` | independent review reports for the current work |
 | `.agents/notes/full-p4-reconnaissance.md` | full-P4 census findings and the remaining M3 phases |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |

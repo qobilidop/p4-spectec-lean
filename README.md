@@ -1,87 +1,39 @@
-# p4-spectec-lean
+# P4-SpecTec in Lean 4
 
-A compiler from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)'s
-AL (algorithmic language) to Lean 4, with per-definition validation against
-a Lean port of the AL interpreter, plus a planned P4 primitives library.
-AL is produced from the elaborated IL by upstream's algorithmization pass;
-the representations and this trust boundary are explained in
-[the design](docs/design.md#31-representations-and-the-compiler-boundary).
+A compiler from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s
+algorithmic language (AL) to executable definitions and inductive relations
+in Lean 4.
 
-Status: milestones M1 and M2 done; M3 has started with the full P4 export
-and a capability census. Print hints, root-index list/byte-text updates and
-parameterized subtype bridges now emit; stateful fresh identifiers remain
-the explicit emission blocker. A shared pure/stateful AL interpreter is
-available, but stateful generation and its proofs are still in progress.
-The Nano-P4 specification (34 files, 161 types, 76 functions, 77
-relations) is rendered into Lean as executable definitions
-(`partial_fixpoint`, no fuel) that kernel-check and agree with upstream's
-interpreter on all 78 programs of upstream's Nano-P4 corpus, and as
-inductive relations with a generated, machine-checked soundness theorem
-for every one of the 77 relations. The AL interpreter is ported to Lean,
-file by file, and agrees with upstream on the same corpus. Every
-definition is also quoted as Lean data, and for 18 of them a generated
-theorem proves that the ported interpreter run on the quoted definition
-refines the generated code, which takes the code generator out of the
-trusted base for those definitions. All 342 quoted Nano-P4 definitions
-are compared with the decoded export in CI. The design is
-[`docs/design.md`](docs/design.md); the entry point for working here is
-[`AGENTS.md`](AGENTS.md).
+[Nano-P4](https://github.com/pacokwon/nano-p4-spec) is the current working
+example. Full P4 support and proof coverage are incomplete.
 
-## Layout
+## Why this project?
 
-| Path | What |
-|---|---|
-| `P4SpecTec/` | core library: the IL and AL deep embeddings, the prelude and mirrored runtime, the AL interpreter port, the code generator, the proof tactics |
-| `P4SpecTecTest/` | test-only modules for the core library |
-| `P4Lib/` | P4 primitives for downstream users; independent of the generated specs |
-| `NanoP4Spec/` | the pilot specification, generated from `exports/nano-p4.al.json` |
-| `P4Spec/` | the full P4 specification, generated from `exports/p4.al.json` at M3 |
-| `exports/` | committed AL snapshots (lossless gzip) and program values, the OCaml → Lean handoff |
-| `upstream/` | P4-SpecTec and the Nano-P4 spec as pinned submodules, and our patches |
-| `test/diff/` | the differential-testing harness |
-| `scripts/` | the gates and the export scripts |
-| `docs/` | the design and the elaboration-time table |
-| `.agents/` | agent working state: status, decisions, roadmap |
+- **Follow the evolving P4 specification.** P4-SpecTec has been
+  [conditionally adopted as the official P4 specification authoring toolchain](https://p4lang.github.io/p4-spec/docs/P4-16-working-spec.html).
+  Generating our Lean model from it helps us track specification changes.
+- **Provide a reference for verification in Lean 4.** Use the model to prove
+  properties of P4. Other Lean libraries can build models that make proofs
+  easier, then prove that those models agree with this reference.
 
-## Development
+## Build and check
 
-The development environment is defined by `flake.nix` and pinned by
-`flake.lock`; CI uses the same shells. Install [Nix](https://nixos.org/download/)
-with flakes enabled, then:
+Requires [Nix](https://nixos.org/download/) with flakes enabled. From the
+repository root:
 
-```
-git submodule update --init      # P4-SpecTec at the pin (Nano builds do not need p4c)
-nix develop                      # Lean side: elan installs the toolchain lean-toolchain names
-lake build                       # the Lean packages
-scripts/check.sh                 # every gate CI runs; exit 0 is the verdict
-python3 scripts/spec-snapshot.py unpack exports/nano-p4.al.json  # for direct tools; gate also does this
-nix develop .#upstream           # OCaml side, only to rebuild P4-SpecTec and regenerate exports/
-scripts/build-upstream.sh        #   (in that shell) apply the patches and build p4spectec
-scripts/export-spec.sh nano-p4 upstream/nano-p4-spec   # regenerate exports/nano-p4.al.json
-scripts/export-program.sh        # re-boot the Nano-P4 corpus and record upstream's verdicts
-lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --update   # regenerate NanoP4Spec/
+```sh
+git submodule update --init
+nix develop --command scripts/check.sh
 ```
 
-Lean itself is installed by elan from `lean-toolchain`, not from nixpkgs,
-which lags Lean releases; the pin is the file, the lock is the toolchain
-version it names.
+This builds the project and runs the checks used by CI.
 
-Spec snapshots are checksum-verified before extraction. The gate rejects
-tracked files above 5 MiB; growing artifacts belong in external,
-checksum-pinned storage rather than an ever-growing Git history.
+## Start here
 
-For full-P4 corpus preparation, run `scripts/fetch-p4c.sh` in the default
-Nix shell after initializing P4-SpecTec. It restores the sample/include
-slice at upstream's exact nested p4c pin into ignored `.artifacts/p4c`,
-without building p4c or fetching recursive submodules. Existing dirty or
-wrong-pin checkouts are rejected, not overwritten. This prepares inputs;
-full-P4 differential validation is still under development. The normal
-gate tests the restore script offline and does not download this corpus.
-
-If you use [direnv](https://direnv.net/), an `.envrc` containing `use flake`
-enters the default shell on `cd`. It is ignored by git as a personal
-convenience; the project's tooling is the flake.
+- [Checked field-update proof](NanoP4Proofs/FieldUpdate/Example.lean)
+- [Design and verification boundaries](docs/design.md)
+- [Development guide](AGENTS.md)
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE).
+[Apache-2.0](LICENSE).
