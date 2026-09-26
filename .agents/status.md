@@ -4,544 +4,99 @@ Current state only; git history is the archive. Updated 2026-09-25.
 
 ## Goal and authorization
 
-M1 and M2 are closed. M3A is complete and merged. **M3B is active; M3 is
-not complete.** The user authorized autonomous staged completion of M3B–M3F,
-routine reversible decisions, suitable subagents, independent reviews and
-green PRs. Record uncertain decisions for later review. This does not
-authorize weakening correctness or rewriting published history. Phase plan
-and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
+M1/M2 and M3A are closed. **M3 is incomplete and its broad expansion is
+paused.** The user authorized the bounded Nano field-update consumer proof
+on 2026-09-25 after a design review. The contract is two-way terminating
+correspondence on a declared scalar source domain plus distinct-field
+commutation transferred to the reference. This example does not complete M3.
+No correctness gate is waived.
 
-## Active isolated increment: shared verify and Nano dispatch
+## Completed field-update implementation
 
-Branch `m3d-nano-verify` starts at driver checkpoint `2635a32`; the original
-driver worktree is untouched. Partial SpecImpl.Func/Unpack and Core.Func
-mirrors implement verify, with faithful full-P4 lookup ABI, both lookups
-before Boolean unpacking, exact result shapes/notes and retained StateEval
-failure post-state. Nano dynamic function dispatch is wired, but the pinned
-Nano grammar/AL has no extern-function call path and its lookup ABI differs.
-An actual upstream/Lean AL rejection probe records unmatch, not successful
-Nano verify coverage. Nineteen original-target direct cases match; five
-replay mutations and seven offline contract tests pass. Combined focused
-build exits 0 (108 jobs); final direct replay and exact-pin recheck pass,
-including explicit AL configuration and before/after counter 0. Existing
-24 target cases, eleven driver cases and six-success/one-guarded-failure
-real packet replay remain green. Import, width, size and whitespace checks
-pass. Root independent semantic review, nineteen-case exact-pin re-observation,
-nineteen Lean cases/five mutations and seven contracts all pass. Review found
-the capture spec guard accepted repository subdirectories and untracked
-inputs; a shared exact-root/pin/clean-tree guard now fixes both capture
-runners. Six independent guard regressions pass, including ignored inputs.
-Narrow offline gate wiring is independently reviewed; shell syntax, both
-contract suites and the 98-job verify executable build/replay pass. Reviews:
-`m3d-nano-verify.md`, `m3d-nano-verify-gate.md`. Reviewed checkpoint
-`cf1832f` is reconciled locally with published main `1f5cfc0`; only status
-and the additive gate union required conflict resolution. Reviewed verify,
-driver and packet source/fixtures are preserved. Root independent reconciliation
-review and 52 combined offline contracts pass; report:
-`m3d-verify-main-reconcile.md`. The complete local gate exited 0 without skips
-(`.artifacts/verify-main-full-gate.exit`). Final-head remote CI and publication
-remain owed. The user requested a pause after this nearest checkpoint;
-no new refinement or target implementation is authorized to start before
-the planned pause and handoff.
-See `.agents/notes/nano-verify.md` and `test/nano-verify/README.md`.
+Worktree `/Users/qobilidop/my/work/p4-spectec-lean-field-update`, branch
+`nano-field-update`, based on published PR #26 merge `fdb8a8d`. The primary
+worktree's uncommitted design-review changes are untouched.
 
-## Inherited isolated increment: dynamic Nano packet driver
+Agreed layout: handwritten `NanoP4Proofs/FieldUpdate/` with checked
+`Example.lean`, root library, and normal build/import gates. No separate
+field-update test module or Markdown tutorial. Independent scalar source
+grammar includes W/S/B/MATCH_KIND and ordered finite field lists, preserving
+duplicates and absent-key identity. It is a shape profile, not a typing or
+range theorem; no nested-payload, extern, printing or parser claim.
 
-Branch `m3d-nano-driver`, worktree `p4-spectec-lean-nano-driver`, starts at
-reviewed target checkpoint `96078a0`; the original target tree is frozen.
-New partial Runtime.Sim.Io aliases and NanoSwitch.Pipe.drive_pipe preserve
-the original signed-host port, hex payload and architecture; only the exact
-optional FORWARD shape transmits. Raw PacketIn objectState is passed to the
-explicit StateEval relation callback. Invalid hex/arity and unsupported host
-ports are hard errors; callback failure post-state and divergence propagate.
-Focused Pipe and check-nano-packet builds passed. Original upstream-driver
-capture and Lean replay both exited 0: six successful full driver outputs
-and one guarded failure (Lean err), alongside all existing relation checks.
-Transmission/counter mutations are rejected. Eleven offline fixture schema
-tests passed. Schema 2 stores independent driver inputs/outputs: 8,510,069
-raw bytes / 305,049 gzip bytes; root approved a 16 MiB expanded bound with
-the unchanged 1 MiB compressed bound. Direct 11-case driver fixture capture,
-Lean replay and exact-pin re-observation passed. The four-session original
-driver fixture re-observation also passed. Combined focused build
-`lake build --wfail check-nano-target check-nano-packet check-nano-driver
-P4SpecTecTest.NanoTarget` exited 0 (97 jobs); import completeness, explicit
-Lean width and diff-whitespace checks exited 0. Initial direct-probe API-name
-and test-only type-equality compile errors were fixed before these checks.
-Root independently reviewed the implementation and repeated the eleven
-direct observations, eleven contracts, original-driver packet sessions and
-Lean replay/mutations (all exit 0), with no findings. Root's narrow gate
-wiring is independently reviewed and its focused checks pass. Reports:
-`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. Driver checkpoint `0b06901`
-passed its combined full local gate and final remote Gate `36217460543`;
-PR #25 merged as `1f5cfc0`, now reconciled here. Its main reconciliation
-review is `m3d-driver-main-reconcile.md`: source preservation, union gate
-and 39 focused contracts passed before that final gate. These published
-checks do not validate the new verify increment or unmerged full-P4 generation.
+Representation coverage, sufficient-fuel decoder round trips and observation
+injectivity pass. General generated-operation semantics and commutation pass.
+Concrete Nano initialization is proved using logical map laws, not native
+hashing. Forward soundness and actual-reference reverse realization now pass,
+including a structural finite-fuel bound of `7 * length + 33`. The final
+consumer proves reference observation equivalence at distinct field names,
+with a separate existence theorem: no termination or initialization premise.
+All advertised theorems have exact core-three axiom guards.
 
-## Published checkpoint: bounded corpus shard
+Evidence so far, in the pinned Nix shell:
 
-PR #22 merged as `2c85f1b` after remote Gate `36213412457` passed on
-`93a2e8c` in 3m43s. The new `m3c-corpus-shards` branch starts at that main
-revision in the corpus worktree, preserving the published checkpoint ref.
-Root approved the strict-identity/crash-safe shard design and exactly shard
-0 of 317. Independent root review found no remaining findings after the
-quarantine order/worker exit and separately reviewed compiler hardlink fixes;
-worker/v1 semantics remain unchanged. Sixteen new offline tests and existing
-5+7+12 tests pass; text and whitespace checks exit 0. Final-helper fresh
-pilot exit 0, run `901d53d9`:
-four attempts/eight AL matches/eight CLI checks, all Type.Fresh phases zero,
-no syntax-only/resource/unsupported/harness failures. Exact resume exit 0:
-same identity/probe bytes, no new session lines, all attempts remain one,
-and all four terminal-record hashes are unchanged. Narrow independently
-reviewed CI wiring requires both new files and runs sixteen offline tests
-unconditionally, with no real shard/network in CI. Authorized full local
-gate process exited 0 without skips, including both 78-program Nano legs,
-48 output contexts, 342 quotations, existing oracles/census and new offline
-suite. Log: `.artifacts/corpus-shard-full-gate.log`. Published as PR #24 at
-`2fbe024`; initial remote Gate `36215923313` passed. Main `186d43a` (merged
-Nano PR #23) is reconciled here. Only status conflicted; independent review
-confirms both source sets unchanged and the union gate retained. Sixteen
-shard plus ten Nano contracts and shell syntax pass. Review:
-`m3c-shards-nano-reconcile.md`. The combined full gate exited 0 without
-skips; its actual exit is recorded in `.artifacts/corpus-nano-full-gate.exit`.
-Final-head Gate `36216453043` passed on `c4a8858`; PR #24 merged as
-`d039786`. The incoming Lake file
-changes the run identity; retain prior observations without promoting them
-to exact-resume evidence for this new revision.
-Evidence, bounds and commands: `.agents/notes/full-p4-corpus-shards.md`.
-Complete sequential 317-shard orchestration with retained failures is
-independently reviewed and six offline orchestration tests pass. Root
-has launched its first canonical run on frozen `c4a8858`; no whole-corpus
-result is claimed yet. Keep that execution tree unchanged during the run.
+- Domain build: exit 0, 18 jobs; representation build: exit 0, 57 jobs.
+- Semantics/Laws build: exit 0, 76 jobs; combined new library: exit 0,
+  87 jobs; final complete proof library: exit 0, 89 jobs.
+- Direct representation and forward-reference proof checks: exit 0,
+  including exact core axiom audits.
+- Quotation check: all 342 definitions match the checksum-verified export.
+- Final complete `scripts/check.sh`: actual exit 0, no skips,
+  recorded in `.artifacts/field-update-final-gate.exit` (session 33622). Both
+  78-program differential legs and all 48 output contexts agree.
+- Independent representation, environment, semantics, correspondence,
+  final consumer and wiring reviews have no findings. Reports are
+  `.agents/reviews/field-update-*.md`.
 
-## Merged checkpoint: bounded dynamic Nano target
+Implementation, independent review and final local validation are complete.
+Publication and final-head remote CI remain owed. No further implementation is
+active; finish publication, then stop at this checkpoint. Broader M3 stays paused.
 
-Branch `m3d-nano-target` starts at `e31c1e8`, the merged PR #21 baseline.
-The partial Core.Object and NanoSwitch.Pipe ports now implement checked
-packet data operations and dynamic extract with explicit StateEval callbacks.
-Raw ExternV output is preserved; no typed target adapter is provided.
-`lake build --wfail check-nano-target P4SpecTecTest.NanoTarget` passed;
-the new executable matches 24 exact-pin OCaml observations, including
-malformed versus inconsistent JSON and wrapped signed-63-bit indices.
-An initial replay fixture transport rounded the maximum host integer;
-the exact source integer was restored and both request identity and Lean
-replay now pass. Direct OCaml fixture recheck passed all 24 cases. Unit tests also
-cover callback failure state and divergence. Real packet-relation replay
-also passes: six successful NanoSwitch_drive events and one guarded runtime
-failure from upstream-captured contexts, with semantic outputs and exact
-fresh counters. Guarded Lean failure is `.err`; upstream exposes only the
-coarser runtime failure. This is not boot/driver/STF coverage. The real
-replay caught a wrong LOCAL singleton-sequence shape in the initial port;
-the port and both callback assertions now require the pinned Atom shape.
-Five mutation checks pass, including that shape, wrong output/counter,
-one source-header bit, and restored PACKET under guard. The restored wrapper
-is not distinguished by unguarded final outputs; direct-handler coverage
-must remain separate. Ten offline fixture-contract tests pass, including
-strict duplicate keys/nonfinite constants, pins/source hashes and bounded gzip extraction.
-The compressed four-session fixture re-observation passed at the exact pin.
-Focused build, direct replay, packet replay, contract tests, shell syntax,
-explicit new-file line widths and diff-whitespace checks all exited 0.
-Independent semantic replay and gate-wiring reviews are complete with no
-remaining findings in this bounded scope. Root reran ten offline contracts,
-24 Lean/direct OCaml observations, all four exact-pin packet sessions and
-the six-success/one-failure Lean replay with five mutations (all exit 0),
-and independently verified all six source Git-object hashes. Reviews:
-`m3d-nano-primitives.md`, `m3d-nano-packet.md`, `m3d-nano-gate.md`.
-Local reviewed checkpoint `96078a0` is reconciled with published main
-`2c85f1b` (PR #22). Independent review confirms both source sets unchanged,
-the union gate retained and 22 focused contracts plus shell syntax passing.
-Report: `m3d-nano-reconcile.md`. Root's combined full gate on this reconciled
-source exited 0 without skips, including both 78-program Nano legs, 48 output
-contexts, quotation/oracle/census checks and the new packet replay/contracts.
-Actual exit is recorded in `.artifacts/nano-target-full-gate.exit` before
-publication. Final-head remote Gate `36215801356` passed on `65609db`,
-including both upstream pin checks; PR #23 merged as `186d43a`.
-Pinned direct and real-program probes confirm NanoSwitch extract
-returns raw ExternV objectState where the spec declares `value`. Three
-unguarded AL STF cases pass upstream; guarded `field-access` fails after
-that extern result. This cannot be silently repaired by a generated typed
-adapter. Evidence, scope and next steps:
-`.agents/notes/nano-target-boundary.md` and `test/nano-target/README.md`.
-The faithful driver projection is now isolated on `m3d-nano-driver` from
-`96078a0`. Actual upstream driver observations and Lean replay are being
-checked separately; boot/STF remain outside that checkpoint.
-No milestone completion yet.
+## Published baseline
 
-## Published checkpoint: corpus inventory
+Main `fdb8a8d` contains reviewed, locally gated and remotely green bounded
+checkpoints through PR #26: byte-preserving text and state foundations,
+bounded generator/refinement fixtures, checked type-runtime outcomes,
+full-P4 upstream oracle and interpreter replay, corpus inventory/worker/shards,
+partial dynamic Nano target and packet driver, and shared verify.
 
-Branch `m3c-corpus-replay` is based on main `e31c1e8` after PR #21 merged.
-PR #21's final remote Gate `36210406850` passed on `fed4187` in 5m36s.
-The root approved staged inventory, versioned type-fresh sentinel and
-spec-once worker implementation, preserving the published v1 APIs; no
-gate edits or corpus scale-up before focused independent review.
-Read-only Type.Fresh census/six dynamic checks and a synthetic escaping-name
-sequence are recorded in `.agents/notes/type-fresh-reachability.md`; no
-formal reachability or whole-corpus claim. Plan:
-`.agents/notes/full-p4-corpus-replay-plan.md`.
+PR #26's final remote Gate `36218916889` passed on `c7172f3`.
+Published gates do not validate unpublished production full-P4 generation.
+The baseline Nano comparison covers 78 verdicts (48 pass, 30 fail), 48
+successful output contexts, and 342 source quotations. General mutation,
+whole-corpus, whole-program and complete packet/target claims remain open.
+Detailed bounded evidence remains in the corresponding notes/reviews; git
+history archives completed progress reports.
 
-First inventory execution exposed a raw/canonical denominator distinction:
-1,352 raw sample paths include eighteen helpers beneath `include`, which
-upstream's collector skips. Canonical collection is 1,334 paths with 67
-static exclusions and 1,267 candidates; the 68 positive references include
-one stale path. The initial offline raw-count expectation failed, preserving
-this observation before replay. Root independently inspected the pinned
-collector and eighteen helper identities, approving complete manifest
-accounting and the corrected canonical denominator. The regenerated 273,394
-byte manifest retains all identities/source digests/symlinks and static
-exclusion provenance. Five offline tests pass, including thirteen corruption
-mutations, literal comment/EOF parsing, helper skip and shard partitioning;
-the real exact-pin `inventory.py --check`, text and diff-whitespace checks
-exit 0. Root independently reviewed/reran the inventory checks with no
-findings; `.agents/reviews/m3c-corpus-inventory.md`.
+## Paused broader work
 
-Follow-up v2 probe/spec-once worker and bounded original-fixture pilot are
-independently reviewed with no remaining blocking finding. Root reran seven
-offline tests and the pinned pilot (exit 0, report `98530`); review:
-`.agents/reviews/m3c-corpus-worker.md`. Published v1 files are unchanged. The
-84-job worker build, seven v2 offline tests, text/import/file-size/diff checks and final
-fresh pinned pilot exited 0: six AL matches, one explicitly syntax-only case,
-eight CLI parity checks and sixteen actual Lean mutations. All original
-Type.Fresh phases are zero; any nonzero phase is explicitly unsupported.
-Resource bounds/phase timings and exact commands are recorded in
-`.agents/notes/full-p4-corpus-worker.md`. Largest case is 30,858,825 bytes;
-child RSS high-water is cumulative, not per-case. No corpus shard, resume
-implementation or whole-corpus claim. Authorized
-narrow gate wiring requires nine paths, runs both offline suites and builds
-the worker, with no p4c fetch or upstream-dependent real pilot in CI. Independent
-wiring review found no issues and reran shell syntax plus both offline suites
-(exit 0); `.agents/reviews/m3c-corpus-gate.md`. Frozen
-`nix develop --command bash scripts/check.sh` process exited 0 with no skips,
-including both Nano differential legs, existing oracles/census and new
-offline suites/worker build. Actual exit was captured before preparing a
-push. Final remote Gate passed and PR #22 merged as recorded above.
-Shard/resume implementation is a separate next checkpoint.
+- Production tree: `/Users/qobilidop/my/work/p4-spectec-lean-state-production`,
+  branch `m3b-state-production`, pause handoff `925fdbf`, latest source
+  integration `1b2ac70`. Full-P4 regeneration produces 74 files, but the
+  complete build fails: `Cast_expl.run_sound_group` exceeds the unchanged
+  4M heartbeat budget. Focused checks are not a full-build verdict.
+  Production reconciliation with later published Nano checkpoints is owed.
+- Corpus tree: `/Users/qobilidop/my/work/p4-spectec-lean-p4-corpus-replay`,
+  frozen `c4a8858`. The campaign stopped with exit 130 after shards 0–44:
+  180 attempts, 338 AL matches, eleven retained oversized-artifact failures.
+  These are handoff totals, not a whole-corpus result. Do not restart or
+  reinterpret partial evidence.
+- The primary worktree's separate design-review documents remain user-owned.
+  Do not replace them with this isolated branch's baseline documentation.
+- Future scope and exit criteria remain in `docs/design.md`,
+  `.agents/roadmap.md` and `.agents/notes/full-p4-reconnaissance.md`.
+  The census describes decoded/emitted capabilities, not full-P4 elaboration.
+  Nonempty observable FuncT substitution, guarded higher-order fidelity,
+  hinted-print refinement, complete targets and broader determinism remain
+  explicit limitations; consult decisions before changing their contracts.
 
-## Merged checkpoint: checked type runtime
+## Hygiene and handoff
 
-Branch `m3c-type-runtime` adds bounded checked Expand/Equiv/Subst, matcher
-and signature conversion APIs and wires the interpreter to explicit hard
-errors/divergence instead of type false/identity fallbacks. Legacy pure
-APIs remain for proof compatibility. Nonempty FuncT substitution is
-explicitly unsupported until separate Type.Fresh state is modeled; no
-observable fresh names are invented. See `.agents/notes/type-runtime.md`
-and the named deviations in the design. `lake build --wfail P4SpecTec
-P4SpecTecTest` passed after the checked signature wiring (153 jobs,
-including existing Nano refinement modules). The upstream Nix-shell
-`test/type-runtime/run.py --upstream <primary pinned checkout> --check`
-passed all fourteen observations; three offline provenance tests and
-check-text/check-imports passed. Initial broad build failed only because
-the fresh worktree lacked the ignored Nano JSON; verified snapshot
-extraction fixed that prerequisite. Full gate, corpus replay and
-publication are not claimed. Root independently reviewed all changed paths
-and reran TypeRuntime, fourteen pinned cases and three offline tests (all
-exit 0); no findings remain within the bounded claim. Review:
-`.agents/reviews/m3c-type-runtime.md`. Offline CI wiring was independently
-reviewed with no findings; it requires seven paths and unconditionally runs
-three offline tests, without real upstream execution/network. Root's shell
-syntax check passed. PR 18 is merged into this branch. Frozen
-`nix develop --command bash scripts/check.sh` exited 0 with no skips,
-including both 78-case Nano differential legs, 48 exact output contexts,
-342 quotations, existing printer/text/state oracles, census and new offline
-contracts. Actual process exit was recorded before preparing a push.
-Published as PR #21 at `268ac98`; its initial remote Gate `36209329791`
-passed in 15m55s.
-After PR #20 merged as `e0d1bce`, main was reconciled into this branch:
-the checked type-runtime source/tests merged unchanged, and overlapping
-decision and gate additions retain both reviewed slices. Independent
-reconciliation review found no issues and reran the three type-runtime,
-six replay and twelve oracle offline tests plus shell syntax (all exit 0):
-`.agents/reviews/m3c-type-runtime-reconcile.md`. The frozen reconciled
-`nix develop --command bash scripts/check.sh` process exited 0 with no skips,
-including both Nano legs and the incoming replay build. Final merged-head
-remote Gate `36210406850` passed in 5m36s on `fed4187`; PR #21 merged
-as `e31c1e8`. No whole-corpus/type-fresh claim.
+Every command uses the pinned Nix environment. Preserve the expected patched
+upstream files and separate worktree caches. Raw spec JSON is ignored and
+checksum-verified; do not commit logs, scratch output or duplicated corpora.
+Tracked/indexed files must stay below 5 MiB.
 
-## Active checkpoint: generator integration
-
-Bounded refinement PR branch `m3c-state-refinement-pr`, based on merged main
-`b08ab8e`, integrates reviewed implementation `de73566`: new
-`Codegen.StateValidate` and `state_refine_al` emit and prove
-exact all-outcome state contracts for first-order scalar functions and the
-actual fresh builtin. Actual-emission fixtures cover fresh dispatch, consumed
-rejected prefixes, boolean selection, nested function calls, scalar aliases,
-debug allocation, final mismatch, and a hard error that prevents fallback.
-The pinned `lake build --wfail P4SpecTec P4SpecTecTest.StateValidate` exited 0
-(78 jobs; final fixture elaboration 37 seconds); import completeness, text,
-and diff-whitespace checks exited 0. Root independently read the complete
-implementation and directly re-elaborated the emitted fixture (exit 0), with
-no correctness findings; `.agents/reviews/m3c-state-refinement.md` records
-the review and the required production dependency/exclusion handling.
-The full pinned `scripts/check.sh` on this PR branch exited 0 with no skips,
-including both Nano differential legs, quotation/oracle checks and the full-P4
-census. PR #19's initial remote Gate passed on `c54e4eb` (run `36207315308`,
-5m25s). After PR #18 merged as `ea9533d`, its oracle source/gate changes
-merged cleanly here; only this status document conflicted. The bounded
-refinement source remains byte-identical to `c54e4eb`. Root independently
-reviewed the status resolution; its two documentation corrections are fixed.
-The merged source's frozen full `scripts/check.sh` exited 0 with no skips,
-including all twelve oracle contract tests and both Nano differential legs.
-Final remote Gate `36209122762` passed on `05769b8` in 3m40s, including
-both branch-pin checks; PR #19 merged as `c974c3d`.
-Production Emit integration is explicitly out of this PR. See
-`.agents/notes/state-refinement.md`.
-
-Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional
-structural iteration now emits auxiliary predicates with explicit captured
-indices and proves successful runs using ordered chains. Nested, joint,
-shadowed and pattern-bound captures are exercised by actual-emission tests.
-The build `lake build --wfail P4SpecTec P4SpecTecTest.StateProps` in the pinned
-Nix shell exited 0 (72 jobs), as did text and diff-whitespace checks.
-The isolated checkpoint's focused results were independently rechecked
-in the integration below; they did not alone authorize a push. See
-`.agents/notes/state-props.md`. Next: independent review, then recursive SCC
-all-outcome realization and structural soundness; production remains disabled.
-
-The executable checkpoint `e0d7219` and structural proof checkpoints
-`381dd6a`, `25ad4f2`, `815b671` are integrated on
-`m3b-generator-integration`. The reproduced review findings are fixed.
-Root independently checked the integrated 78-job focused build and direct
-StateProps re-elaboration (both exit 0); reviews are
-`.agents/reviews/m3b-state-codegen-followup.md` and
-`.agents/reviews/m3b-state-iteration.md`. Production stateful generation
-remains guarded until recursive run-soundness is integrated. The refreshed
-census reports zero executable emission failures and 256 explicit pure-Prop
-rejections, with no generated stateful refinement candidates. This records
-text emission, not full-P4 elaboration. The integrated full
-`scripts/check.sh` exited 0 with no skips, including both Nano differential
-legs, all existing oracles and the refreshed census. Final remote CI passed.
-
-PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
-now has an all-fuel exact-state refinement boundary, with explicit disabled
-guards and declaration lookup hypotheses. Its full local gate and independent
-review passed. That checkpoint is now merged into this integration branch;
-the combined revision, including the actual-emitted allocator refinement
-fixture, passed a fresh full `scripts/check.sh` (exit 0, no skips).
-The fixture independently passed a 75-job build and direct Lean elaboration;
-review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. PR #17's final
-remote Gate passed in 12m11s (run `36205479916`), and it merged as `b08ab8e`.
-Recursive proof integration and production enablement continue separately.
-
-## Merged checkpoint: bounded full-P4 interpreter replay
-
-The separately reviewed replay revisions `a4c907b` and `5657373` are being
-integrated on `m3c-p4-replay-publish`, based on merged main `ea9533d`.
-Source and tests are unchanged from independent review.
-Root reran six offline tests and the pinned end-to-end driver: six relation
-matches, one explicitly syntax-only case and nine Lean-side mutation
-rejections (exit 0 each). The ordinary gate now requires the replay files,
-runs its six offline contract tests and builds the Lean runner; it does not
-fetch p4c or run the upstream-dependent real replay. The integrated full
-`scripts/check.sh` exited 0 with no skips; independent gate-plumbing review
-also passed, including six offline tests and shell syntax (exit 0 each).
-PR #20's initial remote Gate `36209104840` passed on `94fd99e` in 4m53s.
-Main `c974c3d` merged without source conflicts; only this status document
-needed reconciliation. Replay implementation/tests remain byte-identical
-to `94fd99e`. The repeated frozen full local `scripts/check.sh` exited 0
-with no skips, including twelve oracle and six replay offline tests. Final
-remote Gate `36209771264` passed on `0036247` in 4m44s, and PR #20
-merged as `e0d1bce`. Root independently reviewed the
-status resolution with no findings. Reviews:
-`.agents/reviews/m3c-p4-interpreter-replay.md` and
-`.agents/reviews/m3c-replay-gate.md`.
-
-## Merged checkpoint: bounded full-P4 oracle
-
-- Branch `m3c-p4-oracle-publish` integrates reviewed adapter revisions
-  `16a2d57` and `997d0ab`. All four initial medium findings are resolved;
-  independent AI-agent code and gate-plumbing reviews found no issues.
-- The ordinary gate requires six adapter files and runs twelve offline
-  contract tests. It does not download p4c, build OCaml or run the real
-  full-P4 oracle. Independent focused checks exited 0: twelve offline tests,
-  four pinned cases with eight CLI comparisons, and additional in-memory
-  sensitivity tests. Exact commands and limits are in
-  `.agents/reviews/m3c-p4-oracle-adapter.md` and the corresponding note.
-- Published as PR #18 at `093dc4e` after its frozen full gate exited 0
-  without skips and its relocated real oracle check exited 0. Remote Gate
-  `36205678753` passed in 1m52s. PR #17's merge required a status-only
-  conflict resolution against current main `b08ab8e`; source merged cleanly.
-  The merged revision's frozen full gate exited 0 with no skips, including
-  all twelve offline oracle tests and the updated generator census. Final
-  remote Gate `36207757309` passed on `3aa9bab` in 16m27s, including both
-  upstream branch-pin checks; PR #18 merged as `ea9533d`.
-  The merge body's newline escaping was malformed; attribution
-  text is present but not a conventional separate trailer. Published history
-  is preserved, and subsequent messages use literal newlines.
-- This is an upstream-side oracle only, not Lean replay, a corpus denominator
-  or full-P4 generation/refinement evidence.
-
-## Merged checkpoint: pinned corpus preparation
-
-- Branch `m3c-corpus-inputs`, based on reviewed proof head `325db77`.
-  Integrates a sparse, exact-pin p4c restore script and ten offline tests.
-  Source data stays ignored; ordinary CI requires no p4c network fetch.
-  Root independently read the script/tests, verified the restored pin and
-  clean status, reran the real idempotence check and all ten offline tests
-  (exit 0). Integrated full `scripts/check.sh` exited 0 with no skips,
-  including the ten offline restore tests. Published as PR #15; its
-  remote Gate passed and it merged as `7d9d356`. Next: the full-P4
-  boot/result oracle adapter.
-- Pinned input slice in the state-oracle worktree: 1,352 resolved sample
-  paths, with 67 matching positive exclusion references. The remainder is
-  not an oracle eligibility denominator. One representative sample passed
-  upstream typing and instantiation in separate CLI sessions; boot values,
-  outputs and counters still need an adapter. No whole-corpus validation.
-  Evidence and review: `.agents/notes/full-p4-corpus-prep.md` and
-  `.agents/reviews/m3c-corpus-prep.md`.
-
-## Recent recursive proof checkpoint
-
-- Branch `m3b-recursive-state-proofs`, based on effect/oracle head `87e44c7`.
-  Integrates recursive-prefix fixture `981cc0b` (review `9c95fba`) and
-  ordered structural iteration fixture `2c08752`.
-- `RecursivePrefix` proves soundness when a rejected earlier attempt calls
-  the same recursive SCC and consumes state. Stronger motives realize every
-  terminating outcome. `StateRules` preserves structural positive premises
-  through an ordered state chain, not a relation defined as its run graph.
-  All theorems have axiom audits.
-- Independent direct Lean checks exited 0. Primary focused build
-  `lake build --wfail P4SpecTecTest.RecursivePrefix P4SpecTecTest.StateRules`
-  exited 0 (44 jobs). Full primary `scripts/check.sh` exited 0 with no skips,
-  including both Nano differential legs, quotations, classified oracles,
-  transport sensitivity and the full-P4 census. Published as PR #14,
-  whose remote Gate passed (20m13s); merged as `39d952a`.
-  Reviews: `.agents/reviews/m3b-recursive-prefix.md` and
-  `.agents/reviews/m3b-state-rules.md`; corresponding implementation notes
-  are under `.agents/notes/`.
-- PR #12 (byte integration) and PR #13 (shared interpreter/state oracle)
-  passed remote CI and merged. Both final local gates for #13 passed with
-  no skips. PR #14 built on #13's head, passed remote CI and merged.
-
-## Parallel work and next steps
-
-- Executable state generator: worktree
-  `/Users/qobilidop/my/work/p4-spectec-lean-byte-text`, branch
-  `m3b-state-codegen`, base `bf7fb62`. GPT-6 Astra's implementation has had
-  independent review: uniform mode, complete attempts, callbacks/externs,
-  debug effects, dependency collection and emitted-code tests. Final focused
-  StateCodegen/Updates/Text build exited 0 (65 jobs); Nano `--check` exited
-  0, all 48 files unchanged. Three reproduced findings are being fixed:
-  mixed optional-expression errors, callback-cycle monotonicity, and direct
-  function-data validation. Raw builtin/extern callback alias fidelity is
-  also being checked before integration. Worktree note:
-  `.agents/notes/state-codegen.md`.
-- Structural proof generation: worktree
-  `/Users/qobilidop/my/work/p4-spectec-lean-state-props`, branch
-  `m3b-state-props`. GPT-6 Astra owns `Codegen/StateProps` and run-soundness
-  automation, sharing executable AST APIs. Copied executable dependencies
-  are not independently owned changes. Capture-free structural chains pass
-  Lean positivity; closing over enclosing constructor arguments does not.
-  Bounded linear backend `381dd6a` and scope-capture fix `25ad4f2` passed root
-  independent review and 63-job builds in the former recursive-prefix tree,
-  now branch `m3b-linear-proof-review`. The original failing reviewer probe
-  passes unchanged after the fix. Iteration extension remains in progress.
-- Root owns production integration. `Emit`, `Props` and `Validate` reject
-  stateful production generation until structural rules and proofs are ready.
-  Enablement also needs generated state imports and state-aware determinism/
-  refinement handling. Never silently omit rung-1 guarantees. Plan:
-  `.agents/notes/state-integration.md`.
-- M3C preparation is in worktree
-  `/Users/qobilidop/my/work/p4-spectec-lean-state-oracle`, branch
-  `m3b-state-oracle`, note `.agents/notes/full-p4-corpus-prep.md`.
-  The pinned sparse sample/include checkout is restored. The boot/result
-  oracle adapter merged as PR #18 after final local and remote gates passed.
-  The bounded observations are not the canonical corpus denominator or a
-  full-corpus boot claim.
-- Follow-up independent review of oracle head `997d0ab` cleared all four
-  findings and reran the offline and real four-case checks. An isolated
-  interpreter replay branch `m3c-p4-interp-replay` now uses those exact
-  typed boot values, semantic outputs and post-boot/final counters. Its
-  first run found missing P4 placeholder extern wiring for `issue-212`;
-  the bounded config now mirrors the two pinned placeholder constructors.
-  Three booted cases and six relation runs match; one syntax-only case is
-  explicitly outside Lean AL execution. Six replay contract tests and
-  focused Lean build exit 0. A follow-up also rejects nine actual Lean-side
-  mutations and uniformly checks syntax mode/guard and signed counter range;
-  independent follow-up review and full gate passed before publication.
-  Note: `.agents/notes/full-p4-interp-replay.md`.
-- Next: checkpoint proof fixtures; independently review and integrate
-  executable/proof generators; establish stateful refinement; regenerate
-  and elaborate full P4. Then M3C corpus/fidelity, M3D targets (NanoSwitch,
-  then v1model/eBPF packet tests), M3E expanded refinement/mutations, M3F
-  determinism/usability. Substantial implementation remains.
-
-## Delivered M3B evidence
-
-- Subtype bridges preserve full applications: all 567 full-P4 pairs emit.
-  Printing preserves 190 hints and 2,120 case origins; twelve pinned printer
-  observations pass. Root-index list/text updates preserve order and bounds.
-- ByteText represents semantic text throughout IL/runtime, interpreter,
-  generator, printer and existing proofs; names remain Strings. Internal
-  operations preserve arbitrary bytes. JSON ingress rejects invalid UTF-8
-  and lone surrogate escapes rather than replacing them. Corrupt existing
-  expectations fail instead of silently becoming skipped comparisons.
-- Text oracle: 46 pinned classified observations (31 success, eleven OCaml
-  Failure, four Assert_failure), checked through dispatch, interpreter and
-  production-emitted wrappers; four also use actual Nano wrappers. Review
-  findings on hard-error classification and JSON replacement are fixed.
-- Merged state foundations model signed 63-bit wrap and retain consumed IDs
-  on mismatch, hard error and negation. The calculus has all-outcome
-  refinement, ordered-map and rejected-prefix rules. Full gates and reviews
-  pass; this is not generated stateful refinement.
-- PR #13 has one transparent effect-parameterized interpreter, preserving
-  the pure API and Nano proofs. Explicit session APIs retain all terminating
-  post-states; observation does not rerun calls. Durable upstream oracle:
-  ten complete-AL/session cases, five primitive cases, ten corrupt-fixture
-  rejections. Primitive mismatch kind and exact state are checked. Upstream
-  public AL outcomes collapse internal failure kinds; the fixture documents
-  that limit and explicitly disables cache/determinism/guard checks.
-  Independent reviews and final full local gates passed without skips.
-  Reversing negation fails two distinguishing assertions.
-- Latest census: one callable emission failure (`fresh_typeId`), zero
-  relation Prop-emission failures, all 567 bridges. Independent emission
-  is not full-P4 elaboration or semantic coverage.
-
-## Stable baseline and storage policy
-
-- Nano: 161 types, 76 functions, 77 relations, 48 modules (about 57k lines),
-  98 run-soundness theorems (77 individual, 21 group), 65 partial fixpoints,
-  18 refinement and two determinism theorems, with axiom audits. Refinement
-  covers 18 of 153 callables (18 functions, no relations).
-- Both differential legs agree on 78 verdicts (48 pass, 30 fail) and all
-  48 successful output contexts. Corpus: 32 positive, 21 negative, 25
-  exercises. All 342 generated quotations match their exports.
-- Full-P4 AL: 1,689 definitions, 98,387,720 raw bytes, 108 source files,
-  80 top-level AL region files. Committed gzip: 2,738,237 bytes; Nano gzip:
-  244,303 bytes. Raw spec JSON is ignored/checksum-verified; full-P4 raw
-  JSON was never committed. Tracked/indexed files must be below 5 MiB;
-  also measure aggregate growth. Do not duplicate pinned source corpora.
-- Preserve the expected four patched upstream OCaml files. Use pinned Nix
-  shells and separate worktree caches. Freeze scripts/source during a full
-  gate; record its exit status before push. Logs/scratch are never committed.
-
-## Remaining fidelity and proof obligations
-
-- Generated stateful structural rules, proof automation and all-outcome AL
-  refinement are not delivered. Iteration needs structural witnesses;
-  recursive failure equations need transport from approximants to final
-  calls. Success-only motives do not suffice.
-- Guarded higher-order interpretation: `Match.sub_` rejects FuncT
-  (Type.Equiv not ported); type-parameter freshening uses deterministic
-  names; raw builtin aliases dispatch by local identifier. Guard-disabled
-  fixtures do not establish guarded full-P4 fidelity. Function-valued data
-  and rank-polymorphic callback signatures, including hidden aliases, must
-  remain explicit rejections until supported.
-- Match/check return false and type substitution the identity at fuel zero
-  (currently constant 1000); resolve before cast refinement. Audit non-text
-  builtin hard exceptions. Observed integer parsing is not completeness.
-- Hinted-print refinement needs a stronger contract than note-erasing Rel.
-  Shared subtype cases require equal substituted payloads; unsupported
-  conversions must not be accepted silently.
-- Sliced/nested updates remain unsupported. ExternV ordering uses key-sorted
-  compressed JSON rather than structural Yojson order. Constructor naming's
-  underscore join and suffix are not fully invertible.
-- General codegen mutation tests remain owed; narrow negation/oracle
-  sensitivity does not substitute. Target instances and the packet leg
-  remain undone. Completeness direction is not claimed.
-- Historical Nano refinement timings: 19–89 seconds per group. Monitor
-  full-P4 scaling; old timings are not a fresh benchmark. Readability remains
-  parked in `.agents/roadmap.md`.
-
-## Blocked
-
-No external blocker requiring user input. Corpus inputs are restored;
-generator proof work and the full-P4 oracle adapter remain ongoing work.
+Freeze implementation during the final full gate and record its actual exit
+before pushing. Independent review and final-head remote CI remain required
+by the current publication policy. No external blocker requires user input.
