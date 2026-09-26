@@ -33,8 +33,16 @@ inputs; a shared exact-root/pin/clean-tree guard now fixes both capture
 runners. Six independent guard regressions pass, including ignored inputs.
 Narrow offline gate wiring is independently reviewed; shell syntax, both
 contract suites and the 98-job verify executable build/replay pass. Reviews:
-`m3d-nano-verify.md`, `m3d-nano-verify-gate.md`. Full gate, reconciliation
-with published main `1f5cfc0` and publication remain owed.
+`m3d-nano-verify.md`, `m3d-nano-verify-gate.md`. Reviewed checkpoint
+`cf1832f` is reconciled locally with published main `1f5cfc0`; only status
+and the additive gate union required conflict resolution. Reviewed verify,
+driver and packet source/fixtures are preserved. Root independent reconciliation
+review and 52 combined offline contracts pass; report:
+`m3d-verify-main-reconcile.md`. The complete local gate exited 0 without skips
+(`.artifacts/verify-main-full-gate.exit`). Final-head remote CI and publication
+remain owed. The user requested a pause after this nearest checkpoint;
+no new refinement or target implementation is authorized to start before
+the planned pause and handoff.
 See `.agents/notes/nano-verify.md` and `test/nano-verify/README.md`.
 
 ## Inherited isolated increment: dynamic Nano packet driver
@@ -65,9 +73,48 @@ Lean replay/mutations (all exit 0), with no findings. Root's narrow gate
 wiring is independently reviewed and its focused checks pass. Reports:
 `m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. Driver checkpoint `0b06901`
 passed its combined full local gate and final remote Gate `36217460543`;
-PR #25 merged as `1f5cfc0`. That main revision is not yet reconciled here.
+PR #25 merged as `1f5cfc0`, now reconciled here. Its main reconciliation
+review is `m3d-driver-main-reconcile.md`: source preservation, union gate
+and 39 focused contracts passed before that final gate. These published
+checks do not validate the new verify increment or unmerged full-P4 generation.
 
-## Inherited checkpoint: bounded dynamic Nano target
+## Published checkpoint: bounded corpus shard
+
+PR #22 merged as `2c85f1b` after remote Gate `36213412457` passed on
+`93a2e8c` in 3m43s. The new `m3c-corpus-shards` branch starts at that main
+revision in the corpus worktree, preserving the published checkpoint ref.
+Root approved the strict-identity/crash-safe shard design and exactly shard
+0 of 317. Independent root review found no remaining findings after the
+quarantine order/worker exit and separately reviewed compiler hardlink fixes;
+worker/v1 semantics remain unchanged. Sixteen new offline tests and existing
+5+7+12 tests pass; text and whitespace checks exit 0. Final-helper fresh
+pilot exit 0, run `901d53d9`:
+four attempts/eight AL matches/eight CLI checks, all Type.Fresh phases zero,
+no syntax-only/resource/unsupported/harness failures. Exact resume exit 0:
+same identity/probe bytes, no new session lines, all attempts remain one,
+and all four terminal-record hashes are unchanged. Narrow independently
+reviewed CI wiring requires both new files and runs sixteen offline tests
+unconditionally, with no real shard/network in CI. Authorized full local
+gate process exited 0 without skips, including both 78-program Nano legs,
+48 output contexts, 342 quotations, existing oracles/census and new offline
+suite. Log: `.artifacts/corpus-shard-full-gate.log`. Published as PR #24 at
+`2fbe024`; initial remote Gate `36215923313` passed. Main `186d43a` (merged
+Nano PR #23) is reconciled here. Only status conflicted; independent review
+confirms both source sets unchanged and the union gate retained. Sixteen
+shard plus ten Nano contracts and shell syntax pass. Review:
+`m3c-shards-nano-reconcile.md`. The combined full gate exited 0 without
+skips; its actual exit is recorded in `.artifacts/corpus-nano-full-gate.exit`.
+Final-head Gate `36216453043` passed on `c4a8858`; PR #24 merged as
+`d039786`. The incoming Lake file
+changes the run identity; retain prior observations without promoting them
+to exact-resume evidence for this new revision.
+Evidence, bounds and commands: `.agents/notes/full-p4-corpus-shards.md`.
+Complete sequential 317-shard orchestration with retained failures is
+independently reviewed and six offline orchestration tests pass. Root
+has launched its first canonical run on frozen `c4a8858`; no whole-corpus
+result is claimed yet. Keep that execution tree unchanged during the run.
+
+## Merged checkpoint: bounded dynamic Nano target
 
 Branch `m3d-nano-target` starts at `e31c1e8`, the merged PR #21 baseline.
 The partial Core.Object and NanoSwitch.Pipe ports now implement checked
@@ -100,20 +147,76 @@ remaining findings in this bounded scope. Root reran ten offline contracts,
 the six-success/one-failure Lean replay with five mutations (all exit 0),
 and independently verified all six source Git-object hashes. Reviews:
 `m3d-nano-primitives.md`, `m3d-nano-packet.md`, `m3d-nano-gate.md`.
-Publication follow-up: this inherited target checkpoint merged as PR #23,
-main `186d43a`, after full local gate and remote Gate `36215801356` passed
-on `65609db`. Its main reconciliation is not yet in this driver branch.
+Local reviewed checkpoint `96078a0` is reconciled with published main
+`2c85f1b` (PR #22). Independent review confirms both source sets unchanged,
+the union gate retained and 22 focused contracts plus shell syntax passing.
+Report: `m3d-nano-reconcile.md`. Root's combined full gate on this reconciled
+source exited 0 without skips, including both 78-program Nano legs, 48 output
+contexts, quotation/oracle/census checks and the new packet replay/contracts.
+Actual exit is recorded in `.artifacts/nano-target-full-gate.exit` before
+publication. Final-head remote Gate `36215801356` passed on `65609db`,
+including both upstream pin checks; PR #23 merged as `186d43a`.
 Pinned direct and real-program probes confirm NanoSwitch extract
 returns raw ExternV objectState where the spec declares `value`. Three
 unguarded AL STF cases pass upstream; guarded `field-access` fails after
 that extern result. This cannot be silently repaired by a generated typed
 adapter. Evidence, scope and next steps:
 `.agents/notes/nano-target-boundary.md` and `test/nano-target/README.md`.
-Next: reconcile current main, run the full gate, and publish this checkpoint;
-then continue the faithful driver projection within authorized M3D scope.
+The faithful driver projection is now isolated on `m3d-nano-driver` from
+`96078a0`. Actual upstream driver observations and Lean replay are being
+checked separately; boot/STF remain outside that checkpoint.
 No milestone completion yet.
 
-## Published checkpoint: checked type runtime
+## Published checkpoint: corpus inventory
+
+Branch `m3c-corpus-replay` is based on main `e31c1e8` after PR #21 merged.
+PR #21's final remote Gate `36210406850` passed on `fed4187` in 5m36s.
+The root approved staged inventory, versioned type-fresh sentinel and
+spec-once worker implementation, preserving the published v1 APIs; no
+gate edits or corpus scale-up before focused independent review.
+Read-only Type.Fresh census/six dynamic checks and a synthetic escaping-name
+sequence are recorded in `.agents/notes/type-fresh-reachability.md`; no
+formal reachability or whole-corpus claim. Plan:
+`.agents/notes/full-p4-corpus-replay-plan.md`.
+
+First inventory execution exposed a raw/canonical denominator distinction:
+1,352 raw sample paths include eighteen helpers beneath `include`, which
+upstream's collector skips. Canonical collection is 1,334 paths with 67
+static exclusions and 1,267 candidates; the 68 positive references include
+one stale path. The initial offline raw-count expectation failed, preserving
+this observation before replay. Root independently inspected the pinned
+collector and eighteen helper identities, approving complete manifest
+accounting and the corrected canonical denominator. The regenerated 273,394
+byte manifest retains all identities/source digests/symlinks and static
+exclusion provenance. Five offline tests pass, including thirteen corruption
+mutations, literal comment/EOF parsing, helper skip and shard partitioning;
+the real exact-pin `inventory.py --check`, text and diff-whitespace checks
+exit 0. Root independently reviewed/reran the inventory checks with no
+findings; `.agents/reviews/m3c-corpus-inventory.md`.
+
+Follow-up v2 probe/spec-once worker and bounded original-fixture pilot are
+independently reviewed with no remaining blocking finding. Root reran seven
+offline tests and the pinned pilot (exit 0, report `98530`); review:
+`.agents/reviews/m3c-corpus-worker.md`. Published v1 files are unchanged. The
+84-job worker build, seven v2 offline tests, text/import/file-size/diff checks and final
+fresh pinned pilot exited 0: six AL matches, one explicitly syntax-only case,
+eight CLI parity checks and sixteen actual Lean mutations. All original
+Type.Fresh phases are zero; any nonzero phase is explicitly unsupported.
+Resource bounds/phase timings and exact commands are recorded in
+`.agents/notes/full-p4-corpus-worker.md`. Largest case is 30,858,825 bytes;
+child RSS high-water is cumulative, not per-case. No corpus shard, resume
+implementation or whole-corpus claim. Authorized
+narrow gate wiring requires nine paths, runs both offline suites and builds
+the worker, with no p4c fetch or upstream-dependent real pilot in CI. Independent
+wiring review found no issues and reran shell syntax plus both offline suites
+(exit 0); `.agents/reviews/m3c-corpus-gate.md`. Frozen
+`nix develop --command bash scripts/check.sh` process exited 0 with no skips,
+including both Nano differential legs, existing oracles/census and new
+offline suites/worker build. Actual exit was captured before preparing a
+push. Final remote Gate passed and PR #22 merged as recorded above.
+Shard/resume implementation is a separate next checkpoint.
+
+## Merged checkpoint: checked type runtime
 
 Branch `m3c-type-runtime` adds bounded checked Expand/Equiv/Subst, matcher
 and signature conversion APIs and wires the interpreter to explicit hard
@@ -150,7 +253,8 @@ six replay and twelve oracle offline tests plus shell syntax (all exit 0):
 `.agents/reviews/m3c-type-runtime-reconcile.md`. The frozen reconciled
 `nix develop --command bash scripts/check.sh` process exited 0 with no skips,
 including both Nano legs and the incoming replay build. Final merged-head
-remote CI remains required. No whole-corpus/type-fresh claim.
+remote Gate `36210406850` passed in 5m36s on `fed4187`; PR #21 merged
+as `e31c1e8`. No whole-corpus/type-fresh claim.
 
 ## Active checkpoint: generator integration
 

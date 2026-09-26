@@ -92,6 +92,32 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Resume bounded corpus shards only under an exact execution identity.**
+  Recheck pins/snapshot/inventory and rebuild both toolchains; use a locked,
+  content-keyed probe workspace to keep path-sensitive binary bytes stable,
+  without normalization. Include actual binaries, source/archive hashes,
+  absolute roots, exact selection and limits in the identity. Only validated
+  durable terminal records skip execution. Quarantine known interrupted
+  attempts recoverably; malformed final artifacts fail loudly. Completed
+  harness/resource failures are denominator attempts, not semantic matches,
+  and remain terminal under ordinary resume. Reason: bounded replay must
+  survive interruption without silently changing inputs, retrying failures
+  into success or inflating the canonical 1,267-candidate denominator.
+  Confidence: high for the reviewed four-case/fault-injection slice, not
+  whole-corpus coverage or hostile concurrent filesystem defense. Revisit
+  before changing retry policy, resource bounds or scaling. (2026-09-25)
+
+- **Use the upstream collector's full-P4 denominator, accounting for raw
+  helpers separately.** The exact p4c sample checkout contains 1,352 `.p4`
+  paths, but pinned `Util.Filesys.collect_files` skips `include` directories:
+  eighteen helper files are collector-omitted, 67 collected files are
+  statically excluded and 1,267 are canonical attempt candidates. Preserve
+  all identities and exclusion provenance; do not execute headers as extra
+  standalone programs or retain the earlier raw nonexcluded count of 1,285
+  as the canonical denominator. Root independently verified this correction.
+  Confidence: high at this pin; revisit on corpus/collector/exclusion changes.
+  (2026-09-25)
+
 - **Stage checked type-runtime APIs without inventing observable type-fresh
   names.** Keep total proof-facing helpers separate; interpreter operations
   lift checked errors to `Fail.err` and exhaustion to divergence. Alias
