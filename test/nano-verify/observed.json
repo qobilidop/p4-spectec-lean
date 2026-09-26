@@ -1,0 +1,4865 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "nanoSpecRevision": "60dfd9912011bd5b1746ac88b26b58f7b3981991",
+  "scope": "shared-verify-and-nano-dispatch",
+  "cases": [
+    {
+      "request": {
+        "entry": "core",
+        "check": "true",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "pass",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 16,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 17,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 15,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              false
+            ],
+            "note": {
+              "vid": 3,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1237
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "ExternV",
+              {
+                "kept": "arch"
+              }
+            ],
+            "note": {
+              "vid": 4,
+              "typ": [
+                "VarT",
+                {
+                  "it": "archState",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 329295757
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "CaseV",
+              [
+                "Seq",
+                [
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "RETURN"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 6
+                        }
+                      }
+                    }
+                  ],
+                  [
+                    "Arg",
+                    {
+                      "it": [
+                        "OptV",
+                        null
+                      ],
+                      "note": {
+                        "vid": 19,
+                        "typ": [
+                          "IterT",
+                          {
+                            "it": [
+                              "VarT",
+                              {
+                                "it": "value",
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              []
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          [
+                            "Opt"
+                          ]
+                        ],
+                        "vhash": 997
+                      },
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    }
+                  ]
+                ]
+              ]
+            ],
+            "note": {
+              "vid": 20,
+              "typ": [
+                "VarT",
+                {
+                  "it": "returnResult",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 559366233
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "false",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "pass",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 16,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 17,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 15,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              false
+            ],
+            "note": {
+              "vid": 3,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1237
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "ExternV",
+              {
+                "kept": "arch"
+              }
+            ],
+            "note": {
+              "vid": 4,
+              "typ": [
+                "VarT",
+                {
+                  "it": "archState",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 329295757
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "CaseV",
+              [
+                "Seq",
+                [
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "REJECT"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 6
+                        }
+                      }
+                    }
+                  ],
+                  [
+                    "Arg",
+                    {
+                      "it": [
+                        "ExternV",
+                        {
+                          "raw": "signal"
+                        }
+                      ],
+                      "note": {
+                        "vid": 2,
+                        "typ": [
+                          "VarT",
+                          {
+                            "it": "errorValue",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          []
+                        ],
+                        "vhash": 452747333
+                      },
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    }
+                  ]
+                ]
+              ]
+            ],
+            "note": {
+              "vid": 19,
+              "typ": [
+                "VarT",
+                {
+                  "it": "rejectResult",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 22158011
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "entry": "function",
+        "check": "true",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "pass",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 16,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 17,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 15,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              false
+            ],
+            "note": {
+              "vid": 3,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1237
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "ExternV",
+              {
+                "kept": "arch"
+              }
+            ],
+            "note": {
+              "vid": 4,
+              "typ": [
+                "VarT",
+                {
+                  "it": "archState",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 329295757
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "CaseV",
+              [
+                "Seq",
+                [
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "RETURN"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 6
+                        }
+                      }
+                    }
+                  ],
+                  [
+                    "Arg",
+                    {
+                      "it": [
+                        "OptV",
+                        null
+                      ],
+                      "note": {
+                        "vid": 19,
+                        "typ": [
+                          "IterT",
+                          {
+                            "it": [
+                              "VarT",
+                              {
+                                "it": "value",
+                                "note": null,
+                                "at": {
+                                  "left": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  },
+                                  "right": {
+                                    "file": "",
+                                    "line": 0,
+                                    "column": 0
+                                  }
+                                }
+                              },
+                              []
+                            ],
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          [
+                            "Opt"
+                          ]
+                        ],
+                        "vhash": 997
+                      },
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    }
+                  ]
+                ]
+              ]
+            ],
+            "note": {
+              "vid": 20,
+              "typ": [
+                "VarT",
+                {
+                  "it": "returnResult",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 559366233
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "entry": "ExternFunctionCall_eval",
+        "check": "false",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "pass",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 16,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 17,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 15,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "outputs": [
+          {
+            "it": [
+              "BoolV",
+              false
+            ],
+            "note": {
+              "vid": 3,
+              "typ": [
+                "BoolT"
+              ],
+              "vhash": 1237
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "ExternV",
+              {
+                "kept": "arch"
+              }
+            ],
+            "note": {
+              "vid": 4,
+              "typ": [
+                "VarT",
+                {
+                  "it": "archState",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 329295757
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          },
+          {
+            "it": [
+              "CaseV",
+              [
+                "Seq",
+                [
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "REJECT"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 6
+                        }
+                      }
+                    }
+                  ],
+                  [
+                    "Arg",
+                    {
+                      "it": [
+                        "ExternV",
+                        {
+                          "raw": "signal"
+                        }
+                      ],
+                      "note": {
+                        "vid": 2,
+                        "typ": [
+                          "VarT",
+                          {
+                            "it": "errorValue",
+                            "note": null,
+                            "at": {
+                              "left": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              },
+                              "right": {
+                                "file": "",
+                                "line": 0,
+                                "column": 0
+                              }
+                            }
+                          },
+                          []
+                        ],
+                        "vhash": 452747333
+                      },
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    }
+                  ]
+                ]
+              ]
+            ],
+            "note": {
+              "vid": 19,
+              "typ": [
+                "VarT",
+                {
+                  "it": "rejectResult",
+                  "note": null,
+                  "at": {
+                    "left": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    },
+                    "right": {
+                      "file": "",
+                      "line": 0,
+                      "column": 0
+                    }
+                  }
+                },
+                []
+              ],
+              "vhash": 22158011
+            },
+            "at": {
+              "left": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              },
+              "right": {
+                "file": "",
+                "line": 0,
+                "column": 0
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "bare",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "runtimeError",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 15,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 16,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 14,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "message": "not a case"
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "inner",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "runtimeError",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 17,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 18,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 16,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "message": "not a bool"
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "tag",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "runtimeError",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 16,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 17,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 15,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2,
+        "message": "expected case with `_B %`, but got `B %`"
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "true",
+        "failure": "unmatch1",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "unmatch",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 1
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "true",
+        "failure": "abort1",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 1
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "true",
+        "failure": "unmatch2",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "unmatch",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 16,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 17,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 15,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2
+      }
+    },
+    {
+      "request": {
+        "entry": "core",
+        "check": "bare",
+        "failure": "abort2",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "check"
+                          ],
+                          "note": {
+                            "vid": 10,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 514562691
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 11,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 962931289
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 9,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "find_var_e",
+            "types": [],
+            "args": [
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Seq",
+                    [
+                      [
+                        "Atom",
+                        {
+                          "it": [
+                            "Tag",
+                            "BARE"
+                          ],
+                          "note": null,
+                          "at": {
+                            "left": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "<mixfix>",
+                              "line": 1,
+                              "column": 5
+                            }
+                          }
+                        }
+                      ],
+                      [
+                        "Arg",
+                        {
+                          "it": [
+                            "TextV",
+                            "toSignal"
+                          ],
+                          "note": {
+                            "vid": 15,
+                            "typ": [
+                              "TextT"
+                            ],
+                            "vhash": 884911129
+                          },
+                          "at": {
+                            "left": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            },
+                            "right": {
+                              "file": "",
+                              "line": 0,
+                              "column": 0
+                            }
+                          }
+                        }
+                      ]
+                    ]
+                  ]
+                ],
+                "note": {
+                  "vid": 16,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "prefixedNameIR",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 1333279727
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "CaseV",
+                  [
+                    "Atom",
+                    {
+                      "it": [
+                        "Keyword",
+                        "LOCAL"
+                      ],
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "<mixfix>",
+                          "line": 1,
+                          "column": 5
+                        }
+                      }
+                    }
+                  ]
+                ],
+                "note": {
+                  "vid": 14,
+                  "typ": [
+                    "VarT",
+                    {
+                      "it": "cursor",
+                      "note": null,
+                      "at": {
+                        "left": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        },
+                        "right": {
+                          "file": "",
+                          "line": 0,
+                          "column": 0
+                        }
+                      }
+                    },
+                    []
+                  ],
+                  "vhash": 351259766
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              },
+              {
+                "it": [
+                  "BoolV",
+                  false
+                ],
+                "note": {
+                  "vid": 3,
+                  "typ": [
+                    "BoolT"
+                  ],
+                  "vhash": 1237
+                },
+                "at": {
+                  "left": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  },
+                  "right": {
+                    "file": "",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "counterAfter": 2
+      }
+    },
+    {
+      "request": {
+        "entry": "function",
+        "check": "true",
+        "failure": "none",
+        "shape": "arity"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [],
+        "counterAfter": 0
+      }
+    },
+    {
+      "request": {
+        "entry": "function",
+        "check": "true",
+        "failure": "none",
+        "shape": "name"
+      },
+      "result": {
+        "class": "runtimeError",
+        "calls": [],
+        "counterAfter": 0,
+        "message": "not a text"
+      }
+    },
+    {
+      "request": {
+        "entry": "function",
+        "check": "true",
+        "failure": "none",
+        "shape": "list"
+      },
+      "result": {
+        "class": "runtimeError",
+        "calls": [],
+        "counterAfter": 0,
+        "message": "not a list"
+      }
+    },
+    {
+      "request": {
+        "entry": "function",
+        "check": "true",
+        "failure": "none",
+        "shape": "element"
+      },
+      "result": {
+        "class": "runtimeError",
+        "calls": [],
+        "counterAfter": 0,
+        "message": "not a text"
+      }
+    },
+    {
+      "request": {
+        "entry": "function",
+        "check": "true",
+        "failure": "none",
+        "shape": "order"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [],
+        "counterAfter": 0
+      }
+    },
+    {
+      "request": {
+        "entry": "ExternFunctionCall_eval",
+        "check": "true",
+        "failure": "none",
+        "shape": "static_assert"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [],
+        "counterAfter": 0
+      }
+    },
+    {
+      "request": {
+        "entry": "ExternFunctionCall_eval_lctk",
+        "check": "true",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [],
+        "counterAfter": 0
+      }
+    },
+    {
+      "request": {
+        "entry": "unknown",
+        "check": "true",
+        "failure": "none",
+        "shape": "valid"
+      },
+      "result": {
+        "class": "abort",
+        "calls": [],
+        "counterAfter": 0
+      }
+    }
+  ],
+  "nanoReachability": {
+    "externRelations": [
+      "ExternMethodCall_eval"
+    ],
+    "mode": "AL",
+    "cache": false,
+    "det": false,
+    "guard": false,
+    "counterBefore": 0,
+    "counterAfter": 0,
+    "fullP4GetterAgainstNano": "unmatch"
+  }
+}

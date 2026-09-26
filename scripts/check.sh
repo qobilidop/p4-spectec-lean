@@ -63,6 +63,11 @@ for path in \
   test/nano-target/packet-probe.ml test/nano-target/packet-run.py \
   test/nano-target/packet-observed.json.gz test/nano-target/packet-observed.json.sha256 \
   test/nano-target/fixture.py test/nano-target/check.py test/nano-target/test_contract.py \
+  P4SpecTec/BackendSim/Core/Func.lean P4SpecTec/BackendSim/SpecImpl/Func.lean \
+  P4SpecTec/BackendSim/SpecImpl/Unpack.lean P4SpecTecTest/NanoVerify/Main.lean \
+  test/nano-verify/requests.json test/nano-verify/observed.json test/nano-verify/probe.ml \
+  test/nano-verify/run.py test/nano-verify/contract.py test/nano-verify/test_contract.py \
+  scripts/check-spec-pin.py test/nano-verify/test_spec_guard.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
   test/diff/run.py .github/workflows/ci.yml
 do
@@ -95,6 +100,10 @@ python3 "$root/test/p4-oracle/test_replay_contract.py" \
   || { say "P4 interpreter replay contract tests failed"; fail=1; }
 python3 "$root/test/nano-target/test_contract.py" \
   || { say "Nano packet fixture contract tests failed"; fail=1; }
+python3 "$root/test/nano-verify/test_contract.py" \
+  || { say "Shared verify fixture contract tests failed"; fail=1; }
+python3 "$root/test/nano-verify/test_spec_guard.py" \
+  || { say "Exact specification input guard tests failed"; fail=1; }
 for name in nano-p4 p4; do
   python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }
@@ -111,7 +120,7 @@ if command -v lake >/dev/null 2>&1; then
     || { say "JSON transport/output checks failed"; fail=1; }
   (cd "$root" && lake build --wfail check-quotes check-print check-text-builtins \
     check-state-oracle p4spectec-census p4-interp-replay check-nano-target check-nano-packet \
-    check-nano-driver) \
+    check-nano-driver check-nano-verify) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }
@@ -123,6 +132,8 @@ if command -v lake >/dev/null 2>&1; then
     || { say "state oracle sensitivity check failed"; fail=1; }
   python3 "$root/test/nano-target/check.py" \
     || { say "Nano dynamic target and packet relation replay failed"; fail=1; }
+  (cd "$root" && lake exe check-nano-verify) \
+    || { say "Shared verify and Nano dispatch replay failed"; fail=1; }
   (cd "$root" && lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json) \
     || { say "P4 census is stale or the export does not decode"; fail=1; }
 elif [ "${P4SPECTEC_SKIP_LEAN:-0}" = "1" ]; then

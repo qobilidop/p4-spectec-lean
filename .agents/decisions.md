@@ -2,6 +2,15 @@
 
 ## Bounded dynamic Nano target
 
+- **Preserve shared verify's full-P4 getter ABI, even in Nano dispatch.**
+  The pinned shared helper uses prefixedName/cursor/context, unlike Nano's
+  scope/context/name. Nano grammar permits only extern objects and its AL
+  declares no ExternFunctionCall_eval, so direct target tests do not imply
+  successful Nano verify packet coverage. Port the shared helper faithfully,
+  record the actual AL mismatch and retain missing source-level coverage.
+  Confidence high from source and exact-pin observation; revisit if upstream
+  adds Nano function support or changes the shared helper. (2026-09-25)
+
 - **Preserve the pinned raw ExternV boundary; do not restore PACKET.**
   The pinned Nano handler returns objectState where the Nano relation
   declares value. A generated typed adapter cannot silently repair this.

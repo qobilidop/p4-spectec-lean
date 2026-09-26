@@ -11,7 +11,33 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active isolated increment: dynamic Nano packet driver
+## Active isolated increment: shared verify and Nano dispatch
+
+Branch `m3d-nano-verify` starts at driver checkpoint `2635a32`; the original
+driver worktree is untouched. Partial SpecImpl.Func/Unpack and Core.Func
+mirrors implement verify, with faithful full-P4 lookup ABI, both lookups
+before Boolean unpacking, exact result shapes/notes and retained StateEval
+failure post-state. Nano dynamic function dispatch is wired, but the pinned
+Nano grammar/AL has no extern-function call path and its lookup ABI differs.
+An actual upstream/Lean AL rejection probe records unmatch, not successful
+Nano verify coverage. Nineteen original-target direct cases match; five
+replay mutations and seven offline contract tests pass. Combined focused
+build exits 0 (108 jobs); final direct replay and exact-pin recheck pass,
+including explicit AL configuration and before/after counter 0. Existing
+24 target cases, eleven driver cases and six-success/one-guarded-failure
+real packet replay remain green. Import, width, size and whitespace checks
+pass. Root independent semantic review, nineteen-case exact-pin re-observation,
+nineteen Lean cases/five mutations and seven contracts all pass. Review found
+the capture spec guard accepted repository subdirectories and untracked
+inputs; a shared exact-root/pin/clean-tree guard now fixes both capture
+runners. Six independent guard regressions pass, including ignored inputs.
+Narrow offline gate wiring is independently reviewed; shell syntax, both
+contract suites and the 98-job verify executable build/replay pass. Reviews:
+`m3d-nano-verify.md`, `m3d-nano-verify-gate.md`. Full gate, reconciliation
+with published main `1f5cfc0` and publication remain owed.
+See `.agents/notes/nano-verify.md` and `test/nano-verify/README.md`.
+
+## Inherited isolated increment: dynamic Nano packet driver
 
 Branch `m3d-nano-driver`, worktree `p4-spectec-lean-nano-driver`, starts at
 reviewed target checkpoint `96078a0`; the original target tree is frozen.
@@ -37,9 +63,9 @@ Root independently reviewed the implementation and repeated the eleven
 direct observations, eleven contracts, original-driver packet sessions and
 Lean replay/mutations (all exit 0), with no findings. Root's narrow gate
 wiring is independently reviewed and its focused checks pass. Reports:
-`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. No full gate, commit, push
-or support-completion claim for this increment. Next: local checkpoint,
-reconcile the latest published main, then combined full gate and final CI.
+`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. Driver checkpoint `0b06901`
+passed its combined full local gate and final remote Gate `36217460543`;
+PR #25 merged as `1f5cfc0`. That main revision is not yet reconciled here.
 
 ## Inherited checkpoint: bounded dynamic Nano target
 
