@@ -11,6 +11,27 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
+## Active isolated checkpoint: checked type runtime
+
+Branch `m3c-type-runtime` adds bounded checked Expand/Equiv/Subst, matcher
+and signature conversion APIs and wires the interpreter to explicit hard
+errors/divergence instead of type false/identity fallbacks. Legacy pure
+APIs remain for proof compatibility. Nonempty FuncT substitution is
+explicitly unsupported until separate Type.Fresh state is modeled; no
+observable fresh names are invented. See `.agents/notes/type-runtime.md`
+and the named deviations in the design. `lake build --wfail P4SpecTec
+P4SpecTecTest` passed after the checked signature wiring (153 jobs,
+including existing Nano refinement modules). The upstream Nix-shell
+`test/type-runtime/run.py --upstream <primary pinned checkout> --check`
+passed all fourteen observations; three offline provenance tests and
+check-text/check-imports passed. Initial broad build failed only because
+the fresh worktree lacked the ignored Nano JSON; verified snapshot
+extraction fixed that prerequisite. Full gate, corpus replay and
+publication are not claimed. Root independently reviewed all changed paths
+and reran TypeRuntime, fourteen pinned cases and three offline tests (all
+exit 0); no findings remain within the bounded claim. Review:
+`.agents/reviews/m3c-type-runtime.md`. Next: offline CI wiring and integration.
+
 ## Active checkpoint: generator integration
 
 Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional

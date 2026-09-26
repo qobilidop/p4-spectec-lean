@@ -233,6 +233,32 @@ def find_func_signature (ctx : t) (fid : Lang.Il.id) : backtrack (List tparam ×
   | some sig => pure sig
   | none => back_undef fid.at "function" fid.it
 
+/-- Checked optional signature lookup: absence is a successful `none`,
+while nested-parameter exhaustion is an exhausted computation. -/
+def find_func_signature_opt_checked (depth : Nat) (ctx : t) (fid : Lang.Il.id) :
+    Subst.Checked (Option (List tparam × List typ × typ)) :=
+  match find_func_opt ctx fid with
+  | none => pure none
+  | some (_, func) =>
+    match Func.get_signature_checked depth func with
+    | none => Subst.exhausted
+    | some signature => pure (some signature)
+
+/-- Checked signature lookup by name for value matching. -/
+def find_func_signature_opt_checked' (depth : Nat) (ctx : t) (fid : String) :
+    Subst.Checked (Option (List tparam × List typ × typ)) :=
+  find_func_signature_opt_checked depth ctx (mkPhrase fid)
+
+/-- Checked required signature lookup: missing functions are hard errors;
+exhaustion remains divergence. -/
+def find_func_signature_checked (depth : Nat) (ctx : t) (fid : Lang.Il.id) :
+    backtrack (List tparam × List typ × typ) :=
+  match (find_func_signature_opt_checked depth ctx fid).run with
+  | none => Eval.diverge
+  | some (.error _) => throw .err
+  | some (.ok none) => back_undef fid.at "function" fid.it
+  | some (.ok (some signature)) => pure signature
+
 /-- Mirrors `bound_func`. -/
 def bound_func (ctx : t) (fid : Lang.Il.id) : Bool := (find_func_opt ctx fid).isSome
 

@@ -16,6 +16,7 @@ import P4SpecTecTest.StateRefinement
 import P4SpecTecTest.StateGeneratedRefinement
 import P4SpecTecTest.RecursivePrefix
 import P4SpecTecTest.StateRules
+import P4SpecTecTest.TypeRuntime
 import P4SpecTecTest.StateProps
 
 /-!

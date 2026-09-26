@@ -105,4 +105,72 @@ def subst_params (theta : theta) (fuel : Nat) : List param → List param
 
 end
 
+/-! Checked entry points for the interpreter. The existing total API is
+retained for generated proof compatibility while its callers are migrated.
+`none` means fuel exhaustion, not a successful identity substitution. -/
+
+/-- A type-runtime computation: upstream error or finite-fuel exhaustion
+remain distinguishable from a successful value. -/
+abbrev Checked (α : Type) := ExceptT String Option α
+
+/-- Explicit finite-fuel exhaustion in a checked type-runtime computation. -/
+def exhausted {α : Type} : Checked α := ExceptT.mk none
+
+/-- Checked `TIdMap.of_lists`: arity mismatch is an error and the last
+binding wins, as upstream's left fold of `Map.add` requires. -/
+def of_lists_checked (tparams : List tparam) (typs : List Typ.t) : Checked theta :=
+  if tparams.length != typs.length then throw "List.fold_left2"
+  else pure (((tparams.map (·.it)).zip typs).reverse)
+
+mutual
+
+/-- Checked `subst_typ_inner`: reject higher-order substitution and never
+return the input as a zero-fuel fallback. Nonempty substitution through
+`FuncT` is explicitly unsupported until type-fresh state is modeled. -/
+def subst_typ_inner_checked (theta : theta) : Nat → typ → Checked typ
+  | 0, _ => exhausted
+  | fuel + 1, typ => do
+    match typ.it with
+    | .BoolT | .NumT _ | .TextT => pure typ
+    | .VarT tid targs =>
+      match theta.lookup tid.it with
+      | some replacement =>
+        if targs.isEmpty then pure replacement
+        else throw "higher-order substitution is disallowed"
+      | none =>
+        pure { typ with it := .VarT tid (← subst_typs_inner_checked theta fuel targs) }
+    | .TupleT typs =>
+      pure { typ with it := .TupleT (← subst_typs_inner_checked theta fuel typs) }
+    | .IterT inner iter =>
+      pure { typ with it := .IterT (← subst_typ_inner_checked theta fuel inner) iter }
+    | .FuncT _ _ _ =>
+      throw "function-type substitution requires type-fresh state"
+
+/-- Checked `subst_typs_inner`. -/
+def subst_typs_inner_checked (theta : theta) (fuel : Nat) : List typ → Checked (List typ)
+  | [] => pure []
+  | t :: ts => do
+    let head ← subst_typ_inner_checked theta fuel t
+    let tail ← subst_typs_inner_checked theta fuel ts
+    pure (head :: tail)
+
+end
+
+/-- Checked `subst_typ`, preserving upstream's empty-substitution shortcut. -/
+def subst_typ_checked (fuel : Nat) (theta : theta) (typ : typ) : Checked Typ.t :=
+  if theta.isEmpty then pure typ else subst_typ_inner_checked theta fuel typ
+
+/-- Checked `subst_typs`, preserving upstream's empty-substitution shortcut. -/
+def subst_typs_checked (fuel : Nat) (theta : theta) (typs : List typ) :
+    Checked (List typ) :=
+  if theta.isEmpty then pure typs else subst_typs_inner_checked theta fuel typs
+
+/-- Checked substitution of notation arguments, preserving its atom tree. -/
+def subst_nottyp_checked (fuel : Nat) (theta : theta) (n : nottyp) : Checked nottyp := do
+  if theta.isEmpty then return n
+  let args ← subst_typs_inner_checked theta fuel (Domain.Mixfix.args n.it)
+  match Domain.Mixfix.fill (Domain.Mixfix.to_mixop n.it) args with
+  | some tree => pure { n with it := tree }
+  | none => throw "notation arity mismatch"
+
 end P4SpecTec.Runtime.Type.Subst

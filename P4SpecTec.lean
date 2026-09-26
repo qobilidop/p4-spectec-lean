@@ -55,6 +55,8 @@ import P4SpecTec.Refine.Value
 import P4SpecTec.Runtime.Dynamic.Var
 import P4SpecTec.Runtime.DynamicAl.Func
 import P4SpecTec.Runtime.DynamicAl.Rel
+import P4SpecTec.Runtime.Type.Equiv
+import P4SpecTec.Runtime.Type.Expand
 import P4SpecTec.Runtime.Type.Subst
 import P4SpecTec.Runtime.Type.Typ
 import P4SpecTec.Runtime.Type.Typdef
