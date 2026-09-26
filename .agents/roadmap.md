@@ -24,23 +24,17 @@ Broader M3 remains paused; choose a bounded scope with the user before starting.
 
 The next major milestone is
 [complete Nano-P4 support and certification](../docs/design.md#9-nano-p4-scope-and-acceptance).
-The design owns acceptance criteria; these are implementation stages, not
-new execution authorization. Both core semantics and target composition must
-close. Broader full-P4 M3 remains paused.
+The design owns acceptance criteria; the
+[implementation plan](notes/nano-certification.md) owns concrete deliverables,
+dependencies and exit checks. Neither starts implementation. Both core semantics
+and target composition must close. Broader full-P4 M3 remains paused.
 
-1. Build the complete obligation inventory and investigate reverse-proof
-   composition and the known Nano target representation/ABI boundaries.
-2. Certify a meaningful execution path in both directions with its dependency
-   closure, using reusable support; include an actual relation certificate.
-3. Extend to every definition and source representation in the Nano export,
-   discharging builtin contracts and actual initialization assumptions.
-4. Integrate the Nano target, discharge extern and observation contracts, and
-   connect loading and packet execution to the whole-program consumer proof.
-5. Close the completion checker, full-corpus replay, boundary mutations and
-   review evidence required by the design.
-
-Investigate the target blockers early even if target integration lands later;
-do not postpone a feasibility question behind helper-proof counts.
+The plan proceeds from the complete obligation inventory (N0), through early
+reverse-proof/target/printing feasibility probes (N1), reusable contracts (N2),
+full core coverage (N3), target composition (N4), the whole-program proof (N5),
+and release evidence (N6). Target and consumer work begin alongside core work;
+their integration exits depend on checked core contracts. Start with N0 and
+the bounded N1 probes, not disconnected helper-proof counts.
 
 ## Candidate next work
 

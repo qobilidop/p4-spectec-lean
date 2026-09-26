@@ -30,6 +30,7 @@ Documentation is split by purpose and audience:
 | `docs/performance.md` | measurement interpretation and reproduction; snapshots under `docs/performance/` |
 | `docs/related-work.md` | related work on generated semantics, certification and P4 verification |
 | `.agents/notes/compiler-certification.md` | retained certification rationale and advisory design questions |
+| `.agents/notes/nano-certification.md` | Nano-P4 completion plan, dependencies and implementation exit checks |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
 | `.agents/decisions.md` | current cross-cutting choices, reasons and revisit points |
 | `.agents/roadmap.md` | implementation milestones, paused work and backlog |
