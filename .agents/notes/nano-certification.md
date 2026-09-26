@@ -311,6 +311,48 @@ passed with actual exit 0, no skips (session 77137,
 `.artifacts/nano-n0-realize-gate.log`), including the pending reverse calculus.
 Final evidence text receives text/whitespace checks. Remote CI remains pending.
 
+## N1 reverse calculus checkpoint
+
+`Refine/Realize.lean` introduces `EventuallyRuns` (one outcome at every
+sufficiently large fuel) and `Realizes` (each terminating generated outcome
+has a related eventual reference witness). This entails the design's finite
+existential witness and supports a common fuel bound for sibling computations.
+It does not assume interpreter fuel monotonicity. Rules cover fixed overhead,
+bind, ordered alternatives, negation and ordered list traversal, including
+mismatch, hard errors and a failing prefix before a diverging later element.
+
+Author: Astra `/root/review_nano_scope`. Independent read-only review: root
+Astra, who inspected all statements, proofs and fixtures after authorship.
+No findings. Reviewed library blob `28a9cc8e3a55aa548366321c3888a2898a841acb`;
+test blob `f4e6936f0c8eee80c66cc3704820b2a555494294`.
+Sixteen library theorems and fifteen named test theorems carry exact axiom
+audits. Root wired the library/test root imports and independently ran
+`nix develop -c lake build --wfail P4SpecTec.Refine.Realize P4SpecTecTest.Realize`
+(exit 0, session 94233). The full N0/N1 gate above includes these modules and
+passed. This review certifies neither an actual Nano reverse theorem nor
+stateful/printing correspondence; the actual recursive proof remains active.
+
+Fuel investigation, bounded scratch evidence: under `guard=true`, nested Nano
+parenthesized expressions at depths 1000/1100 exhaust the internal match fuel
+1000 and succeed at 2000. This is outside the agreed guard-disabled profile.
+Under `guard=false`, actual quoted `repeat_` succeeded in all 24 runs with type
+nesting 0/999/1000/1100, repeat counts 0/1/3, and outer fuel 512/2000. Its recursive
+type argument is bare `X`, so substitution returns the replacement directly.
+All five recursive subtype checks in decoded Nano target primitive Nat; the
+other 209 checks are outer-constructor checks. These observations found no
+in-profile counterexample and do not establish general fuel safety. Scratch
+probes remain uncommitted while the corresponding proof obligation is open.
+
+Target analysis confirms that all generated `value` encodings are outer
+`CaseV`, whereas successful extract returns bare `ExternV`; canonicalization
+preserves that distinction. A runtime-only raw-extern `value` constructor is a
+candidate, not an adopted solution. It would need encoding/decoding and source
+membership distinctions, plus audits of same-static-type subtype shortcuts,
+ignored subchecks and constructor refutability. It must propagate through
+`Copy_out` and `Lvalue_write` to actual receiver reuse. It must not broaden
+source `packetValue`/`objectValue` or repair the value with a `PACKET` wrapper.
+The concrete continuation and printing probes are still active.
+
 ## Plan review and validation
 
 The plan is grounded in the current generated dependency graph, retained target

@@ -1,5 +1,6 @@
 import P4SpecTecTest.Smoke
 import P4SpecTecTest.Coverage
+import P4SpecTecTest.Realize
 import P4SpecTecTest.NanoTarget
 import P4SpecTecTest.Decode
 import P4SpecTecTest.Builtins

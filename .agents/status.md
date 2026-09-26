@@ -36,7 +36,12 @@ root integrates and reviews. No shared emitter changes are underway.
   passed with actual exit 0, no skips (session 77137,
   `.artifacts/nano-n0-realize-gate.log`), including the pending reusable reverse
   calculus. Final documentation evidence edits receive text/whitespace checks.
-  Publication and exact-revision remote CI remain pending.
+  Inventory commit `35bda29` is local. Publication and exact-revision remote CI
+  remain pending.
+- N1 foundation: reusable eventual reverse-realization rules and discriminating
+  fixtures are reviewed independently by root; focused warning-failing build
+  and the same full gate pass. Exact axiom audits cover 31 named theorems.
+  These are proof infrastructure, not new generated Nano certificates.
 - Planning checkpoint: dependency closures were recomputed from current
   coverage metadata; proof and target boundaries were inspected read-only.
   Independent plan review found no blocking issue; a wording clarification
