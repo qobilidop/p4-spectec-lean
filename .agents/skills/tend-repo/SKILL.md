@@ -50,9 +50,12 @@ silently overstating coverage. Use existing checks before adding new ones.
 
 ## Compact working state
 
-Inventory `.agents/` explicitly, including hidden files. Treat `skills/` as
-maintained tooling, not disposable session notes. For each note or review,
-identify what is still needed to resume work before deciding its fate.
+Inventory `.agents/` explicitly, including hidden files. Map useful content
+to its topic and owning document before moving files; consolidate first,
+rather than relocating an accumulated archive. Follow AGENTS for organization.
+Treat skills and machine-consumed data as maintained artifacts, not disposable
+notes. Check consumers before moving data; a move without a navigation benefit
+need not be part of a document refactor.
 
 - Keep current status short: active scope, verified checkpoint, open
   obligations, exact validation evidence and the next concrete step.
@@ -62,6 +65,8 @@ identify what is still needed to resume work before deciding its fate.
 - Preserve unresolved review findings, failed experiments that constrain
   future choices, paused work and recovery instructions. Carry their useful
   content into a retained file before removing a redundant source.
+  Keep reviewed revisions, reviewer independence limits and later resolutions
+  distinct. Historical recovery paths must be labeled as such, not live links.
 - Promote durable artifact knowledge to its existing owner in `docs/` or
   beside code. Keep public documentation independent of `.agents/` links.
 - Remove completed notes/reviews only after preserving their useful content
@@ -84,7 +89,8 @@ as evidence. Prefer the smallest lasting improvement:
 | Mechanically detectable regression | Existing test or validation script |
 | Stable cross-cutting repository rule | Concise update to `AGENTS.md` |
 | Lean-specific implementation trap | `docs/lean-pitfalls.md` |
-| Choice, rationale and revisit condition | `.agents/decisions.md` |
+| Cross-cutting choice and reason | `.agents/decisions.md` |
+| Detailed topic choice and revisit condition | Its working note |
 | Current obligation or future work | Status or roadmap |
 | Artifact behavior, guarantee or usage | Owning public document or code |
 | A demonstrated weakness in this procedure | This skill |
