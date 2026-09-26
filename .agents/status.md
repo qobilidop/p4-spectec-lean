@@ -35,8 +35,9 @@ suite. Log: `.artifacts/corpus-shard-full-gate.log`. Published as PR #24 at
 Nano PR #23) is reconciled here. Only status conflicted; independent review
 confirms both source sets unchanged and the union gate retained. Sixteen
 shard plus ten Nano contracts and shell syntax pass. Review:
-`m3c-shards-nano-reconcile.md`. The combined full gate is running;
-final-head CI remains required before merging. The incoming Lake file
+`m3c-shards-nano-reconcile.md`. The combined full gate exited 0 without
+skips; its actual exit is recorded in `.artifacts/corpus-nano-full-gate.exit`.
+Final-head CI remains required before merging. The incoming Lake file
 changes the run identity; retain prior observations without promoting them
 to exact-resume evidence for this new revision.
 Evidence, bounds and commands: `.agents/notes/full-p4-corpus-shards.md`.

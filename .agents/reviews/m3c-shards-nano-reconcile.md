@@ -47,3 +47,17 @@ Independent pinned-shell commands and actual exits:
 
 Root owns the actual combined full-gate result and final-head remote CI;
 neither is claimed by this focused reconciliation review.
+
+## Final local validation status check
+
+Root's combined gate subsequently completed. Reviewer independently read
+the final status-only working diff and durable local evidence, without
+rerunning the gate. No findings: `.artifacts/corpus-nano-full-gate.exit` is
+exactly `0`; the matching log contains sixteen shard/ten Nano offline tests,
+both 78-program differential legs with 48 output contexts and no disagreement,
+342 matching quotations, 24 direct Nano observations, seven matching packet
+events/five mutations, the 1,689-definition census and final
+`[check] all checks passed`. No skipped/failed gate markers occur.
+Status correctly records this local result while keeping final-head remote
+CI owed and preserving the changed-Lake/run-identity limitation. Root owns
+the actual gate process/exit recording; this is status/evidence verification.
