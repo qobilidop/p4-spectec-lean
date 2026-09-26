@@ -40,6 +40,7 @@ for path in \
   exports/p4.al.json.gz exports/p4.al.json.sha256 \
   exports/programs/nano-p4 scripts/spec-snapshot.py test/snapshot/test_snapshot.py \
   scripts/check-file-sizes.py test/snapshot/test_file_sizes.py test/diff/test_json_boundary.py \
+  scripts/check-text.py scripts/test-check-text.py scripts/test-build-upstream.py \
   .agents/notes/p4-census.json P4SpecTecTest/Quote/Main.lean P4SpecTecTest/Census/Main.lean \
   test/print/observed.json test/print/run.py test/print/probe.ml \
   P4SpecTecTest/Print/Main.lean P4SpecTecTest/Text/Main.lean \
@@ -92,6 +93,8 @@ if grep -rnE "$link" "$root/docs" >/dev/null 2>&1; then
 fi
 
 "$root/scripts/check-text.sh" || fail=1
+python3 "$root/scripts/test-check-text.py" || fail=1
+python3 "$root/scripts/test-build-upstream.py" || fail=1
 python3 "$root/scripts/check-file-sizes.py" || fail=1
 python3 "$root/test/snapshot/test_file_sizes.py" || fail=1
 "$root/scripts/check-imports.sh" P4SpecTec P4SpecTecTest P4Lib NanoP4Spec P4Spec NanoP4Proofs || fail=1

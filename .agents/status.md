@@ -7,8 +7,9 @@ Current state only. Updated 2026-09-26.
 M1/M2 and M3A are closed. Broader M3 is incomplete and paused. The bounded
 Nano field-update consumer and repeatable certification milestone are complete.
 The user approved the README, terminology note and Related Work, then requested
-a whole-repository review, refinement, cleanup and commits. That checkpoint is
-active; no new semantics coverage or example-library refactor is included.
+a whole-repository review, refinement, cleanup and commits. The review and
+refinement are complete; no new semantics coverage or example-library refactor
+is included.
 
 The approved later refactor remains separate: rename the consumer library to
 `ExampleProofs`, with its case and colocated tests in
@@ -63,14 +64,17 @@ retaining it explicitly in the full gate and enforce library/consumer boundaries
   All 16 new tooling regressions passed. Shell syntax, staged whitespace and
   13 public-document local links also passed. Independent tooling and final
   documentation reviews have no unresolved correctness findings.
-- Commit inspection is pending. No push is requested. Documentation and tooling
-  fixes will be separate logical commits with active-session coauthor trailers.
+- Documentation is committed as `4f6c504`. The follow-up commit, "Fail closed
+  in repository validation", contains the tooling fixes and this handoff.
+  Both are local on `docs/repository-review`, with active-session coauthor
+  trailers. No push or remote CI run is included in this checkpoint.
 
 ## Archived, not completed
 
-One primary worktree and only local/remote main remain. The roughly 7 MB local
-Git bundle preserves retired committed experiments; old ignored artifacts were
-intentionally discarded. Recovery instructions: `.agents/notes/archive.md`.
+One primary worktree remains. Alongside local/remote main, the local
+`docs/repository-review` branch holds this checkpoint. The roughly 7 MB local
+Git bundle preserves retired committed experiments; old ignored artifacts
+were intentionally discarded. Recovery instructions: `.agents/notes/archive.md`.
 
 Production aggregate `925fdbf`, source integration `1b2ac70`, still fails the
 second full-P4 casting proof at the unchanged 4M heartbeat limit. Archiving is
@@ -81,9 +85,11 @@ any new run needs fresh scope and evidence, not an exact-resume claim.
 
 ## Workflow and next step
 
-Direct commits to main are approved for normal work; feature branches are
-optional and PRs require an explicit request. Independent review, a full local
-gate before pushing and checking remote CI after a push remain required.
+The checked-in workflow describes direct commits, while the user-provided
+instructions for this session specify PRs for substantive changes. This
+checkpoint uses a local feature branch and does not publish or merge it.
+Independent review and the full local gate are complete; remote validation
+remains necessary if publication is subsequently requested.
 
-Finish validation and local commits for this review, then hand off. Do not
-resume broader M3 or the separate example-library refactor in this checkpoint.
+Hand off the local commits. Do not resume broader M3 or the separate
+example-library refactor in this checkpoint.

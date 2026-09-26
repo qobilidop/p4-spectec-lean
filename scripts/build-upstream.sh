@@ -27,7 +27,9 @@ if ! command -v dune >/dev/null 2>&1; then
 fi
 # Upstream's Makefile removes stale generated parser files before building.
 rm -f "$up/p4spec/lib/parsing/parser.ml" "$up/p4spec/lib/parsing/parser.mli"
-(cd "$up/p4spec" && dune build bin/main.exe bin/nano.exe 2>&1 | grep -v -e trigraph -e '^ *[0-9]* |' -e '^ *|' -e 'warning generated' || true)
+# A failed rebuild must not accept executables left by an earlier build.
+# Keep Dune's diagnostics and exit status intact.
+dune build --root "$up" p4spec/bin/main.exe p4spec/bin/nano.exe
 for exe in main nano; do
   [ -x "$up/_build/default/p4spec/bin/$exe.exe" ] || { echo "[build-upstream] $exe.exe missing" >&2; exit 1; }
 done
