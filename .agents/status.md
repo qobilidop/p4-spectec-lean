@@ -42,7 +42,12 @@ PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
 now has an all-fuel exact-state refinement boundary, with explicit disabled
 guards and declaration lookup hypotheses. Its full local gate and independent
 review passed. That checkpoint is now merged into this integration branch;
-the combined revision needs a fresh full gate before the next push.
+the combined revision, including the actual-emitted allocator refinement
+fixture, passed a fresh full `scripts/check.sh` (exit 0, no skips).
+The fixture independently passed a 75-job build and direct Lean elaboration;
+review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. Published as PR #17;
+remote CI must pass on its final revision before merging. Recursive proof
+integration and production enablement continue separately.
 
 ## Merged checkpoint: pinned corpus preparation
 
