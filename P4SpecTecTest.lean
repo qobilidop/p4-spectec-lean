@@ -14,6 +14,7 @@ import P4SpecTecTest.StateCalc
 import P4SpecTecTest.StateInterp
 import P4SpecTecTest.RecursivePrefix
 import P4SpecTecTest.StateRules
+import P4SpecTecTest.StateProps
 
 /-!
 # P4SpecTecTest

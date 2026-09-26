@@ -13,12 +13,34 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
 ## Active checkpoint: generator integration
 
-The executable checkpoint `e0d7219` is being integrated on
-`m3b-generator-integration`. The three reproduced review findings are
-fixed; the root follow-up build exited 0 (66 jobs). Bounded structural
-proof checkpoints are next. Production stateful generation remains
-guarded until recursive run-soundness is ready. Full integration gate,
-updated capability census and remote CI remain owed.
+Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional
+structural iteration now emits auxiliary predicates with explicit captured
+indices and proves successful runs using ordered chains. Nested, joint,
+shadowed and pattern-bound captures are exercised by actual-emission tests.
+The build `lake build --wfail P4SpecTec P4SpecTecTest.StateProps` in the pinned
+Nix shell exited 0 (72 jobs), as did text and diff-whitespace checks.
+The isolated checkpoint's focused results were independently rechecked
+in the integration below; they did not alone authorize a push. See
+`.agents/notes/state-props.md`. Next: independent review, then recursive SCC
+all-outcome realization and structural soundness; production remains disabled.
+
+The executable checkpoint `e0d7219` and structural proof checkpoints
+`381dd6a`, `25ad4f2`, `815b671` are integrated on
+`m3b-generator-integration`. The reproduced review findings are fixed.
+Root independently checked the integrated 78-job focused build and direct
+StateProps re-elaboration (both exit 0); reviews are
+`.agents/reviews/m3b-state-codegen-followup.md` and
+`.agents/reviews/m3b-state-iteration.md`. Production stateful generation
+remains guarded until recursive run-soundness is integrated. The refreshed
+census reports zero executable emission failures and 256 explicit pure-Prop
+rejections, with no generated stateful refinement candidates. This records
+text emission, not full-P4 elaboration. The integrated full
+`scripts/check.sh` exited 0 with no skips, including both Nano differential
+legs, all existing oracles and the refreshed census. Remote CI remains owed.
+
+PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
+now has an all-fuel exact-state refinement boundary. That independent
+checkpoint is not yet merged into this integration branch.
 
 ## Merged checkpoint: pinned corpus preparation
 
