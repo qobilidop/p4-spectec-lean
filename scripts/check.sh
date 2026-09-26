@@ -63,7 +63,7 @@ for path in \
   P4SpecTecTest/Diff/P4Corpus/Main.lean test/p4-corpus/README.md \
   test/p4-corpus/inventory.py test/p4-corpus/manifest.json test/p4-corpus/test_inventory.py \
   test/p4-corpus/probe.ml test/p4-corpus/contract.py test/p4-corpus/run.py \
-  test/p4-corpus/test_contract.py \
+  test/p4-corpus/test_contract.py test/p4-corpus/shard.py test/p4-corpus/test_shard.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
   test/diff/run.py .github/workflows/ci.yml
 do
@@ -100,6 +100,8 @@ python3 "$root/test/p4-corpus/test_inventory.py" \
   || { say "P4 corpus inventory tests failed"; fail=1; }
 python3 "$root/test/p4-corpus/test_contract.py" \
   || { say "P4 corpus v2 contract tests failed"; fail=1; }
+python3 "$root/test/p4-corpus/test_shard.py" \
+  || { say "P4 corpus shard/resume contract tests failed"; fail=1; }
 for name in nano-p4 p4; do
   python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }

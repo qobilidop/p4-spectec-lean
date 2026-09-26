@@ -79,3 +79,35 @@ The report is an execution identity, not yet a resume implementation.
 This pilot is only the original four cases, six AL runs, one syntax-only
 case and sixteen actual Lean mutations. It is not a small corpus shard,
 whole-corpus coverage, generated-code replay or packet-target validation.
+
+## Bounded shard and durable resume
+
+`shard.py` is separate from the original-fixture pilot. It selects canonical
+candidate index modulo shard count, revalidates pins/source/snapshot, rebuilds
+the full linked upstream target and Lean worker, and records a strict identity
+including actual executable bytes. An additive optional helper workspace key
+keeps probe compilation paths stable; the default v1 PID recipe is unchanged.
+Only shard 0 of 317 (four candidates) has been exercised in this tranche.
+
+```sh
+nix develop --command python3 test/p4-corpus/test_shard.py
+nix develop .#upstream --command python3 test/p4-corpus/shard.py --upstream <absolute-patched-upstream> --p4c <absolute-clean-pinned-p4c> --shard 0 --shards 317
+```
+
+The same command resumes only the exact execution identity. A single-writer
+lock protects descriptor-relative, known-name artifact access. Symlinks,
+hardlinks, unknown paths and references outside the run directory are rejected.
+Atomic file and parent-directory fsync commit each artifact/terminal record.
+Resume validates every completed record and bounded gzip observation before
+skipping it. Known interrupted writes/orphans are recoverably quarantined;
+malformed completed artifacts fail loudly, never silently rerun. Terminal
+harness failures without an observation have a separate explicit schema.
+
+Resource failures remain denominator attempts, never matches. Syntax-only
+records do not count as AL execution; unsupported Type.Fresh and exhaustion
+stay distinct. CLI/worker byte metrics unavailable through existing helpers
+are null. RSS is cumulative terminated-child high-water in platform units,
+not per-case memory or a hard limit. Completed harness/run failures are not
+automatically retried under the same identity. SHA-256 identifies accidental
+corruption/provenance changes, not adversarial coordinated rewriting.
+The four-case result is not whole-corpus, packet-target or generated coverage.
