@@ -11,11 +11,16 @@ correspondence on a declared scalar source domain plus distinct-field
 commutation transferred to the reference. This example does not complete M3.
 No correctness gate is waived.
 
-## Completed field-update implementation
+## Published field-update milestone
 
 Worktree `/Users/qobilidop/my/work/p4-spectec-lean-field-update`, branch
 `nano-field-update`, based on published PR #26 merge `fdb8a8d`. The primary
 worktree's uncommitted design-review changes are untouched.
+
+PR #27 merged as `a492c60`, preserving implementation commit `4612534`.
+Its final-head remote Gate `36224020037` passed in 5m38s, including both
+upstream pin checks. The isolated worktree is fast-forwarded to that merge;
+the primary worktree was not switched or updated.
 
 Agreed layout: handwritten `NanoP4Proofs/FieldUpdate/` with checked
 `Example.lean`, root library, and normal build/import gates. No separate
@@ -44,15 +49,17 @@ Evidence so far, in the pinned Nix shell:
 - Final complete `scripts/check.sh`: actual exit 0, no skips,
   recorded in `.artifacts/field-update-final-gate.exit` (session 33622). Both
   78-program differential legs and all 48 output contexts agree.
+- The postmerge status handoff also passed the complete gate: actual exit 0,
+  no skips, `.artifacts/field-update-handoff-gate.exit` (session 86226).
 - Independent representation, environment, semantics, correspondence,
   final consumer and wiring reviews have no findings. Reports are
   `.agents/reviews/field-update-*.md`.
 
-Implementation, independent review and final local validation are complete.
-Publication and final-head remote CI remain owed. No further implementation is
-active; finish publication, then stop at this checkpoint. Broader M3 stays paused.
+Implementation, independent review, final local validation and publication are
+complete. No work is active. Stop at this checkpoint and ask for new scope
+before starting another milestone. Broader M3 stays paused.
 
-## Published baseline
+## Prior published baseline
 
 Main `fdb8a8d` contains reviewed, locally gated and remotely green bounded
 checkpoints through PR #26: byte-preserving text and state foundations,
