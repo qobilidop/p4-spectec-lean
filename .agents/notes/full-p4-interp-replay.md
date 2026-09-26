@@ -5,8 +5,22 @@ the reviewed implementation unchanged. The ordinary gate now requires its
 files, runs six offline contract tests and builds `p4-interp-replay`; real
 upstream/p4c replay remains explicitly provisioned. Integrated full
 `scripts/check.sh` exited 0 with no skips. Independent gate review passed;
-remote CI remains required. Root independently reran the frozen end-to-end
+the initial remote Gate `36209104840` passed on `94fd99e` in 4m53s.
+Root independently reran the frozen end-to-end
 replay with six relation matches and nine mutation rejections (exit 0).
+
+After PR #19 merged as `c974c3d`, its bounded refinement changes merged
+without source conflicts; only status documentation needed reconciliation.
+Replay executable/driver/tests, Lake configuration and gate script remain
+byte-identical to `94fd99e`. The repeated frozen full gate exited 0 with no
+skips, including twelve oracle and six replay offline tests:
+
+```sh
+nix develop /Users/qobilidop/my/work/p4-spectec-lean --command /Users/qobilidop/my/work/p4-spectec-lean-replay-publish/scripts/check.sh
+```
+
+Final merged-head remote CI remains required before landing. No additional
+real upstream replay was run for this source-unchanged reconciliation.
 
 2026-09-25 checkpoint on `m3c-p4-interp-replay`, based on oracle head
 `997d0ab`. This is an interpreter-fidelity slice, not a full corpus result,

@@ -1,5 +1,21 @@
 # Decisions
 
+## Bounded generated state refinement (2026-09-25)
+
+Generated state refinement uses separate `StateValidate` eligibility and
+`state_refine_al` automation, while reusing pure value/context normalization.
+It preserves the existing `StateRefines` contract: every terminating
+interpreter outcome, exact final state, both failure tags, and arbitrary fuel.
+The first slice admits scalar first-order functions, direct fresh allocation,
+variable binding, if/debug premises, ordered fallback, and literal natural
+division; other constructs and recursive groups remain explicit exclusions.
+Production selection must propagate missing callee contracts through the
+dependency graph. Missing contracts fail loudly rather than unfolding callees
+without a bound or emitting success-only theorems. Confidence: high for the
+audited emitted fixtures; revisit eligibility and normalization performance
+when applying it to full-P4 generated definitions. This is an increment, not
+closure of the full stateful refinement obligation.
+
 The decisions in force, grouped by topic, each with its reason and the
 date it was made. A register, not a diary: a superseded entry is
 rewritten in place with the new date and reason; an entry whose subject

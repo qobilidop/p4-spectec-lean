@@ -13,6 +13,33 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
 ## Active checkpoint: generator integration
 
+Bounded refinement PR branch `m3c-state-refinement-pr`, based on merged main
+`b08ab8e`, integrates reviewed implementation `de73566`: new
+`Codegen.StateValidate` and `state_refine_al` emit and prove
+exact all-outcome state contracts for first-order scalar functions and the
+actual fresh builtin. Actual-emission fixtures cover fresh dispatch, consumed
+rejected prefixes, boolean selection, nested function calls, scalar aliases,
+debug allocation, final mismatch, and a hard error that prevents fallback.
+The pinned `lake build --wfail P4SpecTec P4SpecTecTest.StateValidate` exited 0
+(78 jobs; final fixture elaboration 37 seconds); import completeness, text,
+and diff-whitespace checks exited 0. Root independently read the complete
+implementation and directly re-elaborated the emitted fixture (exit 0), with
+no correctness findings; `.agents/reviews/m3c-state-refinement.md` records
+the review and the required production dependency/exclusion handling.
+The full pinned `scripts/check.sh` on this PR branch exited 0 with no skips,
+including both Nano differential legs, quotation/oracle checks and the full-P4
+census. PR #19's initial remote Gate passed on `c54e4eb` (run `36207315308`,
+5m25s). After PR #18 merged as `ea9533d`, its oracle source/gate changes
+merged cleanly here; only this status document conflicted. The bounded
+refinement source remains byte-identical to `c54e4eb`. Root independently
+reviewed the status resolution; its two documentation corrections are fixed.
+The merged source's frozen full `scripts/check.sh` exited 0 with no skips,
+including all twelve oracle contract tests and both Nano differential legs.
+Final remote Gate `36209122762` passed on `05769b8` in 3m40s, including
+both branch-pin checks; PR #19 merged as `c974c3d`.
+Production Emit integration is explicitly out of this PR. See
+`.agents/notes/state-refinement.md`.
+
 Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional
 structural iteration now emits auxiliary predicates with explicit captured
 indices and proves successful runs using ordered chains. Nested, joint,
@@ -61,7 +88,13 @@ runs its six offline contract tests and builds the Lean runner; it does not
 fetch p4c or run the upstream-dependent real replay. The integrated full
 `scripts/check.sh` exited 0 with no skips; independent gate-plumbing review
 also passed, including six offline tests and shell syntax (exit 0 each).
-Remote CI remains pending. Reviews:
+PR #20's initial remote Gate `36209104840` passed on `94fd99e` in 4m53s.
+Main `c974c3d` merged without source conflicts; only this status document
+needed reconciliation. Replay implementation/tests remain byte-identical
+to `94fd99e`. The repeated frozen full local `scripts/check.sh` exited 0
+with no skips, including twelve oracle and six replay offline tests. Final
+remote CI remains required before landing. Root independently reviewed the
+status resolution with no findings. Reviews:
 `.agents/reviews/m3c-p4-interpreter-replay.md` and
 `.agents/reviews/m3c-replay-gate.md`.
 
@@ -82,8 +115,9 @@ Remote CI remains pending. Reviews:
   conflict resolution against current main `b08ab8e`; source merged cleanly.
   The merged revision's frozen full gate exited 0 with no skips, including
   all twelve offline oracle tests and the updated generator census. Final
-  remote Gate `36207757309` passed on `3aa9bab` in 16m27s; PR #18 merged as
-  `ea9533d`. The merge body's newline escaping was malformed; attribution
+  remote Gate `36207757309` passed on `3aa9bab` in 16m27s, including both
+  upstream branch-pin checks; PR #18 merged as `ea9533d`.
+  The merge body's newline escaping was malformed; attribution
   text is present but not a conventional separate trailer. Published history
   is preserved, and subsequent messages use literal newlines.
 - This is an upstream-side oracle only, not Lean replay, a corpus denominator
@@ -176,7 +210,7 @@ Remote CI remains pending. Reviews:
   explicitly outside Lean AL execution. Six replay contract tests and
   focused Lean build exit 0. A follow-up also rejects nine actual Lean-side
   mutations and uniformly checks syntax mode/guard and signed counter range;
-  independent review of that follow-up and full gate remain.
+  independent follow-up review and full gate passed before publication.
   Note: `.agents/notes/full-p4-interp-replay.md`.
 - Next: checkpoint proof fixtures; independently review and integrate
   executable/proof generators; establish stateful refinement; regenerate

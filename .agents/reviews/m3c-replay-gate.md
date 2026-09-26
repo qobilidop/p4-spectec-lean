@@ -24,3 +24,16 @@ nix develop /Users/qobilidop/my/work/p4-spectec-lean --command bash -n /Users/qo
 
 The first command ran six tests. The final frozen full gate and remote CI
 remain the publication owner's validation obligations.
+
+## Main reconciliation evidence
+
+The original publication `94fd99e` passed its frozen full local gate and
+remote Gate `36209104840` (4m53s). After PR #19 merged as `c974c3d`, root
+independently reviewed the status-only conflict resolution with no findings.
+Replay executable, driver, offline tests, Lake configuration and gate script
+remain byte-identical to `94fd99e`; no implementation changes were made.
+The reconciling agent observed the repeated frozen full local gate exit 0
+without skips, including twelve oracle and six replay offline tests. The
+exact command is recorded in `.agents/notes/full-p4-interp-replay.md`.
+Final merged-head remote CI remains owed; real upstream replay was not
+repeated for this source-unchanged merge.
