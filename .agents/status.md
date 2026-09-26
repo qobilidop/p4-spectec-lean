@@ -30,13 +30,74 @@ reviewed CI wiring requires both new files and runs sixteen offline tests
 unconditionally, with no real shard/network in CI. Authorized full local
 gate process exited 0 without skips, including both 78-program Nano legs,
 48 output contexts, 342 quotations, existing oracles/census and new offline
-suite. Log: `.artifacts/corpus-shard-full-gate.log`. No scale-up or push;
-root authorized one scoped local checkpoint commit next.
+suite. Log: `.artifacts/corpus-shard-full-gate.log`. Published as PR #24 at
+`2fbe024`; initial remote Gate `36215923313` passed. Main `186d43a` (merged
+Nano PR #23) is reconciled here. Only status conflicted; independent review
+confirms both source sets unchanged and the union gate retained. Sixteen
+shard plus ten Nano contracts and shell syntax pass. Review:
+`m3c-shards-nano-reconcile.md`. The combined full gate is running;
+final-head CI remains required before merging. The incoming Lake file
+changes the run identity; retain prior observations without promoting them
+to exact-resume evidence for this new revision.
 Evidence, bounds and commands: `.agents/notes/full-p4-corpus-shards.md`.
-Next: inspect/stage the reviewed checkpoint and commit with fresh attribution;
-no larger launch before independent review and explicit staged approval.
+Next: independently review reconciliation, run the combined gate and final
+CI. Prepare complete sequential 317-shard execution with retained failures;
+no larger launch until its orchestration/accounting is reviewed.
 
-## Merged checkpoint: corpus inventory and bounded worker
+## Merged checkpoint: bounded dynamic Nano target
+
+Branch `m3d-nano-target` starts at `e31c1e8`, the merged PR #21 baseline.
+The partial Core.Object and NanoSwitch.Pipe ports now implement checked
+packet data operations and dynamic extract with explicit StateEval callbacks.
+Raw ExternV output is preserved; no typed target adapter is provided.
+`lake build --wfail check-nano-target P4SpecTecTest.NanoTarget` passed;
+the new executable matches 24 exact-pin OCaml observations, including
+malformed versus inconsistent JSON and wrapped signed-63-bit indices.
+An initial replay fixture transport rounded the maximum host integer;
+the exact source integer was restored and both request identity and Lean
+replay now pass. Direct OCaml fixture recheck passed all 24 cases. Unit tests also
+cover callback failure state and divergence. Real packet-relation replay
+also passes: six successful NanoSwitch_drive events and one guarded runtime
+failure from upstream-captured contexts, with semantic outputs and exact
+fresh counters. Guarded Lean failure is `.err`; upstream exposes only the
+coarser runtime failure. This is not boot/driver/STF coverage. The real
+replay caught a wrong LOCAL singleton-sequence shape in the initial port;
+the port and both callback assertions now require the pinned Atom shape.
+Five mutation checks pass, including that shape, wrong output/counter,
+one source-header bit, and restored PACKET under guard. The restored wrapper
+is not distinguished by unguarded final outputs; direct-handler coverage
+must remain separate. Ten offline fixture-contract tests pass, including
+strict duplicate keys/nonfinite constants, pins/source hashes and bounded gzip extraction.
+The compressed four-session fixture re-observation passed at the exact pin.
+Focused build, direct replay, packet replay, contract tests, shell syntax,
+explicit new-file line widths and diff-whitespace checks all exited 0.
+Independent semantic replay and gate-wiring reviews are complete with no
+remaining findings in this bounded scope. Root reran ten offline contracts,
+24 Lean/direct OCaml observations, all four exact-pin packet sessions and
+the six-success/one-failure Lean replay with five mutations (all exit 0),
+and independently verified all six source Git-object hashes. Reviews:
+`m3d-nano-primitives.md`, `m3d-nano-packet.md`, `m3d-nano-gate.md`.
+Local reviewed checkpoint `96078a0` is reconciled with published main
+`2c85f1b` (PR #22). Independent review confirms both source sets unchanged,
+the union gate retained and 22 focused contracts plus shell syntax passing.
+Report: `m3d-nano-reconcile.md`. Root's combined full gate on this reconciled
+source exited 0 without skips, including both 78-program Nano legs, 48 output
+contexts, quotation/oracle/census checks and the new packet replay/contracts.
+Actual exit is recorded in `.artifacts/nano-target-full-gate.exit` before
+publication. Final-head remote Gate `36215801356` passed on `65609db`,
+including both upstream pin checks; PR #23 merged as `186d43a`.
+Pinned direct and real-program probes confirm NanoSwitch extract
+returns raw ExternV objectState where the spec declares `value`. Three
+unguarded AL STF cases pass upstream; guarded `field-access` fails after
+that extern result. This cannot be silently repaired by a generated typed
+adapter. Evidence, scope and next steps:
+`.agents/notes/nano-target-boundary.md` and `test/nano-target/README.md`.
+The faithful driver projection is now isolated on `m3d-nano-driver` from
+`96078a0`. Actual upstream driver observations and Lean replay are being
+checked separately; boot/STF remain outside that checkpoint.
+No milestone completion yet.
+
+## Published checkpoint: corpus inventory
 
 Branch `m3c-corpus-replay` is based on main `e31c1e8` after PR #21 merged.
 PR #21's final remote Gate `36210406850` passed on `fed4187` in 5m36s.

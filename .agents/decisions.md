@@ -1,5 +1,28 @@
 # Decisions
 
+## Bounded dynamic Nano target
+
+- **Preserve the pinned raw ExternV boundary; do not restore PACKET.**
+  The pinned Nano handler returns objectState where the Nano relation
+  declares value. A generated typed adapter cannot silently repair this.
+  Port shared packet data operations and the dynamic handler first, and
+  keep typed Nano coverage explicitly excluded. Signed packet record fields
+  and inconsistent lengths retain operation-specific behavior, including
+  OCaml signed-63-bit addition before the short-packet branch. Out-of-host
+  values are separately unsupported, never normalized to empty packets.
+  Confidence high from exact-pin observations and actual AL replay.
+  Revisit on an upstream correction/pin change or a proved contextual
+  representation boundary. (2026-09-25)
+
+- **Keep relation replay distinct from boot/driver/STF support.** The first
+  packet checkpoint replays NanoSwitch_drive from upstream-captured inputs
+  and compares every semantic output plus the fresh counter. Callback fuel
+  and nesting are explicit bounds; failure-kind claims stop at upstream's
+  public failure category. Unguarded final outputs can discard the malformed
+  receiver, so a separate direct-handler and guarded regression remain
+  mandatory. Revisit when the faithful driver and boot paths are ported.
+  (2026-09-25)
+
 ## Bounded generated state refinement (2026-09-25)
 
 Generated state refinement uses separate `StateValidate` eligibility and

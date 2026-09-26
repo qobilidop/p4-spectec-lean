@@ -1,0 +1,486 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "scope": "data-and-dynamic-handler",
+  "cases": [
+    {
+      "request": {
+        "op": "hex",
+        "text": "a5"
+      },
+      "result": {
+        "class": "pass",
+        "value": [
+          true,
+          false,
+          true,
+          false,
+          false,
+          true,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "request": {
+        "op": "hex",
+        "text": "g0"
+      },
+      "result": {
+        "class": "assertion"
+      }
+    },
+    {
+      "request": {
+        "op": "hex",
+        "text": ""
+      },
+      "result": {
+        "class": "pass",
+        "value": []
+      }
+    },
+    {
+      "request": {
+        "op": "bits_string",
+        "bits": [
+          true,
+          false,
+          true
+        ]
+      },
+      "result": {
+        "class": "pass",
+        "value": "A"
+      }
+    },
+    {
+      "request": {
+        "op": "signed",
+        "bits": [
+          true,
+          false,
+          true
+        ]
+      },
+      "result": {
+        "class": "pass",
+        "value": "-3"
+      }
+    },
+    {
+      "request": {
+        "op": "signed",
+        "bits": []
+      },
+      "result": {
+        "class": "invalidArgument"
+      }
+    },
+    {
+      "request": {
+        "op": "unsigned",
+        "bits": []
+      },
+      "result": {
+        "class": "pass",
+        "value": "0"
+      }
+    },
+    {
+      "request": {
+        "op": "int_signed",
+        "value": "-3",
+        "size": 4
+      },
+      "result": {
+        "class": "pass",
+        "value": [
+          true,
+          true,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "request": {
+        "op": "int_unsigned",
+        "value": "18",
+        "size": 4
+      },
+      "result": {
+        "class": "pass",
+        "value": [
+          false,
+          false,
+          true,
+          false
+        ]
+      }
+    },
+    {
+      "request": {
+        "op": "int_unsigned",
+        "value": "-3",
+        "size": 4
+      },
+      "result": {
+        "class": "pass",
+        "value": [
+          true,
+          true,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "request": {
+        "op": "int_unsigned",
+        "value": "1",
+        "size": -1
+      },
+      "result": {
+        "class": "invalidArgument"
+      }
+    },
+    {
+      "request": {
+        "op": "init",
+        "text": "FF8"
+      },
+      "result": {
+        "class": "pass",
+        "value": {
+          "bits": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false,
+            false,
+            false
+          ],
+          "idx": 0,
+          "len": 12
+        }
+      }
+    },
+    {
+      "request": {
+        "op": "decode",
+        "packet": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": 0,
+          "len": -1
+        }
+      },
+      "result": {
+        "class": "pass",
+        "value": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": 0,
+          "len": -1
+        }
+      }
+    },
+    {
+      "request": {
+        "op": "decode",
+        "packet": {
+          "bits": [],
+          "idx": 0,
+          "len": 0,
+          "extra": false
+        }
+      },
+      "result": {
+        "class": "decode"
+      }
+    },
+    {
+      "request": {
+        "op": "decode",
+        "packet": {
+          "bits": [
+            1
+          ],
+          "idx": 0,
+          "len": 1
+        }
+      },
+      "result": {
+        "class": "decode"
+      }
+    },
+    {
+      "request": {
+        "op": "parse",
+        "packet": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": 0,
+          "len": -1
+        },
+        "size": 1
+      },
+      "result": {
+        "class": "pass",
+        "value": [
+          {
+            "bits": [
+              true,
+              false
+            ],
+            "idx": 1,
+            "len": -1
+          },
+          [
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "request": {
+        "op": "parse",
+        "packet": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": -1,
+          "len": 2
+        },
+        "size": 1
+      },
+      "result": {
+        "class": "invalidArgument"
+      }
+    },
+    {
+      "request": {
+        "op": "parse",
+        "packet": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": 0,
+          "len": 2
+        },
+        "size": 3
+      },
+      "result": {
+        "class": "invalidArgument"
+      }
+    },
+    {
+      "request": {
+        "op": "payload",
+        "packet": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": 0,
+          "len": -1
+        }
+      },
+      "result": {
+        "class": "invalidArgument"
+      }
+    },
+    {
+      "request": {
+        "op": "payload_bytes",
+        "packet": {
+          "bits": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            false,
+            false,
+            false
+          ],
+          "idx": 0,
+          "len": 12
+        }
+      },
+      "result": {
+        "class": "pass",
+        "value": [
+          "255"
+        ]
+      }
+    },
+    {
+      "request": {
+        "op": "target",
+        "packet": {
+          "bits": [],
+          "idx": 0,
+          "len": 0
+        }
+      },
+      "result": {
+        "class": "pass",
+        "value": {
+          "objectState": [
+            "PacketIn",
+            {
+              "bits": [],
+              "idx": 0,
+              "len": 0
+            }
+          ],
+          "context": false,
+          "callbacks": []
+        }
+      }
+    },
+    {
+      "request": {
+        "op": "target",
+        "packet": {
+          "bits": [
+            true,
+            false
+          ],
+          "idx": 0,
+          "len": -1
+        }
+      },
+      "result": {
+        "class": "pass",
+        "value": {
+          "objectState": [
+            "PacketIn",
+            {
+              "bits": [
+                true,
+                false
+              ],
+              "idx": 0,
+              "len": -1
+            }
+          ],
+          "context": false,
+          "callbacks": []
+        }
+      }
+    },
+    {
+      "request": {
+        "op": "target",
+        "packet": {
+          "bits": [],
+          "idx": 4611686018427387903,
+          "len": 24
+        }
+      },
+      "result": {
+        "class": "invalidArgument"
+      }
+    },
+    {
+      "request": {
+        "op": "target",
+        "packet": {
+          "bits": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "idx": 0,
+          "len": 24
+        }
+      },
+      "result": {
+        "class": "pass",
+        "value": {
+          "objectState": [
+            "PacketIn",
+            {
+              "bits": [
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "idx": 24,
+              "len": 24
+            }
+          ],
+          "context": true,
+          "callbacks": [
+            "find_var_e",
+            "write_value_from_bits",
+            "update_var_e"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import P4SpecTec.Codegen.Emit
+import P4SpecTec.BackendSim.Core.Object
+import P4SpecTec.BackendSim.NanoSwitch.Pipe
 import P4SpecTec.Codegen.Attempt
 import P4SpecTec.Codegen.Env
 import P4SpecTec.Codegen.Exp
