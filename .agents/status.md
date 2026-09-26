@@ -11,7 +11,32 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active isolated checkpoint: corpus inventory
+## Active frozen checkpoint: bounded corpus shard
+
+PR #22 merged as `2c85f1b` after remote Gate `36213412457` passed on
+`93a2e8c` in 3m43s. The new `m3c-corpus-shards` branch starts at that main
+revision in the corpus worktree, preserving the published checkpoint ref.
+Root approved the strict-identity/crash-safe shard design and exactly shard
+0 of 317. Independent root review found no remaining findings after the
+quarantine order/worker exit and separately reviewed compiler hardlink fixes;
+worker/v1 semantics remain unchanged. Sixteen new offline tests and existing
+5+7+12 tests pass; text and whitespace checks exit 0. Final-helper fresh
+pilot exit 0, run `901d53d9`:
+four attempts/eight AL matches/eight CLI checks, all Type.Fresh phases zero,
+no syntax-only/resource/unsupported/harness failures. Exact resume exit 0:
+same identity/probe bytes, no new session lines, all attempts remain one,
+and all four terminal-record hashes are unchanged. Narrow independently
+reviewed CI wiring requires both new files and runs sixteen offline tests
+unconditionally, with no real shard/network in CI. Authorized full local
+gate process exited 0 without skips, including both 78-program Nano legs,
+48 output contexts, 342 quotations, existing oracles/census and new offline
+suite. Log: `.artifacts/corpus-shard-full-gate.log`. No scale-up or push;
+root authorized one scoped local checkpoint commit next.
+Evidence, bounds and commands: `.agents/notes/full-p4-corpus-shards.md`.
+Next: inspect/stage the reviewed checkpoint and commit with fresh attribution;
+no larger launch before independent review and explicit staged approval.
+
+## Merged checkpoint: corpus inventory and bounded worker
 
 Branch `m3c-corpus-replay` is based on main `e31c1e8` after PR #21 merged.
 PR #21's final remote Gate `36210406850` passed on `fed4187` in 5m36s.
@@ -49,7 +74,7 @@ Type.Fresh phases are zero; any nonzero phase is explicitly unsupported.
 Resource bounds/phase timings and exact commands are recorded in
 `.agents/notes/full-p4-corpus-worker.md`. Largest case is 30,858,825 bytes;
 child RSS high-water is cumulative, not per-case. No corpus shard, resume
-implementation, publication or whole-corpus claim yet. Authorized
+implementation or whole-corpus claim. Authorized
 narrow gate wiring requires nine paths, runs both offline suites and builds
 the worker, with no p4c fetch or upstream-dependent real pilot in CI. Independent
 wiring review found no issues and reran shell syntax plus both offline suites
@@ -57,9 +82,8 @@ wiring review found no issues and reran shell syntax plus both offline suites
 `nix develop --command bash scripts/check.sh` process exited 0 with no skips,
 including both Nano differential legs, existing oracles/census and new
 offline suites/worker build. Actual exit was captured before preparing a
-push; remote CI remains required.
-Next: reviewed/gated checkpoint, then a small explicit shard with complete
-accounting; no shard/resume edits before that checkpoint.
+push. Final remote Gate passed and PR #22 merged as recorded above.
+Shard/resume implementation is a separate next checkpoint.
 
 ## Merged checkpoint: checked type runtime
 

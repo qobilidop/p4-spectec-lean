@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 
 
@@ -75,13 +76,33 @@ def revision_guard(upstream: Path) -> str:
     return revision
 
 
-def compile_probe(upstream: Path) -> Path:
+def validate_probe_workspace(workspace: Path) -> None:
+    """Never copy/link over symlinks, special files or outside hardlink aliases.
+
+    The keyed caller holds its build lock across validation and compilation.
+    This checks persisted cache entries, not hostile concurrent replacement by
+    an uncooperative process with write access to the same directory.
+    """
+    if not stat.S_ISDIR(workspace.lstat().st_mode):
+        raise SystemExit("probe workspace must be a real directory")
+    for path in workspace.iterdir():
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise SystemExit("probe workspace entries must be single-link regular files")
+
+
+def compile_probe(upstream: Path, workspace_key: str | None = None) -> Path:
+    if workspace_key is not None and (
+            not isinstance(workspace_key, str) or len(workspace_key) != 64
+            or any(char not in "0123456789abcdef" for char in workspace_key)):
+        raise SystemExit("probe workspace key must be a lowercase SHA-256")
     if subprocess.run(["dune", "build", "p4spec/bin/main.exe"],
                       cwd=upstream).returncode != 0:
         raise SystemExit("failed to rebuild pinned upstream source")
     build = upstream / "_build/default/p4spec/lib"
-    workspace = SCRATCH / str(os.getpid())
+    workspace = SCRATCH / (str(os.getpid()) if workspace_key is None else workspace_key)
     workspace.mkdir(parents=True, exist_ok=True)
+    validate_probe_workspace(workspace)
     source = workspace / "probe.ml"
     shutil.copyfile(PROBE, source)
     command = [
@@ -95,6 +116,7 @@ def compile_probe(upstream: Path) -> Path:
     command += [str(build / directory / f"{name}.cmxa") for directory, name in LIBRARIES]
     executable = workspace / "probe"
     command += [str(source), "-o", str(executable)]
+    validate_probe_workspace(workspace)
     if subprocess.run(command, cwd=ROOT).returncode != 0:
         raise SystemExit("failed to compile pinned full-P4 AL oracle probe")
     return executable
