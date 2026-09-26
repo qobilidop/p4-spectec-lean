@@ -311,7 +311,136 @@ Consumer proofs guide reusable interfaces without determining the reference
 semantics. Equivalence of another proof-friendly P4 model is a separate
 downstream theorem, not a consequence of this compiler's certificates.
 
-## 9. Alternatives and tradeoffs
+## 9. Nano-P4 scope and acceptance
+
+The Nano-P4 milestone delivers a complete certified translation of the pinned
+Nano-P4 specification and a usable Nano packet-processing target. It has two
+acceptance stages: **core semantics** and **target composition**. Both must
+pass before claiming complete Nano-P4 support and certification. Completing
+only the core warrants the narrower claim of certified Nano-P4 core semantics.
+These are intended requirements; [Certification](certification.md) records
+what is delivered today.
+
+### 9.1 Specification and source domain
+
+The milestone covers the entire Nano AL export at the repository's recorded
+P4-SpecTec and Nano specification pins: syntax representations, functions,
+relations, initialization declarations, and builtin/extern interfaces. This
+includes typing, loading, and evaluation, together with standard-library
+definitions in that export, even when a particular example does not call them.
+A completion inventory must identify the pins, export digest, definitions,
+representations, contracts and checked evidence. Unsupported definitions
+remain obligations; removing them from the denominator does not complete the
+milestone. A pin change requires regeneration and revalidation of this scope.
+
+Input domains are specified from the source syntax and operation contracts,
+independently of what the generated decoder happens to accept. They include
+all source constructors and legal parameter instantiations, nested values,
+and intermediate contexts required by the Nano semantics. Typing judgments
+must admit syntactically valid programs that fail typing; evaluation and
+target contracts must preserve representable rejection and error cases.
+Arbitrary malformed AL values outside these source domains are not required.
+Every domain restriction needs a source justification and composition proof
+where a caller must establish it; successful decoding alone is insufficient.
+
+The execution profile is sequential and cache-free, with dynamic guards
+disabled and no arbitrary local function overrides. Required target callbacks
+are explicit interfaces with contracts. Section 5.3's transport and diagnostic
+boundaries apply. A bounded test fuel is never a bound on the certified source
+domain, and implementation limits cannot silently become semantic failures.
+
+### 9.2 Core semantics acceptance
+
+For every bodied function and relation in the export, generated certificates
+must establish both directions of section 5.1 for its executable definition,
+including recursive groups and all dependencies. Source representations must
+cover the domains in section 9.1 and preserve the results used by callers.
+Initialization and environment assumptions must be discharged for the actual
+Nano environment. Builtins need operation-specific contracts connecting the
+generated and reference implementations; extern-dependent definitions may be
+proved under explicit extern contracts, discharged in the target stage.
+
+Every generated logical relation must have executable soundness. General
+logical converse and determinism are not additional blanket completion
+requirements: the translation certificate concerns executable behavior, and
+logical rules can overapproximate it (section 5.3). Any converse or determinism
+lemma used by a certificate or advertised client guarantee must nevertheless
+be proved and audited. A logical relation without a converse must be documented
+as a sound abstraction, not as an exact characterization of AL execution.
+
+### 9.3 Target composition acceptance
+
+Provide a callable Lean port of the pinned upstream NanoSwitch target connected
+to the generated semantics, including the declared extern methods, packet
+operations, driver, and semantic initialization needed to run Nano programs.
+Upstream NanoSwitch is the target behavior oracle; agreement between two Lean
+paths sharing a target does not alone establish alignment with that oracle.
+The target must satisfy the core's
+extern contracts and compose with loading and execution in both directions
+against the Lean reference with its Nano target. The contract covers arbitrary
+admitted inputs, not only the replay corpus.
+
+Required observations are ordered emitted packet bytes and ports, forwarding
+versus dropping, termination outcomes and failure kinds, and persistent
+state/context changes that affect subsequent processing. Preserve fresh-state
+counters wherever the execution uses them. Printing operations included in the
+export need a byte-output contract under the pinned hint policy; interpreter
+debug traces and diagnostic wording remain outside the profile.
+
+Representation must remain valid through intermediate target callbacks, not
+merely at final packet output. An upstream result that cannot be represented
+by the generated interface blocks completion. Resolve it through a justified
+representation change with a contextual correspondence proof, or a corrected
+upstream pin followed by revalidation. Silently repairing an upstream value,
+omitting affected cases, or treating an unsupported adapter as semantic failure
+does not satisfy this requirement.
+
+P4 parsing and elaboration may remain upstream. Program and test inputs may
+be exported into a documented Lean runner interface; a Lean P4 parser, STF
+parser, and replica of the upstream command-line boot harness are not required.
+Semantic loading and target initialization are required regardless of which
+tool prepares those inputs. Full-P4 architectures, physical-device fidelity,
+and arbitrary user-supplied extern implementations are outside this milestone.
+
+### 9.4 Completion evidence
+
+Completion requires all of the following together:
+
+- A reproducible generated library and certificates, with fresh source
+  identity checks, complete scope accounting, and audited theorem types and
+  axioms. Handwritten reusable lemmas and target contracts may support the
+  generated certificates; isolated handwritten examples cannot replace missing
+  per-definition coverage.
+- A dedicated completion check, included in the full gate, that rejects any
+  missing required definition, representation obligation, proof direction,
+  initialization evidence, or builtin/extern/observation contract. The existing
+  partial-coverage checker alone is insufficient. The scope inventory must also
+  be reviewed for adequacy; metadata consistency cannot prove its own scope.
+- Differential replay of the entire pinned Nano corpus applicable to this
+  profile, retaining every case and its classified outcome, including target
+  observations against the pinned upstream NanoSwitch. Both Lean execution
+  paths must match upstream's terminating outcomes and required observations.
+  Expected rejection is distinct from timeout, missing data, harness failure,
+  and unsupported execution; these latter outcomes leave validation unresolved
+  and block completion. No case within the profile may be skipped as unsupported;
+  bounded replay is evidence about selected executions, not a termination theorem.
+  Additional boundary tests cover failure propagation, callback order,
+  intermediate representations, and packet/state observations. Distinguishing
+  mutations exercise the claimed checking boundaries.
+- At least one checked whole-program packet-processing example connecting
+  exported source, loading, initialization, actual externs and execution to a
+  nontrivial packet-output property for a stated input domain, with a checked
+  rejection or drop case. A helper-only proof does not meet this requirement.
+- Independent review and a passing full local gate and remote CI for the
+  release revision. Documentation identifies the profile, residual trusted
+  components, and exact guarantees without presenting testing as a proof.
+
+The trust boundary remains section 5.2: this milestone does not require a
+universal generator theorem, a proof of the upstream frontend, or a general
+equivalence proof between the Lean and OCaml interpreters. It does require
+upstream alignment evidence and explicit treatment of known discrepancies.
+
+## 10. Alternatives and tradeoffs
 
 AL rather than IL or SL keeps execution and rule structure at one boundary
 (section 3). Per-artifact rather than universal compiler verification favors
@@ -326,7 +455,7 @@ worth reconsidering when a concrete benefit supports its new preservation
 obligations. These are engineering choices, not novelty or superiority claims;
 see [Related Work](related-work.md).
 
-## 10. Open questions
+## 11. Open questions
 
 The main unresolved design problems are generic reverse realization,
 compositional contracts for printing/externs/packets, automated representation

@@ -53,7 +53,8 @@ include hidden files. Git history is the archive; nothing is tagged.
    architecture, the verification ladder with the refinement theorem
    (section 5.1), the code organization, the named list of deviations
    from upstream (section 5.3), the per-construct encodings (5.4), and
-   the acceptance criteria and open design questions. User-facing current
+   the Nano-P4 scope and acceptance criteria (section 9) and open design
+   questions. User-facing current
    capabilities and limitations live in `docs/certification.md`; implementation
    progress and milestone planning live under `.agents/`.
 4. `docs/lean-pitfalls.md`, before writing Lean in the code generator or

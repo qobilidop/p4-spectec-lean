@@ -65,6 +65,37 @@ consumer problem and newly agreed scope. Kernel validity cannot establish
 statement adequacy or source fidelity by itself; determinism cannot replace
 a finite reverse witness. No novelty claim follows merely from using Lean.
 
+## Nano-P4 scope checkpoint
+
+Documentation scope settled on 2026-09-26 at the user's request. The durable
+contract is [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance);
+implementation remains deferred. Both core semantics and target composition
+are required to avoid calling a collection of helper certificates a complete
+Nano model. General logical converse is separate from the required two-way
+executable correspondence. Upstream parsing and test syntax may remain outside
+Lean, while semantic loading and initialization cannot be delegated away.
+
+Baseline: `572975ab68227e5e25e036fd5b57b170ee47e554`. Independent read-only
+AI-agent review by `/root/review_nano_scope` found two medium scope ambiguities:
+the target oracle was not named explicitly, and corpus outcome classification
+alone did not demand matching terminal observations or resolve timeouts.
+The revised design names pinned upstream NanoSwitch and requires both Lean
+paths to match outcomes/observations; inconclusive cases block completion.
+Follow-up review confirmed both resolutions and found no remaining issue in
+the revised scope or checkpoint consistency. Final reviewed design SHA-256:
+`c222de61286e1269f211f3689f775ec1a0ef079c287acc7d4af07ee6d8d71db4`.
+Review covered documentation and retained target constraints, not executable
+semantics, proofs, gate execution or remote CI.
+
+Author validation: relative link targets in all eight changed documents exist;
+`nix develop -c git diff --check` passed. Full
+`nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh` passed
+with actual exit 0, no skips (session 48317, `.artifacts/nano-scope-gate.log`).
+Final evidence-only edits receive text and whitespace checks after the gate.
+No code, generated artifact, upstream pin, or delivered certification claim
+changed. Publication outcome belongs to the exact revision's remote CI run,
+not this pre-publication local check.
+
 ## Historical evidence
 
 Full discussion and advisory review are available at `968ad65` in

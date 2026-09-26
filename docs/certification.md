@@ -15,8 +15,11 @@ upstream OCaml or the intended P4 language.
 
 Nano-P4 generates a Lean model that builds and is differential-tested against
 the pinned upstream corpus. That executable support is broader than the
-AL correspondence coverage below. Full-P4 support is not yet a usable
-generated library. The README gives the short project status; this guide is
+AL correspondence coverage below. The intended completion criteria for both
+core semantics and target composition are in
+[Design, section 9](design.md#9-nano-p4-scope-and-acceptance); neither stage is
+complete. Full-P4 support is not yet a usable generated library.
+The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.
 
 | Artifact | Checked claim | Boundary |

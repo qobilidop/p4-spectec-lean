@@ -20,11 +20,33 @@ Broader M3 remains paused; choose a bounded scope with the user before starting.
   ([evidence](notes/field-update.md)). Broader client libraries and interfaces
   remain open. The example/library separation is complete, not a new milestone.
 
+## Nano-P4 completion milestone
+
+The next major milestone is
+[complete Nano-P4 support and certification](../docs/design.md#9-nano-p4-scope-and-acceptance).
+The design owns acceptance criteria; these are implementation stages, not
+new execution authorization. Both core semantics and target composition must
+close. Broader full-P4 M3 remains paused.
+
+1. Build the complete obligation inventory and investigate reverse-proof
+   composition and the known Nano target representation/ABI boundaries.
+2. Certify a meaningful execution path in both directions with its dependency
+   closure, using reusable support; include an actual relation certificate.
+3. Extend to every definition and source representation in the Nano export,
+   discharging builtin contracts and actual initialization assumptions.
+4. Integrate the Nano target, discharge extern and observation contracts, and
+   connect loading and packet execution to the whole-program consumer proof.
+5. Close the completion checker, full-corpus replay, boundary mutations and
+   review evidence required by the design.
+
+Investigate the target blockers early even if target integration lands later;
+do not postpone a feasibility question behind helper-proof counts.
+
 ## Candidate next work
 
 The [certification discussion](notes/compiler-certification.md) preserves
-advisory priorities. Machine-readable entry-point certificate coverage is the
-currently approved increment; [Status](status.md) owns its remaining checks.
+advisory priorities. Machine-readable entry-point certificate coverage is
+complete; [Status](status.md) owns the current documentation checkpoint.
 Deferred priorities include broader representation adequacy, discriminating generator mutations,
 consumer-guided wrappers, and measured maintenance across upstream changes.
 These other priorities are not newly authorized implementation.

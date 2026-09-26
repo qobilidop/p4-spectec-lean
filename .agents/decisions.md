@@ -14,6 +14,17 @@ user's pause and subsequent bounded requests. New feature work needs a newly
 agreed scope. Reason: demonstrate a complete usable source connection without
 mistaking isolated generated/proof fixtures for full-P4 support.
 
+The next major milestone is complete Nano-P4 support and certification, with
+core semantics and target composition as separate required acceptance stages.
+[Design section 9](../docs/design.md#9-nano-p4-scope-and-acceptance) owns the
+scope and definition of done. Reason: demonstrate the full architecture on a
+bounded language before expanding production full-P4 support. The user
+authorized settling this scope; this documentation task does not itself
+restart implementation or broader M3. Confidence high in the milestone choice;
+schedule remains uncertain until reverse proofs and target representation
+blockers are investigated. Revisit scope only through an explicit design
+decision, not by excluding difficult cases from coverage.
+
 The goal is a certifying compiler, technically a proof-producing semantics
 translation, not a universally verified generator. Reusable models amortize
 per-artifact checking and allow generator evolution. This is a tradeoff, not
