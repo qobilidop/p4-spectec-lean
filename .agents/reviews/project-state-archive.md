@@ -44,3 +44,17 @@ their paths absent and the bundle retained. Old ignored logs, probes, raw corpus
 artifacts and exact checkout/sequencer metadata are intentionally no longer
 recoverable from this backup. The earlier lossless-archive review describes
 the safety of the worktree removal, not the final retained backup's contents.
+
+## Published handoff review
+
+Independent read-only check by `/root/p4_oracle`, 2026-09-26: no findings in
+the routine status handoff. GitHub reports PR #28 merged as `d503d36`,
+preserving final head `acfa45e`; Gate `36229832016` completed successfully
+on that exact head, including both upstream pin steps. Fresh local and remote
+ref inventories show only main at `d503d36`, and the only registered worktree
+is the primary checkout on main. The status correctly records completed
+publication while broader M3 remains incomplete and paused.
+
+Root's fresh handoff gate session 53505 was still pending when this review
+was written; no fresh handoff-gate verdict is claimed here. Only this report
+was changed; no implementation work, ref changes or full gate by the reviewer.

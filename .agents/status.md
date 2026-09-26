@@ -8,9 +8,9 @@ M1/M2 and M3A are closed. The bounded Nano field-update consumer proof is
 published (PR #27, implementation `4612534`, main checkpoint `499230b`).
 Broader M3 is incomplete and paused. No implementation work is active.
 
-The user requested closing all obsolete branches and worktrees. Approved
-README/design documentation is being consolidated onto current main through
-`consolidate-project-state`. No Lean code, pin, export or gate changes.
+The requested branch/worktree cleanup and approved README/design consolidation
+are complete. PR #28 merged as `d503d36`, preserving documentation commit
+`acfa45e`. No Lean code, pin, export or gate changes.
 
 ## Consolidation checkpoint
 
@@ -26,10 +26,11 @@ README/design documentation is being consolidated onto current main through
   after archiving its sequencer. HEAD, index bytes and clean source state were
   unchanged. Its code was already integrated; no proof work was resumed.
 - All old local refs were removed after matching the verified backup. Only
-  main and the temporary consolidation branch remain until publication.
+  main remains locally and on GitHub; the consolidation branch was deleted
+  after its PR merged, and fresh local/remote inventories verified its absence.
   All 23 old non-main GitHub refs were deleted with one atomic, exact-SHA-guarded
   push after the full local gate passed. Every tip was merged and no open PR
-  existed. Fresh remote inventory shows only main at `499230b`.
+  existed. The final cleanup inventory shows only main at `d503d36`.
 - Selective documentation reconciliation preserves newer main decisions and
   checked-runtime boundaries. The consumer example is complete; bounded packet
   support is not a complete target. Independent reviews:
@@ -38,8 +39,13 @@ README/design documentation is being consolidated onto current main through
 - Fresh `nix develop --command scripts/check.sh` completed with actual exit 0,
   no skips, recorded in `.artifacts/consolidation-gate.log` and its `.exit`
   file. Final backup/status wording was then updated and hygiene rechecked.
-  Consolidation PR publication and remote CI remain pending at this checkpoint.
+  Final-head remote Gate `36229832016` passed on `acfa45e`, including both
+  upstream pin checks. PR #28 is merged and its temporary branch is removed.
   The expected four-file upstream export patch remains applied.
+- The routine postmerge handoff passed the complete local gate again: actual
+  exit 0, no skips, `.artifacts/consolidation-handoff-gate.log` and `.exit`
+  (session 53505). Independent handoff review found no issues; the final
+  result-only status addition was followed by staged hygiene checks.
 
 ## Archived, not completed
 
@@ -61,6 +67,6 @@ not certify arbitrary assignment reordering, all Nano-P4 or full P4.
 
 ## Next
 
-Finish the consolidation PR and delete its temporary branch, leaving only main.
-Then await the user's revised development plan. Recover experiments only using
-the archive instructions and preserve the existing correctness boundaries.
+Await the user's revised development plan. No implementation work is active.
+Recover experiments only using the archive instructions and preserve the
+existing correctness boundaries; do not resume broader M3 automatically.
