@@ -49,7 +49,23 @@ review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. PR #17's final
 remote Gate passed in 12m11s (run `36205479916`), and it merged as `b08ab8e`.
 Recursive proof integration and production enablement continue separately.
 
-## Active checkpoint: bounded full-P4 oracle
+## Active checkpoint: bounded full-P4 interpreter replay
+
+The separately reviewed replay revisions `a4c907b` and `5657373` are being
+integrated on `m3c-p4-replay-publish`, based on merged main `ea9533d`.
+Source and tests are unchanged from independent review.
+Root reran six offline tests and the pinned end-to-end driver: six relation
+matches, one explicitly syntax-only case and nine Lean-side mutation
+rejections (exit 0 each). The ordinary gate now requires the replay files,
+runs its six offline contract tests and builds the Lean runner; it does not
+fetch p4c or run the upstream-dependent real replay. The integrated full
+`scripts/check.sh` exited 0 with no skips; independent gate-plumbing review
+also passed, including six offline tests and shell syntax (exit 0 each).
+Remote CI remains pending. Reviews:
+`.agents/reviews/m3c-p4-interpreter-replay.md` and
+`.agents/reviews/m3c-replay-gate.md`.
+
+## Merged checkpoint: bounded full-P4 oracle
 
 - Branch `m3c-p4-oracle-publish` integrates reviewed adapter revisions
   `16a2d57` and `997d0ab`. All four initial medium findings are resolved;
@@ -66,7 +82,10 @@ Recursive proof integration and production enablement continue separately.
   conflict resolution against current main `b08ab8e`; source merged cleanly.
   The merged revision's frozen full gate exited 0 with no skips, including
   all twelve offline oracle tests and the updated generator census. Final
-  remote CI is required before landing.
+  remote Gate `36207757309` passed on `3aa9bab` in 16m27s; PR #18 merged as
+  `ea9533d`. The merge body's newline escaping was malformed; attribution
+  text is present but not a conventional separate trailer. Published history
+  is preserved, and subsequent messages use literal newlines.
 - This is an upstream-side oracle only, not Lean replay, a corpus denominator
   or full-P4 generation/refinement evidence.
 
@@ -144,10 +163,21 @@ Recursive proof integration and production enablement continue separately.
   `/Users/qobilidop/my/work/p4-spectec-lean-state-oracle`, branch
   `m3b-state-oracle`, note `.agents/notes/full-p4-corpus-prep.md`.
   The pinned sparse sample/include checkout is restored. The boot/result
-  oracle adapter is reviewed and published as PR #18; its merge with current
-  main passed a new full local gate and needs final remote CI. The bounded
-  observations
-  are not the canonical corpus denominator or a full-corpus boot claim.
+  oracle adapter merged as PR #18 after final local and remote gates passed.
+  The bounded observations are not the canonical corpus denominator or a
+  full-corpus boot claim.
+- Follow-up independent review of oracle head `997d0ab` cleared all four
+  findings and reran the offline and real four-case checks. An isolated
+  interpreter replay branch `m3c-p4-interp-replay` now uses those exact
+  typed boot values, semantic outputs and post-boot/final counters. Its
+  first run found missing P4 placeholder extern wiring for `issue-212`;
+  the bounded config now mirrors the two pinned placeholder constructors.
+  Three booted cases and six relation runs match; one syntax-only case is
+  explicitly outside Lean AL execution. Six replay contract tests and
+  focused Lean build exit 0. A follow-up also rejects nine actual Lean-side
+  mutations and uniformly checks syntax mode/guard and signed counter range;
+  independent review of that follow-up and full gate remain.
+  Note: `.agents/notes/full-p4-interp-replay.md`.
 - Next: checkpoint proof fixtures; independently review and integrate
   executable/proof generators; establish stateful refinement; regenerate
   and elaborate full P4. Then M3C corpus/fidelity, M3D targets (NanoSwitch,

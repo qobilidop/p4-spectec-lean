@@ -32,6 +32,24 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Replay full-P4 AL observations through a bounded P4-specific Lean
+  configuration.** Regenerate and validate the four pinned oracle cases
+  before replay; seed `StateEval` from each exact post-boot counter, disable
+  the guard, compare semantic outputs and exact final counters, and treat
+  fuel exhaustion as distinct from upstream's public failure class. Mirror
+  only the pinned placeholder simulator's `init_objectState` and
+  `init_archState` externs in this replay configuration; the generic AL
+  interpreter retains its explicit `Extern.none` default. Reason: the
+  positive regression requires the placeholder extern to instantiate,
+  while broad or invented extern behavior would hide fidelity gaps. Syntax
+  observations have no Lean AL execution and are labelled separately.
+  Reject mode/config mismatches and counters outside signed 63-bit range
+  before evaluation, including on syntax observations; otherwise a
+  malformed counter silently wraps at `FreshState.ofInt`. Check real Lean
+  decoder/evaluator mutations in the bounded harness.
+  Confidence: high for these four observations; revisit extern coverage
+  and memory use before extending to the corpus. (2026-09-25)
+
 - **Export full-P4 AL observations through fresh per-relation processes.**
   Match `run -al` with cache on, deterministic and guard checks off; boot
   the same program separately for `Program_ok` and `Program_inst`, compare

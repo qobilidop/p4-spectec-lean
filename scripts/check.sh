@@ -48,6 +48,8 @@ for path in \
   scripts/fetch-p4c.sh scripts/test-fetch-p4c.py \
   scripts/export-p4-oracle.py test/p4-oracle/probe.ml test/p4-oracle/check.py \
   test/p4-oracle/observed.json test/p4-oracle/invalid.p4 test/p4-oracle/test_contract.py \
+  test/p4-oracle/replay.py test/p4-oracle/test_replay_contract.py \
+  P4SpecTecTest/Diff/P4Interp/Main.lean \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
   test/diff/run.py .github/workflows/ci.yml
 do
@@ -74,6 +76,8 @@ bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"
 python3 "$root/scripts/test-fetch-p4c.py" || { say "p4c restore tests failed"; fail=1; }
 python3 "$root/test/p4-oracle/test_contract.py" \
   || { say "P4 oracle contract tests failed"; fail=1; }
+python3 "$root/test/p4-oracle/test_replay_contract.py" \
+  || { say "P4 interpreter replay contract tests failed"; fail=1; }
 for name in nano-p4 p4; do
   python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }
@@ -89,7 +93,7 @@ if command -v lake >/dev/null 2>&1; then
   python3 "$root/test/diff/test_json_boundary.py" \
     || { say "JSON transport/output checks failed"; fail=1; }
   (cd "$root" && lake build --wfail check-quotes check-print check-text-builtins \
-    check-state-oracle p4spectec-census) \
+    check-state-oracle p4spectec-census p4-interp-replay) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }
