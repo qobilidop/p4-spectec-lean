@@ -23,10 +23,11 @@ Broader M3 remains paused; choose a bounded scope with the user before starting.
 ## Candidate next work
 
 The [certification discussion](notes/compiler-certification.md) preserves
-advisory priorities: machine-readable entry-point certificate coverage,
-broader representation adequacy, discriminating generator mutations,
+advisory priorities. Machine-readable entry-point certificate coverage is the
+currently approved increment; [Status](status.md) owns its remaining checks.
+Deferred priorities include broader representation adequacy, discriminating generator mutations,
 consumer-guided wrappers, and measured maintenance across upstream changes.
-None is a newly authorized implementation.
+These other priorities are not newly authorized implementation.
 
 Further correspondence needs operation-specific builtin contracts, ordered
 iteration, casts/subtype checks, indexing/slicing/membership, type parameters

@@ -4,7 +4,7 @@ import P4SpecTec.Codegen.Emit
 /-!
 `lake exe p4spectec-gen <export.al.json> --lib <Lib> [--out DIR] [--update|--check]`:
 the compiler's entry point. Reads an AL export, generates one `.lean`
-module per upstream spec file plus the library root, and either writes
+module per upstream spec file, the library root and `coverage.json`, and either writes
 them (`--update`) or checks that the committed files are byte-identical
 (`--check`, the default and the CI mode). Generated files are never
 hand-edited.

@@ -1,4 +1,6 @@
 import P4SpecTec.Codegen.Emit
+import P4SpecTec.Codegen.Coverage
+import P4SpecTec.Codegen.Coverage.Check
 import P4SpecTec.BackendSim.Core.Object
 import P4SpecTec.BackendSim.Core.Func
 import P4SpecTec.BackendSim.SpecImpl.Func

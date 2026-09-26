@@ -437,10 +437,8 @@ def motiveStmt (m : Member) : Format :=
       "), r = .ok o →" ++ Format.line ++ m.conclusion))
   else Format.group (Format.nest 4 (head ++ Format.line ++ "True"))
 
-/-- The corollary `R.run_sound` of a relation from the group theorem
-`thm` (a projection path into its conjunction), or `none` to prove it
-directly by `run_sound` when the group is not recursive. -/
-def corollary (externs : Bool) (m : Member) (thm : Option String) : Format :=
+/-- Shared binders and conclusion of a relation's run-soundness corollary. -/
+private def corollaryParts (externs : Bool) (m : Member) : Format × Format :=
   let ps := paramNames m.params.length
   let ext := if externs then Format.text " [Externs]" else Format.nil
   -- the outputs as one variable `o` (a tuple for several), so that the
@@ -451,8 +449,24 @@ def corollary (externs : Bool) (m : Member) (thm : Option String) : Format :=
   let call := (Term.call m.defName (ps.map Term.atom)).fmt
   let stmt := Format.group (Format.nest 4 (
     call ++ " = " ++ someOk (.atom outArg) ++ " →" ++ Format.line ++ m.conclusion))
+  (ext ++ paramBinders m.params ++ obs, stmt)
+
+/-- The closed type of the emitted per-relation `R.run_sound` theorem,
+including its optional extern instance and explicit input/output binders. -/
+def corollaryType (externs : Bool) (m : Member) : Format :=
+  let (bs, stmt) := corollaryParts externs m
+  if !externs && m.params.isEmpty && m.nOuts == 0 then stmt
+  else Format.group (Format.nest 4 (Format.text "∀" ++ bs ++ "," ++ Format.line ++ stmt))
+
+/-- The corollary `R.run_sound` of a relation from the group theorem
+`thm` (a projection path into its conjunction), or `none` to prove it
+directly by `run_sound` when the group is not recursive. -/
+def corollary (externs : Bool) (m : Member) (thm : Option String) : Format :=
+  let ps := paramNames m.params.length
+  let outArg := if m.nOuts == 0 then "()" else "o"
+  let (bs, stmt) := corollaryParts externs m
   let header := Format.group (Format.nest 4 (Format.text ("theorem " ++ m.localName ++ "_sound") ++
-    ext ++ paramBinders m.params ++ obs ++ " :" ++ Format.line ++ stmt ++ " :="))
+    bs ++ " :" ++ Format.line ++ stmt ++ " :="))
   match thm with
   | some t =>
     header ++ Format.nest 2 (Format.line ++ Format.text ("fun h => " ++ t ++ " " ++
@@ -462,9 +476,8 @@ def corollary (externs : Bool) (m : Member) (thm : Option String) : Format :=
 /-- The axiom audit of a theorem. -/
 def audit (name : String) : Format := Format.text ("#audit_axioms " ++ name)
 
-/-- The determinism theorem `R.det` of a relation:
-`R ins outs → R ins outs' → outs = outs'`, by `det`. -/
-def detTheorem (externs : Bool) (m : Member) : Format :=
+/-- Shared binders and conclusion of a relation's determinism theorem. -/
+private def detTheoremParts (externs : Bool) (m : Member) : Format × Format :=
   let ps := paramNames m.params.length
   let ext := if externs then Format.text " [Externs]" else Format.nil
   let n := m.nOuts
@@ -482,9 +495,22 @@ def detTheorem (externs : Bool) (m : Member) : Format :=
       (Format.text " ∧" ++ Format.line)
   let stmt := Format.group (Format.nest 4 (app outs ++ " →" ++ Format.line ++ app outs' ++ " →" ++
     Format.line ++ eqs))
+  (ext ++ ins ++ obs, stmt)
+
+/-- The closed type of the emitted per-relation `R.det` theorem,
+including its optional extern instance and implicit input/output binders. -/
+def detTheoremType (externs : Bool) (m : Member) : Format :=
+  let (bs, stmt) := detTheoremParts externs m
+  if !externs && m.params.isEmpty && m.nOuts == 0 then stmt
+  else Format.group (Format.nest 4 (Format.text "∀" ++ bs ++ "," ++ Format.line ++ stmt))
+
+/-- The determinism theorem `R.det` of a relation:
+`R ins outs → R ins outs' → outs = outs'`, by `det`. -/
+def detTheorem (externs : Bool) (m : Member) : Format :=
+  let (bs, stmt) := detTheoremParts externs m
   let name := m.localName.replace ".run" "" ++ ".det"
   Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
-    ext ++ ins ++ obs ++ " :" ++ Format.line ++ stmt ++ " :=")) ++
+    bs ++ " :" ++ Format.line ++ stmt ++ " :=")) ++
     Format.nest 2 (Format.line ++ "by det")
 
 /-- The theorems of a group: the group theorem by `partial_correctness`

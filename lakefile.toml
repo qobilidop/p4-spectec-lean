@@ -80,6 +80,11 @@ root = "P4SpecTecTest.Diff.P4Corpus.Main"
 name = "check-quotes"
 root = "P4SpecTecTest.Quote.Main"
 
+# Fresh coverage metadata must describe the compiled theorem types and axioms.
+[[lean_exe]]
+name = "check-coverage"
+root = "P4SpecTecTest.Coverage.Main"
+
 # Read-only emission probes and dependency census, including unsupported specs.
 [[lean_exe]]
 name = "p4spectec-census"

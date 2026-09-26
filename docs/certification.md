@@ -25,15 +25,40 @@ the user-facing account of current capabilities and their guarantees.
 | Field-update certificate | Both directions of executable correspondence, representation coverage and initialization; distinct-name update commutation transfers to reference executions | One helper on a declared scalar source domain, not arbitrary P4 assignments |
 | Generated relation soundness theorems | Successful generated execution implies the generated logical relation | Does not by itself connect that relation to AL or prove every relational witness executable |
 
-The [generated refinement index](../NanoP4Spec/Refinement.lean) currently
-records 18 of 153 definitions, all functions. It lists the remaining
-definitions and the reasons they have no refinement theorem. That generated
-index, rather than a second hand-maintained list here, is the exact inventory.
+The [generated coverage report](../NanoP4Spec/coverage.json) and its
+[refinement index](../NanoP4Spec/Refinement.lean) currently record forward
+AL theorems for 18 of 153 bodied definitions, all functions. Both come from
+the same generation plan. They record exclusions, including blockers inherited
+from dependencies or other members of a recursive group.
 These counts are not a percentage of P4 language behavior certified.
 
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
 General generated-to-reference proofs are also not yet generated.
+
+### Coverage metadata and checked evidence
+
+`coverage.json` inventories the emitted per-definition claims. Schema version 1
+records the library and export path, each callable's AL identifier and source
+file, its recursive group and direct dependencies, theorem names and expected
+types, and exclusions. The claim kinds distinguish forward AL refinement,
+generated-run soundness and relation determinism. Types, source variables and
+helper group theorems are outside this inventory; externs and builtins are
+included as dependency boundaries, but excluded from the bodied denominator.
+
+The report is metadata, not a certificate or a stored build verdict.
+`check-coverage` regenerates it from the current export, requires an exact
+match, then checks that every claimed declaration is a compiled theorem with
+the expected type and only the allowed axioms. This also rejects omitted or
+forged claims. Statement construction is shared with theorem emission; checking
+does not independently prove that the generator chose the right contract.
+Source identity still needs the separate freshness and quotation checks below.
+
+The machinery belongs to `P4SpecTec`; the report belongs to the generated
+library. Full-P4 will use the same machinery when production generation is
+supported. Its capability census is an emission probe, not certificate coverage.
+The stronger handwritten field-update certificate remains a separate consumer
+artifact and does not increase the generated forward or reverse coverage.
 
 ### Implementation boundaries
 
@@ -156,7 +181,7 @@ nix develop --command scripts/check.sh
 ```
 
 This is the same gate used by CI. It builds the Lean libraries and proofs,
-checks generated-source freshness and theorem axioms, compares quotations,
+checks generated-source and coverage freshness, theorem types and axioms, compares quotations,
 runs differential tests, and replays the bounded example and its mutation
 checks. A passing gate means those recorded checks passed, not that every
 definition has an AL correspondence certificate.
@@ -170,7 +195,13 @@ name. Targeted checks, after the normal build has prepared dependencies, are:
 nix develop --command lake build NanoP4Spec.Refinement
 nix develop --command lake build ExampleProofs.NanoP4FieldUpdate.Certificate
 nix develop --command lake exe check-quotes
+nix develop --command lake exe check-coverage
+nix develop --command lake exe check-coverage update_fieldValue
 ```
+
+The optional AL identifier prints the entry's dependency closure and blockers
+after checking the whole report. It does not discharge the theorem's input or
+environment assumptions, or change an uncovered entry into a certificate.
 
 These targeted commands do not replace the full gate. Changes to coverage
 or theorem assumptions should update this guide with the code; detailed

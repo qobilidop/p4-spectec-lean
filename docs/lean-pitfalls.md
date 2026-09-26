@@ -36,3 +36,7 @@ From the rung 3 driver (`P4SpecTec/Tactic/Refine.lean`), 2026-09-25:
 From field-update certificate sensitivity tests (2026-09-26):
 
 - `refine_al` infers the generated library from the theorem's declaration name, and uses it to find quoted definitions and generated value encoders. Replaying an emitted proof under an arbitrary scratch theorem namespace can fail even for an unchanged function. Give the replay theorem a fresh name under the original generated library, keep its original `HoldsSpec`, and change only the executable helper reference. Require the baseline proof and source-quotation equality to pass before interpreting a mutant's failure.
+
+From compiled coverage checking (2026-09-26):
+
+- A standalone executable's `importModules` environment did not expose all notation elaborators needed by `elabType`, even with `loadExts` and initializers enabled. The same checker passed under Lean's normal frontend. `check-coverage` therefore invokes the pinned sysroot's `lean --stdin`, imports its compiled test runner and checks fresh metadata in `run_cmd`. Keep the child exit status and escape interpolated arguments as Lean strings; do not bypass type checking or cache an earlier elaboration verdict.

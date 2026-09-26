@@ -4,6 +4,7 @@ import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Validate
 import P4SpecTec.Codegen.Graph
 import P4SpecTec.Codegen.PrintHints
+import P4SpecTec.Codegen.Coverage
 
 /-!
 The plan and the modules: definitions are grouped into recursion groups
@@ -72,6 +73,8 @@ structure RefPlan where
   summary : Format
   /-- The covered groups, in dependency order. -/
   groups : List RefGroup
+  /-- Per-callable metadata collected at the same decisions that emit proofs. -/
+  coverage : List Coverage.Entry
 
 /-- A module name component for a group, from its first definition's id:
 letters, digits and `_` only, so that no quoting is needed. -/
@@ -245,11 +248,17 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let funGroups := Graph.sccs funIds funDeps
   let mut unitFile : Std.HashMap String Nat := {}
   let mut needsExt : Std.HashMap String Bool := {}
-  let mut uncovered : List Format := []
+  let mut coverageEntries : List Coverage.Entry := externDefs.map fun d =>
+    { id := d.it.id.it
+      kind := match d.it with | .ExternRelD .. => "externRelation" | _ => "externFunction"
+      source := Env.fileOf d
+      group := [d.it.id.it]
+      recursive := false
+      dependencies := []
+      claims := []
+      exclusions := [{ definition := d.it.id.it, reason := "extern" }] }
   let mut refGroups : List RefGroup := []
   let mut groupModule : Std.HashMap String String := {}   -- covered id → its module
-  let mut covered := 0
-  let mut total := 0
   let mut coveredIds : List String := []
   let mut detIds : List String := []
   let ctxBase : Ctx := { env, externs := externNames }
@@ -319,19 +328,22 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     -- the refinement theorems of the group (rung 3): the group is covered
     -- when every member is in the fragment and every callee outside the
     -- group is covered
-    let reasons := group.filterMap fun id => match defById.get? id with
-      | some d => (Validate.unsupported env externNames d).map fun r => (id, r)
+    let reasons : List Coverage.Exclusion := group.filterMap fun id => match defById.get? id with
+      | some d => (Validate.unsupported env externNames d).map fun r =>
+        { definition := id, reason := r }
       | none => none
-    let uncoveredCallees := group.flatMap fun id =>
+    let uncoveredCallees : List Coverage.Exclusion := group.flatMap fun id =>
       ((calls id).filter fun c => !group.contains c && !coveredIds.contains c &&
-        funIds.contains c).map fun c => (id, s!"calls {c}, which has no theorem")
+        funIds.contains c).map fun c =>
+          { definition := id, reason := s!"calls {c}, which has no theorem", dependency := some c }
     let bodied := members.filter fun m => match env.funcs.get? m.id with
       | some info => info.kind != .builtin
       | none => true
     let reasons := if bodied.isEmpty then []
-      else if ext then group.map fun id => (id, "extern")
+      else if ext then group.map fun id => { definition := id, reason := "extern" }
       else reasons ++ uncoveredCallees
-    let thms := Validate.groupTheorems env.lib recursive bodied reasons
+    let thms := Validate.groupTheorems env.lib recursive bodied
+      (reasons.map fun r => (r.definition, r.reason))
     if reasons.isEmpty && !bodied.isEmpty then
       let base := groupModuleName bodied.head!.id
       let taken := refGroups.map (·.name)
@@ -340,12 +352,42 @@ def plan (env : Env) (spec : Lang.Al.spec) :
         if group.contains c then none else groupModule.get? c).eraseDups
       refGroups := refGroups ++ [{ name, decls := joinDecls thms, deps }]
       for m in bodied do groupModule := groupModule.insert m.id name
-    else
-      uncovered := uncovered ++ thms
+    for m in members do
+      let some d := defById.get? m.id | throw s!"unknown coverage definition {m.id}"
+      let kind := match d.it with
+        | .RelD .. => "relation"
+        | .TableDecD .. => "table"
+        | .BuiltinDecD .. => "builtin"
+        | _ => "function"
+      let mut claims : List Coverage.Claim := []
+      let mut exclusions := if kind == "builtin" then
+        [{ definition := m.id, reason := "builtin has no generated AL body" }]
+        else reasons
+      if m.isRel then
+        claims := claims ++ [{
+          name := m.defName ++ "_sound", kind := "runSoundness"
+          direction := "generatedSuccessToRelation"
+          expectedType := render (Props.corollaryType ext m) }]
+        if !recursive && m.detReason.isNone then
+          claims := claims ++ [{
+            name := m.defName.replace ".run" "" ++ ".det"
+            kind := "determinism", direction := "relationOutputsUnique"
+            expectedType := render (Props.detTheoremType ext m) }]
+        else
+          exclusions := exclusions ++ [{
+            kind := "determinism", definition := m.id
+            reason := if recursive then "recursive group"
+              else m.detReason.getD "determinism not emitted" }]
+      if reasons.isEmpty && kind != "builtin" then
+        claims := claims ++ [{
+          name := m.defName.replace ".run" "" ++ ".refines"
+          kind := "refinement", direction := "referenceToGenerated"
+          expectedType := render (Validate.refinementType env.lib m) }]
+      coverageEntries := coverageEntries ++ [{
+        id := m.id, kind, source := Env.fileOf d
+        group, recursive, dependencies := calls m.id, claims, exclusions }]
     if reasons.isEmpty then
-      covered := covered + bodied.length
       coveredIds := coveredIds ++ bodied.map (·.id)
-    total := total + bodied.length
   -- the quoted spec, in order, for the refinement theorems
   let quotedNames := spec.filterMap fun d => match d.it with
     | .RelD i .. | .ExternRelD i .. => some (env.q (Names.relName i.it) ++ ".al")
@@ -359,9 +401,14 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   -- nested `have`s, which the tactic's membership proofs cannot walk
   let specDecl := Term.defn (Format.text "def spec : List Lang.Al.def")
     (Format.text (" ::\n  ".intercalate quotedNames ++ " ::\n  []"))
-  let summary := Format.text s!"-- refinement theorems: {covered} of {total} definitions"
   pure (units, files,
-    { spec := specDecl, summary := joinDecls (summary :: uncovered), groups := refGroups })
+    { spec := specDecl, summary := Format.text (Coverage.summary coverageEntries)
+      groups := refGroups, coverage := coverageEntries })
+
+/-- Recompute coverage through the production planner, without claiming compilation. -/
+def coverage (lib exportPath : String) (spec : Lang.Al.spec) : Except String Coverage.Report := do
+  let (_, _, refinement) ← plan (Env.ofSpec lib spec) spec
+  pure { library := lib, input := exportPath, definitions := refinement.coverage }
 
 
 /-- Generate every output file of a library. -/
@@ -431,7 +478,10 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     String.join (modules.map fun m => s!"import {lib}.{m}\n") ++
     s!"\n/-!\n# {lib}\n\nThe rendering of the specification exported to `{exportPath}`, " ++
     "one module\nper spec file, generated by `lake exe p4spectec-gen`. Never hand-edited.\n-/\n"
-  outs := outs ++ [{ path := s!"{lib}.lean", text := root }]
+  let report : Coverage.Report :=
+    { library := lib, input := exportPath, definitions := refinement.coverage }
+  outs := outs ++ [{ path := s!"{lib}.lean", text := root },
+    { path := s!"{lib}/coverage.json", text := report.render }]
   pure outs
 
 end P4SpecTec.Codegen.Emit

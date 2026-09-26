@@ -33,6 +33,8 @@ for path in \
   lakefile.toml lake-manifest.json lean-toolchain \
   P4SpecTec.lean P4SpecTecTest.lean P4Lib.lean NanoP4Spec.lean P4Spec.lean ExampleProofs.lean \
   P4SpecTec/Codegen/Main.lean P4SpecTec/Codegen/Keywords.lean \
+  P4SpecTec/Codegen/Coverage.lean P4SpecTec/Codegen/Coverage/Check.lean \
+  NanoP4Spec/coverage.json \
   P4SpecTec/Refine/Init.lean ExampleProofs/NanoP4FieldUpdate/Certificate.lean \
   ExampleProofs/NanoP4FieldUpdate/test/run.py ExampleProofs/NanoP4FieldUpdate/test/test_runner.py \
   upstream/p4-spectec/README.md upstream/nano-p4-spec/README.md \
@@ -145,11 +147,12 @@ if command -v lake >/dev/null 2>&1; then
   (cd "$root" && python3 test/diff/run.py) || { say "differential test failed"; fail=1; }
   python3 "$root/test/diff/test_json_boundary.py" \
     || { say "JSON transport/output checks failed"; fail=1; }
-  (cd "$root" && lake build --wfail check-quotes check-print check-text-builtins \
+  (cd "$root" && lake build --wfail check-quotes check-coverage check-print check-text-builtins \
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
     check-nano-target check-nano-packet check-nano-driver check-nano-verify) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
+  (cd "$root" && lake exe check-coverage) || { say "coverage check failed"; fail=1; }
   python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }

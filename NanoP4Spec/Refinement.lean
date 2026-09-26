@@ -96,6 +96,12 @@ the reason. Generated.
     --   calls bits_to_int_unsigned, which has no theorem
     --   calls bits_to_int_signed, which has no theorem
 
+-- no refinement theorem: write_value_fields_from_bits'
+    --   group member write_value_from_bits': calls a builtin
+    --   group member write_value_from_bits': calls int_to_bitstr, which has no theorem
+    --   group member write_value_from_bits': calls bits_to_int_unsigned, which has no theorem
+    --   group member write_value_from_bits': calls bits_to_int_signed, which has no theorem
+
 -- no refinement theorem: write_value_from_bits
     --   calls write_value_from_bits', which has no theorem
 
@@ -164,6 +170,9 @@ the reason. Generated.
 -- no refinement theorem: Type_eq
     --   subtype check
 
+-- no refinement theorem: ParameterType_eq
+    --   group member Type_eq: subtype check
+
 -- no refinement theorem: Expr_ok
     --   calls a builtin
     --   calls id, which has no theorem
@@ -218,6 +227,34 @@ the reason. Generated.
     --   calls expression_of_lvalue, which has no theorem
     --   calls find_map, which has no theorem
     --   calls enter_t, which has no theorem
+
+-- no refinement theorem: Statements_ok
+    --   group member Statement_ok: calls a builtin
+    --   group member Statement_ok: calls VarDecl_ok, which has no theorem
+    --   group member Statement_ok: calls Lvalue_ok, which has no theorem
+    --   group member Statement_ok: calls Expr_ok, which has no theorem
+    --   group member Statement_ok: calls Type_eq, which has no theorem
+    --   group member Statement_ok: calls id, which has no theorem
+    --   group member Statement_ok: calls find_callableTypeDef_t, which has no theorem
+    --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
+    --   group member Statement_ok: calls Call_convention_ok, which has no theorem
+    --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
+    --   group member Statement_ok: calls find_map, which has no theorem
+    --   group member Statement_ok: calls enter_t, which has no theorem
+
+-- no refinement theorem: Block_ok
+    --   group member Statement_ok: calls a builtin
+    --   group member Statement_ok: calls VarDecl_ok, which has no theorem
+    --   group member Statement_ok: calls Lvalue_ok, which has no theorem
+    --   group member Statement_ok: calls Expr_ok, which has no theorem
+    --   group member Statement_ok: calls Type_eq, which has no theorem
+    --   group member Statement_ok: calls id, which has no theorem
+    --   group member Statement_ok: calls find_callableTypeDef_t, which has no theorem
+    --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
+    --   group member Statement_ok: calls Call_convention_ok, which has no theorem
+    --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
+    --   group member Statement_ok: calls find_map, which has no theorem
+    --   group member Statement_ok: calls enter_t, which has no theorem
 
 -- no refinement theorem: ParserLocalDecl_ok
     --   calls VarDecl_ok, which has no theorem
@@ -534,20 +571,50 @@ the reason. Generated.
 
 -- no refinement theorem: Call_eval
     --   extern
+    --   group member Table_eval: extern
+    --   group member Statement_eval: extern
+    --   group member Statements_eval: extern
+    --   group member Block_eval: extern
+    --   group member TableMatch_eval: extern
 
 -- no refinement theorem: Table_eval
+    --   group member Call_eval: extern
     --   extern
+    --   group member Statement_eval: extern
+    --   group member Statements_eval: extern
+    --   group member Block_eval: extern
+    --   group member TableMatch_eval: extern
 
 -- no refinement theorem: Statement_eval
+    --   group member Call_eval: extern
+    --   group member Table_eval: extern
     --   extern
+    --   group member Statements_eval: extern
+    --   group member Block_eval: extern
+    --   group member TableMatch_eval: extern
 
 -- no refinement theorem: Statements_eval
+    --   group member Call_eval: extern
+    --   group member Table_eval: extern
+    --   group member Statement_eval: extern
     --   extern
+    --   group member Block_eval: extern
+    --   group member TableMatch_eval: extern
 
 -- no refinement theorem: Block_eval
+    --   group member Call_eval: extern
+    --   group member Table_eval: extern
+    --   group member Statement_eval: extern
+    --   group member Statements_eval: extern
     --   extern
+    --   group member TableMatch_eval: extern
 
 -- no refinement theorem: TableMatch_eval
+    --   group member Call_eval: extern
+    --   group member Table_eval: extern
+    --   group member Statement_eval: extern
+    --   group member Statements_eval: extern
+    --   group member Block_eval: extern
     --   extern
 
 -- no refinement theorem: match_case_value
@@ -556,10 +623,15 @@ the reason. Generated.
 
 -- no refinement theorem: ParserTransition_eval
     --   subtype check
+    --   group member ParserSelect_eval: iterated premise
     --   calls id, which has no theorem
+    --   group member ParserSelect_eval: calls Expr_eval, which has no theorem
+    --   group member ParserSelect_eval: calls match_case_value, which has no theorem
 
 -- no refinement theorem: ParserSelect_eval
+    --   group member ParserTransition_eval: subtype check
     --   iterated premise
+    --   group member ParserTransition_eval: calls id, which has no theorem
     --   calls Expr_eval, which has no theorem
     --   calls match_case_value, which has no theorem
 

@@ -135,6 +135,16 @@ def binders (lib : String) (m : Member) : Format :=
     Format.line ++ Format.text s!"(hspec : HoldsSpec {lib}.spec ctx.global)" ++
     values ++ paramBinders m.params ++ rels
 
+/-- All per-member refinement binders, including fuel, after a break point. -/
+private def refinementBinders (lib : String) (m : Member) : Format :=
+  Format.line ++ Format.text "(fuel : Nat)" ++ Format.line ++ binders lib m
+
+/-- The closed type of an emitted per-member refinement theorem, including
+fuel, invocation configuration, environment and related-input hypotheses. -/
+def refinementType (lib : String) (m : Member) : Format :=
+  Format.group (Format.nest 4 (Format.text "∀" ++ refinementBinders lib m ++ "," ++
+    Format.line ++ conclusion m))
+
 /-- The statement of a member inside a group theorem, for a fuel `fuel`. -/
 def groupStatement (lib : String) (m : Member) : Format :=
   let n := m.params.length
@@ -179,8 +189,8 @@ def groupTheorems (lib : String) (recursive : Bool) (members : List Member)
   if !recursive then
     return members.flatMap fun m =>
       [Format.group (Format.nest 4 (Format.text ("theorem " ++ m.localName.replace ".run" "" ++
-          ".refines") ++ Format.line ++ Format.text "(fuel : Nat)" ++ Format.line ++
-          binders lib m ++ " :" ++ Format.line ++ conclusion m ++ " :=")) ++
+          ".refines") ++ refinementBinders lib m ++ " :" ++
+          Format.line ++ conclusion m ++ " :=")) ++
         Format.nest 2 (Format.line ++ Format.text "by refine_al"),
        audit (m.defName.replace ".run" "" ++ ".refines")]
   let first := members.head!
@@ -201,7 +211,7 @@ def groupTheorems (lib : String) (recursive : Bool) (members : List Member)
     let proj := String.join ((List.range k).map fun _ => ".2") ++ (if k < n - 1 then ".1" else "")
     let name := m.localName.replace ".run" "" ++ ".refines"
     out := out ++ [Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
-        Format.line ++ Format.text "(fuel : Nat)" ++ Format.line ++ binders lib m ++ " :" ++
+        refinementBinders lib m ++ " :" ++
         Format.line ++ conclusion m ++ " :=")) ++
       Format.nest 2 (Format.line ++ Format.group (Format.nest 2 (
         Format.text s!"({lib}.{groupName} fuel){proj}" ++ Format.line ++ corollaryArgs m))),
