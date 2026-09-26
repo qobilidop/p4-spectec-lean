@@ -4,10 +4,10 @@ Current checkpoint, updated 2026-09-26.
 
 ## Scope
 
-The approved generic coverage report and compiled-claim checker are complete
-locally, with generated `NanoP4Spec/coverage.json`, dependency explanations,
-tests and the certification guide updated. No proof-fragment expansion or
-production full-P4 generation. Broader M3 remains paused. Publication is pending.
+The approved generic coverage report and compiled-claim checker are implemented
+and published as `ffa961c`, with generated `NanoP4Spec/coverage.json`, dependency
+explanations, tests and the certification guide updated. No proof-fragment
+expansion or production full-P4 generation. Broader M3 remains paused.
 [Coverage evidence](notes/coverage.md) owns choices, checks and review findings.
 
 ## Validation and publication evidence
@@ -24,9 +24,14 @@ production full-P4 generation. Broader M3 remains paused. Publication is pending
 - Independent final review has no remaining findings. The optional entry-point
   CLI succeeds for `update_fieldValue` and returns exit 1 for an unknown entry.
 - The user explicitly reconfirmed direct commit/push on main for this change,
-  resolving the conflicting session-supplied PR instruction. Ready to publish
-  the reviewed, locally validated tree. Next: check remote CI for the resulting
-  head; no remote evidence for this feature is claimed before that run completes.
+  resolving the conflicting session-supplied PR instruction. Feature commit
+  `ffa961cdd9f5e7552dbd20eca45b19cb0fbe2ec0` is on origin/main.
+  [Feature CI](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36272406865)
+  records that revision's remote result. Any subsequent checkpoint's outcome
+  is recorded by [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml);
+  match its SHA rather than infer a remote verdict from local checks.
+- No implementation follow-up remains. After checking the matching remote CI,
+  choose the next bounded scope with the user; do not resume broader M3.
 
 ## Retained boundaries and next scope
 

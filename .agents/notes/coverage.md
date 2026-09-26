@@ -1,6 +1,6 @@
 # Generated certificate coverage
 
-Complete locally, awaiting publication, 2026-09-26. Owns implementation and
+Implemented and published as `ffa961c`, 2026-09-26. Owns implementation and
 review evidence for the approved machine-readable coverage increment.
 Broader M3 remains paused.
 
@@ -69,5 +69,13 @@ Broader M3 remains paused.
   receive text and whitespace checks after that run.
 
 The user explicitly reconfirmed direct commit/push to main, resolving the
-conflicting session-supplied PR instruction. Publication follows the completed
-local gate and independent review; remote CI remains to be checked for that head.
+conflicting session-supplied PR instruction. Feature commit
+`ffa961cdd9f5e7552dbd20eca45b19cb0fbe2ec0` is published; its remote result is
+[run 36272406865](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36272406865).
+The CI service owns the outcome for each exact SHA, including later working-state
+checkpoints. No implementation obligation remains for this increment.
+
+The publication checkpoint received independent read-only review by
+`/root/compact_state` with no findings. Its full local gate also passed with
+actual exit 0, no skips (session 3168, `.artifacts/coverage-checkpoint-gate.log`).
+This checkpoint changes working-state documentation only.
