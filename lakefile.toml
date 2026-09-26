@@ -65,6 +65,11 @@ root = "P4SpecTecTest.Diff.NanoP4Interp.Main"
 name = "p4-interp-replay"
 root = "P4SpecTecTest.Diff.P4Interp.Main"
 
+# Corpus-v2 spec-once streaming worker; no corpus execution in the ordinary gate.
+[[lean_exe]]
+name = "p4-corpus-worker"
+root = "P4SpecTecTest.Diff.P4Corpus.Main"
+
 # The compiled quoted AST must match the current export, modulo regions/hints.
 [[lean_exe]]
 name = "check-quotes"
