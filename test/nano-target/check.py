@@ -15,6 +15,8 @@ def main():
     _, data = fixture.read()
     subprocess.run([str(fixture.ROOT / ".lake/build/bin/check-nano-target")],
                    cwd=fixture.ROOT, timeout=30, check=True)
+    subprocess.run([str(fixture.ROOT / ".lake/build/bin/check-nano-driver")],
+                   cwd=fixture.ROOT, timeout=30, check=True)
     cache = fixture.ROOT / ".artifacts/nano-target/packet-observed.json"
     cache.parent.mkdir(parents=True, exist_ok=True)
     snapshot = fixture.load("packet_snapshot", fixture.ROOT / "scripts/spec-snapshot.py")

@@ -56,6 +56,9 @@ for path in \
   P4SpecTec/BackendSim/Core/Object.lean P4SpecTec/BackendSim/NanoSwitch/Pipe.lean \
   P4SpecTecTest/NanoTarget.lean P4SpecTecTest/NanoTargetOracle/Main.lean \
   P4SpecTecTest/NanoPacket/Main.lean test/nano-target/requests.json \
+  P4SpecTec/Runtime/Sim/Io.lean P4SpecTecTest/NanoDriver/Main.lean \
+  test/nano-target/driver-probe.ml test/nano-target/driver-requests.json \
+  test/nano-target/driver-observed.json \
   test/nano-target/observed.json test/nano-target/probe.ml test/nano-target/run.py \
   test/nano-target/packet-probe.ml test/nano-target/packet-run.py \
   test/nano-target/packet-observed.json.gz test/nano-target/packet-observed.json.sha256 \
@@ -118,7 +121,7 @@ if command -v lake >/dev/null 2>&1; then
     || { say "JSON transport/output checks failed"; fail=1; }
   (cd "$root" && lake build --wfail check-quotes check-print check-text-builtins \
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
-    check-nano-target check-nano-packet) \
+    check-nano-target check-nano-packet check-nano-driver) \
     || { say "reconnaissance tools failed to build"; fail=1; }
   (cd "$root" && lake exe check-quotes) || { say "quotation check failed"; fail=1; }
   (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }

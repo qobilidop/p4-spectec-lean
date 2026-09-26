@@ -11,7 +11,41 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active frozen checkpoint: bounded corpus shard
+## Active isolated increment: dynamic Nano packet driver
+
+Branch `m3d-nano-driver`, worktree `p4-spectec-lean-nano-driver`, starts at
+reviewed target checkpoint `96078a0`; the original target tree is frozen.
+New partial Runtime.Sim.Io aliases and NanoSwitch.Pipe.drive_pipe preserve
+the original signed-host port, hex payload and architecture; only the exact
+optional FORWARD shape transmits. Raw PacketIn objectState is passed to the
+explicit StateEval relation callback. Invalid hex/arity and unsupported host
+ports are hard errors; callback failure post-state and divergence propagate.
+Focused Pipe and check-nano-packet builds passed. Original upstream-driver
+capture and Lean replay both exited 0: six successful full driver outputs
+and one guarded failure (Lean err), alongside all existing relation checks.
+Transmission/counter mutations are rejected. Eleven offline fixture schema
+tests passed. Schema 2 stores independent driver inputs/outputs: 8,510,069
+raw bytes / 305,049 gzip bytes; root approved a 16 MiB expanded bound with
+the unchanged 1 MiB compressed bound. Direct 11-case driver fixture capture,
+Lean replay and exact-pin re-observation passed. The four-session original
+driver fixture re-observation also passed. Combined focused build
+`lake build --wfail check-nano-target check-nano-packet check-nano-driver
+P4SpecTecTest.NanoTarget` exited 0 (97 jobs); import completeness, explicit
+Lean width and diff-whitespace checks exited 0. Initial direct-probe API-name
+and test-only type-equality compile errors were fixed before these checks.
+Root independently reviewed the implementation and repeated the eleven
+direct observations, eleven contracts, original-driver packet sessions and
+Lean replay/mutations (all exit 0), with no findings. Root's narrow gate
+wiring is independently reviewed and its focused checks pass. Reports:
+`m3d-nano-driver.md`, `m3d-nano-driver-gate.md`. Local checkpoint `2635a32`
+is reconciled with published main `d039786` (PR #24). Independent source
+preservation and union-gate review found no issues; 39 focused contracts
+pass. Report: `m3d-driver-main-reconcile.md`. The combined full gate exited
+0 without skips; its actual exit is recorded in
+`.artifacts/driver-main-full-gate.exit`. Publication and final-head remote
+CI remain owed. This gate does not validate the unmerged full-P4 generation.
+
+## Published checkpoint: bounded corpus shard
 
 PR #22 merged as `2c85f1b` after remote Gate `36213412457` passed on
 `93a2e8c` in 3m43s. The new `m3c-corpus-shards` branch starts at that main
@@ -37,13 +71,15 @@ confirms both source sets unchanged and the union gate retained. Sixteen
 shard plus ten Nano contracts and shell syntax pass. Review:
 `m3c-shards-nano-reconcile.md`. The combined full gate exited 0 without
 skips; its actual exit is recorded in `.artifacts/corpus-nano-full-gate.exit`.
-Final-head CI remains required before merging. The incoming Lake file
+Final-head Gate `36216453043` passed on `c4a8858`; PR #24 merged as
+`d039786`. The incoming Lake file
 changes the run identity; retain prior observations without promoting them
 to exact-resume evidence for this new revision.
 Evidence, bounds and commands: `.agents/notes/full-p4-corpus-shards.md`.
-Next: independently review reconciliation, run the combined gate and final
-CI. Prepare complete sequential 317-shard execution with retained failures;
-no larger launch until its orchestration/accounting is reviewed.
+Complete sequential 317-shard orchestration with retained failures is
+independently reviewed and six offline orchestration tests pass. Root
+has launched its first canonical run on frozen `c4a8858`; no whole-corpus
+result is claimed yet. Keep that execution tree unchanged during the run.
 
 ## Merged checkpoint: bounded dynamic Nano target
 

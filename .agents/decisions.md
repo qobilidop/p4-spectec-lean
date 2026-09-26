@@ -14,14 +14,26 @@
   Revisit on an upstream correction/pin change or a proved contextual
   representation boundary. (2026-09-25)
 
-- **Keep relation replay distinct from boot/driver/STF support.** The first
+- **Keep relation/driver replay distinct from boot/STF support.** The first
   packet checkpoint replays NanoSwitch_drive from upstream-captured inputs
   and compares every semantic output plus the fresh counter. Callback fuel
   and nesting are explicit bounds; failure-kind claims stop at upstream's
   public failure category. Unguarded final outputs can discard the malformed
   receiver, so a separate direct-handler and guarded regression remain
-  mandatory. Revisit when the faithful driver and boot paths are ported.
+  mandatory. The driver increment separately captures the original upstream
+  drive_pipe inputs and outputs and compares the Lean driver's ctx/arch,
+  exact original-port/payload tx list and counter. It starts from captured
+  booted contexts, not a Lean boot or STF parser. Ports outside signed 63-bit
+  OCaml range reject as unsupported, never wrap silently. Confidence high
+  for this bounded projection; revisit when boot/STF paths are ported.
   (2026-09-25)
+
+- **Retain full independent driver evidence in schema 2.** Adding full
+  original-driver contexts/architectures doubles the packet fixture to
+  8,510,069 raw bytes / 305,049 compressed bytes. Keep the 1 MiB compressed
+  read bound and explicitly raise only the expanded bound from 8 to 16 MiB.
+  No semantic field, identity or ExternV payload is discarded to save space.
+  Confidence high; revisit if the finite selection expands. (2026-09-25)
 
 ## Bounded generated state refinement (2026-09-25)
 

@@ -1,14 +1,15 @@
 import P4SpecTec.BackendSim.Core.Object
 import P4SpecTec.Interp.InterpAl.Interp
+import P4SpecTec.Runtime.Sim.Io
 
 /-!
 Partial dynamic port of `p4spec/lib/backend-sim/nano_switch/pipe.ml`:
-PacketIn extract, initialization and the extern dispatch boundary. Receiver
+PacketIn extract, initialization, packet driver and the extern dispatch boundary. Receiver
 results remain raw objectState ExternV, exactly as at the pin, not repaired
 PACKET values. This is not a generated typed NanoP4Spec.Externs instance.
 
-The simulator driver, STF handling, verify and other architecture interfaces
-are not ported. Callbacks are explicit StateEval computations; their caller
+Boot, STF handling, verify and other architecture interfaces are not ported.
+Callbacks are explicit StateEval computations; their caller
 owns interpreter fuel/configuration. This module introduces no hidden fuel,
 resets, mutable trampoline or repeated evaluation of callback outcomes.
 -/
@@ -85,8 +86,29 @@ def eval_extern_method_call (call : Call) (values_input : List value) :
   let value_extern := Value.Make.extern (varT "objectState") (extern_to_yojson (.PacketIn pkt))
   pure [value_extern, value_ctx]
 
+/-- Explicit substitute for the pinned mutable Spec.Rel.call trampoline. -/
+abbrev RelCall := String → List value → StateEval (List value)
+
+/-- Mirrors drive_pipe, including optional FORWARD matching and byte-preserving output.
+The caller supplies the relation evaluator and its fuel/configuration. Unsupported
+host integers, invalid hex and wrong relation arity are hard errors; relation
+failures retain their post-state. Malformed decisions drop, as upstream's |>>? does. -/
+def drive_pipe (call : RelCall) (value_ctx value_arch : value) (rx : Runtime.Sim.Io.rx) :
+    StateEval (value × value × List Runtime.Sim.Io.tx) := do
+  let (port_in, packet_bytes) := rx
+  unless Core.Object.hostInt port_in do throw .err
+  let packet_in := «extern».PacketIn (← checked (Core.Object.PacketIn.init packet_bytes))
+  let value_packet_in_state := Value.Make.extern (varT "objectState") (extern_to_yojson packet_in)
+  let [value_forwarding_decision, value_ctx] ←
+    call "NanoSwitch_drive" [value_ctx, value_packet_in_state] | throw .err
+  let forward := match value_forwarding_decision.it with
+    | .CaseV decision => Domain.Mixfix.eq_mixop decision
+      (.Atom (mkPhrase (.Keyword "FORWARD")) : Domain.Mixfix.t Unit)
+    | _ => false
+  pure (value_ctx, value_arch, if forward then [(port_in, packet_bytes)] else [])
+
 /-- Bounded dynamic extern interface; unported functions are explicit hard errors.
-This does not claim support for upstream's verify function or simulator driver. -/
+This does not claim support for upstream's verify function, boot or STF handling. -/
 def externInterface (call : Call) : Interp_al.Interp.Extern StateEval where
   eval_extern_rel := fun name args =>
     if name == "ExternMethodCall_eval" then eval_extern_method_call call args else throw .err

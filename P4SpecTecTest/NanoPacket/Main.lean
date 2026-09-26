@@ -2,9 +2,10 @@ import P4SpecTec.BackendSim.NanoSwitch.Pipe
 import P4SpecTec.Lang.Al.Json
 
 /-!
-Replay actual pinned NanoSwitch_drive observations through the Lean AL interpreter.
-This harness is not a simulator port: initialization inputs are captured from
-upstream. It compares all semantic relation outputs and exact fresh counters.
+Replay actual pinned NanoSwitch_drive and original drive_pipe observations
+through the Lean AL interpreter and partial dynamic driver. Initialization
+inputs are captured from upstream; this is not a boot or STF parser port.
+It compares semantic context/architecture outputs, transmissions and fresh counters.
 Explicit interpreter and callback-depth fuel bound the otherwise mutable callback
 trampoline; exhaustion is never accepted as an upstream failure.
 -/
@@ -77,6 +78,37 @@ private def rejects (label needle : String) (r : Except String String) : Except 
   | .error e => unless (e.splitOn needle).length > 1 do
       throw s!"{label}: wrong rejection {e}"
 
+private def packet (j : Lean.Json) : Except String Runtime.Sim.Io.rx := do
+  let a ← j.getArr?
+  unless a.size == 2 do throw "wrong packet arity"
+  pure (← a[0]!.getInt?, ByteText.ofString (← a[1]!.getStr?))
+
+private def checkDriver (g : Ctx.global) (cfg : Interp.Config StateEval)
+    (event : Lean.Json) : Except String String := do
+  let [ctx, arch] ← Util.Yojson.list Lang.Il.Json.value (← field event "inputs")
+    | throw "wrong driver input arity"
+  let rx ← packet (← field event "rx")
+  let before ← int event "counterBefore"
+  let after ← int event "counterAfter"
+  unless (FreshState.ofInt before).counter == before do throw "out-of-range initial counter"
+  let some (actual, state) := StateEval.run
+    (drive_pipe (fun name args => Interp.do_eval_rel 1000000 cfg g name args) ctx arch rx)
+    (FreshState.ofInt before) | throw "driver fuel exhausted"
+  unless state.counter == after do throw "driver fresh counter differs"
+  match (← str event "class"), actual with
+  | "pass", .ok (ctx', arch', txs) =>
+    let [expectedCtx, expectedArch] ←
+      Util.Yojson.list Lang.Il.Json.value (← field event "outputs")
+      | throw "wrong driver output arity"
+    unless Runtime.Value.eq ctx' expectedCtx && Runtime.Value.eq arch' expectedArch do
+      throw "driver semantic outputs differ"
+    let expectedTxs ← Util.Yojson.list packet (← field event "txs")
+    unless txs == expectedTxs do throw "driver transmissions differ"
+    pure "pass"
+  | "runtimeFail", .error e => pure s!"runtimeFail (Lean {if e == .err then "err" else "unmatch"})"
+  | "pass", .error _ => throw "driver failed"
+  | _, _ => throw "driver outcome differs"
+
 private def sensitivity (g : Ctx.global) (base : Interp.Config StateEval)
     (event : Lean.Json) : Except String Unit := do
   let cfg := config g base 1000000 .none 100
@@ -124,6 +156,19 @@ def run (path : String) : IO UInt32 := do
       | .error e => IO.eprintln s!"{name}/{i}: {e}"; return 1
       | .ok result => IO.println s!"[nano-packet] event result: {result}"
     IO.println s!"[nano-packet] {name} guard={guard}: {events.size} events match"
+    let drivers ← IO.ofExcept ((← IO.ofExcept (field observation "driverEvents")).getArr?)
+    unless drivers.size == events.size do throw (IO.userError "driver event count differs")
+    for i in [:drivers.size] do
+      match checkDriver g cfg drivers[i]! with
+      | .error e => IO.eprintln s!"{name}/driver/{i}: {e}"; return 1
+      | .ok result => IO.println s!"[nano-packet] driver {i}: {result}"
+    if name == "nano-p4/testdata/positive/free-pass.p4" then
+      let event := drivers[0]!
+      IO.ofExcept (rejects "driver transmissions" "transmissions differ" (checkDriver g cfg
+        (event.setObjVal! "txs" (.arr #[]))))
+      IO.ofExcept (rejects "driver counter" "fresh counter differs" (checkDriver g cfg
+        (event.setObjVal! "counterAfter" (Lean.toJson ((← IO.ofExcept
+          (int event "counterAfter")) + 1)))))
     if name == "nano-p4/testdata/positive/field-access.p4" && !guard then
       IO.ofExcept (sensitivity g base events[0]!)
       IO.println "[nano-packet] four semantic/state mutations rejected"

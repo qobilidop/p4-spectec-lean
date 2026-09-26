@@ -63,7 +63,7 @@ def main():
                       "stf": str(stf.relative_to(args.upstream)),
                       "stfSha256": hashlib.sha256(stf.read_bytes()).hexdigest(),
                       "guard": guard, "observation": result})
-    result = {"schemaVersion": 1, "relation": "NanoSwitch_drive",
+    result = {"schemaVersion": 2, "relation": "NanoSwitch_drive",
               "upstreamRevision": revision, "nanoSpecRevision": spec_pin,
               "mode": "AL", "cache": False, "det": False, "cases": cases}
     fixture.validate(result)
