@@ -53,8 +53,14 @@ before linking.
 The post-signature `lake build --wfail P4SpecTec P4SpecTecTest` passed all
 153 jobs, including existing Nano refinement modules. The pinned oracle's
 fourteen observations, three offline provenance tests, text and root-import
-checks passed. No gate integration, full corpus replay, full local gate or
-push is claimed. Root independently reviewed the implementation and reran
+checks passed. Root independently reviewed the implementation and reran
 TypeRuntime, the pinned fourteen cases and three offline tests (all exit 0),
 with no remaining bounded findings: `.agents/reviews/m3c-type-runtime.md`.
-CI wiring and integrated full/remote gates remain separate obligations.
+Offline CI wiring was independently reviewed with no findings and a passing
+shell syntax check. The gate requires seven new paths and runs three offline
+tests, not the optional real upstream oracle. Frozen
+`nix develop --command bash scripts/check.sh` exited 0 with no skips after
+PR 18 integration and this wiring. Both 78-case Nano differential legs and
+48 output contexts, existing quotations/oracles/census passed. Actual
+process exit was recorded; remote CI and publication remain owed. No full
+corpus replay or type-fresh fidelity is claimed.

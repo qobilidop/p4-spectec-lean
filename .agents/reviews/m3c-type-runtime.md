@@ -38,3 +38,20 @@ unusual but matches the pinned upstream branch exactly.
 The author's 153-job focused library/test build passed; root did not rerun
 that entire build during review. Full integrated gate, CI wiring, final
 remote CI and whole-corpus replay remain separate obligations.
+
+## Independent offline gate-wiring review
+
+Root read the narrow `scripts/check.sh` diff after the reviewed source
+checkpoint `7a08bef` and merge of PR 18. The gate requires seven new source
+and fixture paths and runs the three offline provenance/build-order tests
+unconditionally with an explicit failure flag. It does not execute the real
+upstream oracle, fetch a corpus or add a network requirement. No findings.
+Root independently ran `bash -n scripts/check.sh` (exit 0); the three offline
+tests had already been independently rerun (exit 0). Root did not claim an
+integrated full-gate run in this wiring review.
+
+After review, the author ran the frozen integrated
+`nix develop --command bash scripts/check.sh`: actual process exit 0, no
+skips. The gate includes both Nano differential legs, quotations, existing
+oracles/census and the new offline contracts. This is author-run evidence,
+not an independently repeated full gate. Remote CI remains owed.

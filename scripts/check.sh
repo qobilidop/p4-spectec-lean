@@ -48,6 +48,9 @@ for path in \
   scripts/fetch-p4c.sh scripts/test-fetch-p4c.py \
   scripts/export-p4-oracle.py test/p4-oracle/probe.ml test/p4-oracle/check.py \
   test/p4-oracle/observed.json test/p4-oracle/invalid.p4 test/p4-oracle/test_contract.py \
+  P4SpecTec/Runtime/Type/Expand.lean P4SpecTec/Runtime/Type/Equiv.lean \
+  P4SpecTecTest/TypeRuntime.lean test/type-runtime/observed.json \
+  test/type-runtime/probe.ml test/type-runtime/run.py test/type-runtime/test_contract.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
   test/diff/run.py .github/workflows/ci.yml
 do
@@ -74,6 +77,8 @@ bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"
 python3 "$root/scripts/test-fetch-p4c.py" || { say "p4c restore tests failed"; fail=1; }
 python3 "$root/test/p4-oracle/test_contract.py" \
   || { say "P4 oracle contract tests failed"; fail=1; }
+python3 "$root/test/type-runtime/test_contract.py" \
+  || { say "type-runtime oracle contract tests failed"; fail=1; }
 for name in nano-p4 p4; do
   python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }

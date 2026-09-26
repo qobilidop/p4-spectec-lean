@@ -30,7 +30,15 @@ extraction fixed that prerequisite. Full gate, corpus replay and
 publication are not claimed. Root independently reviewed all changed paths
 and reran TypeRuntime, fourteen pinned cases and three offline tests (all
 exit 0); no findings remain within the bounded claim. Review:
-`.agents/reviews/m3c-type-runtime.md`. Next: offline CI wiring and integration.
+`.agents/reviews/m3c-type-runtime.md`. Offline CI wiring was independently
+reviewed with no findings; it requires seven paths and unconditionally runs
+three offline tests, without real upstream execution/network. Root's shell
+syntax check passed. PR 18 is merged into this branch. Frozen
+`nix develop --command bash scripts/check.sh` exited 0 with no skips,
+including both 78-case Nano differential legs, 48 exact output contexts,
+342 quotations, existing printer/text/state oracles, census and new offline
+contracts. Actual process exit was recorded before preparing a push.
+Remote CI and publication remain owed; no whole-corpus/type-fresh claim.
 
 ## Active checkpoint: generator integration
 
