@@ -120,10 +120,16 @@ These limitations describe the implementation, not the intended design:
   a complete generated typed target, Lean boot/STF implementation or proof of
   all packet behavior. The shared verify helper retains upstream's full-P4
   calling convention, which does not establish Nano source-level support.
-- Printing is tested under supported hint policies, but lacks a general
-  hinted-print correspondence theorem. Builtin, cast, iteration and
-  higher-order proof coverage must be read from the generated exclusions,
-  not inferred from executable support.
+  Checked [representation obstructions](../P4SpecTecTest/NanoTargetRepresentation.lean)
+  show that the current generated `value` cannot represent or decode raw externs.
+  Actual short/full extract continuation tests preserve the resulting receiver,
+  subsequent callee mismatch and distinct direct-handler hard error.
+- [Unhinted printing](../P4SpecTec/Refine/Print.lean) preserves output and errors
+  under canonical equality. The quote checker verifies that both decoded and
+  compiled Nano have empty print environments. General hinted-print
+  correspondence remains open: equal canonical values can select different
+  policies through their type notes. Builtin, cast, iteration and higher-order
+  proof coverage must be read from the generated exclusions.
 - Some legacy proof-facing matching/substitution helpers retain bounded-fuel
   false/identity fallbacks. Interpreter paths use checked APIs with explicit
   exhaustion and errors. Nonempty substitution through function types remains
@@ -169,7 +175,7 @@ There are further obligations when making a source-level claim:
   An extern signature alone is not a semantic contract.
 - **Observations:** state which values, failure kinds and state changes the
   claim preserves. Canonical equality alone is not a printing or packet
-  behavior theorem.
+  behavior theorem without the corresponding observation contract.
 
 The precise refinement statement and proof machinery are in
 [Design, section 5.1](design.md#51-the-refinement-theorem).

@@ -57,6 +57,7 @@ import P4SpecTec.Prelude.Num
 import P4SpecTec.Prelude.Value
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Refine.Realize
+import P4SpecTec.Refine.Print
 import P4SpecTec.Refine.Init
 import P4SpecTec.Refine.StateCalc
 import P4SpecTec.Refine.StateRules

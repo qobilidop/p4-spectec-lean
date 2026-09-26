@@ -36,12 +36,21 @@ root integrates and reviews. No shared emitter changes are underway.
   passed with actual exit 0, no skips (session 77137,
   `.artifacts/nano-n0-realize-gate.log`), including the pending reusable reverse
   calculus. Final documentation evidence edits receive text/whitespace checks.
-  Inventory commit `35bda29` is local. Publication and exact-revision remote CI
-  remain pending.
+  Inventory commit `35bda29` and reverse-foundation commit
+  `f6d1b05d02f24ac8ae975168f4bb99c29ab3fbe8` are published on main. Exact-head
+  [CI run 36276724234](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36276724234)
+  succeeded; their publication obligation is closed.
 - N1 foundation: reusable eventual reverse-realization rules and discriminating
   fixtures are reviewed independently by root; focused warning-failing build
   and the same full gate pass. Exact axiom audits cover 31 named theorems.
   These are proof infrastructure, not new generated Nano certificates.
+- N1 target/printing checkpoint: independent implementation and integration
+  reviews have no remaining findings. Full local gate passed with actual exit 0,
+  no skips (session 8909, `.artifacts/nano-n1-target-print-gate.log`); focused
+  proof builds, packet replay and decoded/compiled empty-hint checks pass.
+  Final evidence edits receive text/whitespace checks. Publication CI must match
+  this checkpoint's exact SHA in
+  [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
 - Planning checkpoint: dependency closures were recomputed from current
   coverage metadata; proof and target boundaries were inspected read-only.
   Independent plan review found no blocking issue; a wording clarification
@@ -84,9 +93,11 @@ root integrates and reviews. No shared emitter changes are underway.
 The bounded field-update source connection is complete. Generated Nano
 refinement remains 18/153 in one direction; production full-P4 generation and
 general reverse automation remain incomplete. Broader M3 stays paused.
-[Roadmap](roadmap.md) routes the concrete plan. Publish N0 and the reviewed
-reverse calculus, then finish N1 with actual recursive Nano proofs, the raw
-extern receiver continuation and printing adequacy. The existing `value` codec
+[Roadmap](roadmap.md) routes the concrete plan. N0 and the reverse calculus
+are published. The no-hint printing theorem and actual raw-receiver continuation
+are reviewed and pass the full local gate.
+Finish N1 with an actual recursive Nano reverse certificate and the faithful
+runtime representation contract; the recursive relation probe is still open. The existing `value` codec
 cannot represent successful extract's raw `ExternV`; a runtime representation
 extension needs a generator/subtype audit before adoption. Fixed inner-fuel
 probes have found no counterexample under `guard=false`; no general safety

@@ -66,6 +66,16 @@ obligations. [Translation choices](notes/translation-design.md) preserve
 implementation rationale and uncertainties without duplicating architecture.
 [Field-update evidence](notes/field-update.md) records the completed consumer.
 
+For the current Nano pin, printing requires an explicit empty hint environment.
+A reusable theorem now proves canonical equality preserves no-hint output and
+errors, and the quote checker independently checks decoded/compiled emptiness.
+Reason: this is the actual Nano policy table; the broader provenance invariant
+is needed only for hinted specifications. Confidence high. Revisit on any pin
+or policy change; do not generalize the empty-table result to hinted printing.
+The raw-extern runtime representation remains an open N1 design obligation;
+its current-codec impossibility is checked, and PACKET rewrapping changes the
+actual subsequent callee result.
+
 These topic constraints remain binding when their work resumes:
 
 - [State integration](notes/state-integration/overview.md): allocation survives

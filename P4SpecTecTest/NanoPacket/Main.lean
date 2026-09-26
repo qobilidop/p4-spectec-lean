@@ -1,5 +1,6 @@
 import P4SpecTec.BackendSim.NanoSwitch.Pipe
 import P4SpecTec.Lang.Al.Json
+import NanoP4Spec.Refinement.Spec
 
 /-!
 Replay actual pinned NanoSwitch_drive and original drive_pipe observations
@@ -134,6 +135,106 @@ private def sensitivity (g : Ctx.global) (base : Interp.Config StateEval)
   rejects "source header bit" "semantic outputs differ" (checkEvent g cfg
     (event.setObjVal! "inputs" (.arr (inputs.set! 1 packet))))
 
+private def succeeded (label : String) (r : Option (Except Fail α × FreshState)) :
+    Except String (α × FreshState) :=
+  match r with
+  | none => throw s!"{label}: fuel exhausted"
+  | some (.error e, _) => throw s!"{label}: {if e == .err then "err" else "unmatch"}"
+  | some (.ok output, state) => pure (output, state)
+
+private def failedAs (label : String) (expected : Fail) (state : FreshState)
+    (r : Option (Except Fail α × FreshState)) : Except String Unit := do
+  let some (.error actual, final) := r | throw s!"{label}: expected failure absent"
+  unless actual == expected && final == state do throw s!"{label}: failure/state differs"
+
+private def extractReceiver (size : Nat) : Lang.Il.value :=
+  let packet : BackendSim.Core.Object.PacketIn.t :=
+    { bits := Array.replicate size true, idx := 0, len := size }
+  Runtime.Value.Make.case (varT "value")
+    (.Seq [.Atom (Util.Source.mkPhrase (.Keyword "PACKET")),
+      .Arg (Runtime.Value.Make.text (ByteText.ofString "packet_in")),
+      .Arg (Runtime.Value.Make.extern (varT "objectState")
+        (extern_to_yojson (.PacketIn packet)))])
+
+private def extractHeaderType : NanoP4Spec.typeIR :=
+  .HEADER_lbrace_rbrace (ByteText.ofString "Nanonet")
+    [.semi .BOOL (ByteText.ofString "drop"),
+     .semi (.BIT_langle_rangle 7) (ByteText.ofString "packetType"),
+     .semi (.BIT_langle_rangle 8) (ByteText.ofString "src"),
+     .semi (.BIT_langle_rangle 8) (ByteText.ofString "dst")]
+
+private def copiedHeader (size : Nat) : NanoP4Spec.value :=
+  .HEADER_lbrace_rbrace (ByteText.ofString "Nanonet")
+    [.semi (._B (size == 24)) (ByteText.ofString "drop"),
+     .semi (.W 7 (if size == 24 then 127 else 0)) (ByteText.ofString "packetType"),
+     .semi (.W 8 (if size == 24 then 255 else 0)) (ByteText.ofString "src"),
+     .semi (.W 8 (if size == 24 then 255 else 0)) (ByteText.ofString "dst")]
+
+-- Exercise the actual quoted callback, Copy_out and receiver-write continuation.
+-- The initial context comes from the existing checked upstream fixture.
+private def extractContinuation (base : Interp.Config StateEval) (event : Lean.Json) :
+    Except String Unit := do
+  let g ← Interp.init NanoP4Spec.spec
+  let cfg := config g { base with guard := false } 1000000 .none 100
+  let [initialContext, _] ← Util.Yojson.list Lang.Il.Json.value (← field event "inputs")
+    | throw "extract continuation: wrong driver input arity"
+  let initialState := FreshState.ofInt (← int event "counterBefore")
+  let localScope := NanoP4Spec.scope.toValue .LOCAL
+  let text := fun s => Runtime.Value.Make.text (ByteText.ofString s)
+  let call := fun name args => Interp.do_eval_func 1000000 cfg g name [] args
+  let expression := NanoP4Spec.lvalue.toValue
+    (.dot (._ID (ByteText.ofString "pkt")) (._ID (ByteText.ofString "extract")))
+  let args := Runtime.Value.Make.list
+    (.IterT (Util.Source.mkPhrase (varT "argument")) .List)
+    [NanoP4Spec.expression.toValue (._ID (ByteText.ofString "outHdr"))]
+  for size in [8, 24] do
+    let (ctx, state0) ← succeeded "extract preparation" (StateEval.run (do
+      let header ← call "default" [NanoP4Spec.typeIR.toValue extractHeaderType]
+      let ctx ← call "add_var_e" [localScope, initialContext, text "pkt", extractReceiver size]
+      call "add_var_e" [localScope, ctx, text "outHdr", header]) initialState)
+    let ([callee], state1) ← succeeded "initial Callee_eval" (StateEval.run
+      (Interp.do_eval_rel 1000000 cfg g "Callee_eval" [localScope, ctx, expression]) state0)
+      | throw "initial Callee_eval: wrong output arity"
+    let ([after], state2) ← succeeded "Call_eval" (StateEval.run
+      (Interp.do_eval_rel 1000000 cfg g "Call_eval" [localScope, ctx, callee, args]) state1)
+      | throw "Call_eval: wrong output arity"
+    let ((receiver, header), state3) ← succeeded "post-call lookup" (StateEval.run (do
+      let receiver ← call "find_var_e" [localScope, after, text "pkt"]
+      let header ← call "find_var_e" [localScope, after, text "outHdr"]
+      pure (receiver, header)) state2)
+    unless [state0, state1, state2, state3].all (· == initialState) do
+      throw "extract continuation: fresh counter changed"
+    let .ExternV raw := receiver.it | throw "extract continuation: receiver is not raw ExternV"
+    let .ok (.PacketIn packet) := extern_of_yojson raw
+      | throw "extract continuation: receiver objectState cannot decode"
+    unless packet.idx == (if size == 24 then 24 else 0) &&
+        packet.len == size && packet.bits == Array.replicate size true do
+      throw "extract continuation: packet state differs"
+    unless (NanoP4Spec.value.ofValue 10000 receiver).isNone do
+      throw "extract continuation: raw receiver decoded as generated value"
+    unless Runtime.Value.eq header (copiedHeader size).toValue do
+      throw "extract continuation: header Copy_out differs"
+    failedAs "subsequent Callee_eval" .unmatch state3 (StateEval.run
+      (Interp.do_eval_rel 1000000 cfg g "Callee_eval" [localScope, after, expression]) state3)
+    failedAs "direct handler on raw receiver" .err state3 (StateEval.run
+      (eval_extern_method_call (fun name ts vs => Interp.do_eval_func 1000000 cfg g name ts vs)
+        [after, receiver, text "extract", Runtime.Value.Make.list
+          (.IterT (Util.Source.mkPhrase (varT "nameIR")) .List) [text "hdr"]]) state3)
+    -- Deliberate PACKET-rewrap mutation, used only to distinguish the failed
+    -- continuation above. The normal path always preserves the raw receiver.
+    let original := extractReceiver size
+    let .CaseV (.Seq [tag, typeId, .Arg _]) := original.it
+      | throw "PACKET-rewrap mutation: original receiver shape differs"
+    let wrapped := { original with it := .CaseV (.Seq [tag, typeId, .Arg receiver]) }
+    let (mutated, state4) ← succeeded "PACKET-rewrap source update" (StateEval.run
+      (call "update_var_e" [localScope, after, text "pkt", wrapped]) state3)
+    let ([restoredCallee], state5) ← succeeded "PACKET-rewrap subsequent Callee_eval"
+      (StateEval.run (Interp.do_eval_rel 1000000 cfg g "Callee_eval"
+        [localScope, mutated, expression]) state4)
+      | throw "PACKET-rewrap mutation: wrong callee arity"
+    unless Runtime.Value.eq restoredCallee callee && state4 == initialState &&
+        state5 == initialState do throw "PACKET-rewrap mutation: restored callee/state differs"
+
 /-- Replay the supplied observation bundle; fixture provenance is checked by its Python driver. -/
 def run (path : String) : IO UInt32 := do
   let debug := (← IO.getEnv "P4SPECTEC_PACKET_DEBUG").isSome
@@ -164,6 +265,8 @@ def run (path : String) : IO UInt32 := do
       | .ok result => IO.println s!"[nano-packet] driver {i}: {result}"
     if name == "nano-p4/testdata/positive/free-pass.p4" then
       let event := drivers[0]!
+      IO.ofExcept (extractContinuation base event)
+      IO.println "[nano-packet] short/full extract continuations and PACKET-rewrap mutation checked"
       IO.ofExcept (rejects "driver transmissions" "transmissions differ" (checkDriver g cfg
         (event.setObjVal! "txs" (.arr #[]))))
       IO.ofExcept (rejects "driver counter" "fresh counter differs" (checkDriver g cfg

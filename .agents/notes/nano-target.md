@@ -1,8 +1,9 @@
 # Bounded Nano target
 
-Paused integration boundary. Updated 2026-09-26 by consolidating the
-2026-09-25 target, packet, driver and verify notes/reviews, not by running a
-new semantic audit. Current reproduction belongs to
+Active Nano feasibility boundary under the approved certification plan.
+Updated 2026-09-26. Historical target/packet/driver/verify evidence remains
+below; new raw-receiver continuation checks are recorded in the
+[Nano checkpoint](nano-certification.md). Full-P4 integration remains paused. Current reproduction belongs to
 [test/nano-target](../../test/nano-target/README.md) and
 [test/nano-verify](../../test/nano-verify/README.md).
 
@@ -86,7 +87,7 @@ with `2c85f1b`, `2635a32` with `d039786`, and `cf1832f` with
 A recorded Nano combined full gate exited 0 with 342 quotations and 1,689
 census definitions; the latest whole-repo validation belongs in status.
 
-## Resume only under new scope
+## Remaining integration obligations
 
 Enumerate affected extract cases with exclusions remaining in the denominator.
 Dynamic execution may agree where a typed adapter is explicitly unsupported.

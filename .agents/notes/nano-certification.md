@@ -309,7 +309,10 @@ prove contract feasibility, review N1 proofs, or supply a full-gate/remote verdi
 Root's full `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
 passed with actual exit 0, no skips (session 77137,
 `.artifacts/nano-n0-realize-gate.log`), including the pending reverse calculus.
-Final evidence text receives text/whitespace checks. Remote CI remains pending.
+Final evidence text received text/whitespace checks. Inventory commit `35bda29`
+and reverse-foundation commit `f6d1b05` are published; exact-head
+[CI run 36276724234](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36276724234)
+succeeded. This publication obligation is closed.
 
 ## N1 reverse calculus checkpoint
 
@@ -332,10 +335,12 @@ audits. Root wired the library/test root imports and independently ran
 passed. This review certifies neither an actual Nano reverse theorem nor
 stateful/printing correspondence; the actual recursive proof remains active.
 
-Fuel investigation, bounded scratch evidence: under `guard=true`, nested Nano
-parenthesized expressions at depths 1000/1100 exhaust the internal match fuel
-1000 and succeed at 2000. This is outside the agreed guard-disabled profile.
-Under `guard=false`, actual quoted `repeat_` succeeded in all 24 runs with type
+Fuel investigation, bounded scratch evidence: direct recursive membership checks
+used by dynamic guards, via `Match.sub_checked`, exhaust budget 1000 on nested
+Nano parenthesized expressions at depths 1000/1100 and succeed at budget 2000.
+This did not run configured guarded interpretation or change its internal fuel.
+The agreed profile disables guards. Under `guard=false`, actual quoted `repeat_`
+succeeded in all 24 runs with type
 nesting 0/999/1000/1100, repeat counts 0/1/3, and outer fuel 512/2000. Its recursive
 type argument is bare `X`, so substitution returns the replacement directly.
 All five recursive subtype checks in decoded Nano target primitive Nat; the
@@ -352,6 +357,69 @@ ignored subchecks and constructor refutability. It must propagate through
 `Copy_out` and `Lvalue_write` to actual receiver reuse. It must not broaden
 source `packetValue`/`objectValue` or repair the value with a `PACKET` wrapper.
 The concrete continuation and printing probes are still active.
+
+## N1 target and printing checkpoint
+
+Actual quoted `Callee_eval`/`Call_eval` now run in the existing packet checker
+from its checked free-pass context, with source callbacks and guards disabled.
+For both 8-bit and 24-bit packets, extract succeeds and stores raw `ExternV`.
+The short packet retains idx 0 and the default header; the full packet reaches
+idx 24 and copies out drop=true, packetType=127, src=dst=255. Packet bits/length
+and all fresh counters are checked. Subsequent callee selection returns
+`unmatch`; direct extern dispatch on that receiver returns a hard error.
+A deliberately isolated PACKET-rewrap mutation restores successful callee
+selection, so silently repairing the receiver cannot pass this probe.
+
+The two kernel theorems in `P4SpecTecTest/NanoTargetRepresentation.lean` prove
+that no current generated `value` represents any raw extern, and no decoder
+fuel can recover it. They establish the current interface obstruction, not
+contextual correctness of a proposed extension. The runtime-only constructor
+candidate still needs its generator/subtype audit and contextual proof.
+Shared verify remains unreachable as a Nano extern-function call: Nano has
+no `ExternFunctionCall_eval`; direct shared-helper success does not establish
+Nano source coverage, and the retained getter-ABI failure still applies.
+
+Nano's actual print policy table is empty. `Refine/Print.lean` proves output
+and error equality under canonical equality for the empty table, including
+nested unsupported values. Tests retain identifier/nonTypeName notes and
+show that synthetic differing policies distinguish canonically equal values.
+The quote checker independently checks decoded and compiled table emptiness;
+normalized quotation equality alone would erase the needed hints. Application
+requires `cfg.printHints = []`; `HoldsSpec` alone is insufficient. A general
+hinted contract would additionally relate selected policies recursively.
+Builtin dispatch/environment composition remains separate work.
+
+Independent read-only reviews, with no remaining findings:
+
+- Root reviewed Sol's packet continuation implementation and its isolated
+  mutation: blob `4a3cc1970dda1b271e0f97c8ffce408c4b20c5cd`.
+- Root reviewed Astra's no-hint proof and discriminating tests:
+  `Refine/Print.lean` blob `51e31b7adcc715a2b8a6f7ae8efeb8534441b791`,
+  `NanoPrint.lean` blob `dcb4372353f424b880852de303fc839f3822617c`.
+- Astra `/root/review_nano_plan` reviewed root's raw-extern obstruction proofs
+  and import: blob `a0ebe515dc851c73b9ccaca46b6b714ec1bc1e15`.
+- Sol `/root/nano_corpus` reviewed root's quote prerequisite and root wiring:
+  `Quote/Main.lean` blob `8dc2635471e664f560d0b002dbedd88dc150e723`,
+  `P4SpecTec.lean` blob `995b13c1a8a943714545dbdd27e32c0e2f47201a`,
+  `P4SpecTecTest.lean` blob `67aa0577eb4eb172c23d5e56b072841eecc52cbd`.
+  These reviews do not claim upstream recapture or full target certification.
+- Sol's documentation consistency review found two minor retained-note issues:
+  the direct membership probe was described as guarded interpretation, and N0
+  publication text was stale. Both are corrected above; follow-up review
+  confirmed both resolutions with no remaining findings. No current target/print
+  overclaim was found.
+
+Focused checks, all actual exit 0: warning-failing builds of `check-nano-packet`,
+`P4SpecTec.Refine.Print`, `P4SpecTecTest.NanoPrint` and
+`P4SpecTecTest.NanoTargetRepresentation`; `python3 test/nano-target/check.py`;
+`lake exe check-quotes` (342 matches; both tables empty). Commands ran inside
+`nix develop`. The full combined
+`nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
+passed with actual exit 0, no skips (session 8909,
+`.artifacts/nano-n1-target-print-gate.log`). Final evidence edits receive
+text/whitespace checks. Publication CI must match this checkpoint's exact SHA
+in [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
+No Nano completion binding has been added, and N1's full exit criteria remain open.
 
 ## Plan review and validation
 
