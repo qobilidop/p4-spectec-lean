@@ -51,6 +51,7 @@ partial def unsupportedPrem (p : prem) : Option String :=
 
 /-- Why `d` is outside the fragment, if it is. -/
 def unsupported (env : Env) (externs : List String) (d : Lang.Al.def) : Option String := Id.run do
+  if env.mode == .freshState then return some "stateful refinement is not implemented"
   let calls := callsOfDef d
   if calls.any externs.contains then return some "calls an extern"
   if calls.any fun c => match env.funcs.get? c with
@@ -75,7 +76,9 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def) : Option S
     if !tparams.isEmpty then return some "type parameters"
     if params.any fun p => match p.it with | .DefP .. => true | _ => false then
       return some "function-typed parameter"
-  | .TableDecD .. => pure ()
+  | .TableDecD _ params .. =>
+    if params.any fun p => match p.it with | .DefP .. => true | _ => false then
+      return some "function-typed parameter"
   | .RelD .. => pure ()
   | _ => return some "not a definition with a body"
   if let some r := prems.findSome? unsupportedPrem then return some r

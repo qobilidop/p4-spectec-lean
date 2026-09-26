@@ -67,7 +67,8 @@ partial def typTerm (env : Env) (unfold : List String) : typ' → Term
   | .IterT t .List => .call "List" [typTerm env unfold t.it]
   | .FuncT _ ts t =>
     let args := ts.map fun t => typTerm env unfold t.it
-    ⟨Format.group (Format.joinSep ((args ++ [typTerm env unfold t.it]).map (·.arg))
+    ⟨Format.group (Format.joinSep
+      ((args ++ [env.mode.result (typTerm env unfold t.it)]).map (·.arg))
       (" →" ++ Format.line)), false⟩
 where
   /-- A right-nested product. -/

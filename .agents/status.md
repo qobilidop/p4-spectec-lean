@@ -11,45 +11,64 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active checkpoint: recovered stateful generation and refinement
+## Active checkpoint: generator integration
 
-- Recovered the interrupted session from repository notes, saved transcripts
-  and all six surviving worktrees. Primary `main` was `7d9d356`, including
-  merged PRs #14 and #15; its only modification was the expected upstream
-  export patch. Existing uncommitted generator/proof work is preserved.
-- Root branch `m3b-state-refinement` connects actual AL fresh-function
-  dispatch to `StateRefines` for every fuel and initial counter. The table
-  contract is `Holds` with no local callback shadowing; guards are explicitly
-  disabled. Fixtures compose dispatch through both failures, retry and
-  negation and reject a resetting allocator by kernel proof. Focused
-  `lake build --wfail P4SpecTecTest.StateRefinement P4SpecTec` exited 0
-  (69 jobs). Full `scripts/check.sh` exited 0 with no skips. Independent
-  read-only review found no correctness issues; both files re-elaborated
-  directly with axiom audits (exit 0 each). Remote CI remains owed. This
-  is a reusable proof boundary, not generated full-P4 refinement.
-- Executable and structural proof authors resumed their respective saved
-  worktrees. The bounded M3C oracle adapter is reviewed and being published
-  independently from current main. No milestone completion is claimed.
+Isolated state-proof checkpoint on `m3b-state-props`: ordered and optional
+structural iteration now emits auxiliary predicates with explicit captured
+indices and proves successful runs using ordered chains. Nested, joint,
+shadowed and pattern-bound captures are exercised by actual-emission tests.
+The build `lake build --wfail P4SpecTec P4SpecTecTest.StateProps` in the pinned
+Nix shell exited 0 (72 jobs), as did text and diff-whitespace checks.
+The isolated checkpoint's focused results were independently rechecked
+in the integration below; they did not alone authorize a push. See
+`.agents/notes/state-props.md`. Next: independent review, then recursive SCC
+all-outcome realization and structural soundness; production remains disabled.
+
+The executable checkpoint `e0d7219` and structural proof checkpoints
+`381dd6a`, `25ad4f2`, `815b671` are integrated on
+`m3b-generator-integration`. The reproduced review findings are fixed.
+Root independently checked the integrated 78-job focused build and direct
+StateProps re-elaboration (both exit 0); reviews are
+`.agents/reviews/m3b-state-codegen-followup.md` and
+`.agents/reviews/m3b-state-iteration.md`. Production stateful generation
+remains guarded until recursive run-soundness is integrated. The refreshed
+census reports zero executable emission failures and 256 explicit pure-Prop
+rejections, with no generated stateful refinement candidates. This records
+text emission, not full-P4 elaboration. The integrated full
+`scripts/check.sh` exited 0 with no skips, including both Nano differential
+legs, all existing oracles and the refreshed census. Final remote CI passed.
+
+PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
+now has an all-fuel exact-state refinement boundary, with explicit disabled
+guards and declaration lookup hypotheses. Its full local gate and independent
+review passed. That checkpoint is now merged into this integration branch;
+the combined revision, including the actual-emitted allocator refinement
+fixture, passed a fresh full `scripts/check.sh` (exit 0, no skips).
+The fixture independently passed a 75-job build and direct Lean elaboration;
+review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. PR #17's final
+remote Gate passed in 12m11s (run `36205479916`), and it merged as `b08ab8e`.
+Recursive proof integration and production enablement continue separately.
 
 ## Active checkpoint: bounded full-P4 oracle
 
-- Branch `m3c-p4-oracle-publish`, based on `origin/main` `87e9181`, integrates
-  reviewed adapter revisions `16a2d57` and `997d0ab` without importing their
-  older status snapshot. Source provenance, semantic-path digests, fixed
-  fixture/schema checks and CLI failure classification passed independent
-  AI-agent re-review; all four initial medium findings are resolved.
-- The ordinary gate requires the adapter files and runs twelve offline
+- Branch `m3c-p4-oracle-publish` integrates reviewed adapter revisions
+  `16a2d57` and `997d0ab`. All four initial medium findings are resolved;
+  independent AI-agent code and gate-plumbing reviews found no issues.
+- The ordinary gate requires six adapter files and runs twelve offline
   contract tests. It does not download p4c, build OCaml or run the real
-  full-P4 oracle. Independent focused checks at `997d0ab` exited 0: twelve
-  offline tests, four pinned cases with eight CLI comparisons, and extra
-  in-memory sensitivity tests. Exact commands and review boundaries are in
-  `.agents/reviews/m3c-p4-oracle-adapter.md`.
-- The frozen integration full gate exited 0 with no skips. The publication
-  tree's real four-case/eight-CLI comparison also exited 0. Root independently
-  reviewed the gate plumbing and reran twelve offline tests and shell syntax
-  (exit 0 each), with no findings. Exact commands are in the adapter note.
-  Remote CI remains pending. This is an upstream-side oracle only, not Lean replay,
-  a corpus denominator or full-P4 generation/refinement evidence.
+  full-P4 oracle. Independent focused checks exited 0: twelve offline tests,
+  four pinned cases with eight CLI comparisons, and additional in-memory
+  sensitivity tests. Exact commands and limits are in
+  `.agents/reviews/m3c-p4-oracle-adapter.md` and the corresponding note.
+- Published as PR #18 at `093dc4e` after its frozen full gate exited 0
+  without skips and its relocated real oracle check exited 0. Remote Gate
+  `36205678753` passed in 1m52s. PR #17's merge required a status-only
+  conflict resolution against current main `b08ab8e`; source merged cleanly.
+  The merged revision's frozen full gate exited 0 with no skips, including
+  all twelve offline oracle tests and the updated generator census. Final
+  remote CI is required before landing.
+- This is an upstream-side oracle only, not Lean replay, a corpus denominator
+  or full-P4 generation/refinement evidence.
 
 ## Merged checkpoint: pinned corpus preparation
 
@@ -125,19 +144,10 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   `/Users/qobilidop/my/work/p4-spectec-lean-state-oracle`, branch
   `m3b-state-oracle`, note `.agents/notes/full-p4-corpus-prep.md`.
   The pinned sparse sample/include checkout is restored. The boot/result
-  oracle adapter is reviewed on branch `m3c-p4-oracle-adapter` and is being
-  published independently on `m3c-p4-oracle-publish`. Four bounded
-  inputs have exact typed boot/output digests, result classes and counters
-  checked against the pinned AL interpreter in separate relation sessions;
-  pinned CLI verdict parity also passed. Independent review found four
-  medium contract gaps; fixes and re-review are complete. Twelve offline
-  sensitivity tests and the focused four-case check independently exited 0.
-  Notes:
-  `.agents/notes/full-p4-oracle-adapter.md` and
-  `.agents/reviews/m3c-p4-oracle-adapter.md`. Regression files alone do
-  not establish the canonical corpus denominator. The publication branch's
-  full gate passed; remote CI remains required. No full-corpus
-  boot or Lean agreement claim.
+  oracle adapter is reviewed and published as PR #18; its merge with current
+  main passed a new full local gate and needs final remote CI. The bounded
+  observations
+  are not the canonical corpus denominator or a full-corpus boot claim.
 - Next: checkpoint proof fixtures; independently review and integrate
   executable/proof generators; establish stateful refinement; regenerate
   and elaborate full P4. Then M3C corpus/fidelity, M3D targets (NanoSwitch,

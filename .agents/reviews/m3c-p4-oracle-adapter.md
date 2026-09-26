@@ -89,6 +89,11 @@ human approval. The existing adapter/test code is byte-identical to the
 reviewed `997d0ab`; the publication branch does not enable a real upstream
 oracle run or a corpus download in ordinary CI.
 
+After merging current main `b08ab8e`, the root agent independently reviewed
+the status-only conflict resolution and found no issues. The oracle source,
+offline tests and gate wiring remained unchanged; the merged-tree full
+local gate independently completed with exit 0 and no skips before push.
+
 ## Initial review (historical findings)
 
 2026-09-25. Reviewed commit `16a2d57413e74c48e266689a920349103e9cfade`

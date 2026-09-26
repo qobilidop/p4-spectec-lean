@@ -298,6 +298,7 @@ partial def translate : List Stmt → PM Unit
     bindVar x ty
     hyp (eqn (Format.text "ExceptT.run " ++ m.arg) (someOk (.atom x)))
     translate rest
+  | .optM .. :: _ => throw "stateful optional-premise structural translation is not implemented"
 where
   /-- The zipped pattern of element patterns, nested as `zipped` nests. -/
   zipPattern : List Format → Format
@@ -376,6 +377,8 @@ group has several). -/
 def relInductive (ctx : Ctx) (externs : Bool) (id : String) (nottyp : nottyp)
     (inputs : List Nat) (groups : List Lang.Al.rulegroup)
     (elsegroup : Option Lang.Al.elsegroup) : Except String Format := do
+  if ctx.env.mode == .freshState then
+    throw "state-indexed structural propositions are not implemented"
   let args := (Mixfix.args nottyp.it).map (·.it)
   let ctors ← relCtors ctx id nottyp inputs groups elsegroup
   let ext := if externs then Format.text " [Externs]" else Format.nil

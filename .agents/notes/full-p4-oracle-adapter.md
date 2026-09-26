@@ -101,6 +101,14 @@ twelve offline tests and `bash -n scripts/check.sh` (exit 0 each), with no
 findings. Only evidence documentation changed after the full gate; the
 adapter/test code remains byte-identical to reviewed `997d0ab`. Remote CI
 remains required before landing.
+
+After PR #17 merged as `b08ab8e`, PR #18 merged current main with a
+status-only conflict resolution. Main's generator checkpoint and the oracle
+evidence were both retained; the adapter/test code and gate plumbing were
+unchanged from `093dc4e`. The same full-gate command above ran again with
+the merged source frozen and exited 0 without skips. Its log is temporary
+`/tmp/p4-oracle-reconcile-full-gate.log`. The earlier remote Gate passed in
+1m52s (run `36205678753`); the final merge revision requires fresh remote CI.
 `--update` deliberately refreshes the small digest fixture after a reviewed
 upstream or adapter change. An individual runtime export is:
 
