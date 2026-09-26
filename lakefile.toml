@@ -89,3 +89,13 @@ root = "P4SpecTecTest.Text.Main"
 [[lean_exe]]
 name = "check-state-oracle"
 root = "P4SpecTecTest.StateOracle.Main"
+
+# Bounded packet data and raw dynamic target observations at the exact upstream pin.
+[[lean_exe]]
+name = "check-nano-target"
+root = "P4SpecTecTest.NanoTargetOracle.Main"
+
+# Actual AL packet-driving relation replay with the bounded dynamic Nano target.
+[[lean_exe]]
+name = "check-nano-packet"
+root = "P4SpecTecTest.NanoPacket.Main"
