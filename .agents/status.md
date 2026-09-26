@@ -11,7 +11,16 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active checkpoint: pinned corpus preparation
+## Active checkpoint: generator integration
+
+The executable checkpoint `e0d7219` is being integrated on
+`m3b-generator-integration`. The three reproduced review findings are
+fixed; the root follow-up build exited 0 (66 jobs). Bounded structural
+proof checkpoints are next. Production stateful generation remains
+guarded until recursive run-soundness is ready. Full integration gate,
+updated capability census and remote CI remain owed.
+
+## Merged checkpoint: pinned corpus preparation
 
 - Branch `m3c-corpus-inputs`, based on reviewed proof head `325db77`.
   Integrates a sparse, exact-pin p4c restore script and ten offline tests.

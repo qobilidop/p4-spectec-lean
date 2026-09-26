@@ -9,6 +9,7 @@ import P4SpecTecTest.Alter
 import P4SpecTecTest.PrintPolicies
 import P4SpecTecTest.Updates
 import P4SpecTecTest.StateEval
+import P4SpecTecTest.StateCodegen
 import P4SpecTecTest.StateCalc
 import P4SpecTecTest.StateInterp
 import P4SpecTecTest.RecursivePrefix

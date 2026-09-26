@@ -136,6 +136,9 @@ def printHints (d : Lang.Al.def) : List String :=
 /-- Generate the plan for a spec. -/
 def plan (env : Env) (spec : Lang.Al.spec) :
     Except String (List Unit × List String × RefPlan) := do
+  if env.mode == .freshState then
+    throw "stateful generation requires structural propositions and run-soundness support"
+  Funcs.validateSignatures env
   let printEnv ← P4.Unparse.hints_of_spec_al spec
   PrintHints.validate env spec printEnv
   let files := (spec.map Env.fileOf).eraseDups
@@ -378,13 +381,16 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     let path := "/".intercalate (components.map fun c =>
       if c.startsWith "«" then String.ofList (c.toList.drop 1 |>.dropLast) else c)
     let body := units.filter (·.file == i)
+    let declarations := render (joinDecls (body.map (·.decls)))
+    let monotonicityImport := if declarations.contains "codegen_monotonicity" then
+      "import P4SpecTec.Tactic.Monotonicity\n" else ""
     let imports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
       "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Tactic.Det\n" ++
-      "import P4SpecTec.Refine.Quote\n" ++ (match prev with
+      "import P4SpecTec.Refine.Quote\n" ++ monotonicityImport ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
     let text := headerLine lib exportPath file ++ "\n" ++ imports ++ "\n" ++
-      preamble lib module file ++ render (joinDecls (body.map (·.decls))) ++ s!"\n\nend {lib}\n"
+      preamble lib module file ++ declarations ++ s!"\n\nend {lib}\n"
     outs := outs ++ [{ path := s!"{lib}/{path}.lean", text }]
     prev := some module
     modules := modules ++ [module]

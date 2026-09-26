@@ -6,8 +6,8 @@ Functions: `FuncDecD` to a `def` returning `Option`, whose body tries the
 clauses in order (`invoke_defined_func`, sequential mode) and the `else`
 clause last; `BuiltinDecD` to a wrapper around the prelude's port;
 `TableDecD` to a function by cases over the rows. Every definition has
-the type `Option (Except Fail T)` and the body `ExceptT.run` of a `do`
-block in `Eval`; a recursive group is defined by `partial_fixpoint`
+the pure type `Option (Except Fail T)` or its uniform explicit-state ABI.
+Bodies run in `Eval` or `StateEval`; a recursive group uses `partial_fixpoint`
 (design section 4.1, "recursion strategy").
 -/
 
@@ -41,57 +41,164 @@ def binders (env : Env) (tparams : List String) (params : List typ') (externs : 
 the form `partial_fixpoint` derives `partial_correctness` for. -/
 def retType (t : Format) : Format := Format.text "Option (Except Fail " ++ t ++ ")"
 
+/-- A result after the explicit state parameter has been supplied. -/
+def retTypeWith (mode : ExecMode) (t : Format) : Format :=
+  if mode == .pure then retType t
+  else Format.text "Option (Except Fail " ++ t ++ " × FreshState)"
+
+/-- The explicit session-state parameter of stateful definitions. -/
+def stateBinder (mode : ExecMode) : Format :=
+  if mode == .pure then Format.nil else Format.text " (state : FreshState)"
+
 /-- The body of a generated definition: `ExceptT.run` of the monadic term,
 then `partial_fixpoint` when the group is recursive. -/
 def runBody (recursive : Bool) (body : Term) : Format :=
   Format.text "ExceptT.run" ++ Format.nest 2 (Format.line ++ body.arg) ++
     (if recursive then Term.hardLine ++ Format.text "partial_fixpoint" else Format.nil)
 
-/-- The parameter types of a function. -/
-def paramTypes (params : List param') : List typ' :=
+/-- Run at the caller's state; never reset at an internal call. -/
+def runBodyWith (mode : ExecMode) (recursive : Bool) (body : Term)
+    (consumers : List String := []) : Format :=
+  let run := if mode == .pure then runBody false body
+    else Format.text "StateEval.run" ++ Format.nest 2 (Format.line ++ body.arg ++ " state")
+  let proof := if consumers.isEmpty then Format.nil
+    else Format.text " monotonicity by" ++ Format.nest 2
+      (Term.hardLine ++ Format.text
+        ("codegen_monotonicity [" ++ ", ".intercalate consumers ++ "]"))
+  run ++ if recursive then Term.hardLine ++ Format.text "partial_fixpoint" ++ proof else Format.nil
+
+/-- Already-defined consumers which a recursive callback proof may expose.
+Definitions in the current SCC remain recursive variables, never unfolded.
+The proof tactic must establish monotonicity; this list grants no assumptions. -/
+def monotonicityConsumers (env : Env) (id : String) : List String := Id.run do
+  let defs := env.defs.filterMap fun d => match d.it with
+    | .FuncDecD i .. | .TableDecD i .. | .RelD i .. => some (i.it, d)
+    | _ => none
+  let reachable (start : String) : List String := Id.run do
+    let mut seen := [start]
+    for _ in [:defs.length] do
+      let before := seen.length
+      for (name, d) in defs do
+        if seen.contains name then
+          for dep in callsOfDef d do
+            if !seen.contains dep then seen := seen ++ [dep]
+      if seen.length == before then break
+    return seen
+  let deps := reachable id
+  let available := defs.filter fun (name, _) =>
+    deps.contains name && !(reachable name).contains id
+  let hasCallback := available.any fun (name, _) =>
+    match env.funcs.get? name with
+    | some info => info.params.any fun p => match p with | .DefP .. => true | _ => false
+    | none => false
+  if !hasCallback then return []
+  return available.filterMap fun (name, _) =>
+    if env.funcs.contains name then some (env.q (Names.funcName name)) else none
+
+/-- Parameter types, recursively retaining callable structure and type binders. -/
+partial def paramTypes (params : List param') : List typ' :=
   params.map fun
     | .ExpP t => t.it
-    | .DefP _ _ ps t =>
-      .FuncT [] (ps.map fun p => match p.it with | .ExpP t => t | .DefP _ _ _ t => t) t
+    | .DefP _ tps ps t =>
+      .FuncT tps ((paramTypes (ps.map (·.it))).map mkPhrase) t
+
+/-- Function-valued data has no faithful structural value codec. -/
+partial def validateDataType : typ' → Except String Unit
+  | .FuncT .. => throw "function-valued data types are not supported"
+  | .TupleT ts => ts.forM fun t => validateDataType t.it
+  | .IterT t _ => validateDataType t.it
+  | .VarT _ ts => ts.forM fun t => validateDataType t.it
+  | _ => pure ()
+
+/-- Reject rank-polymorphic callbacks instead of erasing their binders.
+Nested callable parameters are supported, but function-valued data is not. -/
+partial def validateCallableType : typ' → Except String Unit
+  | .FuncT tps ts t => do
+    unless tps.isEmpty do throw "polymorphic callback signatures are not supported"
+    for a in ts do validateCallableType a.it
+    validateDataType t.it
+  | t => validateDataType t
+
+/-- Preserve the distinction between declared callbacks and expression data.
+Only DefP introduces a callable ABI; its result remains ordinary data. -/
+partial def validateParam : param' → Except String Unit
+  | .ExpP t => validateDataType t.it
+  | .DefP _ tps ps t => do
+    unless tps.isEmpty do throw "polymorphic callback signatures are not supported"
+    for p in ps do validateParam p.it
+    validateDataType t.it
+
+/-- Validate all callable signatures before rendering, including extern fields. -/
+def validateSignatures (env : Env) : Except String Unit := do
+  -- Scan declaration bodies directly: aliases cannot hide function values,
+  -- and mutually recursive aliases do not cause recursive unfolding here.
+  for (_, info) in env.types.toList do
+    match info.deftyp with
+    | some (.PlainT t) => validateDataType t.it
+    | some (.StructT fields) =>
+      for (_, t) in fields do validateDataType t.it
+    | some (.VariantT cases) =>
+      for c in cases do
+        for t in Mixfix.args c.nottyp.it do validateDataType t.it
+    | none => pure ()
+  for (_, info) in env.funcs.toList do
+    for p in info.params do validateParam p
+    validateDataType info.ret
+  for (_, info) in env.rels.toList do
+    for t in info.args do validateDataType t
 
 /-- A clause as an alternative: bind the arguments, run the premises,
 produce the result. -/
 def clauseTerm (c : clause) : CgM Term := do
   let (args, out, prems) := c.it
-  let ((), stmts) ← subBlock do
-    for (a, n) in args.zip (paramNames args.length) do
-      match a.it with
-      | .ExpA pat => assign pat (.atom n)
-      | .DefA d => emit (.have_ (Names.funcName d.it) (.atom n))
-    for p in prems do compilePrem p
-  let (res, stmts2) ← subBlock (compileExp out)
-  pure (doOf (stmts ++ stmts2) res)
+  let callbacks := args.filterMap fun a => match a.it with
+    | .DefA d => some d.it
+    | _ => none
+  withReader (fun ctx => { ctx with callbacks := callbacks ++ ctx.callbacks }) do
+    let ((), stmts) ← subBlock do
+      for (a, n) in args.zip (paramNames args.length) do
+        match a.it with
+        | .ExpA pat => assign pat (.atom n)
+        | .DefA d => emit (.have_ (Names.funcName d.it) (.atom n))
+      for p in prems do compilePrem p
+    let (res, stmts2) ← subBlock (compileExp out)
+    pure (doOfWith (← read).env.mode (stmts ++ stmts2) res)
 
 /-- A defined function. -/
 def funcDecl (ctx : Ctx) (recursive externs : Bool) (id : String) (tparams : List String)
     (params : List param') (ret : typ') (clauses : List clause) (elseclause : Option clause) :
     Except String Format := do
+  for p in params do validateParam p
+  validateDataType ret
   let alts ← Exp.run ctx do
     let cs ← clauses.mapM clauseTerm
     let es ← match elseclause with
       | some c => do pure [← clauseTerm c]
       | none => pure []
     pure (alternatives (cs ++ es))
-  let header := Term.sig (Names.funcName id) (binders ctx.env tparams (paramTypes params) externs)
-    (retType (typTerm ctx.env [] ret).arg)
-  pure (header ++ Format.nest 2 (Format.line ++ runBody recursive alts))
+  let mode := ctx.env.mode
+  let header := Term.sig (Names.funcName id)
+    (binders ctx.env tparams (paramTypes params) externs ++ stateBinder mode)
+    (retTypeWith mode (typTerm ctx.env [] ret).arg)
+  pure (header ++ Format.nest 2 (Format.line ++
+    runBodyWith mode recursive alts (if recursive then monotonicityConsumers ctx.env id else [])))
 
 /-- A table function: rows as clauses. -/
 def tableDecl (ctx : Ctx) (recursive externs : Bool) (id : String) (params : List param')
     (ret : typ') (rows : List Lang.Al.tablerow) : Except String Format := do
+  for p in params do validateParam p
+  validateDataType ret
   let alts ← Exp.run ctx do
     let rs ← rows.mapM fun r => do
       let (_, args, out, prems) := r.it
       clauseTerm { r with it := (args, out, prems) }
     pure (alternatives rs)
-  let header := Term.sig (Names.funcName id) (binders ctx.env [] (paramTypes params) externs)
-    (retType (typTerm ctx.env [] ret).arg)
-  pure (header ++ Format.nest 2 (Format.line ++ runBody recursive alts))
+  let mode := ctx.env.mode
+  let header := Term.sig (Names.funcName id)
+    (binders ctx.env [] (paramTypes params) externs ++ stateBinder mode)
+    (retTypeWith mode (typTerm ctx.env [] ret).arg)
+  pure (header ++ Format.nest 2 (Format.line ++
+    runBodyWith mode recursive alts (if recursive then monotonicityConsumers ctx.env id else [])))
 
 /-! ## Builtins
 
@@ -140,7 +247,7 @@ def toInt (t : typ') (x : Term) : Term :=
   | .NumT .NatT => .call "Int.ofNat" [x]
   | _ => x
 
-/-- The body of a builtin wrapper: an `Eval` term over the parameters. -/
+/-- The pure body of a builtin wrapper; stateful callers explicitly lift it. -/
 def builtinBody (env : Env) (id : String) (params : List typ') : Except String Term := do
   let ps := (paramNames params.length).map Term.atom
   let p (i : Nat) : Term := ps.getD i (.atom "_")
@@ -234,10 +341,20 @@ def builtinBody (env : Env) (id : String) (params : List typ') : Except String T
 def builtinDecl (env : Env) (id : String) (tparams : List String) (params : List param')
     (ret : typ') : Except String Format := do
   let pts := paramTypes params
-  let body ← builtinBody env id pts
-  let header := Term.sig (Names.funcName id) (binders env tparams pts false)
-    (retType (typTerm env [] ret).arg)
-  pure (header ++ Format.nest 2 (Format.line ++ runBody false body))
+  for p in params do validateParam p
+  validateDataType ret
+  let body ← if id == "fresh_typeId" then do
+      unless env.mode == .freshState do throw "fresh_typeId requires stateful execution"
+      unless tparams.isEmpty && params.isEmpty do throw "fresh_typeId requires zero arguments"
+      match env.resolve ret with
+      | .TextT => pure (.call "Functor.map"
+          [.atom "P4SpecTec.ByteText.ofString", .atom "StateEval.freshTypeId"])
+      | _ => throw "fresh_typeId requires a text result"
+    else do pure (env.mode.lift (← builtinBody env id pts))
+  let header := Term.sig (Names.funcName id)
+    (binders env tparams pts false ++ stateBinder env.mode)
+    (retTypeWith env.mode (typTerm env [] ret).arg)
+  pure (header ++ Format.nest 2 (Format.line ++ runBodyWith env.mode false body))
 
 /-- The `Externs` class: one field per extern function and relation. -/
 def externsClass (env : Env) (defs : List Lang.Al.def) : Format :=
@@ -249,13 +366,13 @@ def externsClass (env : Env) (defs : List Lang.Al.def) : Format :=
           " : Type}")
       some (Format.text (Names.funcName i.it) ++ tps ++ " : " ++
         Term.arrows (pts.map (fun t => (typTerm env [] t).arg) ++
-          [retType (typTerm env [] ret.it).arg]))
+          [(env.mode.result (typTerm env [] ret.it)).fmt]))
     | .ExternRelD i nottyp inputs _ =>
       let args := (Mixfix.args nottyp.it).map (·.it)
       let (ins, outs) := splitArgs (inputs.map (·.toNat)) args
       some (Format.text (Names.relName i.it) ++ " : " ++
         Term.arrows (ins.map (fun t => (typTerm env [] t).arg) ++
-          [retType (typTerm.prod (outs.map (typTerm env []))).arg]))
+          [(env.mode.result (typTerm.prod (outs.map (typTerm env [])))).fmt]))
     | _ => none
   Format.text "class Externs where" ++ Format.nest 2 (Format.join (fields.map (Term.hardLine ++ ·)))
 

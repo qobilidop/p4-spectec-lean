@@ -1,4 +1,5 @@
 import P4SpecTec.Codegen.Emit
+import P4SpecTec.Codegen.Attempt
 import P4SpecTec.Codegen.Env
 import P4SpecTec.Codegen.Exp
 import P4SpecTec.Codegen.Fmt
@@ -6,6 +7,7 @@ import P4SpecTec.Codegen.Funcs
 import P4SpecTec.Codegen.Graph
 import P4SpecTec.Codegen.Keywords
 import P4SpecTec.Codegen.Names
+import P4SpecTec.Codegen.Mode
 import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.PrintHints
 import P4SpecTec.Codegen.Reify
@@ -57,6 +59,7 @@ import P4SpecTec.Runtime.Value.Match
 import P4SpecTec.Runtime.Value.Value
 import P4SpecTec.Tactic.Audit
 import P4SpecTec.Tactic.Det
+import P4SpecTec.Tactic.Monotonicity
 import P4SpecTec.Tactic.Refine
 import P4SpecTec.Tactic.RunSound
 import P4SpecTec.Util.ByteText
