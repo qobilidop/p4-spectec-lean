@@ -696,17 +696,15 @@ settles is not repeated here.
   Reason: spend stronger reasoning where it affects correctness while
   keeping focused work efficient. Revisit based on observed task quality.
   (2026-09-25)
-- **Select merges per PR, defaulting to preservation of useful commits.**
-  User approved merge commits for coherent individual changes, squash
-  for a single change spread across incidental WIP/fixups, and rebase
-  only with an explicit linear-history preference. Reason: Git is the
-  project archive; messages, stable commit references and logical change
-  boundaries aid later investigation. PR #5 should use a merge commit:
-  its implementation and subsequent workflow decisions are distinct.
-  The user prefers no merge-strategy section in PR descriptions; this
-  choice belongs to workflow policy, not the change narrative.
-  This does not bypass review, remote CI or repository protections.
-  (2026-09-25)
+- **Integrate feature branches locally and preserve useful commits.**
+  Prefer fast-forward integration when possible; otherwise preserve
+  coherent history with a merge commit. Do not rewrite published commits
+  for cosmetic linearity. For explicitly requested PRs, retain the earlier
+  choice of merge commits for coherent changes, squash for incidental
+  WIP/fixups, and rebase only with an explicit linear-history preference.
+  Reason: retain rationale and stable references without requiring a PR
+  boundary for ordinary solo work. Review, validation and repository
+  protections remain mandatory. (2026-09-26)
 - **Make the existing commit-message convention explicit.** Retain
   Beams' style and the under-50-character subject, spell out 72-column
   prose wrapping and rationale, and adopt Git's emphasis on atomic
@@ -716,16 +714,17 @@ settles is not repeated here.
   and actionable instructions are in `AGENTS.md`. (2026-09-25)
 - **No git tags.** Compaction and archiving rely on git history alone;
   the user does not want tags. (2026-09-25)
-- **PRs by default; direct-to-main only for trivial, non-behavioral
-  maintenance.** User approved tightening the earlier small-change
-  exception: small code changes can carry substantial risk. Code, proofs,
-  dependencies, exports, build/CI changes and substantive policy use PRs
-  with independent review and passing remote CI, in addition to the local
-  pre-push gate. Routine typos, formatting and status updates may go
-  directly to main. Autonomous completion does not require an additional
-  human approval unless repository protections require one. Reason: test
-  on Linux before landing and retain a coherent review record without
-  unnecessary ceremony for trivial maintenance. (2026-09-25)
+- **Direct commits by default; PRs only when explicitly requested.**
+  The user chose a simpler workflow for the current personal-project phase,
+  superseding the earlier PR-first policy. Normal work goes directly to
+  main; feature branches are for useful isolation, not required ceremony.
+  Independent review and the full local gate remain required before a push;
+  check remote CI afterward and resolve failures before declaring completion.
+  Merge finished branches locally, validate the integrated tree, and delete
+  their local/remote refs and extra worktrees after main CI passes.
+  Repository protections are not bypassed. Reason: preserve correctness
+  checks while avoiding unused PR and branch overhead. Revisit if external
+  collaboration or repository protections make PRs useful. (2026-09-26)
 - **PR descriptions explain rationale, evidence and limitations.**
   Adapted from GitHub's reviewer guidance and Google's engineering
   practices at the user's request. The actionable policy and source

@@ -188,16 +188,22 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   vague subject. A PR explains the whole proposal; each commit explains
   its own change. Inspect the staged diff and final message before
   committing. Agent commits end with the required coauthor trailer.
-- **PRs are the default**, even for small code changes.
-  Direct-to-`main` is reserved for trivial, non-behavioral maintenance
-  (typos, formatting, routine status updates), never changes to code,
-  proofs, dependencies, exports, build/CI behavior or substantive policy.
-  PRs need independent review and passing remote CI before merging;
-  the local full gate is still required before pushing. A separate human
-  approval is not required when autonomous completion was authorized;
-  all repository protection requirements still apply.
-- **Choose the merge strategy per PR; preserve meaningful commits by
-  default.** Use a merge commit when individual commits are coherent
+- **Direct commits to `main` are the default for this personal project.**
+  Use a feature branch only when isolation is useful. Keep independent
+  review and the full local gate before pushing; check remote CI after
+  pushing and address failures before declaring the work complete.
+  Merge finished feature branches locally after review and validation,
+  rerun the full gate if integration changes the tested tree, then push
+  main and verify CI. Delete their local and remote refs promptly after
+  verifying integration and successful main CI; remove any extra worktrees.
+  Create a PR only when the user explicitly requests one. Repository
+  protections still apply: if they prevent this workflow, report the
+  conflict rather than bypassing them or changing settings.
+- **Preserve meaningful commits when integrating a feature branch.**
+  Prefer a fast-forward when possible; use a merge commit when needed to
+  preserve coherent history. Do not rewrite published commits just to make
+  history linear. For an explicitly requested PR, choose its merge strategy:
+  use a merge commit when individual commits are coherent
   changes worth retaining, preserving their messages, hashes and the PR
   boundary. Squash when one logical change is spread across WIP/fixup
   commits; write a considered final message preserving rationale and
@@ -205,9 +211,10 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   rebase-and-merge only when a linear-history preference is explicit,
   accepting that GitHub changes commit hashes. Keep this workflow choice
   out of the PR description unless requested; a merge-strategy section
-  is unnecessary. Merge only after review and CI for the final revision.
-- **PR descriptions are a durable explanation for reviewers.** Use a
-  specific, outcome-focused title. Lead with the problem and why the
+  is unnecessary. Requested PRs require independent review and passing
+  remote CI for the final revision before merging.
+- **When a PR is requested, its description is a durable explanation for
+  reviewers.** Use a specific, outcome-focused title. Lead with the problem and why the
   change is needed; summarize the approach and consequential tradeoffs,
   not a file-by-file changelog. Supply enough context to stand alone
   without chat history; link supporting issues/designs rather than
@@ -225,13 +232,16 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   attribution from active-session evidence, not a configured default;
   never guess. Keep review claims accurate elsewhere in the description:
   AI-agent review is not human review. Coauthor trailers remain required.
-- **Unfinished work is a pushed branch** with a work-in-progress commit
-  saying what it holds and lacks, never an uncommitted worktree.
+- **Checkpoint unfinished work explicitly.** Commit coherent, validated
+  changes; isolate incomplete or failing experiments on a feature branch
+  with a work-in-progress commit saying what it holds and lacks. Never push
+  without a passing full local gate. If validation blocks publication,
+  record the local commit and remaining obligations in the handoff.
 - **A push is gated on the recorded exit status** of the full gate, never
   on a command that reads a log.
 - **Independent read-only review after each step**, filed under
-  `.agents/reviews/`; fix findings on the working branch before merging
-  to `main` (or before a permitted direct push).
+  `.agents/reviews/`; fix findings before pushing directly to main or
+  merging a feature branch. Direct commits do not waive review.
 - **Use subagents and worktrees when useful, choosing models by task.**
   Prefer Astra for difficult semantics/proof analysis, Sol for bounded
   implementation and tests, and Luna for straightforward inventories.

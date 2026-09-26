@@ -860,7 +860,10 @@ Armv8 model in Coq at all. So:
 - **`.agents/decisions.md` is a register, not a diary.**
 - **Compaction at milestone boundaries;** git history is the archive; no
   tags.
-- **Unfinished work is a pushed branch**, never an uncommitted worktree.
+- **Checkpoint unfinished work explicitly.** Commit validated changes;
+  isolate incomplete experiments on a feature branch with a clear WIP
+  handoff. Every push requires the full local gate; blocked publication
+  is recorded with the local commit and remaining obligations.
 - **One environment, defined by Nix.** Every command, locally and in CI,
   runs inside `nix develop`. Lean comes from elan at the version
   `lean-toolchain` names; the OCaml side comes from nixpkgs' default

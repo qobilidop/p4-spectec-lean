@@ -65,6 +65,19 @@ actual generated/reference correspondence on its scalar domain, discharging
 representation, initialization and finite reference-fuel obligations. It does
 not certify arbitrary assignment reordering, all Nano-P4 or full P4.
 
+## Workflow update
+
+The user approved direct commits to main for normal work, optional feature
+branches for isolation, and PRs only on explicit request (2026-09-26).
+Independent review, the full pre-push local gate and post-push CI remain
+required. AGENTS, the in-place decisions and the design's checkpoint rule
+now agree; no implementation changed. Independent review found no remaining
+issues (`.agents/reviews/direct-commit-workflow.md`). The complete local gate
+exited 0 with no skips (session 25817), recorded in
+`.artifacts/direct-commit-workflow-gate.log` and `.exit`. Final documentation
+and review wording was followed by staged whitespace, text and size checks.
+Remote CI is checked on the published commit before declaring completion.
+
 ## Next
 
 Await the user's revised development plan. No implementation work is active.
