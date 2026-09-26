@@ -1,5 +1,17 @@
 # Decisions
 
+## Repository stewardship (2026-09-26)
+
+Keep the on-demand `tend-repo` workflow in `.agents/skills/tend-repo/SKILL.md`,
+versioned with this repository. It reconciles repository claims, compacts
+working state without losing open obligations, and routes evidence-backed
+lessons to existing checks or documents. Repository policy remains in
+`AGENTS.md`; the skill does not duplicate it or authorize unrelated work.
+Start instruction-only and evolve from observed use, including removing
+ineffective guidance rather than accumulating rules. Reason: make periodic
+maintenance repeatable while keeping knowledge close to its owner. User
+approved; revisit packaging if another repository actually needs this workflow.
+
 ## Library and example boundary (2026-09-26)
 
 Use `ExampleProofs/NanoP4FieldUpdate/` for the bounded downstream case, with

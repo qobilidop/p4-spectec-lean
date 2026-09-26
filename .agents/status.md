@@ -4,6 +4,27 @@ Current state only. Updated 2026-09-26.
 
 ## Scope
 
+The approved repo-local `tend-repo` skill is implemented and locally validated.
+This packages an on-demand maintenance workflow; it does not invoke a
+whole-repository cleanup or resume feature work. Publication is pending.
+
+## Skill checkpoint
+
+- `.agents/skills/tend-repo/SKILL.md` is instruction-only and refers to
+  `AGENTS.md` for policy. Navigation and the stewardship decision are updated.
+- The bundled `quick_validate.py` passed on the final skill (session 82926),
+  using temporary Python/PyYAML from the locked nixpkgs input. No dependency
+  or pin changed. Text hygiene and staged whitespace checks passed.
+- Independent review and a read-only behavioral trial passed. The trial led
+  to explicit proposal-only validation guidance; broader maintenance proposals
+  were not applied. Evidence and limitations: `.agents/reviews/tend-repo.md`.
+- Full `nix develop --command scripts/check.sh` passed with exit 0, no skips,
+  session 20758; log `.artifacts/tend-repo-gate.log`. The census still contains
+  1,689 definitions. Code, generated artifacts and proof budgets are unchanged.
+- Checkpoint the skill locally as "Add on-demand repository stewardship".
+  Hold its push while the refactor CI runs: another main push would cancel
+  that run. Remote CI has not validated this skill checkpoint yet.
+
 The approved library/example separation is complete after the README and
 documentation review. Broader M3 remains incomplete and paused.
 The bounded Nano field-update certificate is complete; this refactor changes
@@ -37,15 +58,16 @@ its organization and build boundary, not its semantics or proof coverage.
   All 33 public-document local links/anchors, shell syntax and text/whitespace
   checks pass. Old source paths are absent. The ten proof/test files were
   mechanically verified unchanged beyond name/path substitutions.
-- This checkpoint is committed under "Separate downstream proof examples"
-  on the existing branch. The user subsequently authorized commit and push;
-  publication and remote CI are pending under the confirmed no-PR workflow.
+- The refactor was integrated and pushed to `main` at `aa24ab7` under the
+  confirmed no-PR workflow. Remote CI run `36268161537` is still in progress;
+  the finished local branch remains until that run passes.
 
 ## Retained baseline
 
-- `main` remains `395022a`; the current local branch is
-  `docs/repository-review`. It contains documentation/review commits
-  `4f6c504`, `6134bb2` and `af78615` before this refactor.
+- The published baseline is `aa24ab7`, including documentation/review commits
+  `4f6c504`, `6134bb2` and `af78615`. The remaining local
+  `docs/repository-review` branch points to that integrated commit; the skill
+  checkpoint follows it on local main.
 - The concise Design describes the destination. Certification owns current
   capabilities, guarantees and limitations; Performance owns measurements;
   README gives a short status. Keep these responsibilities when updating docs.
@@ -72,11 +94,7 @@ No broader campaign resumes as part of this task.
 
 ## Workflow and next step
 
-The user explicitly reconfirmed integration and direct push to main, without
-a PR, resolving the contradictory older session instructions. Keep the
-checked-in no-PR workflow. Fast-forward the reviewed branch into main, push
-only after the recorded full-gate success, verify main CI and remove the
-finished local branch.
-
-Finish publication and remote CI under the selected workflow, then hand off.
-Do not resume broader M3.
+Confirm refactor CI run `36268161537` and remove its finished local branch
+after success. Publish the locally validated skill checkpoint under the
+checked-in no-PR workflow and verify its remote CI. An actual `tend-repo`
+maintenance pass is separate work. Do not resume broader M3.

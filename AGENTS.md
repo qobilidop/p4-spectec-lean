@@ -37,6 +37,7 @@ Documentation is split by purpose and audience:
 | `.agents/notes/` | live working notes |
 | `.agents/notes/archive.md` | retired experimental history, artifacts and recovery instructions |
 | `.agents/reviews/` | independent review reports for the current work |
+| `.agents/skills/tend-repo/` | on-demand consistency, working-state compaction and learning workflow |
 | `.agents/notes/full-p4-reconnaissance.md` | full-P4 census findings and the remaining M3 phases |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
 | `ExampleProofs/NanoP4FieldUpdate/` | bounded consumer proof, checked `Certificate.lean`, `Example.lean` walkthrough and colocated `test/` |
@@ -105,7 +106,9 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 
 ## Conventions
 
-- **Agent instructions live in `AGENTS.md` alone.** Never create
+- **Repository policy lives in `AGENTS.md` alone.** Repo-local skills under
+  `.agents/skills/` describe optional workflows and refer here for policy.
+  Never create
   `CLAUDE.md` or `CLAUDE.local.md`; Claude-specific notes, if one is ever
   needed, belong in `.claude/rules/` (none exists; everything so far
   applies to any agent).
