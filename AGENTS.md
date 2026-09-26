@@ -29,16 +29,15 @@ Documentation is split by purpose and audience:
 | `docs/certification.md` | user-facing current capabilities, guarantees, limitations and certificate checks |
 | `docs/performance.md` | measurement interpretation and reproduction; snapshots under `docs/performance/` |
 | `docs/related-work.md` | related work on generated semantics, certification and P4 verification |
-| `.agents/notes/design-review.md` | advisory design critique and proposed priorities |
-| `.agents/notes/compiler-certification.md` | terminology discussion, closest certification precedents and sourced reading notes |
+| `.agents/notes/compiler-certification.md` | retained certification rationale and advisory design questions |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
-| `.agents/decisions.md` | the decisions in force, by topic, each with its reason and date |
+| `.agents/decisions.md` | current cross-cutting choices, reasons and revisit points |
 | `.agents/roadmap.md` | implementation milestones, paused work and backlog |
-| `.agents/notes/` | live working notes |
+| `.agents/notes/` | topic-local investigations, plans and review evidence; active, paused or durable |
 | `.agents/notes/archive.md` | retired experimental history, artifacts and recovery instructions |
-| `.agents/reviews/` | independent review reports for the current work |
 | `.agents/skills/tend-repo/` | on-demand consistency, working-state compaction and learning workflow |
-| `.agents/notes/full-p4-reconnaissance.md` | full-P4 census findings and the remaining M3 phases |
+| `.agents/notes/full-p4/overview.md` | full-P4 census findings and remaining obligations |
+| `.agents/notes/state-integration/overview.md` | bounded state support versus paused production integration |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
 | `ExampleProofs/NanoP4FieldUpdate/` | bounded consumer proof, checked `Certificate.lean`, `Example.lean` walkthrough and colocated `test/` |
 
@@ -59,6 +58,9 @@ include hidden files. Git history is the archive; nothing is tagged.
    progress and milestone planning live under `.agents/`.
 4. `docs/lean-pitfalls.md`, before writing Lean in the code generator or
    the tactics: the traps already hit on this toolchain.
+
+Follow status/roadmap links to relevant topic notes; do not load every
+historical report to resume one task.
 
 ## Environment
 
@@ -130,6 +132,8 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   scripts and documents kebab-case.
 - **The Lean package and namespace are `P4SpecTec`.** `SpecTec` alone
   names the Wasm-DSL project and is not used here.
+- **No per-file license headers.** The root `LICENSE` is sufficient, per
+  the user's preference.
 - **Every external input is pinned**: P4-SpecTec by commit (the
   submodule), the Nix/OCaml environment by `flake.lock`,
   Lean by `lean-toolchain`, Batteries by tag in `lakefile.toml`.
@@ -153,7 +157,7 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   Both spec snapshots are committed as `exports/<name>.al.json.gz` plus
   a raw SHA-256; the gate verifies and extracts the ignored JSON files.
   Full-P4 generation remains
-  blocked on the constructs in `.agents/notes/full-p4-reconnaissance.md`, and the
+  blocked on the constructs in `.agents/notes/full-p4/overview.md`, and the
   gate checks its decoded capability census until generation is supported.
 - **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
   (a warning fails, and a `sorry` is a warning), `lake test`, every module
@@ -185,9 +189,10 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   and its input, and a fixed preamble of options. Generated modules live
   in their own libraries; default targets include the provided libraries,
   not the downstream examples.
-- **Every decision the design does not settle** goes in
-  `.agents/decisions.md` under its topic, with reason and date, and with
-  a confidence and revisit trigger when uncertain.
+- **Record consequential choices with their reason and date.** Cross-cutting
+  choices belong in `.agents/decisions.md`; detailed topic constraints belong
+  beside their working evidence. Include confidence and a revisit trigger
+  when uncertain. Do not duplicate policy or settled architecture.
 - **`.agents/status.md` is updated at every checkpoint**: exact checks
   run, skipped gates, remaining obligations, next concrete step.
 - **Commit messages** follow [Chris Beams](https://cbea.ms/git-commit/)
@@ -254,8 +259,11 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   record the local commit and remaining obligations in the handoff.
 - **A push is gated on the recorded exit status** of the full gate, never
   on a command that reads a log.
-- **Independent read-only review after each step**, filed under
-  `.agents/reviews/`; fix findings before pushing directly to main or
+- **Independent read-only review after each step**, recorded beside the
+  topic's working note, in a section or separate review file as warranted.
+  Preserve reviewed revision, reviewer provenance, findings and limits;
+  distinguish later resolutions from the original verdict. Fix findings
+  before pushing directly to main or
   merging a feature branch. Direct commits do not waive review.
 - **Use subagents and worktrees when useful, choosing models by task.**
   Prefer Astra for difficult semantics/proof analysis, Sol for bounded
@@ -271,8 +279,14 @@ At each checkpoint, update `.agents/status.md`, any changed decision, and
 this file when scope or navigation changes. When a milestone closes, or
 when the resume read grows past roughly a thousand lines, compact
 `.agents/`: rewrite status and decisions to what is true now, delete
-finished notes and reviews, promote notes that describe the artifact into
-`docs/`. Compaction changes no claim. Git history is the archive.
+finished notes and reviews after preserving useful evidence and obligations,
+and promote artifact knowledge into its owning public document or code.
+Organize notes by topic, not activity type or agent. Start with one file;
+use a topic directory only when supporting material warrants it. Each note
+states whether it is active, paused or durable and why it is retained.
+Checked data and skills are maintained artifacts, not disposable notes.
+Compaction changes no claim. Git history is the archive, not a substitute
+for current truth and unresolved constraints in the working tree.
 
 ## Resuming
 

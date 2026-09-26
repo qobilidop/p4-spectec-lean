@@ -1,6 +1,7 @@
 # Retired committed history
 
-2026-09-26. The user requested one active checkout and the smallest branch set.
+Durable recovery instructions, 2026-09-26. The user requested one active
+checkout and the smallest branch set.
 Old experiments are retired, not silently merged or declared complete.
 
 ## Small recovery backup

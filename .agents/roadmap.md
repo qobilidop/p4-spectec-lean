@@ -1,72 +1,62 @@
 # Roadmap
 
-Implementation planning, separate from the intended architecture in
-`docs/design.md`. The first consumer
-checkpoint, brought forward from M4, is complete: bounded field-update
-correspondence and commutation are checked in `ExampleProofs/NanoP4FieldUpdate/`.
-No IL backend or broad redesign is scheduled. Broader M3 and the backlog
-below remain paused; an item becomes work only when the user scopes it.
+Deferred work, not execution authorization. Updated 2026-09-26.
+Broader M3 remains paused; choose a bounded scope with the user before starting.
+[Status](status.md) owns immediate obligations, not this backlog.
 
-## Milestone register
+## Milestones and entry points
 
-Moved here from Design so milestones do not masquerade as architecture:
+- M1: Nano generation, kernel checking, export and differential replay closed.
+- M2: logical relations, forward AL certificates and reusable support closed
+  as a bounded fragment, not complete Nano certification.
+- M3: full-P4 export/census closed; production generation, effect integration,
+  broader correspondence and targets remain incomplete.
+  [Full-P4 overview](notes/full-p4/overview.md) owns remaining phases,
+  [corpus](notes/full-p4/corpus.md) the bounded replay/resume constraints,
+  [state integration](notes/state-integration/overview.md) the retained versus
+  archived implementation boundary, and [Nano target](notes/nano-target.md)
+  the dynamic/typed target exclusions.
+- M4: the first consumer proof was brought forward and completed
+  ([evidence](notes/field-update.md)). Broader client libraries and interfaces
+  remain open. The example/library separation is complete, not a new milestone.
 
-- M1: Nano-P4 generation, kernel checking, upstream export and differential
-  replay. Closed; current evidence is in status and Certification.
-- M2: generated logical relations, forward AL certificates and reusable proof
-  support. Closed as a bounded fragment, not complete Nano certification.
-- M3: full-P4 generation, effect integration, broader correspondence and
-  target support. M3A export/census is closed; broader M3 remains incomplete.
-  Full-P4 reconnaissance holds the remaining technical phases and exclusions.
-- M4: reusable P4 consumer libraries, broader examples and documentation site.
-  The first bounded consumer proof was brought forward and is complete;
-  that does not close the broader library/interface work.
+## Candidate next work
 
-The library/example separation uses `ExampleProofs/NanoP4FieldUpdate/`,
-excluded from default client builds and retained explicitly in the full gate.
-An import-boundary check prevents reusable libraries from depending on
-examples or test-only modules. This changes organization, not proof coverage.
+The [certification discussion](notes/compiler-certification.md) preserves
+advisory priorities: machine-readable entry-point certificate coverage,
+broader representation adequacy, discriminating generator mutations,
+consumer-guided wrappers, and measured maintenance across upstream changes.
+None is a newly authorized implementation.
 
-## Backlog
+Further correspondence needs operation-specific builtin contracts, ordered
+iteration, casts/subtype checks, indexing/slicing/membership, type parameters
+and extern contracts. Select a useful entry point and account for its dependency
+closure rather than count disconnected helper proofs. The first certified
+relation should exercise its actual relation form.
 
-- A random well-typed P4 program generator, either p4c's p4smith or
-  enumeration of derivations of the generated inductive typing relation.
-- Generating the IL semantics from upstream's meta-circular spec, if it
-  matures, keeping one hand-written semantics at the bottom of the stack.
-- A shallow embedding of P4 programs (program → Lean functions), proved
-  correct against the generated deep semantics.
-- A P4 parser in Lean as a verified replacement for upstream's.
-- Upstreaming the JSON export patch (`elab -json`, `algo -json`,
-  `nano parse -json`).
-- Returning the P4-SpecTec pin to upstream `main` once Nano-P4 lands there
-  (the pin follows `gsoc-nano-spec` today; decisions, "Pins").
-- Readability of generated code: fewer temporaries, flatter alternatives,
-  hard-wrapped headers. Not needed for correctness; wanted for review.
+Known runtime boundaries before broadening claims:
+`Match.sub_`, `Match.check'` and `Subst.subst_typ_inner` retain legacy
+fuel-zero fallback behavior outside the certified fragment; a nested source
+tuple needs a representation distinguishing it from flattened products.
+Type-fresh, printer and state constraints remain in their topic notes.
 
-Rung 3 beyond M2's fragment (the M3 work order, in order of payoff):
+## Longer-term backlog
 
-- Builtin calls: a lemma per builtin relating `Builtin.Call.invoke` on
-  values to the generated wrapper; then iterated expressions and premises
-  (`Ctx.sub_list`/`mapM` against `List.map`/`mapM`); then casts and
-  subtype checks (per-type lemmas about `upcast`/`downcast`/`Match.sub`
-  against the generated bridges); then indexing, slicing, membership,
-  type parameters, externs. The first relation to enter the fragment
-  exercises the relation form of the statement in the build.
-- `Match.sub_`, `Match.check'` and `Subst.subst_typ_inner` answer
-  something at fuel zero instead of diverging (the class of wart fixed in
-  `is_iter_var_exp`); recursion on size, as there, before casts enter the
-  fragment.
-- Broader codegen mutation checks (mutate the generator, require rung 3 to
-  fail). The colocated field-update tests replay an emitted AL refinement
-  proof against one mutated generated helper; this is bounded artifact
-  sensitivity, not mutation coverage of the generator implementation.
-- A spec tuple nested inside a tuple needs a wrapper type: `ToValue (α ×
-  β)` flattens.
+- Well-typed random P4 programs via p4smith or derivation enumeration.
+- Generated IL semantics if upstream's meta-circular spec matures; a shallow
+  program model with a proved connection; or a verified Lean P4 parser.
+  These are separate semantic boundaries, not scheduled replacements.
+- Upstream the JSON export patch and return the P4-SpecTec pin to upstream
+  main when Nano lands there. External coordination requires its own scope.
+- Improve generated readability and stable client wrappers when actual proof
+  use demonstrates the need, without losing source provenance.
 
-Website, sequenced against the milestones (decisions, "Documentation"):
+## Documentation site, when justified
 
-- After M1: doc-gen4 API reference under `docs/api/`, published to GitHub
-  Pages under `api/` by a Pages workflow running in the Nix shell.
-- At M4: a Verso site under `website/` with the design narrative and a
-  checked tutorial against the frozen public surface, doc-gen4 output
-  beside it, same Pages site.
+Use one GitHub Pages site in the pinned Nix shell. API reference was planned
+after M1 and remains deferred: use doc-gen4 in a separate Lake package under
+`docs/api/`, published at `api/`, outside ordinary builds. At M4, a separate
+Verso website package can place checked
+examples beside the API site. Pin doc-gen4/Verso to the Lean toolchain.
+Markdown remains the maintained design/working format until that work is
+scoped; no site build is authorized by this plan.

@@ -1,70 +1,75 @@
 # Semantic byte text
 
-2026-09-25. The reviewed ByteText foundation preserves arbitrary byte
-sequences through bounds-checked index/slice/update operations, with
-explicit UTF-8 encode/checked decode and proved equality/compare-equality laws.
-The integration checkpoint wires this representation through the semantic
-substrate; identifiers and atoms deliberately remain String.
+Compacted 2026-09-26; decision and observations dated 2026-09-25 at upstream
+`8c8e0c6f`. Original note and `m3b-byte-text.md`/`m3b-byte-integration.md`
+reviews are recoverable under their former paths at Git `968ad65`.
+Durable boundary evidence with paused follow-ups, not a new semantic review.
 
-## Why the change is necessary
+## Representation and transport
 
-OCaml text is bytes. Lean String carries a UTF-8 validity proof. Replacing
-byte zero of `é` (`c3 a9`) with `X` produces `58 a9`, which is not valid
-UTF-8. A character replacement changes the operation, while rejecting the
-result changes upstream's success into failure. ByteArray-backed text
-represents the exact result without loss or an opaque escape hatch.
+Use ByteArray-backed `ByteText` for semantic text; identifiers, atoms and
+generic JSON strings remain Lean String. OCaml text is arbitrary bytes:
+replacing byte zero of `é` (`c3 a9`) with `X` yields `58 a9`, an upstream
+result Lean String cannot represent. Character operations or UTF-8 rejection
+change semantics. ByteArray permits direct storage/access; decoding is checked.
+Proved equality/compare-equality laws do not assert order transitivity.
 
-## Integration inventory
+Integration covers TextE/TextV and dedicated JSON decoders, runtime Make/Get/
+comparison, ToValue/OfValue, byte index/slice/update, generated TextT/literals/
+quotations, six text builtins and checked dispatch, interpreter operations,
+Unparse byte escaping and refinement inversion. UTF-8 generated literals use
+explicit encoding; invalid literals use bytes. Generic `Yojson.str` also
+handles names and must stay separate. GPT-6 Luna independently prepared the
+integration inventory.
 
-The read-only inventory was performed by GPT-6 Luna and checked against
-the current sources. Keep names/identifiers/atoms as their existing String
-representations; never change the generic JSON string decoder globally.
+Bounds and exact replacement length are checked; text replacement requires
+one byte. Preserve base/replacement/index order. Nested and sliced update
+paths remain rejected. Both full-P4 text update sites can emit, which is not
+a full-P4 build. List-update evidence: [generated encodings](generated-encodings.md).
 
-- `Lang/Il/Ast.lean`: semantic `text` alias and TextV payload, separate
-  from `id'` and Atom strings.
-- `Lang/Il/Json.lean`: TextV/TextE decoding only; generic `Yojson.str`
-  also decodes identifiers and must remain separate.
-- `Runtime/Value/Value.lean`: Make/Get.text and text comparison.
-- `Prelude/Value.lean`: semantic ToValue/OfValue instances;
-  `Prelude/Iter.lean`: byte-oriented index/slice helpers.
-- `Codegen/Types.lean`: TextT representation; `Exp.lean`: literals,
-  length/index/slice/update; `Reify.lean`: semantic literal quotation,
-  not identifier quotation. Regenerate output; never hand-edit it.
-- `Interface/Builtin/Texts.lean` and Call: integer conversion, splitting,
-  prefix/suffix/space stripping and result adapters.
-- `Interp/InterpAl/Interp.lean`: text literals, concatenation, length,
-  indexing, slicing and both update forms.
-- `Interface/P4/Unparse.lean`: escape raw semantic ByteText bytes;
-  identifier/atom rendering remains String.
-  Printer output can be encoded explicitly when used as a text value.
-- `Refine/Value.lean`, `Refine/Calc.lean`, `Tactic/Refine.lean`:
-  canonical text payloads, comparison/equality and literal inversion.
-  Preserve the existing kernel proofs rather than excluding text cases.
-- Update fixtures and generated quotations, then run both differential
-  legs and every existing refinement/axiom audit.
+JSON ingress rejects invalid raw UTF-8 and unpaired surrogate escapes before
+Lean's parser substitutes U+FFFD. Pinned Yojson rejects lone high surrogates
+but may decode lone low surrogates into invalid UTF-8; Lean deliberately
+rejects both. Internal text still represents arbitrary bytes. General
+byte-preserving source-literal export remains open. Confidence high for
+internal semantics/restricted ingress; revisit for arbitrary-byte source
+literals or measured proof/storage cost.
 
-## Boundaries and regression evidence
+## Failure classification and recorded review
 
-JSON's Unicode strings are not an arbitrary-byte transport. The pinned
-exports can be decoded without changing their stored format, but this
-alone does not prove a lossless general transport for invalid-byte source
-literals. Ingress now checks raw UTF-8 and rejects unpaired JSON surrogate
-escapes before Lean's parser can replace them. Pinned Yojson itself rejects
-lone high surrogates but can decode lone low surrogates to invalid UTF-8;
-we reject both. A general arbitrary-byte export format remains separate
-work. Runtime byte texts remain arbitrary bytes.
+Checked dispatch validates arity/type arity first (retryable extraction
+mismatch); a correctly applied operation's conversion/operation failure is
+hard `Fail.err`. Upstream catches `BuiltinError`, not `Failure`,
+`Assert_failure` or `Invalid_argument`. An early Option wrapper and catch-all
+oracle wrongly made those exceptions retryable; review corrected generated
+wrappers to `Eval.err?`, checked dispatch and classified observations.
+Legacy Option dispatch remains kind-erasing. The six text builtins and
+printer audit does not establish classification for other builtin families.
 
-Pinned upstream text-builtin observations use hex payloads and distinguish
-BuiltinError from hard exception classes. The consumer exercises checked
-dispatch, interpreter calls and production-emitted wrappers. Integer parsing
-now includes the observed signed/prefixed/underscore/empty-string behavior;
-the observations do not prove all Bigint.of_string inputs equivalent.
-Focused guards cover byte bounds, exact replacement length, invalid UTF-8
-results, compiled literals/quotations, length/index/slice/concatenation and
-surrogate rejection. The differential harness separately verifies that an
-existing corrupt expectations file fails rather than disabling comparison.
+GPT-6 Sol independently reviewed another Sol agent's foundation from
+`3b8175f`: no findings, ByteText focused build exit 0 (three jobs), audits
+and diff checks passed. A first integration gate failed on a missing
+“not a mirror” header; a fresh gate passed exit 0/no skips. The reviewer did
+not run that gate. Missing ignored Nano JSON also caused an early test
+failure before verified unpacking and rerun.
 
-The two full-P4 text updates are enabled. This is not yet a full-P4 build,
-a Unicode input transport proof, full text-builtin completeness or an audit
-of failure classification in the remaining builtin families. Exact checks
-and remaining obligations are recorded in status.
+An independent agent reviewed integration against `5aeae5b`, rechecking
+resolved hard-error and surrogate-replacement findings. Direct elaborations
+of Builtins/Decode/Updates and Refine Value/Calc, Unicode/failure sensitivity
+probes and diff/hygiene checks exited 0. Upstream `test/text/run.py --check`
+reproduced 46 cases: 31 successes, 11 Failure, four Assert_failure. Runtime
+checks covered dispatch, interpreter and actual emitted wrappers, plus four
+Nano wrappers. Misclassifying a failure as builtin_error/generic error/unknown
+was rejected; wrong arity retried, hard numeric errors did not.
+
+Transport sensitivity passed both actual differential binaries with controls,
+invalid UTF-8, high/low surrogate escapes and corrupt existing expectations.
+Corrupt expectations must fail, never disable comparison. Valid pairs,
+escaped quotes/backslashes and maximum pairs remain accepted. Hex-payload
+observations cover signed/prefixed/underscore/empty integer forms, invalid
+bytes and large integers, not all `Bigint.of_string` inputs.
+
+The integration reviewer did not rerun the full gate, all 18 refinements,
+full-P4 generation or corpus. Separate byte/state reconciliation is in
+[state review](state-integration/review.md). Open work: arbitrary-byte
+transport, full text-builtin correspondence and other builtin failure kinds.

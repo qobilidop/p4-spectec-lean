@@ -1,825 +1,101 @@
 # Decisions
 
-## Repository stewardship (2026-09-26)
+Current cross-cutting choices and reasons. Updated 2026-09-26.
+Rules belong in [AGENTS.md](../AGENTS.md), architecture in
+[Design](../docs/design.md), and detailed constraints in the linked topic
+notes. This register is not a chronological log.
 
-Keep the on-demand `tend-repo` workflow in `.agents/skills/tend-repo/SKILL.md`,
-versioned with this repository. It reconciles repository claims, compacts
-working state without losing open obligations, and routes evidence-backed
-lessons to existing checks or documents. Repository policy remains in
-`AGENTS.md`; the skill does not duplicate it or authorize unrelated work.
-Start instruction-only and evolve from observed use, including removing
-ineffective guidance rather than accumulating rules. Reason: make periodic
-maintenance repeatable while keeping knowledge close to its owner. User
-approved; revisit packaging if another repository actually needs this workflow.
+## Scope and product (2026-09-26)
 
-## Library and example boundary (2026-09-26)
+Keep AL as input, the handwritten Lean AL reference, and the generated model.
+The bounded field-update consumer is complete; broader M3 is incomplete and
+paused. The earlier blanket authorization to complete M3 is superseded by the
+user's pause and subsequent bounded requests. New feature work needs a newly
+agreed scope. Reason: demonstrate a complete usable source connection without
+mistaking isolated generated/proof fixtures for full-P4 support.
 
-Use `ExampleProofs/NanoP4FieldUpdate/` for the bounded downstream case, with
-its tests beside the proofs. Do not keep compatibility modules under the old
-`NanoP4Proofs` namespace: the rename is an intentional example import-path
-change, not a semantics or theorem change. `ExampleProofs` is excluded from
-default targets and explicitly built by the full gate. Reusable libraries
-must not depend on examples or test-only modules, even through local helpers;
-check actual import headers with the pinned Lean parser. Reusable support
-remains in `P4SpecTec.Refine`. Reason: users must be able to distinguish the
-provided libraries from demonstrations without weakening example validation.
-Confidence high; revisit classification when adding another library or a
-different public proof interface.
+The goal is a certifying compiler, technically a proof-producing semantics
+translation, not a universally verified generator. Reusable models amortize
+per-artifact checking and allow generator evolution. This is a tradeoff, not
+a claim of general superiority over verified compilation.
+[Discussion](notes/compiler-certification.md) retains the user-requested
+rationale; [Related Work](../docs/related-work.md) owns sources.
+Confidence high; revisit with measured scale or consumer evidence.
 
-## Documentation responsibilities (2026-09-26)
+## Pins and reproducibility (2026-09-25)
 
-Keep user-facing current capabilities, certification guarantees, coverage
-interpretation, implementation limitations and trust boundaries in
-`docs/certification.md`, with a short status summary in README. Design states
-the intended architecture and precise correctness contract, not current
-progress; keep it concise without replacing obligations with vague claims.
-Milestone planning belongs in Roadmap. Generated indexes remain the exact
-theorem inventory, and worked
-proofs stay beside example code. `docs/performance.md` is the measurement
-guide; dated raw reports live under `docs/performance/` so regeneration cannot
-overwrite explanatory prose. Module-duration sums are not wall-clock build
-time or isolated kernel-checking time. Reason: useful entry points without
-duplicated claims or fabricated measurement precision. User approved; revisit
-if generated coverage or measurement tooling can replace manual summaries.
+P4-SpecTec is pinned at `8c8e0c6f` on `gsoc-nano-spec`, because Nano is
+not yet on the chosen upstream main baseline. Its companion Nano spec is
+`60dfd991`. A separate submodule avoids upstream's nested SSH checkout.
+Return to upstream main when Nano lands there; possible branch rebasing
+makes provenance checks important. Toolchain identities remain in pin files,
+not a second manually maintained version list.
 
-## Bounded dynamic Nano target
+Nix owns the environment; elan supplies Lean, with Batteries pinned alongside
+it and no Mathlib selected. Source-preserving compressed snapshots avoid huge
+generated inputs in Git. Specific tradeoffs and revisit points are in
+[translation choices](notes/translation-design.md#build-and-storage-rationale).
 
-- **Preserve shared verify's full-P4 getter ABI, even in Nano dispatch.**
-  The pinned shared helper uses prefixedName/cursor/context, unlike Nano's
-  scope/context/name. Nano grammar permits only extern objects and its AL
-  declares no ExternFunctionCall_eval, so direct target tests do not imply
-  successful Nano verify packet coverage. Port the shared helper faithfully,
-  record the actual AL mismatch and retain missing source-level coverage.
-  Confidence high from source and exact-pin observation; revisit if upstream
-  adds Nano function support or changes the shared helper. (2026-09-25)
+## Interface and correctness (2026-09-26)
 
-- **Preserve the pinned raw ExternV boundary; do not restore PACKET.**
-  The pinned Nano handler returns objectState where the Nano relation
-  declares value. A generated typed adapter cannot silently repair this.
-  Port shared packet data operations and the dynamic handler first, and
-  keep typed Nano coverage explicitly excluded. Signed packet record fields
-  and inconsistent lengths retain operation-specific behavior, including
-  OCaml signed-63-bit addition before the short-packet branch. Out-of-host
-  values are separately unsupported, never normalized to empty packets.
-  Confidence high from exact-pin observations and actual AL replay.
-  Revisit on an upstream correction/pin change or a proved contextual
-  representation boundary. (2026-09-25)
+Use `ExampleProofs/NanoP4FieldUpdate/` for the downstream example, with tests
+beside proofs. The rename deliberately has no old-namespace compatibility shim.
+Provided libraries remain usable without examples; reusable proof support
+stays in `P4SpecTec.Refine`. Reason: make library versus consumer boundaries
+visible and checked. Revisit if another client needs a stable wrapper API.
 
-- **Keep relation/driver replay distinct from boot/STF support.** The first
-  packet checkpoint replays NanoSwitch_drive from upstream-captured inputs
-  and compares every semantic output plus the fresh counter. Callback fuel
-  and nesting are explicit bounds; failure-kind claims stop at upstream's
-  public failure category. Unguarded final outputs can discard the malformed
-  receiver, so a separate direct-handler and guarded regression remain
-  mandatory. The driver increment separately captures the original upstream
-  drive_pipe inputs and outputs and compares the Lean driver's ctx/arch,
-  exact original-port/payload tx list and counter. It starts from captured
-  booted contexts, not a Lean boot or STF parser. Ports outside signed 63-bit
-  OCaml range reject as unsupported, never wrap silently. Confidence high
-  for this bounded projection; revisit when boot/STF paths are ported.
-  (2026-09-25)
+The target is two-way terminating correspondence on a declared source domain,
+including relevant failures and state, not just relation run-soundness.
+Existing generated certificates remain one-way and bounded. Initialization,
+source/representation adequacy and observation contracts are separate
+obligations. [Translation choices](notes/translation-design.md) preserve
+implementation rationale and uncertainties without duplicating architecture.
+[Field-update evidence](notes/field-update.md) records the completed consumer.
 
-- **Retain full independent driver evidence in schema 2.** Adding full
-  original-driver contexts/architectures doubles the packet fixture to
-  8,510,069 raw bytes / 305,049 compressed bytes. Keep the 1 MiB compressed
-  read bound and explicitly raise only the expanded bound from 8 to 16 MiB.
-  No semantic field, identity or ExternV payload is discarded to save space.
-  Confidence high; revisit if the finite selection expands. (2026-09-25)
+These topic constraints remain binding when their work resumes:
 
-## Bounded generated state refinement (2026-09-25)
+- [State integration](notes/state-integration/overview.md): allocation survives
+  rejected attempts; bounded fixtures are not production integration.
+- [Byte text](notes/byte-text.md), [type runtime](notes/type-runtime.md) and
+  [print hints](notes/print-hints.md): checked semantic boundaries, no fallback
+  success on unsupported values or exhaustion.
+- [Full P4](notes/full-p4/overview.md) and its [corpus](notes/full-p4/corpus.md):
+  emission census is not compilation; exact identities and retained failures
+  constrain coverage claims.
+- [Nano target](notes/nano-target.md): preserve raw ExternV and shared verify
+  ABI mismatches; do not invent typed target or boot/STF coverage.
 
-Generated state refinement uses separate `StateValidate` eligibility and
-`state_refine_al` automation, while reusing pure value/context normalization.
-It preserves the existing `StateRefines` contract: every terminating
-interpreter outcome, exact final state, both failure tags, and arbitrary fuel.
-The first slice admits scalar first-order functions, direct fresh allocation,
-variable binding, if/debug premises, ordered fallback, and literal natural
-division; other constructs and recursive groups remain explicit exclusions.
-Production selection must propagate missing callee contracts through the
-dependency graph. Missing contracts fail loudly rather than unfolding callees
-without a bound or emitting success-only theorems. Confidence: high for the
-audited emitted fixtures; revisit eligibility and normalization performance
-when applying it to full-P4 generated definitions. This is an increment, not
-closure of the full stateful refinement obligation.
+## Knowledge ownership (2026-09-26)
 
-The decisions in force, grouped by topic, each with its reason and the
-date it was made. A register, not a diary: a superseded entry is
-rewritten in place with the new date and reason; an entry whose subject
-no longer exists is removed. A decision the design document already
-settles is not repeated here.
+README is the short introduction/status; Design describes the intended system;
+Certification records delivered guarantees; Performance owns measurement
+interpretation with dated snapshots; Related Work owns literature synthesis.
+Checked walkthroughs stay beside examples. Reason: readers should not reconcile
+competing copies of the same claim.
 
-## Pins
+The approved `.agents/` organization is a small current-state entry point,
+this cross-cutting rationale register, deferred work in Roadmap, and working
+knowledge grouped by topic. Plans, experiments and reviews belong together.
+Start with one note; use a topic directory only for independently useful
+supporting material. Git history is the archive, without new archive folders,
+tags or an accumulating lessons journal.
 
-- **P4-SpecTec is pinned at `8c8e0c6f`** (2026-09-17, "Merge branch 'main'
-  into gsoc-nano-spec"), the head of upstream's `gsoc-nano-spec` branch,
-  which is `main` as of 2026-09-17 plus the Nano-P4 frontend, test corpus
-  and nano-switch target. Reason: Nano-P4, the pilot, is not on `main` at
-  the previous pin `2730cfd9` (it lives on that branch, ten `main` commits
-  behind); the differential harness needs the nano frontend to boot
-  programs and upstream's `check` as the oracle. CI accepts a pin
-  reachable from `main` or from `gsoc-nano-spec`. Confidence: medium; the
-  branch could be rebased. Revisit when Nano-P4 lands on `main`: return
-  the pin there. Bumped by moving the submodule and re-running the exports
-  and the mirror checks. (2026-09-25)
-- **The Nano-P4 spec is a second submodule, `upstream/nano-p4-spec`, pinned
-  at `60dfd991`** (2026-09-08), the commit P4-SpecTec's branch references
-  as its nested `nano-p4/spec` submodule, from the public
-  `pacokwon/nano-p4-spec`. Reason: P4-SpecTec's nested submodule uses an
-  SSH URL, and the compiler takes spec files as inputs anyway (design
-  section 4.1). CI checks the pin is on that repository's `main`.
-  (2026-09-25)
-- **Lean `v4.34.1`, Batteries `v4.34.0`, no Mathlib.** The current stable
-  release at project start; Batteries at the matching minor. Bumped
-  together. (2026-09-25)
+Keep `tend-repo` versioned here and instruction-only until observed use
+justifies automation. It applies AGENTS policy, preserves open obligations
+during compaction and improves from evidence, including removing ineffective
+guidance. Revisit packaging if another repository needs it.
 
-## Build and test
+## Workflow and recovery (2026-09-26)
 
-- **Budget runtime probes and proof replay separately.** The field-update
-  runner keeps a 60-second runtime limit and gives each proof subprocess
-  300 seconds. The original uniform 60-second limit killed the unchanged
-  baseline on CI run `36260016481`, despite passing locally. The Lean
-  heartbeat ceiling and proof obligations are unchanged; timeouts remain
-  harness failures, never accepted mutant rejections. Local and remote CI
-  passed at `395022a` (run `36261314804`). Confidence: high for this fixture;
-  revisit if measured CI proof times approach the new bound rather than
-  repeatedly raising it. (2026-09-26)
+Direct commits are the default because this is currently a personal project;
+feature branches are optional isolation, PRs require explicit request.
+Review, validation and protections still apply as specified in AGENTS.
+Revisit when collaboration or protections make a PR useful.
 
-- **Resume bounded corpus shards only under an exact execution identity.**
-  Recheck pins/snapshot/inventory and rebuild both toolchains; use a locked,
-  content-keyed probe workspace to keep path-sensitive binary bytes stable,
-  without normalization. Include actual binaries, source/archive hashes,
-  absolute roots, exact selection and limits in the identity. Only validated
-  durable terminal records skip execution. Quarantine known interrupted
-  attempts recoverably; malformed final artifacts fail loudly. Completed
-  harness/resource failures are denominator attempts, not semantic matches,
-  and remain terminal under ordinary resume. Reason: bounded replay must
-  survive interruption without silently changing inputs, retrying failures
-  into success or inflating the canonical 1,267-candidate denominator.
-  Confidence: high for the reviewed four-case/fault-injection slice, not
-  whole-corpus coverage or hostile concurrent filesystem defense. Revisit
-  before changing retry policy, resource bounds or scaling. (2026-09-25)
-
-- **Use the upstream collector's full-P4 denominator, accounting for raw
-  helpers separately.** The exact p4c sample checkout contains 1,352 `.p4`
-  paths, but pinned `Util.Filesys.collect_files` skips `include` directories:
-  eighteen helper files are collector-omitted, 67 collected files are
-  statically excluded and 1,267 are canonical attempt candidates. Preserve
-  all identities and exclusion provenance; do not execute headers as extra
-  standalone programs or retain the earlier raw nonexcluded count of 1,285
-  as the canonical denominator. Root independently verified this correction.
-  Confidence: high at this pin; revisit on corpus/collector/exclusion changes.
-  (2026-09-25)
-
-- **Stage checked type-runtime APIs without inventing observable type-fresh
-  names.** Keep total proof-facing helpers separate; interpreter operations
-  lift checked errors to `Fail.err` and exhaustion to divergence. Alias
-  expansion, function-signature comparison and parameter conversion must
-  not return false, identity or a truncated signature on exhaustion.
-  Pair function binders with private NUL-prefixed markers before alias
-  expansion, preserving free aliases with colliding spellings. Markers do
-  not escape the Boolean comparison; well-formed parsed identifiers cannot
-  contain NUL. Nonempty substitution through `FuncT` is an explicit
-  unsupported error until separate upstream `Type.Fresh` state is modeled.
-  That counter is not the builtin `fresh_typeId` counter: equivalence also
-  consumes it upstream and may affect later returned substitutions.
-  Confidence: high for bounded observed comparisons, not whole-session
-  type-fresh fidelity. Revisit before supporting nested function
-  substitution or claiming guarded full-P4 coverage. (2026-09-25)
-
-- **Replay full-P4 AL observations through a bounded P4-specific Lean
-  configuration.** Regenerate and validate the four pinned oracle cases
-  before replay; seed `StateEval` from each exact post-boot counter, disable
-  the guard, compare semantic outputs and exact final counters, and treat
-  fuel exhaustion as distinct from upstream's public failure class. Mirror
-  only the pinned placeholder simulator's `init_objectState` and
-  `init_archState` externs in this replay configuration; the generic AL
-  interpreter retains its explicit `Extern.none` default. Reason: the
-  positive regression requires the placeholder extern to instantiate,
-  while broad or invented extern behavior would hide fidelity gaps. Syntax
-  observations have no Lean AL execution and are labelled separately.
-  Reject mode/config mismatches and counters outside signed 63-bit range
-  before evaluation, including on syntax observations; otherwise a
-  malformed counter silently wraps at `FreshState.ofInt`. Check real Lean
-  decoder/evaluator mutations in the bounded harness.
-  Confidence: high for these four observations; revisit extern coverage
-  and memory use before extending to the corpus. (2026-09-25)
-
-- **Export full-P4 AL observations through fresh per-relation processes.**
-  Match `run -al` with cache on, deterministic and guard checks off; boot
-  the same program separately for `Program_ok` and `Program_inst`, compare
-  the boot JSON, and record exact typed outputs and fresh counters. Keep
-  complete runtime observations compressed and ignored; commit only small
-  reproducible digest fixtures. Verify the pinned upstream HEAD, its exact
-  four-file export patch and a current Dune build before linking the probe.
-  Normalize only source-region fields in fixture digests; semantic value
-  strings remain literal. Require the four-case manifest and schema, and
-  count only CLI exit 1 with diagnostic output as a negative verdict.
-  Reason: the CLI reports only verdicts,
-  `Program_inst` internally invokes `Program_ok`, and one shared mutable
-  session would move fresh IDs. The public AL API collapses internal
-  `Err` and `Unmatch`, so fixture classes are limited to its observable
-  syntax, unmatch, abort and pass outcomes. Confidence: high for the
-  bounded pinned observations; revisit memory and storage policy before
-  corpus-scale use. Revised after independent review. (2026-09-25)
-
-- **Restore full-P4 corpus sources as a sparse ignored p4c checkout.**
-  Derive the commit and HTTPS URL from the pinned P4-SpecTec gitlink and
-  committed `.gitmodules`, not branch tips or mutable configuration. Fetch
-  only shallow/blob-filtered sample, include and required symlink-target
-  directories; no p4c build or recursive submodules. Keep source duplicates
-  and runtime outputs out of Git. Ordinary CI runs offline restore-contract
-  tests, not corpus downloads. Confidence: high for the current pin; revisit
-  the sparse paths if an upstream bump introduces include/link dependencies.
-  This is input preparation, not a corpus-validation claim. (2026-09-25)
-
-- **Use a ByteArray-backed ByteText for semantic text, not identifiers.**
-  OCaml indexing/slicing/replacement operates on arbitrary bytes; Lean
-  String cannot preserve all results. The foundation keeps decoding
-  explicit and checked, with kernel equality/compare-equality laws. Prefer
-  ByteArray to lists for direct byte access/storage; integration preserves
-  arbitrary bytes through IL values, generated types, builtins and proofs.
-  JSON input rejects invalid UTF-8 and unpaired surrogate escapes instead
-  of accepting replacement characters. This deliberately restricts the
-  input transport; it is not a general byte-preserving OCaml-string export.
-  Confidence: high for internal byte semantics and fail-closed ingress.
-  Revisit if source literals require arbitrary-byte transport, or proof
-  reduction/performance exposes a concrete problem. Inventory and evidence
-  boundaries: `.agents/notes/byte-text.md`. (2026-09-25)
-
-- **Preserve text builtin exception classes in the oracle and checked
-  dispatch.** Pinned upstream retries `BuiltinError` from arity extraction,
-  but not `Assert_failure`, `Failure` or `Invalid_argument`. Represent those hard
-  aborts as `Fail.err`, consistent with the design, never `unmatch`.
-  A catch-all success/error oracle hid this distinction; record the actual
-  exception class and fail closed on unknown classes. This audit covers
-  six text builtins and the previously checked printer, not every legacy
-  Option-returning builtin. Confidence: high for these observed paths;
-  remaining builtin families require M3C fidelity audit. (2026-09-25)
-
-- **Land explicit fresh state as a bounded foundation before integrating
-  it.** The counter sits below failure and wraps as signed 63-bit OCaml
-  `int` on the pinned 64-bit platforms. Choice and negation retain consumed
-  IDs; reset is explicit. Confidence: high for this carrier/primitive,
-  independently checked against upstream and focused tests. Generator
-  mode, higher-order effects, state-indexed relations and refinement need
-  integration; never pretend a result-only theorem
-  proves post-state preservation. Audit: `.agents/notes/fresh-identifiers.md`.
-  (2026-09-25)
-- **Use uniform state for a spec declaring the fresh builtin, retaining
-  Nano's pure mode.** Mixed signatures require effect analysis across
-  callbacks/externs; uniform state avoids that unsound shortcut. Share
-  one effect-parameterized interpreter. Successful state-indexed rules
-  must account for earlier rejected attempts and ordered iterations;
-  refinement preserves final state on every terminating outcome. Plan:
-  `.agents/notes/state-integration.md`. Confidence: high in this direction,
-  medium in the precise proof API; revisit after the recursive proof
-  fixture and pure-specialization compatibility check. (2026-09-25)
-
-- **Warnings fail the build via `lake build --wfail`, not via
-  `warningAsError` in Lake options.** The option rewrites severities at
-  log time, so a `#guard_msgs` test expecting a warning would see an
-  error; `--wfail` fails the build without changing what tests observe. A
-  `sorry` is a warning (`warn.sorry`), so it fails the build too.
-  Reason: Batteries and lean-mlir practice; lean-mlir's `sed` flip of
-  `warn.sorry` is the alternative to avoid. (2026-09-25)
-- **Linters on package-wide: `linter.missingDocs`, `linter.unusedSimpArgs`;
-  `missingDocs` off in the test library.** Docstrings are the cheapest
-  audit aid for a project whose value is reviewability. (2026-09-25)
-- **Tests are a library built by `lake test`** (`P4SpecTecTest`, globbed),
-  not default targets, so `lake build` is the client build and `lake test`
-  the full one. Every module is imported by its root, checked by
-  `scripts/check-imports.sh`, so no proof or test is silently skipped.
-  Reason: cedar-spec's lint driver exists for exactly this failure.
-  (2026-09-25)
-- **Axiom audit per theorem: `#guard_msgs in #print axioms` naming the
-  exact set for hand-written theorems, `#audit_axioms` after every
-  generated theorem.** `#audit_axioms` (`P4SpecTec/Tactic/Audit.lean`)
-  fails unless every axiom is one of `propext`, `Classical.choice`,
-  `Quot.sound`, so a `sorry` or `native_decide` (`Lean.ofReduceBool`)
-  fails the build. Reason: the exact set differs between generated
-  theorems (a theorem about a `partial_fixpoint` definition depends on
-  `Classical.choice`, one about a plain definition may not) and the
-  generator does not compute it; naming a wrong set would fail for the
-  wrong reason. Hand-written theorems keep the exact-set check, LNSym
-  and lean-mlir practice. (2026-09-25, revised the same day)
-- **CI uses the pinned Nix shell and caches elan and `.lake`; the gate
-  is `scripts/check.sh` locally and in CI.** The workflow also checks that
-  the upstream pin is reachable from `main` or `gsoc-nano-spec`, and that
-  Nano-P4's pin is on its `main`. Reason: reproducible checks with cached
-  toolchains and explicit pin provenance. (2026-09-26)
-- **Mirrored modules keep upstream names, including `snake_case`; our own
-  code follows Lean style.** Reason: the side-by-side audit is the
-  point of mirroring; renaming to Lean style would break it. (2026-09-25)
-- **File naming by provenance** (decided with the user 2026-09-25): a
-  mirrored module sits at its OCaml file's path under `p4spec/lib/`,
-  capitalised component by component (`Lang/Il/Ast.lean`,
-  `Runtime/Value/Value.lean`, `Interface/Builtin/Texts.lean`); a
-  generated module is its spec file's name verbatim; our own code follows
-  Lean conventions. The path, not dune's module name, is the rule because
-  upstream's module names depend on each library's dune stanza
-  (`lang` uses qualified subdirectories, `runtime` and `interface` do
-  not), while the path is invertible without reading them. The mirror
-  check derives its pairs from the paths; a module of ours under a
-  mirrored root declares "not a mirror". (2026-09-25)
-- **The keyword list for name escaping is extracted from Lean's own token
-  table by a script, never hand-written.** Reason: Aeneas's escaping bugs
-  recurred until they did this. Escape with `«»` only for whole-identifier
-  keywords or illegal characters. (2026-09-25)
-- **Generated files carry a grep-able first line and a fixed option
-  preamble**, and generated modules live in their own library. Reason:
-  Aeneas, Sail and lean-mlir all converge on this. (2026-09-25)
-- **Mirror checks are `scripts/check-mirror.py`**, comparing the
-  constructor lists of each mirrored OCaml type with the Lean inductive
-  of the same name, per type rather than per file, because a `mutual`
-  block forces a declaration order the OCaml does not have. Polymorphic
-  variant unions are compared against the flattened Lean inductive.
-  (2026-09-25)
-- **The differential harness is Python** (`test/diff/run.py`), driving a
-  Lean executable (`nano-p4-run`) that decodes and runs; upstream's
-  verdicts are recorded next to the exported programs, so the gate needs
-  no OCaml. Reason: the harness only orchestrates and compares; recording
-  the oracle keeps CI to one toolchain. Settles design section 12.
-  (2026-09-25)
-
-## Environment
-
-- **Nix defines the environment; everything runs inside `nix develop`.**
-  `flake.nix` has a default shell (elan, git, python) and an `upstream`
-  shell (nixpkgs' default OCaml package set and P4-SpecTec's libraries).
-  CI uses the same shells, with the Nix store, `~/.elan` and `.lake`
-  cached. Reason: the user wants reproducibility maintained
-  systematically; nixpkgs at the locked revision replaces an
-  opam-repository pin. Lean stays on elan because nixpkgs lags releases.
-  The default OCaml set (5.5.0 at the lock) is used rather than the 5.1
-  set upstream's README names, because only the default set is in the
-  public binary cache; the 5.1 set compiles the compiler and Jane Street
-  core from source, over an hour on a laptop and on every CI runner.
-  Upstream's dune-project requires only `ocaml >= 5.1.0`. Risk: newer
-  OCaml, menhir (20260203 vs 20240715) or ppx_deriving_yojson (3.9.0)
-  may not build upstream unchanged; the first M1 step is that build,
-  and a package override in the flake is the fallback. Confidence: high
-  in the approach, medium in the versions; revisit at the first upstream
-  build. (2026-09-25)
-- **`.envrc` and `.direnv/` are ignored by git.** direnv is a personal
-  convenience, not project tooling; the flake is. (2026-09-25)
-- **No license header per file.** The root `LICENSE` is enough; the user
-  dislikes per-file headers. (2026-09-25)
-
-## Generated code
-
-- **Package and stress-test the existing field-update certificate before
-  expanding coverage.** Keep the checked obligation bundle in
-  `ExampleProofs/NanoP4FieldUpdate/Certificate.lean`, with its mutation runner and
-  runner contract tests beside it under `test/`. The user explicitly prefers
-  related proof and validation code together. Extract only the existing
-  specification-independent initialization support into `Refine/Init.lean`;
-  keep the scalar representation and finite-fuel realization handwritten.
-  Run mutants in temporary scratch modules, never alter committed generated
-  files. Baselines must pass and each mutant must fail at its intended
-  boundary; arbitrary compilation failures, stale results and timeouts are
-  harness failures. This is a bounded certificate and sensitivity check,
-  not automatic reverse-certificate generation or new full-P4 coverage.
-  Reason: make the completed example inspectable and repeatable before
-  broadening work. (2026-09-26)
-
-- **Certify a bounded Nano field-update consumer example before resuming
-  broader M3 expansion.** The user approved retaining AL and both execution
-  paths, proving two-way terminating correspondence for a scalar field-list
-  domain, and transferring distinct-field update commutation. Use actual
-  `update_fieldValue`, preserve duplicates/first-match behavior and absent-key
-  identity, and discharge representation and initialized-environment
-  obligations. This is not arbitrary P4 assignment reordering or full-P4
-  certification. Handwritten proofs live in `ExampleProofs/NanoP4FieldUpdate/`, with
-  the checked walkthrough in `Example.lean`; no separate tutorial, planning
-  note, or field-update test module initially. Existing generated files stay
-  untouched. Reason: demonstrate a complete useful source connection before
-  widening coverage. Confidence: high in the bounded scope; revisit the proof
-  interface after the example. The bounded checkpoint is now complete
-  (PR #27); broader M3 remains paused. Retaining AL, the handwritten reference
-  and the generated interface remains the agreed direction. No IL backend
-  or broad redesign is scheduled; alternative interfaces remain advisory
-  unless a concrete consumer need justifies them. (2026-09-25; completion
-  reconciled 2026-09-26)
-
-- **Use checked root-index updates and reject unsupported path shapes.**
-  The four list updates landed separately; the two text updates now use
-  the integrated byte representation, preserving invalid-UTF-8 results
-  and requiring exactly one replacement byte. Keep sliced updates and
-  nested index prefixes rejected rather than approximating their meaning.
-  Preserve base/replacement/index evaluation order. (2026-09-25)
-- **Print with validated type-and-mixop policies, not a changed value
-  representation.** All 190 hints decode; all 2,120 variant origins and
-  567 bridge pairs preserve policy selection at the pin. Enforce these
-  conditions, plus actual variant/case constructor notes, during codegen.
-  Emit literal hint data and configure the interpreter from the source
-  spec. Reject unsupported forms, bounds errors and incompatible policy
-  changes. Reason: the runtime note selects the hint, but a static type
-  note is observationally sufficient under the checked invariant; a
-  mixop-only global table would conflate unrelated families. No change
-  to `Rel` or refinement coverage is implied: arbitrary decoded notes and
-  the printer-table contract still need M3C/M3E evidence. Confidence:
-  high for the checked pinned scope; revisit if a new export violates
-  policy compatibility. (2026-09-25)
-- **Specialize variant bridges by full type applications.** The thirteen
-  full-P4 `continueResult` failures were erased arguments, not different
-  payload semantics. Match upstream `runtime/type/sub.ml`: instantiate
-  both variants and require equivalent payload types. Preserve existing
-  monomorphic names; a structural, region-free encoding of both argument
-  lists names specializations in child namespaces. No hash collisions or
-  encounter-order dependence. Free parameters and explicit function-type
-  arguments remain rejected until an explicit binder scheme is needed.
-  Reason: faithful handling of all observed pairs without silently
-  conflating future specializations or inventing covariant payload casts.
-  Confidence: high at the pin; revisit when an export needs polymorphic
-  bridge declarations. (2026-09-25)
-- **M3A is reconnaissance, not completion of full-P4 generation.** The
-  user authorized the full export, capability census, independent quoted
-  AST check and a concrete plan for the rest of M3. `P4Spec.lean` remains
-  a placeholder until the generator accepts the unchanged full export.
-  The subsequent phases and exit criteria are in
-  `.agents/notes/full-p4-reconnaissance.md`. Reason: separate rendering barriers,
-  interpreter fidelity, target behavior and proof coverage so progress
-  cannot be mistaken for the thesis's all-definition claim. (2026-09-25)
-- **Spec directory enumeration belongs to upstream.** `export-spec.sh`
-  passes the directory directly; upstream traverses recursively in sorted
-  order and excludes `include/`. Reason: full P4 is sectioned, Nano-P4 is
-  flat, and upstream already defines a deterministic policy. Nano-P4's
-  export remains byte-identical. (2026-09-25)
-- **Commit spec AL snapshots as deterministic gzip with a raw SHA-256.**
-  User approved replacing the proposed 93.83 MiB JSON with a 2.61 MiB
-  lossless snapshot before its first commit. `spec-snapshot.py` packs
-  without a timestamp or filename and verifies before unpacking the
-  ignored working JSON; the gate does this without OCaml. No regions or
-  hints are erased. Nano-P4 migrates forward to 244,303 compressed bytes,
-  preserving its original JSON bytes and published history. Rewriting
-  history would save only its 268,720-byte Git object, not 8.11 MiB.
-  The gate rejects tracked/indexed files over 5 MiB, with no exceptions.
-  Reason:
-  preserve the self-contained frontend/Lean contract without nearing
-  GitHub's 100 MiB file limit or requiring LFS. Compressed files lose
-  ordinary text diffs and still accumulate history; revisit at upstream
-  bumps if size or churn warrants external checksum-pinned artifacts.
-  Confidence: high for this checkpoint, medium long term. (2026-09-25)
-
-- **The compiler consumes the AL (`algo -json`), not the IL.** The AL is
-  the IL after upstream's algo pass: binding analysis rewrites every rule
-  and clause so that patterns are single-level, subtype injections are
-  explicit `if e <: T` / `let x = e as T` premises, and joint iterations
-  carry length guards; rule groups are split into a shared match and
-  paths. That pass (2.6k lines of OCaml) is exactly the middlend that
-  makes the spec algorithmic, and it is what the AL interpreter runs, so
-  consuming its output keeps codegen boring and the rung 3 semantics
-  aligned. The deep embedding mirrors `al/ast.ml` on top of `il/ast.ml`.
-  Supersedes the design's "IL" wording, which the design now reads as AL.
-  (2026-09-25)
-- **Generated Lean is emitted as text, one module per upstream spec
-  file, committed under `NanoP4Spec/` and `P4Spec/`, and is the build
-  input.** CI regenerates from the exports and fails on any diff;
-  `--update` refreshes. Files carry a grep-able header and are never
-  hand-edited. Reason: Lake parallelism and incremental builds, IDE
-  responsiveness, reviewable diffs, and generated files that mirror
-  their sources; every prior art emits text, and Wasm's monolithic
-  outputs are the scale warning. Supersedes the same-day decision to
-  elaborate from JSON through a `spectec_import` command with a separate
-  golden; that route bought nothing rung 3 does not already give.
-  (2026-09-25, revised the same day)
-- **Text is produced by the generator's own `Std.Format` printer, not by
-  building `Syntax` and running Lean's formatter.** Reason: the formatter
-  needs an elaboration environment and its line breaking depends on
-  width heuristics; a direct printer is deterministic, diff-stable and
-  keeps the 100-column limit. Keyword escaping still comes from Lean's
-  own token table (`scripts/gen-keywords.sh`). Refines the design's
-  section 4.1 wording. (2026-09-25)
-- **A recursive group that spans several spec files is emitted in the
-  module of the last file**, since a `mutual` block cannot cross files;
-  every other definition stays in its file's module, and modules import
-  each other in spec order. Nano-P4's typing relations form one such
-  group. (2026-09-25)
-- **Generated code is written in `Eval := ExceptT Fail Option` and every
-  recursive group is a `partial_fixpoint`; no fuel.** `Fail` is `err |
-  unmatch` (upstream's `Err` and `Unmatch` without traces), `none` is
-  divergence, and `Eval.orElse` retries only on `unmatch`
-  (`choose_sequential`), which is monotone; two monotonicity lemmas
-  (`ExceptT.mk`, `orElse`, plus `notHold`) are all Lean needs beyond
-  its own. A definition's type is `Option (Except Fail T)` with
-  `ExceptT.run` around the body and `ExceptT.mk` around calls, because
-  `partial_correctness` is derived only for `Option`-typed definitions.
-  Pure variable bindings are `have`, since the monotonicity tactic cannot
-  eliminate a match on a `let`-bound variable. Reason: the M1 fuel was a
-  placeholder; `partial_correctness` is the induction principle the
-  run-soundness proofs use, and Nano-P4's 20 recursive groups (12 of
-  functions, 8 of relations) all pass the monotonicity tactic, the
-  whole library building in 14 s. Supersedes the M1 fuel decision.
-  (2026-09-25)
-- **The `Prop` encoding mirrors the run function statement by statement.**
-  One compilation of a rule path yields structured statements
-  (`Exp.Stmt`); the run function renders them as a `do` block and the
-  `Prop` constructor reads them as hypotheses in the same A-normal form
-  (calls as `f args = some (.ok x)`, checks as `e = true`, rule premises
-  as the relation applied), with pure bindings and pattern matches
-  substituted textually at identifier boundaries and every variable an
-  implicit argument typed by the AL's notes. Reason: the run-soundness
-  proof is then a symbolic execution whose facts are the hypotheses
-  verbatim, which one generic tactic closes for every relation of
-  Nano-P4 (77 relations, 98 theorems); an encoding chosen for elegance
-  would need a per-relation proof. Iterated premises take the `∀`-form
-  the kernel accepts (design 5.3). Confidence: high for the sound
-  direction; the completeness direction is M2's open point. (2026-09-25)
-- **Equality and ordering on generated types go through their IL values**
-  (`valueEq`, `valueCompare`, via the generated `ToValue` instance), not
-  through derived `BEq`. Reason: Lean's `deriving BEq` on nested
-  inductives produces an opaque (`partial`) function that `decide` and
-  `rfl` cannot unfold, which M2's proofs would hit; value equality is
-  also exactly upstream's `Value.eq`, which the interpreter uses for
-  `=`. (2026-09-25)
-- **Encoders are structural, decoders take fuel.** `toValue` is generated
-  as a mutual block with one helper per nested container occurrence
-  (lists, options, tuples, and spec types applied to group members),
-  because structural recursion through `List.map` is not accepted;
-  `ofValue fuel` recurses on the untyped value and is auxiliary. Value
-  notes on generated values are dummies (`Value.varT "id"` without type
-  arguments, id 0, hash 0): notes are performance devices upstream.
-  (2026-09-25)
-- **The naming rule is frozen at the end of M1** as `P4SpecTec/Codegen/Names.lean`
-  documents: spec names verbatim, `«$f»` for functions, `R`/`R.run` for
-  relations, constructors from mixop atoms joined by `_`, `τX` for type
-  parameters, `«x*»` for iterated variables, and every reference to a
-  generated type, constructor, function or relation qualified with the
-  library name, because spec variables are conventionally named after
-  their types and would shadow them. A generated module is named after its
-  spec file verbatim (`NanoP4Spec.«3.2-bits»` from `3.2-bits.watsup`,
-  directories as components), so listings sort in spec order and no
-  mapping is needed; the quoted imports are confined to generated files
-  and the library root. Later changes are breaking (design section 9).
-  (2026-09-25; module naming decided with the user the same day)
-- **An `extern syntax` is `ExternValue`** (JSON the target owns, as
-  `ExternV` upstream) and **`extern dec`/`extern relation` are fields of a
-  generated class `Externs`**, an instance-implicit binder on every
-  definition that transitively calls one; target instances arrive at M3.
-  (2026-09-25)
-- **Per-file elaboration timing starts at M1**, with a tracked table
-  (`docs/performance/nano-p4-elaboration.md`, from `scripts/time-elab.sh`, regenerated by
-  hand at checkpoints), and proof-checking time of generated theorems is
-  measured from M2.
-  Reason: Isabelle's SpecTec backend needed constructor-capping passes on
-  Wasm, which is smaller than P4; Sail's RISC-V Lean output is 175k
-  lines; encoding choices are cheap to change only early. Supersedes the
-  same-day decision to wait for M3. (2026-09-25, revised the same day)
-- **Recursion strategy: `partial_fixpoint` for every recursive group,
-  structural recursion for none, never `partial`.** Reason: one proof
-  principle (`partial_correctness`) for every group keeps the generated
-  soundness proofs uniform; a structurally recursive definition would
-  need its own induction principle and gain nothing, since the
-  executable encoding is never used in a termination argument. The
-  interpreter port uses the same monad with an explicit fuel instead
-  (below). Supersedes the "structural first" ordering. (2026-09-25)
-- **The interpreter port takes a fuel, one unit per call of its recursive
-  block, in `Eval`.** Reason: the block has about forty mutually recursive
-  functions with calls under `mapM`, `foldlM` and thunks, and its recursion
-  is not structural; `partial_fixpoint`'s monotonicity proof over it is a
-  risk with no benefit, since rung 3 inducts on the evaluation and an
-  induction on the fuel is that induction; the fuel is the only place
-  where the port's shape is not the OCaml's, and `none` reads as
-  exhaustion. The value matcher and the type substitution take a fuel for
-  the same reason (alias unfolding). (2026-09-25)
-- **Three Lean-specific encodings from M1:** iterated premises as
-  `∀ x ∈ xs` and definitional `Forall₂` (lean4#1964), `BEq` not
-  `DecidableEq` on nested inductives (lean4#2329), numerics as `Nat`,
-  `Int`, `Rat` with explicit conversions. Reason: Breitner's Lean branch
-  of Wasm SpecTec hit all three. (2026-09-25)
-- **Per-construct encodings instead of IL-to-IL passes**, listed in the
-  design (section 5.4). Reason: passes would move the generated code
-  away from the spec file it mirrors; the Wasm Rocq backend's default
-  values for partial functions produced provably false lemmas, so
-  partiality is `Option` with side conditions. (2026-09-25)
-
-## Verification
-
-- **Check the compiled quoted spec independently on every gate run.**
-  `check-quotes` decodes the current Nano-P4 export and compares it with
-  `NanoP4Spec.spec` using derived AST equality, with test-only instances
-  ignoring regions and hint lists. Source `VarD` entries are omitted,
-  like `Ctx.init`; type notes and all other fields and ordering remain.
-  Reason: comparing reifier output to itself cannot catch a bad quote,
-  and a cached `#eval` cannot notice a changed external JSON file. The
-  check caught the existing type `id`/function `$id` lookup collision;
-  separate maps now preserve type quotations and source placement.
-  This is a test of quoting, not a kernel proof, and extends to full P4
-  once its generated library builds. (2026-09-25)
-- **The full-P4 census is checked but is not a successful compilation.**
-  `p4spectec-census` probes individual emitters, so every component gets
-  its own first diagnostic despite earlier global failures. The checked
-  report includes raw type recursion separately from the generator's
-  mutual-wrapper choice; type text estimates follow the generator's alias
-  unfolding rules. Reason: actual emitter diagnostics are useful for work
-  ordering, while successful text emission and syntactic proof eligibility
-  establish neither elaboration nor correctness. (2026-09-25)
-
-- **Rung 3 uses correspondence across representations.** Current generated
-  `Refines` certificates match every defined reference outcome, success or
-  failure, to a generated outcome under related inputs and environments.
-  The completed field-update example also establishes generated-to-reference
-  realization with a finite fuel witness for its scalar source domain.
-  Determinism alone cannot supply that witness.
-  Reason: the agreed target is two-way agreement on terminating observable
-  behavior; neither global termination nor equality of differently typed
-  values is required. The general generated certificate coverage is unchanged.
-  The existing lockstep tactic is described in its separate entry below.
-  (2026-09-25, revised after the correctness discussion; bounded completion
-  reconciled 2026-09-26)
-- **The refinement theorem (rung 3) is stated over the interpreter port
-  with `Refines`, one value relation `Rel v x := canon v = canon
-  (toValue x)`, one table hypothesis `HoldsSpec Lib.spec ctx.global`, the
-  guard off, an empty local function table, and every fuel; a recursion
-  group by strong induction on the fuel.** Design section 5.1 has the
-  statement. Reasons: canonical equality is one definition with one
-  connecting lemma (`eq_iff_canon`) and a dozen inversion lemmas for
-  exposure, where an inductive similarity would be a second definition
-  to keep in step; `Refines` over defined results (failure kinds
-  included) is what makes `else` groups and `does not hold` premises
-  meaningful, and divergence refining anything is what makes every fuel
-  provable; one `HoldsSpec` over the whole quoted spec avoids listing the
-  transitive callees of every definition, so the theorems live in modules
-  after the spec files, one per recursion group (`Refinement/`); the guard is
-  instrumentation, not meaning. `canon` is not idempotent on `ExternV`
-  (`Json.compress` is a `partial def` nothing can be proved about), so
-  equality tests are aligned by the congruence `eq_of_canon`, not by a
-  normal form. Confidence: medium; revisit if the full spec (M3) needs
-  facts about externs or function arguments. (2026-09-25)
-- **The driver tactic `refine_al` has no per-construct lemma library:
-  the interpreter's own equation lemmas, unfolded one fuel level at a
-  time by `simp`, are the lemmas; the generated side is walked by the
-  rules of `Refine/Calc.lean`; a definition whose helper matches on a
-  projection (conditional equations) is unfolded by name.** Reason: the
-  design's per-form lemmas (`interp_var`, `interp_call`, …) would restate
-  the interpreter, and every restatement is a second text to audit;
-  computing the interpreter on concrete quoted syntax leaves only the
-  pairing at effectful steps (calls, tests, results) to rules, which are
-  a dozen. The cost is proof time per definition (seconds per definition
-  at Nano-P4's size), recorded in the timing table. (2026-09-25)
-- **The fragment rung 3 covers is decided syntactically
-  (`Codegen/Validate.unsupported`), closed under callees, and reported in
-  the generated module; nothing is `sorry`ed.** Outside at M2: type
-  parameters, function-typed parameters, externs, calls of builtins,
-  casts and subtype checks, iterated expressions with a body and iterated
-  premises, indexing, slicing, path updates with indexing, membership.
-  Reason: the design's "emit the theorem only for the supported fragment
-  and list the rest" (section 5); the list is the M3 work order for
-  rung 3. (2026-09-25)
-- **Determinism theorems are generated only where the tactic `det`
-  proves them: one rule path, no `else` group, no iterated premise, and
-  every relation called is deterministic by theorem (closed under
-  callees, like the refinement fragment); the others are listed with
-  their reason.** 2 of 77 Nano-P4 relations qualify. Reason: with one
-  rule path, determinism is `cases` twice plus the callees' theorems and
-  injectivity of `some`/`ok`; with several, it needs a disjointness
-  argument per pair of rules, which is its own proof per relation; an
-  unconditional attempt fails the build on the first multi-path callee.
-  Confidence: high for the mechanism, low that per-pair disjointness is
-  automatable; revisit at M3 with the full spec's rule overlap measured.
-  (2026-09-25)
-- **Run-soundness is proved by one generic tactic, `run_sound`, and a
-  recursive group's theorem by `run_sound_group` over Lean's
-  `mutual_partial_correctness`.** The tactic executes the run function
-  symbolically (the `Eval.run_*` lemmas, `split` on pattern matches with
-  `cases` on the variable behind a projection, `subst`), turns every
-  call of a group member into its relation by the induction hypothesis
-  and every call of an earlier relation by its `run_sound` theorem, and
-  closes the goal by the first constructor whose hypotheses are found in
-  binder order. `run_sound_group` reads the principle's conjuncts and
-  matches them to the generated statement by function, because Lean
-  orders a group's members in its own way. Reason: a generated per-path
-  proof script would be brittle to Lean's normal forms; a tactic that
-  fails loudly on a shape it does not know is the check the design asks
-  for (a theorem the tactic cannot close fails the build). The two
-  debugging entry points `run_sound_execute` and `run_sound_close` drive
-  it step by step. (2026-09-25)
-- **Rung 3 removes generator/tactic trust relative to the chosen reference.**
-  It does not prove the interpreter port, runtime support, exporter or upstream
-  frontend faithful to intended P4. Do not assert comparative trusted-base
-  size without measurements. Reason: align the decision register with the
-  revised Design and Certification distinction between a checked translation
-  theorem and upstream fidelity; the prior "moves trust" slogan was too
-  absolute. (2026-09-26)
-- **A generated per-relation lemma library** (inversion per rule,
-  run-soundness, a determinism theorem attempt whose failures are
-  reported as spec findings) is part of the public surface from M2.
-  Reason: CHERI and Morello survived model churn only through generated
-  lemma statements; determinism is what downstream equivalence proofs
-  need and what upstream checks only dynamically. (2026-09-25)
-- **The compiler is written in Lean.** The deep embedding must exist in
-  Lean for validation, so generator and validator share one AST and one
-  decoder; Lean's formatter and token table give canonical output and
-  correct escaping; a Lean generator could one day be verified. Upstream
-  adoption is not a criterion (the user, 2026-09-25). (2026-09-25)
-- **Separate targets from delivered guarantees in the thesis.** Design
-  section 1 distinguishes complete rendering, upstream agreement, executable
-  correspondence, and proof usability. The completed field-update example
-  supplies bounded consumer evidence; generation counts alone do not. Reason:
-  the user requested a concrete meaning of correctness and a bounded next milestone.
-  Existing axiom audits and full-P4 completion gates remain mandatory.
-  (2026-09-25, revised after the correctness discussion)
-- **The differential harness reuses upstream's `excludes/` lists** for
-  p4c programs P4-SpecTec cannot handle, rather than maintaining its own.
-  Upstream is an input, not a downstream. (2026-09-25)
-
-## Documentation
-
-- **Use `docs/related-work.md` for the polished literature synthesis.**
-  The user chose the title "Related Work" and a matching filename. Organize
-  comparisons around generated semantics, certification and P4 verification,
-  with primary citations, explicit guarantee boundaries and implications for
-  developers and users. Keep historical design critique in working notes,
-  not in the related-work document. This replaces
-  `docs/prior-arts-comparison.md`. (2026-09-26)
-
-- **Describe the goal as a certifying compiler, not a verified generator.**
-  Use "proof-producing semantics translation" for the technical mechanism:
-  generated correspondence proofs are checked per artifact against the AL
-  reference. "Certified" is not inherently wrong, but is less explicit about
-  the architecture and coverage. Keep the README opening goal-focused and
-  record partial Nano certification and incomplete full-P4 support in Status.
-  Reason: distinguish ambition from delivered guarantees without implying a
-  universal correctness theorem for the generator. The sourced discussion is
-  `.agents/notes/compiler-certification.md`. (2026-09-26)
-
-- **Markdown for design and working notes; doc-gen4 for API reference
-  once there is a public surface; a Verso site at M4.** Reason: the
-  current readers are the user and agents, who need docs readable in the
-  repository without a build; API docs from docstrings are free once
-  `linter.missingDocs` is enforced; Verso earns its dependency only when
-  there are stable declarations for examples to cite. (2026-09-25)
-- **The project website is one GitHub Pages site, built by one workflow
-  in the Nix shell, in three stages.** (1) Until M1 has real
-  declarations: no site; the README and `docs/design.md` are the site.
-  (2) After M1: API reference from doc-gen4, in a separate Lake package
-  under `docs/api/` that ordinary builds never touch, published under
-  the `api/` path. (3) At M4: a Verso site (website genre) in its own
-  Lake package under `website/`, holding the design narrative and a
-  tutorial whose examples are checked against the frozen public surface,
-  with the doc-gen4 output beside it. Verso and doc-gen4 are pinned to
-  the tag matching `lean-toolchain` and bumped with it. Reason: a page
-  claiming something about the generated code should fail to build when
-  the claim stops being true; a site before there is anything to show is
-  maintenance without benefit. Agreed by the user 2026-09-25.
-  (2026-09-25)
-
-## Process
-
-- **Complete M3 autonomously in reviewed stages.** The user explicitly
-  authorized all remaining M3 work and asked that routine decisions not
-  wait for their return. Make reasonable reversible decisions, record
-  their reasons and uncertainties for later review, and pursue safe
-  alternatives when blocked. New authority is still needed for destructive
-  history changes or a material relaxation of the agreed correctness
-  claims. Reason: maintain progress without hiding consequential choices.
-  (2026-09-25)
-- **Choose subagent models by workload.** At the user's request, use
-  GPT-6 Astra for demanding semantics and proof audits, GPT-6 Sol for
-  bounded implementation/testing, and GPT-6 Luna for straightforward
-  inventory checks. Match each assignment to its actual difficulty;
-  do not restart useful running audits solely to change models.
-  Reason: spend stronger reasoning where it affects correctness while
-  keeping focused work efficient. Revisit based on observed task quality.
-  (2026-09-25)
-- **Integrate feature branches locally and preserve useful commits.**
-  Prefer fast-forward integration when possible; otherwise preserve
-  coherent history with a merge commit. Do not rewrite published commits
-  for cosmetic linearity. For explicitly requested PRs, retain the earlier
-  choice of merge commits for coherent changes, squash for incidental
-  WIP/fixups, and rebase only with an explicit linear-history preference.
-  Reason: retain rationale and stable references without requiring a PR
-  boundary for ordinary solo work. Review, validation and repository
-  protections remain mandatory. (2026-09-26)
-- **Make the existing commit-message convention explicit.** Retain
-  Beams' style and the under-50-character subject, spell out 72-column
-  prose wrapping and rationale, and adopt Git's emphasis on atomic
-  changes and self-contained explanations. Reason: naming a guide alone
-  did not prevent unwrapped bodies in recent commits. Apply prospectively;
-  do not rewrite published history for cosmetic cleanup. Source links
-  and actionable instructions are in `AGENTS.md`. (2026-09-25)
-- **No git tags.** Compaction and archiving rely on git history alone;
-  the user does not want tags. (2026-09-25)
-- **Direct commits by default; PRs only when explicitly requested.**
-  The user chose a simpler workflow for the current personal-project phase,
-  superseding the earlier PR-first policy. Normal work goes directly to
-  main; feature branches are for useful isolation, not required ceremony.
-  Independent review and the full local gate remain required before a push;
-  check remote CI afterward and resolve failures before declaring completion.
-  Merge finished branches locally, validate the integrated tree, and delete
-  their local/remote refs and extra worktrees after main CI passes.
-  Repository protections are not bypassed. Reason: preserve correctness
-  checks while avoiding unused PR and branch overhead. Revisit if external
-  collaboration or repository protections make PRs useful. (2026-09-26)
-- **PR descriptions explain rationale, evidence and limitations.**
-  Adapted from GitHub's reviewer guidance and Google's engineering
-  practices at the user's request. The actionable policy and source
-  links live in `AGENTS.md`, not a second instruction file or a verbose
-  mandatory template. Reason: a PR must remain understandable without
-  agent chat history; review guidance should be proportional to risk.
-  (2026-09-25)
-- **Keep PR AI disclosure to one short sentence naming agent and exact
-  model.** User requested concise attribution, beyond commit trailers.
-  Model names come from session evidence, not a configured default.
-  Review claims elsewhere must still distinguish AI-agent review from
-  human review. The actionable rule is in `AGENTS.md`. (2026-09-25)
+Historical experiments were retired, not integrated or declared correct.
+The user chose a small committed-history bundle over the 24 GiB checkout
+snapshot. Ignored campaign data and exact checkout metadata were discarded;
+the bundle cannot restore exact corpus execution. Recovery boundaries,
+identities and the failed casting experiment remain in
+[archive recovery](notes/archive.md). Removing that local-only backup is not
+part of routine compaction.
