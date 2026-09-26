@@ -1,109 +1,66 @@
 # Status
 
-Current state only; git history is the archive. Updated 2026-09-25.
+Current state only. Updated 2026-09-26.
 
-## Goal and authorization
+## Scope
 
-M1/M2 and M3A are closed. **M3 is incomplete and its broad expansion is
-paused.** The user authorized the bounded Nano field-update consumer proof
-on 2026-09-25 after a design review. The contract is two-way terminating
-correspondence on a declared scalar source domain plus distinct-field
-commutation transferred to the reference. This example does not complete M3.
-No correctness gate is waived.
+M1/M2 and M3A are closed. The bounded Nano field-update consumer proof is
+published (PR #27, implementation `4612534`, main checkpoint `499230b`).
+Broader M3 is incomplete and paused. No implementation work is active.
 
-## Published field-update milestone
+The user requested closing all obsolete branches and worktrees. Approved
+README/design documentation is being consolidated onto current main through
+`consolidate-project-state`. No Lean code, pin, export or gate changes.
 
-Worktree `/Users/qobilidop/my/work/p4-spectec-lean-field-update`, branch
-`nano-field-update`, based on published PR #26 merge `fdb8a8d`. The primary
-worktree's uncommitted design-review changes are untouched.
+## Consolidation checkpoint
 
-PR #27 merged as `a492c60`, preserving implementation commit `4612534`.
-Its final-head remote Gate `36224020037` passed in 5m38s, including both
-upstream pin checks. The isolated worktree is fast-forwarded to that merge;
-the primary worktree was not switched or updated.
+- One worktree remains: `/Users/qobilidop/my/work/p4-spectec-lean`.
+  All eighteen secondary checkouts were removed after lossless archival.
+- The first conservative cleanup retained too many historical refs/checkouts.
+  The stronger request superseded that policy: retain recovery data externally,
+  not as active development state. See `.agents/notes/archive.md`.
+- All original branch tips are in a self-contained verified bundle. The user
+  chose to discard the 24 GiB folder snapshot and redundant verification mirror,
+  keeping only the roughly 7 MB committed-history backup and small metadata.
+- The stale integration cherry-pick was closed with `--quit`, not `--abort`,
+  after archiving its sequencer. HEAD, index bytes and clean source state were
+  unchanged. Its code was already integrated; no proof work was resumed.
+- All old local refs were removed after matching the verified backup. Only
+  main and the temporary consolidation branch remain until publication.
+  All 23 old non-main GitHub refs were deleted with one atomic, exact-SHA-guarded
+  push after the full local gate passed. Every tip was merged and no open PR
+  existed. Fresh remote inventory shows only main at `499230b`.
+- Selective documentation reconciliation preserves newer main decisions and
+  checked-runtime boundaries. The consumer example is complete; bounded packet
+  support is not a complete target. Independent reviews:
+  `.agents/reviews/project-state-docs.md` and
+  `.agents/reviews/project-state-archive.md`.
+- Fresh `nix develop --command scripts/check.sh` completed with actual exit 0,
+  no skips, recorded in `.artifacts/consolidation-gate.log` and its `.exit`
+  file. Final backup/status wording was then updated and hygiene rechecked.
+  Consolidation PR publication and remote CI remain pending at this checkpoint.
+  The expected four-file upstream export patch remains applied.
 
-Agreed layout: handwritten `NanoP4Proofs/FieldUpdate/` with checked
-`Example.lean`, root library, and normal build/import gates. No separate
-field-update test module or Markdown tutorial. Independent scalar source
-grammar includes W/S/B/MATCH_KIND and ordered finite field lists, preserving
-duplicates and absent-key identity. It is a shape profile, not a typing or
-range theorem; no nested-payload, extern, printing or parser claim.
+## Archived, not completed
 
-Representation coverage, sufficient-fuel decoder round trips and observation
-injectivity pass. General generated-operation semantics and commutation pass.
-Concrete Nano initialization is proved using logical map laws, not native
-hashing. Forward soundness and actual-reference reverse realization now pass,
-including a structural finite-fuel bound of `7 * length + 33`. The final
-consumer proves reference observation equivalence at distinct field names,
-with a separate existence theorem: no termination or initialization premise.
-All advertised theorems have exact core-three axiom guards.
+Production aggregate `925fdbf`, source integration `1b2ac70`, still fails
+the second full-P4 casting proof at the unchanged 4M heartbeat limit. Earlier
+experiments are integrated, superseded or represented in this aggregate.
+Archiving them is not a full-P4 completion or integration claim.
 
-Evidence so far, in the pinned Nix shell:
+Frozen corpus `c4a8858` stopped with exit 130 after shards 0-44: 180 attempts,
+338 AL matches and eleven oversized-artifact failures. These are partial
+historical totals, not a whole-corpus result. Raw campaign artifacts were
+intentionally discarded with the large backup. Exact resume is not available
+from the committed-history bundle; any new run requires fresh scope and evidence.
 
-- Domain build: exit 0, 18 jobs; representation build: exit 0, 57 jobs.
-- Semantics/Laws build: exit 0, 76 jobs; combined new library: exit 0,
-  87 jobs; final complete proof library: exit 0, 89 jobs.
-- Direct representation and forward-reference proof checks: exit 0,
-  including exact core axiom audits.
-- Quotation check: all 342 definitions match the checksum-verified export.
-- Final complete `scripts/check.sh`: actual exit 0, no skips,
-  recorded in `.artifacts/field-update-final-gate.exit` (session 33622). Both
-  78-program differential legs and all 48 output contexts agree.
-- The postmerge status handoff also passed the complete gate: actual exit 0,
-  no skips, `.artifacts/field-update-handoff-gate.exit` (session 86226).
-- Independent representation, environment, semantics, correspondence,
-  final consumer and wiring reviews have no findings. Reports are
-  `.agents/reviews/field-update-*.md`.
+The completed consumer proves distinct-name field-update commutation through
+actual generated/reference correspondence on its scalar domain, discharging
+representation, initialization and finite reference-fuel obligations. It does
+not certify arbitrary assignment reordering, all Nano-P4 or full P4.
 
-Implementation, independent review, final local validation and publication are
-complete. No work is active. Stop at this checkpoint and ask for new scope
-before starting another milestone. Broader M3 stays paused.
+## Next
 
-## Prior published baseline
-
-Main `fdb8a8d` contains reviewed, locally gated and remotely green bounded
-checkpoints through PR #26: byte-preserving text and state foundations,
-bounded generator/refinement fixtures, checked type-runtime outcomes,
-full-P4 upstream oracle and interpreter replay, corpus inventory/worker/shards,
-partial dynamic Nano target and packet driver, and shared verify.
-
-PR #26's final remote Gate `36218916889` passed on `c7172f3`.
-Published gates do not validate unpublished production full-P4 generation.
-The baseline Nano comparison covers 78 verdicts (48 pass, 30 fail), 48
-successful output contexts, and 342 source quotations. General mutation,
-whole-corpus, whole-program and complete packet/target claims remain open.
-Detailed bounded evidence remains in the corresponding notes/reviews; git
-history archives completed progress reports.
-
-## Paused broader work
-
-- Production tree: `/Users/qobilidop/my/work/p4-spectec-lean-state-production`,
-  branch `m3b-state-production`, pause handoff `925fdbf`, latest source
-  integration `1b2ac70`. Full-P4 regeneration produces 74 files, but the
-  complete build fails: `Cast_expl.run_sound_group` exceeds the unchanged
-  4M heartbeat budget. Focused checks are not a full-build verdict.
-  Production reconciliation with later published Nano checkpoints is owed.
-- Corpus tree: `/Users/qobilidop/my/work/p4-spectec-lean-p4-corpus-replay`,
-  frozen `c4a8858`. The campaign stopped with exit 130 after shards 0–44:
-  180 attempts, 338 AL matches, eleven retained oversized-artifact failures.
-  These are handoff totals, not a whole-corpus result. Do not restart or
-  reinterpret partial evidence.
-- The primary worktree's separate design-review documents remain user-owned.
-  Do not replace them with this isolated branch's baseline documentation.
-- Future scope and exit criteria remain in `docs/design.md`,
-  `.agents/roadmap.md` and `.agents/notes/full-p4-reconnaissance.md`.
-  The census describes decoded/emitted capabilities, not full-P4 elaboration.
-  Nonempty observable FuncT substitution, guarded higher-order fidelity,
-  hinted-print refinement, complete targets and broader determinism remain
-  explicit limitations; consult decisions before changing their contracts.
-
-## Hygiene and handoff
-
-Every command uses the pinned Nix environment. Preserve the expected patched
-upstream files and separate worktree caches. Raw spec JSON is ignored and
-checksum-verified; do not commit logs, scratch output or duplicated corpora.
-Tracked/indexed files must stay below 5 MiB.
-
-Freeze implementation during the final full gate and record its actual exit
-before pushing. Independent review and final-head remote CI remain required
-by the current publication policy. No external blocker requires user input.
+Finish the consolidation PR and delete its temporary branch, leaving only main.
+Then await the user's revised development plan. Recover experiments only using
+the archive instructions and preserve the existing correctness boundaries.

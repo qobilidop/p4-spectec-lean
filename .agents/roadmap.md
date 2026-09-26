@@ -1,7 +1,10 @@
 # Roadmap
 
-Backlog beyond the four milestones in `docs/design.md`. Nothing here is
-active; an item becomes work only when the user scopes it.
+Backlog beyond the four milestones in `docs/design.md`. The first consumer
+checkpoint, brought forward from M4, is complete: bounded field-update
+correspondence and commutation are checked in `NanoP4Proofs/FieldUpdate/`.
+No IL backend or broad redesign is scheduled. Broader M3 and the backlog
+below remain paused; an item becomes work only when the user scopes it.
 
 - A random well-typed P4 program generator, either p4c's p4smith or
   enumeration of derivations of the generated inductive typing relation.
