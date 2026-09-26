@@ -71,6 +71,17 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Use the upstream collector's full-P4 denominator, accounting for raw
+  helpers separately.** The exact p4c sample checkout contains 1,352 `.p4`
+  paths, but pinned `Util.Filesys.collect_files` skips `include` directories:
+  eighteen helper files are collector-omitted, 67 collected files are
+  statically excluded and 1,267 are canonical attempt candidates. Preserve
+  all identities and exclusion provenance; do not execute headers as extra
+  standalone programs or retain the earlier raw nonexcluded count of 1,285
+  as the canonical denominator. Root independently verified this correction.
+  Confidence: high at this pin; revisit on corpus/collector/exclusion changes.
+  (2026-09-25)
+
 - **Stage checked type-runtime APIs without inventing observable type-fresh
   names.** Keep total proof-facing helpers separate; interpreter operations
   lift checked errors to `Fail.err` and exhaustion to divergence. Alias

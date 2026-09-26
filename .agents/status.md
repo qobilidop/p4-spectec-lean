@@ -44,7 +44,11 @@ remaining findings in this bounded scope. Root reran ten offline contracts,
 the six-success/one-failure Lean replay with five mutations (all exit 0),
 and independently verified all six source Git-object hashes. Reviews:
 `m3d-nano-primitives.md`, `m3d-nano-packet.md`, `m3d-nano-gate.md`.
-No full gate, commit or push yet; main reconciliation is next.
+Local reviewed checkpoint `96078a0` is reconciled with published main
+`2c85f1b` (PR #22). Independent review confirms both source sets unchanged,
+the union gate retained and 22 focused contracts plus shell syntax passing.
+Report: `m3d-nano-reconcile.md`. Root's combined full gate is running;
+publication and final-head CI remain owed.
 Pinned direct and real-program probes confirm NanoSwitch extract
 returns raw ExternV objectState where the spec declares `value`. Three
 unguarded AL STF cases pass upstream; guarded `field-access` fails after
@@ -55,7 +59,60 @@ Next: reconcile current main, run the full gate, and publish this checkpoint;
 then continue the faithful driver projection within authorized M3D scope.
 No milestone completion yet.
 
-## Published checkpoint: checked type runtime
+## Published checkpoint: corpus inventory
+
+Branch `m3c-corpus-replay` is based on main `e31c1e8` after PR #21 merged.
+PR #21's final remote Gate `36210406850` passed on `fed4187` in 5m36s.
+The root approved staged inventory, versioned type-fresh sentinel and
+spec-once worker implementation, preserving the published v1 APIs; no
+gate edits or corpus scale-up before focused independent review.
+Read-only Type.Fresh census/six dynamic checks and a synthetic escaping-name
+sequence are recorded in `.agents/notes/type-fresh-reachability.md`; no
+formal reachability or whole-corpus claim. Plan:
+`.agents/notes/full-p4-corpus-replay-plan.md`.
+
+First inventory execution exposed a raw/canonical denominator distinction:
+1,352 raw sample paths include eighteen helpers beneath `include`, which
+upstream's collector skips. Canonical collection is 1,334 paths with 67
+static exclusions and 1,267 candidates; the 68 positive references include
+one stale path. The initial offline raw-count expectation failed, preserving
+this observation before replay. Root independently inspected the pinned
+collector and eighteen helper identities, approving complete manifest
+accounting and the corrected canonical denominator. The regenerated 273,394
+byte manifest retains all identities/source digests/symlinks and static
+exclusion provenance. Five offline tests pass, including thirteen corruption
+mutations, literal comment/EOF parsing, helper skip and shard partitioning;
+the real exact-pin `inventory.py --check`, text and diff-whitespace checks
+exit 0. Root independently reviewed/reran the inventory checks with no
+findings; `.agents/reviews/m3c-corpus-inventory.md`.
+
+Follow-up v2 probe/spec-once worker and bounded original-fixture pilot are
+independently reviewed with no remaining blocking finding. Root reran seven
+offline tests and the pinned pilot (exit 0, report `98530`); review:
+`.agents/reviews/m3c-corpus-worker.md`. Published v1 files are unchanged. The
+84-job worker build, seven v2 offline tests, text/import/file-size/diff checks and final
+fresh pinned pilot exited 0: six AL matches, one explicitly syntax-only case,
+eight CLI parity checks and sixteen actual Lean mutations. All original
+Type.Fresh phases are zero; any nonzero phase is explicitly unsupported.
+Resource bounds/phase timings and exact commands are recorded in
+`.agents/notes/full-p4-corpus-worker.md`. Largest case is 30,858,825 bytes;
+child RSS high-water is cumulative, not per-case. No corpus shard, resume
+implementation, publication or whole-corpus claim yet. Authorized
+narrow gate wiring requires nine paths, runs both offline suites and builds
+the worker, with no p4c fetch or upstream-dependent real pilot in CI. Independent
+wiring review found no issues and reran shell syntax plus both offline suites
+(exit 0); `.agents/reviews/m3c-corpus-gate.md`. Frozen
+`nix develop --command bash scripts/check.sh` process exited 0 with no skips,
+including both Nano differential legs, existing oracles/census and new
+offline suites/worker build. Actual exit was captured before preparing a
+push; remote CI remains required.
+Publication follow-up: PR #22 merged as `2c85f1b` after final remote Gate
+`36213412457` passed on `93a2e8c`. Bounded shard/resume work is now active
+separately on `m3c-corpus-shards`; the four-case pilot and exact resume pass,
+while the reviewed compiler-cache hardlink fix is being independently
+checked. Whole-corpus execution and the generated leg remain open.
+
+## Merged checkpoint: checked type runtime
 
 Branch `m3c-type-runtime` adds bounded checked Expand/Equiv/Subst, matcher
 and signature conversion APIs and wires the interpreter to explicit hard
@@ -92,7 +149,8 @@ six replay and twelve oracle offline tests plus shell syntax (all exit 0):
 `.agents/reviews/m3c-type-runtime-reconcile.md`. The frozen reconciled
 `nix develop --command bash scripts/check.sh` process exited 0 with no skips,
 including both Nano legs and the incoming replay build. Final merged-head
-remote CI remains required. No whole-corpus/type-fresh claim.
+remote Gate `36210406850` passed in 5m36s on `fed4187`; PR #21 merged
+as `e31c1e8`. No whole-corpus/type-fresh claim.
 
 ## Active checkpoint: generator integration
 
