@@ -2,110 +2,63 @@
 
 Current checkpoint, updated 2026-09-26.
 
-## Scope
+## Authorized scope
 
-The Nano-P4 scope is settled and published as `da631a9`, with both core
-semantics and target composition required by
+Autonomous implementation of the [Nano certification plan](notes/nano-certification.md)
+is approved, with both core and target stages required by
 [Design section 9](../docs/design.md#9-nano-p4-scope-and-acceptance).
-The user approved autonomous implementation of the
-[Nano certification plan](notes/nano-certification.md), with deliberate model
-selection and bounded delegation. N0 is implemented and independently reviewed;
-N1 feasibility work is active. The full Nano scope is authorized; broader
-full-P4 M3 remains paused. The completion inventory records 350 declarations
-and 888 obligations: 95 existing compiled claim bindings, 793 unresolved.
-Generated Nano proof coverage has not increased. Sol owns bounded target
-execution probes; Astra handles recursive reverse proofs and printing contracts;
-root integrates and reviews. No shared emitter changes are underway.
+N0 is complete; N1 remains active and incomplete. Broader full-P4 M3 stays paused.
+Luna performed the inventory, Sol implemented corpus/packet tests, and Astra
+handled proof work and independent review; root integrated the changes.
 
-## Validation and publication evidence
+## Delivered and checked
 
-- Baseline `572975ab68227e5e25e036fd5b57b170ee47e554` passed remote
-  [CI run 36272893622](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36272893622),
-  verified in this conversation before the scope edits.
-- Scope commit `da631a9988298bb8705f2e9d0df3306092454f40` passed
-  [CI run 36274433502](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36274433502),
-  verified while preparing the plan. The scope publication obligation is closed.
-- Plan commit `1f0c334c799a7f7affb7cea85e73c15f23abf326` passed
-  [CI run 36275102021](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36275102021).
-  Its publication obligation is closed.
-- N0 implementation: 15 completion tests and 19 corpus tests pass. The ordinary
-  checker passes; strict core/all checks return the expected exit 1. Independent
-  review has no remaining blocking findings; evidence and reviewed blob identities
-  are retained in the Nano plan. Full
-  `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
-  passed with actual exit 0, no skips (session 77137,
-  `.artifacts/nano-n0-realize-gate.log`), including the pending reusable reverse
-  calculus. Final documentation evidence edits receive text/whitespace checks.
-  Inventory commit `35bda29` and reverse-foundation commit
-  `f6d1b05d02f24ac8ae975168f4bb99c29ab3fbe8` are published on main. Exact-head
-  [CI run 36276724234](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36276724234)
-  succeeded; their publication obligation is closed.
-- N1 foundation: reusable eventual reverse-realization rules and discriminating
-  fixtures are reviewed independently by root; focused warning-failing build
-  and the same full gate pass. Exact axiom audits cover 31 named theorems.
-  These are proof infrastructure, not new generated Nano certificates.
-- N1 target/printing checkpoint: independent implementation and integration
-  reviews have no remaining findings. Full local gate passed with actual exit 0,
-  no skips (session 8909, `.artifacts/nano-n1-target-print-gate.log`); focused
-  proof builds, packet replay and decoded/compiled empty-hint checks pass.
-  Final evidence edits receive text/whitespace checks. Publication CI must match
-  this checkpoint's exact SHA in
+- `35bda29`: complete Nano obligation and pinned corpus inventories. There are
+  350 declarations, 888 obligations, 95 existing compiled bindings and 793 open
+  obligations. All 78 programs and 39 STF sessions remain in the denominator.
+  Completion/corpus tests pass (15/19); strict completion correctly fails.
+- `f6d1b05`: reusable eventual reverse-realization rules, with 31 audited library
+  and test theorems. The combined full gate passed (session 77137,
+  `.artifacts/nano-n0-realize-gate.log`). Both commits are published; exact-head
+  [CI 36276724234](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36276724234)
+  succeeded.
+- `9309e26`: no-hint printer congruence; independent decoded/compiled Nano
+  empty-hint checks; raw-extern representation obstruction proofs; actual
+  short/full extract continuation and distinguishing PACKET-rewrap mutation.
+  Independent reviews have no remaining findings. Full gate passed with actual
+  exit 0, no skips (session 8909, `.artifacts/nano-n1-target-print-gate.log`).
+  Exact-head remote
+  [CI 36277488013](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36277488013)
+  succeeded; the implementation publication obligation is closed.
+  Final documentation-only handoff edits receive text/whitespace checks;
+  publication CI must match the final checkpoint SHA in
   [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
-- Planning checkpoint: dependency closures were recomputed from current
-  coverage metadata; proof and target boundaries were inspected read-only.
-  Independent plan review found no blocking issue; a wording clarification
-  was applied and follow-up review found no new issue. Relative link targets
-  passed. Full
-  `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
-  passed with actual exit 0, no skips (session 18516,
-  `.artifacts/nano-plan-gate.log`); final evidence edits receive text/whitespace
-  checks afterward. Match publication CI to the plan commit's exact SHA.
-  This is not new executable or proof coverage.
-- Scope checkpoint: independent read-only review is complete; two scope
-  ambiguities were fixed and the reviewer confirmed their resolution.
-  Relative link targets and `nix develop -c git diff --check` passed.
-  Full `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
-  passed with actual exit 0, no skips (session 48317,
-  `.artifacts/nano-scope-gate.log`). Final documentation evidence updates receive
-  text/whitespace checks afterward. No new proof coverage is claimed.
-  Publication CI must be matched to this checkpoint's exact SHA in
-  [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
-- Full `nix develop --command scripts/check.sh` passed with actual exit 0,
-  no skips (session 6398, `.artifacts/coverage-gate.log`). It includes compiled
-  checks of 180 callable entries / 97 claims and eleven rejected mutations.
-- Planner tests cover dependency/SCC blockers, covered SCCs, builtin/extern
-  boundaries and unchanged stateful refusal. Existing executable and theorem
-  sources are unchanged; generated refinement comments now expose SCC blockers.
-- Independent final review has no remaining findings. The optional entry-point
-  CLI succeeds for `update_fieldValue` and returns exit 1 for an unknown entry.
-- The user explicitly reconfirmed direct commit/push on main for this change,
-  resolving the conflicting session-supplied PR instruction. Feature commit
-  `ffa961cdd9f5e7552dbd20eca45b19cb0fbe2ec0` is on origin/main.
-  [Feature CI](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36272406865)
-  records that revision's remote result. Any subsequent checkpoint's outcome
-  is recorded by [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml);
-  match its SHA rather than infer a remote verdict from local checks.
-- The generic coverage increment is complete;
-  [coverage evidence](notes/coverage.md) retains its detailed review and checks.
 
-## Retained boundaries and next scope
+These changes do not increase generated Nano coverage: still 18 forward
+certificates, 77 relation run-soundness theorems and no generated reverse
+certificates. Full source/representation, builtin, initialization, target and
+corpus-completion obligations remain open. The bounded field-update consumer
+and [generic coverage increment](notes/coverage.md) remain complete.
 
-The bounded field-update source connection is complete. Generated Nano
-refinement remains 18/153 in one direction; production full-P4 generation and
-general reverse automation remain incomplete. Broader M3 stays paused.
-[Roadmap](roadmap.md) routes the concrete plan. N0 and the reverse calculus
-are published. The no-hint printing theorem and actual raw-receiver continuation
-are reviewed and pass the full local gate.
-Finish N1 with an actual recursive Nano reverse certificate and the faithful
-runtime representation contract; the recursive relation probe is still open. The existing `value` codec
-cannot represent successful extract's raw `ExternV`; a runtime representation
-extension needs a generator/subtype audit before adoption. Fixed inner-fuel
-probes have found no counterexample under `guard=false`; no general safety
-theorem is established. Routine implementation, review and validation choices
-are authorized; preserve the agreed scope and trust boundary.
+## Immediate next step
 
-The expected four-file upstream export patch remains applied. The finished
-`docs/repository-review` branch is retained from the prior refactor; no refs,
-worktrees or recovery backups were removed in this scoped pass.
-[Archive recovery](notes/archive.md) preserves the local bundle, failed
-casting experiment and deliberately discarded ignored-corpus-data boundary.
+Finish the actual exists_ reverse induction from local unpushed branch
+`wip/nano-reverse`, commit `efd626c7cb40004f8d6725f2b29172d09ecd8dbe`.
+Its `.agents/notes/nano-reverse-proof/README.md` describes the checked clause
+proofs and the unverified full draft. The [Nano handoff](notes/nano-certification.md#n1-recursive-proof-handoff)
+records hashes, independent review, measured cost and the remaining outcome/fuel
+composition. The branch has no passing full gate and must not be published as
+complete; its temporary worktree was removed. Preserve main's status when
+integrating the proof later.
+
+Then exercise Type_eq/ParameterType_eq and prove the faithful raw-extern runtime
+representation contract. The current generated value type cannot represent
+extract's result; no replacement has been adopted. Printing at this pin requires
+an explicit empty hint environment, now supported by a checked generic theorem.
+The internal-fuel probes found no in-profile counterexample, not a general safety
+proof. N1's full exit criteria still block broad proof generation.
+
+The expected four-file upstream exporter patch remains applied. No submodule
+pins changed. The older docs/repository-review branch and archive recovery
+artifacts were not removed; [archive recovery](notes/archive.md) retains their
+boundaries. No background verification processes remain from the proof attempt.

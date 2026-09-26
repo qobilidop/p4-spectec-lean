@@ -419,7 +419,52 @@ passed with actual exit 0, no skips (session 8909,
 `.artifacts/nano-n1-target-print-gate.log`). Final evidence edits receive
 text/whitespace checks. Publication CI must match this checkpoint's exact SHA
 in [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
-No Nano completion binding has been added, and N1's full exit criteria remain open.
+Commit `9309e268fa30125b06ea86b5cde19eeff072a3e0` is published and its exact-head
+[CI 36277488013](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36277488013)
+succeeded. Its implementation publication obligation is closed. No Nano
+completion binding has been added, and N1's full exit criteria remain open.
+
+## N1 recursive-proof handoff
+
+Local unpushed branch `wip/nano-reverse`, commit
+`efd626c7cb40004f8d6725f2b29172d09ecd8dbe`, preserves the experiment under
+`.agents/notes/nano-reverse-proof/`. Its temporary worktree was removed and
+absence verified; all author verification processes are stopped/completed.
+The branch has not passed the full repository gate and is not release evidence.
+Recover its README and artifacts with `git show` or an isolated checkout; do not
+merge its replacement WIP status over main's current status.
+
+`Checked.lean` passed direct Lean checking (10.55s, 12 exact axiom audits).
+Independent Astra `/root/review_nano_plan` verified its SHA-256
+`9f1e3d1634b721330e963d75736130bba3cef5bdc24f0738f8d6ebaf81f53aca`
+and reran it successfully. No substantive findings. It preserves actual quoted
+clauses, matched contexts, raw notes, eager tail invocation and fuel offsets.
+`recursiveClause` assumes successful tail execution; `emptyEventually` has no
+recursive-call hypothesis but retains configuration/environment assumptions.
+The review suggested this wording in place of the artifact comment's
+"unconditional" label. The checked prefix does not establish whole-function
+induction, exercise generated partial_correctness, or discharge initialization.
+
+`ExistsDraft.lean` is unverified (SHA-256
+`02b9be380d08aa42ac2bbb6dfd108b87a6adae4d5c80acddee7114892625c5a7`).
+The author isolated its generalized partial_correctness application through
+recursive IH specialization in about 12.3s. Final generated-outcome extraction
+and approximately twenty lines of bound + 33 composition remain unchecked;
+a latest Option.some.inj patch has no passing full-file result. No complete
+reverse certificate, initialization result or public Realizes corollary exists.
+
+Resume lessons: exclude early Q.v_eq/Q.rp_eq from broad normalization to avoid
+a rewrite loop; state matched-context HoldsSpec/empty-fenv facts explicitly and
+unfold only Motive for IH application. Use bounded, declaration-local diagnostics
+before another full attempt. Complete this actual recursive certificate before
+moving to the Type_eq/ParameterType_eq relation probe or broad proof generation.
+
+Independent handoff review by Sol `/root/nano_corpus` found no issues, verified
+the local branch/artifact hashes, checked links/anchors and confirmed worktree
+removal. Reviewed status blob `142fc6aeaa11ee4746ffe76a5038214741fa6c02` and
+note blob `7a6c9554757661265bcc2ebf4926e435ac061948` before this review footer.
+This documentation-only checkpoint reuses the unchanged code's passing full gate
+8909 and receives final text/whitespace checks; no proof or replay is newly claimed.
 
 ## Plan review and validation
 
