@@ -8,7 +8,7 @@ was done: everything needed is in the files named here.
 
 p4-spectec-lean: a compiler from P4-SpecTec's AL to Lean 4, validated
 per definition against a Lean port of the AL interpreter, plus a small P4
-primitives library. The design, principles and milestones are in
+primitives library. The intended architecture and correctness contract are in
 `docs/design.md`.
 
 ## Where things live
@@ -26,12 +26,14 @@ Documentation is split by purpose and audience:
 
 | File | Holds |
 |---|---|
+| `docs/certification.md` | user-facing current capabilities, guarantees, limitations and certificate checks |
+| `docs/performance.md` | measurement interpretation and reproduction; snapshots under `docs/performance/` |
 | `docs/related-work.md` | related work on generated semantics, certification and P4 verification |
 | `.agents/notes/design-review.md` | advisory design critique and proposed priorities |
 | `.agents/notes/compiler-certification.md` | terminology discussion, closest certification precedents and sourced reading notes |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
 | `.agents/decisions.md` | the decisions in force, by topic, each with its reason and date |
-| `.agents/roadmap.md` | backlog beyond the milestones in the design |
+| `.agents/roadmap.md` | implementation milestones, paused work and backlog |
 | `.agents/notes/` | live working notes |
 | `.agents/notes/archive.md` | retired experimental history, artifacts and recovery instructions |
 | `.agents/reviews/` | independent review reports for the current work |
@@ -51,7 +53,9 @@ include hidden files. Git history is the archive; nothing is tagged.
    architecture, the verification ladder with the refinement theorem
    (section 5.1), the code organization, the named list of deviations
    from upstream (section 5.3), the per-construct encodings (5.4), and
-   the milestones.
+   the acceptance criteria and open design questions. User-facing current
+   capabilities and limitations live in `docs/certification.md`; implementation
+   progress and milestone planning live under `.agents/`.
 4. `docs/lean-pitfalls.md`, before writing Lean in the code generator or
    the tactics: the traps already hit on this toolchain.
 
@@ -72,7 +76,7 @@ scripts/export-program.sh   # re-boot the Nano-P4 corpus with upstream's verdict
 scripts/fetch-p4c.sh        # optional pinned full-P4 sample/include checkout under .artifacts/
 scripts/check-mirror.py     # mirrored modules have upstream's constructors in order
 scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token table
-scripts/time-elab.sh <Lib>  # per-module elaboration times, to docs/timing-<lib>.md
+scripts/time-elab.sh <Lib>  # per-module build durations; see docs/performance.md
 lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]   # the compiler
 test/diff/run.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export

@@ -6,7 +6,7 @@ import P4SpecTec.Tactic.RunSound
 
 /-!
 The tactic `det` that discharges the generated determinism theorems
-`R i o → R i o' → o = o'` of the `Prop` encoding (design section 10, M2):
+`R i o → R i o' → o = o'` of the `Prop` encoding (design section 10):
 both derivations are destructured (`cases`), every pair of hypotheses
 about the same relation on the same inputs is turned into an equation of
 their outputs by that relation's own determinism theorem, and `simp_all`

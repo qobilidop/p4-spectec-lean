@@ -55,7 +55,9 @@ This builds the project and runs the checks used by CI.
 ## Start here
 
 - [Checked field-update proof](NanoP4Proofs/FieldUpdate/Example.lean)
-- [Design and verification boundaries](docs/design.md)
+- [Certification and its limits](docs/certification.md)
+- [Design](docs/design.md)
+- [Performance](docs/performance.md)
 - [Related Work](docs/related-work.md)
 - [Development guide](AGENTS.md)
 

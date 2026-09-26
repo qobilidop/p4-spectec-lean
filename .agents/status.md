@@ -6,10 +6,11 @@ Current state only. Updated 2026-09-26.
 
 M1/M2 and M3A are closed. Broader M3 is incomplete and paused. The bounded
 Nano field-update consumer and repeatable certification milestone are complete.
-The user approved the README, terminology note and Related Work, then requested
-a whole-repository review, refinement, cleanup and commits. The review and
-refinement are complete; no new semantics coverage or example-library refactor
-is included.
+The repository review is committed. The user approved Performance and
+Certification guides, then requested a concise, technically precise rewrite
+of Design as the intended architecture rather than an implementation report.
+That documentation follow-up is complete; no new semantics coverage or
+example-library refactor is included.
 
 The approved later refactor remains separate: rename the consumer library to
 `ExampleProofs`, with its case and colocated tests in
@@ -36,6 +37,31 @@ retaining it explicitly in the full gate and enforce library/consumer boundaries
   Full-P4 production generation and general reverse certificates remain incomplete.
 
 ## Current review checkpoint
+
+- Documentation follow-up: `docs/certification.md` owns the user-facing
+  coverage and trust discussion; Design retains the technical contract and
+  proof machinery. `docs/performance.md` explains measurement limits and
+  reproduction; the old timing report moved to
+  `docs/performance/nano-p4-elaboration.md` without new measurements.
+  The timing script changes only report wording, not build behavior.
+  Independent review found no required changes; see
+  `.agents/reviews/documentation-guides.md`. All 28 local README/docs links,
+  timing-script shell syntax and staged whitespace passed. The full gate
+  passed with exit 0 in session 63789, before the expanded Design rewrite;
+  log `.artifacts/doc-guides-gate.log`.
+- Design is now about 2,200 words, with explicit two-way outcome contracts,
+  effect/failure distinctions, named representation differences and rationale.
+  Current limitations moved to Certification; milestone planning moved to
+  Roadmap. No runtime/proof semantics, generated source or pin changed.
+- The expanded Design rewrite passed independent read-only review, with
+  three minor reference/normalization findings fixed. The full gate passed
+  with exit 0 and no skips in session 47549; log
+  `.artifacts/design-guides-gate.log`. Final local links/Markdown anchors
+  (33), shell syntax, whitespace and text hygiene passed. After the final
+  determinism docstring correction, `lake build --wfail P4SpecTec.Tactic.Det`
+  passed (4 jobs). The retained timing table's rows are unchanged; no new
+  measurement was run. This checkpoint is committed under the subject
+  "Separate design from delivered guarantees" on the existing local branch.
 
 - README states the certifying-compiler goal, current partial coverage and the
   rationale for following P4-SpecTec and certifying reusable language models.
@@ -91,5 +117,5 @@ checkpoint uses a local feature branch and does not publish or merge it.
 Independent review and the full local gate are complete; remote validation
 remains necessary if publication is subsequently requested.
 
-Hand off the local commits. Do not resume broader M3 or the separate
-example-library refactor in this checkpoint.
+Hand off the local commits. Nothing is active. Do not resume broader M3 or
+the separate example-library refactor without a new scope.

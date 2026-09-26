@@ -1,10 +1,33 @@
 # Roadmap
 
-Backlog beyond the four milestones in `docs/design.md`. The first consumer
+Implementation planning, separate from the intended architecture in
+`docs/design.md`. The first consumer
 checkpoint, brought forward from M4, is complete: bounded field-update
 correspondence and commutation are checked in `NanoP4Proofs/FieldUpdate/`.
 No IL backend or broad redesign is scheduled. Broader M3 and the backlog
 below remain paused; an item becomes work only when the user scopes it.
+
+## Milestone register
+
+Moved here from Design so milestones do not masquerade as architecture:
+
+- M1: Nano-P4 generation, kernel checking, upstream export and differential
+  replay. Closed; current evidence is in status and Certification.
+- M2: generated logical relations, forward AL certificates and reusable proof
+  support. Closed as a bounded fragment, not complete Nano certification.
+- M3: full-P4 generation, effect integration, broader correspondence and
+  target support. M3A export/census is closed; broader M3 remains incomplete.
+  Full-P4 reconnaissance holds the remaining technical phases and exclusions.
+- M4: reusable P4 consumer libraries, broader examples and documentation site.
+  The first bounded consumer proof was brought forward and is complete;
+  that does not close the broader library/interface work.
+
+The approved library/example separation remains a distinct later task:
+`ExampleProofs/NanoP4FieldUpdate/`, with examples removed from default client
+builds but retained explicitly in the gate. No implementation change is part
+of the documentation checkpoint.
+
+## Backlog
 
 - A random well-typed P4 program generator, either p4c's p4smith or
   enumeration of derivations of the generated inductive typing relation.
