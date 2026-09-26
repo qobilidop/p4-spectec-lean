@@ -11,7 +11,27 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
-## Active checkpoint: pinned corpus preparation
+## Active checkpoint: recovered stateful generation and refinement
+
+- Recovered the interrupted session from repository notes, saved transcripts
+  and all six surviving worktrees. Primary `main` was `7d9d356`, including
+  merged PRs #14 and #15; its only modification was the expected upstream
+  export patch. Existing uncommitted generator/proof work is preserved.
+- Root branch `m3b-state-refinement` connects actual AL fresh-function
+  dispatch to `StateRefines` for every fuel and initial counter. The table
+  contract is `Holds` with no local callback shadowing; guards are explicitly
+  disabled. Fixtures compose dispatch through both failures, retry and
+  negation and reject a resetting allocator by kernel proof. Focused
+  `lake build --wfail P4SpecTecTest.StateRefinement P4SpecTec` exited 0
+  (69 jobs). Full `scripts/check.sh` exited 0 with no skips. Independent
+  read-only review found no correctness issues; both files re-elaborated
+  directly with axiom audits (exit 0 each). Remote CI remains owed. This
+  is a reusable proof boundary, not generated full-P4 refinement.
+- Executable and structural proof authors resumed their respective saved
+  worktrees. The M3C oracle adapter is being implemented in a new isolated
+  worktree from the merged baseline. No milestone completion is claimed.
+
+## Merged checkpoint: pinned corpus preparation
 
 - Branch `m3c-corpus-inputs`, based on reviewed proof head `325db77`.
   Integrates a sparse, exact-pin p4c restore script and ten offline tests.
@@ -20,7 +40,8 @@ and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
   clean status, reran the real idempotence check and all ten offline tests
   (exit 0). Integrated full `scripts/check.sh` exited 0 with no skips,
   including the ten offline restore tests. Published as PR #15; its
-  remote Gate passed. Next: the full-P4 boot/result oracle adapter.
+  remote Gate passed and it merged as `7d9d356`. Next: the full-P4
+  boot/result oracle adapter.
 - Pinned input slice in the state-oracle worktree: 1,352 resolved sample
   paths, with 67 matching positive exclusion references. The remainder is
   not an oracle eligibility denominator. One representative sample passed
