@@ -14,6 +14,11 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[3]
 CASES = ("baseline", "behavior", "quotation", "representation")
+PROBE_TIMEOUT_SECONDS = 60
+# Replaying refinement is substantially slower than evaluating the runtime
+# probe, especially on CI. Keep a bounded wall-clock guard independently of
+# the unchanged 4M-heartbeat proof budget below.
+PROOF_TIMEOUT_SECONDS = 300
 
 
 class HarnessError(RuntimeError):
@@ -160,24 +165,25 @@ def validate_proof(case, nonce, result, path, start, end):
         raise HarnessError(f"{case}: unrelated proof failure\n{result.stdout}{result.stderr}")
 
 
-def run_case(case, execute=subprocess.run, timeout=60):
+def run_case(case, execute=subprocess.run, probe_timeout=PROBE_TIMEOUT_SECONDS,
+             proof_timeout=PROOF_TIMEOUT_SECONDS):
     nonce = uuid.uuid4().hex
     with tempfile.TemporaryDirectory(prefix="field-update-") as scratch:
         path = Path(scratch) / "Probe.lean"
         path.write_text(probe(case, nonce))
         try:
             result = execute(["lake", "env", "lean", "--run", str(path)],
-                             cwd=ROOT, text=True, capture_output=True, timeout=timeout)
+                             cwd=ROOT, text=True, capture_output=True, timeout=probe_timeout)
         except subprocess.TimeoutExpired as error:
-            raise HarnessError(f"{case}: probe timed out") from error
+            raise HarnessError(f"{case}: probe timed out after {probe_timeout}s") from error
         validate(case, nonce, result.returncode, result.stdout, result.stderr)
         source, start, end = proof_probe(case, nonce)
         path.write_text(source)
         try:
             result = execute(["lake", "env", "lean", str(path)], cwd=ROOT,
-                             text=True, capture_output=True, timeout=timeout)
+                             text=True, capture_output=True, timeout=proof_timeout)
         except subprocess.TimeoutExpired as error:
-            raise HarnessError(f"{case}: proof timed out") from error
+            raise HarnessError(f"{case}: proof timed out after {proof_timeout}s") from error
         validate_proof(case, nonce, result, path, start, end)
     boundary = {"baseline": "all", "behavior": "update_fieldValue.refines_group",
                 "quotation": "compareSpecs", "representation": "Scalar.sourceRel"}[case]

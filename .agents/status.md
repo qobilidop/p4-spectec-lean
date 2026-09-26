@@ -8,7 +8,9 @@ M1/M2 and M3A are closed. The bounded Nano field-update consumer proof is
 published (PR #27, implementation `4612534`, main checkpoint `499230b`).
 Broader M3 is incomplete and paused. The approved repeatable field-update
 certification milestone is implemented and locally validated. Its source
-domain and consumer theorem are unchanged; no broader implementation is active.
+domain and consumer theorem are unchanged. The user authorized fixing its CI
+failure first, then separating example downstream proofs from the provided
+libraries under `ExampleProofs/`. Broader M3 remains paused.
 
 The requested branch/worktree cleanup and approved README/design consolidation
 are complete. PR #28 merged as `d503d36`, preserving documentation commit
@@ -43,6 +45,18 @@ intentionally discarded. Recovery scope: `.agents/notes/archive.md`.
 - Generated sources and pins are unchanged. The expected four-file upstream
   export patch remains applied. Remote CI must pass on the publishing commit
   before completion is reported.
+- Publishing commit `a249f2c` failed remote CI run `36260016481`: the
+  mutation runner's unchanged baseline proof exceeded its 60-second process
+  timeout. Library builds and the other reported checks passed. A timeout is
+  a harness failure, not evidence that a mutant was rejected.
+- The follow-up separates runtime (60 s) and proof (300 s) deadlines without
+  changing Lean heartbeat limits or proof obligations. Nine runner contract
+  tests and the independently run four-case suite passed. Independent review:
+  `.agents/reviews/field-update-timeout.md`, no findings.
+- Follow-up full `nix develop --command scripts/check.sh`: actual exit 0,
+  no skips, session 83964, `.artifacts/field-update-timeout-gate.log` and
+  `.exit`. The baseline and all intended mutation boundaries passed. Remote
+  CI on the follow-up remains required before starting the approved rename.
 
 ## Archived, not completed
 
@@ -71,6 +85,11 @@ required. The operative instructions and in-place decisions agree.
 
 ## Next
 
-Pause at this milestone and await a new scope. No broader work is authorized.
+Resolve the mutation baseline timeout, review, run the full local gate and
+verify remote CI. Then rename the consumer target to `ExampleProofs`, remove
+it from default library builds, explicitly retain it in the full gate, enforce
+one-way library-to-consumer boundaries and update navigation. The user chose
+`ExampleProofs/NanoP4FieldUpdate/` for the case, with tests beside its proofs.
+Pause after both steps; no broader work is authorized.
 Recover experiments only using the archive instructions and preserve the
 existing correctness boundaries; do not resume broader M3 automatically.

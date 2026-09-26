@@ -92,6 +92,15 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Budget runtime probes and proof replay separately.** The field-update
+  runner keeps a 60-second runtime limit and gives each proof subprocess
+  300 seconds. The original uniform 60-second limit killed the unchanged
+  baseline on CI run `36260016481`, despite passing locally. The Lean
+  heartbeat ceiling and proof obligations are unchanged; timeouts remain
+  harness failures, never accepted mutant rejections. Confidence: medium
+  until remote validation; revisit if measured CI proof times approach the
+  new bound rather than repeatedly raising it. (2026-09-26)
+
 - **Resume bounded corpus shards only under an exact execution identity.**
   Recheck pins/snapshot/inventory and rebuild both toolchains; use a locked,
   content-keyed probe workspace to keep path-sensitive binary bytes stable,

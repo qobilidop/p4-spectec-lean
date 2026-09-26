@@ -38,11 +38,43 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaises(run.HarnessError):
             run.validate("baseline", "fresh", 0, "FIELD_UPDATE:fresh:false:true:true", "")
 
-    def test_timeout_is_failure(self):
-        def timeout(*args, **kwargs):
-            raise subprocess.TimeoutExpired(args[0], 1)
-        with self.assertRaisesRegex(run.HarnessError, "timed out"):
-            run.run_case("baseline", execute=timeout)
+    def test_runtime_and_proof_timeouts_are_failures(self):
+        reports = {"baseline": "true:true:true", "behavior": "true:false:true",
+                   "quotation": "false:true:true", "representation": "true:true:false"}
+        for case in run.CASES:
+            for phase in ("probe", "proof"):
+                with self.subTest(case=case, phase=phase):
+                    limits = []
+
+                    def execute(args, **kwargs):
+                        limits.append(kwargs["timeout"])
+                        if phase == "probe" or "--run" not in args:
+                            raise subprocess.TimeoutExpired(args, kwargs["timeout"])
+                        return subprocess.CompletedProcess(args, 0,
+                            "FIELD_UPDATE:fresh:" + reports[case], "")
+
+                    limit = 60 if phase == "probe" else 300
+                    with patch.object(run.uuid, "uuid4") as nonce:
+                        nonce.return_value.hex = "fresh"
+                        with self.assertRaisesRegex(run.HarnessError,
+                                f"{case}: {phase} timed out after {limit}s"):
+                            run.run_case(case, execute=execute)
+                    self.assertEqual(limits, [60] if phase == "probe" else [60, 300])
+
+    def test_phase_timeouts_can_be_overridden(self):
+        limits = []
+
+        def execute(args, **kwargs):
+            limits.append(kwargs["timeout"])
+            output = ("FIELD_UPDATE:fresh:true:true:true" if "--run" in args else
+                      "PROOF_SUCCESS:fresh")
+            return subprocess.CompletedProcess(args, 0, output, "")
+
+        with patch.object(run.uuid, "uuid4") as nonce:
+            nonce.return_value.hex = "fresh"
+            result = run.run_case("baseline", execute=execute, probe_timeout=1, proof_timeout=2)
+        self.assertEqual(limits, [1, 2])
+        self.assertTrue(result["accepted"])
 
     def test_proof_rejection_is_at_intended_boundary(self):
         path = Path("/scratch/Probe.lean")
