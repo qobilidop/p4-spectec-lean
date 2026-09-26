@@ -39,8 +39,10 @@ text emission, not full-P4 elaboration. The integrated full
 legs, all existing oracles and the refreshed census. Remote CI remains owed.
 
 PR #16 passed remote Gate and merged as `87e9181`: actual fresh dispatch
-now has an all-fuel exact-state refinement boundary. That independent
-checkpoint is not yet merged into this integration branch.
+now has an all-fuel exact-state refinement boundary, with explicit disabled
+guards and declaration lookup hypotheses. Its full local gate and independent
+review passed. That checkpoint is now merged into this integration branch;
+the combined revision needs a fresh full gate before the next push.
 
 ## Merged checkpoint: pinned corpus preparation
 
@@ -51,7 +53,8 @@ checkpoint is not yet merged into this integration branch.
   clean status, reran the real idempotence check and all ten offline tests
   (exit 0). Integrated full `scripts/check.sh` exited 0 with no skips,
   including the ten offline restore tests. Published as PR #15; its
-  remote Gate passed. Next: the full-P4 boot/result oracle adapter.
+  remote Gate passed and it merged as `7d9d356`. Next: the full-P4
+  boot/result oracle adapter.
 - Pinned input slice in the state-oracle worktree: 1,352 resolved sample
   paths, with 67 matching positive exclusion references. The remainder is
   not an oracle eligibility denominator. One representative sample passed
