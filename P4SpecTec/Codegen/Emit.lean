@@ -1,7 +1,7 @@
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Reify
-import P4SpecTec.Codegen.Validate
+import P4SpecTec.Codegen.Certificates.Forward
 import P4SpecTec.Codegen.Graph
 import P4SpecTec.Codegen.PrintHints
 import P4SpecTec.Codegen.Coverage
@@ -14,7 +14,7 @@ their run-soundness theorems), every group is assigned to the module of
 the last spec file it or its dependencies come from, and one module is
 written per spec file that has something to say, in spec order, each
 importing the previous. Every definition is also quoted (`d.al`). The
-refinement theorems of rung 3 (`Codegen/Validate.lean`) come after the
+refinement theorems of rung 3 (`Codegen/Certificates/Forward.lean`) come after the
 spec files: `Refinement/Spec` holds the quoted spec as a list, one module
 per recursion group holds that group's theorems and imports the modules
 of its callees' theorems (so that Lake rechecks only what changed, and

@@ -1,29 +1,28 @@
-import P4SpecTecTest.Smoke
-import P4SpecTecTest.Coverage
-import P4SpecTecTest.Realize
-import P4SpecTecTest.NanoTarget
-import P4SpecTecTest.NanoTargetRepresentation
-import P4SpecTecTest.NanoPrint
-import P4SpecTecTest.Decode
-import P4SpecTecTest.Builtins
-import P4SpecTecTest.ByteText
-import P4SpecTecTest.Quote
-import P4SpecTecTest.QuoteChecks
-import P4SpecTecTest.Subtypes
-import P4SpecTecTest.Alter
-import P4SpecTecTest.PrintPolicies
-import P4SpecTecTest.Updates
-import P4SpecTecTest.StateEval
-import P4SpecTecTest.StateCodegen
-import P4SpecTecTest.StateCalc
-import P4SpecTecTest.StateInterp
-import P4SpecTecTest.StateRefinement
-import P4SpecTecTest.StateGeneratedRefinement
-import P4SpecTecTest.StateValidate
-import P4SpecTecTest.RecursivePrefix
-import P4SpecTecTest.StateRules
-import P4SpecTecTest.TypeRuntime
-import P4SpecTecTest.StateProps
+import P4SpecTecTest.Codegen.Coverage
+import P4SpecTecTest.Codegen.CoverageChecks
+import P4SpecTecTest.Refine.Realize
+import P4SpecTecTest.BackendSim.NanoSwitch.Target
+import P4SpecTecTest.Refine.NanoTargetRepresentation
+import P4SpecTecTest.Refine.Print
+import P4SpecTecTest.Lang.Al.Decode
+import P4SpecTecTest.Interface.Builtins
+import P4SpecTecTest.Util.ByteText
+import P4SpecTecTest.Codegen.QuoteChecks
+import P4SpecTecTest.Codegen.Subtypes
+import P4SpecTecTest.Lang.Hints.Alter
+import P4SpecTecTest.Codegen.PrintHints
+import P4SpecTecTest.Codegen.Updates
+import P4SpecTecTest.Prelude.StateEval
+import P4SpecTecTest.Codegen.State
+import P4SpecTecTest.Refine.StateCalc
+import P4SpecTecTest.Interp.InterpAl.State
+import P4SpecTecTest.Refine.StateInterp
+import P4SpecTecTest.Refine.GeneratedState
+import P4SpecTecTest.Codegen.Certificates.StateForward
+import P4SpecTecTest.Refine.RecursivePrefix
+import P4SpecTecTest.Refine.StateRules
+import P4SpecTecTest.Runtime.Type
+import P4SpecTecTest.Codegen.StateProps
 
 /-!
 # P4SpecTecTest
@@ -31,6 +30,6 @@ import P4SpecTecTest.StateProps
 Test-only modules for the core library: mirror checks against upstream,
 prelude builtins against their OCaml originals, decode round-trips,
 `#guard_msgs` files. Nothing here is imported by a client. This root imports
-every module under `P4SpecTecTest/` except the executables' `Main.lean`
-roots (each defines `main`); `scripts/check-imports.sh` enforces it.
+the unit tests. Registered oracle executables own their runner modules;
+`scripts/check-library-boundaries.py` checks transitive build reachability.
 -/

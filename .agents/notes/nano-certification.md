@@ -106,7 +106,7 @@ recursive relation and callback probes. Do not launch broad proof generation
 while a chosen interface has an unresolved counterexample.
 
 Primary surfaces: `Refine/Calc.lean`, `Refine/Value.lean`, `Tactic/Refine.lean`,
-`Codegen/Validate.lean`, `ExampleProofs/NanoP4FieldUpdate/Correspondence.lean`,
+`Codegen/Certificates/Forward.lean`, `ExampleProofs/NanoP4FieldUpdate/Correspondence.lean`,
 and the existing Nano target/print ports and tests. Retained constraints:
 [Nano target](nano-target.md), [print hints](print-hints.md),
 [translation choices](translation-design.md).
@@ -143,7 +143,7 @@ Reusable support stays outside `ExampleProofs`; no generated files are patched
 by hand. Record remaining inventory blockers and current proof costs.
 
 Primary surfaces: `Codegen/Types.lean`, `Codegen/Funcs.lean`,
-`Codegen/Validate.lean`, `Codegen/Emit.lean`, `Refine/`, `Tactic/`, and
+`Codegen/Certificates/Forward.lean`, `Codegen/Emit.lean`, `Refine/`, `Tactic/`, and
 `P4SpecTecTest/`. Reachable legacy matching/substitution fallbacks must be
 replaced or proved unreachable on the admitted domains before certifying them.
 
@@ -193,7 +193,7 @@ data, harness errors and unsupported cases remain blockers. The strict target
 check passes without manufacturing success from a representation failure.
 
 Primary surfaces: `P4SpecTec/BackendSim/NanoSwitch/`, generated `Externs`,
-`test/nano-target/`, `test/nano-verify/`, `test/diff/` and colocated runner tests.
+`P4SpecTecTest/Oracle/NanoSwitch/` and `P4SpecTecTest/Oracle/Nano/Replay/` and colocated runner tests.
 Historical target constraints remain in [nano-target.md](nano-target.md).
 
 ## N5. Demonstrate a whole-program theorem
@@ -370,7 +370,7 @@ and all fresh counters are checked. Subsequent callee selection returns
 A deliberately isolated PACKET-rewrap mutation restores successful callee
 selection, so silently repairing the receiver cannot pass this probe.
 
-The two kernel theorems in `P4SpecTecTest/NanoTargetRepresentation.lean` prove
+The two kernel theorems in `P4SpecTecTest/Refine/NanoTargetRepresentation.lean` prove
 that no current generated `value` represents any raw extern, and no decoder
 fuel can recover it. They establish the current interface obstruction, not
 contextual correctness of a proposed extension. The runtime-only constructor

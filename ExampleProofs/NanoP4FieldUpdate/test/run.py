@@ -70,7 +70,7 @@ def probe(case, nonce):
     scalar = replace_once(scalar, "def Scalar.generated", "def scalarGenerated")
     export = json.dumps(str(ROOT / "exports/nano-p4.al.json"))
     return f'''import ExampleProofs.NanoP4FieldUpdate.Correspondence
-import P4SpecTecTest.Quote
+import P4SpecTec.Codegen.QuoteCheck
 set_option linter.missingDocs false
 set_option linter.unusedVariables false
 set_option maxHeartbeats 1000000
@@ -85,7 +85,7 @@ def main : IO UInt32 := do
   let source ← P4SpecTec.Lang.Al.Json.readSpec {export}
   let selected := source.filter fun d => d.it.id.it == "update_fieldValue"
   if selected.length != 1 then throw (IO.userError "missing source helper")
-  let quotation := (P4SpecTecTest.Quote.compareSpecs selected
+  let quotation := (P4SpecTec.Codegen.QuoteCheck.compareSpecs selected
     [Scratch.«$update_fieldValue».al]).isOk
   let name := ByteText.ofString "x"
   let fields : List Field := [⟨.unsigned 8 1, name⟩, ⟨.unsigned 8 2, name⟩]

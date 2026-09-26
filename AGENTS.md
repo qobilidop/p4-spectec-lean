@@ -84,7 +84,7 @@ lake env python3 scripts/check-library-boundaries.py  # libraries cannot import 
 scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token table
 scripts/time-elab.sh <Lib>  # per-module build durations; see docs/performance.md
 lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]   # the compiler
-test/diff/run.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
+P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
 lake exe check-print        # printer/builtin/interpreter vs pinned upstream observations
@@ -132,8 +132,9 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   mirror". A generated module is
   named after its spec file verbatim (`NanoP4Spec/3.2-bits.lean`). Our
   own code follows Lean conventions (`Codegen/Emit.lean`, `Prelude/`),
-  scripts and documents kebab-case.
-- **The Lean package and namespace are `P4SpecTec`.** `SpecTec` alone
+  shell/CLI scripts and documents kebab-case; importable Python helpers and
+  Python test modules use snake_case.
+- **The Lake package is `p4spectec`; the core namespace is `P4SpecTec`.** `SpecTec` alone
   names the Wasm-DSL project and is not used here.
 - **No per-file license headers.** The root `LICENSE` is sufficient, per
   the user's preference.
@@ -176,6 +177,12 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   including `snake_case`, so the side-by-side audit holds. Our own code
   (codegen, prelude, P4Lib) follows Lean style: `lowerCamelCase` for
   definitions and theorems, `UpperCamelCase` for types and namespaces.
+- **Placement:** use module hierarchies within the current Lake package by
+  default. Add a library for a concrete artifact/build boundary, not an empty
+  future placeholder. Match Lean unit-test paths to their owning subsystem;
+  keep cross-language oracle runners, probes, fixtures and contract tests
+  together under `P4SpecTecTest/Oracle/`. Script tests sit beside their helpers.
+  Supported executable entry points live under `Tools/`, without a tools library.
 - **Tests** are `#guard` and `#guard_msgs` files under `P4SpecTecTest/`,
   built by `lake test`. Every advertised theorem is followed by a
   `#guard_msgs in #print axioms` check naming its exact axiom set; every
@@ -185,7 +192,7 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   rejects.
 - **Downstream examples live in `ExampleProofs/`**, outside default targets.
   The full gate explicitly builds them and runs colocated example tests.
-  Reusable libraries (`P4SpecTec`, `P4Lib`, `NanoP4Spec`, `P4Spec`) must not
+  Reusable libraries (`P4SpecTec`, `NanoP4Spec`) must not
   import examples or test-only modules, directly or through local helpers.
   Keep reusable proof support in the library, not in an example namespace.
 - **Generated code** carries a grep-able first line naming the generator

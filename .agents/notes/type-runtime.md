@@ -43,7 +43,7 @@ the migrated interpreter paths.
 
 ## Evidence
 
-`test/type-runtime/probe.ml` records pinned upstream outcomes. The runner
+`P4SpecTecTest/Oracle/Type/probe.ml` records pinned upstream outcomes. The runner
 requires the indexed pin, the exact committed four-file export patch,
 no other dirty/untracked source, and a rebuilt full upstream main target
 before linking. Scratch files are ignored; no source corpus is duplicated.

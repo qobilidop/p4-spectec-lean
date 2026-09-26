@@ -50,6 +50,18 @@ it and no Mathlib selected. Source-preserving compressed snapshots avoid huge
 generated inputs in Git. Specific tradeoffs and revisit points are in
 [translation choices](notes/translation-design.md#build-and-storage-rationale).
 
+## Code ownership and placement (2026-09-26)
+
+Use one Lake package, with libraries for concrete artifact/build boundaries and
+module directories for ordinary internal organization. Empty planned libraries
+do not belong in the build. Preserve mirror/generated provenance; mirror Lean
+unit-test ownership in the test namespace and colocate cross-language oracle
+suites. Share harness plumbing without sharing independent semantic oracles.
+Remove tests by duplicated obligation, not by count. Reason: clear extension
+points and less navigation/maintenance without weakening certification.
+Confidence high; revisit a library boundary when implemented code needs an
+independent artifact or build policy. [Execution evidence](notes/code-organization.md).
+
 ## Interface and correctness (2026-09-26)
 
 Use `ExampleProofs/NanoP4FieldUpdate/` for the downstream example, with tests

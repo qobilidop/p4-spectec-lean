@@ -34,7 +34,7 @@ functions, 47 builtins, 2 external functions, 52 table functions, 256 defined
 relations and 3 external relations. There are no raw callable-name collisions.
 
 Retained main rejects production full-P4 generation at the stateful planning
-guard; `P4Spec.lean` remains a placeholder. Census component results are:
+guard; the `P4Spec` library will be introduced when generation is supported. Census component results are:
 
 | Component | Retained main result |
 |---|---|

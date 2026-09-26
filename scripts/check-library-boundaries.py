@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Check reusable-library imports under `lake env`, using Lean's header parser."""
+"""Check library layers and root reachability using Lean's header parser under lake env."""
 
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
 import tomllib
 
 
-REUSABLE = frozenset({"P4SpecTec", "P4Lib", "NanoP4Spec", "P4Spec"})
+REUSABLE = frozenset({"P4SpecTec", "NanoP4Spec"})
 CONSUMERS = frozenset({"ExampleProofs", "P4SpecTecTest"})
+TOOLS = frozenset({"Tools"})
 HELPER = Path(__file__).with_name("library-imports.lean")
 
 
@@ -64,6 +66,28 @@ def check_config(root):
             raise BoundaryError(f"{name} globs must cover only its canonical namespace")
     if config.get("testDriver") != "P4SpecTecTest":
         raise BoundaryError("testDriver must be P4SpecTecTest")
+    executables = config.get("lean_exe", [])
+    if not isinstance(executables, list) or any(not isinstance(exe, dict) for exe in executables):
+        raise BoundaryError("lean_exe must be an array of executable tables")
+    executable_roots = set()
+    executable_names = set()
+    for executable in executables:
+        name = executable.get("name")
+        module = executable.get("root", name)
+        if not isinstance(name, str) or name in executable_names:
+            raise BoundaryError("lean_exe names must be unique strings")
+        executable_names.add(name)
+        if (not isinstance(module, str)
+                or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)*",
+                                    module)):
+            raise BoundaryError(f"lean_exe {name!r} needs a canonical module root")
+        if executable.get("srcDir", ".") != ".":
+            raise BoundaryError(f"lean_exe {name!r} must use the package source directory")
+        path = root.joinpath(*module.split(".")).with_suffix(".lean")
+        if path in executable_roots:
+            raise BoundaryError(f"duplicate lean_exe root: {module}")
+        executable_roots.add(path)
+    return executable_roots
 
 
 def namespace(path, root):
@@ -88,10 +112,11 @@ def require_source(path):
 
 
 def source_inventory(root):
-    """Include new modules and reject deleted tracked reusable sources."""
+    """Include library and CLI sources, including new and deleted tracked modules."""
     sources = set()
-    for name in REUSABLE:
-        sources.add(root / f"{name}.lean")
+    for name in REUSABLE | CONSUMERS | TOOLS:
+        if name not in TOOLS:
+            sources.add(root / f"{name}.lean")
         directory = root / name
         if directory.exists():
             def traversal_error(error):
@@ -101,7 +126,7 @@ def source_inventory(root):
                                if filename.endswith(".lean"))
     tracked = run(["git", "-C", str(root), "ls-files", "-z", "--", "*.lean"])
     for filename in tracked.split("\0"):
-        if filename and namespace(root / filename, root) in REUSABLE:
+        if filename and namespace(root / filename, root) in REUSABLE | CONSUMERS | TOOLS:
             sources.add(root / filename)
     for path in sources:
         require_source(path)
@@ -147,7 +172,7 @@ def parse_dependencies(sources, root):
 
 
 def check_graph(graph, starts, root):
-    """Reject any path from a reusable module to an example or test module."""
+    """Reject consumer dependencies and core dependencies on generated models."""
     for start in sorted(starts):
         pending = [(start, [start])]
         seen = set()
@@ -156,28 +181,62 @@ def check_graph(graph, starts, root):
             if source in seen:
                 continue
             seen.add(source)
-            if namespace(source, root) in CONSUMERS:
+            if namespace(source, root) in CONSUMERS | TOOLS:
                 display = " -> ".join(str(path.relative_to(root)) for path in chain)
                 raise BoundaryError(f"reusable library imports a consumer: {display}")
+            if namespace(start, root) == "P4SpecTec" and namespace(source, root) == "NanoP4Spec":
+                display = " -> ".join(str(path.relative_to(root)) for path in chain)
+                raise BoundaryError(f"core library imports a generated model: {display}")
             if source not in graph:
                 raise BoundaryError(f"missing parsed dependency input: {source}")
             pending.extend((dep, chain + [dep]) for dep in sorted(graph[source])
                            if is_local(dep, root))
 
 
+def reachable(graph, starts, root):
+    """Collect local dependencies transitively, including registered executable helpers."""
+    seen = set()
+    pending = list(starts)
+    while pending:
+        source = pending.pop()
+        if source in seen:
+            continue
+        seen.add(source)
+        if source not in graph:
+            raise BoundaryError(f"missing parsed dependency input: {source}")
+        pending.extend(dep for dep in graph[source] if is_local(dep, root))
+    return seen
+
+
+def check_reachability(graph, sources, executable_roots, root):
+    """Require library and CLI sources to be reachable from their configured build roots."""
+    for name in sorted(REUSABLE | CONSUMERS | TOOLS):
+        starts = set() if name in TOOLS else {root / f"{name}.lean"}
+        starts.update(path for path in executable_roots if namespace(path, root) == name)
+        built = reachable(graph, starts, root)
+        missing = sorted(path for path in sources
+                         if namespace(path, root) == name and path not in built)
+        if missing:
+            display = ", ".join(str(path.relative_to(root)) for path in missing)
+            raise BoundaryError(f"modules unreachable from {name} root or registered executable: "
+                                f"{display}")
+
+
 def check(root, parser=parse_dependencies):
-    """Validate configuration and the local dependency closure of reusable sources."""
-    check_config(root)
-    starts = source_inventory(root)
+    """Validate library policy for all sources, then verify their build reachability."""
+    executable_roots = check_config(root)
+    sources = source_inventory(root)
+    for path in executable_roots:
+        require_source(path)
     graph = {}
-    pending = starts
+    pending = sources | executable_roots
     while pending:
         batch = parser(pending, root)
         graph.update(batch)
         pending = {dependency for dependencies in batch.values() for dependency in dependencies
-                   if is_local(dependency, root) and dependency not in graph
-                   and namespace(dependency, root) not in CONSUMERS}
-    check_graph(graph, starts, root)
+                   if is_local(dependency, root) and dependency not in graph}
+    check_graph(graph, {path for path in sources if namespace(path, root) in REUSABLE}, root)
+    check_reachability(graph, sources, executable_roots, root)
 
 
 def main():
@@ -190,7 +249,7 @@ def main():
     except (BoundaryError, OSError, UnicodeError, ValueError, TypeError) as error:
         print(f"library boundaries: {error}", file=sys.stderr)
         return 1
-    print("library boundaries: reusable libraries do not import examples or tests")
+    print("library boundaries: dependency layers and module reachability checked")
     return 0
 
 

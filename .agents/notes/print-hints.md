@@ -33,8 +33,8 @@ preserves notes; `interface/p4/unparse.ml:133` uses type/mixop;
 advance and absent from empty documents. The parser's p4program list retag
 does not affect case printing.
 
-`test/print/probe.ml` invokes actual `hints_of_spec_al`/`pp_value`. After
-upstream build, regenerate/check `test/print/run.py` in the upstream Nix shell.
+`P4SpecTecTest/Oracle/Print/probe.ml` invokes actual `hints_of_spec_al`/`pp_value`. After
+upstream build, regenerate/check `P4SpecTecTest/Oracle/Print/capture.py` in the upstream Nix shell.
 It verifies indexed pin/HEAD and only builds ignored artifacts; ordinary
 Lean checks read the fixture at runtime, not cached `#eval`. Twelve cases
 cover cursor/numbered holes, fusion, empty pieces/brackets, silent atoms,

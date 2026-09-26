@@ -82,7 +82,7 @@ establish guarded higher-order fidelity. Raw builtin/extern aliases dispatch
 under their local copied name upstream. Generated global `DefA` sites reject
 them; a defined wrapper calling the original global name is supported.
 
-`test/state/run.py` links the actual pinned AL functor and checks repository
+`P4SpecTecTest/Oracle/State/capture.py` links the actual pinned AL functor and checks repository
 root, indexed gitlink and checkout HEAD. `check-state-oracle` reads the
 fixture at runtime and requires its exact ordered cases/revision/scopes.
 Its 15 observations separate ten complete AL/session cases from five direct

@@ -4,6 +4,14 @@ Current checkpoint, updated 2026-09-26.
 
 ## Authorized scope
 
+The user approved the [code/test organization refactor](notes/code-organization.md)
+and explicitly authorized execution. It takes priority over Nano implementation:
+concrete library boundaries, nearby related code/tests, shared harness plumbing,
+responsibility-based module splits and evidence-backed test consolidation.
+The refactor is implemented and independently reviewed; the full local gate
+passed with exit 0 (session 65742, no skips). Nano proof implementation remains
+incomplete and is the next work item.
+
 Autonomous implementation of the [Nano certification plan](notes/nano-certification.md)
 is approved, with both core and target stages required by
 [Design section 9](../docs/design.md#9-nano-p4-scope-and-acceptance).
@@ -12,6 +20,21 @@ Luna performed the inventory, Sol implemented corpus/packet tests, and Astra
 handled proof work and independent review; root integrated the changes.
 
 ## Delivered and checked
+
+- Code/test organization: four nonempty library targets, supported CLI roots in
+  Tools, Lean tests grouped by ownership, colocated oracle suites, shared probe
+  plumbing, separated compiler/certificate/proof responsibilities, and checked
+  library layers/reachability. No generated Nano output or oracle payloads
+  changed; only duplicated infrastructure checks and the trivial Smoke test
+  were removed. Independent Sol/Astra reviews have no outstanding findings.
+  Exact scopes, hashes, capture checks and limits are in the
+  [organization evidence](notes/code-organization.md).
+  `nix develop -c bash scripts/check.sh` passed with actual exit 0, no skips;
+  log `.artifacts/code-organization-final-gate.log`, session 65742. All 78
+  programs agree on both differential legs. Completion remains 350 declarations,
+  888 obligations, 95 bindings and 793 unresolved. No full-P4 campaign was run.
+  Publication verification must match the resulting checkpoint SHA in
+  [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
 
 - `35bda29`: complete Nano obligation and pinned corpus inventories. There are
   350 declarations, 888 obligations, 95 existing compiled bindings and 793 open
@@ -41,6 +64,9 @@ corpus-completion obligations remain open. The bounded field-update consumer
 and [generic coverage increment](notes/coverage.md) remain complete.
 
 ## Immediate next step
+
+The organization refactor is complete locally. Verify successful main CI for
+the checkpoint revision before resuming the Nano proof work below.
 
 Finish the actual exists_ reverse induction from local unpushed branch
 `wip/nano-reverse`, commit `efd626c7cb40004f8d6725f2b29172d09ecd8dbe`.

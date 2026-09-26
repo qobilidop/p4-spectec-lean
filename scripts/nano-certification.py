@@ -14,6 +14,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+from oracle_paths import source_path
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = Path("NanoP4Spec/completion.json")
@@ -99,7 +101,7 @@ def run(root, args):
 
 
 def corpus_module(root):
-    path = root / "test/nano-certification/corpus.py"
+    path = root / "P4SpecTecTest/Oracle/Nano/Certification/corpus.py"
     spec = importlib.util.spec_from_file_location("nano_completion_corpus", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -121,7 +123,7 @@ def source_identity(root):
         pins[path] = record[1]
     return {"pins": pins, "export": str(EXPORT), "exportSha256": actual,
             "coverage": str(COVERAGE), "coverageSha256": digest(root / COVERAGE),
-            "corpus": str(CORPUS), "corpusSha256": digest(root / CORPUS)}
+            "corpus": str(CORPUS), "corpusSha256": digest(source_path(root, str(CORPUS)))}
 
 
 def named_type_references(definition, type_keys):
@@ -296,7 +298,7 @@ def main(argv=None):
         parser.error("--update cannot be combined with --require-complete")
     try:
         corpus = corpus_module(ROOT)
-        corpus_ids = corpus.check(root=ROOT, path=ROOT / CORPUS)
+        corpus_ids = corpus.check(root=ROOT, path=source_path(ROOT, str(CORPUS)))
         manifest = build_manifest(read_json(ROOT / EXPORT), read_json(ROOT / COVERAGE),
                                   corpus_ids, source_identity(ROOT))
         if args.update:

@@ -87,7 +87,7 @@ adapter remain unresolved, including the complete source-identity obligation
 beyond the existing normalized quotation comparison. Review and release
 evidence are recorded obligations, not kernel theorems or metadata verdicts.
 
-The [corpus inventory](../test/nano-certification/corpus.json) retains 78 programs
+The [corpus inventory](../P4SpecTecTest/Oracle/Nano/Certification/corpus.json) retains 78 programs
 and 39 STF sessions. Upstream observations exist for all typing cases and three
 STF sessions; 36 packet sessions still lack observations. Stored observations
 are inputs to replay, not proof that both Lean paths agree. The completion
@@ -105,7 +105,7 @@ nix develop --command python3 scripts/nano-certification.py --require-complete a
 ```
 
 After changing source or evidence, regenerate metadata with
-`python3 test/nano-certification/corpus.py --update` followed by
+`python3 P4SpecTecTest/Oracle/Nano/Certification/corpus.py --update` followed by
 `python3 scripts/nano-certification.py --update`, both inside the pinned shell.
 Regeneration itself is not validation or certification.
 
@@ -120,7 +120,7 @@ These limitations describe the implementation, not the intended design:
   a complete generated typed target, Lean boot/STF implementation or proof of
   all packet behavior. The shared verify helper retains upstream's full-P4
   calling convention, which does not establish Nano source-level support.
-  Checked [representation obstructions](../P4SpecTecTest/NanoTargetRepresentation.lean)
+  Checked [representation obstructions](../P4SpecTecTest/Refine/NanoTargetRepresentation.lean)
   show that the current generated `value` cannot represent or decode raw externs.
   Actual short/full extract continuation tests preserve the resulting receiver,
   subsequent callee mismatch and distinct direct-handler hard error.
@@ -163,7 +163,7 @@ There are further obligations when making a source-level claim:
 
 - **Source identity:** the quotation must correspond to the intended export.
   `check-quotes` compares compiled Nano-P4 quotations with the decoded pinned
-  export. The [comparison](../P4SpecTecTest/Quote.lean) erases regions and hints
+  export. The [comparison](../P4SpecTec/Codegen/QuoteCheck.lean) erases regions and hints
   and omits source `VarD` declarations; expression/path type notes, type
   origins, input positions and ordering remain significant. This is a runtime
   check, not a kernel proof of the exporter.
