@@ -1,6 +1,7 @@
 import P4SpecTec.Runtime.Value.Value
 import P4SpecTec.Runtime.Type.Typdef
 import P4SpecTec.Runtime.Type.Subst
+import P4SpecTec.Runtime.Type.Equiv
 
 /-!
 Whether a value belongs to a type, with subtyping, and the subtype checks
@@ -9,8 +10,9 @@ the AL inserts. Mirrors `p4spec/lib/runtime/value/match.ml`, TRUSTED
 take a fuel, since `sub_` recurses through type aliases and not through
 the value; the caches (`cache_sub_var`, `cache_find_typdef_opt`) are
 performance devices and are not mirrored; the `FuncT` case, which
-compares function signatures with `Type.Equiv`, is not ported and yields
-`false`, since Nano-P4 has no function values (an M3 item).
+compares function signatures with `Type.Equiv`, yields `false` in the
+legacy total API. The checked interpreter API below supports bounded
+function equivalence and preserves errors and exhaustion separately.
 -/
 
 namespace P4SpecTec.Runtime.Value.Match
@@ -26,6 +28,9 @@ abbrev FindTypdef := String → Option Typdef.t
 
 /-- The finder of a function signature (`Ctx.find_func_signature_opt`). -/
 abbrev FindFunc := String → Option (List tparam × List typ × typ)
+
+/-- A signature finder preserving parameter-conversion exhaustion and errors. -/
+abbrev FindFuncChecked := String → Subst.Checked (Option (List tparam × List typ × typ))
 
 mutual
 
@@ -126,5 +131,117 @@ def check' (find_typdef_opt : FindTypdef) (find_func_opt : FindFunc) : Nat → s
 def check (find_typdef_opt : FindTypdef) (find_func_opt : FindFunc) (subcheck : subcheck)
     (value : value) : Bool :=
   check' find_typdef_opt find_func_opt fuel subcheck value
+
+/-! Checked interpreter entry points. The total Boolean API above remains
+available to older proof clients; these definitions do not turn malformed
+types, higher-order substitution or fuel exhaustion into a negative match. -/
+
+mutual
+
+/-- Checked `sub_`, including upstream's function-signature equivalence. -/
+def sub_checked (find_typdef_opt : FindTypdef) (find_func_opt : FindFuncChecked) :
+    Nat → typ → value → Subst.Checked Bool
+  | 0, _, _ => Subst.exhausted
+  | depth + 1, typ, value => do
+    match typ.it with
+    | .BoolT => return match value.it with | .BoolV _ => true | _ => false
+    | .NumT .NatT =>
+      return match value.it with
+        | .NumV (.Nat _) => true
+        | .NumV (.Int i) => decide (i ≥ 0)
+        | _ => false
+    | .NumT .IntT => return match value.it with | .NumV _ => true | _ => false
+    | .TextT => return match value.it with | .TextV _ => true | _ => false
+    | .VarT tid targs =>
+      match find_typdef_opt tid.it with
+      | none => throw s!"type variable {tid.it} is not defined"
+      | some .Param | some (.Defining _) => throw "unexpected type variable"
+      | some .Extern => return match value.it with | .ExternV _ => true | _ => false
+      | some (.Defined tparams deftyp) =>
+        match deftyp.it, value.it with
+        | .PlainT inner, _ =>
+          if tparams.length != targs.length then throw "List.fold_left2"
+          let theta ← Subst.of_lists_checked tparams targs
+          let expanded ← Subst.subst_typ_checked Subst.fuel theta inner
+          sub_checked find_typdef_opt find_func_opt depth expanded value
+        | .StructT typfields, .StructV valuefields =>
+          if typfields.length != valuefields.length then return false
+          if tparams.length != targs.length then throw "List.fold_left2"
+          let theta ← Subst.of_lists_checked tparams targs
+          for ((atom_t, inner), (atom_v, field)) in typfields.zip valuefields do
+            if !Atom.eq atom_t.it atom_v.it then return false
+            let expanded ← Subst.subst_typ_checked Subst.fuel theta inner
+            if !(← sub_checked find_typdef_opt find_func_opt depth expanded field) then
+              return false
+          return true
+        | .VariantT cases, .CaseV valuecase =>
+          if tparams.length != targs.length then throw "List.fold_left2"
+          let theta ← Subst.of_lists_checked tparams targs
+          for case in cases do
+            if Mixfix.eq_mixop case.nottyp.it valuecase then
+              let substituted ← Subst.subst_nottyp_checked Subst.fuel theta case.nottyp
+              if (← subs_checked find_typdef_opt find_func_opt depth
+                    (Mixfix.args substituted.it) (Mixfix.args valuecase)) then return true
+          return false
+        | _, _ => return false
+    | .TupleT typs =>
+      match value.it with
+      | .TupleV values => subs_checked find_typdef_opt find_func_opt depth typs values
+      | _ => pure false
+    | .IterT inner .Opt =>
+      match value.it with
+      | .OptV (some v) => sub_checked find_typdef_opt find_func_opt depth inner v
+      | .OptV none => pure true
+      | _ => pure true
+    | .IterT inner .List =>
+      match value.it with
+      | .ListV values => do
+        for v in values do
+          if !(← sub_checked find_typdef_opt find_func_opt depth inner v) then return false
+        return true
+      | _ => pure false
+    | .FuncT tparams params ret =>
+      match value.it with
+      | .FuncV fid =>
+        match ← find_func_opt fid.it with
+        | some (otherTparams, otherParams, otherRet) =>
+          Equiv.equiv_functyp find_typdef_opt tparams params ret
+            otherTparams otherParams otherRet
+        | none => pure false
+      | _ => pure false
+
+/-- Checked pairwise subtyping, preserving short-circuit order. -/
+def subs_checked (find_typdef_opt : FindTypdef) (find_func_opt : FindFuncChecked)
+    (depth : Nat) (typs : List typ) (values : List value) : Subst.Checked Bool := do
+  if typs.length != values.length then return false
+  for (typ, value) in typs.zip values do
+    if !(← sub_checked find_typdef_opt find_func_opt depth typ value) then return false
+  return true
+
+end
+
+/-- Checked `check`, with distinct mismatch, hard error and exhaustion. -/
+def check_checked (find_typdef_opt : FindTypdef) (find_func_opt : FindFuncChecked) :
+    Nat → subcheck → value → Subst.Checked Bool
+  | 0, _, _ => Subst.exhausted
+  | depth + 1, subcheck, value => do
+    match subcheck, value.it with
+    | .SkipSC, _ => return true
+    | .MixopSC mixops, .CaseV valuecase =>
+      return mixops.any fun mixop => Mixfix.eq_mixop mixop valuecase
+    | .TupleSC checks, .TupleV values =>
+      if checks.length != values.length then return false
+      for (check, v) in checks.zip values do
+        if !(← check_checked find_typdef_opt find_func_opt depth check v) then return false
+      return true
+    | .IterSC .Opt _, .OptV none => return true
+    | .IterSC .Opt check, .OptV (some v) =>
+      check_checked find_typdef_opt find_func_opt depth check v
+    | .IterSC .List check, .ListV values =>
+      for v in values do
+        if !(← check_checked find_typdef_opt find_func_opt depth check v) then return false
+      return true
+    | .RecurseSC typ, _ => sub_checked find_typdef_opt find_func_opt fuel typ value
+    | _, _ => return false
 
 end P4SpecTec.Runtime.Value.Match

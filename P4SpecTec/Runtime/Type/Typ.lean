@@ -108,6 +108,26 @@ def of_params_il (fuel : Nat) : List param → List t
 
 end
 
+mutual
+
+/-- Checked `of_param_il`: exhaustion never drops a function parameter's
+binders and argument types by returning only its result type. -/
+def of_param_il_checked : Nat → param → Option t
+  | 0, _ => none
+  | depth + 1, param =>
+    match param.it with
+    | .ExpP typ => some typ
+    | .DefP _ tparams params typ => do
+      pure (func tparams (← of_params_il_checked depth params) typ)
+
+/-- Checked recursive conversion of a function's parameter list. -/
+def of_params_il_checked (depth : Nat) : List param → Option (List t)
+  | [] => some []
+  | p :: ps => do
+    pure ((← of_param_il_checked depth p) :: (← of_params_il_checked depth ps))
+
+end
+
 end Make
 
 end P4SpecTec.Runtime.Type.Typ

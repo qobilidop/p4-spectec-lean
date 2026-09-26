@@ -11,6 +11,45 @@ green PRs. Record uncertain decisions for later review. This does not
 authorize weakening correctness or rewriting published history. Phase plan
 and exit criteria: `.agents/notes/full-p4-reconnaissance.md`.
 
+## Active isolated checkpoint: checked type runtime
+
+Branch `m3c-type-runtime` adds bounded checked Expand/Equiv/Subst, matcher
+and signature conversion APIs and wires the interpreter to explicit hard
+errors/divergence instead of type false/identity fallbacks. Legacy pure
+APIs remain for proof compatibility. Nonempty FuncT substitution is
+explicitly unsupported until separate Type.Fresh state is modeled; no
+observable fresh names are invented. See `.agents/notes/type-runtime.md`
+and the named deviations in the design. `lake build --wfail P4SpecTec
+P4SpecTecTest` passed after the checked signature wiring (153 jobs,
+including existing Nano refinement modules). The upstream Nix-shell
+`test/type-runtime/run.py --upstream <primary pinned checkout> --check`
+passed all fourteen observations; three offline provenance tests and
+check-text/check-imports passed. Initial broad build failed only because
+the fresh worktree lacked the ignored Nano JSON; verified snapshot
+extraction fixed that prerequisite. Full gate, corpus replay and
+publication are not claimed. Root independently reviewed all changed paths
+and reran TypeRuntime, fourteen pinned cases and three offline tests (all
+exit 0); no findings remain within the bounded claim. Review:
+`.agents/reviews/m3c-type-runtime.md`. Offline CI wiring was independently
+reviewed with no findings; it requires seven paths and unconditionally runs
+three offline tests, without real upstream execution/network. Root's shell
+syntax check passed. PR 18 is merged into this branch. Frozen
+`nix develop --command bash scripts/check.sh` exited 0 with no skips,
+including both 78-case Nano differential legs, 48 exact output contexts,
+342 quotations, existing printer/text/state oracles, census and new offline
+contracts. Actual process exit was recorded before preparing a push.
+Published as PR #21 at `268ac98`; its initial remote Gate `36209329791`
+passed in 15m55s.
+After PR #20 merged as `e0d1bce`, main was reconciled into this branch:
+the checked type-runtime source/tests merged unchanged, and overlapping
+decision and gate additions retain both reviewed slices. Independent
+reconciliation review found no issues and reran the three type-runtime,
+six replay and twelve oracle offline tests plus shell syntax (all exit 0):
+`.agents/reviews/m3c-type-runtime-reconcile.md`. The frozen reconciled
+`nix develop --command bash scripts/check.sh` process exited 0 with no skips,
+including both Nano legs and the incoming replay build. Final merged-head
+remote CI remains required. No whole-corpus/type-fresh claim.
+
 ## Active checkpoint: generator integration
 
 Bounded refinement PR branch `m3c-state-refinement-pr`, based on merged main
@@ -76,7 +115,7 @@ review: `.agents/reviews/m3b-emitted-fresh-refinement.md`. PR #17's final
 remote Gate passed in 12m11s (run `36205479916`), and it merged as `b08ab8e`.
 Recursive proof integration and production enablement continue separately.
 
-## Active checkpoint: bounded full-P4 interpreter replay
+## Merged checkpoint: bounded full-P4 interpreter replay
 
 The separately reviewed replay revisions `a4c907b` and `5657373` are being
 integrated on `m3c-p4-replay-publish`, based on merged main `ea9533d`.
@@ -93,7 +132,8 @@ Main `c974c3d` merged without source conflicts; only this status document
 needed reconciliation. Replay implementation/tests remain byte-identical
 to `94fd99e`. The repeated frozen full local `scripts/check.sh` exited 0
 with no skips, including twelve oracle and six replay offline tests. Final
-remote CI remains required before landing. Root independently reviewed the
+remote Gate `36209771264` passed on `0036247` in 4m44s, and PR #20
+merged as `e0d1bce`. Root independently reviewed the
 status resolution with no findings. Reviews:
 `.agents/reviews/m3c-p4-interpreter-replay.md` and
 `.agents/reviews/m3c-replay-gate.md`.

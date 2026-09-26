@@ -99,6 +99,14 @@ def typ_of_value (v : value) («at» : region) : typ := mkPhrase v.note.typ «at
 
 /-! Checkers -/
 
+/-- Lift checked type operations: fuel exhaustion diverges and malformed
+types are hard errors, never a negative subtype verdict. -/
+def checked_type (result : Subst.Checked α) : backtrack α :=
+  match result.run with
+  | none => Eval.diverge
+  | some (.error _) => throw .err
+  | some (.ok value) => pure value
+
 /-- Mirrors `check_rel_inputs`. -/
 def check_rel_inputs (cfg : Config m) (ctx : Ctx.t) (id_rel : Lang.Il.id)
     (values_input : List value) : backtrack Unit := do
@@ -106,9 +114,11 @@ def check_rel_inputs (cfg : Config m) (ctx : Ctx.t) (id_rel : Lang.Il.id)
   let (nottyp, inputs) ← Ctx.find_rel_signature ctx id_rel
   let typs := Mixfix.args nottyp.it
   let typs := inputs.filterMap fun i => typs[i.toNat]?
-  check_back_err
-    (Value.Match.subs (Ctx.find_typdef_opt' ctx) (Ctx.find_func_signature_opt' ctx) typs
-      values_input)
+  let matched ← checked_type
+    (Value.Match.subs_checked (Ctx.find_typdef_opt' ctx)
+      (Ctx.find_func_signature_opt_checked' 1000 ctx)
+      Value.Match.fuel typs values_input)
+  check_back_err matched
     id_rel.at s!"relation input of {id_rel.it} does not match the expected type"
 
 /-- Mirrors `check_rel_outputs`. -/
@@ -118,35 +128,41 @@ def check_rel_outputs (cfg : Config m) (ctx : Ctx.t) (id_rel : Lang.Il.id) (nott
   let typs := Mixfix.args nottyp.it
   let typs := typs.zipIdx.filterMap fun (typ, idx) =>
     if inputs.contains idx then none else some typ
-  check_back_err
-    (Value.Match.subs (Ctx.find_typdef_opt' ctx) (Ctx.find_func_signature_opt' ctx) typs
-      values_output)
+  let matched ← checked_type
+    (Value.Match.subs_checked (Ctx.find_typdef_opt' ctx)
+      (Ctx.find_func_signature_opt_checked' 1000 ctx)
+      Value.Match.fuel typs values_output)
+  check_back_err matched
     id_rel.at s!"relation output of {id_rel.it} does not match the expected type"
 
 /-- Mirrors `check_func_inputs`. -/
 def check_func_inputs (cfg : Config m) (ctx : Ctx.t) (id_func : Lang.Il.id) (targs : List targ)
     (values_input : List value) : backtrack Unit := do
   if !cfg.guard then return ()
-  let (tparams, typs_params, _) ← Ctx.find_func_signature ctx id_func
+  let (tparams, typs_params, _) ← Ctx.find_func_signature_checked 1000 ctx id_func
   let ctx_local := Ctx.localize ctx
   check_back_err (targs.length == tparams.length) id_func.at
     s!"arity mismatch in type arguments of {id_func.it}"
   let ctx_local ← (tparams.zip targs).foldlM (fun ctx_local (tparam, targ) =>
     Ctx.add_typdef ctx_local tparam (.Defined [] (mkPhrase (.PlainT targ) targ.at))) ctx_local
-  check_back_err
-    (Value.Match.subs (Ctx.find_typdef_opt' ctx_local) (Ctx.find_func_signature_opt' ctx_local)
-      typs_params values_input)
+  let matched ← checked_type
+    (Value.Match.subs_checked (Ctx.find_typdef_opt' ctx_local)
+      (Ctx.find_func_signature_opt_checked' 1000 ctx_local)
+      Value.Match.fuel typs_params values_input)
+  check_back_err matched
     id_func.at s!"function argument of {id_func.it} does not match the parameter type"
 
 /-- Mirrors `check_func_output`. -/
 def check_func_output (cfg : Config m) (ctx : Ctx.t) (id_func : Lang.Il.id) (tparams : List tparam)
     (typ_output : typ) (targs : List targ) (value_output : value) : backtrack Unit := do
   if !cfg.guard then return ()
-  let theta := Subst.of_lists tparams targs
-  let typ_output := Subst.subst_typ theta typ_output
-  check_back_err
-    (Value.Match.sub (Ctx.find_typdef_opt' ctx) (Ctx.find_func_signature_opt' ctx) typ_output
-      value_output)
+  let theta ← checked_type (Subst.of_lists_checked tparams targs)
+  let typ_output ← checked_type (Subst.subst_typ_checked Subst.fuel theta typ_output)
+  let matched ← checked_type
+    (Value.Match.sub_checked (Ctx.find_typdef_opt' ctx)
+      (Ctx.find_func_signature_opt_checked' 1000 ctx)
+      Value.Match.fuel typ_output value_output)
+  check_back_err matched
     id_func.at s!"return value of function {id_func.it} does not match the expected type"
 
 /-! Helper for checking if an expression is a simple iteration of a variable -/
@@ -341,20 +357,20 @@ def update_slice (typ : typ) (v : value) (idx_l idx_n : Int) (value_upd : value)
 
 /-- Mirrors `eval_arg`'s `DefA` case. -/
 def eval_arg_def (ctx : Ctx.t) (i : Lang.Il.id) : backtrack value := do
-  let (tparams, typs, typ) ← Ctx.find_func_signature ctx i
+  let (tparams, typs, typ) ← Ctx.find_func_signature_checked 1000 ctx i
   pure (Value.Make.func i tparams typs typ)
 
 /-- Mirrors `eval_call_exp`'s substitution of type arguments through the
 local type aliases. -/
-def subst_targs (ctx : Ctx.t) (targs : List targ) : List targ :=
+def subst_targs (ctx : Ctx.t) (targs : List targ) : backtrack (List targ) :=
   match targs with
-  | [] => []
-  | targs =>
+  | [] => pure []
+  | targs => do
     let theta : Subst.theta := ctx.«local».tdenv.filterMap fun (tid, td) =>
       match td with
       | .Defined [] ⟨.PlainT typ, _, _⟩ => some (tid, typ)
       | _ => none
-    targs.map (Subst.subst_typ theta)
+    targs.mapM fun targ => checked_type (Subst.subst_typ_checked Subst.fuel theta targ)
 
 /-! The recursive block: assignment, evaluation and invocation -/
 
@@ -568,9 +584,11 @@ def upcast : Nat → Ctx.t → typ → value → backtrack value
       | _ => back_err typ.at "not a number"
     | .VarT tid targs => do
       let (tparams, deftyp) ← Ctx.find_defined_typdef ctx tid
-      let theta := Subst.of_lists tparams targs
+      let theta ← checked_type (Subst.of_lists_checked tparams targs)
       match deftyp.it with
-      | .PlainT typ => upcast fuel ctx (Subst.subst_typ theta typ) value
+      | .PlainT typ => do
+        let typ ← checked_type (Subst.subst_typ_checked Subst.fuel theta typ)
+        upcast fuel ctx typ value
       | _ => pure value
     | .TupleT typs =>
       match value.it with
@@ -610,9 +628,11 @@ def downcast : Nat → Ctx.t → typ → value → backtrack value
       | _ => back_err typ.at "not a number"
     | .VarT tid targs => do
       let (tparams, deftyp) ← Ctx.find_defined_typdef ctx tid
-      let theta := Subst.of_lists tparams targs
+      let theta ← checked_type (Subst.of_lists_checked tparams targs)
       match deftyp.it with
-      | .PlainT typ => downcast fuel ctx (Subst.subst_typ theta typ) value
+      | .PlainT typ => do
+        let typ ← checked_type (Subst.subst_typ_checked Subst.fuel theta typ)
+        downcast fuel ctx typ value
       | _ => pure value
     | .TupleT typs =>
       match value.it with
@@ -644,8 +664,9 @@ def eval_sub_exp : Nat → Config m → typ → Ctx.t → exp → typ → subche
   | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, exp, _typ, subcheck => do
     let value ← eval_exp fuel cfg ctx exp
-    let sub := Value.Match.check (Ctx.find_typdef_opt' ctx) (Ctx.find_func_signature_opt' ctx)
-      subcheck value
+    let sub ← monadLift (checked_type (Value.Match.check_checked
+      (Ctx.find_typdef_opt' ctx) (Ctx.find_func_signature_opt_checked' 1000 ctx)
+      Value.Match.fuel subcheck value))
     pure (Value.Make.bool sub)
 
 /-- Mirrors `eval_match_exp`. -/
@@ -823,7 +844,7 @@ def eval_call_exp : Nat → Config m → typ → Ctx.t → Lang.Il.id → List t
     m value
   | 0, _, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, _typ_note, ctx, i, targs, args => do
-    let targs := subst_targs ctx targs
+    let targs ← subst_targs ctx targs
     let values_args ← eval_args fuel cfg ctx args
     invoke_func fuel cfg true ctx i targs values_args
 

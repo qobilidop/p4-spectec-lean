@@ -1,0 +1,103 @@
+{
+  "upstreamRevision": "8c8e0c6ffa604c533f5ad2f1db0503c0c601e6f3",
+  "cases": [
+    {
+      "name": "alias",
+      "result": {
+        "class": "ok",
+        "value": true
+      }
+    },
+    {
+      "name": "alias-argument",
+      "result": {
+        "class": "ok",
+        "value": true
+      }
+    },
+    {
+      "name": "alias-arity",
+      "result": {
+        "class": "error",
+        "message": "type arguments do not match"
+      }
+    },
+    {
+      "name": "unknown",
+      "result": {
+        "class": "error",
+        "message": "type variable Missing is not defined"
+      }
+    },
+    {
+      "name": "alpha",
+      "result": {
+        "class": "ok",
+        "value": true
+      }
+    },
+    {
+      "name": "different-return",
+      "result": {
+        "class": "ok",
+        "value": false
+      }
+    },
+    {
+      "name": "alias-binder-collision",
+      "result": {
+        "class": "ok",
+        "value": true
+      }
+    },
+    {
+      "name": "higher-order",
+      "result": {
+        "class": "error",
+        "message": "higher-order substitution is disallowed"
+      }
+    },
+    {
+      "name": "binder-arity",
+      "result": {
+        "class": "ok",
+        "value": false
+      }
+    },
+    {
+      "name": "iter-error-before-iter-mismatch",
+      "result": {
+        "class": "error",
+        "message": "type variable Missing is not defined"
+      }
+    },
+    {
+      "name": "notation-error-before-later-atom-mismatch",
+      "result": {
+        "class": "error",
+        "message": "type variable Missing is not defined"
+      }
+    },
+    {
+      "name": "sub-arity-matched",
+      "result": {
+        "class": "error",
+        "message": "List.fold_left2"
+      }
+    },
+    {
+      "name": "sub-arity-unmatched-shape",
+      "result": {
+        "class": "ok",
+        "value": false
+      }
+    },
+    {
+      "name": "duplicate-binding-last-wins",
+      "result": {
+        "class": "ok",
+        "value": true
+      }
+    }
+  ]
+}

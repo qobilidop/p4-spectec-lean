@@ -48,6 +48,22 @@ settles is not repeated here.
 
 ## Build and test
 
+- **Stage checked type-runtime APIs without inventing observable type-fresh
+  names.** Keep total proof-facing helpers separate; interpreter operations
+  lift checked errors to `Fail.err` and exhaustion to divergence. Alias
+  expansion, function-signature comparison and parameter conversion must
+  not return false, identity or a truncated signature on exhaustion.
+  Pair function binders with private NUL-prefixed markers before alias
+  expansion, preserving free aliases with colliding spellings. Markers do
+  not escape the Boolean comparison; well-formed parsed identifiers cannot
+  contain NUL. Nonempty substitution through `FuncT` is an explicit
+  unsupported error until separate upstream `Type.Fresh` state is modeled.
+  That counter is not the builtin `fresh_typeId` counter: equivalence also
+  consumes it upstream and may affect later returned substitutions.
+  Confidence: high for bounded observed comparisons, not whole-session
+  type-fresh fidelity. Revisit before supporting nested function
+  substitution or claiming guarded full-P4 coverage. (2026-09-25)
+
 - **Replay full-P4 AL observations through a bounded P4-specific Lean
   configuration.** Regenerate and validate the four pinned oracle cases
   before replay; seed `StateEval` from each exact post-boot counter, disable

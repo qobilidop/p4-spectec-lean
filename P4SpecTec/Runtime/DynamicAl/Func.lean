@@ -38,4 +38,12 @@ def get_signature : t → List tparam × List typ × typ
   | .Table params typ _ => ([], Typ.Make.of_params_il 1000 params, typ)
   | .Defined tparams params typ _ _ => (tparams, Typ.Make.of_params_il 1000 params, typ)
 
+/-- Checked `get_signature`: `none` is nested-parameter fuel exhaustion. -/
+def get_signature_checked (depth : Nat) : t → Option (List tparam × List typ × typ)
+  | .Extern tparams params typ | .Builtin tparams params typ
+  | .Defined tparams params typ _ _ => do
+    pure (tparams, ← Typ.Make.of_params_il_checked depth params, typ)
+  | .Table params typ _ => do
+    pure ([], ← Typ.Make.of_params_il_checked depth params, typ)
+
 end P4SpecTec.Runtime.Dynamic_al.Func
