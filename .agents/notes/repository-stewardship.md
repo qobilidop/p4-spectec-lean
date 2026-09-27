@@ -45,6 +45,77 @@ unless stated otherwise. Historical Git paths are recovery pointers, not links.
   [CI 36340173018](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36340173018)
   passed. Full record at
   `d9be55f:.agents/notes/repository-stewardship.md`.
+- Stewardship compaction (`777977f`) retained the evidence index, corrected
+  note lifecycle labels and shortened status; executable inputs were unchanged
+  from `d9be55f`. Its commit records fresh text, whitespace and link checks;
+  [CI 36340498357](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36340498357)
+  passed. The committed record does not identify an independent reviewer for
+  that compaction; do not infer one from its passing checks. The independent
+  GPT-6 Astra review in the current pass subsequently checked the compaction
+  and found no lost obligations; this does not supply review at publication.
+
+## Current Codex tend-repo pass
+
+Requested scope: exercise the shared maintenance procedure and refine agent
+infrastructure where evidence supports it. Base: `777977f`; its exact-revision
+CI above was checked before editing. The hidden working-state inventory and
+resume documents remain compact and preserve the paused work, so no files
+were moved or removed. This run found no demonstrated weakness in the skill;
+its instructions remain unchanged.
+
+The layout gate checked only that the Claude-discovered skill existed, which
+also admitted a copied skills directory or a symlink to a divergent copy.
+The existing AGENTS rule requires a symlink to the shared `.agents/skills/`.
+Enforce both link type and destination identity (`-L` and `-ef`), retaining the
+existing skill-existence check. This adopts the earlier deferred review
+suggestion in the requested infrastructure pass, without claiming a copy had
+appeared in the repository. No new policy or semantic behavior is introduced.
+
+Focused validation returned actual exit 0: `bash -n scripts/check.sh` and
+six temporary-directory scenarios executing the exact added gate block.
+Relative and absolute links to the shared directory passed; missing links,
+copied directories, links to another directory and broken links failed as
+expected. Full `nix develop -c scripts/check.sh` returned actual exit 0
+(session 47002), with no skip setting. Text hygiene and `git diff --check`
+also passed after the evidence edits.
+Independent read-only review: a separate GPT-6 Astra context reviewed the
+uncommitted diff against `777977f` and found no blockers. It confirmed the
+`-L`/`-ef` check, working-note accuracy, unchanged-skill rationale and preserved
+worktree, documentation branch and upstream patch. Reviewed `scripts/check.sh`
+SHA-256: `2f1ca940dc670d514a152069d5226cf87e222fe253b771fb97dc23e104f34eae`.
+The reviewer did not rerun the six cases, full gate, discovery probes or
+semantic tests; validation above belongs to the implementation agent. Its
+request to retain the focused harness reproducibly is addressed below.
+These are AI-agent reviews, not human review. Publication remains pending.
+
+Reproduce the six focused cases from the repository's Nix shell; the temporary
+fixtures are outside the checkout, and the tested block comes from the gate:
+
+```bash
+set -euo pipefail
+repo=$(git rev-parse --show-toplevel)
+block=$(sed -n '/^# Both agents must discover/,/^fi/p' "$repo/scripts/check.sh")
+root=$(mktemp -d /tmp/p4-agent-layout.XXXXXX)
+mkdir -p "$root/.agents/skills" "$root/.claude"
+say() { :; }
+check() { fail=0; eval "$block"; test "$fail" -eq "$1"; }
+check 1 # missing
+ln -s ../.agents/skills "$root/.claude/skills"
+check 0 # relative link
+mv "$root/.claude/skills" "$root/.claude/relative-link"
+ln -s "$root/.agents/skills" "$root/.claude/skills"
+check 0 # absolute link
+mv "$root/.claude/skills" "$root/.claude/absolute-link"
+mkdir "$root/.claude/skills"
+check 1 # copied directory
+mv "$root/.claude/skills" "$root/.claude/copy"
+ln -s copy "$root/.claude/skills"
+check 1 # wrong target
+mv "$root/.claude/skills" "$root/.claude/wrong-target-link"
+ln -s absent "$root/.claude/skills"
+check 1 # broken link
+printf 'All six cases passed; fixtures remain at %s\n' "$root"
+```
 
 ## Retained lessons and follow-ups
 
@@ -53,5 +124,5 @@ unless stated otherwise. Historical Git paths are recovery pointers, not links.
   concrete fixture fix, not a new global rule.
 - A Claude Code skill is discovered only under `.claude/skills/`; Codex reads
   `.agents/skills/`. Recorded in AGENTS and gated.
-- Deferred, optional: a gate check that `.claude/skills` is a symlink rather
-  than a copy. Adopt if a copy ever appears.
+- Skill discovery and shared-source identity are distinct checks: the
+  current pass strengthens the existing layout gate to cover both.

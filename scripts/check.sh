@@ -107,6 +107,11 @@ do
   if [ ! -e "$root/$path" ]; then say "missing: $path"; fail=1; fi
 done
 
+# Both agents must discover the same skill sources, not independent copies.
+if [ ! -L "$root/.claude/skills" ] || [ ! "$root/.claude/skills" -ef "$root/.agents/skills" ]; then
+  say ".claude/skills must be a symlink to .agents/skills"; fail=1
+fi
+
 if find "$root" -path "$root/upstream" -prune -o \( -name 'CLAUDE.md' -o -name 'CLAUDE.local.md' \) -print \
    | grep -q .; then
   say "CLAUDE.md found; instructions live in AGENTS.md alone"; fail=1

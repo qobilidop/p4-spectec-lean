@@ -35,10 +35,16 @@ implementation authorization. Preserve the full scope and all corpus cases.
 ## Maintenance and repository state
 
 Maintenance since the N2 closure changed no semantics, pins or generated data.
-The latest pass linked `.claude/skills` to `.agents/skills/` and added its gate
-check. [Stewardship](notes/repository-stewardship.md) records each pass's
-review, validation and CI. Inspect the latest main CI at the next session,
-before new work.
+Current requested upkeep exercises `tend-repo` under Codex and strengthens the
+layout gate to require `.claude/skills` to be a symlink to the shared
+`.agents/skills/`, beyond merely finding a skill at that path. The base
+`777977f` CI passed; shell syntax and six link-layout scenarios passed.
+Full `nix develop -c scripts/check.sh` returned actual exit 0 (session 47002),
+with no skip setting; fresh text hygiene and diff checks also passed.
+Independent GPT-6 Astra review found no blockers; its scope and limits are in
+[Stewardship](notes/repository-stewardship.md). The maintenance checkpoint is
+locally validated. No feature milestone resumes; the next implementation
+scope needs a user request.
 
 One worktree remains on `main`. The merged N2 branch is removed; the older
 `docs/repository-review` branch and local archive backup are preserved.
