@@ -4,10 +4,10 @@ Current checkpoint, updated 2026-09-27.
 
 ## Authorized scope
 
-The user authorized completion of N2 after N0/N1. N2 implementation and its
-strict compiled check pass. All 44 full local gate stages passed. The first remote
-gate found a clean-checkout inventory-test input dependency. Its correction and
-local validation pass; publication and remote validation remain active.
+The user-authorized N2 milestone is closed at
+`76bed8485032a6bb2e95b248b37f99dcf0c45267` on `main`. Independent review, all 44
+full local gate stages and exact-revision remote CI passed. No implementation
+work is active.
 N3–N6 are planned, not started. Full-P4 M3 remains paused. The compacted
 [Nano plan](notes/nano-certification.md) owns scope, evidence and next milestones;
 [Certification](../docs/certification.md) states current artifact guarantees.
@@ -74,9 +74,16 @@ strict N2 and mutations, passed. The fixture now reads the committed compressed
 snapshot directly. All 36 tests passed with raw input absent (18940); the corrected
 full gate passed all 44 stages with actual exit 0 (47761). Evidence:
 `.artifacts/n2-clean-checkout-gate.log`. The correction is independently reviewed.
-Next: publish the reviewed correction, verify CI, remove the merged local
-`n2-certification` branch and record N2 closure. N3's first proposed work is
-Program_load/Expr_eval dependency closures; it is not started during publication.
+The reviewed correction is pushed as `76bed8485032a6bb2e95b248b37f99dcf0c45267`.
+[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521)
+passed for that exact revision, including the full gate and both pin checks.
+The merged local `n2-certification` branch is removed; branch inventory and the
+single worktree are verified. Final closure edits affect working-state prose
+only and reuse the passing `76bed84` executable validation with fresh text/link
+checks and independent review.
+
+Next proposed milestone: N3, beginning with Program_load/Expr_eval dependency
+closures. It has not started; broader Nano core and target certification remain open.
 
 The older docs/repository-review branch and local archive backup are preserved.
 One worktree remains; upstream's expected four-file exporter patch remains applied.

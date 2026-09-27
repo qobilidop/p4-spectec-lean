@@ -1432,6 +1432,23 @@
       },
       "validation": "All36local Markdown targets across four modified prose files resolve.",
       "limits": "Read-only prose/link review; full gate supplied separately, corrected remote CI still required."
+    },
+    "n2-final-closure-prose-review": {
+      "reviewer": "OpenAI Codex Sol /root/organize_lean_tests, independent read-only review",
+      "baseRevision": "76bed8485032a6bb2e95b248b37f99dcf0c45267",
+      "files": {
+        ".agents/status.md": "7f1b366f8bd92f272307f4d01f3eab28b8c7d4bed1d699e1ff210dcb29aa8c61",
+        ".agents/roadmap.md": "57d4840ec29f701f1ba2747ef0063d7e62cb64c8e25739a7d039f2e95877d230",
+        ".agents/notes/nano-certification.md": "5ce2914e574f682ccdb558a197f0a93adb028e0720403b9e3cf2dccb7a3f5f97",
+        ".agents/notes/nano-certification-review.json": "c2b6f8124dd39fca33d102dcfc986e011931f9a9b88512cfeb7bd7b2049f2f04"
+      },
+      "findings": [],
+      "assessment": [
+        "Exact validated implementation revision and successful CI are recorded; N2 scope is complete while N3\u2013N6 remain open.",
+        "Historical review limits and earlier pending/failure verdicts are preserved with subsequent resolutions separately."
+      ],
+      "validation": "19 local Markdown targets resolve; JSON parses; main and old docs branch remain; one worktree; merged N2 branch absent.",
+      "limits": "Evidence-only review; no builds. Final note wrapping was separately confirmed without wording changes. This record is added after review."
     }
   },
   "laterResolutions": [
@@ -1441,6 +1458,7 @@
     "The first full-gate findings are fixed and await a second full-gate verdict; see status.",
     "Full local gate40389 passed all44stages with recorded exit0 on e654712bd9385535ec73c3a88b883b57054036fe; no skips. Publication/remoteCI remains separate.",
     "Remote CI36312214560 failed only Completion inventory contracts because the ignored raw export was absent before snapshot extraction. Every other gate stage passed; compressed-source fixture correction is independently reviewed and passes all36tests with raw export absent. Final corrected full gate and CI remain separate.",
-    "Corrected full local gate47761 returned actual exit0 and all44stages passed; log .artifacts/n2-clean-checkout-gate.log. The fix is ready for publication; exact corrected revision CI remains required."
+    "Corrected full local gate47761 returned actual exit0 and all44stages passed; log .artifacts/n2-clean-checkout-gate.log. The fix is ready for publication; exact corrected revision CI remains required.",
+    "Corrected revision76bed8485032a6bb2e95b248b37f99dcf0c45267 passed CI36314414521 (full gate and both pin checks). N2 is closed; merged n2-certification branch removed and absence verified. N3\u2013N6 remain open."
   ]
 }

@@ -38,7 +38,10 @@ their integration exits depend on checked core contracts. N0 is implemented
 and reviewed. N1 is closed in `ccb8859`, with independent review and successful
 full local/remote gates: recursive reverse execution, actual relation probes,
 printing dispatch and faithful runtime representation with contextual failure
-checks. N2 is now authorized and active; status owns the next concrete step.
+checks. N2 is closed at `76bed84`, with independent review, all 44 local gate
+stages and successful
+[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521).
+N3 is the next proposed milestone; status owns the next concrete step.
 
 ## Candidate next work
 

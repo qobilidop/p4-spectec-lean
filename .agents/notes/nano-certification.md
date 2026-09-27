@@ -1,8 +1,8 @@
 # Nano-P4 certification implementation plan
 
-Active plan and durable checkpoint evidence, updated 2026-09-27.
-N0/N1 are closed. N2 implementation, strict compiled checking and the full local
-gate pass; publication and exact-revision remote CI remain pending. N3–N6 remain planned.
+Durable completion evidence and remaining plan, updated 2026-09-27.
+N0/N1/N2 are closed. N2 closed at `76bed8485032a6bb2e95b248b37f99dcf0c45267`,
+with independent review and passing full local/remote gates. N3–N6 remain planned.
 The user authorized completion through N2; full-P4 M3 remains paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
@@ -101,8 +101,13 @@ Lean tests, replay and mutations. The fixture correction reads the committed gzi
 snapshot directly; all 36 tests passed with temporarily absent raw input (18940).
 Root independently reviewed the fixture diff. The corrected full gate passed
 all 44 stages with actual exit 0 (47761); evidence is
-`.artifacts/n2-clean-checkout-gate.log`. Corrected-revision remote CI remains required.
-Remote library/certificate build took 1534s;
+`.artifacts/n2-clean-checkout-gate.log`. Corrected revision
+`76bed8485032a6bb2e95b248b37f99dcf0c45267` passed
+[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521),
+including the full gate and both pin checks. The merged feature branch is removed.
+Closure-only prose reuses this unchanged executable validation with fresh
+text/link checks and independent review. The earlier remote library/certificate
+build took 1534s;
 Type_eq alone took 938s. This first expanded build is not a controlled performance
 comparison; proof cost remains a practical constraint for broader N3 work.
 
@@ -122,8 +127,8 @@ and freshness checks. It requires every source type identity, all eight variable
 all 26 builtin dispatch/invocation/domain contracts, primitive/initialization
 profiles and the full selected closure. Partial context projections cannot replace
 complete call contracts. Broad `--require-complete core|target|all` remains
-independent and incomplete. Final full-gate exit and exact-revision remote CI must
-be recorded before N2 is marked closed.
+independent and incomplete. The recorded full-gate exit and exact-revision remote
+CI close N2 without claiming broader core or target completion.
 
 ## N2. Build reusable representation and primitive contracts
 
@@ -248,9 +253,9 @@ remote CI must pass before declaring the milestone complete.
 
 ## Execution after N2
 
-N3 is the next proposed increment; do not automatically start broader work during
-N2 publication. Preserve all 78 typing programs and 39 STF sessions. Only three STF
-sessions have stored observations; missing observations are not successful replay.
+N3 is the next proposed increment; it has not started. N2 publication is complete.
+Preserve all 78 typing programs and 39 STF sessions. Only three STF sessions have
+stored observations; missing observations are not successful replay.
 Full-P4 M3 stays paused. The dynamic NanoSwitch port and shared verify ABI limits
 remain in [nano-target.md](nano-target.md). Source identity, core semantic
 initialization, target composition, packet observations, whole-program proofs and
