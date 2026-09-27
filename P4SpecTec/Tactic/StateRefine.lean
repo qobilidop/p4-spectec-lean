@@ -123,7 +123,7 @@ end
 def prove : TacticM Unit := do
   introNamed
   unfoldGenerated
-  let s ← stateSimpSet
+  let s ← prepareSimpSet (← stateSimpSet)
   let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel] at *)))
   let (_, m, _) ← refinement
   let some f ← (← getMainGoal).withContext (stuckFuel m)

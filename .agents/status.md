@@ -41,6 +41,11 @@ Nano proof implementation and broader full-P4 M3 remain paused during this work.
   Three original generated proof runs improve 3–5x; the mutation stage improves
   from 88s to 24s without removing checks. Next measure prepared StateRefine rules
   and the remaining warm-gate costs; preserve all existing certification coverage.
+- Next batch: StateRefine now prepares its completed global rule set. Independent
+  review and unchanged full-file StateForward checks pass (29.3s to 8.1s). Packet
+  fixture copying and mutation scheduling are under review/measurement. No push
+  of this batch until its combined full local gate passes. CI 36284518064 for
+  `19195eb` is pending, with no known failure.
 
 The [Nano plan and evidence](notes/nano-certification.md) owns N0/N1 details.
 N0 is complete; N1 is incomplete. Current coverage: 350 declarations,

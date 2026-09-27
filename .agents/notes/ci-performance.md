@@ -88,7 +88,7 @@ builds. The remote mutation stage took 185s and census 140s. The gate ran from
 00:50:22 to 00:56:33 UTC on 2026-09-27; these are observed runner timings, not
 controlled hardware comparisons.
 
-## Census reachability optimization (under integration)
+## Census reachability optimization (`859e8aa`)
 
 Native sampling of the existing binary found `Funcs.monotonicityConsumers` in
 2396 of 2541 active-thread samples in the middle three-second window. It repeatedly
@@ -132,7 +132,7 @@ is not a warm-gate comparison. Log: `.artifacts/ci-census-tactic-gate.log`.
 The two independently reviewed source changes will be committed separately and
 published together at the fully validated combined revision.
 
-## Refinement rule preparation (under integration)
+## Refinement rule preparation (`19195eb`)
 
 Astra `review_oracle_refactor` profiled original generated proof files. More than
 80% of elapsed time was spent normalizing goals/hypotheses; the large fixed global
@@ -174,3 +174,21 @@ examples 27s were followed by passing runtime replay, mutations and census.
 The mutation stage fell from 88s to 24s locally without any runner change.
 StateForward's unprepared stateful path still takes 34s in the unit-test build;
 preparing its completed global rules is the next measured experiment.
+
+
+## Stateful refinement rule preparation
+
+After the shared mechanism passed, prepare StateRefine's rule set after adding
+its state-specific equations. This is a one-line change in `prove`; the existing
+StateForward fixture and all semantic contracts are unchanged. Isolated direct
+full-file Lean runs took 29.266s before and 8.065s after (3.63x), both exit 0 with no
+messages. Warning-free tactic build also passed. Author Astra retained exact
+commands and file hashes in `.artifacts/proof-perf-state-{baseline,cached}.json`.
+
+Independent read-only Sol review (`enforce_library_layers`) found no issue with
+preparation placement or fresh local facts. Reviewed diff against `19195eb`:
+SHA-256 `5b859dc41590a3d3376c2a03098350d248d32839aec9ba2c088b71f407d4941f`.
+Root also inspected the one-line change and unchanged stateful fixture. Existing
+six normalization regressions cover the shared mechanism; the stateful fixture
+covers calls, branches, errors, mismatches and retained state. Full integration
+gate is required before publishing this next batch.
