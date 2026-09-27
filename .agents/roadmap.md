@@ -35,7 +35,9 @@ reverse-proof/target/printing feasibility probes (N1), reusable contracts (N2),
 full core coverage (N3), target composition (N4), the whole-program proof (N5),
 and release evidence (N6). Target and consumer work begin alongside core work;
 their integration exits depend on checked core contracts. N0 is implemented
-and reviewed; N1 reverse-proof, target and printing feasibility probes are active.
+and reviewed; N1 remains incomplete and is paused during requested repository
+maintenance. Target/printing probes have checked results; reverse induction and
+the representation contract remain open. Status owns the next concrete step.
 
 ## Candidate next work
 

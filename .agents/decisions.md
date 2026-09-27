@@ -60,7 +60,11 @@ suites. Share harness plumbing without sharing independent semantic oracles.
 Remove tests by duplicated obligation, not by count. Reason: clear extension
 points and less navigation/maintenance without weakening certification.
 Confidence high; revisit a library boundary when implemented code needs an
-independent artifact or build policy. [Execution evidence](notes/code-organization.md).
+independent artifact or build policy. The completed refactor is `ad1ac33`;
+[maintenance evidence](notes/repository-stewardship.md) records review and checks.
+Configuration/import ordering follows the same ownership principle: preserve
+semantic and upstream order, group by purpose, alphabetize equivalent peers.
+Reason: predictable extension points without a new sorting framework.
 
 ## Interface and correctness (2026-09-26)
 

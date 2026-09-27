@@ -4,7 +4,8 @@ Active implementation plan, 2026-09-26. The user approved autonomous execution
 after the planning checkpoint, starting with N0/N1. The contract is
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance), not this
 work breakdown. Both core semantics and target composition must close.
-Broader full-P4 M3 remains paused.
+Broader full-P4 M3 remains paused. Nano implementation is temporarily paused
+for the user-requested organization and maintenance work; Status owns resumption.
 
 ## Baseline and critical path
 
@@ -288,7 +289,12 @@ Independent read-only AI-agent review: Astra `/root/review_nano_plan`.
 Original findings were inconsistent HEAD/index pin selection, insufficient
 representation dependency links, and an intermediate corpus-ID prefix mismatch.
 All were resolved, with staged-gitlink and source-type mutation coverage.
-The final review found no remaining blocking issue. Reviewed blobs:
+The final review found no remaining blocking issue. Paths and commands in the
+checkpoint evidence below are historical at their recorded revisions; the
+organization refactor `ad1ac33` moved tests and CLI roots without changing these
+original review identities. Current tests live under `P4SpecTecTest/`, oracle
+suites under `P4SpecTecTest/Oracle/`, and infrastructure tests under `scripts/`.
+Reviewed blobs:
 
 | File | Blob |
 |---|---|
@@ -356,7 +362,8 @@ membership distinctions, plus audits of same-static-type subtype shortcuts,
 ignored subchecks and constructor refutability. It must propagate through
 `Copy_out` and `Lvalue_write` to actual receiver reuse. It must not broaden
 source `packetValue`/`objectValue` or repair the value with a `PACKET` wrapper.
-The concrete continuation and printing probes are still active.
+The checked continuation and printing results are recorded below; a faithful
+representation and its contextual contract remain open.
 
 ## N1 target and printing checkpoint
 
@@ -417,8 +424,7 @@ Focused checks, all actual exit 0: warning-failing builds of `check-nano-packet`
 `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
 passed with actual exit 0, no skips (session 8909,
 `.artifacts/nano-n1-target-print-gate.log`). Final evidence edits receive
-text/whitespace checks. Publication CI must match this checkpoint's exact SHA
-in [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
+text/whitespace checks.
 Commit `9309e268fa30125b06ea86b5cde19eeff072a3e0` is published and its exact-head
 [CI 36277488013](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36277488013)
 succeeded. Its implementation publication obligation is closed. No Nano
@@ -485,5 +491,5 @@ Author checks: relative link targets in all four checkpoint files exist.
 Full `nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
 passed with actual exit 0, no skips (session 18516,
 `.artifacts/nano-plan-gate.log`). Final evidence edits receive text/whitespace
-checks afterward. No new implementation or theorem is claimed; publication CI
-must be checked against the plan commit's exact SHA.
+checks afterward. No new implementation or theorem is claimed by this historical
+plan checkpoint; later implementation validation is recorded above.
