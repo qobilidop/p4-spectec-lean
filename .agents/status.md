@@ -32,7 +32,12 @@ Nano proof implementation and broader full-P4 M3 remain paused during this work.
   provenance, compaction, retained obligations and this pass's checks.
 - First performance increment: single ownership of unit/oracle builds and 44
   timed gate stages. Independent cross-review passed; full local gate session
-  21389 exited 0 with no skips. Census/proof optimization remains in progress.
+  21389 exited 0 with no skips. Published as `2743c3b`; exact-head CI
+  36283667100 passed. The graph-based census optimization passed independent
+  Sol review and preserves byte-identical reports; matching native runs improved
+  from 83–84s to 14–15s. Combined local gate 63747 passed, actual exit 0, no skips,
+  including the independently reviewed tactic optimization being committed next.
+  The paired changes will be pushed together after recording the final checkpoint.
 
 The [Nano plan and evidence](notes/nano-certification.md) owns N0/N1 details.
 N0 is complete; N1 is incomplete. Current coverage: 350 declarations,

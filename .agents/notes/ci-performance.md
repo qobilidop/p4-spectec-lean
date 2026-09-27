@@ -49,7 +49,7 @@ bug from that run. Avoid changing executable inputs during measured validation.
 4. Profile mutation replay after the first checkpoint; preserve baseline proof,
    intended diagnostic boundaries, isolated scratch inputs and failure handling.
 
-## First checkpoint (validated locally)
+## First checkpoint (`2743c3b`, local and remote pass)
 
 Removed the test library's recursive globs, using Lake's canonical root default.
 Actual module query contains the root and all 25 unit-test imports; oracle roots
@@ -80,3 +80,54 @@ replay legs and unchanged 888/95/793 completion accounting pass together. Proof
 profiling ran concurrently for part of this validation, so it is not a controlled
 wall-clock comparison. Final review/checkpoint prose receives text/whitespace
 checks; CI is asynchronous for the resulting publication.
+
+
+Its exact-head CI 36283667100 succeeded. All 44 stages passed; warm library,
+unit-test and executable builds reported zero seconds, with no duplicate Main
+builds. The remote mutation stage took 185s and census 140s. The gate ran from
+00:50:22 to 00:56:33 UTC on 2026-09-27; these are observed runner timings, not
+controlled hardware comparisons.
+
+## Census reachability optimization (under integration)
+
+Native sampling of the existing binary found `Funcs.monotonicityConsumers` in
+2396 of 2541 active-thread samples in the middle three-second window. It repeatedly
+walked every definition's AST while expanding reachability, then repeated that
+closure for candidate consumers. The replacement constructs forward/reverse
+adjacency once per invocation and walks each reachable graph once. Source-order
+filtering and callback gating are unchanged; repeated definition names union
+their outgoing edges and retain repeated output entries.
+
+On Apple M3 Max, 16 logical CPUs, 64 GiB RAM, arm64 Darwin and Lean 4.34.1,
+alternating native executions (after, before, before, after) took
+14.951s, 84.466s, 83.104s and 14.179s. Every run checked the same committed
+1689-definition report successfully. The old binary was retained before source
+edits; SHA-256 `f4636d50f63487a44a905ead779eeb12ed2bbd3a0ab4d2c2a88bda577ea3754c`.
+Raw runs and binary identities are ignored under
+`.artifacts/ci-performance/census-before-after.json`. Proof profiling overlapped
+part of this work; the alternating comparison controls machine/input but is not
+an isolated laboratory benchmark. Native sampling itself is not a timing sample.
+
+Focused builds passed (sessions 97004 and 32667), as did byte-identical Nano
+generation `--check` (3079). A bounded independent list-saturation reference checks
+all 512 directed three-node graphs; additional fixtures check missing vertices,
+duplicate edges/definitions, callback gating, source order and SCC exclusion.
+
+Independent read-only Sol review (`enforce_library_layers`) found no correctness
+or ordering defect. The initial review suggested a duplicate-definition fixture;
+it was added and passed, and the reviewer confirmed that resolution. Reviewed
+four-path diff against `2743c3b` SHA-256
+`d8e6cb68c1cdc676bc2d80b6debe5c6bd3c8d75721064ee2796404c27513a2ed`.
+The subsequent tactic-test root import is outside that snapshot. Reviewer did
+not execute builds; the checks above are integrator evidence.
+
+## Integration validation
+
+The combined census/tactic working tree passed the full local gate, session
+63747, actual exit 0, no skips. All 44 stages passed; generated outputs and
+committed census/completion inventories are unchanged. The census stage took
+13s and mutation replay 24s (previous local stage measurements 83s and 88s).
+This run rebuilt certificates, unit tests and downstream examples, so its total
+is not a warm-gate comparison. Log: `.artifacts/ci-census-tactic-gate.log`.
+The two independently reviewed source changes will be committed separately and
+published together at the fully validated combined revision.

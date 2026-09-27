@@ -74,19 +74,20 @@ def monotonicityConsumers (env : Env) (id : String) : List String := Id.run do
   let defs := env.defs.filterMap fun d => match d.it with
     | .FuncDecD i .. | .TableDecD i .. | .RelD i .. => some (i.it, d)
     | _ => none
-  let reachable (start : String) : List String := Id.run do
-    let mut seen := [start]
-    for _ in [:defs.length] do
-      let before := seen.length
-      for (name, d) in defs do
-        if seen.contains name then
-          for dep in callsOfDef d do
-            if !seen.contains dep then seen := seen ++ [dep]
-      if seen.length == before then break
-    return seen
-  let deps := reachable id
+  -- Inspect each body once. Reverse reachability identifies the current SCC
+  -- without computing a fresh transitive closure for every candidate consumer.
+  let mut edges : Std.HashMap String (List String) := {}
+  let mut reverseEdges : Std.HashMap String (List String) := {}
+  for (name, d) in defs do
+    let calls := callsOfDef d
+    edges := edges.insert name (calls ++ edges.getD name [])
+    for dep in calls do
+      reverseEdges := reverseEdges.insert dep (name :: reverseEdges.getD dep [])
+  let deps := Graph.reachable edges id
+  let returns := Graph.reachable reverseEdges id
+  -- Filtering the original definitions preserves their emitted order.
   let available := defs.filter fun (name, _) =>
-    deps.contains name && !(reachable name).contains id
+    deps.contains name && !returns.contains name
   let hasCallback := available.any fun (name, _) =>
     match env.funcs.get? name with
     | some info => info.params.any fun p => match p with | .DefP .. => true | _ => false

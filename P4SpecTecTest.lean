@@ -3,6 +3,7 @@ import P4SpecTecTest.BackendSim.NanoSwitch.Target
 import P4SpecTecTest.Codegen.Certificates.StateForward
 import P4SpecTecTest.Codegen.Coverage
 import P4SpecTecTest.Codegen.CoverageChecks
+import P4SpecTecTest.Codegen.Monotonicity
 import P4SpecTecTest.Codegen.PrintHints
 import P4SpecTecTest.Codegen.QuoteChecks
 import P4SpecTecTest.Codegen.State

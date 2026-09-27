@@ -60,6 +60,22 @@ def sccs (nodes : List String) (deps : String → List String) : List (List Stri
             out := (comp.mergeSort fun a b => position.getD a 0 ≤ position.getD b 0) :: out
   pure out.reverse
 
+/-- Vertices reachable from `start`, including `start` itself. Missing adjacency
+entries are leaves; a work list visits each vertex once, even through cycles. -/
+def reachable (edges : Std.HashMap String (List String)) (start : String) :
+    Std.HashSet String := Id.run do
+  let mut seen : Std.HashSet String := {}
+  let mut pending := [start]
+  while !pending.isEmpty do
+    match pending with
+    | [] => pure ()
+    | name :: rest =>
+      pending := rest
+      if seen.contains name then continue
+      seen := seen.insert name
+      pending := edges.getD name [] ++ pending
+  return seen
+
 /-- Whether a component is recursive: more than one node, or a self edge. -/
 def isRecursive (comp : List String) (deps : String → List String) : Bool :=
   match comp with
