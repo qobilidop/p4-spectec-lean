@@ -21,9 +21,9 @@ scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
 first authorized settling this scope and then explicitly approved autonomous
 implementation of the Nano plan, then explicitly requested completion through N2.
-N3–N6 remain planned; broader full-P4 M3 remains paused. Use Luna for bounded
-inventories, Sol for bounded implementation/tests,
-and Astra for difficult semantics/proofs and independent review, with explicit
+N3–N6 remain planned; broader full-P4 M3 remains paused. Use the model tiers in
+AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
+strongest for difficult semantics/proofs and independent review), with explicit
 ownership and one integrator. Confidence high in the milestone choice;
 N1 settled reverse-proof and runtime-representation feasibility. Broader core
 coverage and concrete target composition still determine the remaining schedule.

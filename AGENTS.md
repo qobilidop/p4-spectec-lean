@@ -37,6 +37,7 @@ Documentation is split by purpose and audience:
 | `.agents/notes/` | topic-local investigations, plans and review evidence; active, paused or durable |
 | `.agents/notes/archive.md` | retired experimental history, artifacts and recovery instructions |
 | `.agents/skills/tend-repo/` | on-demand consistency, working-state compaction and learning workflow |
+| `.claude/skills` | symlink so Claude Code finds the skills in `.agents/skills/` |
 | `.agents/notes/full-p4/overview.md` | full-P4 census findings and remaining obligations |
 | `.agents/notes/state-integration/overview.md` | bounded state support versus paused production integration |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
@@ -111,12 +112,18 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 
 ## Conventions
 
-- **Repository policy lives in `AGENTS.md` alone.** Repo-local skills under
-  `.agents/skills/` describe optional workflows and refer here for policy.
-  Never create
-  `CLAUDE.md` or `CLAUDE.local.md`; Claude-specific notes, if one is ever
-  needed, belong in `.claude/rules/` (none exists; everything so far
-  applies to any agent).
+- **Repository policy lives in `AGENTS.md` alone, written for any agent.**
+  Claude Code and Codex are the agents in use; both read this file.
+  Repo-local skills live once, under `.agents/skills/` (read by Codex), and
+  refer here for policy; `.claude/skills` is a symlink to that directory.
+  Never create `CLAUDE.md` or `CLAUDE.local.md` (the gate rejects them): one
+  silently shadows this file for Claude Code. When another agent comes into
+  use, connect it to this file and `.agents/skills/` by configuration or
+  symlink, never a copy of the instructions. A genuinely agent-specific
+  note belongs in that agent's rules directory (`.claude/rules/`; none
+  exists). State rules as model capability tiers;
+  name vendor models only as current examples. Keep this file under
+  32 KiB, Codex's default project-doc limit; beyond it the tail is dropped.
 - **Correct by construction first** (`docs/design.md` section 2.1). Where
   upstream has a name, file split, constructor order or function
   structure, mirror it exactly. Every module that mirrors an upstream
@@ -228,7 +235,12 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   documentation; split unrelated work instead of hiding it behind a
   vague subject. A PR explains the whole proposal; each commit explains
   its own change. Inspect the staged diff and final message before
-  committing. Agent commits end with the required coauthor trailer.
+  committing. Agent commits end with a coauthor trailer naming the agent
+  and exact model: the harness's default trailer verbatim when it supplies
+  one, never abbreviated. Illustrative forms: `Co-Authored-By: Codex GPT-6
+  Astra <codex@openai.com>`, `Co-Authored-By: Claude Opus 5.5 (1M context)
+  <noreply@anthropic.com>`; other agents use their vendor's GitHub-linked
+  address when one exists.
 - **Direct commits to `main` are the default for this personal project.**
   Use a feature branch only when isolation is useful. Independent review and
   the local validation below gate pushes. Merge finished branches locally after
@@ -283,7 +295,8 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   This follows [GitHub's review guidance](https://docs.github.com/en/pull-requests/concepts/helping-others-review-your-changes)
   and [Google's change-description guidance](https://google.github.io/eng-practices/review/developer/cl-descriptions.html).
 - **AI disclosure in PRs:** one short sentence naming the authoring agent
-  and exact model, e.g. "Authored by OpenAI Codex (GPT-6 Astra)." Verify
+  and exact model, e.g. "Authored by OpenAI Codex (GPT-6 Astra)." or
+  "Authored by Claude Code (Claude Opus 5.5)." Verify
   attribution from active-session evidence, not a configured default;
   never guess. Keep review claims accurate elsewhere in the description:
   AI-agent review is not human review. Coauthor trailers remain required.
@@ -301,8 +314,13 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   before pushing directly to main or
   merging a feature branch. Direct commits do not waive review.
 - **Use subagents and worktrees when useful, choosing models by task.**
-  Prefer Astra for difficult semantics/proof analysis, Sol for bounded
-  implementation and tests, and Luna for straightforward inventories.
+  Use the strongest available reasoning model for difficult semantics,
+  proof analysis and independent review; a mid-tier model for bounded
+  implementation and tests; and a fast small model for straightforward
+  inventories (currently GPT-6 Astra/Sol/Luna under Codex, Opus/Sonnet/Haiku
+  under Claude Code). An agent without subagents cannot satisfy the
+  independent-review gate itself: record the self-review as not
+  independent and leave the push or merge to another agent or the user.
   Give each writer explicit file ownership or an isolated worktree.
   During authorized autonomous work, make reasonable reversible choices
   and record consequential decisions for later user review instead of

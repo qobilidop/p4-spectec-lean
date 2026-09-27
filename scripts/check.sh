@@ -101,7 +101,8 @@ for path in \
   P4SpecTecTest/Oracle/P4/Corpus/probe.ml P4SpecTecTest/Oracle/P4/Corpus/contract.py P4SpecTecTest/Oracle/P4/Corpus/campaign.py \
   P4SpecTecTest/Oracle/P4/Corpus/test_contract.py P4SpecTecTest/Oracle/P4/Corpus/shard.py P4SpecTecTest/Oracle/P4/Corpus/test_shard.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
-  P4SpecTecTest/Oracle/Nano/Replay/replay.py .github/workflows/ci.yml
+  P4SpecTecTest/Oracle/Nano/Replay/replay.py .github/workflows/ci.yml \
+  .claude/skills/tend-repo/SKILL.md
 do
   if [ ! -e "$root/$path" ]; then say "missing: $path"; fail=1; fi
 done

@@ -81,3 +81,23 @@ for this prose-only maintenance. Routine publication CI is asynchronous.
 At the next session, inspect the latest main CI before starting unrelated work.
 This maintenance publication may still have its routine CI pending at handoff;
 never reuse the earlier implementation pass as a verdict for that new run.
+
+## Agent parity (2026-09-27)
+
+User request: make agent infrastructure work equally for Claude Code and
+Codex, keeping other agents in mind without configuring them until adopted.
+Headless probes of both CLIs in this checkout showed both load `AGENTS.md`,
+but only Codex discovered `.agents/skills/tend-repo`. After adding the
+`.claude/skills` symlink, a fresh Claude Code probe listed the skill.
+AGENTS now states vendor-neutral model tiers, the exact coauthor-trailer
+rule, a Claude disclosure example, the review gate for agents without
+subagents, and the 32 KiB Codex project-doc limit; Decisions follows.
+`scripts/check.sh` requires the symlinked skill to resolve.
+
+Independent read-only Claude subagent review of the first staged draft found
+a review-gate weakening, an unenforced ban list, an abbreviated trailer
+example and layout nits; all were fixed. A Gemini CLI config and wider
+per-agent ban list were then dropped at the user's direction. A second
+independent read-only review of the final diff confirmed all five resolved
+and found no blockers. Its optional suggestion, a `-L` check that the link
+is not a copy, is deferred. Gate evidence is recorded in status.
