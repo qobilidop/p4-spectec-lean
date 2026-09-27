@@ -28,9 +28,12 @@ import P4SpecTecTest.Refine.NanoTargetRepresentation
 import P4SpecTecTest.Refine.Print
 import P4SpecTecTest.Refine.Realize
 import P4SpecTecTest.Refine.RecursivePrefix
+import P4SpecTecTest.Refine.Representation
+import P4SpecTecTest.Refine.Representation.Equality
 import P4SpecTecTest.Refine.StateCalc
 import P4SpecTecTest.Refine.StateInterp
 import P4SpecTecTest.Refine.StateRules
+import P4SpecTecTest.Refine.ValueOrder
 
 import P4SpecTecTest.Runtime.Type
 

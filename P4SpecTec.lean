@@ -70,11 +70,14 @@ import P4SpecTec.Refine.Init
 import P4SpecTec.Refine.Print
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Realize
+import P4SpecTec.Refine.Representation
+import P4SpecTec.Refine.Representation.Equality
 import P4SpecTec.Refine.StateCalc
 import P4SpecTec.Refine.StateInterp
 import P4SpecTec.Refine.StateNormalize
 import P4SpecTec.Refine.StateRules
 import P4SpecTec.Refine.Value
+import P4SpecTec.Refine.ValueOrder
 
 import P4SpecTec.Runtime.Dynamic.Var
 import P4SpecTec.Runtime.DynamicAl.Func
