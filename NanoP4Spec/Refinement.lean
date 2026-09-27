@@ -252,6 +252,8 @@ import NanoP4Spec.Refinement.flatten_program
 import NanoP4Spec.Refinement.SourceEntry.flatten_program
 import NanoP4Spec.Refinement.CallAdmission.flatten_program
 import NanoP4Spec.Refinement.Producer.flatten_program
+import NanoP4Spec.Refinement.id
+import NanoP4Spec.Refinement.SourceEntry.id
 import NanoP4Spec.Refinement.CallAdmission.id
 import NanoP4Spec.Refinement.Producer.id
 import NanoP4Spec.Refinement.default
@@ -400,7 +402,11 @@ import NanoP4Spec.Refinement.CallAdmission.ControlLocalDecls_ok
 import NanoP4Spec.Refinement.Producer.ControlLocalDecls_ok
 import NanoP4Spec.Refinement.CallAdmission.ControlLocalDeclList_ok
 import NanoP4Spec.Refinement.Producer.ControlLocalDeclList_ok
+import NanoP4Spec.Refinement.Parameter_ok
+import NanoP4Spec.Refinement.SourceEntry.Parameter_ok
 import NanoP4Spec.Refinement.CallAdmission.Parameter_ok
+import NanoP4Spec.Refinement.Parameters_ok
+import NanoP4Spec.Refinement.SourceEntry.Parameters_ok
 import NanoP4Spec.Refinement.CallAdmission.Parameters_ok
 import NanoP4Spec.Refinement.CallAdmission.distinct_params
 import NanoP4Spec.Refinement.Producer.distinct_params
@@ -469,6 +475,8 @@ import NanoP4Spec.Refinement.Producer.exit_e
 import NanoP4Spec.Refinement.update_fieldValue
 import NanoP4Spec.Refinement.SourceEntry.update_fieldValue
 import NanoP4Spec.Refinement.Producer.update_fieldValue
+import NanoP4Spec.Refinement.find_parserState
+import NanoP4Spec.Refinement.SourceEntry.find_parserState
 import NanoP4Spec.Refinement.CallAdmission.find_parserState
 import NanoP4Spec.Refinement.Producer.find_parserState
 import NanoP4Spec.Refinement.Producer.Callee_eval
@@ -489,8 +497,8 @@ recursion group under `Refinement/`, and the definitions without a theorem, with
 the reason. Generated.
 -/
 
--- forward refinement theorems: 39 of 153 definitions
--- reverse realization theorems: 39 of 153 definitions
+-- forward refinement theorems: 43 of 153 definitions
+-- reverse realization theorems: 43 of 153 definitions
 -- builtin dispatch contracts: 26 of 26 definitions
 
 -- no refinement theorem: ite
@@ -519,10 +527,6 @@ the reason. Generated.
 
 -- no refinement theorem: flatten_tableActionList
     --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: id
-    --   calls a builtin
-    --   calls print_, which has no theorem
 
 -- no refinement theorem: un_op
     --   numeric function coercion composition is not implemented
@@ -569,7 +573,6 @@ the reason. Generated.
 
 -- no refinement theorem: Expr_ok
     --   combined subtype and paired iteration proof is not implemented
-    --   calls id, which has no theorem
     --   calls find_var_t, which has no theorem
 
 -- no refinement theorem: Argument_ok
@@ -582,7 +585,6 @@ the reason. Generated.
 
 -- no refinement theorem: Lvalue_ok
     --   iterated premise
-    --   calls id, which has no theorem
     --   calls find_var_t, which has no theorem
 
 -- no refinement theorem: expression_is_lvalue
@@ -596,7 +598,6 @@ the reason. Generated.
 
 -- no refinement theorem: VarDecl_ok
     --   calls Expr_ok, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: expression_of_lvalue
     --   recursive function subtype or registration-freshness proof is not implemented
@@ -605,7 +606,6 @@ the reason. Generated.
     --   calls VarDecl_ok, which has no theorem
     --   calls Lvalue_ok, which has no theorem
     --   calls Expr_ok, which has no theorem
-    --   calls id, which has no theorem
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
     --   calls expression_of_lvalue, which has no theorem
@@ -615,7 +615,6 @@ the reason. Generated.
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
     --   group member Statement_ok: calls Lvalue_ok, which has no theorem
     --   group member Statement_ok: calls Expr_ok, which has no theorem
-    --   group member Statement_ok: calls id, which has no theorem
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
     --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
@@ -625,7 +624,6 @@ the reason. Generated.
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
     --   group member Statement_ok: calls Lvalue_ok, which has no theorem
     --   group member Statement_ok: calls Expr_ok, which has no theorem
-    --   group member Statement_ok: calls id, which has no theorem
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
     --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
@@ -642,7 +640,6 @@ the reason. Generated.
 
 -- no refinement theorem: ParserTransition_ok
     --   membership
-    --   calls id, which has no theorem
     --   calls Expr_ok, which has no theorem
 
 -- no refinement theorem: ParserState_ok
@@ -653,19 +650,14 @@ the reason. Generated.
 -- no refinement theorem: ParserStateList_ok
     --   iterated premise
     --   calls flatten_parserStateList, which has no theorem
-    --   calls id, which has no theorem
     --   calls ParserState_ok, which has no theorem
 
 -- no refinement theorem: TableKey_ok
-    --   calls a builtin
     --   calls Expr_ok, which has no theorem
-    --   calls id, which has no theorem
     --   calls find_var_t, which has no theorem
-    --   calls print_, which has no theorem
 
 -- no refinement theorem: TableAction_ok
     --   iterated premise
-    --   calls id, which has no theorem
     --   calls flatten_argumentList, which has no theorem
     --   calls Argument_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
@@ -681,7 +673,6 @@ the reason. Generated.
 -- no refinement theorem: TableEntry_ok
     --   slicing
     --   calls Expr_ok, which has no theorem
-    --   calls id, which has no theorem
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
 
@@ -695,7 +686,6 @@ the reason. Generated.
 
 -- no refinement theorem: TableDecl_ok
     --   calls TableProperties_ok, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: ControlLocalDecl_ok
     --   calls VarDecl_ok, which has no theorem
@@ -707,35 +697,24 @@ the reason. Generated.
 -- no refinement theorem: ControlLocalDeclList_ok
     --   calls ControlLocalDecls_ok, which has no theorem
 
--- no refinement theorem: Parameter_ok
-    --   calls id, which has no theorem
-
--- no refinement theorem: Parameters_ok
-    --   calls Parameter_ok, which has no theorem
-
 -- no refinement theorem: distinct_params
     --   iterated premise
 
 -- no refinement theorem: ParameterList_ok
     --   calls flatten_parameterList, which has no theorem
-    --   calls Parameters_ok, which has no theorem
     --   calls distinct_params, which has no theorem
 
 -- no refinement theorem: ExternMethod_ok
     --   calls ParameterList_ok, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: ActionDecl_ok
     --   iterated premise
     --   calls flatten_parameterList, which has no theorem
-    --   calls Parameters_ok, which has no theorem
     --   calls Block_ok, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: ExternDecl_ok
     --   combined subtype and paired iteration proof is not implemented
     --   calls ExternMethod_ok, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: is_object_typeIR
     --   unused downcast binding composition is not implemented
@@ -745,7 +724,6 @@ the reason. Generated.
 
 -- no refinement theorem: TypeDecl_ok
     --   combined subtype and paired iteration proof is not implemented
-    --   calls id, which has no theorem
     --   calls ParameterList_ok, which has no theorem
     --   calls no_object_params, which has no theorem
     --   calls flatten_parameterList, which has no theorem
@@ -754,7 +732,6 @@ the reason. Generated.
     --   iterated premise
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
-    --   calls id, which has no theorem
     --   calls ActionDecl_ok, which has no theorem
     --   calls flatten_nameList, which has no theorem
     --   calls repeat_, which has no theorem
@@ -786,7 +763,6 @@ the reason. Generated.
 -- no refinement theorem: Decl_load
     --   indexing
     --   calls flatten_argumentList, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: Decls_load
     --   calls Decl_load, which has no theorem
@@ -815,7 +791,6 @@ the reason. Generated.
 
 -- no refinement theorem: Expr_eval
     --   iterated premise
-    --   calls id, which has no theorem
     --   calls find_var_e, which has no theorem
     --   calls un_op, which has no theorem
     --   calls bin_op, which has no theorem
@@ -825,7 +800,6 @@ the reason. Generated.
     --   calls Expr_eval, which has no theorem
 
 -- no refinement theorem: Lvalue_write
-    --   calls id, which has no theorem
     --   calls update_var_e, which has no theorem
     --   calls Lvalue_eval, which has no theorem
 
@@ -838,7 +812,6 @@ the reason. Generated.
 
 -- no refinement theorem: VarDecl_eval
     --   calls Expr_eval, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: ParserLocalDecl_eval
     --   calls VarDecl_eval, which has no theorem
@@ -849,11 +822,7 @@ the reason. Generated.
 -- no refinement theorem: ParserLocalDeclList_eval
     --   calls ParserLocalDecls_eval, which has no theorem
 
--- no refinement theorem: find_parserState
-    --   calls id, which has no theorem
-
 -- no refinement theorem: Callee_eval
-    --   calls id, which has no theorem
     --   calls Lvalue_eval, which has no theorem
 
 -- no refinement theorem: Copy_out_arg
@@ -924,13 +893,11 @@ the reason. Generated.
 
 -- no refinement theorem: ParserTransition_eval
     --   group member ParserSelect_eval: iterated premise
-    --   calls id, which has no theorem
     --   group member ParserSelect_eval: calls Expr_eval, which has no theorem
     --   group member ParserSelect_eval: calls match_case_value, which has no theorem
 
 -- no refinement theorem: ParserSelect_eval
     --   iterated premise
-    --   group member ParserTransition_eval: calls id, which has no theorem
     --   calls Expr_eval, which has no theorem
     --   calls match_case_value, which has no theorem
 
@@ -945,7 +912,6 @@ the reason. Generated.
 
 -- no refinement theorem: ControlLocalDecl_eval
     --   calls VarDecl_eval, which has no theorem
-    --   calls id, which has no theorem
 
 -- no refinement theorem: ControlLocalDecls_eval
     --   calls ControlLocalDecl_eval, which has no theorem

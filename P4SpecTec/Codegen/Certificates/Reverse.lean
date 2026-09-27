@@ -35,8 +35,13 @@ def motive (lib : String) (m : Member) : Format := Id.run do
     Format.line ++ Format.text s!"Rel v{i} p{i} →")
   return Format.group (Format.nest 2 (
     Format.text "∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)," ++
-    Format.line ++ "cfg.guard = false → ctx.local.fenv = [] →" ++
-    Format.line ++ Format.text s!"HoldsSpec {lib}.spec ctx.global →" ++ raw ++ relations ++
+    Format.line ++ "cfg.guard = false → " ++
+    (if m.printHints then Format.text "cfg.printHints = [] → " else Format.nil) ++
+    "ctx.local.fenv = [] →" ++
+    Format.line ++ Format.text s!"HoldsSpec {lib}.spec ctx.global →" ++
+    Format.join (m.typeFreshness.map fun name =>
+      Format.line ++ Format.text s!"ctx.global.tdtbl.get? {name.quote} = none →") ++
+    raw ++ relations ++
     Format.line ++ "∃ r, EventuallyRuns " ++ reference m ++ " r ∧" ++
     Format.line ++ "ResRel " ++ Validate.resultRel m ++ " r q"))
 
@@ -48,9 +53,8 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
   let ps := paramNames m.params.length
   let vs := (List.range m.params.length).map fun i => s!"v{i}"
   let hs := (List.range m.params.length).map fun i => s!"h{i}"
-  let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
-  let config := ["cfg", "ctx", "internal", "hguard", functionEnv, "hspec"]
-  let args := config ++ vs ++ hs
+  let fresh := (List.range m.typeFreshness.length).map fun i => s!"ht{i}"
+  let args := Validate.configArguments m ++ fresh ++ vs ++ hs
   let motiveDef := Format.group (Format.nest 4 (
     Format.text ("private def " ++ motiveName) ++ paramBinders m.params ++
     Format.line ++ "(q : Except Fail " ++ m.ret.arg ++ ") : Prop :=")) ++
@@ -59,7 +63,8 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
     Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++ " := by"))
   let introArgs := ["rec", "ih"] ++ ps ++ ["q", "hq"] ++ args
   let finalArgs := ps ++ ["q", "hq"] ++ args
-  let step := if m.requiresColumns then "realize_step (columns) hq)" else "realize_step hq)"
+  let step := if m.requiresColumns then "realize_step (columns) hq)"
+    else if m.isRel then "realize_step (relations) hq)" else "realize_step hq)"
   let proof := Format.nest 2 (Format.line ++ "intro q hq" ++ Format.line ++
     Format.text ("exact " ++ m.defName ++ ".partial_correctness") ++
     Format.nest 2 (Format.line ++ Format.text ("(motive := " ++ motiveName ++ ") (by") ++
@@ -96,9 +101,8 @@ def mutualTheorems (lib : String) (members : List Member) : List Format := Id.ru
     let ps := paramNames m.params.length
     let vs := (List.range m.params.length).map fun i => s!"v{i}"
     let hs := (List.range m.params.length).map fun i => s!"h{i}"
-    let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
-    let args := ps ++ ["q", "hq", "cfg", "ctx", "internal", "hguard", functionEnv, "hspec"] ++
-      vs ++ hs
+    let fresh := (List.range m.typeFreshness.length).map fun i => s!"ht{i}"
+    let args := ps ++ ["q", "hq"] ++ Validate.configArguments m ++ fresh ++ vs ++ hs
     result := result ++ [
       Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
         Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++

@@ -31,8 +31,10 @@ the user-facing account of current capabilities and their guarantees.
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its
 [refinement index](../NanoP4Spec/Refinement.lean) currently record forward and reverse
-AL theorems for the same 39 of 153 bodied definitions, including the recursive
-`Type_eq`/`ParameterType_eq` group and the `Type_ok` and `Var_init` closures. Both reports come from
+AL theorems for the same 43 of 153 bodied definitions, including the recursive
+`Type_eq`/`ParameterType_eq` group, the `Type_ok` and `Var_init` closures, and the
+recursive output-producing `Parameters_ok` relation. A theorem whose callable closure
+reaches `print_` states the pinned empty print-hint table as a hypothesis. Both reports come from
 the same generation plan. They record exclusions, including blockers inherited
 from dependencies or other members of a recursive group.
 These counts are not a percentage of P4 language behavior certified.

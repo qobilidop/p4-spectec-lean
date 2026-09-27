@@ -315,10 +315,10 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       dependencies := []
       claims := []
       exclusions := [{ definition := d.it.id.it, reason := "extern" }] }
-  -- Only checked unconditional builtin contracts enter the caller frontier.
+  -- Only checked builtin contracts enter the caller frontier. The print contract's
+  -- empty-hint condition is stated by every caller whose closure reaches it.
   let certifiedBuiltins := spec.filterMap fun d =>
-    if (BuiltinCertificates.checkSupport env d).isOk &&
-        !BuiltinCertificates.requiresPrintHints d then some d.it.id.it else none
+    if (BuiltinCertificates.checkSupport env d).isOk then some d.it.id.it else none
   let mut groupModule : Std.HashMap String String := {}   -- covered id → its module
   let mut coveredIds : List String := []
   let mut reverseCoveredIds : List String := []
@@ -585,9 +585,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
               expectedType := render (← BuiltinCertificates.theoremType env d direction) }]
           exclusions := []
           groupModule := groupModule.insert m.id name
-          if !BuiltinCertificates.requiresPrintHints d then
-            coveredIds := coveredIds ++ [m.id]
-            reverseCoveredIds := reverseCoveredIds ++ [m.id]
+          coveredIds := coveredIds ++ [m.id]
+          reverseCoveredIds := reverseCoveredIds ++ [m.id]
       let sourceDomain := if kind == "builtin" then do
           pure (← SourceBuiltinCertificates.declarations env d,
             ← SourceBuiltinCertificates.theoremType env d,

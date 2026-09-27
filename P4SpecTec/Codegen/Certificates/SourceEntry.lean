@@ -41,7 +41,9 @@ def contracts (env : Env) (d : Lang.Al.def)
 private def assumptions (env : Env) (m : Props.Member)
     (fields : List (typ × Contract)) : String :=
   "(cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)\n" ++
-  "    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])\n" ++
+  "    (hguard : cfg.guard = false) " ++
+  (if m.printHints then "(hhints : cfg.printHints = []) " else "") ++
+  "(hfenv : ctx.local.fenv = [])\n" ++
   s!"    (hspec : HoldsSpec {env.lib}.spec ctx.global)" ++
   String.join (m.typeFreshness.zipIdx.map fun (name, index) =>
     s!"\n    (ht{index} : ctx.global.tdtbl.get? {name.quote} = none)") ++
@@ -80,7 +82,8 @@ def declarations (env : Env) (d : Lang.Al.def) (m : Props.Member)
   let indices := List.range fields.length
   let witnesses := indices.map (fun index => s!"p{index}") ++
     indices.flatMap (fun index => [s!"admitted{index}", s!"h{index}"]) ++ ["?_", "?_"]
-  let arguments := ["cfg", "ctx", "internal", "hguard", "hfenv", "hspec"] ++
+  let arguments := ["cfg", "ctx", "internal", "hguard"] ++
+    (if m.printHints then ["hhints"] else []) ++ ["hfenv", "hspec"] ++
     (List.range m.typeFreshness.length).map (fun index => s!"ht{index}") ++
     indices.map (fun index => s!"v{index}") ++ indices.map (fun index => s!"p{index}") ++
     indices.map (fun index => s!"h{index}")

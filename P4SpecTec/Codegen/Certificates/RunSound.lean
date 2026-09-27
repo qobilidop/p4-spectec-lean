@@ -59,6 +59,9 @@ structure Member where
   requiresTypeRules : Bool := false
   /-- Function list premises produce checked one- or two-column intermediate bindings. -/
   requiresColumns : Bool := false
+  /-- The actual callable closure reaches `print_`, whose contract needs the pinned empty
+  print-hint table; certificates then state `cfg.printHints = []` explicitly. -/
+  printHints : Bool := false
   deriving Inhabited
 
 /-- The binders `(p0 : T0) (p1 : T1)` of the parameters, each after a
@@ -283,6 +286,29 @@ def registrationNames (env : Env) (d : Lang.Al.def) : List String := Id.run do
         | _ => pure ()
   return names.eraseDups
 
+/-- Whether the actual callable closure of `d`, including `d`, reaches the `print_` builtin.
+Its reference dispatch reads the configured print hints, so every caller states them. -/
+def reachesPrintHints (env : Env) (d : Lang.Al.def) : Bool := Id.run do
+  let mut pending := [d.it.id.it]
+  let mut seen : List String := []
+  for _ in List.range (env.defs.length + 2) do
+    if pending.isEmpty then break
+    let current := pending
+    pending := []
+    for name in current do
+      if seen.contains name then continue
+      seen := name :: seen
+      if name == "print_" then return true
+      -- a type may share a callable's name (Nano's `id`); only callables have calls
+      let definition := if name == d.it.id.it then some d
+        else env.defs.find? fun callee => callee.it.id.it == name && match callee.it with
+          | .FuncDecD .. | .BuiltinDecD .. | .RelD .. | .TableDecD .. => true
+          | _ => false
+      if let some callee := definition then
+        if let .BuiltinDecD .. := callee.it then continue
+        pending := pending ++ callsOfDef callee
+  return false
+
 /-- A member from a definition. -/
 def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
   let env := ctx.env
@@ -317,7 +343,8 @@ def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
       else none
     pure (Member.mk i.it true (env.q (Names.relName i.it ++ ".run")) (Names.relName i.it ++ ".run")
       inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason [] false none
-      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d))
+      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
+      (reachesPrintHints env d))
   | .FuncDecD i tparams params ret _ _ _ | .BuiltinDecD i tparams params ret _ =>
     let valueEquality := (expsOfDef d).any fun e => match e.it with
       | .MemE .. => true
@@ -326,12 +353,13 @@ def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
       Format.nil Format.nil [] (some "not a relation") (tparams.map (·.it)) valueEquality
       (iterationRelationOf env d) (registrationNames env d)
-      (requiresTypeRulesOf d) (requiresColumnsOf d))
+      (requiresTypeRulesOf d) (requiresColumnsOf d) (reachesPrintHints env d))
   | .TableDecD i params ret _ _ =>
     pure (Member.mk i.it false (env.q (Names.funcName i.it)) (Names.funcName i.it)
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
       Format.nil Format.nil [] (some "not a relation") [] false (iterationRelationOf env d)
-      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d))
+      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
+      (reachesPrintHints env d))
   | _ => throw s!"not a function or relation: {d.it.id.it}"
 
 end P4SpecTec.Codegen.Props

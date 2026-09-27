@@ -185,6 +185,21 @@ def introOne (s : SimpSet) (conjunctions : Bool := false) : TacticM Unit := do
         obtain ⟨$(mkIdent left):ident, $(mkIdent right):ident⟩ := $(mkIdent name):ident))
   pure ()
 
+/-- A generated list test (`xs.beq []`) after the reference side already reached its outcome:
+split the generated list, so each branch's related reference value is exposed. -/
+def splitGeneratedList (genHead : Expr) : TacticM Bool := withMainContext do
+  unless genHead.isAppOfArity ``ite 5 do return false
+  let condition ← instantiateMVars (genHead.getArg! 1)
+  unless (valueEqs condition).isEmpty do return false
+  let ((), vars) ← condition.collectFVars.run {}
+  for f in vars.fvarIds do
+    if (← whnfR (← f.getType)).isAppOfArity ``List 1 then
+      let name := (← f.getDecl).userName
+      traceStep m!"cases {name} (generated list test)"
+      evalTactic (← `(tactic| cases $(mkIdent name):ident))
+      return true
+  return false
+
 /-- Compose one reverse step, retaining the local fuel offset in the reference family. -/
 partial def step (s : SimpSet) (remaining : Nat := 300)
     (relations : Bool := false) (iterRel : Option Expr := none) : TacticM Unit := do
@@ -261,6 +276,12 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
             step s (remaining - 1) relations iterRel
           setGoals []
           return
+      -- Differing terminal outcomes can only occur in a branch whose decided tests conflict.
+      let terminal (e : Expr) := e.isAppOfArity ``Pure.pure 4 || e.isAppOfArity ``throw 5
+      if terminal head && terminal genHead && head.getAppFn != genHead.getAppFn then
+        if ← closeBoolConflict then return
+        if ← closeConstructorClash then return
+        if ← closeValueEqConflict s then return
       if generated.isAppOfArity ``letFun 4 then
         evalTactic (← `(tactic| apply Realizes.have))
       else if source.isAppOfArity ``Eval.orElse 3 then
@@ -307,6 +328,8 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
         evalTactic (← `(tactic| by_cases $(mkIdent h):ident : $stx:term))
       else if ← splitData genHead then pure ()
       else if ← splitData head then pure ()
+      -- `(← ·)` would be lifted out of `&&`; the split must run only after the outcome
+      else if ← (if terminal head then splitGeneratedList genHead else pure false) then pure ()
       else
         let cond? := if head.isAppOfArity ``ite 5 then some (head.getArg! 1)
           else if genHead.isAppOfArity ``ite 5 then some (genHead.getArg! 1) else none
@@ -320,7 +343,8 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
           evalTactic (← `(tactic| by_cases $(mkIdent h):ident : $stx:term))
         else if ← tryTac (evalTactic (← `(tactic| split))) then pure ()
         else
-          throwError "realize_al: stuck at {head} against {genHead}"
+          throwError "realize_al: stuck at {head} against {genHead}\
+            {Lean.MessageData.ofGoal (← getMainGoal)}"
       let goals ← getGoals
       for g in goals do
         setGoals [g]
@@ -352,6 +376,11 @@ def body (relations : Bool := false) (iterRel : Option Expr := none)
 elab "realize_step " run:ident : tactic => withoutRecover do
   evalTactic (← `(tactic| apply Realizes.outcome (hq := $run) ))
   body
+
+/-- Construct a recursive relation's body witness with the relation-premise preset. -/
+elab "realize_step" "(" "relations" ")" run:ident : tactic => withoutRecover do
+  evalTactic (← `(tactic| apply Realizes.outcome (hq := $run)))
+  body true
 
 /-- Construct recursive witnesses through source premises with encoded output columns. -/
 elab "realize_step" "(" "columns" ")" run:ident : tactic => withoutRecover do

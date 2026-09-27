@@ -19,6 +19,52 @@ open Lean Elab Tactic Meta
 open P4SpecTec.Refine
 open P4SpecTec.Interp_al
 
+/-- Close the main goal when two hypotheses decide the same Boolean both ways,
+`h₁ : e = true` and `h₂ : e = false`. A branch split on an interpreter condition can
+repeat an earlier split's condition under a fresh name; the branch is then impossible. -/
+def closeBoolConflict : TacticM Bool := do
+  let goal ← getMainGoal
+  goal.withContext do
+    let mut trues : Array (Expr × FVarId) := #[]
+    let mut falses : Array (Expr × FVarId) := #[]
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail then continue
+      let ty := (← instantiateMVars decl.type).consumeMData
+      if let some (_, lhs, rhs) := ty.eq? then
+        if rhs.consumeMData.isConstOf ``Bool.true then trues := trues.push (lhs, decl.fvarId)
+        else if rhs.consumeMData.isConstOf ``Bool.false then
+          falses := falses.push (lhs, decl.fvarId)
+    for (e, t) in trues do
+      for (e', f) in falses do
+        if e == e' then
+          -- `true = false`, refuted by evaluation
+          let conflict ← mkEqTrans (← mkEqSymm (.fvar t)) (.fvar f)
+          let refuted ← mkDecideProof (mkNot (← mkEq (mkConst ``Bool.true) (mkConst ``Bool.false)))
+          goal.assign (← mkAbsurd (← goal.getType) conflict refuted)
+          replaceMainGoal []
+          return true
+    return false
+
+/-- Close the main goal when an equation between constructor applications is refuted by
+unification (`ListV (_ :: _) = ListV []`); the attempt is kept only if it closes the goal. -/
+def closeConstructorClash : TacticM Bool := do
+  let goal ← getMainGoal
+  let candidates ← goal.withContext do
+    let mut out : Array FVarId := #[]
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail then continue
+      let ty := (← instantiateMVars decl.type).consumeMData
+      if let some (_, lhs, rhs) := ty.eq? then
+        if (← isConstructorApp lhs) && (← isConstructorApp rhs) then out := out.push decl.fvarId
+    pure out
+  for f in candidates do
+    let closed ← tryTac do
+      let subgoals ← (← getMainGoal).cases f
+      unless subgoals.isEmpty do throwError "not refuted"
+      replaceMainGoal []
+    if closed then return true
+  return false
+
 /-! ## The callee step -/
 
 /-- The name of the definition a generated call refers to, and whether it
@@ -219,6 +265,87 @@ partial def valueEqs (e : Expr) : List Expr :=
     | .proj _ _ e => valueEqs e
     | _ => [])
 
+/-- Close the main goal when a decided test `Value.eq a b = false` holds of canonically
+equal values (shown by the value prover), or `Value.eq a b = true` of canonically
+different ones (refuted by normalization); such a branch is impossible. Proof terms are
+built directly, so the closer is independent of the surrounding elaboration scope. -/
+def closeValueEqConflict (s : SimpSet) : TacticM Bool := do
+  let goal ← getMainGoal
+  let tests ← goal.withContext do
+    let mut out : Array (FVarId × Expr × Expr × Bool) := #[]
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail then continue
+      let ty := (← instantiateMVars decl.type).consumeMData
+      if let some (_, lhs, rhs) := ty.eq? then
+        let lhs := lhs.consumeMData
+        if lhs.isAppOfArity ``P4SpecTec.Runtime.Value.eq 2 then
+          let (a, b) := (lhs.getArg! 0, lhs.getArg! 1)
+          if rhs.consumeMData.isConstOf ``Bool.false then out := out.push (decl.fvarId, a, b, false)
+          else if rhs.consumeMData.isConstOf ``Bool.true then
+            out := out.push (decl.fvarId, a, b, true)
+    pure out
+  for (f, a, b, outcome) in tests do
+    let saved ← saveState
+    let closed ← try
+      let hole ← goal.withContext do
+        let same ← mkEq (← mkAppM ``P4SpecTec.Refine.canon #[a])
+          (← mkAppM ``P4SpecTec.Refine.canon #[b])
+        let hole ← mkFreshExprSyntheticOpaqueMVar (if outcome then mkNot same else same)
+        -- `true = false` from the decided test and its refutation, then absurdity
+        let other ← mkAppM (if outcome then ``eq_false_of_canon else ``eq_true_of_canon) #[hole]
+        let conflict ← if outcome then mkEqTrans (← mkEqSymm (.fvar f)) other
+          else mkEqTrans (← mkEqSymm other) (.fvar f)
+        let refuted ← mkDecideProof (mkNot (← mkEq (mkConst ``Bool.true) (mkConst ``Bool.false)))
+        goal.assign (← mkAbsurd (← goal.getType) conflict refuted)
+        pure hole.mvarId!
+      setGoals [hole]
+      if outcome then
+        evalTactic (← `(tactic| intro $(mkIdent `rf_ne):ident))
+        let _ ← normalizeAt s `rf_ne
+        -- a remaining constructor clash (`ListV (_ :: _) = ListV []`) closes by unification
+        unless (← getGoals).isEmpty do
+          evalTactic (← `(tactic| cases $(mkIdent `rf_ne):ident))
+      else
+        proveValue s
+      unless (← getGoals).isEmpty do throwError "not decided"
+      pure true
+    catch e =>
+      traceStep m!"value test conflict not shown: {e.toMessageData}"
+      saved.restore
+      pure false
+    if closed then return true
+  return false
+
+/-- A generated list test (`xs.beq []`) the interpreter already decided on the related
+value: split the generated list, so that each branch's related value decides the same
+test, and continue with `k`; impossible branches close by their conflicting tests. -/
+def splitGeneratedList (s : SimpSet) (n : Expr) (k : TacticM Unit) : TacticM Bool := do
+  let goal ← getMainGoal
+  let list ← goal.withContext do
+    let gh := chainHead n
+    unless gh.isAppOfArity ``ite 5 do return none
+    let ((), vars) ← ((← instantiateMVars (gh.getArg! 1)).collectFVars).run {}
+    let mut found : Option FVarId := none
+    for f in vars.fvarIds do
+      if found.isNone && (← whnfR (← f.getType)).isAppOfArity ``List 1 then
+        found := some f
+    pure found
+  let some f := list | return false
+  let name ← goal.withContext do pure (← f.getDecl).userName
+  traceStep m!"cases {name} (generated list test)"
+  evalTactic (← `(tactic| cases $(mkIdent name):ident))
+  for g in ← getGoals do
+    setGoals [g]
+    normalizeFacts s
+    expose
+    let _ ← normalize s
+    if (← getGoals).isEmpty then continue
+    if ← closeBoolConflict then continue
+    if ← closeConstructorClash then continue
+    if ← closeValueEqConflict s then continue
+    k
+  return true
+
 /-- When the interpreter's condition `c` and the generated condition test
 values for equality, rewrite the interpreter's tests into the generated
 ones (`eq_of_canon`, arguments related by the value prover). Returns the
@@ -240,38 +367,24 @@ def alignEqualities (s : SimpSet) (c : Expr) : TacticM Expr := do
       let decided ← tryTac (evalTactic (← `(tactic| have $(mkIdent h):ident :
         P4SpecTec.Runtime.Value.eq $a1 $a2 = true :=
           eq_true_of_canon (by simp only [Rel] at *; rfl))))
-      let decided ← if decided then pure true else do
-        let ok ← tryTac (evalTactic (← `(tactic| have $(mkIdent h):ident :
-          P4SpecTec.Runtime.Value.eq $a1 $a2 = true := eq_true_of_canon ?_)))
-        if ok then
-          let goals ← getGoals
-          let (holes, mains) ← holesAndMain
-          setGoals holes
-          if ← tryTac (proveValue s) then
-            setGoals mains
-            pure true
-          else
-            setGoals goals
-            pure false
-        else pure false
-      let decided ← if decided then pure true else do
-        let ok ← tryTac (evalTactic (← `(tactic| have $(mkIdent h):ident :
-          P4SpecTec.Runtime.Value.eq $a1 $a2 = false := eq_false_of_canon ?_)))
-        if ok then
-          let goals ← getGoals
-          let (holes, mains) ← holesAndMain
-          setGoals holes
-          let closed ← tryTac (do
-            let _ ← tryTac (evalTactic (← `(tactic| intro rf_ne)))
-            let _ ← normalizeAt s `rf_ne
-            unless (← getGoals).isEmpty do throwError "not decided")
-          if closed then
-            setGoals mains
-            pure true
-          else
-            setGoals goals
-            pure false
-        else pure false
+      -- each attempt is atomic: an undecided attempt leaves no `have` or hole behind
+      let decided ← if decided then pure true else tryTac do
+        evalTactic (← `(tactic| have $(mkIdent h):ident :
+          P4SpecTec.Runtime.Value.eq $a1 $a2 = true := eq_true_of_canon ?_))
+        let (holes, mains) ← holesAndMain
+        setGoals holes
+        proveValue s
+        unless (← getGoals).isEmpty do throwError "not decided"
+        setGoals mains
+      let decided ← if decided then pure true else tryTac do
+        evalTactic (← `(tactic| have $(mkIdent h):ident :
+          P4SpecTec.Runtime.Value.eq $a1 $a2 = false := eq_false_of_canon ?_))
+        let (holes, mains) ← holesAndMain
+        setGoals holes
+        let _ ← tryTac (evalTactic (← `(tactic| intro $(mkIdent `rf_ne):ident)))
+        let _ ← normalizeAt s `rf_ne
+        unless (← getGoals).isEmpty do throwError "not decided"
+        setGoals mains
       if decided then
         traceStep m!"decided {a}"
         let _ ← tryTac (evalTactic (← `(tactic| simp only [$(mkIdent h):ident])))
@@ -543,6 +656,10 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
   -- a pure result
   if head.isAppOfArity ``Pure.pure 4 && (chainTail m).isNone then
     unless n.isAppOfArity ``Pure.pure 4 do
+      if ← closeBoolConflict then return
+      if ← closeConstructorClash then return
+      if ← closeValueEqConflict s then return
+      if ← splitGeneratedList s n (step s iteration subtypes) then return
       throwError "refine_al: the interpreter succeeds but the generated code does not:\
         {Lean.MessageData.ofGoal goal}"
     noteAction "pure"
@@ -571,6 +688,10 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
         setGoals [g]
         step s iteration subtypes
       return
+    if ← closeBoolConflict then return
+    if ← closeConstructorClash then return
+    if ← closeValueEqConflict s then return
+    if ← splitGeneratedList s n (step s iteration subtypes) then return
     throwError "refine_al: the interpreter fails but the generated code does not fail alike:\
       {Lean.MessageData.ofGoal goal}"
   -- an invocation

@@ -279,6 +279,8 @@ import NanoP4Spec.Refinement.flatten_program
 import NanoP4Spec.Refinement.SourceEntry.flatten_program
 import NanoP4Spec.Refinement.CallAdmission.flatten_program
 import NanoP4Spec.Refinement.Producer.flatten_program
+import NanoP4Spec.Refinement.id
+import NanoP4Spec.Refinement.SourceEntry.id
 import NanoP4Spec.Refinement.CallAdmission.id
 import NanoP4Spec.Refinement.Producer.id
 import NanoP4Spec.Refinement.default
@@ -427,7 +429,11 @@ import NanoP4Spec.Refinement.CallAdmission.ControlLocalDecls_ok
 import NanoP4Spec.Refinement.Producer.ControlLocalDecls_ok
 import NanoP4Spec.Refinement.CallAdmission.ControlLocalDeclList_ok
 import NanoP4Spec.Refinement.Producer.ControlLocalDeclList_ok
+import NanoP4Spec.Refinement.Parameter_ok
+import NanoP4Spec.Refinement.SourceEntry.Parameter_ok
 import NanoP4Spec.Refinement.CallAdmission.Parameter_ok
+import NanoP4Spec.Refinement.Parameters_ok
+import NanoP4Spec.Refinement.SourceEntry.Parameters_ok
 import NanoP4Spec.Refinement.CallAdmission.Parameters_ok
 import NanoP4Spec.Refinement.CallAdmission.distinct_params
 import NanoP4Spec.Refinement.Producer.distinct_params
@@ -496,6 +502,8 @@ import NanoP4Spec.Refinement.Producer.exit_e
 import NanoP4Spec.Refinement.update_fieldValue
 import NanoP4Spec.Refinement.SourceEntry.update_fieldValue
 import NanoP4Spec.Refinement.Producer.update_fieldValue
+import NanoP4Spec.Refinement.find_parserState
+import NanoP4Spec.Refinement.SourceEntry.find_parserState
 import NanoP4Spec.Refinement.CallAdmission.find_parserState
 import NanoP4Spec.Refinement.Producer.find_parserState
 import NanoP4Spec.Refinement.Producer.Callee_eval

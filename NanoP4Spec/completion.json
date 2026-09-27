@@ -2806,7 +2806,7 @@
     "corpus": "test/nano-certification/corpus.json",
     "corpusSha256": "425a17c9c5490702a6754f64bf339b6858b6be6218cc1bbf23cd5ba6ab7ced1b",
     "coverage": "NanoP4Spec/coverage.json",
-    "coverageSha256": "6bfb503dc92f6c4fe04ec915ee8140c6826d1341cf654ea6ebd02db1e32bc6ff",
+    "coverageSha256": "f168727c558b984a184eaf5aa760147f52acac3a4a6ff41e51db8f65a9ba408f",
     "export": "exports/nano-p4.al.json",
     "exportSha256": "3a7b47d75ca97a1404026cde45df09bde0372a06e32c8d80b00ca3ef48b99dd6",
     "pins": {
@@ -5054,7 +5054,7 @@
       "subject": "FuncDecD:id"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$id».refines",
       "dependencies": [
         "domain:id",
         "profile:initialization",
@@ -5067,7 +5067,7 @@
       "subject": "FuncDecD:id"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$id».realizes",
       "dependencies": [
         "domain:id",
         "profile:initialization",
@@ -8578,7 +8578,7 @@
       "subject": "RelD:Parameter_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parameter_ok.refines",
       "dependencies": [
         "domain:Parameter_ok",
         "profile:initialization",
@@ -8593,7 +8593,7 @@
       "subject": "RelD:Parameter_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parameter_ok.realizes",
       "dependencies": [
         "domain:Parameter_ok",
         "profile:initialization",
@@ -8630,7 +8630,7 @@
       "subject": "RelD:Parameters_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parameters_ok.refines",
       "dependencies": [
         "domain:Parameters_ok",
         "profile:initialization",
@@ -8643,7 +8643,7 @@
       "subject": "RelD:Parameters_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parameters_ok.realizes",
       "dependencies": [
         "domain:Parameters_ok",
         "profile:initialization",
@@ -12064,7 +12064,7 @@
       "subject": "FuncDecD:find_parserState"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_parserState».refines",
       "dependencies": [
         "domain:find_parserState",
         "profile:initialization",
@@ -12077,7 +12077,7 @@
       "subject": "FuncDecD:find_parserState"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_parserState».realizes",
       "dependencies": [
         "domain:find_parserState",
         "profile:initialization",

@@ -475,6 +475,16 @@ def conclusion (m : Member) : Format :=
   Format.group (Format.nest 2 (Format.text "Refines " ++ resultRel m ++ Format.line ++
     invocation m ++ Format.line ++ generated m))
 
+/-- The pinned empty print-hint table, stated only when the callable closure reaches `print_`. -/
+def printHintsBinder (m : Member) : Format :=
+  if m.printHints then Format.text "(hhints : cfg.printHints = []) " else Format.nil
+
+/-- The configuration hypothesis names passed on to a member statement, in binder order. -/
+def configArguments (m : Member) : List String :=
+  let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
+  ["cfg", "ctx", "internal", "hguard"] ++ (if m.printHints then ["hhints"] else []) ++
+    [functionEnv, "hspec"]
+
 /-- The binders after the fuel: the configuration, the context, the
 values, the generated values and their relations. -/
 def binders (lib : String) (m : Member) : Format :=
@@ -488,7 +498,7 @@ def binders (lib : String) (m : Member) : Format :=
   let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
   typeBinders m ++ (if m.tparams.isEmpty then Format.nil else Format.line) ++
     Format.text "(cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)" ++
-    Format.line ++ Format.text "(hguard : cfg.guard = false) " ++
+    Format.line ++ Format.text "(hguard : cfg.guard = false) " ++ printHintsBinder m ++
     Format.text s!"({functionEnv} : ctx.local.fenv = [])" ++
     Format.line ++ Format.text s!"(hspec : HoldsSpec {lib}.spec ctx.global)" ++
     typeArgumentBinders m ++ values ++ paramBinders m.params ++ rels
@@ -516,7 +526,9 @@ def groupStatement (lib : String) (m : Member) : Format :=
     Format.line ++ Format.text s!"Rel v{i} {ps.getD i ""} →")
   Format.paren (Format.group (Format.nest 2 (
     Format.text "∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)," ++
-    Format.line ++ Format.text s!"cfg.guard = false → ctx.local.fenv = [] →" ++
+    Format.line ++ Format.text s!"cfg.guard = false → " ++
+    (if m.printHints then Format.text "cfg.printHints = [] → " else Format.nil) ++
+    Format.text "ctx.local.fenv = [] →" ++
     Format.line ++ Format.text s!"HoldsSpec {lib}.spec ctx.global →" ++
     Format.join (m.typeFreshness.map fun name =>
       Format.line ++ Format.text s!"ctx.global.tdtbl.get? {name.quote} = none →") ++
@@ -530,8 +542,7 @@ def corollaryArgs (m : Member) : Format :=
   let vs := (List.range n).map fun i => s!"v{i}"
   let hs := (List.range n).map fun i => s!"h{i}"
   let fresh := (List.range m.typeFreshness.length).map fun i => s!"ht{i}"
-  let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
-  Format.joinSep ((["cfg", "ctx", "internal", "hguard", functionEnv, "hspec"] ++ fresh ++ vs ++
+  Format.joinSep ((configArguments m ++ fresh ++ vs ++
     paramNames n ++ hs).map Format.text) Format.line
 
 /-- The audit of a theorem's axioms. -/

@@ -193,13 +193,14 @@ def specHyp : TacticM (Option (Name × Name)) := do
           return some (decl.userName, spec)
     pure none
 
-/-- The quoted definition constant of the spec definition named `id`, if
-the library has one: `Lib.id.al` for a relation or type, `Lib.«$id».al`
-for a function. -/
-def quotedOf (lib : Name) (id : String) : MetaM (Option Name) := do
+/-- The quoted definition constants of the spec definitions named `id` that
+the library has: `Lib.id.al` for a relation or type, `Lib.«$id».al` for a
+function. A type and a function may share a name (Nano's `id`), and a lookup
+string does not say which table it reads, so every candidate is returned. -/
+def quotedOf (lib : Name) (id : String) : MetaM (List Name) := do
   let env ← getEnv
   let candidates := [Name.str (Name.str lib id) "al", Name.str (Name.str lib ("$" ++ id)) "al"]
-  pure (candidates.find? env.contains)
+  pure (candidates.filter env.contains)
 
 /-- The string literals looked up in the global tables inside `e`. -/
 partial def tableLookups (e : Expr) : List String :=
@@ -248,9 +249,9 @@ def tableFacts (lib : Name) : TacticM Bool := timed "tableFacts" do
   let lookups ← goal.withContext do
     pure (tableLookups (← instantiateMVars (← goal.getType))).eraseDups
   let mut added := false
-  for id in lookups do
-    let some q ← quotedOf lib id | continue
-    let h := Name.mkSimple s!"rf_tbl_{id}"
+  let quoted ← lookups.flatMapM fun id => (quotedOf lib id : TacticM _)
+  for q in quoted do
+    let h := Name.mkSimple s!"rf_tbl_{q.getPrefix.getString!}"
     if ← (← getMainGoal).withContext do pure ((← getLCtx).findFromUserName? h).isSome then
       continue
     let g ← getMainGoal
