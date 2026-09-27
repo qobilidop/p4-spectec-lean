@@ -21,6 +21,7 @@ import P4SpecTecTest.Lang.Hints.Alter
 import P4SpecTecTest.Prelude.StateEval
 
 import P4SpecTecTest.Refine.GeneratedState
+import P4SpecTecTest.Refine.NanoRelation
 import P4SpecTecTest.Refine.NanoReverseExists
 import P4SpecTecTest.Refine.NanoTargetRepresentation
 import P4SpecTecTest.Refine.Print
