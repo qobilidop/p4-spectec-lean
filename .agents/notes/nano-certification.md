@@ -110,6 +110,16 @@ it), and the first commit subject is exactly 50 characters (published as is).
 The first full gate also caught generated lines over 100 columns and two unit
 tests predating the widened fragment; both were fixed.
 
+Iteration tooling (`scripts/replay-cert.py`, limit reporting in normalization) was
+reviewed read-only by a Claude Opus subagent (not human review) at `fbb5123`, without
+building. Resolved before publication: the goal is formatted only when tracing, with a
+fresh heartbeat budget, and the original exception is always rethrown (also in
+`normalizeAt`); `--only` matches full names and keeps theorems that kept chunks use
+(builtin `dispatch` helpers), with a test over every committed refinement module;
+options are anchored to the preamble; the docstring states that replay is faithful
+only for tactic-only changes (imported certificates keep earlier proofs, and object
+files may predate regenerated statements or rebuilt non-tactic modules).
+
 ## Verification and independent review
 
 The corrected full local `nix develop -c scripts/check.sh` returned actual exit 0

@@ -193,6 +193,20 @@ def runNormalization (s : SimpSet) (facts : List Name) (hyp? : Option Name := no
       return
   evalTactic (← simpSyntax (s.lemmas ++ facts.toArray) s.procs hyp?)
 
+/-- Run `act`; when it exhausts a resource limit (a runtime exception, which `catch`
+does not see) and tracing is on, report the goal it was working on, then rethrow the
+original exception. Formatting gets a fresh heartbeat budget and cannot replace it. -/
+def reportingLimits (what : String) (act : TacticM Unit) : TacticM Unit := do
+  let goal ← getMainGoal
+  tryCatchRuntimeEx act fun e => do
+    if e.isRuntime && refine_al.trace.get (← getOptions) then
+      tryCatchRuntimeEx (withCurrHeartbeats do
+        -- eager: the lazy goal message loses its context once the exception unwinds
+        let shown ← Meta.ppGoal goal
+        traceStep m!"{what} exhausted a resource limit on\n{shown}")
+        fun _ => pure ()
+    throw e
+
 /-- Run `simp only` with the set and the facts at the goal; `false` when
 nothing changed. -/
 def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
@@ -200,7 +214,7 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
   let facts ← factHyps
   let saved ← saveState
   try
-    runNormalization s facts
+    reportingLimits "normalize" (runNormalization s facts)
     pure true
   catch e =>
     saved.restore
@@ -215,7 +229,7 @@ def normalizeAt (s : SimpSet) (h : Name) : TacticM Bool := timed "normalizeAt" d
   let facts := (← factHyps).filter (· != h)
   let saved ← saveState
   try
-    runNormalization s facts h
+    reportingLimits s!"normalize at {h}" (runNormalization s facts h)
     pure true
   catch e =>
     saved.restore

@@ -101,6 +101,7 @@ for path in \
   P4SpecTecTest/Oracle/P4/Corpus/probe.ml P4SpecTecTest/Oracle/P4/Corpus/contract.py P4SpecTecTest/Oracle/P4/Corpus/campaign.py \
   P4SpecTecTest/Oracle/P4/Corpus/test_contract.py P4SpecTecTest/Oracle/P4/Corpus/shard.py P4SpecTecTest/Oracle/P4/Corpus/test_shard.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
+  scripts/replay-cert.py scripts/test_replay_cert.py \
   P4SpecTecTest/Oracle/Nano/Replay/replay.py .github/workflows/ci.yml \
   .claude/skills/tend-repo/SKILL.md
 do
@@ -134,6 +135,7 @@ runStage "Tracked file sizes" python3 "$root/scripts/check-file-sizes.py" || fai
 runStage "File-size checker contracts" python3 "$root/scripts/test_file_sizes.py" || fail=1
 runStage "Upstream constructor mirrors" python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
 runStage "Spec snapshot contracts" python3 "$root/scripts/test_spec_snapshot.py" || { say "snapshot tests failed"; fail=1; }
+runStage "Certificate replay contracts" python3 "$root/scripts/test_replay_cert.py" || { say "replay tests failed"; fail=1; }
 runStage "Field-update mutation runner contracts" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/test_runner.py" \
   || { say "field-update mutation runner contract tests failed"; fail=1; }
 runStage "P4C restore shell syntax" bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }

@@ -22,21 +22,30 @@ it before unrelated work.
 
 Neither N3 entry point is closed. Next, in order:
 
-1. `Decl_load` (Program_load): reapply literal list indexing (`IdxE` on a list
-   with a `NumE` index, kept in the ignored `.artifacts/n3/indexing-wip.diff`;
-   re-derive it if absent) and profile `Decl_load.refines`, which exceeded
-   4M heartbeats. That emits exactly `Decl_load`, `Decls_load`, `Program_load`.
+1. `Decl_load` (Program_load): continue from local branch `n3-decl-load`
+   (`6996172`, WIP, unvalidated; its commit message lists what it holds and
+   lacks). It admits literal list indexing and gets `Decl_load.refines` as far as
+   the `find_callableDef_l` call at 8M heartbeats (~5 minutes per replay): the
+   reference `PARSER` option is exposed as `none` while the generated `p0.PARSER`
+   is not split to match. Address proof performance (seven paths over very large
+   reference values) before the remaining gaps.
 2. Expr_eval: iterated premises in `Expr_eval` and `bin_eq`, then numeric
    function coercions in `un_op`/`bin_op`.
 3. Reassess the N3 estimate (now 24–40 hours working range) at the close of
    both entry points.
 
-Iteration cost dominates: any tactic change rebuilds every certificate (about
-5 minutes), and a single certificate retry costs 30 seconds to 5 minutes.
-Improving this is the next process step; see the plan's reassessment.
+Tactic iteration: use `scripts/replay-cert.py` (added after `3b74f2e`) instead of
+`lake build` for single certificates; it re-elaborates scratch copies against
+existing generated object files (for example 28 seconds for
+`Parameters_ok --only realizes`) and `refine_al.trace` now names the goal on which
+a resource limit ran out. It is faithful only for tactic-only changes and is not
+evidence; the full gate remains the verdict. Its commit passed the full local gate
+(actual exit 0, 45 stages, no skips) after independent review fixes; CI for `3b74f2e`
+was still running at that point and the tooling push follows it.
 
 ## Maintenance and repository state
 
-One worktree on `main`. The older `docs/repository-review` branch and local
+One worktree on `main`; local branch `n3-decl-load` holds the WIP above. The
+older `docs/repository-review` branch and local
 archive backup are preserved. The expected upstream exporter patch remains
 applied. No source pins changed.

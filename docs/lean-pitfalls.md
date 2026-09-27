@@ -46,3 +46,8 @@ From the N3 relation-premise certificates (2026-09-27):
 - In `do` notation, `(← act)` is lifted out of the enclosing expression and runs before it, so `c && (← act)` does not short-circuit: `act` runs even when `c` is false (even `false && (← act)`). A side-effecting tactic step there silently runs at the wrong time. Write `← (if c then act else pure false)`.
 - A tactic quotation `intro rf_ne` introduces a hygienic, inaccessible name; a later lookup of `` `rf_ne `` by user name finds nothing. Use `intro $(mkIdent `rf_ne):ident`.
 - A goal-list snapshot taken *after* a `have … := … ?_` includes the new hole; restoring it on failure leaks the hole into later steps. Make each attempt atomic with a saved state instead.
+
+From N3 iteration tooling (2026-09-27):
+
+- A heartbeat or recursion limit is a *runtime* exception: `try … catch` in `TacticM` does not catch it (use `tryCatchRuntimeEx`), so a custom tactic's own error context is lost and Lean reports the timeout at the declaration. `refine_al.trace` now prints the goal whose normalization exhausted the limit.
+- To iterate on a tactic, do not `lake build` a certificate: that rebuilds its whole dependency chain against the new tactics. `scripts/replay-cert.py` re-elaborates a scratch copy against the existing generated `.olean` files, so the cost is the proof itself (tens of seconds for most certificates; minutes for a heavy one at a large heartbeat budget). Use `--heartbeats` to fail fast and `--only` to keep selected theorems. It is faithful only for tactic-only changes; see its docstring.
