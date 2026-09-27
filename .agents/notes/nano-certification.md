@@ -319,6 +319,54 @@ Generic emission must cover those dependencies, including recursive and legally
 instantiated containers, rather than treating the TypeIR probe as N2 completion.
 No full gate or publication is claimed on this evolving continuation.
 
+#### Explicit nominal decoders and continued composition (2026-09-27)
+
+Closed nominal fields now call the decoder named by their source declaration,
+passing explicit child dictionaries. Primitive and list/option fields recursively
+bind those dictionaries too. Local type parameters shadow global declarations in
+carrier, encoder and decoder generation. This prevents an unrelated reducible
+alias or a hostile ambient primitive instance from changing field decoding.
+Source aliases retain their own decoder frame; old incidental fuel thresholds
+are not a compatibility promise. Nonrecursive tuple and function dictionary
+selection remains outside this change; the actual Nano field census has neither.
+
+Astra `/root/organize_oracles` independently reviewed the Types emitter and
+fixtures at base `9863160`. The original finding was global `K` capturing a
+bound `K`; scoped lookup/member filtering and a global-Boolean-versus-bound-text
+fixture resolve it. Final review found no issue. Reviewed Types SHA-256:
+`db7bb27e1b7972ee174d764b5658d2ca8e781bc54d1b87f459dcb302580b3fdf`;
+fixture `698fea34b66dccff4f8dbfaecb7cd085393b021e33bb621d928dd518fb922acc`.
+Focused warning-as-error checks passed (61214, 42 jobs). Generator build 87191
+and regeneration 97363 passed. All regenerated carrier modules built in aggregate
+33016, but that aggregate failed on fifteen newly enabled function certificates;
+this is not a passing full gate. Later structural frontier restrictions exclude
+fourteen unsupported combinations, while the remaining `add_callableDef_l`
+proof passes after generic optional-record-field normalization. Independent
+Astra review of the caller snapshot `6575ac2578523581dcb0fb2310473961fde971d63e87939a8f87b175a716b37b`
+found no issue; regeneration/aggregate validation remains pending.
+
+The actual Type_ok closure passes both directions in a composed emitted probe
+(132.378s, source SHA `7c3aa4505d77bb12b0161dd456af19031ceb7cc956eb942ab1f42defe131b6ce`).
+Five recursive source codecs using the new named decoders pass with 103 axiom
+audits and no Lean warnings (46674); source artifact SHA
+`afa8a56f41d6804532162fd72ac5468e5ee74f18bdf4da7ad7c3416ae912a9ec`.
+These remain staging evidence until generic production emission is checked.
+Actual Type_eq/ParameterType_eq reverse and forward probes pass separately
+(157.81s and 118.57s); a final combined source-derived production-renderer probe
+and review are pending. Full arbitrary related inputs and failure outcomes are
+retained. No determinism assumption or fixed source depth was introduced.
+
+Root independently reviewed source records, field contracts/domain transport,
+shared traversal observations and the exact output-free interpreter iteration
+lemma; no findings. Ignored exact hash/evidence records are
+`.artifacts/n2-record-review.json` and `.artifacts/n2-shared-proof-review.json`.
+Generic polymorphic pair/list-container/map-alias codec fixtures now pass for
+renamed source declarations and arbitrary legal parameter codecs (44 jobs,
+40663/73169). The codecs, shared field resolver and broader variant/record
+emission are still being integrated. Recursive SCC emission, at least 92 input
+source families, actual call preservation and Default/Var_init remain required.
+No new full gate or publication has occurred.
+
 #### N2 checkpoint review and validation
 
 - Generated `Refinement/Environment` now owns actual checked `Ctx.init`,

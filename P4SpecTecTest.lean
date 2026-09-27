@@ -12,6 +12,7 @@ import P4SpecTecTest.Codegen.RuntimeExtension
 import P4SpecTecTest.Codegen.State
 import P4SpecTecTest.Codegen.StateProps
 import P4SpecTecTest.Codegen.Subtypes
+import P4SpecTecTest.Codegen.Types
 import P4SpecTecTest.Codegen.Updates
 
 import P4SpecTecTest.Interface.Builtins

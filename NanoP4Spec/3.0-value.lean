@@ -32,7 +32,7 @@ instance : BEq NanoP4Spec.integerValue := ⟨valueEq⟩
 
 def integerValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integerValue
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.integerLiteral.ofValue fuel v
 
 instance : OfValue NanoP4Spec.integerValue := ⟨NanoP4Spec.integerValue.ofValue⟩
 
@@ -60,7 +60,8 @@ def boolValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.boolValue
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "B"))), (.Arg ())]) | none
-         pure (NanoP4Spec.boolValue._B (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.boolValue._B
+            (← @OfValue.ofValue Bool P4SpecTec.Prelude.instOfValueBool fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.boolValue := ⟨NanoP4Spec.boolValue.ofValue⟩
@@ -100,7 +101,7 @@ def matchKindValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchKi
                   [(.Atom (Prelude.Value.atom (.Keyword "MATCH_KIND"))),
                    (.Atom (Prelude.Value.atom (.Operator "."))),
                    (.Arg ())]) | none
-         pure (NanoP4Spec.matchKindValue.MATCH_KIND_dot (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.matchKindValue.MATCH_KIND_dot (← @NanoP4Spec.nameIR.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.matchKindValue := ⟨NanoP4Spec.matchKindValue.ofValue⟩
@@ -166,19 +167,24 @@ def baseValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseValue
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
-         pure (NanoP4Spec.baseValue.W (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1))) <|>
+         pure (NanoP4Spec.baseValue.W
+            (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
       ((do
           let some [a0, a1] :=
               Prelude.Value.caseArgs
                 c
                 (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
-          pure (NanoP4Spec.baseValue.S (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1))) <|>
+          pure (NanoP4Spec.baseValue.S
+             (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+             (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
        ((do
            let some [a0] :=
                Prelude.Value.caseArgs
                  c
                  (.Seq [(.Atom (Prelude.Value.atom (.Tag "B"))), (.Arg ())]) | none
-           pure (NanoP4Spec.baseValue._B (← OfValue.ofValue fuel a0))) <|>
+           pure (NanoP4Spec.baseValue._B
+              (← @OfValue.ofValue Bool P4SpecTec.Prelude.instOfValueBool fuel a0))) <|>
         (do
            let some [a0] :=
                Prelude.Value.caseArgs
@@ -187,7 +193,7 @@ def baseValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseValue
                     [(.Atom (Prelude.Value.atom (.Keyword "MATCH_KIND"))),
                      (.Atom (Prelude.Value.atom (.Operator "."))),
                      (.Arg ())]) | none
-           pure (NanoP4Spec.baseValue.MATCH_KIND_dot (← OfValue.ofValue fuel a0)))))
+           pure (NanoP4Spec.baseValue.MATCH_KIND_dot (← @NanoP4Spec.nameIR.ofValue fuel a0)))))
     | _ => none
 
 instance : OfValue NanoP4Spec.baseValue := ⟨NanoP4Spec.baseValue.ofValue⟩
@@ -342,7 +348,7 @@ def fieldValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.fieldValue
                (.Seq [(.Arg ()), (.Arg ()), (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.fieldValue.semi
             (← NanoP4Spec.value.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.nameIR.ofValue fuel a1)))
     | _ => none
 
 def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
@@ -354,19 +360,24 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
-         pure (NanoP4Spec.value.W (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1))) <|>
+         pure (NanoP4Spec.value.W
+            (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
       ((do
           let some [a0, a1] :=
               Prelude.Value.caseArgs
                 c
                 (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
-          pure (NanoP4Spec.value.S (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1))) <|>
+          pure (NanoP4Spec.value.S
+             (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+             (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
        ((do
            let some [a0] :=
                Prelude.Value.caseArgs
                  c
                  (.Seq [(.Atom (Prelude.Value.atom (.Tag "B"))), (.Arg ())]) | none
-           pure (NanoP4Spec.value._B (← OfValue.ofValue fuel a0))) <|>
+           pure (NanoP4Spec.value._B
+              (← @OfValue.ofValue Bool P4SpecTec.Prelude.instOfValueBool fuel a0))) <|>
         ((do
             let some [a0] :=
                 Prelude.Value.caseArgs
@@ -375,7 +386,7 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
                      [(.Atom (Prelude.Value.atom (.Keyword "MATCH_KIND"))),
                       (.Atom (Prelude.Value.atom (.Operator "."))),
                       (.Arg ())]) | none
-            pure (NanoP4Spec.value.MATCH_KIND_dot (← OfValue.ofValue fuel a0))) <|>
+            pure (NanoP4Spec.value.MATCH_KIND_dot (← @NanoP4Spec.nameIR.ofValue fuel a0))) <|>
          ((do
              let some [a0, a1] :=
                  Prelude.Value.caseArgs
@@ -388,7 +399,7 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
                           (.Arg ())
                           (Prelude.Value.atom .RBrace))]) | none
              pure (NanoP4Spec.value.STRUCT_lbrace_rbrace
-                (← OfValue.ofValue fuel a0)
+                (← @NanoP4Spec.typeId.ofValue fuel a0)
                 (← (match a1.it with
                    | .ListV vs => vs.mapM (fun x => NanoP4Spec.fieldValue.ofValue fuel x)
                    | _ => none)))) <|>
@@ -404,7 +415,7 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
                            (.Arg ())
                            (Prelude.Value.atom .RBrace))]) | none
               pure (NanoP4Spec.value.HEADER_lbrace_rbrace
-                 (← OfValue.ofValue fuel a0)
+                 (← @NanoP4Spec.typeId.ofValue fuel a0)
                  (← (match a1.it with
                     | .ListV vs => vs.mapM (fun x => NanoP4Spec.fieldValue.ofValue fuel x)
                     | _ => none)))) <|>
@@ -417,7 +428,7 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
                          (.Arg ()),
                          (.Arg ())]) | none
                pure (NanoP4Spec.value.PACKET
-                  (← OfValue.ofValue fuel a0)
+                  (← @NanoP4Spec.typeId.ofValue fuel a0)
                   (← OfValue.ofValue fuel a1))) <|>
             (do
                let some [a0, a1] :=
@@ -428,8 +439,8 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
                          (.Arg ()),
                          (.Arg ())]) | none
                pure (NanoP4Spec.value.TABLE
-                  (← OfValue.ofValue fuel a0)
-                  (← OfValue.ofValue fuel a1)))))))))
+                  (← @NanoP4Spec.nameIR.ofValue fuel a0)
+                  (← @NanoP4Spec.tableProperties.ofValue fuel a1)))))))))
     | .ExternV json => some (.runtimeExtern ⟨json⟩)
     | _ => none
 
@@ -550,8 +561,10 @@ def structValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.structValu
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.structValue.STRUCT_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.typeId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.fieldValue.ofValue fuel x)
+               | _ => none))))
     | _ => none
 
 instance : OfValue NanoP4Spec.structValue := ⟨NanoP4Spec.structValue.ofValue⟩
@@ -609,8 +622,10 @@ def headerValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.headerValu
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.headerValue.HEADER_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.typeId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.fieldValue.ofValue fuel x)
+               | _ => none))))
     | _ => none
 
 instance : OfValue NanoP4Spec.headerValue := ⟨NanoP4Spec.headerValue.ofValue⟩
@@ -679,8 +694,10 @@ def dataValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.dataValue
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.dataValue.STRUCT_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1))) <|>
+            (← @NanoP4Spec.typeId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.fieldValue.ofValue fuel x)
+               | _ => none)))) <|>
       (do
          let some [a0, a1] :=
              Prelude.Value.caseArgs
@@ -693,8 +710,10 @@ def dataValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.dataValue
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.dataValue.HEADER_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.typeId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.fieldValue.ofValue fuel x)
+               | _ => none))))
     | _ => none
 
 instance : OfValue NanoP4Spec.dataValue := ⟨NanoP4Spec.dataValue.ofValue⟩
@@ -754,7 +773,7 @@ def packetValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.packetValu
                (.Seq
                   [(.Atom (Prelude.Value.atom (.Keyword "PACKET"))), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.packetValue.PACKET
-            (← OfValue.ofValue fuel a0)
+            (← @NanoP4Spec.typeId.ofValue fuel a0)
             (← OfValue.ofValue fuel a1)))
     | _ => none
 
@@ -800,7 +819,9 @@ def tableValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableValue
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg ()), (.Arg ())]) | none
-         pure (NanoP4Spec.tableValue.TABLE (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
+         pure (NanoP4Spec.tableValue.TABLE
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← @NanoP4Spec.tableProperties.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableValue := ⟨NanoP4Spec.tableValue.ofValue⟩
@@ -855,7 +876,7 @@ def objectValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.objectValu
                (.Seq
                   [(.Atom (Prelude.Value.atom (.Keyword "PACKET"))), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.objectValue.PACKET
-            (← OfValue.ofValue fuel a0)
+            (← @NanoP4Spec.typeId.ofValue fuel a0)
             (← OfValue.ofValue fuel a1))) <|>
       (do
          let some [a0, a1] :=
@@ -863,8 +884,8 @@ def objectValue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.objectValu
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.objectValue.TABLE
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← @NanoP4Spec.tableProperties.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.objectValue := ⟨NanoP4Spec.objectValue.ofValue⟩

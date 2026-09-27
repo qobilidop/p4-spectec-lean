@@ -32,7 +32,13 @@ instance : BEq NanoP4Spec.typeDefEnv := ⟨valueEq⟩
 
 def typeDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDefEnv
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.map.ofValue
+    NanoP4Spec.typeId
+    NanoP4Spec.typeDefIR
+    (OfValue.mk (fun fuel v => @NanoP4Spec.typeId.ofValue fuel v))
+    (OfValue.mk (fun fuel v => @NanoP4Spec.typeDefIR.ofValue fuel v))
+    fuel
+    v
 
 instance : OfValue NanoP4Spec.typeDefEnv := ⟨NanoP4Spec.typeDefEnv.ofValue⟩
 
@@ -75,19 +81,28 @@ def callableTypeDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callab
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))), (.Arg ())]) | none
-         pure (NanoP4Spec.callableTypeDef.ACTION (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.callableTypeDef.ACTION
+            (← (match a0.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none)))) <|>
       ((do
           let some [a0] :=
               Prelude.Value.caseArgs
                 c
                 (.Seq [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))), (.Arg ())]) | none
-          pure (NanoP4Spec.callableTypeDef.PARSER (← OfValue.ofValue fuel a0))) <|>
+          pure (NanoP4Spec.callableTypeDef.PARSER
+             (← (match a0.it with
+                | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+                | _ => none)))) <|>
        (do
           let some [a0] :=
               Prelude.Value.caseArgs
                 c
                 (.Seq [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))), (.Arg ())]) | none
-          pure (NanoP4Spec.callableTypeDef.CONTROL (← OfValue.ofValue fuel a0))))
+          pure (NanoP4Spec.callableTypeDef.CONTROL
+             (← (match a0.it with
+                | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+                | _ => none)))))
     | _ => none
 
 instance : OfValue NanoP4Spec.callableTypeDef := ⟨NanoP4Spec.callableTypeDef.ofValue⟩
@@ -129,7 +144,13 @@ instance : BEq NanoP4Spec.callableTypeDefEnv := ⟨valueEq⟩
 
 def callableTypeDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableTypeDefEnv
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.map.ofValue
+    NanoP4Spec.callableId
+    NanoP4Spec.callableTypeDef
+    (OfValue.mk (fun fuel v => @NanoP4Spec.callableId.ofValue fuel v))
+    (OfValue.mk (fun fuel v => @NanoP4Spec.callableTypeDef.ofValue fuel v))
+    fuel
+    v
 
 instance : OfValue NanoP4Spec.callableTypeDefEnv := ⟨NanoP4Spec.callableTypeDefEnv.ofValue⟩
 
@@ -162,7 +183,9 @@ def varTypeIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.varTypeIR
     | .CaseV c =>
       (do
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
-         pure (NanoP4Spec.varTypeIR.mk (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
+         pure (NanoP4Spec.varTypeIR.mk
+            (← @NanoP4Spec.direction.ofValue fuel a0)
+            (← @NanoP4Spec.typeIR.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.varTypeIR := ⟨NanoP4Spec.varTypeIR.ofValue⟩
@@ -189,7 +212,13 @@ instance : BEq NanoP4Spec.typeFrame := ⟨valueEq⟩
 
 def typeFrame.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeFrame
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.map.ofValue
+    NanoP4Spec.id
+    NanoP4Spec.varTypeIR
+    (OfValue.mk (fun fuel v => @NanoP4Spec.id.ofValue fuel v))
+    (OfValue.mk (fun fuel v => @NanoP4Spec.varTypeIR.ofValue fuel v))
+    fuel
+    v
 
 instance : OfValue NanoP4Spec.typeFrame := ⟨NanoP4Spec.typeFrame.ofValue⟩
 
@@ -222,9 +251,11 @@ def globalTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.glob
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2)] =>
       (do
-         pure ⟨(← OfValue.ofValue
+         pure ⟨(← @NanoP4Spec.typeDefEnv.ofValue
            fuel
-           f0), (← OfValue.ofValue fuel f1), (← OfValue.ofValue fuel f2)⟩)
+           f0), (← @NanoP4Spec.callableTypeDefEnv.ofValue
+           fuel
+           f1), (← @NanoP4Spec.typeFrame.ofValue fuel f2)⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.globalTypingLayer := ⟨NanoP4Spec.globalTypingLayer.ofValue⟩
@@ -256,7 +287,7 @@ def blockTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.block
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0)] =>
       (do
-         pure ⟨(← OfValue.ofValue fuel f0)⟩)
+         pure ⟨(← @NanoP4Spec.typeFrame.ofValue fuel f0)⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.blockTypingLayer := ⟨NanoP4Spec.blockTypingLayer.ofValue⟩
@@ -286,7 +317,9 @@ def localTypingLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.local
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0)] =>
       (do
-         pure ⟨(← OfValue.ofValue fuel f0)⟩)
+         pure ⟨(← (match f0.it with
+            | .ListV vs => vs.mapM (fun x => @NanoP4Spec.typeFrame.ofValue fuel x)
+            | _ => none))⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.localTypingLayer := ⟨NanoP4Spec.localTypingLayer.ofValue⟩
@@ -321,9 +354,11 @@ def typingContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typingCo
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2)] =>
       (do
-         pure ⟨(← OfValue.ofValue
+         pure ⟨(← @NanoP4Spec.globalTypingLayer.ofValue
            fuel
-           f0), (← OfValue.ofValue fuel f1), (← OfValue.ofValue fuel f2)⟩)
+           f0), (← @NanoP4Spec.blockTypingLayer.ofValue
+           fuel
+           f1), (← @NanoP4Spec.localTypingLayer.ofValue fuel f2)⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.typingContext := ⟨NanoP4Spec.typingContext.ofValue⟩
@@ -364,7 +399,9 @@ def matchKey.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchKey
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ":"))), (.Arg ())]) | none
-         pure (NanoP4Spec.matchKey.colon (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
+         pure (NanoP4Spec.matchKey.colon
+            (← @NanoP4Spec.typeIR.ofValue fuel a0)
+            (← @NanoP4Spec.nameIR.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.matchKey := ⟨NanoP4Spec.matchKey.ofValue⟩
@@ -423,9 +460,13 @@ def matchAction.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.matchActio
                       (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator "@"))), (.Arg ())])
                       (Prelude.Value.atom .RParen))]) | none
          pure (NanoP4Spec.matchAction.lparen_at_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.callableId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← (match a2.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.argumentIR.ofValue fuel x)
+               | _ => none))))
     | _ => none
 
 instance : OfValue NanoP4Spec.matchAction := ⟨NanoP4Spec.matchAction.ofValue⟩
@@ -469,7 +510,9 @@ def tableContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableCont
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1)] =>
       (do
-         pure ⟨(← OfValue.ofValue fuel f0), (← OfValue.ofValue fuel f1)⟩)
+         pure ⟨(← @NanoP4Spec.matchKey.ofValue fuel f0), (← (match f1.it with
+            | .ListV vs => vs.mapM (fun x => @NanoP4Spec.matchAction.ofValue fuel x)
+            | _ => none))⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.tableContext := ⟨NanoP4Spec.tableContext.ofValue⟩

@@ -32,7 +32,7 @@ instance : BEq NanoP4Spec.id := ⟨valueEq⟩
 
 def id.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.id
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @OfValue.ofValue P4SpecTec.ByteText P4SpecTec.Prelude.instOfValueByteText fuel v
 
 instance : OfValue NanoP4Spec.id := ⟨NanoP4Spec.id.ofValue⟩
 
@@ -47,7 +47,7 @@ instance : BEq NanoP4Spec.callableId := ⟨valueEq⟩
 
 def callableId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableId
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @OfValue.ofValue P4SpecTec.ByteText P4SpecTec.Prelude.instOfValueByteText fuel v
 
 instance : OfValue NanoP4Spec.callableId := ⟨NanoP4Spec.callableId.ofValue⟩
 
@@ -63,7 +63,7 @@ instance : BEq NanoP4Spec.nameIR := ⟨valueEq⟩
 
 def nameIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nameIR
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @OfValue.ofValue P4SpecTec.ByteText P4SpecTec.Prelude.instOfValueByteText fuel v
 
 instance : OfValue NanoP4Spec.nameIR := ⟨NanoP4Spec.nameIR.ofValue⟩
 
@@ -132,7 +132,7 @@ instance : BEq NanoP4Spec.typeId := ⟨valueEq⟩
 
 def typeId.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeId
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.id.ofValue fuel v
 
 instance : OfValue NanoP4Spec.typeId := ⟨NanoP4Spec.typeId.ofValue⟩
 

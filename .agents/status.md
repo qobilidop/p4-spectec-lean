@@ -1,6 +1,6 @@
 # Status
 
-Current checkpoint, updated 2026-09-26.
+Current checkpoint, updated 2026-09-27.
 
 ## Authorized scope
 
@@ -56,53 +56,40 @@ expected incomplete-certification diagnostic (`.artifacts/n2-strict-core.log`).
 
 ## Current continuation (`n2-certification`, local only)
 
-Checked substitution now derives sufficient fuel from finite input syntax. Five
-kernel-audited statements establish definitive results and stable type/list
-results, including explicit errors. Every fixed-budget checked substitution
-caller was migrated; legacy APIs and bounded recursive alias expansion remain
-separate. Empty-substitution fast paths were preserved after independent review.
-Focused `--wfail` validation passed for both runtime type test modules and
-`Refine.Environment` (session 66512); the regression crosses depth 1,100.
+Local coherent commits are `feec9b6` (syntax-derived substitution bounds),
+`996dc22` (independent source domains) and `9863160` (source codec composition).
+The current checkpoint adds explicit nominal decoder binding and source-parameter
+shadowing. Focused `--wfail` checks pass, including hostile-instance and global
+versus bound type-name regressions. All regenerated carrier modules built.
 
-Generated equality certificates passed for all 161 type declarations, including
-noninjective polymorphic encoders. Initialized-table absence proofs and generated
-Nano type-parameter freshness facts passed. Independent Sol review found no
-issue in the equality/freshness implementation. The topic note records scope and
-review limits. Source representation inventory/schema integration is in progress;
-no additional completion binding is claimed before production codec validation.
+The last passing integrated coverage check remains session 89912 (201 jobs):
+148 compiled bindings, 740 unresolved, unchanged 888 obligations; fifteen exact
+boundary mutations and nineteen Python adapter tests pass. Later additions have
+not yet received an updated aggregate inventory verdict. The latest production
+aggregate 33016 failed on fifteen newly enabled function certificates. Fourteen
+are now excluded by structural unsupported-construct checks; the remaining
+optional-record-field proof passes. Regeneration/recheck is pending.
 
-Local commits are `feec9b6` (substitution bounds) and `996dc22` (independent
-source-domain support). Finite source grammar, alias/container construction and inversion, notation laws and
-decoder-layer fuel composition now pass focused warning-as-error checks. Their
-source predicates do not depend on generated encoders or decoder success.
-The topic note records independent reviews and exact snapshot hashes.
+Actual Type_ok closure and add_var_e pass both directions; five recursive TypeIR
+source codecs pass against explicit named decoders with exact axiom audits.
+Actual Type_eq/ParameterType_eq forward and reverse probes pass separately;
+combined production-renderer validation is underway. Generic source field,
+record, variant and polymorphic container emission is in progress. Renamed
+pair/list-container/map-alias fixtures pass for arbitrary legal parameter codecs.
+The topic note preserves independent reviews, exact hashes and measured costs.
 
-The original 18 reverse certificates passed after restoring the function tactic
-preset. Seven atomic source codecs pass; the complete TypeIR group now has
-encoding-validity evidence against the actual full quotation, while its decoder
-completeness is still active. Actual `in_set` passes both directions; `dom_map`
-and `add_var_e` pass forward in focused probes. Production schema-2 and `in_set`
-regeneration and integrated compiled-coverage validation passed (`--wfail`,
-session 89912, 201 jobs), including fifteen exact-boundary mutations. The local
-inventory has 148 compiled claim bindings and 740 unresolved obligations; the
-888-obligation denominator is unchanged. Nineteen Python adapter tests pass.
-Four generated text-alias codecs and dom_map/codom_map in both directions now
-pass focused production checks. Actual add_var_e passes both directions in a
-composed probe; Type_ok's whole forward closure and typeIR_of_typeDefIR reverse
-pass. Source constructor and primitive/container support passed independent review
-and focused checks. TypeIR has unbounded source-decoder sufficiency; all eleven
-constructor soundness lemmas pass, with recursive assembly and general emission
-still active. At least 92 families occur in the original eighteen input-type
-closures; their production codecs remain required. Type_eq/ParameterType_eq,
-Type_ok reverse, Default and call-preservation integration remain active.
-No full gate has been run on this evolving continuation and it has not been pushed.
+At least 92 families occur in the original eighteen input-type closures; their
+production codecs remain required. Recursive SCC emission, actual call
+preservation and Default/Var_init remain open. No full gate has run on this
+evolving continuation, and it has not been pushed. This is not N2 closure.
 
 ## Next step and remaining N2 obligations
 
 Complete the active proof/inventory integrations and independent reviews.
 Establish actual source grammar/codec contracts for the four-member
 `typeIR` representation SCC, with producer/cast and call-preservation proofs.
-Complete Type_eq/ParameterType_eq, Type_ok and Var_init dependency closures.
+Integrate the checked Type_eq/ParameterType_eq and Type_ok certificates, then
+complete the Var_init dependency closure.
 Subtype/membership/iteration/type-argument support and reachable substitution
 fuel obligations remain explicit. Legal polymorphic equality needs `ValueBEq`;
 source tuple arities must not be confused with overlapping product dictionaries.

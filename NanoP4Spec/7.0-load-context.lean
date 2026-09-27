@@ -59,9 +59,11 @@ def actionDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.ac
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.actionDeclarationIR.ACTION_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← @NanoP4Spec.blockStatement.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.actionDeclarationIR := ⟨NanoP4Spec.actionDeclarationIR.ofValue⟩
@@ -129,10 +131,12 @@ def parserDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.pa
                       (.Seq [(.Arg ()), (.Arg ())])
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.parserDeclarationIR.PARSER_lparen_rparen_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)
-            (← OfValue.ofValue fuel a3)))
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← @NanoP4Spec.parserLocalDeclarationList.ofValue fuel a2)
+            (← @NanoP4Spec.parserStateList.ofValue fuel a3)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parserDeclarationIR := ⟨NanoP4Spec.parserDeclarationIR.ofValue⟩
@@ -208,10 +212,12 @@ def controlDeclarationIR.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.c
                       (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "APPLY"))), (.Arg ())])
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.controlDeclarationIR.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)
-            (← OfValue.ofValue fuel a3)))
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← @NanoP4Spec.controlLocalDeclarationList.ofValue fuel a2)
+            (← @NanoP4Spec.controlBody.ofValue fuel a3)))
     | _ => none
 
 instance : OfValue NanoP4Spec.controlDeclarationIR := ⟨NanoP4Spec.controlDeclarationIR.ofValue⟩
@@ -319,9 +325,11 @@ def callableDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDe
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.callableDef.ACTION_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2))) <|>
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← @NanoP4Spec.blockStatement.ofValue fuel a2))) <|>
       ((do
           let some [a0, a1, a2, a3] :=
               Prelude.Value.caseArgs
@@ -335,10 +343,12 @@ def callableDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDe
                        (.Seq [(.Arg ()), (.Arg ())])
                        (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.callableDef.PARSER_lparen_rparen_lbrace_rbrace
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1)
-             (← OfValue.ofValue fuel a2)
-             (← OfValue.ofValue fuel a3))) <|>
+             (← @NanoP4Spec.nameIR.ofValue fuel a0)
+             (← (match a1.it with
+                | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+                | _ => none))
+             (← @NanoP4Spec.parserLocalDeclarationList.ofValue fuel a2)
+             (← @NanoP4Spec.parserStateList.ofValue fuel a3))) <|>
        (do
           let some [a0, a1, a2, a3] :=
               Prelude.Value.caseArgs
@@ -353,10 +363,12 @@ def callableDef.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDe
                           [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "APPLY"))), (.Arg ())])
                        (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.callableDef.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1)
-             (← OfValue.ofValue fuel a2)
-             (← OfValue.ofValue fuel a3))))
+             (← @NanoP4Spec.nameIR.ofValue fuel a0)
+             (← (match a1.it with
+                | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+                | _ => none))
+             (← @NanoP4Spec.controlLocalDeclarationList.ofValue fuel a2)
+             (← @NanoP4Spec.controlBody.ofValue fuel a3))))
     | _ => none
 
 instance : OfValue NanoP4Spec.callableDef := ⟨NanoP4Spec.callableDef.ofValue⟩
@@ -423,7 +435,13 @@ instance : BEq NanoP4Spec.callableDefEnv := ⟨valueEq⟩
 
 def callableDefEnv.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callableDefEnv
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.map.ofValue
+    NanoP4Spec.callableId
+    NanoP4Spec.callableDef
+    (OfValue.mk (fun fuel v => @NanoP4Spec.callableId.ofValue fuel v))
+    (OfValue.mk (fun fuel v => @NanoP4Spec.callableDef.ofValue fuel v))
+    fuel
+    v
 
 instance : OfValue NanoP4Spec.callableDefEnv := ⟨NanoP4Spec.callableDefEnv.ofValue⟩
 
@@ -460,11 +478,15 @@ def globalLoadLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.global
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2), (_, f3)] =>
       (do
-         pure ⟨(← OfValue.ofValue
+         pure ⟨(← @NanoP4Spec.callableTypeDefEnv.ofValue
            fuel
-           f0), (← OfValue.ofValue
-           fuel
-           f1), (← OfValue.ofValue fuel f2), (← OfValue.ofValue fuel f3)⟩)
+           f0), (← @NanoP4Spec.callableDefEnv.ofValue fuel f1), (← (match f2.it with
+            | .OptV none => some none
+            | .OptV (some x) => Option.map some (@NanoP4Spec.parserDeclarationIR.ofValue fuel x)
+            | _ => none)), (← (match f3.it with
+            | .OptV none => some none
+            | .OptV (some x) => Option.map some (@NanoP4Spec.controlDeclarationIR.ofValue fuel x)
+            | _ => none))⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.globalLoadLayer := ⟨NanoP4Spec.globalLoadLayer.ofValue⟩
@@ -492,7 +514,7 @@ instance : BEq NanoP4Spec.loadContext := ⟨valueEq⟩
 
 def loadContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.loadContext
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.globalLoadLayer.ofValue fuel v
 
 instance : OfValue NanoP4Spec.loadContext := ⟨NanoP4Spec.loadContext.ofValue⟩
 

@@ -104,6 +104,18 @@ These topic constraints remain binding when their work resumes:
 - [Nano target](notes/nano-target.md): preserve raw ExternV and shared verify
   ABI mismatches; do not invent typed target or boot/STF coverage.
 
+## Nominal decoder binding (2026-09-27)
+
+Generated closed nominal fields bind their source declaration's decoder with
+explicit parameter dictionaries. Primitive and list/option fields use the same
+explicit selection recursively. Local source type parameters shadow global
+names. Reducible Lean aliases must not let unrelated later instances change a
+field's decoder or add accidental fuel layers. A declared alias retains one
+frame; its old incidental minimum fuel is not preserved. Nonrecursive tuples
+and function-type dictionaries remain unchanged pending separate support.
+Confidence: high, supported by hostile-instance and bound-name regressions and
+actual source-codec proofs. Revisit when tuple/function field support expands.
+
 ## Nano runtime representation (2026-09-26)
 
 Preserve extract's raw `ExternV` result through an explicitly configured

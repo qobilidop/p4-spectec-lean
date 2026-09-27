@@ -100,14 +100,16 @@ def integerLiteral.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integer
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
          pure (NanoP4Spec.integerLiteral.W
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1))) <|>
+            (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
       (do
          let some [a0, a1] :=
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
-         pure (NanoP4Spec.integerLiteral.S (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
+         pure (NanoP4Spec.integerLiteral.S
+            (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.integerLiteral := ⟨NanoP4Spec.integerLiteral.ofValue⟩
@@ -152,7 +154,8 @@ def identifier.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.identifier
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-         pure (NanoP4Spec.identifier._ID (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.identifier._ID
+            (← @OfValue.ofValue P4SpecTec.ByteText P4SpecTec.Prelude.instOfValueByteText fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.identifier := ⟨NanoP4Spec.identifier.ofValue⟩
@@ -186,7 +189,8 @@ def typeIdentifier.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeIde
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "TID"))), (.Arg ())]) | none
-         pure (NanoP4Spec.typeIdentifier._TID (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.typeIdentifier._TID
+            (← @OfValue.ofValue P4SpecTec.ByteText P4SpecTec.Prelude.instOfValueByteText fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.typeIdentifier := ⟨NanoP4Spec.typeIdentifier.ofValue⟩
@@ -242,7 +246,12 @@ def nonTypeName.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nonTypeNam
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-         pure (NanoP4Spec.nonTypeName._ID (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.nonTypeName._ID
+            (← @OfValue.ofValue
+              P4SpecTec.ByteText
+              P4SpecTec.Prelude.instOfValueByteText
+              fuel
+              a0))) <|>
       ((do
           let some [] :=
               Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -286,7 +295,7 @@ instance : BEq NanoP4Spec.typeName := ⟨valueEq⟩
 
 def typeName.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeName
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.typeIdentifier.ofValue fuel v
 
 instance : OfValue NanoP4Spec.typeName := ⟨NanoP4Spec.typeName.ofValue⟩
 
@@ -302,7 +311,7 @@ instance : BEq NanoP4Spec.name := ⟨valueEq⟩
 
 def name.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.name
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.nonTypeName.ofValue fuel v
 
 instance : OfValue NanoP4Spec.name := ⟨NanoP4Spec.name.ofValue⟩
 
@@ -358,7 +367,12 @@ def nameList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nameList
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-         pure (NanoP4Spec.nameList._ID (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.nameList._ID
+            (← @OfValue.ofValue
+              P4SpecTec.ByteText
+              P4SpecTec.Prelude.instOfValueByteText
+              fuel
+              a0))) <|>
       ((do
           let some [] :=
               Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -383,7 +397,7 @@ def nameList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.nameList
                       [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ","))), (.Arg ())]) | none
              pure (NanoP4Spec.nameList.comma
                 (← NanoP4Spec.nameList.ofValue fuel a0)
-                (← OfValue.ofValue fuel a1)))))))
+                (← @NanoP4Spec.name.ofValue fuel a1)))))))
     | _ => none
 
 instance : OfValue NanoP4Spec.nameList := ⟨NanoP4Spec.nameList.ofValue⟩
@@ -418,7 +432,7 @@ instance : BEq NanoP4Spec.member := ⟨valueEq⟩
 
 def member.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.member
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.name.ofValue fuel v
 
 instance : OfValue NanoP4Spec.member := ⟨NanoP4Spec.member.ofValue⟩
 
@@ -529,7 +543,8 @@ def integerType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integerTyp
                       (Prelude.Value.atom .LAngle)
                       (.Arg ())
                       (Prelude.Value.atom .RAngle))]) | none
-         pure (NanoP4Spec.integerType.BIT_langle_rangle (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.integerType.BIT_langle_rangle
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a0))) <|>
       (do
          let some [a0] :=
              Prelude.Value.caseArgs
@@ -540,7 +555,8 @@ def integerType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.integerTyp
                       (Prelude.Value.atom .LAngle)
                       (.Arg ())
                       (Prelude.Value.atom .RAngle))]) | none
-         pure (NanoP4Spec.integerType.INT_langle_rangle (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.integerType.INT_langle_rangle
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.integerType := ⟨NanoP4Spec.integerType.ofValue⟩
@@ -617,7 +633,8 @@ def baseType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseType
                       (Prelude.Value.atom .LAngle)
                       (.Arg ())
                       (Prelude.Value.atom .RAngle))]) | none
-         pure (NanoP4Spec.baseType.BIT_langle_rangle (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.baseType.BIT_langle_rangle
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a0))) <|>
       ((do
           let some [a0] :=
               Prelude.Value.caseArgs
@@ -628,7 +645,8 @@ def baseType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.baseType
                        (Prelude.Value.atom .LAngle)
                        (.Arg ())
                        (Prelude.Value.atom .RAngle))]) | none
-          pure (NanoP4Spec.baseType.INT_langle_rangle (← OfValue.ofValue fuel a0))) <|>
+          pure (NanoP4Spec.baseType.INT_langle_rangle
+             (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a0))) <|>
        ((do
            let some [] :=
                Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "BOOL"))) | none
@@ -673,7 +691,7 @@ instance : BEq NanoP4Spec.namedType := ⟨valueEq⟩
 
 def namedType.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.namedType
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.typeName.ofValue fuel v
 
 instance : OfValue NanoP4Spec.namedType := ⟨NanoP4Spec.namedType.ofValue⟩
 
@@ -736,7 +754,8 @@ def type.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.type
                       (Prelude.Value.atom .LAngle)
                       (.Arg ())
                       (Prelude.Value.atom .RAngle))]) | none
-         pure (NanoP4Spec.type.BIT_langle_rangle (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.type.BIT_langle_rangle
+            (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a0))) <|>
       ((do
           let some [a0] :=
               Prelude.Value.caseArgs
@@ -747,7 +766,8 @@ def type.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.type
                        (Prelude.Value.atom .LAngle)
                        (.Arg ())
                        (Prelude.Value.atom .RAngle))]) | none
-          pure (NanoP4Spec.type.INT_langle_rangle (← OfValue.ofValue fuel a0))) <|>
+          pure (NanoP4Spec.type.INT_langle_rangle
+             (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a0))) <|>
        ((do
            let some [] :=
                Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "BOOL"))) | none
@@ -761,7 +781,12 @@ def type.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.type
                 Prelude.Value.caseArgs
                   c
                   (.Seq [(.Atom (Prelude.Value.atom (.Tag "TID"))), (.Arg ())]) | none
-            pure (NanoP4Spec.type._TID (← OfValue.ofValue fuel a0))))))
+            pure (NanoP4Spec.type._TID
+               (← @OfValue.ofValue
+                 P4SpecTec.ByteText
+                 P4SpecTec.Prelude.instOfValueByteText
+                 fuel
+                 a0))))))
     | _ => none
 
 instance : OfValue NanoP4Spec.type := ⟨NanoP4Spec.type.ofValue⟩
@@ -811,9 +836,9 @@ def parameter.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parameter
          let some [a0, a1, a2] :=
              Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.parameter.mk
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.direction.ofValue fuel a0)
+            (← @NanoP4Spec.type.ofValue fuel a1)
+            (← @NanoP4Spec.name.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parameter := ⟨NanoP4Spec.parameter.ofValue⟩
@@ -865,9 +890,9 @@ def nonEmptyParameterList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
          let some [a0, a1, a2] :=
              Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.nonEmptyParameterList.mk
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2))) <|>
+            (← @NanoP4Spec.direction.ofValue fuel a0)
+            (← @NanoP4Spec.type.ofValue fuel a1)
+            (← @NanoP4Spec.name.ofValue fuel a2))) <|>
       (do
          let some [a0, a1] :=
              Prelude.Value.caseArgs
@@ -875,7 +900,7 @@ def nonEmptyParameterList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ","))), (.Arg ())]) | none
          pure (NanoP4Spec.nonEmptyParameterList.comma
             (← NanoP4Spec.nonEmptyParameterList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.parameter.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.nonEmptyParameterList := ⟨NanoP4Spec.nonEmptyParameterList.ofValue⟩
@@ -942,17 +967,17 @@ def parameterList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.paramete
           let some [a0, a1, a2] :=
               Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
           pure (NanoP4Spec.parameterList.mk
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1)
-             (← OfValue.ofValue fuel a2))) <|>
+             (← @NanoP4Spec.direction.ofValue fuel a0)
+             (← @NanoP4Spec.type.ofValue fuel a1)
+             (← @NanoP4Spec.name.ofValue fuel a2))) <|>
        (do
           let some [a0, a1] :=
               Prelude.Value.caseArgs
                 c
                 (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ","))), (.Arg ())]) | none
           pure (NanoP4Spec.parameterList.comma
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1))))
+             (← @NanoP4Spec.nonEmptyParameterList.ofValue fuel a0)
+             (← @NanoP4Spec.parameter.ofValue fuel a1))))
     | _ => none
 
 instance : OfValue NanoP4Spec.parameterList := ⟨NanoP4Spec.parameterList.ofValue⟩
@@ -1032,16 +1057,16 @@ def literalExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.lite
                  c
                  (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
            pure (NanoP4Spec.literalExpression.W
-              (← OfValue.ofValue fuel a0)
-              (← OfValue.ofValue fuel a1))) <|>
+              (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+              (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
         (do
            let some [a0, a1] :=
                Prelude.Value.caseArgs
                  c
                  (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
            pure (NanoP4Spec.literalExpression.S
-              (← OfValue.ofValue fuel a0)
-              (← OfValue.ofValue fuel a1)))))
+              (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+              (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1)))))
     | _ => none
 
 instance : OfValue NanoP4Spec.literalExpression := ⟨NanoP4Spec.literalExpression.ofValue⟩
@@ -1077,7 +1102,7 @@ instance : BEq NanoP4Spec.referenceExpression := ⟨valueEq⟩
 
 def referenceExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.referenceExpression
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.name.ofValue fuel v
 
 instance : OfValue NanoP4Spec.referenceExpression := ⟨NanoP4Spec.referenceExpression.ofValue⟩
 
@@ -1323,7 +1348,7 @@ instance : BEq NanoP4Spec.callTarget := ⟨valueEq⟩
 
 def callTarget.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callTarget
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.namedType.ofValue fuel v
 
 instance : OfValue NanoP4Spec.callTarget := ⟨NanoP4Spec.callTarget.ofValue⟩
 
@@ -1698,22 +1723,27 @@ def expression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.expression
                  c
                  (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
            pure (NanoP4Spec.expression.W
-              (← OfValue.ofValue fuel a0)
-              (← OfValue.ofValue fuel a1))) <|>
+              (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+              (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
         ((do
             let some [a0, a1] :=
                 Prelude.Value.caseArgs
                   c
                   (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
             pure (NanoP4Spec.expression.S
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))) <|>
+               (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+               (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
          ((do
              let some [a0] :=
                  Prelude.Value.caseArgs
                    c
                    (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-             pure (NanoP4Spec.expression._ID (← OfValue.ofValue fuel a0))) <|>
+             pure (NanoP4Spec.expression._ID
+                (← @OfValue.ofValue
+                  P4SpecTec.ByteText
+                  P4SpecTec.Prelude.instOfValueByteText
+                  fuel
+                  a0))) <|>
           ((do
               let some [] :=
                   Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -1735,14 +1765,14 @@ def expression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.expression
               ((do
                   let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
                   pure (NanoP4Spec.expression.mk
-                     (← OfValue.ofValue fuel a0)
+                     (← @NanoP4Spec.unop.ofValue fuel a0)
                      (← NanoP4Spec.expression.ofValue fuel a1))) <|>
                ((do
                    let some [a0, a1, a2] :=
                        Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
                    pure (NanoP4Spec.expression.mk_2
                       (← NanoP4Spec.expression.ofValue fuel a0)
-                      (← OfValue.ofValue fuel a1)
+                      (← @NanoP4Spec.binop.ofValue fuel a1)
                       (← NanoP4Spec.expression.ofValue fuel a2))) <|>
                 ((do
                     let some [a0, a1] :=
@@ -1754,7 +1784,7 @@ def expression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.expression
                               (.Arg ())]) | none
                     pure (NanoP4Spec.expression.dot
                        (← NanoP4Spec.memberAccessBase.ofValue fuel a0)
-                       (← OfValue.ofValue fuel a1))) <|>
+                       (← @NanoP4Spec.member.ofValue fuel a1))) <|>
                  ((do
                      let some [a0, a1] :=
                          Prelude.Value.caseArgs
@@ -1766,7 +1796,7 @@ def expression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.expression
                                   (.Arg ())
                                   (Prelude.Value.atom .RParen))]) | none
                      pure (NanoP4Spec.expression.lparen_rparen
-                        (← OfValue.ofValue fuel a0)
+                        (← @NanoP4Spec.callTarget.ofValue fuel a0)
                         (← NanoP4Spec.argumentList.ofValue fuel a1))) <|>
                   (do
                      let some [a0] :=
@@ -1806,22 +1836,27 @@ def argumentListNonEmpty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.a
                  c
                  (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
            pure (NanoP4Spec.argumentListNonEmpty.W
-              (← OfValue.ofValue fuel a0)
-              (← OfValue.ofValue fuel a1))) <|>
+              (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+              (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
         ((do
             let some [a0, a1] :=
                 Prelude.Value.caseArgs
                   c
                   (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
             pure (NanoP4Spec.argumentListNonEmpty.S
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))) <|>
+               (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+               (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
          ((do
              let some [a0] :=
                  Prelude.Value.caseArgs
                    c
                    (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-             pure (NanoP4Spec.argumentListNonEmpty._ID (← OfValue.ofValue fuel a0))) <|>
+             pure (NanoP4Spec.argumentListNonEmpty._ID
+                (← @OfValue.ofValue
+                  P4SpecTec.ByteText
+                  P4SpecTec.Prelude.instOfValueByteText
+                  fuel
+                  a0))) <|>
           ((do
               let some [] :=
                   Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -1843,14 +1878,14 @@ def argumentListNonEmpty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.a
               ((do
                   let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
                   pure (NanoP4Spec.argumentListNonEmpty.mk
-                     (← OfValue.ofValue fuel a0)
+                     (← @NanoP4Spec.unop.ofValue fuel a0)
                      (← NanoP4Spec.expression.ofValue fuel a1))) <|>
                ((do
                    let some [a0, a1, a2] :=
                        Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
                    pure (NanoP4Spec.argumentListNonEmpty.mk_2
                       (← NanoP4Spec.expression.ofValue fuel a0)
-                      (← OfValue.ofValue fuel a1)
+                      (← @NanoP4Spec.binop.ofValue fuel a1)
                       (← NanoP4Spec.expression.ofValue fuel a2))) <|>
                 ((do
                     let some [a0, a1] :=
@@ -1862,7 +1897,7 @@ def argumentListNonEmpty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.a
                               (.Arg ())]) | none
                     pure (NanoP4Spec.argumentListNonEmpty.dot
                        (← NanoP4Spec.memberAccessBase.ofValue fuel a0)
-                       (← OfValue.ofValue fuel a1))) <|>
+                       (← @NanoP4Spec.member.ofValue fuel a1))) <|>
                  ((do
                      let some [a0, a1] :=
                          Prelude.Value.caseArgs
@@ -1874,7 +1909,7 @@ def argumentListNonEmpty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.a
                                   (.Arg ())
                                   (Prelude.Value.atom .RParen))]) | none
                      pure (NanoP4Spec.argumentListNonEmpty.lparen_rparen
-                        (← OfValue.ofValue fuel a0)
+                        (← @NanoP4Spec.callTarget.ofValue fuel a0)
                         (← NanoP4Spec.argumentList.ofValue fuel a1))) <|>
                   ((do
                       let some [a0] :=
@@ -1920,22 +1955,27 @@ def argumentList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.argumentL
                   c
                   (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "W"))), (.Arg ())]) | none
             pure (NanoP4Spec.argumentList.W
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))) <|>
+               (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+               (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
          ((do
              let some [a0, a1] :=
                  Prelude.Value.caseArgs
                    c
                    (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "S"))), (.Arg ())]) | none
              pure (NanoP4Spec.argumentList.S
-                (← OfValue.ofValue fuel a0)
-                (← OfValue.ofValue fuel a1))) <|>
+                (← @OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat fuel a0)
+                (← @OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt fuel a1))) <|>
           ((do
               let some [a0] :=
                   Prelude.Value.caseArgs
                     c
                     (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-              pure (NanoP4Spec.argumentList._ID (← OfValue.ofValue fuel a0))) <|>
+              pure (NanoP4Spec.argumentList._ID
+                 (← @OfValue.ofValue
+                   P4SpecTec.ByteText
+                   P4SpecTec.Prelude.instOfValueByteText
+                   fuel
+                   a0))) <|>
            ((do
                let some [] :=
                    Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -1960,14 +2000,14 @@ def argumentList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.argumentL
                    let some [a0, a1] :=
                        Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
                    pure (NanoP4Spec.argumentList.mk
-                      (← OfValue.ofValue fuel a0)
+                      (← @NanoP4Spec.unop.ofValue fuel a0)
                       (← NanoP4Spec.expression.ofValue fuel a1))) <|>
                 ((do
                     let some [a0, a1, a2] :=
                         Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
                     pure (NanoP4Spec.argumentList.mk_2
                        (← NanoP4Spec.expression.ofValue fuel a0)
-                       (← OfValue.ofValue fuel a1)
+                       (← @NanoP4Spec.binop.ofValue fuel a1)
                        (← NanoP4Spec.expression.ofValue fuel a2))) <|>
                  ((do
                      let some [a0, a1] :=
@@ -1979,7 +2019,7 @@ def argumentList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.argumentL
                                (.Arg ())]) | none
                      pure (NanoP4Spec.argumentList.dot
                         (← NanoP4Spec.memberAccessBase.ofValue fuel a0)
-                        (← OfValue.ofValue fuel a1))) <|>
+                        (← @NanoP4Spec.member.ofValue fuel a1))) <|>
                   ((do
                       let some [a0, a1] :=
                           Prelude.Value.caseArgs
@@ -1991,7 +2031,7 @@ def argumentList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.argumentL
                                    (.Arg ())
                                    (Prelude.Value.atom .RParen))]) | none
                       pure (NanoP4Spec.argumentList.lparen_rparen
-                         (← OfValue.ofValue fuel a0)
+                         (← @NanoP4Spec.callTarget.ofValue fuel a0)
                          (← NanoP4Spec.argumentList.ofValue fuel a1))) <|>
                    ((do
                        let some [a0] :=
@@ -2230,8 +2270,8 @@ def unaryExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.unaryE
       (do
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.unaryExpression.mk
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.unop.ofValue fuel a0)
+            (← @NanoP4Spec.expression.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.unaryExpression := ⟨NanoP4Spec.unaryExpression.ofValue⟩
@@ -2273,9 +2313,9 @@ def binaryExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.binar
          let some [a0, a1, a2] :=
              Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.binaryExpression.mk
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.binop.ofValue fuel a1)
+            (← @NanoP4Spec.expression.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.binaryExpression := ⟨NanoP4Spec.binaryExpression.ofValue⟩
@@ -2321,8 +2361,8 @@ def memberAccessExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator "."))), (.Arg ())]) | none
          pure (NanoP4Spec.memberAccessExpression.dot
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.memberAccessBase.ofValue fuel a0)
+            (← @NanoP4Spec.member.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.memberAccessExpression := ⟨NanoP4Spec.memberAccessExpression.ofValue⟩
@@ -2375,8 +2415,8 @@ def callExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callExp
                       (.Arg ())
                       (Prelude.Value.atom .RParen))]) | none
          pure (NanoP4Spec.callExpression.lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.callTarget.ofValue fuel a0)
+            (← @NanoP4Spec.argumentList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.callExpression := ⟨NanoP4Spec.callExpression.ofValue⟩
@@ -2422,7 +2462,8 @@ def parenthesizedExpression.ofValue :
              Prelude.Value.caseArgs
                c
                (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)) | none
-         pure (NanoP4Spec.parenthesizedExpression.lparen_rparen (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.parenthesizedExpression.lparen_rparen
+            (← @NanoP4Spec.expression.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parenthesizedExpression :=
@@ -2498,7 +2539,12 @@ def lvalue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.lvalue
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-         pure (NanoP4Spec.lvalue._ID (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.lvalue._ID
+            (← @OfValue.ofValue
+              P4SpecTec.ByteText
+              P4SpecTec.Prelude.instOfValueByteText
+              fuel
+              a0))) <|>
       ((do
           let some [] :=
               Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -2523,7 +2569,7 @@ def lvalue.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.lvalue
                        [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator "."))), (.Arg ())]) | none
               pure (NanoP4Spec.lvalue.dot
                  (← NanoP4Spec.lvalue.ofValue fuel a0)
-                 (← OfValue.ofValue fuel a1))) <|>
+                 (← @NanoP4Spec.member.ofValue fuel a1))) <|>
            (do
               let some [a0] :=
                   Prelude.Value.caseArgs
@@ -2623,8 +2669,8 @@ def assignmentStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.as
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.assignmentStatement.eq_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.lvalue.ofValue fuel a0)
+            (← @NanoP4Spec.expression.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.assignmentStatement := ⟨NanoP4Spec.assignmentStatement.ofValue⟩
@@ -2677,8 +2723,8 @@ def callStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callStat
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.callStatement.lparen_rparen_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.lvalue.ofValue fuel a0)
+            (← @NanoP4Spec.argumentList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.callStatement := ⟨NanoP4Spec.callStatement.ofValue⟩
@@ -2720,7 +2766,7 @@ def initializer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.initialize
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Operator "="))), (.Arg ())]) | none
-         pure (NanoP4Spec.initializer.eq (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.initializer.eq (← @NanoP4Spec.expression.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.initializer := ⟨NanoP4Spec.initializer.ofValue⟩
@@ -2879,9 +2925,9 @@ def statement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.statement
                     (.Arg ()),
                     (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
           pure (NanoP4Spec.statement.semi_2
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1)
-             (← OfValue.ofValue fuel a2))) <|>
+             (← @NanoP4Spec.type.ofValue fuel a0)
+             (← @NanoP4Spec.name.ofValue fuel a1)
+             (← @NanoP4Spec.initializer.ofValue fuel a2))) <|>
        ((do
            let some [a0, a1] :=
                Prelude.Value.caseArgs
@@ -2892,8 +2938,8 @@ def statement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.statement
                      (.Arg ()),
                      (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
            pure (NanoP4Spec.statement.eq_semi
-              (← OfValue.ofValue fuel a0)
-              (← OfValue.ofValue fuel a1))) <|>
+              (← @NanoP4Spec.lvalue.ofValue fuel a0)
+              (← @NanoP4Spec.expression.ofValue fuel a1))) <|>
         ((do
             let some [a0, a1] :=
                 Prelude.Value.caseArgs
@@ -2903,8 +2949,8 @@ def statement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.statement
                       (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                       (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
             pure (NanoP4Spec.statement.lparen_rparen_semi
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))) <|>
+               (← @NanoP4Spec.lvalue.ofValue fuel a0)
+               (← @NanoP4Spec.argumentList.ofValue fuel a1))) <|>
          ((do
              let some [a0] :=
                  Prelude.Value.caseArgs
@@ -2926,7 +2972,7 @@ def statement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.statement
                        (.Atom (Prelude.Value.atom (.Keyword "ELSE"))),
                        (.Arg ())]) | none
              pure (NanoP4Spec.statement.IF_lparen_rparen_ELSE
-                (← OfValue.ofValue fuel a0)
+                (← @NanoP4Spec.expression.ofValue fuel a0)
                 (← NanoP4Spec.blockStatement.ofValue fuel a1)
                 (← NanoP4Spec.blockStatement.ofValue fuel a2)))))))
     | _ => none
@@ -3064,9 +3110,9 @@ def conditionalStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.c
                    (.Atom (Prelude.Value.atom (.Keyword "ELSE"))),
                    (.Arg ())]) | none
          pure (NanoP4Spec.conditionalStatement.IF_lparen_rparen_ELSE
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.blockStatement.ofValue fuel a1)
+            (← @NanoP4Spec.blockStatement.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.conditionalStatement := ⟨NanoP4Spec.conditionalStatement.ofValue⟩
@@ -3119,9 +3165,9 @@ def variableDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.va
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.variableDeclaration.semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.type.ofValue fuel a0)
+            (← @NanoP4Spec.name.ofValue fuel a1)
+            (← @NanoP4Spec.initializer.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.variableDeclaration := ⟨NanoP4Spec.variableDeclaration.ofValue⟩
@@ -3177,8 +3223,8 @@ def functionPrototype.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.func
                       (.Arg ())
                       (Prelude.Value.atom .RParen))]) | none
          pure (NanoP4Spec.functionPrototype.VOID_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.functionPrototype := ⟨NanoP4Spec.functionPrototype.ofValue⟩
@@ -3235,9 +3281,9 @@ def actionDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.acti
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.actionDeclaration.ACTION_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)
+            (← @NanoP4Spec.blockStatement.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.actionDeclaration := ⟨NanoP4Spec.actionDeclaration.ofValue⟩
@@ -3295,9 +3341,9 @@ def instantiation.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.instanti
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.instantiation.lparen_rparen_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.type.ofValue fuel a0)
+            (← @NanoP4Spec.argumentList.ofValue fuel a1)
+            (← @NanoP4Spec.name.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.instantiation := ⟨NanoP4Spec.instantiation.ofValue⟩
@@ -3351,7 +3397,7 @@ def matchKindDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.m
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.matchKindDeclaration.MATCH_KIND_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)))
+            (← @NanoP4Spec.nameList.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.matchKindDeclaration := ⟨NanoP4Spec.matchKindDeclaration.ofValue⟩
@@ -3395,7 +3441,9 @@ def typeField.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeField
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Arg ()), (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
-         pure (NanoP4Spec.typeField.semi (← OfValue.ofValue fuel a0) (← OfValue.ofValue fuel a1)))
+         pure (NanoP4Spec.typeField.semi
+            (← @NanoP4Spec.type.ofValue fuel a0)
+            (← @NanoP4Spec.name.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.typeField := ⟨NanoP4Spec.typeField.ofValue⟩
@@ -3444,7 +3492,7 @@ def typeFieldList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeFiel
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.typeFieldList.mk
             (← NanoP4Spec.typeFieldList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.typeField.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.typeFieldList := ⟨NanoP4Spec.typeFieldList.ofValue⟩
@@ -3497,8 +3545,8 @@ def structTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.structTypeDeclaration.STRUCT_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.typeFieldList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.structTypeDeclaration := ⟨NanoP4Spec.structTypeDeclaration.ofValue⟩
@@ -3553,8 +3601,8 @@ def headerTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.headerTypeDeclaration.HEADER_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.typeFieldList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.headerTypeDeclaration := ⟨NanoP4Spec.headerTypeDeclaration.ofValue⟩
@@ -3620,8 +3668,8 @@ def derivedTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.derivedTypeDeclaration.STRUCT_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1))) <|>
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.typeFieldList.ofValue fuel a1))) <|>
       (do
          let some [a0, a1] :=
              Prelude.Value.caseArgs
@@ -3634,8 +3682,8 @@ def derivedTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.derivedTypeDeclaration.HEADER_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.typeFieldList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.derivedTypeDeclaration := ⟨NanoP4Spec.derivedTypeDeclaration.ofValue⟩
@@ -3684,7 +3732,8 @@ def externMethodPrototype.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
-         pure (NanoP4Spec.externMethodPrototype.semi (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.externMethodPrototype.semi
+            (← @NanoP4Spec.functionPrototype.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.externMethodPrototype := ⟨NanoP4Spec.externMethodPrototype.ofValue⟩
@@ -3735,7 +3784,7 @@ def externMethodPrototypeList.ofValue :
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.externMethodPrototypeList.mk
             (← NanoP4Spec.externMethodPrototypeList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.externMethodPrototype.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.externMethodPrototypeList :=
@@ -3795,8 +3844,8 @@ def externObjectDeclaration.ofValue :
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.externObjectDeclaration.EXTERN_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.externMethodPrototypeList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.externObjectDeclaration :=
@@ -3831,7 +3880,7 @@ instance : BEq NanoP4Spec.externDeclaration := ⟨valueEq⟩
 
 def externDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.externDeclaration
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.externObjectDeclaration.ofValue fuel v
 
 instance : OfValue NanoP4Spec.externDeclaration := ⟨NanoP4Spec.externDeclaration.ofValue⟩
 
@@ -3873,8 +3922,8 @@ def selectCase.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.selectCase
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.selectCase.colon_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.name.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.selectCase := ⟨NanoP4Spec.selectCase.ofValue⟩
@@ -3924,7 +3973,7 @@ def selectCaseList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.selectC
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.selectCaseList.mk
             (← NanoP4Spec.selectCaseList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.selectCase.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.selectCaseList := ⟨NanoP4Spec.selectCaseList.ofValue⟩
@@ -3983,8 +4032,8 @@ def selectExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.selec
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.selectExpression.SELECT_lparen_rparen_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.selectCaseList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.selectExpression := ⟨NanoP4Spec.selectExpression.ofValue⟩
@@ -4042,7 +4091,7 @@ def stateExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.stateE
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
-         pure (NanoP4Spec.stateExpression.semi (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.stateExpression.semi (← @NanoP4Spec.name.ofValue fuel a0))) <|>
       (do
          let some [a0, a1] :=
              Prelude.Value.caseArgs
@@ -4055,8 +4104,8 @@ def stateExpression.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.stateE
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.stateExpression.SELECT_lparen_rparen_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.selectCaseList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.stateExpression := ⟨NanoP4Spec.stateExpression.ofValue⟩
@@ -4102,7 +4151,8 @@ def transitionStatement.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tr
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TRANSITION"))), (.Arg ())]) | none
-         pure (NanoP4Spec.transitionStatement.TRANSITION (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.transitionStatement.TRANSITION
+            (← @NanoP4Spec.stateExpression.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.transitionStatement := ⟨NanoP4Spec.transitionStatement.ofValue⟩
@@ -4154,8 +4204,8 @@ def parserTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.parserTypeDeclaration.PARSER_lparen_rparen_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parserTypeDeclaration := ⟨NanoP4Spec.parserTypeDeclaration.ofValue⟩
@@ -4214,9 +4264,9 @@ def parserState.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parserStat
                       (.Seq [(.Arg ()), (.Arg ())])
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.parserState.STATE_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.statementList.ofValue fuel a1)
+            (← @NanoP4Spec.transitionStatement.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parserState := ⟨NanoP4Spec.parserState.ofValue⟩
@@ -4284,14 +4334,14 @@ def parserStateList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parser
                       (.Seq [(.Arg ()), (.Arg ())])
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.parserStateList.STATE_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2))) <|>
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.statementList.ofValue fuel a1)
+            (← @NanoP4Spec.transitionStatement.ofValue fuel a2))) <|>
       (do
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.parserStateList.mk
             (← NanoP4Spec.parserStateList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.parserState.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parserStateList := ⟨NanoP4Spec.parserStateList.ofValue⟩
@@ -4332,7 +4382,7 @@ instance : BEq NanoP4Spec.parserLocalDeclaration := ⟨valueEq⟩
 
 def parserLocalDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.parserLocalDeclaration
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.variableDeclaration.ofValue fuel v
 
 instance : OfValue NanoP4Spec.parserLocalDeclaration := ⟨NanoP4Spec.parserLocalDeclaration.ofValue⟩
 
@@ -4377,7 +4427,7 @@ def parserLocalDeclarationList.ofValue :
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.parserLocalDeclarationList.mk
             (← NanoP4Spec.parserLocalDeclarationList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.parserLocalDeclaration.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parserLocalDeclarationList :=
@@ -4442,10 +4492,10 @@ def parserDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.pars
                       (.Seq [(.Arg ()), (.Arg ())])
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.parserDeclaration.PARSER_lparen_rparen_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)
-            (← OfValue.ofValue fuel a3)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)
+            (← @NanoP4Spec.parserLocalDeclarationList.ofValue fuel a2)
+            (← @NanoP4Spec.parserStateList.ofValue fuel a3)))
     | _ => none
 
 instance : OfValue NanoP4Spec.parserDeclaration := ⟨NanoP4Spec.parserDeclaration.ofValue⟩
@@ -4508,8 +4558,8 @@ def tableKey.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableKey
                       (.Atom (Prelude.Value.atom (.Operator ";")))])
                   (Prelude.Value.atom .RBrace)) | none
          pure (NanoP4Spec.tableKey.lbrace_colon_semi_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.name.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableKey := ⟨NanoP4Spec.tableKey.ofValue⟩
@@ -4585,7 +4635,12 @@ def tableActionReference.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
              Prelude.Value.caseArgs
                c
                (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg ())]) | none
-         pure (NanoP4Spec.tableActionReference._ID (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.tableActionReference._ID
+            (← @OfValue.ofValue
+              P4SpecTec.ByteText
+              P4SpecTec.Prelude.instOfValueByteText
+              fuel
+              a0))) <|>
       ((do
           let some [] :=
               Prelude.Value.caseArgs c (.Atom (Prelude.Value.atom (.Keyword "APPLY"))) | none
@@ -4613,8 +4668,8 @@ def tableActionReference.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
                           (.Arg ())
                           (Prelude.Value.atom .RParen))]) | none
              pure (NanoP4Spec.tableActionReference.lparen_rparen
-                (← OfValue.ofValue fuel a0)
-                (← OfValue.ofValue fuel a1)))))))
+                (← @NanoP4Spec.name.ofValue fuel a0)
+                (← @NanoP4Spec.argumentList.ofValue fuel a1)))))))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableActionReference := ⟨NanoP4Spec.tableActionReference.ofValue⟩
@@ -4660,7 +4715,7 @@ def tableAction.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableActio
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
-         pure (NanoP4Spec.tableAction.semi (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.tableAction.semi (← @NanoP4Spec.tableActionReference.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableAction := ⟨NanoP4Spec.tableAction.ofValue⟩
@@ -4704,12 +4759,13 @@ def tableActionList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableA
              Prelude.Value.caseArgs
                c
                (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
-         pure (NanoP4Spec.tableActionList.semi (← OfValue.ofValue fuel a0))) <|>
+         pure (NanoP4Spec.tableActionList.semi
+            (← @NanoP4Spec.tableActionReference.ofValue fuel a0))) <|>
       (do
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.tableActionList.mk
             (← NanoP4Spec.tableActionList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.tableAction.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableActionList := ⟨NanoP4Spec.tableActionList.ofValue⟩
@@ -4767,8 +4823,8 @@ def tableEntry.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableEntry
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.tableEntry.lparen_rparen_colon_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.expression.ofValue fuel a0)
+            (← @NanoP4Spec.tableActionReference.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableEntry := ⟨NanoP4Spec.tableEntry.ofValue⟩
@@ -4818,7 +4874,7 @@ def tableEntryList.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableEn
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.tableEntryList.mk
             (← NanoP4Spec.tableEntryList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.tableEntry.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableEntryList := ⟨NanoP4Spec.tableEntryList.ofValue⟩
@@ -4865,7 +4921,7 @@ def tableKeyProperty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.table
                   [(.Atom (Prelude.Value.atom (.Keyword "KEY"))),
                    (.Atom (Prelude.Value.atom (.Operator "="))),
                    (.Arg ())]) | none
-         pure (NanoP4Spec.tableKeyProperty.KEY_eq (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.tableKeyProperty.KEY_eq (← @NanoP4Spec.tableKey.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableKeyProperty := ⟨NanoP4Spec.tableKeyProperty.ofValue⟩
@@ -4920,7 +4976,7 @@ def tableActionsProperty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.tableActionsProperty.ACTIONS_eq_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)))
+            (← @NanoP4Spec.tableActionList.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableActionsProperty := ⟨NanoP4Spec.tableActionsProperty.ofValue⟩
@@ -4977,7 +5033,7 @@ def tableEntriesProperty.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.t
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.tableEntriesProperty.CONST_ENTRIES_eq_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)))
+            (← @NanoP4Spec.tableEntryList.ofValue fuel a0)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableEntriesProperty := ⟨NanoP4Spec.tableEntriesProperty.ofValue⟩
@@ -5029,15 +5085,15 @@ def tableProperties.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.tableP
       (do
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.tableProperties.mk
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1))) <|>
+            (← @NanoP4Spec.tableKeyProperty.ofValue fuel a0)
+            (← @NanoP4Spec.tableActionsProperty.ofValue fuel a1))) <|>
       (do
          let some [a0, a1, a2] :=
              Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.tableProperties.mk_2
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.tableKeyProperty.ofValue fuel a0)
+            (← @NanoP4Spec.tableActionsProperty.ofValue fuel a1)
+            (← @NanoP4Spec.tableEntriesProperty.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableProperties := ⟨NanoP4Spec.tableProperties.ofValue⟩
@@ -5098,8 +5154,8 @@ def tableDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.table
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.tableDeclaration.TABLE_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.tableProperties.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableDeclaration := ⟨NanoP4Spec.tableDeclaration.ofValue⟩
@@ -5153,8 +5209,8 @@ def controlTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.controlTypeDeclaration.CONTROL_lparen_rparen_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.controlTypeDeclaration := ⟨NanoP4Spec.controlTypeDeclaration.ofValue⟩
@@ -5185,7 +5241,7 @@ instance : BEq NanoP4Spec.controlBody := ⟨valueEq⟩
 
 def controlBody.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.controlBody
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.blockStatement.ofValue fuel v
 
 instance : OfValue NanoP4Spec.controlBody := ⟨NanoP4Spec.controlBody.ofValue⟩
 
@@ -5235,9 +5291,9 @@ def controlLocalDeclaration.ofValue :
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.controlLocalDeclaration.semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2))) <|>
+            (← @NanoP4Spec.type.ofValue fuel a0)
+            (← @NanoP4Spec.name.ofValue fuel a1)
+            (← @NanoP4Spec.initializer.ofValue fuel a2))) <|>
       (do
          let some [a0, a1] :=
              Prelude.Value.caseArgs
@@ -5250,8 +5306,8 @@ def controlLocalDeclaration.ofValue :
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.controlLocalDeclaration.TABLE_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.tableProperties.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.controlLocalDeclaration :=
@@ -5315,7 +5371,7 @@ def controlLocalDeclarationList.ofValue :
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.controlLocalDeclarationList.mk
             (← NanoP4Spec.controlLocalDeclarationList.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.controlLocalDeclaration.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.controlLocalDeclarationList :=
@@ -5383,10 +5439,10 @@ def controlDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.con
                       (.Seq [(.Arg ()), (.Atom (Prelude.Value.atom (.Keyword "APPLY"))), (.Arg ())])
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.controlDeclaration.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)
-            (← OfValue.ofValue fuel a3)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)
+            (← @NanoP4Spec.controlLocalDeclarationList.ofValue fuel a2)
+            (← @NanoP4Spec.controlBody.ofValue fuel a3)))
     | _ => none
 
 instance : OfValue NanoP4Spec.controlDeclaration := ⟨NanoP4Spec.controlDeclaration.ofValue⟩
@@ -5447,8 +5503,8 @@ def packageTypeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.packageTypeDeclaration.PACKAGE_lparen_rparen_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.parameterList.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.packageTypeDeclaration := ⟨NanoP4Spec.packageTypeDeclaration.ofValue⟩
@@ -5551,8 +5607,8 @@ def typeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDe
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.typeDeclaration.STRUCT_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1))) <|>
+            (← @NanoP4Spec.name.ofValue fuel a0)
+            (← @NanoP4Spec.typeFieldList.ofValue fuel a1))) <|>
       ((do
           let some [a0, a1] :=
               Prelude.Value.caseArgs
@@ -5565,8 +5621,8 @@ def typeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDe
                        (.Arg ())
                        (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.typeDeclaration.HEADER_lbrace_rbrace
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1))) <|>
+             (← @NanoP4Spec.name.ofValue fuel a0)
+             (← @NanoP4Spec.typeFieldList.ofValue fuel a1))) <|>
        ((do
            let some [a0, a1] :=
                Prelude.Value.caseArgs
@@ -5577,8 +5633,8 @@ def typeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDe
                      (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                      (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
            pure (NanoP4Spec.typeDeclaration.PARSER_lparen_rparen_semi
-              (← OfValue.ofValue fuel a0)
-              (← OfValue.ofValue fuel a1))) <|>
+              (← @NanoP4Spec.name.ofValue fuel a0)
+              (← @NanoP4Spec.parameterList.ofValue fuel a1))) <|>
         ((do
             let some [a0, a1] :=
                 Prelude.Value.caseArgs
@@ -5589,8 +5645,8 @@ def typeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDe
                       (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                       (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
             pure (NanoP4Spec.typeDeclaration.CONTROL_lparen_rparen_semi
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))) <|>
+               (← @NanoP4Spec.name.ofValue fuel a0)
+               (← @NanoP4Spec.parameterList.ofValue fuel a1))) <|>
          (do
             let some [a0, a1] :=
                 Prelude.Value.caseArgs
@@ -5601,8 +5657,8 @@ def typeDeclaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.typeDe
                       (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                       (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
             pure (NanoP4Spec.typeDeclaration.PACKAGE_lparen_rparen_semi
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))))))
+               (← @NanoP4Spec.name.ofValue fuel a0)
+               (← @NanoP4Spec.parameterList.ofValue fuel a1))))))
     | _ => none
 
 instance : OfValue NanoP4Spec.typeDeclaration := ⟨NanoP4Spec.typeDeclaration.ofValue⟩
@@ -5827,9 +5883,9 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                    (.Arg ()),
                    (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
          pure (NanoP4Spec.declaration.lparen_rparen_semi
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2))) <|>
+            (← @NanoP4Spec.type.ofValue fuel a0)
+            (← @NanoP4Spec.argumentList.ofValue fuel a1)
+            (← @NanoP4Spec.name.ofValue fuel a2))) <|>
       ((do
           let some [a0, a1, a2] :=
               Prelude.Value.caseArgs
@@ -5840,9 +5896,9 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                     (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                     (.Arg ())]) | none
           pure (NanoP4Spec.declaration.ACTION_lparen_rparen
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1)
-             (← OfValue.ofValue fuel a2))) <|>
+             (← @NanoP4Spec.name.ofValue fuel a0)
+             (← @NanoP4Spec.parameterList.ofValue fuel a1)
+             (← @NanoP4Spec.blockStatement.ofValue fuel a2))) <|>
        ((do
            let some [a0] :=
                Prelude.Value.caseArgs
@@ -5853,7 +5909,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                         (Prelude.Value.atom .LBrace)
                         (.Arg ())
                         (Prelude.Value.atom .RBrace))]) | none
-           pure (NanoP4Spec.declaration.MATCH_KIND_lbrace_rbrace (← OfValue.ofValue fuel a0))) <|>
+           pure (NanoP4Spec.declaration.MATCH_KIND_lbrace_rbrace
+              (← @NanoP4Spec.nameList.ofValue fuel a0))) <|>
         ((do
             let some [a0, a1] :=
                 Prelude.Value.caseArgs
@@ -5866,8 +5923,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                          (.Arg ())
                          (Prelude.Value.atom .RBrace))]) | none
             pure (NanoP4Spec.declaration.EXTERN_lbrace_rbrace
-               (← OfValue.ofValue fuel a0)
-               (← OfValue.ofValue fuel a1))) <|>
+               (← @NanoP4Spec.name.ofValue fuel a0)
+               (← @NanoP4Spec.externMethodPrototypeList.ofValue fuel a1))) <|>
          ((do
              let some [a0, a1, a2, a3] :=
                  Prelude.Value.caseArgs
@@ -5881,10 +5938,10 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                           (.Seq [(.Arg ()), (.Arg ())])
                           (Prelude.Value.atom .RBrace))]) | none
              pure (NanoP4Spec.declaration.PARSER_lparen_rparen_lbrace_rbrace
-                (← OfValue.ofValue fuel a0)
-                (← OfValue.ofValue fuel a1)
-                (← OfValue.ofValue fuel a2)
-                (← OfValue.ofValue fuel a3))) <|>
+                (← @NanoP4Spec.name.ofValue fuel a0)
+                (← @NanoP4Spec.parameterList.ofValue fuel a1)
+                (← @NanoP4Spec.parserLocalDeclarationList.ofValue fuel a2)
+                (← @NanoP4Spec.parserStateList.ofValue fuel a3))) <|>
           ((do
               let some [a0, a1, a2, a3] :=
                   Prelude.Value.caseArgs
@@ -5904,10 +5961,10 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                                (.Arg ())])
                            (Prelude.Value.atom .RBrace))]) | none
               pure (NanoP4Spec.declaration.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-                 (← OfValue.ofValue fuel a0)
-                 (← OfValue.ofValue fuel a1)
-                 (← OfValue.ofValue fuel a2)
-                 (← OfValue.ofValue fuel a3))) <|>
+                 (← @NanoP4Spec.name.ofValue fuel a0)
+                 (← @NanoP4Spec.parameterList.ofValue fuel a1)
+                 (← @NanoP4Spec.controlLocalDeclarationList.ofValue fuel a2)
+                 (← @NanoP4Spec.controlBody.ofValue fuel a3))) <|>
            ((do
                let some [a0, a1] :=
                    Prelude.Value.caseArgs
@@ -5920,8 +5977,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                             (.Arg ())
                             (Prelude.Value.atom .RBrace))]) | none
                pure (NanoP4Spec.declaration.STRUCT_lbrace_rbrace
-                  (← OfValue.ofValue fuel a0)
-                  (← OfValue.ofValue fuel a1))) <|>
+                  (← @NanoP4Spec.name.ofValue fuel a0)
+                  (← @NanoP4Spec.typeFieldList.ofValue fuel a1))) <|>
             ((do
                 let some [a0, a1] :=
                     Prelude.Value.caseArgs
@@ -5934,8 +5991,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                              (.Arg ())
                              (Prelude.Value.atom .RBrace))]) | none
                 pure (NanoP4Spec.declaration.HEADER_lbrace_rbrace
-                   (← OfValue.ofValue fuel a0)
-                   (← OfValue.ofValue fuel a1))) <|>
+                   (← @NanoP4Spec.name.ofValue fuel a0)
+                   (← @NanoP4Spec.typeFieldList.ofValue fuel a1))) <|>
              ((do
                  let some [a0, a1] :=
                      Prelude.Value.caseArgs
@@ -5949,8 +6006,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                               (Prelude.Value.atom .RParen)),
                            (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
                  pure (NanoP4Spec.declaration.PARSER_lparen_rparen_semi
-                    (← OfValue.ofValue fuel a0)
-                    (← OfValue.ofValue fuel a1))) <|>
+                    (← @NanoP4Spec.name.ofValue fuel a0)
+                    (← @NanoP4Spec.parameterList.ofValue fuel a1))) <|>
               ((do
                   let some [a0, a1] :=
                       Prelude.Value.caseArgs
@@ -5964,8 +6021,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                                (Prelude.Value.atom .RParen)),
                             (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
                   pure (NanoP4Spec.declaration.CONTROL_lparen_rparen_semi
-                     (← OfValue.ofValue fuel a0)
-                     (← OfValue.ofValue fuel a1))) <|>
+                     (← @NanoP4Spec.name.ofValue fuel a0)
+                     (← @NanoP4Spec.parameterList.ofValue fuel a1))) <|>
                (do
                   let some [a0, a1] :=
                       Prelude.Value.caseArgs
@@ -5979,8 +6036,8 @@ def declaration.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.declaratio
                                (Prelude.Value.atom .RParen)),
                             (.Atom (Prelude.Value.atom (.Operator ";")))]) | none
                   pure (NanoP4Spec.declaration.PACKAGE_lparen_rparen_semi
-                     (← OfValue.ofValue fuel a0)
-                     (← OfValue.ofValue fuel a1))))))))))))
+                     (← @NanoP4Spec.name.ofValue fuel a0)
+                     (← @NanoP4Spec.parameterList.ofValue fuel a1))))))))))))
     | _ => none
 
 instance : OfValue NanoP4Spec.declaration := ⟨NanoP4Spec.declaration.ofValue⟩
@@ -6119,7 +6176,7 @@ def program.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.program
          let some [a0, a1] := Prelude.Value.caseArgs c (.Seq [(.Arg ()), (.Arg ())]) | none
          pure (NanoP4Spec.program.mk
             (← NanoP4Spec.program.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.declaration.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.program := ⟨NanoP4Spec.program.ofValue⟩

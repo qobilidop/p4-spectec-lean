@@ -46,7 +46,10 @@ def set.ofValue {τK : Type} [OfValue τK] : Nat → Lang.Il.value → Option (N
              Prelude.Value.caseArgs
                c
                (.Brack (Prelude.Value.atom .LBrace) (.Arg ()) (Prelude.Value.atom .RBrace)) | none
-         pure (NanoP4Spec.set.lbrace_rbrace (← OfValue.ofValue fuel a0)))
+         pure (NanoP4Spec.set.lbrace_rbrace
+            (← (match a0.it with
+               | .ListV vs => vs.mapM (fun x => OfValue.ofValue fuel x)
+               | _ => none))))
     | _ => none
 
 instance {τK : Type} [OfValue τK] : OfValue (NanoP4Spec.set τK) := ⟨NanoP4Spec.set.ofValue⟩
@@ -129,7 +132,19 @@ instance {τK τV : Type} [ToValue τK] [ToValue τV] : BEq (NanoP4Spec.map τK 
 def map.ofValue {τK τV : Type} [OfValue τK] [OfValue τV] :
     Nat → Lang.Il.value → Option (NanoP4Spec.map τK τV)
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.set.ofValue
+    (NanoP4Spec.pair τK τV)
+    (OfValue.mk
+       (fun fuel v =>
+          @NanoP4Spec.pair.ofValue
+            τK
+            τV
+            (OfValue.mk (fun fuel v => OfValue.ofValue fuel v))
+            (OfValue.mk (fun fuel v => OfValue.ofValue fuel v))
+            fuel
+            v))
+    fuel
+    v
 
 instance {τK τV : Type} [OfValue τK] [OfValue τV] : OfValue (NanoP4Spec.map τK τV) :=
   ⟨NanoP4Spec.map.ofValue⟩

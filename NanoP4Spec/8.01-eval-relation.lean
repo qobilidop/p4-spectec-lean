@@ -62,7 +62,7 @@ def transitionResult.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.trans
               Prelude.Value.caseArgs
                 c
                 (.Seq [(.Atom (Prelude.Value.atom (.Keyword "STATE"))), (.Arg ())]) | none
-          pure (NanoP4Spec.transitionResult.STATE (← OfValue.ofValue fuel a0))))
+          pure (NanoP4Spec.transitionResult.STATE (← @NanoP4Spec.id.ofValue fuel a0))))
     | _ => none
 
 instance : OfValue NanoP4Spec.transitionResult := ⟨NanoP4Spec.transitionResult.ofValue⟩
@@ -118,9 +118,11 @@ def actionCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.actionCal
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.actionCallee.ACTION_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.callableId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← @NanoP4Spec.blockStatement.ofValue fuel a2)))
     | _ => none
 
 instance : OfValue NanoP4Spec.actionCallee := ⟨NanoP4Spec.actionCallee.ofValue⟩
@@ -186,9 +188,11 @@ def externMethodCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.ext
                       (.Arg ())
                       (Prelude.Value.atom .RParen))]) | none
          pure (NanoP4Spec.externMethodCallee.EXTERN_METHOD_dot_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2)))
+            (← @NanoP4Spec.lvalue.ofValue fuel a0)
+            (← @NanoP4Spec.callableId.ofValue fuel a1)
+            (← (match a2.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))))
     | _ => none
 
 instance : OfValue NanoP4Spec.externMethodCallee := ⟨NanoP4Spec.externMethodCallee.ofValue⟩
@@ -254,8 +258,8 @@ def tableApplyMethodCallee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec
                       (.Arg ())
                       (Prelude.Value.atom .RBrace))]) | none
          pure (NanoP4Spec.tableApplyMethodCallee.TABLE_dot_APPLY_lbrace_rbrace
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)))
+            (← @NanoP4Spec.nameIR.ofValue fuel a0)
+            (← @NanoP4Spec.tableProperties.ofValue fuel a1)))
     | _ => none
 
 instance : OfValue NanoP4Spec.tableApplyMethodCallee := ⟨NanoP4Spec.tableApplyMethodCallee.ofValue⟩
@@ -345,9 +349,11 @@ def callee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callee
                    (.Brack (Prelude.Value.atom .LParen) (.Arg ()) (Prelude.Value.atom .RParen)),
                    (.Arg ())]) | none
          pure (NanoP4Spec.callee.ACTION_lparen_rparen
-            (← OfValue.ofValue fuel a0)
-            (← OfValue.ofValue fuel a1)
-            (← OfValue.ofValue fuel a2))) <|>
+            (← @NanoP4Spec.callableId.ofValue fuel a0)
+            (← (match a1.it with
+               | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+               | _ => none))
+            (← @NanoP4Spec.blockStatement.ofValue fuel a2))) <|>
       ((do
           let some [a0, a1, a2] :=
               Prelude.Value.caseArgs
@@ -362,9 +368,11 @@ def callee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callee
                        (.Arg ())
                        (Prelude.Value.atom .RParen))]) | none
           pure (NanoP4Spec.callee.EXTERN_METHOD_dot_lparen_rparen
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1)
-             (← OfValue.ofValue fuel a2))) <|>
+             (← @NanoP4Spec.lvalue.ofValue fuel a0)
+             (← @NanoP4Spec.callableId.ofValue fuel a1)
+             (← (match a2.it with
+                | .ListV vs => vs.mapM (fun x => @NanoP4Spec.parameterIR.ofValue fuel x)
+                | _ => none)))) <|>
        (do
           let some [a0, a1] :=
               Prelude.Value.caseArgs
@@ -379,8 +387,8 @@ def callee.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.callee
                        (.Arg ())
                        (Prelude.Value.atom .RBrace))]) | none
           pure (NanoP4Spec.callee.TABLE_dot_APPLY_lbrace_rbrace
-             (← OfValue.ofValue fuel a0)
-             (← OfValue.ofValue fuel a1))))
+             (← @NanoP4Spec.nameIR.ofValue fuel a0)
+             (← @NanoP4Spec.tableProperties.ofValue fuel a1))))
     | _ => none
 
 instance : OfValue NanoP4Spec.callee := ⟨NanoP4Spec.callee.ofValue⟩

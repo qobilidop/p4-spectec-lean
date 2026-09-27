@@ -32,7 +32,13 @@ instance : BEq NanoP4Spec.frame := ⟨valueEq⟩
 
 def frame.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.frame
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @NanoP4Spec.map.ofValue
+    NanoP4Spec.nameIR
+    NanoP4Spec.value
+    (OfValue.mk (fun fuel v => @NanoP4Spec.nameIR.ofValue fuel v))
+    (OfValue.mk (fun fuel v => @NanoP4Spec.value.ofValue fuel v))
+    fuel
+    v
 
 instance : OfValue NanoP4Spec.frame := ⟨NanoP4Spec.frame.ofValue⟩
 
@@ -69,13 +75,15 @@ def globalEvalLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.global
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2), (_, f3), (_, f4)] =>
       (do
-         pure ⟨(← OfValue.ofValue
+         pure ⟨(← @NanoP4Spec.typeDefEnv.ofValue
            fuel
-           f0), (← OfValue.ofValue
+           f0), (← @NanoP4Spec.callableDefEnv.ofValue
            fuel
-           f1), (← OfValue.ofValue
+           f1), (← @NanoP4Spec.frame.ofValue
            fuel
-           f2), (← OfValue.ofValue fuel f3), (← OfValue.ofValue fuel f4)⟩)
+           f2), (← @NanoP4Spec.parserDeclarationIR.ofValue
+           fuel
+           f3), (← @NanoP4Spec.controlDeclarationIR.ofValue fuel f4)⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.globalEvalLayer := ⟨NanoP4Spec.globalEvalLayer.ofValue⟩
@@ -109,7 +117,7 @@ def blockEvalLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.blockEv
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0)] =>
       (do
-         pure ⟨(← OfValue.ofValue fuel f0)⟩)
+         pure ⟨(← @NanoP4Spec.frame.ofValue fuel f0)⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.blockEvalLayer := ⟨NanoP4Spec.blockEvalLayer.ofValue⟩
@@ -137,7 +145,9 @@ def localEvalLayer.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.localEv
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0)] =>
       (do
-         pure ⟨(← OfValue.ofValue fuel f0)⟩)
+         pure ⟨(← (match f0.it with
+            | .ListV vs => vs.mapM (fun x => @NanoP4Spec.frame.ofValue fuel x)
+            | _ => none))⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.localEvalLayer := ⟨NanoP4Spec.localEvalLayer.ofValue⟩
@@ -171,9 +181,11 @@ def evalContext.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.evalContex
   | fuel + 1, v => match v.it with
     | .StructV [(_, f0), (_, f1), (_, f2)] =>
       (do
-         pure ⟨(← OfValue.ofValue
+         pure ⟨(← @NanoP4Spec.globalEvalLayer.ofValue
            fuel
-           f0), (← OfValue.ofValue fuel f1), (← OfValue.ofValue fuel f2)⟩)
+           f0), (← @NanoP4Spec.blockEvalLayer.ofValue
+           fuel
+           f1), (← @NanoP4Spec.localEvalLayer.ofValue fuel f2)⟩)
     | _ => none
 
 instance : OfValue NanoP4Spec.evalContext := ⟨NanoP4Spec.evalContext.ofValue⟩

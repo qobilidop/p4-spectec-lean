@@ -32,7 +32,7 @@ instance : BEq NanoP4Spec.bit := ⟨valueEq⟩
 
 def bit.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bit
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => @OfValue.ofValue Bool P4SpecTec.Prelude.instOfValueBool fuel v
 
 instance : OfValue NanoP4Spec.bit := ⟨NanoP4Spec.bit.ofValue⟩
 
@@ -47,7 +47,9 @@ instance : BEq NanoP4Spec.bits := ⟨valueEq⟩
 
 def bits.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.bits
   | 0, _ => none
-  | fuel + 1, v => OfValue.ofValue fuel v
+  | fuel + 1, v => (match v.it with
+     | .ListV vs => vs.mapM (fun x => @NanoP4Spec.bit.ofValue fuel x)
+     | _ => none)
 
 instance : OfValue NanoP4Spec.bits := ⟨NanoP4Spec.bits.ofValue⟩
 

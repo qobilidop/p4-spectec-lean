@@ -201,9 +201,15 @@ def tparamImplicits (tparams : List String) : Format :=
 def selfType (env : Env) (id : String) (tparams : List String) : Term :=
   .call (env.q (Names.typeName id)) (tparams.map fun p => .atom (Names.tparamName p))
 
+/-- Local type parameters shadow declarations in the enclosing source specification. -/
+private def parameterScope (env : Env) (parameters : List String) : Env :=
+  { env with types := parameters.foldl (fun types name => types.erase name) env.types }
+
 /-- One type declaration. `unfold` lists the aliases of the recursive group. -/
 def typeDecl (env : Env) (unfold : List String) (id : String) (tparams : List String)
     (dt : deftyp') : Format :=
+  let env := parameterScope env tparams
+  let unfold := unfold.filter (!tparams.contains ·)
   let name := Names.typeName id
   match dt with
   | .PlainT t =>
@@ -357,6 +363,8 @@ def toValueDecls (env : Env) (group : List (String × List String × deftyp')) :
   let mut st : HelperState := { prefix_ := Names.typeName first ++ "." }
   let mut fns : List Format := []
   for (tid, tparams, dt) in group do
+    let env := parameterScope env tparams
+    let members := members.filter (!tparams.contains ·)
     let self := selfType env tid tparams
     let name := toValueName tid
     let header := Format.text s!"def {name}" ++ tparamImplicits tparams ++ tparamInstances tparams
@@ -420,7 +428,9 @@ def ofValueInstances (tparams : List String) : Format :=
   else Format.text (" " ++ " ".intercalate (tparams.map fun p =>
     s!"[OfValue {Names.tparamName p}]"))
 
-/-- The decoder term for a value term `v` at type `t`. -/
+/-- The decoder term for a value term `v` at type `t`. Closed nominal fields use
+that declaration's decoder and explicit parameter dictionaries. Primitive and
+list/option children therefore do not capture an unrelated reducible alias. -/
 partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term) : Term :=
   match t with
   | .VarT i targs =>
@@ -450,22 +460,25 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
               s!"some (.{Representation.rawExternCtor} ⟨json⟩)")]
           else []) ++ [(Format.text "_", .atom "none")]))
       | _ => .call "OfValue.ofValue" [.atom "fuel", v]
+    else if (env.types[i.it]?).any (fun info => info.deftyp.isSome) then
+      -- Bind the source name, not the newest instance for a reducible alias.
+      let types := targs.map (fun t => typTerm env [] t.it)
+      let dictionaries := targs.map (fun t =>
+        Term.paren (.call "OfValue.mk"
+          [.lam ["fuel", "v"] (ofValueTerm env [] t.it (.atom "v"))]))
+      .call ("@" ++ env.q (ofValueName i.it)) (types ++ dictionaries ++ [.atom "fuel", v])
     else .call "OfValue.ofValue" [.atom "fuel", v]
   | .IterT e .List =>
-    if mentions members t then
-      .paren (.matchOn (.proj v "it") [
-        (Format.text ".ListV vs",
-          .call "vs.mapM" [.lam ["x"] (ofValueTerm env members e.it (.atom "x"))]),
-        (Format.text "_", .atom "none")])
-    else .call "OfValue.ofValue" [.atom "fuel", v]
+    .paren (.matchOn (.proj v "it") [
+      (Format.text ".ListV vs",
+        .call "vs.mapM" [.lam ["x"] (ofValueTerm env members e.it (.atom "x"))]),
+      (Format.text "_", .atom "none")])
   | .IterT e .Opt =>
-    if mentions members t then
-      .paren (.matchOn (.proj v "it") [
-        (Format.text ".OptV none", .atom "some none"),
-        (Format.text ".OptV (some x)",
-          .call "Option.map some" [ofValueTerm env members e.it (.atom "x")]),
-        (Format.text "_", .atom "none")])
-    else .call "OfValue.ofValue" [.atom "fuel", v]
+    .paren (.matchOn (.proj v "it") [
+      (Format.text ".OptV none", .atom "some none"),
+      (Format.text ".OptV (some x)",
+        .call "Option.map some" [ofValueTerm env members e.it (.atom "x")]),
+      (Format.text "_", .atom "none")])
   | .TupleT ts =>
     if mentions members t then
       let names := (List.range ts.length).map fun i => s!"x{i}"
@@ -476,6 +489,15 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
           .paren (.doBlock [Format.text "pure " ++ (Term.tuple (decs.map Term.raw)).fmt])),
         (Format.text "_", .atom "none")])
     else .call "OfValue.ofValue" [.atom "fuel", v]
+  | .BoolT => .call "@OfValue.ofValue"
+      [.atom "Bool", .atom "P4SpecTec.Prelude.instOfValueBool", .atom "fuel", v]
+  | .NumT .NatT => .call "@OfValue.ofValue"
+      [.atom "Nat", .atom "P4SpecTec.Prelude.instOfValueNat", .atom "fuel", v]
+  | .NumT .IntT => .call "@OfValue.ofValue"
+      [.atom "Int", .atom "P4SpecTec.Prelude.instOfValueInt", .atom "fuel", v]
+  | .TextT => .call "@OfValue.ofValue"
+      [.atom "P4SpecTec.ByteText", .atom "P4SpecTec.Prelude.instOfValueByteText",
+       .atom "fuel", v]
   | _ => .call "OfValue.ofValue" [.atom "fuel", v]
 where
   /-- `a <|> b <|> ...`. -/
@@ -489,6 +511,8 @@ def ofValueDecls (env : Env) (group : List (String × List String × deftyp')) :
   let members := group.map (·.1)
   let mut fns : List Format := []
   for (tid, tparams, dt) in group do
+    let env := parameterScope env tparams
+    let members := members.filter (!tparams.contains ·)
     let self := selfType env tid tparams
     let name := ofValueName tid
     let insts := ofValueInstances tparams
