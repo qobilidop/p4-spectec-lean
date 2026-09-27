@@ -1,6 +1,9 @@
 """Fail-closed contracts for the bounded mutation runner."""
 
+import io
+import json
 import subprocess
+import threading
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -97,6 +100,50 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaises(run.HarnessError):
             run.validate_proof("behavior", "fresh", subprocess.CompletedProcess(
                 [], 0, "PROOF_SUCCESS:fresh", ""), Path("/scratch/Probe.lean"), 10, 30)
+
+    def test_concurrent_mutations_report_in_input_order(self):
+        baseline_checked = threading.Event()
+        started = threading.Barrier(3)
+        representation_done = threading.Event()
+        quotation_done = threading.Event()
+        completed = []
+
+        def run_case(case):
+            if case == "baseline":
+                baseline_checked.set()
+            else:
+                self.assertTrue(baseline_checked.is_set())
+                started.wait(timeout=5)
+                if case == "behavior":
+                    self.assertTrue(quotation_done.wait(timeout=5))
+                elif case == "quotation":
+                    self.assertTrue(representation_done.wait(timeout=5))
+                completed.append(case)
+                if case == "representation":
+                    representation_done.set()
+                elif case == "quotation":
+                    quotation_done.set()
+            return {"case": case}
+
+        output = io.StringIO()
+        with patch.object(run, "run_case", side_effect=run_case), patch("sys.stdout", output):
+            self.assertEqual(run.main(), 0)
+        self.assertEqual(completed, ["representation", "quotation", "behavior"])
+        self.assertEqual(json.loads(output.getvalue())["results"],
+                         [{"case": case} for case in run.CASES])
+
+    def test_mutant_execution_errors_fail_the_runner(self):
+        for error in (run.HarnessError("mutant failed"), OSError("mutant unavailable")):
+            with self.subTest(error=type(error).__name__):
+                def run_case(case):
+                    if case == "quotation":
+                        raise error
+                    return {"case": case}
+
+                output = io.StringIO()
+                with patch.object(run, "run_case", side_effect=run_case), patch("sys.stdout", output):
+                    self.assertEqual(run.main(), 1)
+                self.assertEqual(output.getvalue().strip(), str(error))
 
     def test_baseline_failure_stops_mutations(self):
         with patch.object(run, "run_case", side_effect=run.HarnessError("baseline failed")) as call:

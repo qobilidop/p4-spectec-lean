@@ -212,3 +212,25 @@ Independent root read-only review checked mutation paths, guards and the
 read-only nature of fixture.validate/typed_value; no findings. Scoped final
 diff SHA-256 against `60d74c9`: `e2d4d1c95b44796b498c3227eb7d1ded2285a6c18cd203e49ad0e29e847ba32d`.
 The next combined full gate remains required before publication.
+
+
+## Concurrent independent mutations
+
+The complete baseline still runs first. Only after it passes, run the three
+independent mutants with three bounded worker threads. Ordered executor results
+preserve the JSON report; validators, nonces, scratch directories and separate
+60s/300s phase timeouts are unchanged. Any worker execution failure rejects the
+runner; shutdown waits for other bounded workers.
+
+Author Sol measured the original serial runner at 24.349s and concurrent runner
+at 16.978s, both exit 0 with byte-identical JSON, before the byte-access optimization.
+The eleven focused runner contracts passed; two added orchestration tests force
+reverse completion order and reject HarnessError/OSError from mutant workers.
+The existing test still requires baseline failure to prevent all mutants.
+
+Independent read-only Sol review (`enforce_library_layers`, distinct from author
+`organize_lean_tests`) found no issues. Two-file diff against `60d74c9` SHA-256:
+`2a4183e8a5b1532d41e95e5426f159f58a178c0add029f3f31a00bcf767d900c`.
+Root also inspected ordering, per-case isolation and failure propagation. Raw
+comparison artifacts: `.artifacts/field-update-concurrency-*`.
+Full combined gate and final measurements follow the JSON optimization.

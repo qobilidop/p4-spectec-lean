@@ -5,6 +5,7 @@ Run inside nix develop after lake build ExampleProofs and lake test. These
 observations exercise three separate boundaries; they are not additional proofs.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import json
 from pathlib import Path
 import subprocess
@@ -193,7 +194,9 @@ def run_case(case, execute=subprocess.run, probe_timeout=PROBE_TIMEOUT_SECONDS,
 
 def main():
     try:
-        results = [run_case(case) for case in CASES]
+        results = [run_case(CASES[0])]
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            results.extend(executor.map(run_case, CASES[1:]))
     except (HarnessError, OSError) as error:
         print(str(error))
         return 1
