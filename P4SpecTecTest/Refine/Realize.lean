@@ -178,4 +178,35 @@ theorem orderedTraversalError :
 depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms orderedTraversalError
 
+-- Both generic rules retain the existing delayed failure/divergence distinction.
+theorem negatedStep (n : Nat) :
+    Realizes (fun _ _ => True)
+      (fun fuel => Eval.notHold (referenceStep fuel n)) (Eval.notHold (step n)) :=
+  (stepRealizes n).notHold
+
+/-- info: 'P4SpecTecTest.Realize.negatedStep'
+depends on axioms: [propext] -/
+#guard_msgs in #print axioms negatedStep
+
+theorem optionalTraversal (input : Option Nat) :
+    Realizes (Option.Rel Eq)
+      (fun fuel => input.mapM (referenceStep fuel)) (input.mapM step) := by
+  apply Realizes.optionMapM (P := Eq)
+  · cases input with
+    | none => exact .none
+    | some _ => exact .some rfl
+  · intro a b hab
+    subst b
+    exact stepRealizes a
+
+/-- info: 'P4SpecTecTest.Realize.optionalTraversal'
+depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms optionalTraversal
+
+-- An absent optional body is skipped even at fuel zero; a present hard error
+-- is retained, and insufficient fuel is never mistaken for an absent option.
+example : ((none : Option Nat).mapM (referenceStep 0)).run = some (.ok none) := rfl
+example : ((some 1).mapM (referenceStep 3)).run = some (.error .err) := rfl
+example : ((some 1).mapM (referenceStep 0)).run = none := rfl
+
 end P4SpecTecTest.Realize

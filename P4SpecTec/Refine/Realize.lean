@@ -279,4 +279,51 @@ theorem Realizes.mapM {P : α → β → Prop} {Q : γ → δ → Prop}
 depends on axioms: [propext, Quot.sound] -/
 #guard_msgs in #print axioms Realizes.mapM
 
+/-- Negation preserves reverse realization, including both failure kinds. -/
+theorem Realizes.notHold {P : α → β → Prop} {m : Nat → Eval α} {n : Eval β}
+    (h : Realizes P m n) :
+    Realizes (fun _ _ => True) (fun fuel => Eval.notHold (m fuel)) (Eval.notHold n) := by
+  intro q hq
+  rw [run_notHold] at hq
+  cases hn : n.run with
+  | none => simp [hn] at hq
+  | some s =>
+    obtain ⟨r, hr, hrel⟩ := h s hn
+    cases s with
+    | ok b =>
+      simp only [hn, Option.bind_some] at hq
+      cases hq
+      cases r with
+      | error _ => cases hrel
+      | ok a => exact ⟨.error .unmatch, hr.notHold, rfl⟩
+    | error e =>
+      cases r with
+      | ok _ => cases hrel
+      | error f =>
+        cases hrel
+        cases e <;> simp only [hn, Option.bind_some] at hq <;> cases hq
+        · exact ⟨.error .err, hr.notHold, rfl⟩
+        · exact ⟨.ok (), hr.notHold, trivial⟩
+
+/-- info: 'P4SpecTec.Refine.Realizes.notHold'
+depends on axioms: [propext] -/
+#guard_msgs in #print axioms Realizes.notHold
+
+/-- Optional traversal evaluates exactly the present value and preserves its failures. -/
+theorem Realizes.optionMapM {P : α → β → Prop} {Q : γ → δ → Prop}
+    {f : Nat → α → Eval γ} {g : β → Eval δ} {x : Option α} {y : Option β}
+    (hinputs : Option.Rel P x y)
+    (hstep : ∀ a b, P a b → Realizes Q (fun fuel => f fuel a) (g b)) :
+    Realizes (Option.Rel Q) (fun fuel => x.mapM (f fuel)) (y.mapM g) := by
+  cases hinputs with
+  | none => exact Realizes.pure .none
+  | some hab =>
+    simp only [Option.mapM_some, map_eq_pure_bind]
+    apply Realizes.bind (hstep _ _ hab)
+    intro c d hcd
+    exact Realizes.pure (.some hcd)
+
+/-- info: 'P4SpecTec.Refine.Realizes.optionMapM' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in #print axioms Realizes.optionMapM
+
 end P4SpecTec.Refine
