@@ -157,7 +157,7 @@ def check_func_output (cfg : Config m) (ctx : Ctx.t) (id_func : Lang.Il.id) (tpa
     (typ_output : typ) (targs : List targ) (value_output : value) : backtrack Unit := do
   if !cfg.guard then return ()
   let theta ← checked_type (Subst.of_lists_checked tparams targs)
-  let typ_output ← checked_type (Subst.subst_typ_checked Subst.fuel theta typ_output)
+  let typ_output ← checked_type (Subst.substType theta typ_output)
   let matched ← checked_type
     (Value.Match.sub_checked (Ctx.find_typdef_opt' ctx)
       (Ctx.find_func_signature_opt_checked' 1000 ctx)
@@ -370,7 +370,7 @@ def subst_targs (ctx : Ctx.t) (targs : List targ) : backtrack (List targ) :=
       match td with
       | .Defined [] ⟨.PlainT typ, _, _⟩ => some (tid, typ)
       | _ => none
-    targs.mapM fun targ => checked_type (Subst.subst_typ_checked Subst.fuel theta targ)
+    targs.mapM fun targ => checked_type (Subst.substType theta targ)
 
 /-! The recursive block: assignment, evaluation and invocation -/
 
@@ -587,7 +587,7 @@ def upcast : Nat → Ctx.t → typ → value → backtrack value
       let theta ← checked_type (Subst.of_lists_checked tparams targs)
       match deftyp.it with
       | .PlainT typ => do
-        let typ ← checked_type (Subst.subst_typ_checked Subst.fuel theta typ)
+        let typ ← checked_type (Subst.substType theta typ)
         upcast fuel ctx typ value
       | _ => pure value
     | .TupleT typs =>
@@ -631,7 +631,7 @@ def downcast : Nat → Ctx.t → typ → value → backtrack value
       let theta ← checked_type (Subst.of_lists_checked tparams targs)
       match deftyp.it with
       | .PlainT typ => do
-        let typ ← checked_type (Subst.subst_typ_checked Subst.fuel theta typ)
+        let typ ← checked_type (Subst.substType theta typ)
         downcast fuel ctx typ value
       | _ => pure value
     | .TupleT typs =>

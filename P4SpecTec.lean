@@ -98,6 +98,7 @@ import P4SpecTec.Runtime.Sim.Io
 import P4SpecTec.Runtime.Type.Equiv
 import P4SpecTec.Runtime.Type.Expand
 import P4SpecTec.Runtime.Type.Subst
+import P4SpecTec.Runtime.Type.SubstDepth
 import P4SpecTec.Runtime.Type.Typ
 import P4SpecTec.Runtime.Type.Typdef
 import P4SpecTec.Runtime.Value.Match

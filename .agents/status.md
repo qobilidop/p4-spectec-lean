@@ -48,15 +48,40 @@ The full local gate passed with actual exit 0 (session 60774, 74.570s), all 44
 stages and no skips. Evidence: `.artifacts/n2-full-gate.{log,json}`; tested index
 tree `0f249ebf77ef66a2dbe66232b409a422526816a8`. This is a warm measurement,
 not a controlled comparison with N1. Subsequent changes are checkpoint prose
-only; executable inputs remain unchanged. Routine remote CI is pending for
-this checkpoint; no N2 milestone closure or exact-head CI success is claimed.
+only; executable inputs remain unchanged. Remote CI subsequently passed for published revision `c8f78f7`
+([run 36294851006](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36294851006)).
+N2 remains active; this is not milestone closure.
 Strict core completion still rejects the inventory with actual exit 1 and the
 expected incomplete-certification diagnostic (`.artifacts/n2-strict-core.log`).
 
+## Current continuation (uncommitted, `n2-certification`)
+
+Checked substitution now derives sufficient fuel from finite input syntax. Five
+kernel-audited statements establish definitive results and stable type/list
+results, including explicit errors. Every fixed-budget checked substitution
+caller was migrated; legacy APIs and bounded recursive alias expansion remain
+separate. Empty-substitution fast paths were preserved after independent review.
+Focused `--wfail` validation passed for both runtime type test modules and
+`Refine.Environment` (session 66512); the regression crosses depth 1,100.
+
+Generated equality certificates passed for all 161 type declarations, including
+noninjective polymorphic encoders. Initialized-table absence proofs and generated
+Nano type-parameter freshness facts passed. Independent Sol review found no
+issue in the equality/freshness implementation. The topic note records scope and
+review limits. Source representation inventory/schema integration is in progress;
+no additional completion binding is claimed before production codec validation.
+
+Concurrent owned work continues on actual Type_eq/ParameterType_eq, polymorphic
+in_set/dom_map iteration and the independent source grammar/recursive codecs.
+A broader check exposed regressions in the actively edited reverse tactic;
+restoring the original 18 certificates takes priority. The feature branch keeps
+those experiments isolated from published main. No full gate has been run on
+this evolving continuation and it has not been pushed.
+
 ## Next step and remaining N2 obligations
 
-Check routine remote CI for the published checkpoint and resolve any failure.
-Then establish actual source grammar/codec contracts for the four-member
+Complete the active proof/inventory integrations and independent reviews.
+Establish actual source grammar/codec contracts for the four-member
 `typeIR` representation SCC, with producer/cast and call-preservation proofs.
 Complete Type_eq/ParameterType_eq, Type_ok and Var_init dependency closures.
 Subtype/membership/iteration/type-argument support and reachable substitution

@@ -149,8 +149,10 @@ These limitations describe the implementation, not the intended design:
   proof coverage must be read from the generated exclusions.
 - Some legacy proof-facing matching/substitution helpers retain bounded-fuel
   false/identity fallbacks. Interpreter paths use checked APIs with explicit
-  exhaustion and errors. Nonempty substitution through function types remains
-  unsupported; the separate upstream type-fresh allocator is not modeled.
+  exhaustion and errors. Checked substitution uses a proved input-syntax bound,
+  so it has no fixed syntactic-depth cutoff. Nonempty substitution through
+  function types remains unsupported; the separate upstream type-fresh allocator
+  is not modeled.
 - Function-type comparison uses internal binder markers rather than allocating
   upstream type-fresh names. Its bounded comparison evidence does not cover
   later operations that could observe allocation history.

@@ -113,10 +113,10 @@ def equiv_functyp (find_typdef_opt : Expand.FindTypdef)
     if (List.range tparams_a.length).any (fun i => binder_marker i == name) then
       some .Param
     else find_typdef_opt name
-  let params_a ← Subst.subst_typs_checked Subst.fuel theta_a params_a
-  let params_b ← Subst.subst_typs_checked Subst.fuel theta_b params_b
-  let ret_a ← Subst.subst_typ_checked Subst.fuel theta_a ret_a
-  let ret_b ← Subst.subst_typ_checked Subst.fuel theta_b ret_b
+  let params_a ← Subst.substTypes theta_a params_a
+  let params_b ← Subst.substTypes theta_b params_b
+  let ret_a ← Subst.substType theta_a ret_a
+  let ret_b ← Subst.substType theta_b ret_b
   if !(← equiv_typs_inner find_fresh fuel params_a params_b) then
     return false
   equiv_typ_inner find_fresh fuel ret_a ret_b

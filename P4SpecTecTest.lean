@@ -44,6 +44,7 @@ import P4SpecTecTest.Refine.StateRules
 import P4SpecTecTest.Refine.ValueOrder
 
 import P4SpecTecTest.Runtime.Type
+import P4SpecTecTest.Runtime.Type.SubstDepth
 
 import P4SpecTecTest.Tactic.Refine
 

@@ -256,6 +256,8 @@ the claimed observations; new differences require an explicit entry.
 - **Recursion and modules:** monotone fixpoints, shared recursive-group modules,
   qualified names and keyword escaping satisfy Lean's proof/binding constraints.
   Shape inspection uses well-founded recursion rather than fallback answers.
+  Checked type substitution uses a proved bound derived from the input syntax;
+  recursive alias expansion retains explicit execution fuel.
 - **Logical rules:** positive iteration witnesses meet positivity constraints;
   negative premises test executable mismatch. Logical fallback rules may
   overapproximate execution, so soundness does not imply exactness.

@@ -163,6 +163,52 @@ All 26 builtin declarations and the full N2 exit remain in scope. Initial
 interfaces do not by themselves discharge source-domain or call-preservation
 obligations, and no new manifest binding is claimed without its checked adapter.
 
+#### Continuation: syntax bounds and source inventories (2026-09-26)
+
+Active, uncommitted continuation of published `c8f78f7`; its remote CI run
+36294851006 passed before this work. No full gate or publication is claimed for
+this evolving tree.
+
+Root implemented `Runtime/Type/SubstDepth.lean`: input-syntax depth bounds for
+checked type/list/notation substitution, definitive-result proofs and stable
+results for every larger type/list budget. All production checked substitution
+calls now use these bounds; alias expansion and membership retain their separate
+execution fuel. Errors, simultaneous replacement and the empty-substitution fast
+path are preserved. Legacy total APIs remain separate. Focused validation:
+`lake build --wfail P4SpecTecTest.Runtime.Type.SubstDepth
+P4SpecTecTest.Runtime.Type P4SpecTec.Refine.Environment`, session 66512 exit 0.
+The executable regression distinguishes the former cutoff at depth 1,100 and
+checks replacement non-recursion and retained higher-order/function errors.
+Artifacts: `.artifacts/n2-substitution-depth-test.log`.
+
+Independent read-only Astra review at base `c8f78f7` found no semantic issue and
+one low performance issue: computing the syntax bound eagerly for an empty
+substitution. Root moved the empty check before traversal. Reviewer confirmed
+resolution at SubstDepth SHA-256
+`b9d0024fdb8c8afa564239276243e4ad2330ea17e8df58e4de49dbd98dfd6be4`.
+The original six-file hash inventory, finding and later resolution remain in
+`.artifacts/n2-reverse/substitution-review.json`. Limits: no independent build or
+performance measurement; alias expansion/membership bounds are not discharged
+by this substitution theorem.
+
+Root's separate equality sidecar supplies all 161 actual generated `ValueBEq`
+instances without parameter equality or injectivity assumptions. The production
+sidecar and a noninjective erased-parameter regression passed `--wfail`.
+`Init.globalTypeAbsent` proves source-undeclared names remain absent after full
+table initialization. Generated freshness facts passed for the actual Nano
+quotation (`.artifacts/NanoInitFresh.lean`, session 21517 exit 0); a fixture checks
+that a same-named global type is excluded from these facts. Independent read-only
+Sol review found no issue across the six-file equality/freshness snapshot
+SHA-256 `ea7395e3fd68ae9621962d34350f7425d8b4e240670979b51a2327c1ed095649`.
+Limits: inspection plus author's focused results, no independent full gate.
+Later representation-inventory edits in Emit require a separate integration review.
+
+Source codecs are being integrated into a separate type inventory in coverage
+schema 2. The completion denominator is unchanged; caller domains, initialization
+and primitive/container obligations stay independently tracked. Nineteen Python
+adapter tests pass, including rejection of missing, duplicate, misclassified and
+wrong-source type entries. Actual generated codec checks remain to be completed.
+
 #### N2 checkpoint review and validation
 
 - Generated `Refinement/Environment` now owns actual checked `Ctx.init`,

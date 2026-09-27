@@ -1,6 +1,6 @@
 import P4SpecTec.Runtime.Value.Value
 import P4SpecTec.Runtime.Type.Typdef
-import P4SpecTec.Runtime.Type.Subst
+import P4SpecTec.Runtime.Type.SubstDepth
 import P4SpecTec.Runtime.Type.Equiv
 
 /-!
@@ -162,7 +162,7 @@ def sub_checked (find_typdef_opt : FindTypdef) (find_func_opt : FindFuncChecked)
         | .PlainT inner, _ =>
           if tparams.length != targs.length then throw "List.fold_left2"
           let theta ← Subst.of_lists_checked tparams targs
-          let expanded ← Subst.subst_typ_checked Subst.fuel theta inner
+          let expanded ← Subst.substType theta inner
           sub_checked find_typdef_opt find_func_opt depth expanded value
         | .StructT typfields, .StructV valuefields =>
           if typfields.length != valuefields.length then return false
@@ -170,7 +170,7 @@ def sub_checked (find_typdef_opt : FindTypdef) (find_func_opt : FindFuncChecked)
           let theta ← Subst.of_lists_checked tparams targs
           for ((atom_t, inner), (atom_v, field)) in typfields.zip valuefields do
             if !Atom.eq atom_t.it atom_v.it then return false
-            let expanded ← Subst.subst_typ_checked Subst.fuel theta inner
+            let expanded ← Subst.substType theta inner
             if !(← sub_checked find_typdef_opt find_func_opt depth expanded field) then
               return false
           return true
@@ -179,7 +179,7 @@ def sub_checked (find_typdef_opt : FindTypdef) (find_func_opt : FindFuncChecked)
           let theta ← Subst.of_lists_checked tparams targs
           for case in cases do
             if Mixfix.eq_mixop case.nottyp.it valuecase then
-              let substituted ← Subst.subst_nottyp_checked Subst.fuel theta case.nottyp
+              let substituted ← Subst.substNotation theta case.nottyp
               if (← subs_checked find_typdef_opt find_func_opt depth
                     (Mixfix.args substituted.it) (Mixfix.args valuecase)) then return true
           return false

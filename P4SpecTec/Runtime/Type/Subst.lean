@@ -31,13 +31,13 @@ def freshen_tparams (tparams : List tparam) : theta × List tparam :=
     let typ_fresh : Typ.t := mkPhrase (.VarT tid_fresh [])
     (theta ++ [(tp.it, typ_fresh)], tids_fresh ++ [tid_fresh])) ([], [])
 
-/-- The fuel of the substitutions: deeper than any type. -/
+/-- Legacy total-API budget. Checked callers use a proved input-syntax bound. -/
 def fuel : Nat := 1000
 
 mutual
 
-/-- Mirrors `subst_typ_inner`, with fuel (deviation: the OCaml recurses on
-the type; a type is never as deep as the fuel). -/
+/-- Mirrors `subst_typ_inner`, with a legacy identity fallback on exhaustion.
+The checked interpreter does not call this API. -/
 def subst_typ_inner (theta : theta) : Nat → typ → typ
   | 0, typ => typ
   | fuel + 1, typ =>

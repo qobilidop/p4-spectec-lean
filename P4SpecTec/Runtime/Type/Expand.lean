@@ -1,5 +1,5 @@
 import P4SpecTec.Runtime.Type.Typdef
-import P4SpecTec.Runtime.Type.Subst
+import P4SpecTec.Runtime.Type.SubstDepth
 
 /-!
 Type expansion. Mirrors `p4spec/lib/runtime/type/expand.ml`, trusted at
@@ -29,7 +29,7 @@ def expand_typ : Nat → FindTypdef → typ → Subst.Checked typ
           if targs.length != tparams.length then
             throw "type arguments do not match"
           let theta ← Subst.of_lists_checked tparams targs
-          let expanded ← Subst.subst_typ_checked Subst.fuel theta inner
+          let expanded ← Subst.substType theta inner
           expand_typ fuel find_typdef_opt expanded
         | _ => pure typ
       | some _ => pure typ
