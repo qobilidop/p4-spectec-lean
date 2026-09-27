@@ -29,12 +29,13 @@ private def hexDigit (b : UInt8) : Option Nat :=
   else if 97 ≤ n && n ≤ 102 then some (n - 87)
   else none
 
-/-- Four hexadecimal bytes beginning at an offset. -/
+/-- Four hexadecimal bytes beginning at an offset.
+Use packed byte access: `ByteArray.data` materializes the whole boxed array. -/
 private def hexUnit (bytes : ByteArray) (i : Nat) : Option Nat := do
-  let a ← bytes.data[i]? >>= hexDigit
-  let b ← bytes.data[i + 1]? >>= hexDigit
-  let c ← bytes.data[i + 2]? >>= hexDigit
-  let d ← bytes.data[i + 3]? >>= hexDigit
+  let a ← bytes[i]? >>= hexDigit
+  let b ← bytes[i + 1]? >>= hexDigit
+  let c ← bytes[i + 2]? >>= hexDigit
+  let d ← bytes[i + 3]? >>= hexDigit
   pure (((a * 16 + b) * 16 + c) * 16 + d)
 
 /-- Reject surrogate escapes that Lean's JSON parser would replace silently.
@@ -50,10 +51,10 @@ where
       if i ≥ bytes.size then return ()
       let c := bytes[i]!
       if quoted && c == 92 then
-        if bytes.data[i + 1]? == some 117 then
+        if bytes[i + 1]? == some 117 then
           let some u := hexUnit bytes (i + 2) | throw "invalid JSON Unicode escape"
           if 0xd800 ≤ u && u ≤ 0xdbff then
-            if bytes.data[i + 6]? != some 92 || bytes.data[i + 7]? != some 117 then
+            if bytes[i + 6]? != some 92 || bytes[i + 7]? != some 117 then
               throw "unpaired JSON high surrogate"
             let some v := hexUnit bytes (i + 8) | throw "invalid JSON surrogate pair"
             if 0xdc00 ≤ v && v ≤ 0xdfff then go fuel (i + 12) quoted

@@ -234,3 +234,45 @@ Independent read-only Sol review (`enforce_library_layers`, distinct from author
 Root also inspected ordering, per-case isolation and failure propagation. Raw
 comparison artifacts: `.artifacts/field-update-concurrency-*`.
 Full combined gate and final measurements follow the JSON optimization.
+
+
+## Packed JSON byte access
+
+After graph optimization, native census sampling found all 2129 active-thread
+samples during seconds 5–8 in `Yojson.validateEscapes`, predominantly materializing
+and freeing boxed arrays. Its seven `bytes.data[index]?` accesses converted the
+entire packed buffer. Replace them with `bytes[index]?`, whose pinned Lean
+logical definition has exactly the same bound check and byte result. Unicode
+validation order, fuel, branch choices and diagnostic strings are unchanged.
+
+Independent read-only Astra review (`review_oracle_refactor`, not author) checked
+all seven accesses against Lean 4.34.1 definitions and existing Unicode/transport
+coverage. No findings; diff SHA-256 against `c795c26`:
+`fee9ca8cd82cf765bd1634664d3bbed0e1411ea40822897fce13dfda3dcbf20a`.
+Focused warning-free census/Decode build passed, session 73330. The existing tests
+retain invalid UTF-8, malformed/unpaired/valid surrogate and escaped-backslash
+cases; full replay checks both transport legs.
+
+Isolated native ABBA comparison (after,before,before,after): 5.331s, 14.245s, 12.964s,
+3.837s, all exit 0 checking the identical committed census. The previous graph
+binary SHA-256 is `436c836c3ab0742f3f7c63262a43436981ee51eb41b6dc5e5d5968dc35cce21b`;
+complete binary identities and runs are in ignored
+`.artifacts/ci-performance/census-byte-access-before-after.json`. These short
+samples show variability; report the range rather than a precise universal factor.
+
+## Second batch validation
+
+Full local gate 81923 passed with actual exit 0 and no skips. All 44 stages passed
+on frozen executable inputs including StateRefine, fixture copying, concurrent
+mutations and byte access. Certificates and examples rebuilt; unit tests 10s,
+packet contracts under 1s, concurrent mutations 18s and full-P4 census 4s. All corpus
+cases, generated sources, axiom audits and 888/95/793 accounting remain unchanged.
+Log: `.artifacts/ci-performance/second-batch-gate.log`.
+
+Earlier published `19195eb` passed exact-head CI 36284518064. Its gate ran
+01:07:21–01:15:32 UTC (8m11s); workflow elapsed 9m21s, with prior cache restored.
+The three expensive proof jobs took 50s/33s/21s, versus 281s/243s/194s in the older
+ordering run. This is observational CI evidence with different invalidation
+patterns, not a controlled clean-build benchmark. The replay stage still spent
+140s, mostly hidden executable builds; investigate unnecessary native tactic
+imports next. No remote failures are known.

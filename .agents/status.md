@@ -45,10 +45,11 @@ Nano proof implementation and broader full-P4 M3 remain paused during this work.
   review and unchanged full-file StateForward checks pass (29.3s to 8.1s),
   committed as `60d74c9`. Packet path copying (`c795c26`) preserves all eleven
   tests and twelve field mutations. Reviewed mutant scheduling improves 24.3s to
-  17.0s while retaining baseline-first failure checks. A newly profiled packed
-  byte-access optimization is under validation. No push of this batch until its
-  combined full local gate passes. CI 36284518064 for
-  `19195eb` is pending, with no known failure.
+  17.0s while retaining baseline-first failure checks (`164e005`). Packed byte
+  access removes full-buffer boxing; census now 3.8–5.3s in isolated native runs.
+  Full combined gate 81923 passed, actual exit 0, no skips; every stage passed.
+  CI 36284518064 for `19195eb` succeeded (gate 8m11s). This validated batch is ready
+  to publish; next inspect unnecessary native proof-tactic imports.
 
 The [Nano plan and evidence](notes/nano-certification.md) owns N0/N1 details.
 N0 is complete; N1 is incomplete. Current coverage: 350 declarations,
