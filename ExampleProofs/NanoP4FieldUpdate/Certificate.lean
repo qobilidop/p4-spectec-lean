@@ -52,11 +52,11 @@ structure Certificate : Prop where
   observationFaithful : ∀ left right,
     canon (sourceFields left) = canon (sourceFields right) ↔ left = right
   /-- Actual reference initialization succeeds; it is not a caller assumption. -/
-  initialized : Interp_al.Ctx.init NanoP4Spec.spec = .ok Environment.global
+  initialized : Interp_al.Ctx.init NanoP4Spec.spec = .ok NanoP4Spec.Environment.global
   /-- All quoted dependencies are present in the concrete global environment. -/
-  environmentHolds : HoldsSpec NanoP4Spec.spec Environment.global
+  environmentHolds : HoldsSpec NanoP4Spec.spec NanoP4Spec.Environment.global
   /-- No local callbacks replace functions from the initialized specification. -/
-  noOverrides : Environment.ctx.local.fenv = []
+  noOverrides : NanoP4Spec.Environment.ctx.local.fenv = []
   /-- The actual generated operation is the total first-match update. -/
   generatedMeaning : ∀ fields name replacement,
     NanoP4Spec.«$update_fieldValue» fields name replacement =
@@ -103,9 +103,9 @@ theorem certificate : Certificate where
   encodingValid := fieldsEncodingValid
   decoderRoundTrip := decodeFields
   observationFaithful := sourceFieldsInjective
-  initialized := Environment.initEqOk
-  environmentHolds := Environment.holdsSpec
-  noOverrides := Environment.localFenvEmpty
+  initialized := NanoP4Spec.Environment.initEqOk
+  environmentHolds := NanoP4Spec.Environment.holdsSpec
+  noOverrides := NanoP4Spec.Environment.localFenvEmpty
   generatedMeaning := generatedEqUpdate
   referenceToGenerated := by
     intro fuel fields name replacement rawFields rawName rawReplacement hf hn hr result hrun

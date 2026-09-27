@@ -1,7 +1,10 @@
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Reify
+import P4SpecTec.Codegen.Certificates.Builtin
 import P4SpecTec.Codegen.Certificates.Forward
+import P4SpecTec.Codegen.Certificates.Initialization
+import P4SpecTec.Codegen.Certificates.Reverse
 import P4SpecTec.Codegen.Graph
 import P4SpecTec.Codegen.PrintHints
 import P4SpecTec.Codegen.Coverage
@@ -64,6 +67,8 @@ structure RefGroup where
   decls : Format
   /-- The module names of the groups whose theorems these call. -/
   deps : List String
+  /-- A builtin family needs its contracts instead of symbolic-execution tactics. -/
+  supportImports : Option (List String) := none
 
 /-- The rung 3 part of the plan. -/
 structure RefPlan where
@@ -261,6 +266,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let mut refGroups : List RefGroup := []
   let mut groupModule : Std.HashMap String String := {}   -- covered id → its module
   let mut coveredIds : List String := []
+  let mut reverseCoveredIds : List String := []
   let mut detIds : List String := []
   let ctxBase : Ctx := { env, externs := externNames }
   for group in funGroups do
@@ -343,8 +349,20 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     let reasons := if bodied.isEmpty then []
       else if ext then group.map fun id => { definition := id, reason := "extern" }
       else reasons ++ uncoveredCallees
+    let reverseBlockers : List Coverage.Exclusion :=
+      if bodied.length > 1 then bodied.map fun m =>
+        { kind := "realization", definition := m.id
+          reason := "mutual reverse induction is not implemented" }
+      else group.flatMap fun id =>
+        ((calls id).filter fun c => !group.contains c && !reverseCoveredIds.contains c &&
+          funIds.contains c).map fun c =>
+            { kind := "realization", definition := id
+              reason := s!"calls {c}, which has no reverse theorem", dependency := some c }
+    let reverseReasons := reasons ++ reverseBlockers
     let thms := Validate.groupTheorems env.lib recursive bodied
-      (reasons.map fun r => (r.definition, r.reason))
+      (reasons.map fun r => (r.definition, r.reason)) ++
+      Reverse.groupTheorems env.lib recursive bodied
+        (reverseReasons.map fun r => (r.definition, r.reason))
     if reasons.isEmpty && !bodied.isEmpty then
       let base := groupModuleName bodied.head!.id
       let taken := refGroups.map (·.name)
@@ -363,7 +381,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       let mut claims : List Coverage.Claim := []
       let mut exclusions := if kind == "builtin" then
         [{ definition := m.id, reason := "builtin has no generated AL body" }]
-        else reasons
+        else reasons ++ reverseBlockers
       if m.isRel then
         claims := claims ++ [{
           name := m.defName ++ "_sound", kind := "runSoundness"
@@ -384,11 +402,41 @@ def plan (env : Env) (spec : Lang.Al.spec) :
           name := m.defName.replace ".run" "" ++ ".refines"
           kind := "refinement", direction := "referenceToGenerated"
           expectedType := render (Validate.refinementType env.lib m) }]
+      if reverseReasons.isEmpty && kind != "builtin" then
+        claims := claims ++ [{
+          name := m.defName.replace ".run" "" ++ ".realizes"
+          kind := "refinement", direction := "generatedToReference"
+          expectedType := render (Reverse.realizationType env.lib m) }]
+      if kind == "builtin" then
+        match BuiltinCertificates.declarations env d with
+        | .error reason =>
+          exclusions := [{ kind := "builtinContract", definition := m.id, reason }]
+        | .ok builtinProofs =>
+          let base := groupModuleName m.id
+          let name := if (refGroups.map (·.name)).contains base then
+            s!"{base}_{refGroups.length}" else base
+          refGroups := refGroups ++ [{
+            name, decls := builtinProofs, deps := []
+            supportImports := some (BuiltinCertificates.supportImports d) }]
+          claims := [{
+            name := BuiltinCertificates.dispatchName env d
+            kind := "builtinContract", direction := "twoWayDispatch"
+            expectedType := render (← BuiltinCertificates.dispatchType env d) }]
+          for direction in [BuiltinCertificates.Direction.forward, .reverse] do
+            claims := claims ++ [{
+              name := BuiltinCertificates.theoremName env d direction
+              kind := "refinement"
+              direction := if direction == .forward then "referenceToGenerated"
+                else "generatedToReference"
+              expectedType := render (← BuiltinCertificates.theoremType env d direction) }]
+          exclusions := []
       coverageEntries := coverageEntries ++ [{
         id := m.id, kind, source := Env.fileOf d
         group, recursive, dependencies := calls m.id, claims, exclusions }]
     if reasons.isEmpty then
       coveredIds := coveredIds ++ bodied.map (·.id)
+    if reverseReasons.isEmpty then
+      reverseCoveredIds := reverseCoveredIds ++ bodied.map (·.id)
   -- the quoted spec, in order, for the refinement theorems
   let quotedNames := spec.filterMap fun d => match d.it with
     | .RelD i .. | .ExternRelD i .. => some (env.q (Names.relName i.it) ++ ".al")
@@ -449,7 +497,7 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
   let specSupportImports : List String := ["P4SpecTec.Prelude", "P4SpecTec.Refine.Quote"]
   let proofSupportImports : List String := [
     "P4SpecTec.Prelude", "P4SpecTec.Tactic.Audit", "P4SpecTec.Refine.Quote",
-    "P4SpecTec.Refine.Calc", "P4SpecTec.Tactic.Refine"]
+    "P4SpecTec.Refine.Calc", "P4SpecTec.Tactic.Refine", "P4SpecTec.Tactic.Realize"]
   let refOptions := String.join [
     "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
     "set_option autoImplicit false\nset_option maxHeartbeats 4000000\n",
@@ -468,12 +516,18 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
   outs := outs ++ [refModule "Spec" "the quoted specification as a list" specSupportImports
     prev.toList refinement.spec]
   modules := modules ++ ["Refinement.Spec"]
+  if refinement.groups.any (·.name == "Environment") then
+    throw "certificate group name Environment conflicts with the initialization module"
+  outs := outs ++ [refModule "Environment" "checked reference table initialization"
+    ["P4SpecTec.Refine.Environment", "P4SpecTec.Refine.Init"] ["Refinement.Spec"]
+    (Initialization.declarations lib)]
+  modules := modules ++ ["Refinement.Environment"]
   for g in refinement.groups do
     let deps := "Refinement.Spec" :: g.deps.map (s!"Refinement.{·}")
     outs := outs ++ [refModule g.name s!"refinement theorems, group {g.name}"
-      proofSupportImports deps g.decls]
+      (g.supportImports.getD proofSupportImports) deps g.decls]
     modules := modules ++ [s!"Refinement.{g.name}"]
-  let refImports := String.join ((["Refinement.Spec"] ++
+  let refImports := String.join ((["Refinement.Spec", "Refinement.Environment"] ++
     refinement.groups.map (s!"Refinement.{·.name}")).map fun m => s!"import {lib}.{m}\n")
   let refText := headerLine lib exportPath "every file (rung 3)" ++ "\n" ++ refImports ++ "\n" ++
     String.join [

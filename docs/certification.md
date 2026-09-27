@@ -24,23 +24,25 @@ the user-facing account of current capabilities and their guarantees.
 
 | Artifact | Checked claim | Boundary |
 |---|---|---|
-| Generated Nano-P4 refinement theorems | Every terminating reference outcome has a matching generated outcome | One direction, for the supported fragment and related inputs under the theorem's environment assumptions |
+| Generated Nano-P4 correspondence theorems | Every terminating outcome in either execution has a matching outcome in the other | The supported fragment and related inputs under explicit environment assumptions; source-domain coverage remains separate |
+| Generated builtin contracts | Canonical outcomes of actual dispatch and generated wrappers agree; both invocation directions are checked | All 26 builtins on related inputs, with explicit type arguments and empty print hints where required |
 | Field-update certificate | Both directions of executable correspondence, representation coverage and initialization; distinct-name update commutation transfers to reference executions | One helper on a declared scalar source domain, not arbitrary P4 assignments |
 | Generated relation soundness theorems | Successful generated execution implies the generated logical relation | Does not by itself connect that relation to AL or prove every relational witness executable |
-| Handwritten recursive reverse certificate | Every terminating generated `exists_` result has an eventual reference witness for all related Boolean lists | Explicit guard-free/global-environment assumptions; neither initialization nor generated reverse coverage |
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its
-[refinement index](../NanoP4Spec/Refinement.lean) currently record forward
-AL theorems for 18 of 153 bodied definitions, all functions. Both come from
+[refinement index](../NanoP4Spec/Refinement.lean) currently record forward and reverse
+AL theorems for the same 18 of 153 bodied definitions, all functions. Both reports come from
 the same generation plan. They record exclusions, including blockers inherited
 from dependencies or other members of a recursive group.
 These counts are not a percentage of P4 language behavior certified.
 
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
-General generated-to-reference proofs are also not yet generated.
-The [recursive reverse certificate](../P4SpecTecTest/Refine/NanoReverseExists.lean)
-checks this approach on actual quoted recursive clauses. Separate
+Generated reverse certificates construct finite reference executions using
+outcome induction for recursive functions, including failures. They assume
+related inputs; they do not establish full source-domain coverage or total
+termination. The [handwritten regression](../P4SpecTecTest/Refine/NanoReverseExists.lean)
+also checks exact Boolean result metadata. Separate
 [relation probes](../P4SpecTecTest/Refine/NanoRelation.lean) kernel-check selected
 recursive successes, ordered mismatches and exhaustion for `Type_eq` and
 `ParameterType_eq`; full-domain relation correspondence remains open.
@@ -50,8 +52,9 @@ recursive successes, ordered mismatches and exhaustion for `Type_eq` and
 `coverage.json` inventories the emitted per-definition claims. Schema version 1
 records the library and export path, each callable's AL identifier and source
 file, its recursive group and direct dependencies, theorem names and expected
-types, and exclusions. The claim kinds distinguish forward AL refinement,
-generated-run soundness and relation determinism. Types, source variables and
+types, and exclusions. The claim kinds and directions distinguish forward AL
+refinement, reverse realization, builtin dispatch equality, generated-run soundness
+and relation determinism. Types, source variables and
 helper group theorems are outside this inventory; externs and builtins are
 included as dependency boundaries, but excluded from the bodied denominator.
 
@@ -75,10 +78,10 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 95 compiled claim bindings (18 forward and
-77 run-soundness); 793 remain unresolved. These counts are neither behavioral
-coverage nor estimates of remaining effort. Even a definition with a forward
-binding still needs its reverse, domain and environment obligations.
+The current 888 obligations have 139 compiled claim bindings (18 forward,
+18 reverse, 26 builtin dispatch and 77 run-soundness); 749 remain unresolved. These counts are neither behavioral
+coverage nor estimates of remaining effort. Even a definition with both directions
+bound still needs its domain and environment obligations.
 
 Dependencies conservatively combine the callable/SCC graph, named source-type
 references (including notes), primitive/container representations and profile

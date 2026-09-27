@@ -76,7 +76,7 @@ visible and checked. Revisit if another client needs a stable wrapper API.
 
 The target is two-way terminating correspondence on a declared source domain,
 including relevant failures and state, not just relation run-soundness.
-Existing generated certificates remain one-way and bounded. Initialization,
+Generated certificates cover both directions for a bounded fragment. Initialization,
 source/representation adequacy and observation contracts are separate
 obligations. [Translation choices](notes/translation-design.md) preserve
 implementation rationale and uncertainties without duplicating architecture.

@@ -1,7 +1,6 @@
 import ExampleProofs.NanoP4FieldUpdate.Domain
 import ExampleProofs.NanoP4FieldUpdate.Representation
 import ExampleProofs.NanoP4FieldUpdate.Semantics
-import ExampleProofs.NanoP4FieldUpdate.Environment
 import ExampleProofs.NanoP4FieldUpdate.Correspondence
 import ExampleProofs.NanoP4FieldUpdate.Certificate
 import ExampleProofs.NanoP4FieldUpdate.Laws

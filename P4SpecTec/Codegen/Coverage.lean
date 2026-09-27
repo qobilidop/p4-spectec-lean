@@ -17,9 +17,9 @@ open Lean
 structure Claim where
   /-- Fully qualified Lean name, in Lean source syntax. -/
   name : String
-  /-- `refinement`, `runSoundness`, or `determinism`. -/
+  /-- `refinement`, `builtinContract`, `runSoundness`, or `determinism`. -/
   kind : String
-  /-- The implication proved, not an assertion of equivalence. -/
+  /-- The checked direction or dispatch equality; not an unqualified equivalence claim. -/
   direction : String
   /-- Closed expected type, elaborated in the generated library's namespace. -/
   expectedType : String
@@ -73,8 +73,19 @@ structure Report where
 def Report.render (report : Report) : String := (toJson report).pretty ++ "\n"
 
 /-- Whether a per-definition forward AL theorem is emitted. -/
-def Entry.hasRefinement (entry : Entry) : Bool :=
-  entry.claims.any (·.kind == "refinement")
+def Entry.hasForwardRefinement (entry : Entry) : Bool :=
+  entry.claims.any fun claim =>
+    claim.kind == "refinement" && claim.direction == "referenceToGenerated"
+
+/-- Whether a per-definition eventual reverse AL theorem is emitted. -/
+def Entry.hasReverseRefinement (entry : Entry) : Bool :=
+  entry.claims.any fun claim =>
+    claim.kind == "refinement" && claim.direction == "generatedToReference"
+
+/-- Whether an operation-specific equality of actual dispatch and wrapper outcomes is emitted. -/
+def Entry.hasBuiltinContract (entry : Entry) : Bool :=
+  entry.claims.any fun claim =>
+    claim.kind == "builtinContract" && claim.direction == "twoWayDispatch"
 
 /-- Bodied definitions used as the refinement denominator, excluding externs/builtins. -/
 def Entry.isBodied (entry : Entry) : Bool :=
@@ -83,16 +94,32 @@ def Entry.isBodied (entry : Entry) : Bool :=
 /-- Human-readable refinement index, derived from the same entries as the JSON. -/
 def summary (entries : List Entry) : String := Id.run do
   let bodied := entries.filter Entry.isBodied
-  let covered := bodied.filter Entry.hasRefinement
-  let mut lines := [s!"-- refinement theorems: {covered.length} of {bodied.length} definitions"]
+  let covered := bodied.filter Entry.hasForwardRefinement
+  let reverse := bodied.filter Entry.hasReverseRefinement
+  let builtins := entries.filter (·.kind == "builtin")
+  let contracts := builtins.filter Entry.hasBuiltinContract
+  let mut lines := [
+    s!"-- forward refinement theorems: {covered.length} of {bodied.length} definitions",
+    s!"-- reverse realization theorems: {reverse.length} of {bodied.length} definitions",
+    s!"-- builtin dispatch contracts: {contracts.length} of {builtins.length} definitions"]
   for entry in bodied do
-    if entry.hasRefinement then continue
+    if entry.hasForwardRefinement then continue
     let reasons := entry.exclusions.filter (·.kind == "refinement")
     lines := lines ++ ["", s!"-- no refinement theorem: {entry.id}"]
     for reason in reasons do
       let origin := if reason.definition == entry.id then ""
         else s!"group member {reason.definition}: "
       lines := lines ++ [s!"    --   {origin}{reason.reason}"]
+  for entry in bodied do
+    if !entry.hasForwardRefinement || entry.hasReverseRefinement then continue
+    lines := lines ++ ["", s!"-- no reverse theorem: {entry.id}"]
+    for reason in entry.exclusions.filter (·.kind == "realization") do
+      lines := lines ++ [s!"    --   {reason.reason}"]
+  for entry in builtins do
+    if entry.hasBuiltinContract then continue
+    lines := lines ++ ["", s!"-- no builtin dispatch contract: {entry.id}"]
+    for reason in entry.exclusions do
+      lines := lines ++ [s!"    --   {reason.reason}"]
   "\n".intercalate lines
 
 /-- Reachable callable dependencies and SCC peers; cycles are visited once.
@@ -121,8 +148,11 @@ def closure (report : Report) (entryPoint : String) : Except String (List Entry)
 def explain (report : Report) (entryPoint : String) : Except String String := do
   let entries ← closure report entryPoint
   let lines := entries.map fun entry =>
-    let status := if entry.hasRefinement then "forward AL theorem emitted"
+    let forward := if entry.hasForwardRefinement then "forward AL theorem emitted"
       else "no forward AL theorem"
+    let reverse := if entry.hasReverseRefinement then "reverse AL theorem emitted"
+      else "no reverse AL theorem"
+    let status := forward ++ "; " ++ reverse
     let reasons := (entry.exclusions.filter (·.kind == "refinement")).map fun r =>
       s!"    {r.definition}: {r.reason}"
     "\n".intercalate (s!"  {entry.id}: {status}" :: reasons)

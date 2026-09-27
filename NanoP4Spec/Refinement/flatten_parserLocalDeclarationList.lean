@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.flatten_parserLocalDeclarationList
@@ -68,5 +69,41 @@ theorem «$flatten_parserLocalDeclarationList».refines
     h0
 
 #audit_axioms NanoP4Spec.«$flatten_parserLocalDeclarationList».refines
+
+private def «$flatten_parserLocalDeclarationList».realizesMotive
+    (p0 : NanoP4Spec.parserLocalDeclarationList)
+    (q : Except Fail (List NanoP4Spec.parserLocalDeclaration)) : Prop :=
+  ∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
+    cfg.guard = false → ctx.local.fenv = [] →
+    HoldsSpec NanoP4Spec.spec ctx.global →
+    ∀ (v0 : Lang.Il.value),
+    Rel v0 p0 →
+    ∃ r, EventuallyRuns (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+        (Q.i "flatten_parserLocalDeclarationList")
+        []
+        [v0])) r ∧
+    ResRel Rel r q
+
+theorem «$flatten_parserLocalDeclarationList».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 : Lang.Il.value)
+    (p0 : NanoP4Spec.parserLocalDeclarationList)
+    (h0 : Rel v0 p0) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "flatten_parserLocalDeclarationList")
+          []
+          [v0]))
+      (ExceptT.mk (NanoP4Spec.«$flatten_parserLocalDeclarationList» p0)) := by
+  intro q hq
+  exact NanoP4Spec.«$flatten_parserLocalDeclarationList».partial_correctness
+    (motive := «$flatten_parserLocalDeclarationList».realizesMotive) (by
+      intro rec ih p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
+      realize_step hq)
+    p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
+
+#audit_axioms NanoP4Spec.«$flatten_parserLocalDeclarationList».realizes
 
 end NanoP4Spec

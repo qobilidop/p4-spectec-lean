@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.exit_e
@@ -38,5 +39,19 @@ theorem «$exit_e».refines
   by refine_al
 
 #audit_axioms NanoP4Spec.«$exit_e».refines
+
+theorem «$exit_e».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 : Lang.Il.value)
+    (p0 : NanoP4Spec.evalContext)
+    (h0 : Rel v0 p0) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "exit_e") [] [v0]))
+      (ExceptT.mk (NanoP4Spec.«$exit_e» p0)) := by
+  realize_al
+
+#audit_axioms NanoP4Spec.«$exit_e».realizes
 
 end NanoP4Spec

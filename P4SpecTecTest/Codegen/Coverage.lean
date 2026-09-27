@@ -32,13 +32,15 @@ def entry (name : String) : Except String Codegen.Coverage.Entry := do
   | none => throw s!"missing entry {name}"
 
 #guard report.isOk
-#guard (entry "leaf").toOption.any (·.hasRefinement)
-#guard (entry "caller").toOption.any (·.hasRefinement)
-#guard (entry "blocked").toOption.any fun e => !e.hasRefinement &&
+#guard (entry "leaf").toOption.any (·.hasForwardRefinement)
+#guard (entry "caller").toOption.any (·.hasForwardRefinement)
+#guard (entry "leaf").toOption.any (·.hasReverseRefinement)
+#guard (entry "caller").toOption.any (·.hasReverseRefinement)
+#guard (entry "blocked").toOption.any fun e => !e.hasForwardRefinement &&
   e.exclusions.any (·.reason == "membership")
-#guard (entry "dependent").toOption.any fun e => !e.hasRefinement &&
+#guard (entry "dependent").toOption.any fun e => !e.hasForwardRefinement &&
   e.exclusions.any (·.dependency == some "blocked")
-#guard (entry "cycleA").toOption.any fun e => e.recursive && !e.hasRefinement &&
+#guard (entry "cycleA").toOption.any fun e => e.recursive && !e.hasForwardRefinement &&
   e.group == ["cycleA", "cycleB"] &&
   e.exclusions.any fun r => r.definition == "cycleB" && r.reason == "membership"
 #guard (report >>= fun r => Codegen.Coverage.closure r "cycleA").toOption.any (·.length == 2)
@@ -47,11 +49,30 @@ def entry (name : String) : Except String Codegen.Coverage.Entry := do
 #guard !(report >>= fun r => Codegen.Coverage.closure r "missing").isOk
 #guard (report >>= fun r => Lean.Json.parse r.render >>= Lean.fromJson?).toOption == report.toOption
 
+-- Opposite-direction claims must never count as a forward certificate.
+def reverseOnly : Codegen.Coverage.Entry := {
+  id := "f", kind := "function", source := "fixture", group := ["f"], recursive := false
+  dependencies := [], exclusions := []
+  claims := [{
+    name := "Fixture.f.realizes", kind := "refinement"
+    direction := "generatedToReference", expectedType := "True" }] }
+
+#guard reverseOnly.hasReverseRefinement && !reverseOnly.hasForwardRefinement
+
 def coveredCycle : Lang.Al.spec := [func "a" (call "b"), func "b" (call "a")]
 
 #guard (Emit.coverage "Fixture" "test.json" coveredCycle).toOption.any fun r =>
-  r.definitions.length == 2 && r.definitions.all fun e => e.recursive && e.hasRefinement &&
+  r.definitions.length == 2 && r.definitions.all fun e => e.recursive && e.hasForwardRefinement &&
     e.claims.all (·.direction == "referenceToGenerated")
+
+-- A forward-certified recursive SCC cannot lend a missing reverse theorem to callers.
+def reverseBlockedCaller : Lang.Al.spec := coveredCycle ++ [func "caller" (call "a")]
+
+#guard (Emit.coverage "Fixture" "test.json" reverseBlockedCaller).toOption.any fun r =>
+  r.definitions.all (·.hasForwardRefinement) &&
+  r.definitions.any fun e => e.id == "caller" && !e.hasReverseRefinement &&
+    e.exclusions.any fun reason =>
+      reason.kind == "realization" && reason.dependency == some "a"
 
 def builtinFixture : Lang.Al.spec :=
   [Q.d (.BuiltinDecD (Q.i "print_") [] [Q.pm (.ExpP (Q.t .TextT))] (Q.t .TextT) []),
@@ -62,9 +83,20 @@ def builtinFixture : Lang.Al.spec :=
 
 #guard (Emit.coverage "Fixture" "test.json" builtinFixture).toOption.any fun r =>
   (r.definitions.filter (·.isBodied)).length == 1 &&
-  r.definitions.all (fun e => !e.hasRefinement) &&
+  r.definitions.all (fun e => !e.hasForwardRefinement) &&
   r.definitions.any fun e => e.id == "printer" &&
     e.exclusions.any (·.reason == "calls a builtin")
+
+-- Actual supported signatures get checked dispatch and both invocation directions,
+-- while remaining outside the bodied-definition denominator and caller frontier.
+def supportedBuiltin : Lang.Al.spec :=
+  [Q.d (.BuiltinDecD (Q.i "print_") [Q.i "A"]
+    [Q.pm (.ExpP (Q.t (.VarT (Q.i "A") [])))] (Q.t .TextT) [])]
+
+#guard (Emit.coverage "Fixture" "test.json" supportedBuiltin).toOption.any fun r =>
+  r.definitions.length == 1 && r.definitions.all fun e =>
+    !e.isBodied && e.hasBuiltinContract && e.hasForwardRefinement && e.hasReverseRefinement &&
+      e.claims.length == 3 && e.exclusions.isEmpty
 
 def externFixture : Lang.Al.spec :=
   [Q.d (.ExternDecD (Q.i "outside") [] [] (Q.t .BoolT) []),
@@ -72,7 +104,7 @@ def externFixture : Lang.Al.spec :=
 
 #guard (Emit.coverage "Fixture" "test.json" externFixture).toOption.any fun r =>
   (r.definitions.filter (·.isBodied)).length == 2 &&
-  r.definitions.all (fun e => !e.hasRefinement) &&
+  r.definitions.all (fun e => !e.hasForwardRefinement) &&
   (Codegen.Coverage.closure r "transitive").toOption.any (·.length == 3)
 
 -- Production full-P4 generation remains gated even when metadata is requested.

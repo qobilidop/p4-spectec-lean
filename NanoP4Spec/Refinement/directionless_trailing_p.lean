@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.directionless_trailing_p
@@ -75,5 +76,45 @@ theorem «$directionless_trailing'».refines
     h1
 
 #audit_axioms NanoP4Spec.«$directionless_trailing'».refines
+
+private def «$directionless_trailing'».realizesMotive
+    (p0 : Bool)
+    (p1 : List NanoP4Spec.direction)
+    (q : Except Fail Bool) : Prop :=
+  ∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
+    cfg.guard = false → ctx.local.fenv = [] →
+    HoldsSpec NanoP4Spec.spec ctx.global →
+    ∀ (v0 v1 : Lang.Il.value),
+    Rel v0 p0 →
+    Rel v1 p1 →
+    ∃ r, EventuallyRuns (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+        (Q.i "directionless_trailing'")
+        []
+        [v0, v1])) r ∧
+    ResRel Rel r q
+
+theorem «$directionless_trailing'».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 v1 : Lang.Il.value)
+    (p0 : Bool)
+    (p1 : List NanoP4Spec.direction)
+    (h0 : Rel v0 p0)
+    (h1 : Rel v1 p1) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "directionless_trailing'")
+          []
+          [v0, v1]))
+      (ExceptT.mk (NanoP4Spec.«$directionless_trailing'» p0 p1)) := by
+  intro q hq
+  exact NanoP4Spec.«$directionless_trailing'».partial_correctness
+    (motive := «$directionless_trailing'».realizesMotive) (by
+      intro rec ih p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
+      realize_step hq)
+    p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
+
+#audit_axioms NanoP4Spec.«$directionless_trailing'».realizes
 
 end NanoP4Spec

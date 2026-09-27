@@ -38,7 +38,7 @@ their integration exits depend on checked core contracts. N0 is implemented
 and reviewed. N1 is closed in `ccb8859`, with independent review and successful
 full local/remote gates: recursive reverse execution, actual relation probes,
 printing dispatch and faithful runtime representation with contextual failure
-checks. Status owns the next concrete step. N2 expansion has not started.
+checks. N2 is now authorized and active; status owns the next concrete step.
 
 ## Candidate next work
 

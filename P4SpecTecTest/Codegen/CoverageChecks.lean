@@ -66,7 +66,19 @@ private def sensitivity (env : Environment) (report : Report) : IO Unit := do
     checkReport { report with definitions := report.definitions.map fun candidate =>
       { candidate with claims := candidate.claims.map fun claim =>
         { claim with direction := "reverse" } } }
-  IO.println "[coverage] eleven mutations rejected at their intended boundaries"
+  for (label, kind, direction) in
+      [("reverse replaced by forward", "refinement", "generatedToReference"),
+       ("dispatch replaced by invocation", "builtinContract", "twoWayDispatch")] do
+    let some entry := report.definitions.find? fun candidate =>
+        candidate.claims.any fun claim => claim.kind == kind && claim.direction == direction
+      | throw <| IO.userError s!"coverage sensitivity requires {direction} evidence"
+    let some expected := entry.claims.find? fun claim =>
+        claim.kind == kind && claim.direction == direction
+      | throw <| IO.userError s!"missing {direction} claim"
+    let some forward := entry.claims.find? (·.direction == "referenceToGenerated")
+      | throw <| IO.userError s!"missing forward claim for {entry.id}"
+    expectRejected label "type mismatch" <| check { expected with name := forward.name }
+  IO.println "[coverage] thirteen mutations rejected at their intended boundaries"
 
 run_cmd do
   let env ← getEnv

@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.params_of_callableTypeDef
@@ -38,5 +39,22 @@ theorem «$params_of_callableTypeDef».refines
   by refine_al
 
 #audit_axioms NanoP4Spec.«$params_of_callableTypeDef».refines
+
+theorem «$params_of_callableTypeDef».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 : Lang.Il.value)
+    (p0 : NanoP4Spec.callableTypeDef)
+    (h0 : Rel v0 p0) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "params_of_callableTypeDef")
+          []
+          [v0]))
+      (ExceptT.mk (NanoP4Spec.«$params_of_callableTypeDef» p0)) := by
+  realize_al
+
+#audit_axioms NanoP4Spec.«$params_of_callableTypeDef».realizes
 
 end NanoP4Spec

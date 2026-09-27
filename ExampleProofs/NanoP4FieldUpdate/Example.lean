@@ -148,7 +148,7 @@ fuel, no semantic outcome is claimed.
 
 
 /-!
-`Environment.initEqOk` proves initialization succeeds; `referenceRealizes`
+`NanoP4Spec.Environment.initEqOk` proves table initialization succeeds; `referenceRealizes`
 constructs a successful run of the actual AL helper. Its internal list induction
 uses fuel `7 * length + 33`, with arbitrary input notes. `referenceSound`
 also rules out terminating failures on related inputs. Together,

@@ -61,6 +61,36 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(obligations["soundness:R"]["coverageClaim"], "NanoP4Spec.R.run_sound")
         self.assertIn("contract:extern", obligations["reverse:R"]["dependencies"])
 
+    def test_reverse_binding_keeps_independent_domain_obligations(self):
+        self.coverage["definitions"][0]["claims"].append({
+            "name": "NanoP4Spec.f.realizes", "kind": "refinement",
+            "direction": "generatedToReference", "expectedType": "True"})
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        obligations = {o["id"]: o for o in manifest["obligations"]}
+        self.assertEqual(obligations["reverse:f"]["coverageClaim"], "NanoP4Spec.f.realizes")
+        self.assertEqual(obligations["forward:f"]["coverageClaim"], "NanoP4Spec.f.refines")
+        self.assertIn("domain:f", obligations["reverse:f"]["dependencies"])
+        self.assertIsNone(obligations["domain:f"]["coverageClaim"])
+        self.assertIn("profile:initialization", obligations["reverse:f"]["dependencies"])
+        self.assertTrue(completion.outstanding(manifest, "core"))
+
+    def test_builtin_binding_requires_its_dispatch_contract(self):
+        entry = self.coverage["definitions"][2]
+        entry["claims"] = [{"name": "NanoP4Spec.builtin.refines", "kind": "refinement",
+                            "direction": "referenceToGenerated", "expectedType": "True"}]
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        contract = next(o for o in manifest["obligations"] if o["id"] == "contract:builtin")
+        self.assertIsNone(contract["coverageClaim"])
+        entry["claims"].append({"name": "NanoP4Spec.builtin.dispatch", "kind": "builtinContract",
+                                "direction": "twoWayDispatch", "expectedType": "True"})
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        obligations = {o["id"]: o for o in manifest["obligations"]}
+        self.assertEqual(obligations["contract:builtin"]["coverageClaim"],
+                         "NanoP4Spec.builtin.dispatch")
+        self.assertEqual(obligations["contract:builtin"]["dependencies"], ["domain:builtin"])
+        self.assertIsNone(obligations["domain:builtin"]["coverageClaim"])
+        self.assertTrue(completion.outstanding(manifest, "core"))
+
     def test_missing_source_type(self):
         self.reject_changed(lambda m: m["declarations"].pop(0))
 

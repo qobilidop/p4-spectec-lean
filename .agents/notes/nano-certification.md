@@ -1,21 +1,21 @@
 # Nano-P4 certification implementation plan
 
 Active Nano completion plan and retained milestone evidence, 2026-09-26.
-N0 and N1 are closed; N2–N6 remain planned. The user approved autonomous execution
+N0 and N1 are closed; N2 is active and N3–N6 remain planned. The user approved autonomous execution
 after the planning checkpoint, starting with N0/N1. The contract is
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance), not this
 work breakdown. Both core semantics and target composition must close.
 Broader full-P4 M3 remains paused. The user explicitly resumed implementation
 after organization/performance work and authorized completion of N1. Its proof,
 representation and observation exits are now closed. Broad proof generation is
-next through N2; no N2 implementation has started.
+now authorized through N2. The active implementation checkpoint follows below.
 
 ## Baseline and critical path
 
-Scope revision: `da631a9988298bb8705f2e9d0df3306092454f40`. Current coverage
+Scope revision: `da631a9988298bb8705f2e9d0df3306092454f40`. Baseline coverage
 contains 76 functions, 77 relations, 26 builtins and one extern relation.
 There are 18 forward AL certificates, 77 relation run-soundness theorems and
-two logical determinism theorems. Generated reverse coverage is absent;
+two logical determinism theorems. Generated reverse coverage was absent at that baseline;
 the handwritten field-update example proves a bounded two-way connection.
 These are inventories, not percentages of language behavior certified.
 
@@ -150,6 +150,216 @@ Primary surfaces: `Codegen/Types.lean`, `Codegen/Funcs.lean`,
 `Codegen/Certificates/Forward.lean`, `Codegen/Emit.lean`, `Refine/`, `Tactic/`, and
 `P4SpecTecTest/`. Reachable legacy matching/substitution fallbacks must be
 replaced or proved unreachable on the admitted domains before certifying them.
+
+### Active N2 implementation
+
+The user authorized N2 after closure revision `56cf92c`, whose exact final
+[CI 36290916636](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290916636)
+passed. Work is split by owned files: Astra develops independent source-domain,
+representation and sufficient-decoder interfaces, and generic generated reverse
+proofs; Sol develops operation-specific builtin contracts; root integrates
+initialization certificates, coverage validation and generated outputs.
+All 26 builtin declarations and the full N2 exit remain in scope. Initial
+interfaces do not by themselves discharge source-domain or call-preservation
+obligations, and no new manifest binding is claimed without its checked adapter.
+
+#### N2 checkpoint review and validation
+
+- Generated `Refinement/Environment` now owns actual checked `Ctx.init`,
+  `HoldsSpec` and empty local-function environment proofs. The field-update
+  consumer imports these rather than owning a duplicate. This proves table
+  initialization only, not semantic program initialization or source domains.
+  Sol independently reviewed the ten-path snapshot at baseline `56cf92c`,
+  SHA-256 `9b4aa652334ae30a07f2ccce3c81d302fad0af06ab6268dc23a463159d9cde64`:
+  no findings; proof statements and consumer requirements preserved.
+  Focused `--wfail` build session 23150 passed (environment 20s, emitter
+  fixture 354ms, correspondence 7s, certificate 354ms).
+- The generic builtin invocation bridge preserves actual dispatch outcomes
+  with three entry steps and explicit guard/lookup assumptions. Sol's read-only
+  review of Invoke/Print at `56cf92c`, snapshot SHA-256
+  `8ca96fcbdcb2d5ffaae95457fbb11f5eaf2d6dcccbf2284f5d60301dbfab5469`, found no
+  issue; existing Print theorem types and failure distinctions are unchanged.
+  Focused `--wfail` Invoke/Print/tests passed session 12367. Later canonical-run
+  composition additions require another review and are outside that verdict.
+- Root independently reviewed Astra's frozen `Representation.lean` and its
+  tests (SHA-256 `292a497144d20aa1305871e327fec8aaad5528495df46f7921e6e10d82593b23`
+  and `c4d4e69e780e56b35624194bb7a17023abb74d76cb047efdc4b5169e27b4ef66`): no
+  semantic finding. Source predicates remain independent; admitted carriers,
+  decoder soundness and stable sufficient fuel are separate obligations.
+  Recursive tests start from an independent source grammar. The three checked
+  numeric/optional membership counterexamples prevent claiming runtime
+  membership alone is a representation domain. Focused `--wfail` session 62076
+  passed (444ms library, 404ms tests). Actual Nano grammar/call-invariant bindings
+  remain open; these abstract contracts do not discharge them automatically.
+- All eleven numeric operation contracts and their single combined universal
+  actual-Nano-wrapper test pass `--wfail` (session 27435, 1.4s library, 351ms
+  test), including width-boundary and empty-bit-array failures. Sol independently
+  reviewed snapshot `c16dd7eb659aa467702e9c0c7e56da5e9f33600e3242499f46ee9b8768aea9de`
+  with no findings in that represented-input scope. The later all-eleven value-arity
+  theorem also passed review (library SHA-256
+  `14766f342343b095e3ac78fab22991053219b84cbae1faf3054b3cc0c1ed941a`), retaining
+  ignored type arguments. Final focused session 18586 passed (1.6s/424ms).
+  Sol reviewed canonical-run adapters and the actual quoted-builtin reverse
+  application (snapshot `f69f4216c81b1ee0bcc27bb3dafdc113b7fac8ac2ba0cf182d710ef147c41d61`)
+  with no findings; focused sessions 81487/4554 passed. These are operation and
+  invocation contracts, not source-domain establishment.
+- Root independently reviewed Astra's ordering/normalization library and tests:
+  snapshots `ec897a63ba30448d1423457587f5029b066e209e495f12fbf8b822742b2d8829`
+  and `735242110d931aff87bbdc55cd330a8e553e11b049cb37a22effe9b2fc29cd73`.
+  No semantic finding: structural comparison yields a total preorder on
+  observations, not equality of arbitrary carrier fields; normalization
+  idempotence preserves exact chosen representatives without encoder injectivity.
+  Generic proofs preserve original extern JSON compression. A separate executable
+  regression shows that comparing canonical externs again can reverse ordering;
+  it is not advertised as a kernel theorem. Focused `--wfail` library/tests
+  passed with actual exit 0 (26s/365ms).
+- Sol reviewed the final all-fuel invocation adapter (Invoke SHA-256
+  `fd0b55ac30eb0cb58b627894bf5006e68e0ed619d0c98c511e03f0acb7a199f9`)
+  with no findings: fuel 0–2 exhaust, and all larger fuels use actual dispatch.
+  Focused `--wfail` session 1691 passed.
+- Root independently reviewed Sol's Text/List/Collection/Map libraries and tests
+  at their frozen revisions, with no findings. All eight operations preserve
+  canonical results and actual failure distinctions. Ordered maps retain
+  first-match lookup and replacement, with no uniqueness assumption. The final
+  seven-file focused build passed with actual exit 0 (0.584s warm);
+  `.artifacts/n2-builtins/final-focused.{json,log}` retains local evidence.
+  Library hashes: Text `d9867146411d27ee61547df19d16c6ffea03b3bf1e7b0049d1d1cc0ca40c36e3`,
+  List `b6a6403d6db3690d3555569131652652711926be19cc59851fcac4af436d44c3`,
+  Collection `a9b69814e018ef5eb324821e0f3e322b8fb9081e80f12ea0c83f889ecd1f8a6f`,
+  Map `e7b8fbe0e178f086b556654b94c1b84395aef27d4e893af30428319949771f18`.
+  Tests bind actual Nano wrappers; production generated builtin certificates
+  are a subsequent integration step, not claimed by these reusable contracts.
+- Root independently reviewed Astra's final set library and tests, SHA-256
+  `b13128cddfaf215b4da109270d4c9293e5e523415efe9dabdbd81ea91e34a2a1`
+  and `c45fc267c40adb649be6a93373a9e2b3c9b8504a6a69abb08ea004e3b6f734dd`:
+  no findings. Six actual dispatcher contracts preserve canonical ordering,
+  normalize twice safely, retain non-injective encoder representatives, and
+  cover malformed shapes and arities. Focused `--wfail` session 83739 passed
+  (1.4s library, 372ms tests). This completes reusable operation contracts for
+  all 26 builtin names, not independent source-domain establishment.
+- Sol independently reviewed direction-specific coverage/frontier handling and
+  the reverse manifest adapter at baseline `56cf92c`, five-file snapshot
+  `a66afa4352a340d39d2919ce1355cf4f912129162b957bf61bf0e74c3a5555cb`:
+  no semantic findings. A stale forward-only adapter docstring was corrected
+  after review. Focused coverage session 20406 and all 16 Python adapter tests
+  passed. Reverse dependencies remain separate from forward dependencies;
+  represented-input evidence does not close source-domain obligations.
+- The handwritten N1 recursive exists_ regression remains: its intermediate
+  result fixes exact Boolean source metadata, stronger than the generated
+  canonical-result contract. Removing it now would lose that check.
+- Root independently reviewed Astra's reverse emitter, fuel transport,
+  interpreter assignment equation, tactic, shared canonical-fact extension and
+  regressions: no semantic finding. The tactic constructs eventual witnesses
+  from actual partial-correctness induction, without forward determinism or
+  fuel monotonicity assumptions. Final exposure normalization avoids splitting
+  arbitrary recursive field values; no proof-budget increase was needed.
+  Reviewed source hashes: Reverse `fd75e97106b6ea14a0cb48cc7cbf36162b77331d6efbf032271da02cec4c059e`,
+  RealizeFuel `c3d96d1fac416d514e87357a61b8a4ca60af3a12b93f9b67e4e69cf9efea1337`,
+  RealizeInterp `3965512f1c2c91bf922d64954ad13953ba5bb4de71e99161b8d1e9ef29bab286`,
+  tactic `c25f94fedbc4c4472be30020164dbe0202909d9ae97f958ef15f20b9f0ca14ed`,
+  Normalize `bf8f86b91d7980e126850bd4b29ce4ff665bf760d250a7e7841389c61884e039`,
+  regression `57b1ea1697689fe3e81d2db25696dc51e17101bff5d7e1608b4378540905f8d6`.
+  Final focused tests passed; the final driver compiled all 18 production
+  forward/reverse sidecars together with `--wfail`, exit 0, 41.680s (session
+  68135). `.artifacts/n2-reverse/all-groups.{json,log}` records this check.
+  Reverse claims use the exact closed renderer; production coverage checking
+  and the full gate subsequently passed after builtin integration.
+- Astra independently reviewed root's coverage/emission/manifest integration
+  at baseline `56cf92c`, scoped diff SHA-256
+  `e82879cb7c1230297c418c327fc76fb0f4431ca31da72e12b35d7b9df6b3e60c`:
+  no findings. Forward/reverse frontiers remain separate; builtin contracts
+  remain outside bodied denominators and do not enable callers implicitly.
+  The builtin proof emitter itself and later checker mutations were outside
+  that review and require separate final review. Seventeen Python adapter
+  tests and focused direction tests passed before the combined gate.
+- Root independently reviewed Astra's equality compatibility module and tests,
+  SHA-256 `1a91425ca24dd0acf6314b0381a7154ff5e89e0197c93622f443a23b590070a3`
+  and `da98e546aa35873bbfe03754ce2fc11bc46c39d5b62d6743d66e5b7dfe5a6a7a`:
+  no findings. `ValueBEq` ties the actual dictionary to canonical source
+  equality; lawful Lean equality requires a separate faithful encoder, while
+  value-based equality permits non-injective encoders. List/option composition
+  and actual generated `in_set` are checked, with no generic tuple claim.
+  Focused `--wfail` session 18521 passed (662ms library, 488ms test), with
+  exact allowed-axiom audits. Source-domain obligations remain independent.
+
+- Astra independently reviewed Sol's final builtin emitter and selection tests:
+  SHA-256 `29ae9d9b15d38da20679ddc1fab1ff242c2edc3b0a8bfd714a44cd0561bdedcb`
+  and `f172cb16c4c6e678c8ee9c485948551475f3c3d1927216ac498f9d9606ecb9d4`.
+  No findings: all 26 signatures, carrier/alias shapes, actual wrapper calls,
+  raw type-argument order and shared exact statement renderers were checked.
+  The empty generated print-hint table is required, and family-specific imports
+  avoid unrelated rebuilds. Final focused author checks passed; production
+  regeneration emitted all 78 audited theorems and the exact coverage checker
+  passed `--wfail`, session 78265, 10.804s. Thirteen mutations rejected at their
+  intended boundaries, including replacing a reverse/dispatch theorem with the
+  same entry's forward theorem. The additional mutation code was independently
+  reviewed at SHA-256 `775a3f90f8f37ca200123ff5f040cea1b6c68704ea7d52adf51079497032d703`.
+- Three test-only builtin reverse theorems were removed after production checking:
+  whitespace, distinctness and unsigned-bit conversion. Sol reviewed that their
+  statements are subsumed by the generated `.realizes` certificates. Exact raw
+  result checks, boundary failures and ordering/metadata regressions remain.
+- Astra independently reviewed the final field-update consumer simplification
+  at SHA-256 `20ae20c82b404c8be237a5b50c1d712c909cc56ce3ccc6689851d78589e4aec7`:
+  no findings. All seven public theorem statement texts are unchanged; 34 private
+  declarations with no external references were removed. The new proof combines
+  generated reverse correspondence with the existing total update meaning,
+  extracts sufficient fuel and rejects source errors through `ResRel`. The old
+  private bound `7 * length + 33` is retired, not a retained public guarantee.
+  Focused certificate session 89833 passed (497ms correspondence, 427ms
+  certificate). Existing source/behavior/representation mutation boundaries
+  remain; they do not independently replay a mutated reverse proof.
+
+- Final independent consistency review by Astra found no findings, scoped staged
+  diff SHA-256 `5bdeeae2d21f5353bfffbadf829f643319fae3c2e6ca3c0a6387118c398dc514`.
+  Counts were recomputed directly: 350 declarations, 888 obligations, 139 bindings
+  (18 forward + 18 reverse + 26 dispatch + 77 run-soundness), 749 unresolved.
+  The 52 builtin invocation and two determinism claims do not inflate that
+  count. Added modules are root-reachable and library boundaries remain intact.
+  This review did not rerun builds; Sol's review owns the three test deletions.
+- Full local `nix develop -c bash /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
+  passed with actual exit 0, session 60774, 74.570s, all 44 stages and no skips.
+  Evidence `.artifacts/n2-full-gate.{log,json}` records tested index tree
+  `0f249ebf77ef66a2dbe66232b409a422526816a8`. Libraries, all tests and examples,
+  exact certificates/axioms, freshness, thirteen coverage mutations, consumer
+  mutations, both typing replay legs, target/packet/verify observations and
+  full-P4 census passed. This warm run is not a controlled speed comparison.
+  Later checkpoint prose changes do not alter executable inputs. Remote CI is
+  routine asynchronous follow-up; N2 remains open.
+  Strict core completion was exercised separately and returned actual exit 1
+  for incomplete certification, after its prerequisites passed. Evidence:
+  `.artifacts/n2-strict-core.{json,log}`. The denominator and remaining obligations
+  stay intact. Representation/equality support is committed as `c383ac7`;
+  builtin-family and invocation contracts as `66f1253`.
+
+#### Source-domain integration constraints
+
+Read-only N2 analysis by Astra identifies the next implementation boundary:
+
+- Guard-free and internal invocation paths do not establish input shapes.
+  Actual source producers, initialization and prior successful operations must
+  supply the independent grammar invariants. Runtime membership is not a
+  substitute: numeric tags and optional shapes have checked counterexamples.
+- The first actual representation SCC is `typeIR`, `parameterIR`, `fieldTypeIR`
+  and `externMethodTypeDefIR`. It uses lists, source sets/pairs, text and Nat
+  widths, with no optional or tuple fields and no runtime-only raw-extern
+  alternative. An independently source-indexed grammar and sufficient-decoder
+  induction can begin there, using actual quoted constructor signatures.
+- Legal polymorphic equality requires `(x == y) = valueEq x y` where generated
+  source helpers use `List.elem`. `LawfulBEq` alone is insufficient when the
+  encoder is non-injective. Builtin set/map contracts already use canonical
+  value equality; this additional law is needed for their source callers.
+- The overlapping `ToValues` product instances distinguish an abstract product
+  tail from a statically visible tuple. A generic product codec would hide that
+  distinction. Use explicit source tuple arities; the first TypeIR SCC avoids
+  this issue, while Var_init's transient iteration tuples have known arities.
+- Type_eq and default use MixopSC; Type_ok's RecurseSC sites are numeric Nat
+  checks, not recursive value-depth checks. The checked interpreter paths do
+  not call the legacy total matching/substitution fallbacks found by the scan.
+  Fixed checked-substitution fuel still needs a per-call syntactic-depth proof
+  or a sufficient-fuel interface for arbitrary legal deep type instantiations.
+  More invocation fuel alone cannot discharge this obligation.
+
+These are retained constraints and an integration plan, not evidence bindings.
 
 ## N3. Close core semantics in dependency order
 

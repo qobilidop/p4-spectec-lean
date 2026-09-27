@@ -91,6 +91,12 @@ def factHyps : TacticM (List Name) := do
         let lhs := lhs.consumeMData
         let isFact :=
           (lhs.isAppOfArity ``P4SpecTec.Refine.canon 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
+          (lhs.isAppOfArity ``canon' 1 &&
+            let payload := (lhs.getArg! 0).consumeMData
+            payload.isFVar ||
+              (payload.isAppOfArity ``P4SpecTec.Util.Source.info.it 4 &&
+                (payload.getArg! 3).consumeMData.isFVar) ||
+              (match payload with | .proj _ _ v => v.consumeMData.isFVar | _ => false)) ||
           (lhs.isAppOfArity ``canons 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
           (lhs.isAppOfArity ``canonMixfix 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
           (lhs.isAppOfArity ``canonMixfixes 1 && (lhs.getArg! 0).consumeMData.isFVar) ||

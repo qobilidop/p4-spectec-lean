@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.update_fieldValue
@@ -79,5 +80,49 @@ theorem «$update_fieldValue».refines
     h2
 
 #audit_axioms NanoP4Spec.«$update_fieldValue».refines
+
+private def «$update_fieldValue».realizesMotive
+    (p0 : List NanoP4Spec.fieldValue)
+    (p1 : NanoP4Spec.nameIR)
+    (p2 : NanoP4Spec.value)
+    (q : Except Fail (List NanoP4Spec.fieldValue)) : Prop :=
+  ∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
+    cfg.guard = false → ctx.local.fenv = [] →
+    HoldsSpec NanoP4Spec.spec ctx.global →
+    ∀ (v0 v1 v2 : Lang.Il.value),
+    Rel v0 p0 →
+    Rel v1 p1 →
+    Rel v2 p2 →
+    ∃ r, EventuallyRuns (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+        (Q.i "update_fieldValue")
+        []
+        [v0, v1, v2])) r ∧
+    ResRel Rel r q
+
+theorem «$update_fieldValue».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 v1 v2 : Lang.Il.value)
+    (p0 : List NanoP4Spec.fieldValue)
+    (p1 : NanoP4Spec.nameIR)
+    (p2 : NanoP4Spec.value)
+    (h0 : Rel v0 p0)
+    (h1 : Rel v1 p1)
+    (h2 : Rel v2 p2) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "update_fieldValue")
+          []
+          [v0, v1, v2]))
+      (ExceptT.mk (NanoP4Spec.«$update_fieldValue» p0 p1 p2)) := by
+  intro q hq
+  exact NanoP4Spec.«$update_fieldValue».partial_correctness
+    (motive := «$update_fieldValue».realizesMotive) (by
+      intro rec ih p0 p1 p2 q hq cfg ctx internal hguard hfenv hspec v0 v1 v2 h0 h1 h2
+      realize_step hq)
+    p0 p1 p2 q hq cfg ctx internal hguard hfenv hspec v0 v1 v2 h0 h1 h2
+
+#audit_axioms NanoP4Spec.«$update_fieldValue».realizes
 
 end NanoP4Spec

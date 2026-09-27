@@ -2806,7 +2806,7 @@
     "corpus": "test/nano-certification/corpus.json",
     "corpusSha256": "425a17c9c5490702a6754f64bf339b6858b6be6218cc1bbf23cd5ba6ab7ced1b",
     "coverage": "NanoP4Spec/coverage.json",
-    "coverageSha256": "ad54d34f0a18712313a2bccb6385af4fc9022bd360939568722adf488155ea6a",
+    "coverageSha256": "6275c7341d9c24655ebbaf648748d60be62c0b0738825eb2bfbec6735f232591",
     "export": "exports/nano-p4.al.json",
     "exportSha256": "3a7b47d75ca97a1404026cde45df09bde0372a06e32c8d80b00ca3ef48b99dd6",
     "pins": {
@@ -2866,7 +2866,7 @@
       "subject": "BuiltinDecD:print_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$print_».dispatch",
       "dependencies": [
         "domain:print_"
       ],
@@ -2886,7 +2886,7 @@
       "subject": "BuiltinDecD:strip_all_whitespace"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$strip_all_whitespace».dispatch",
       "dependencies": [
         "domain:strip_all_whitespace"
       ],
@@ -2986,7 +2986,7 @@
       "subject": "FuncDecD:exists_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$exists_».realizes",
       "dependencies": [
         "domain:exists_",
         "profile:initialization",
@@ -3020,7 +3020,7 @@
       "subject": "FuncDecD:forall_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$forall_».realizes",
       "dependencies": [
         "domain:forall_",
         "profile:initialization",
@@ -3042,7 +3042,7 @@
       "subject": "BuiltinDecD:rev_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$rev_».dispatch",
       "dependencies": [
         "domain:rev_"
       ],
@@ -3062,7 +3062,7 @@
       "subject": "BuiltinDecD:distinct_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$distinct_».dispatch",
       "dependencies": [
         "domain:distinct_"
       ],
@@ -3082,7 +3082,7 @@
       "subject": "BuiltinDecD:assoc_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$assoc_».dispatch",
       "dependencies": [
         "domain:assoc_"
       ],
@@ -3183,7 +3183,7 @@
       "subject": "BuiltinDecD:intersect_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$intersect_set».dispatch",
       "dependencies": [
         "domain:intersect_set"
       ],
@@ -3204,7 +3204,7 @@
       "subject": "BuiltinDecD:union_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$union_set».dispatch",
       "dependencies": [
         "domain:union_set"
       ],
@@ -3225,7 +3225,7 @@
       "subject": "BuiltinDecD:unions_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$unions_set».dispatch",
       "dependencies": [
         "domain:unions_set"
       ],
@@ -3246,7 +3246,7 @@
       "subject": "BuiltinDecD:diff_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$diff_set».dispatch",
       "dependencies": [
         "domain:diff_set"
       ],
@@ -3267,7 +3267,7 @@
       "subject": "BuiltinDecD:sub_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$sub_set».dispatch",
       "dependencies": [
         "domain:sub_set"
       ],
@@ -3288,7 +3288,7 @@
       "subject": "BuiltinDecD:eq_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$eq_set».dispatch",
       "dependencies": [
         "domain:eq_set"
       ],
@@ -3442,7 +3442,7 @@
       "subject": "BuiltinDecD:find_map"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_map».dispatch",
       "dependencies": [
         "domain:find_map"
       ],
@@ -3463,7 +3463,7 @@
       "subject": "BuiltinDecD:find_maps"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_maps».dispatch",
       "dependencies": [
         "domain:find_maps"
       ],
@@ -3484,7 +3484,7 @@
       "subject": "BuiltinDecD:add_map"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_map».dispatch",
       "dependencies": [
         "domain:add_map"
       ],
@@ -3505,7 +3505,7 @@
       "subject": "BuiltinDecD:update_map"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$update_map».dispatch",
       "dependencies": [
         "domain:update_map"
       ],
@@ -4142,7 +4142,7 @@
       "subject": "FuncDecD:flatten_statementList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_statementList».realizes",
       "dependencies": [
         "domain:flatten_statementList",
         "profile:initialization",
@@ -4250,7 +4250,7 @@
       "subject": "FuncDecD:flatten_typeFieldList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_typeFieldList».realizes",
       "dependencies": [
         "domain:flatten_typeFieldList",
         "profile:initialization",
@@ -4344,7 +4344,7 @@
       "subject": "FuncDecD:flatten_externMethodPrototypeList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_externMethodPrototypeList».realizes",
       "dependencies": [
         "domain:flatten_externMethodPrototypeList",
         "profile:initialization",
@@ -4426,7 +4426,7 @@
       "subject": "FuncDecD:flatten_selectCaseList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_selectCaseList».realizes",
       "dependencies": [
         "domain:flatten_selectCaseList",
         "profile:initialization",
@@ -4595,7 +4595,7 @@
       "subject": "FuncDecD:flatten_parserLocalDeclarationList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_parserLocalDeclarationList».realizes",
       "dependencies": [
         "domain:flatten_parserLocalDeclarationList",
         "profile:initialization",
@@ -4751,7 +4751,7 @@
       "subject": "FuncDecD:flatten_tableEntryList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_tableEntryList».realizes",
       "dependencies": [
         "domain:flatten_tableEntryList",
         "profile:initialization",
@@ -4907,7 +4907,7 @@
       "subject": "FuncDecD:flatten_controlLocalDeclarationList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_controlLocalDeclarationList».realizes",
       "dependencies": [
         "domain:flatten_controlLocalDeclarationList",
         "profile:initialization",
@@ -5001,7 +5001,7 @@
       "subject": "FuncDecD:flatten_program"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_program».realizes",
       "dependencies": [
         "domain:flatten_program",
         "profile:initialization",
@@ -5588,7 +5588,7 @@
       "subject": "BuiltinDecD:bitstr_to_int"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bitstr_to_int».dispatch",
       "dependencies": [
         "domain:bitstr_to_int"
       ],
@@ -5608,7 +5608,7 @@
       "subject": "BuiltinDecD:int_to_bitstr"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$int_to_bitstr».dispatch",
       "dependencies": [
         "domain:int_to_bitstr"
       ],
@@ -5628,7 +5628,7 @@
       "subject": "BuiltinDecD:pow2"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$pow2».dispatch",
       "dependencies": [
         "domain:pow2"
       ],
@@ -5648,7 +5648,7 @@
       "subject": "BuiltinDecD:bneg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bneg».dispatch",
       "dependencies": [
         "domain:bneg"
       ],
@@ -5668,7 +5668,7 @@
       "subject": "BuiltinDecD:band"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$band».dispatch",
       "dependencies": [
         "domain:band"
       ],
@@ -5688,7 +5688,7 @@
       "subject": "BuiltinDecD:bxor"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bxor».dispatch",
       "dependencies": [
         "domain:bxor"
       ],
@@ -5708,7 +5708,7 @@
       "subject": "BuiltinDecD:bor"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bor».dispatch",
       "dependencies": [
         "domain:bor"
       ],
@@ -5890,7 +5890,7 @@
       "subject": "BuiltinDecD:bits_to_int_unsigned"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bits_to_int_unsigned».dispatch",
       "dependencies": [
         "domain:bits_to_int_unsigned"
       ],
@@ -5911,7 +5911,7 @@
       "subject": "BuiltinDecD:bits_to_int_signed"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bits_to_int_signed».dispatch",
       "dependencies": [
         "domain:bits_to_int_signed"
       ],
@@ -5932,7 +5932,7 @@
       "subject": "BuiltinDecD:int_to_bits_unsigned"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$int_to_bits_unsigned».dispatch",
       "dependencies": [
         "domain:int_to_bits_unsigned"
       ],
@@ -5953,7 +5953,7 @@
       "subject": "BuiltinDecD:int_to_bits_signed"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$int_to_bits_signed».dispatch",
       "dependencies": [
         "domain:int_to_bits_signed"
       ],
@@ -6179,7 +6179,7 @@
       "subject": "FuncDecD:params_of_callableTypeDef"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$params_of_callableTypeDef».realizes",
       "dependencies": [
         "domain:params_of_callableTypeDef",
         "profile:initialization",
@@ -6532,7 +6532,7 @@
       "subject": "FuncDecD:exit_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$exit_t».realizes",
       "dependencies": [
         "domain:exit_t",
         "profile:initialization",
@@ -8829,7 +8829,7 @@
       "subject": "FuncDecD:directionless_trailing'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$directionless_trailing'».realizes",
       "dependencies": [
         "domain:directionless_trailing'",
         "profile:initialization",
@@ -9333,7 +9333,7 @@
       "subject": "FuncDecD:split_dataplane_parameters"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$split_dataplane_parameters».realizes",
       "dependencies": [
         "domain:split_dataplane_parameters",
         "profile:initialization",
@@ -9373,7 +9373,7 @@
       "subject": "FuncDecD:find_action"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_action».realizes",
       "dependencies": [
         "domain:find_action",
         "profile:initialization",
@@ -9412,7 +9412,7 @@
       "subject": "FuncDecD:find_action'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_action'».realizes",
       "dependencies": [
         "domain:find_action'",
         "profile:initialization",
@@ -10658,7 +10658,7 @@
       "subject": "FuncDecD:exit_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$exit_e».realizes",
       "dependencies": [
         "domain:exit_e",
         "profile:initialization",
@@ -11829,7 +11829,7 @@
       "subject": "FuncDecD:update_fieldValue"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$update_fieldValue».realizes",
       "dependencies": [
         "domain:update_fieldValue",
         "profile:initialization",

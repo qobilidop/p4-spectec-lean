@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.flatten_statementList
@@ -65,5 +66,41 @@ theorem «$flatten_statementList».refines
     h0
 
 #audit_axioms NanoP4Spec.«$flatten_statementList».refines
+
+private def «$flatten_statementList».realizesMotive
+    (p0 : NanoP4Spec.statementList)
+    (q : Except Fail (List NanoP4Spec.statement)) : Prop :=
+  ∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
+    cfg.guard = false → ctx.local.fenv = [] →
+    HoldsSpec NanoP4Spec.spec ctx.global →
+    ∀ (v0 : Lang.Il.value),
+    Rel v0 p0 →
+    ∃ r, EventuallyRuns (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+        (Q.i "flatten_statementList")
+        []
+        [v0])) r ∧
+    ResRel Rel r q
+
+theorem «$flatten_statementList».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 : Lang.Il.value)
+    (p0 : NanoP4Spec.statementList)
+    (h0 : Rel v0 p0) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "flatten_statementList")
+          []
+          [v0]))
+      (ExceptT.mk (NanoP4Spec.«$flatten_statementList» p0)) := by
+  intro q hq
+  exact NanoP4Spec.«$flatten_statementList».partial_correctness
+    (motive := «$flatten_statementList».realizesMotive) (by
+      intro rec ih p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
+      realize_step hq)
+    p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
+
+#audit_axioms NanoP4Spec.«$flatten_statementList».realizes
 
 end NanoP4Spec

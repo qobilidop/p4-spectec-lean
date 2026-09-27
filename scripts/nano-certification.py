@@ -149,7 +149,7 @@ def build_manifest(source, coverage, corpus_ids, identity):
     """Join the full source inventory to existing callable proof evidence.
 
     No independent callable-dependency or proof-eligibility algorithm is used.
-    Only existing forward and run-soundness contracts have evidence adapters.
+    Forward, reverse, builtin dispatch and run-soundness contracts have evidence adapters.
     All other obligations remain explicit, with no user-editable discharge bit.
     """
     if (not isinstance(source, list) or type(coverage.get("schemaVersion")) is not int
@@ -207,7 +207,8 @@ def build_manifest(source, coverage, corpus_ids, identity):
             domain = f"domain:{name}"
             add(domain, "domain", key, dependencies=representations)
             if entry["kind"] == "builtin":
-                add(f"contract:{name}", "builtin", key, dependencies=[domain])
+                add(f"contract:{name}", "builtin", key, dependencies=[domain],
+                    evidence=claim(entry, "builtinContract", "twoWayDispatch"))
             elif entry["kind"].startswith("extern"):
                 add(f"contract:{name}", "extern", key, dependencies=[domain])
                 add(f"target:{name}", "target", key, "target", [f"contract:{name}"])
@@ -224,8 +225,8 @@ def build_manifest(source, coverage, corpus_ids, identity):
                         prefix = "contract" if target["kind"] in (
                             "builtin", "externFunction", "externRelation") else requirement
                         deps.append(f"{prefix}:{callee}")
-                    # Reverse bindings require their own future statement/checker adapter.
-                    evidence = claim(entry, "refinement", direction) if requirement == "forward" else None
+                    # Each direction has its own generated statement, checked by check-coverage.
+                    evidence = claim(entry, "refinement", direction)
                     add(f"{requirement}:{name}", requirement, key, dependencies=deps,
                         evidence=evidence)
                 if tag == "RelD":

@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 
 /-! # NanoP4Spec.Refinement.find_action_p
@@ -69,5 +70,46 @@ theorem «$find_action'».refines
     h1
 
 #audit_axioms NanoP4Spec.«$find_action'».refines
+
+private def «$find_action'».realizesMotive
+    (p0 : List NanoP4Spec.matchAction)
+    (p1 : NanoP4Spec.callableId)
+    (q : Except Fail (Option
+       ((List NanoP4Spec.parameterIR) × (List NanoP4Spec.argumentIR)))) : Prop :=
+  ∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
+    cfg.guard = false → ctx.local.fenv = [] →
+    HoldsSpec NanoP4Spec.spec ctx.global →
+    ∀ (v0 v1 : Lang.Il.value),
+    Rel v0 p0 →
+    Rel v1 p1 →
+    ∃ r, EventuallyRuns (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+        (Q.i "find_action'")
+        []
+        [v0, v1])) r ∧
+    ResRel Rel r q
+
+theorem «$find_action'».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 v1 : Lang.Il.value)
+    (p0 : List NanoP4Spec.matchAction)
+    (p1 : NanoP4Spec.callableId)
+    (h0 : Rel v0 p0)
+    (h1 : Rel v1 p1) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "find_action'")
+          []
+          [v0, v1]))
+      (ExceptT.mk (NanoP4Spec.«$find_action'» p0 p1)) := by
+  intro q hq
+  exact NanoP4Spec.«$find_action'».partial_correctness
+    (motive := «$find_action'».realizesMotive) (by
+      intro rec ih p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
+      realize_step hq)
+    p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
+
+#audit_axioms NanoP4Spec.«$find_action'».realizes
 
 end NanoP4Spec

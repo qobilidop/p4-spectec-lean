@@ -4,77 +4,84 @@ Current checkpoint, updated 2026-09-26.
 
 ## Authorized scope
 
-The user explicitly resumed Nano certification and requested completion of N1.
-N1 is complete and published, with independent review and successful local/remote
-validation. No implementation work is active and no N2 expansion has started.
-Broader full-P4 M3 remains paused. The [Nano plan and evidence](notes/nano-certification.md) owns the
-exit criteria, proof limits, review provenance and measured costs.
+The user authorized continued N2 implementation after completing N0/N1.
+N2 remains active; full Nano certification and broader full-P4 M3 are incomplete.
+M3 stays paused. The [Nano plan and evidence](notes/nano-certification.md) owns
+exit criteria, independent reviews, proof limits and measured costs.
 
-## Verified N1 checkpoint
+## N2 implementation checkpoint
 
-- Reviewed commits: `60f2e72` (optional/negated reverse composition),
-  `cc45c7f` (actual print dispatch), `7b4e0b3` (recursive exists_ reverse induction)
-  and `591eb60` (actual recursive relation probes).
-- `ccb8859` adds an explicit runtime-only raw-extern carrier, preserving
-  source quotes and packet/object membership. Actual short/full extract probes
-  compare generated continuation contexts canonically and fresh counters exactly.
-  A kernel-checked paired source/generated receiver-reuse mismatch closes the
-  bounded contextual obligation; full target composition remains N4.
-- Printing composes through actual builtin dispatch with explicit guard-free,
-  empty-hint and environment assumptions. Recursive exists_ reverse execution
-  covers all related Boolean lists and every terminating generated outcome;
-  it does not claim initialization or total termination. Type_eq/ParameterType_eq
-  probes use actual definitions, including recursive success, mismatch and
-  exhaustion; universal recursive-group certificates remain N2.
-- Independent reviews found no unresolved issue. A coverage-test profile mismatch
-  and imprecise context-equality wording were fixed. Reviewers distinguished
-  direct-handler hard error from subsequent AL callee mismatch.
-- Full local `nix develop -c bash /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
-  passed with actual exit 0 (session 40282, 104.859s), all 44 stages, no skips.
-  Evidence: `.artifacts/n1-full-gate.{log,json}`. This includes warning-failing
-  libraries/tests/examples, all existing certificates, both typing replay legs,
-  packet/verify replay, mutations, generated freshness, coverage, quotations,
-  source pin checks and full-P4 census. Final prose updates receive text/link checks.
+- Generated forward and reverse certificates now cover the same original 18
+  functions on related inputs. Recursive reverse proofs use actual generated
+  outcome induction and construct eventual reference executions, including
+  failures. They do not assume forward determinism or global fuel monotonicity.
+- All 26 builtins now have operation-specific dispatch equality and both
+  invocation directions, with checked signature/carrier selection and exact
+  type/axiom validation. Failed shape/arity decoding and operation failures
+  have reusable family contracts. Printing retains the empty-hint requirement.
+- Representation support separates independently defined source domains,
+  admitted carriers, decoder soundness and sufficient fuel. Canonical ordering,
+  normalization and legal equality dictionaries have audited reusable laws.
+  These interfaces are not actual Nano source-domain/call-invariant bindings.
+- Generated table initialization provides `HoldsSpec` and no local overrides.
+  The field-update consumer uses this environment and the generated reverse
+  theorem, removing over 500 lines of private proof duplication while preserving
+  all public theorem statements. Its former private explicit fuel formula is
+  no longer claimed; the public finite-execution guarantee is unchanged.
+- Coverage is 350 declarations, 888 obligations, 139 compiled claim bindings
+  and 749 unresolved: 18 forward, 18 reverse, 26 builtin dispatch and 77 relation
+  run-soundness bindings. The additional builtin invocation certificates are
+  checked without duplicating completion obligations. Bodied callers of builtins
+  remain excluded until their call invariants and proof support are established.
 
-N0 is complete. N1's proof/representation/observation feasibility work is complete;
-the executable checkpoint `ccb88591b82c29fe334cb2dcc844e298eae5773f` passed
-[CI 36290248213](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290248213),
-all 44 stages. The remote gate took 8m33s with generated-library, certificate and
-native rebuilds; this differs from the warm local measurement. This final
-closure update changes working-state prose only and reuses gate 40282, with
-independent review and text/link checks. Coverage remains 350 declarations,
-888 obligations, 95 bindings and 793 unresolved: 18 generated forward certificates,
-77 relation run-soundness theorems and zero generated reverse certificates.
-The handwritten proofs add no completion binding. All 78 typing programs and
-39 STF sessions remain in the denominator; only three STF sessions have stored
-upstream observations. No new upstream capture or full-P4 campaign was run.
+## Validation and publication
 
-## Prior completed work
+Independent read-only reviews of the frozen implementations and integration
+found no unresolved issue; the topic note preserves reviewer provenance,
+reviewed hashes, later resolutions and limits. All 18 generated function groups
+passed together with `--wfail` (41.680s). The production builtin sidecars and
+exact coverage checker passed (10.804s), including thirteen distinguishing
+mutations. Seventeen completion-adapter tests passed. The simplified consumer
+certificate passed (497ms correspondence, 427ms certificate).
 
-Code/test organization, meaningful configuration ordering and the requested
-maintenance pass are published and validated; [maintenance evidence](notes/repository-stewardship.md)
-retains their reviews. The autonomous build/test/CI optimization pass is complete
-through `fd7ff9fd47aea72be1290b87e50be3ac1aa459d6`, whose
-[CI 36286394307](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36286394307)
-succeeded. The [performance evidence](notes/ci-performance.md) and
-[public snapshot](../docs/performance/build-test-ci-2026-09-26.md) preserve the
-measurements and limits. Routine CI is asynchronous; milestone closure requires
-passing CI for the final published revision, as specified in AGENTS.
+The full local gate passed with actual exit 0 (session 60774, 74.570s), all 44
+stages and no skips. Evidence: `.artifacts/n2-full-gate.{log,json}`; tested index
+tree `0f249ebf77ef66a2dbe66232b409a422526816a8`. This is a warm measurement,
+not a controlled comparison with N1. Subsequent changes are checkpoint prose
+only; executable inputs remain unchanged. Routine remote CI is pending for
+this checkpoint; no N2 milestone closure or exact-head CI success is claimed.
+Strict core completion still rejects the inventory with actual exit 1 and the
+expected incomplete-certification diagnostic (`.artifacts/n2-strict-core.log`).
 
-## Next step and recovery
+## Next step and remaining N2 obligations
 
-N2 is the next planned phase: reusable source-domain/representation and primitive
-contracts, followed by generated two-way certificates for the original 18 functions, recursive relation
-group and Var_init closure. Full Nano certification remains incomplete.
+Check routine remote CI for the published checkpoint and resolve any failure.
+Then establish actual source grammar/codec contracts for the four-member
+`typeIR` representation SCC, with producer/cast and call-preservation proofs.
+Complete Type_eq/ParameterType_eq, Type_ok and Var_init dependency closures.
+Subtype/membership/iteration/type-argument support and reachable substitution
+fuel obligations remain explicit. Legal polymorphic equality needs `ValueBEq`;
+source tuple arities must not be confused with overlapping product dictionaries.
+Source-valid values and runtime raw-extern values need separate recursive
+admission predicates. No source-domain obligation has been removed from scope.
 
-The old unpushed `wip/nano-reverse` draft at
-`efd626c7cb40004f8d6725f2b29172d09ecd8dbe` was recovered and completed in
-`7b4e0b3`; the [historical handoff](notes/nano-certification.md#n1-recursive-proof-handoff)
-records its limits and resolution. The obsolete branch was removed after successful
-integration and main CI; its absence was verified by listing the branch name.
-Its temporary worktree is already gone.
+## Prior validated baseline and recovery
 
-The expected four-file upstream exporter patch remains applied; no pins changed.
-There is one registered worktree. The older `docs/repository-review` branch and
-local-only [archive backup](notes/archive.md) are preserved. No agent proof/build
-processes remain active.
+N1 closed at `56cf92c2201e25c11d1263cbdf6895a827afc612`, with successful
+[CI 36290916636](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290916636).
+The preceding full local gate passed all 44 stages in 104.859s; its evidence
+remains `.artifacts/n1-full-gate.{log,json}`. N1 includes recursive reverse,
+relation, print and raw-extern feasibility evidence. Full target composition is
+still N4; all 78 typing cases and 39 STF sessions remain in scope, with only
+three STF sessions having stored upstream observations.
+
+Organization, ordering and requested maintenance work are published; the
+[maintenance evidence](notes/repository-stewardship.md) retains those reviews.
+Build/test/CI optimization closed at `fd7ff9fd47aea72be1290b87e50be3ac1aa459d6`
+with successful [CI 36286394307](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36286394307).
+[Performance evidence](notes/ci-performance.md) preserves measured results.
+
+The old N1 draft branch and temporary worktree were removed after successful
+integration. One worktree remains. The older `docs/repository-review` branch
+and local-only [archive backup](notes/archive.md) are preserved. The expected
+four-file upstream exporter patch remains applied; no source pins changed.

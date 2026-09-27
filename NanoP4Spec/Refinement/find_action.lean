@@ -5,6 +5,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
 import NanoP4Spec.Refinement.find_action_p
 
@@ -41,5 +42,24 @@ theorem «$find_action».refines
   by refine_al
 
 #audit_axioms NanoP4Spec.«$find_action».refines
+
+theorem «$find_action».realizes
+    (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
+    (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])
+    (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (v0 v1 : Lang.Il.value)
+    (p0 : NanoP4Spec.tableContext)
+    (p1 : NanoP4Spec.callableId)
+    (h0 : Rel v0 p0)
+    (h1 : Rel v1 p1) :
+    Realizes Rel
+      (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx
+          (Q.i "find_action")
+          []
+          [v0, v1]))
+      (ExceptT.mk (NanoP4Spec.«$find_action» p0 p1)) := by
+  realize_al
+
+#audit_axioms NanoP4Spec.«$find_action».realizes
 
 end NanoP4Spec
