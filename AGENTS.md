@@ -190,8 +190,10 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   keep cross-language oracle runners, probes, fixtures and contract tests
   together under `P4SpecTecTest/Oracle/`. Script tests sit beside their helpers.
   Supported executable entry points live under `Tools/`, without a tools library.
-- **Tests** are `#guard` and `#guard_msgs` files under `P4SpecTecTest/`,
-  built by `lake test`. Every advertised theorem is followed by a
+- **Unit tests** are `#guard` and `#guard_msgs` files under `P4SpecTecTest/`,
+  imported by its root and built by `lake test`. Colocated oracle executables
+  have their own Lake targets, all built explicitly by the full gate; do not
+  also enumerate them through recursive test-library globs. Every advertised theorem is followed by a
   `#guard_msgs in #print axioms` check naming its exact axiom set; every
   generated theorem by `#audit_axioms`, which fails on any axiom outside
   `propext`, `Classical.choice` and `Quot.sound`. `native_decide` is not

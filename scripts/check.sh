@@ -27,6 +27,22 @@ fail=0
 
 say() { printf '[check] %s\n' "$*"; }
 
+# Keep a stage's actual exit status visible without stopping collected-failure checks.
+runStage() {
+  local label="$1" started=$SECONDS status
+  shift
+  say "start: $label"
+  if "$@"; then status=0; else status=$?; fi
+  say "end: $label ($((SECONDS - started))s, exit $status)"
+  return "$status"
+}
+
+# Lake and the replay runner resolve package-relative inputs from the repository root.
+inRoot() (cd "$root" && "$@")
+
+layout_started=$SECONDS
+say "start: Repository layout"
+
 for path in \
   AGENTS.md README.md LICENSE docs/design.md docs/lean-pitfalls.md \
   .agents/status.md .agents/decisions.md .agents/roadmap.md \
@@ -100,80 +116,83 @@ if grep -rnE "$link" "$root/docs" >/dev/null 2>&1; then
   say "docs/ links into .agents/:"; grep -rnE "$link" "$root/docs"; fail=1
 fi
 
-"$root/scripts/check-text.sh" || fail=1
-python3 "$root/scripts/test_check_text.py" || fail=1
-python3 "$root/scripts/test_build_upstream.py" || fail=1
-python3 "$root/scripts/test_oracle_build.py" || fail=1
-python3 "$root/scripts/test_nano_certification.py" || fail=1
-python3 "$root/P4SpecTecTest/Oracle/Nano/Certification/test_corpus.py" || fail=1
-python3 "$root/scripts/check-file-sizes.py" || fail=1
-python3 "$root/scripts/test_file_sizes.py" || fail=1
-python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
-python3 "$root/scripts/test_spec_snapshot.py" || { say "snapshot tests failed"; fail=1; }
-python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/test_runner.py" \
+say "end: Repository layout ($((SECONDS - layout_started))s, exit $fail)"
+
+runStage "Text hygiene" "$root/scripts/check-text.sh" || fail=1
+runStage "Text checker contracts" python3 "$root/scripts/test_check_text.py" || fail=1
+runStage "Upstream build contracts" python3 "$root/scripts/test_build_upstream.py" || fail=1
+runStage "Shared oracle build contracts" python3 "$root/scripts/test_oracle_build.py" || fail=1
+runStage "Completion inventory contracts" python3 "$root/scripts/test_nano_certification.py" || fail=1
+runStage "Nano corpus inventory contracts" python3 "$root/P4SpecTecTest/Oracle/Nano/Certification/test_corpus.py" || fail=1
+runStage "Tracked file sizes" python3 "$root/scripts/check-file-sizes.py" || fail=1
+runStage "File-size checker contracts" python3 "$root/scripts/test_file_sizes.py" || fail=1
+runStage "Upstream constructor mirrors" python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
+runStage "Spec snapshot contracts" python3 "$root/scripts/test_spec_snapshot.py" || { say "snapshot tests failed"; fail=1; }
+runStage "Field-update mutation runner contracts" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/test_runner.py" \
   || { say "field-update mutation runner contract tests failed"; fail=1; }
-bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
-python3 "$root/scripts/test_fetch_p4c.py" || { say "p4c restore tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_contract.py" \
+runStage "P4C restore shell syntax" bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
+runStage "P4C restore contracts" python3 "$root/scripts/test_fetch_p4c.py" || { say "p4c restore tests failed"; fail=1; }
+runStage "Full-P4 oracle contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_contract.py" \
   || { say "P4 oracle contract tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/Type/test_contract.py" \
+runStage "Type-runtime oracle contracts" python3 "$root/P4SpecTecTest/Oracle/Type/test_contract.py" \
   || { say "type-runtime oracle contract tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_replay_contract.py" \
+runStage "Full-P4 replay contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_replay_contract.py" \
   || { say "P4 interpreter replay contract tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Packets/test_contract.py" \
+runStage "Nano packet fixture contracts" python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Packets/test_contract.py" \
   || { say "Nano packet fixture contract tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Verify/test_contract.py" \
+runStage "Shared verify fixture contracts" python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Verify/test_contract.py" \
   || { say "Shared verify fixture contract tests failed"; fail=1; }
-python3 "$root/scripts/test_spec_pin.py" \
+runStage "Exact specification input contracts" python3 "$root/scripts/test_spec_pin.py" \
   || { say "Exact specification input guard tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_inventory.py" \
+runStage "Full-P4 corpus inventory contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_inventory.py" \
   || { say "P4 corpus inventory tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_contract.py" \
+runStage "Full-P4 corpus worker contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_contract.py" \
   || { say "P4 corpus v2 contract tests failed"; fail=1; }
-python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_shard.py" \
+runStage "Full-P4 corpus resume contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_shard.py" \
   || { say "P4 corpus shard/resume contract tests failed"; fail=1; }
 for name in nano-p4 p4; do
-  python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
+  runStage "$name snapshot verification" python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }
 done
 
 if command -v lake >/dev/null 2>&1; then
-  (cd "$root" && lake env python3 "$root/scripts/check-library-boundaries.py") \
+  runStage "Library layers and reachability" inRoot lake env python3 "$root/scripts/check-library-boundaries.py" \
     || { say "library boundary check failed"; fail=1; }
-  (cd "$root" && lake env python3 "$root/scripts/test_library_boundaries.py" --lean) \
+  runStage "Library boundary contracts" inRoot lake env python3 "$root/scripts/test_library_boundaries.py" --lean \
     || { say "library boundary regression tests failed"; fail=1; }
-  (cd "$root" && lake build --wfail) || { say "lake build --wfail failed"; fail=1; }
-  (cd "$root" && lake test) || { say "lake test failed"; fail=1; }
-  (cd "$root" && lake build --wfail ExampleProofs) \
+  runStage "Library and certificate build" inRoot lake build --wfail || { say "lake build --wfail failed"; fail=1; }
+  runStage "Lean unit tests" inRoot lake test || { say "lake test failed"; fail=1; }
+  runStage "Downstream example proofs" inRoot lake build --wfail ExampleProofs \
     || { say "ExampleProofs build failed"; fail=1; }
-  "$root/scripts/gen-keywords.sh" --check || { say "keyword table is stale"; fail=1; }
-  (cd "$root" && lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --check) \
+  runStage "Lean keyword freshness" "$root/scripts/gen-keywords.sh" --check || { say "keyword table is stale"; fail=1; }
+  runStage "Generated Nano freshness" inRoot lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --check \
     || { say "NanoP4Spec/ is stale; run: lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --update"; fail=1; }
-  (cd "$root" && python3 P4SpecTecTest/Oracle/Nano/Replay/replay.py) || { say "differential test failed"; fail=1; }
-  python3 "$root/P4SpecTecTest/Oracle/Nano/Replay/test_json_boundary.py" \
+  runStage "Nano differential replay, both legs" inRoot python3 P4SpecTecTest/Oracle/Nano/Replay/replay.py || { say "differential test failed"; fail=1; }
+  runStage "JSON transport contracts" python3 "$root/P4SpecTecTest/Oracle/Nano/Replay/test_json_boundary.py" \
     || { say "JSON transport/output checks failed"; fail=1; }
-  (cd "$root" && lake build --wfail check-quotes check-coverage check-print check-text-builtins \
+  runStage "Diagnostic and oracle executable build" inRoot lake build --wfail \
+    check-quotes check-coverage check-print check-text-builtins \
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
-    check-nano-target check-nano-packet check-nano-driver check-nano-verify) \
+    check-nano-target check-nano-packet check-nano-driver check-nano-verify \
     || { say "reconnaissance tools failed to build"; fail=1; }
   # Completion diagnostics include the existing compiled-claim/quotation checks.
   # Strict completion remains deliberately failing until all obligations close.
-  python3 "$root/scripts/nano-certification.py" \
+  runStage "Completion inventory, coverage and quotation" python3 "$root/scripts/nano-certification.py" \
     || { say "Nano completion inventory/coverage/quotation check failed"; fail=1; }
-  python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
+  runStage "Field-update certificate mutations" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }
-  (cd "$root" && lake exe check-print) || { say "print oracle check failed"; fail=1; }
-  (cd "$root" && lake exe check-text-builtins) \
+  runStage "Print oracle replay" inRoot lake exe check-print || { say "print oracle check failed"; fail=1; }
+  runStage "Text builtin oracle replay" inRoot lake exe check-text-builtins \
     || { say "text builtin oracle check failed"; fail=1; }
-  (cd "$root" && lake exe check-state-oracle) \
+  runStage "State interpreter oracle replay" inRoot lake exe check-state-oracle \
     || { say "stateful interpreter oracle check failed"; fail=1; }
-  python3 "$root/P4SpecTecTest/Oracle/State/test_oracle.py" \
+  runStage "State oracle sensitivity" python3 "$root/P4SpecTecTest/Oracle/State/test_oracle.py" \
     || { say "state oracle sensitivity check failed"; fail=1; }
-  python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Packets/check.py" \
+  runStage "Nano target and packet replay" python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Packets/check.py" \
     || { say "Nano dynamic target and packet relation replay failed"; fail=1; }
-  (cd "$root" && lake exe check-nano-verify) \
+  runStage "Shared verify and Nano dispatch replay" inRoot lake exe check-nano-verify \
     || { say "Shared verify and Nano dispatch replay failed"; fail=1; }
-  (cd "$root" && lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json) \
+  runStage "Full-P4 capability census" inRoot lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json \
     || { say "P4 census is stale or the export does not decode"; fail=1; }
 elif [ "${P4SPECTEC_SKIP_LEAN:-0}" = "1" ]; then
   say "lake not on PATH; Lean gate SKIPPED by P4SPECTEC_SKIP_LEAN=1 (not a pass)"

@@ -31,9 +31,9 @@ name = "NanoP4Spec"
 [[lean_lib]]
 name = "ExampleProofs"
 
+# Build root-imported unit tests here; the gate builds oracle executables separately.
 [[lean_lib]]
 name = "P4SpecTecTest"
-globs = ["P4SpecTecTest", "P4SpecTecTest.+"]
 leanOptions = { linter.missingDocs = false }
 
 # Generation, source identity, compiled certification and capability inventory.

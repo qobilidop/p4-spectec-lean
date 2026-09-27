@@ -1,0 +1,82 @@
+# Build, test and CI performance
+
+Active authorized optimization, 2026-09-26. The user requested diagnosis, approved
+implementation and then granted roughly three hours of autonomous optimization
+(until approximately 2026-09-27 03:41 UTC). Keep all certification obligations,
+proof statements, axioms, corpus cases and failure classifications intact. Nano
+feature implementation and broader full-P4 campaigns remain paused.
+
+## Baseline evidence
+
+GitHub timestamped logs, not a controlled same-machine benchmark:
+
+| Revision/run | Workflow elapsed | Gate elapsed | Cache state |
+|---|---:|---:|---|
+| `5687b0d` / 36277971665 | 6m15s | 4m59s | prior Lake cache restored; no Nano proofs rebuilt |
+| `ad1ac33` / 36280484313 | 22m44s | 21m33s | prior cache restored; changed proof support rebuilt |
+| `29ddf22` / 36281893597 | 21m02s | 19m56s | ad1ac33 cache restored; Prelude order invalidated dependents |
+
+All three runs succeeded. Workflow elapsed is created-to-updated time; gate
+elapsed is its logged boundaries. Main Lean rebuilding consumed about 11 minutes
+in each slow run. The latest log's expensive proof jobs include
+split_dataplane_parameters (281s), directionless_trailing_p (243s), and
+update_fieldValue (194s); concurrent job durations are not additive wall time.
+Remote certificates built once, not twice. Nine oracle Main modules built twice.
+
+On the warm baseline, adjacent log boundaries attribute about 109s to the
+field-update mutation runner and 145s to the full-P4 census; on the ordering
+run they are 177s and 137s respectively. These include small process/startup
+boundaries, not isolated profiler measurements. Cache restoration succeeded;
+cache setup is not the dominant source of the twenty-minute gates.
+
+Sol's local-log inventory found duplicate certificate work in the ordering gate.
+Root edited Prelude whitespace after that local run began, a confounder which
+can invalidate build traces. Do not infer a persistent Lake/proof duplication
+bug from that run. Avoid changing executable inputs during measured validation.
+
+## Workstreams
+
+1. Root owns integration, gate evidence and census profiling. Sol
+   `organize_lean_tests` owns test-library/executable ownership; Sol
+   `enforce_library_layers` owns stage timing. Cross-review excludes authorship.
+2. Profile the census before optimizing. Existing native-executable sampling
+   found repeated `Funcs.monotonicityConsumers` whole-definition traversals in
+   recursive relation emission. Inspect equivalent reachability calculations;
+   require byte-identical Nano generation and full-P4 census results.
+3. Astra `review_oracle_refactor` profiles expensive actual generated proofs and
+   may optimize existing refinement tactics. Do not hand-edit generated sources
+   or weaken statements/audits. Use matching before/after measurements.
+4. Profile mutation replay after the first checkpoint; preserve baseline proof,
+   intended diagnostic boundaries, isolated scratch inputs and failure handling.
+
+## First checkpoint (validated locally)
+
+Removed the test library's recursive globs, using Lake's canonical root default.
+Actual module query contains the root and all 25 unit-test imports; oracle roots
+retain their executable configurations. All 15 executable declarations are
+unchanged; the gate explicitly builds all 11 oracle executables. Author's warm
+`lake test` and oracle build both exited 0 with zero Built entries, compared to
+nine duplicated Main builds in old warm logs. Library boundary check passed.
+
+Gate timing adds 44 named start/end stages with integer elapsed seconds and
+actual command exits. Author compared complete command traces against the prior
+script for success, collected failure, immediate snapshot failure, missing-Lake
+rejection and explicit skip: all order/exit behavior matched. Syntax and whitespace
+checks passed.
+
+Independent read-only cross-review, no findings:
+- Sol `enforce_library_layers` reviewed only Lake ownership, excluding its own
+  gate edits; diff SHA-256 `098b7734347118f26035cabae8b78769e696061f13d11cd1ee593ce9ec227617`.
+- Sol `organize_lean_tests` reviewed gate timing, excluding its own Lake edits;
+  diff SHA-256 `0c366970e8c82c55ff992a15226e1a0af0aba73bb7cc4dc4cbee65b7c631785f`.
+  Independent helper probes checked success, failure17, scoped cwd and missing
+  root; the five full stub traces are author evidence, not reviewer execution.
+Both reviews used `7ebf4ea` as baseline. Root reviewed the integrated changes.
+
+Full local gate `nix develop -c bash scripts/check.sh` passed with actual exit 0
+(session 21389, no skips); `.artifacts/ci-stage-ownership-gate.log`. All 44 stage
+results are zero; unit/oracle ownership, fresh generated output, both 78-program
+replay legs and unchanged 888/95/793 completion accounting pass together. Proof
+profiling ran concurrently for part of this validation, so it is not a controlled
+wall-clock comparison. Final review/checkpoint prose receives text/whitespace
+checks; CI is asynchronous for the resulting publication.
