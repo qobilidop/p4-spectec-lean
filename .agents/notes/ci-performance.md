@@ -1,10 +1,12 @@
 # Build, test and CI performance
 
-Active authorized optimization, 2026-09-26. The user requested diagnosis, approved
-implementation and then granted roughly three hours of autonomous optimization
-(until approximately 2026-09-27 03:41 UTC). Keep all certification obligations,
-proof statements, axioms, corpus cases and failure classifications intact. Nano
-feature implementation and broader full-P4 campaigns remain paused.
+Durable implementation and review evidence, 2026-09-26. The authorized build/test/CI
+optimization is complete through `4cba852`; retained for review provenance and
+measurement limits. Public results live in
+[the performance snapshot](../../docs/performance/build-test-ci-2026-09-26.md).
+All certification obligations, proof statements, axioms, corpus cases and failure
+classifications were preserved. Nano feature work and broader full-P4 campaigns
+remain paused.
 
 ## Baseline evidence
 
@@ -99,13 +101,13 @@ filtering and callback gating are unchanged; repeated definition names union
 their outgoing edges and retain repeated output entries.
 
 On Apple M3 Max, 16 logical CPUs, 64 GiB RAM, arm64 Darwin and Lean 4.34.1,
-alternating native executions (after, before, before, after) took
+balanced ABBA native executions (after, before, before, after) took
 14.951s, 84.466s, 83.104s and 14.179s. Every run checked the same committed
 1689-definition report successfully. The old binary was retained before source
 edits; SHA-256 `f4636d50f63487a44a905ead779eeb12ed2bbd3a0ab4d2c2a88bda577ea3754c`.
 Raw runs and binary identities are ignored under
 `.artifacts/ci-performance/census-before-after.json`. Proof profiling overlapped
-part of this work; the alternating comparison controls machine/input but is not
+part of this work; the balanced comparison controls machine/input but is not
 an isolated laboratory benchmark. Native sampling itself is not a timing sample.
 
 Focused builds passed (sessions 97004 and 32667), as did byte-identical Nano
@@ -321,3 +323,40 @@ Full corrected gate 5946 passed, actual exit 0, no skips, 51.524s wall time with
 warm artifacts. All 44 stages passed; raw log/measurement:
 `.artifacts/ci-performance/native-import-gate-fixed.{log,json}`. The earlier
 published byte-access batch `b916f9c` also passed exact-head CI 36285243949.
+
+
+## Final checkpoint and discarded experiment
+
+Exact-head CI 36285795982 for `4cba852` succeeded. Its gate took 4m02s and workflow
+5m14s; certificates, examples and affected executables rebuilt. These are observed
+runner timings with different invalidation from earlier runs, not a controlled
+clean-build comparison. Raw log: `.artifacts/ci-performance/native-import-remote.log`.
+
+Astra instrumented two repeated-normalization sites in Forward. All 177 repeated
+passes made no progress across the three original heavy proofs, which passed with
+their existing axiom audits. Removing those passes yielded only 16.601→16.261s,
+10.373→9.982s and 9.039→8.705s. The bounded pair's 2–4% gain was comparable to run
+variation, so the experiment was discarded. Forward was restored byte-for-byte
+to `4cba852`; `lake build --wfail P4SpecTec.Tactic.Refine` exited 0 after restoration.
+No instrumentation or experimental tactic change is committed. Revisit only with
+stronger measurements; ignored evidence is in `.artifacts/proof-repeat-study/`.
+
+Independent read-only Sol `organize_lean_tests` reviewed the public snapshot and
+Performance link against retained logs/JSON at `4cba852`. Draft snapshot SHA-256
+`3abbc009cf2f600a75d2241997ad53f9168ed4acbc14be9499932653589d1c2a`, guide SHA-256
+`1933c7f22340876ec403835e84e8a3696e7ab604a7626009ed200c6ba47fde48`.
+Two minor findings were resolved: name ABBA accurately, and identify `29ddf22` as
+the retained baseline binary's build revision (compiler unchanged through `2743c3b`).
+Reviewer checked the three original proof timings against retained author evidence,
+without rerunning them. All later changes are evidence/checkpoint prose; executable
+validation remains full gate 5946, actual exit 0, all 44 stages, no skips.
+
+The final four-file evidence/status addendum received independent Sol read-only
+review at `4cba852`, with no findings. Ordered path+NUL+bytes fingerprint
+(`docs/performance.md`, its new snapshot, status, this note):
+`91bb28cf81679a91002f0609301b15a7f04ba4c9e35caab62883469b0dafb84e`.
+The reviewer independently checked the remote gate log and discarded-study JSON;
+workflow elapsed used the integrator's queried CI metadata, and restoration-build
+success remained author evidence. This review record is added afterward.
+Final text hygiene, staged whitespace, tracked file-size and local Markdown link
+target checks passed (12 local targets; no public link into `.agents/`).

@@ -20,6 +20,11 @@ not isolate kernel checking from elaboration, tactic execution or other build
 work. They also do not measure the whole repository's clean build, peak
 memory, incremental builds or P4 program execution.
 
+The [build/test/CI optimization snapshot](performance/build-test-ci-2026-09-26.md)
+records matched local hot-path measurements, native dependency reductions and
+observed remote gate times. It distinguishes warm gates from rebuilds and
+retains the measurement limits.
+
 ## Reproduce a measurement
 
 From the repository root, with the pinned toolchain available:

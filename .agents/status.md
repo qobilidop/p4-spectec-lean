@@ -9,11 +9,12 @@ committed and published. Maintenance commit `f6a96f2` passed independent review
 and the full local gate (session 41273, exit 0, no skips); its
 [CI 36283005578](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36283005578)
 succeeded. Asynchronous routine CI is authorized and implemented
-in `7ebf4ea`; AGENTS owns the policy. The user additionally approved roughly three
-hours of autonomous build/test/CI optimization, through about 2026-09-27 03:41 UTC.
-The [performance workstream](notes/ci-performance.md) records measurements,
-ownership and checks. Preserve all semantic verification while reducing work.
-Nano proof implementation and broader full-P4 M3 remain paused during this work.
+in `7ebf4ea`; AGENTS owns the policy. The autonomous build/test/CI
+optimization pass is complete through `4cba852`, with independent review and
+successful local/remote gates. The [performance evidence](notes/ci-performance.md)
+records ownership, reviews and discarded experiments; the
+[public snapshot](../docs/performance/build-test-ci-2026-09-26.md) records measurements.
+Nano proof implementation and broader full-P4 M3 remain paused. No task is active.
 
 ## Verified checkpoint
 
@@ -30,32 +31,23 @@ Nano proof implementation and broader full-P4 M3 remain paused during this work.
   succeeded for `29ddf22fc5dbfb3dc77d7a7a57fbcaa5ab04db2e`.
 - [Maintenance evidence](notes/repository-stewardship.md) records refactor review
   provenance, compaction, retained obligations and this pass's checks.
-- First performance increment: single ownership of unit/oracle builds and 44
-  timed gate stages. Independent cross-review passed; full local gate session
-  21389 exited 0 with no skips. Published as `2743c3b`; exact-head CI
-  36283667100 passed. The graph-based census optimization passed independent
-  Sol review and preserves byte-identical reports; matching native runs improved
-  from 83–84s to 14–15s. Combined local gate 63747 passed, actual exit 0, no skips,
-  including the independently reviewed tactic optimization. Census change
-  `859e8aa` and per-invocation global simp preparation are published together.
-  Three original generated proof runs improve 3–5x; the mutation stage improves
-  from 88s to 24s without removing checks. Next measure prepared StateRefine rules
-  and the remaining warm-gate costs; preserve all existing certification coverage.
-- Next batch: StateRefine now prepares its completed global rule set. Independent
-  review and unchanged full-file StateForward checks pass (29.3s to 8.1s),
-  committed as `60d74c9`. Packet path copying (`c795c26`) preserves all eleven
-  tests and twelve field mutations. Reviewed mutant scheduling improves 24.3s to
-  17.0s while retaining baseline-first failure checks (`164e005`). Packed byte
-  access removes full-buffer boxing; census now 3.8–5.3s in isolated native runs.
-  Full combined gate 81923 passed, actual exit 0, no skips; every stage passed.
-  CI 36284518064 for `19195eb` succeeded (gate 8m11s). This validated batch is ready
-  to publish, and is now `b916f9c`; exact-head CI 36285243949 passed.
-- Native dependency cleanup is reviewed and validated: runtime executables
-  exclude unused refinement-tactic native objects; coverage's explicit Lake
-  prerequisite still builds the full child model. A downstream implicit import
-  caught by the first gate was made explicit. Corrected full gate 5946 passed
-  with no skips in 51.5s on warm artifacts. Next measure the bounded redundant
-  normalization experiment, then record final performance evidence.
+- Performance changes: timed gate stages and single test build ownership
+  (`2743c3b`), graph reachability (`859e8aa`), prepared global refinement rules
+  (`19195eb`, `60d74c9`), packet fixture path copying (`c795c26`), concurrent
+  independent mutants (`164e005`), packed JSON byte access (`b916f9c`) and
+  narrower native dependencies (`4cba852`). All were independently reviewed;
+  integration gates 21389, 63747, 81923 and 5946 each exited 0 without skips.
+  A downstream missing explicit import found during integration was fixed and
+  re-reviewed before publication. No certification obligation was removed.
+- Final executable revision `4cba8520175df9eb95ccfedb11c91a9b36ec1dcd` passed
+  [CI 36285795982](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36285795982):
+  gate 4m02s, workflow 5m14s, with certificate/example/native rebuilds. Full local
+  gate 5946 took 51.52s with warm artifacts, all 44 stages passing. The matched
+  native census improved from 83–84s to 3.8–5.3s; original heavy proof files
+  improved 3–5x. These are separate measured contexts, not a clean-build ratio.
+- A final repeated-normalization experiment was discarded because its 2–4%
+  timing gain was inconclusive. Source was restored exactly and tactics rebuilt.
+  Final evidence-only updates reuse gate 5946 with text/link/whitespace checks.
 
 The [Nano plan and evidence](notes/nano-certification.md) owns N0/N1 details.
 N0 is complete; N1 is incomplete. Current coverage: 350 declarations,
@@ -74,9 +66,8 @@ and corpus completion remain open. The bounded field-update consumer and
 
 ## Next step and recovery
 
-Finish reviewed, measured performance improvements within the authorized window;
-inspect latest main CI at each checkpoint and prioritize any failure. The next
-Nano feature step, after this optimization work, is the actual `exists_` reverse induction
+Ask for the next scope. If the user resumes Nano certification, the next feature
+step is the actual `exists_` reverse induction
 on local unpushed branch `wip/nano-reverse` at
 `efd626c7cb40004f8d6725f2b29172d09ecd8dbe`. Its historical
 `.agents/notes/nano-reverse-proof/README.md` distinguishes checked clauses from
