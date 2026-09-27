@@ -192,3 +192,23 @@ Root also inspected the one-line change and unchanged stateful fixture. Existing
 six normalization regressions cover the shared mechanism; the stateful fixture
 covers calls, branches, errors, mismatches and retained state. Full integration
 gate is required before publishing this next batch.
+
+
+## Packet fixture mutation copying
+
+All eleven contract tests and twelve existing field mutations remain. Replacing
+an immediate field now copies only the dictionaries/lists along that path,
+rather than deep-copying the entire large fixture. Validation reads shared
+unchanged payloads; teardown revalidates the source fixture after each test.
+Paths must identify existing fields. No production oracle code changed.
+
+Author Sol measured an initial trial at 3.797s to 0.420s wall time. Root requested
+removal of an extra implementation-level helper test; the final original eleven
+tests passed in 0.287s as reported by unittest (not wall time). All existing
+assertions remain. Raw timing and original source are under ignored
+`.artifacts/packet-contract-path-copy-*` and `packet-contract-before-path-copy.py`.
+
+Independent root read-only review checked mutation paths, guards and the
+read-only nature of fixture.validate/typed_value; no findings. Scoped final
+diff SHA-256 against `60d74c9`: `e2d4d1c95b44796b498c3227eb7d1ded2285a6c18cd203e49ad0e29e847ba32d`.
+The next combined full gate remains required before publication.

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Offline packet fixture provenance, shape and resource-bound sensitivities."""
 
-import copy
 import gzip
 import pathlib
 import tempfile
@@ -10,10 +9,29 @@ from unittest import mock
 import fixture
 
 
+def replace_path(value, path, replacement):
+    """Copy only the ancestors of an existing fixture field, leaving the source untouched."""
+    key, *rest = path
+    if isinstance(value, dict):
+        if key not in value:
+            raise KeyError(key)
+    elif isinstance(value, list):
+        if type(key) is not int or not 0 <= key < len(value):
+            raise IndexError(key)
+    else:
+        raise TypeError("mutation path must traverse dictionaries or lists")
+    changed = value.copy()
+    changed[key] = replace_path(value[key], rest, replacement) if rest else replacement
+    return changed
+
+
 class Contract(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.bundle, cls.raw = fixture.read()
+
+    def tearDown(self):
+        fixture.validate(self.bundle)
 
     def test_current_fixture(self):
         fixture.validate(self.bundle)
@@ -35,8 +53,7 @@ class Contract(unittest.TestCase):
 
     def test_forged_source_hash(self):
         for key in ("programSha256", "stfSha256"):
-            bad = copy.deepcopy(self.bundle)
-            bad["cases"][0][key] = "0" * 64
+            bad = replace_path(self.bundle, ("cases", 0, key), "0" * 64)
             with self.assertRaisesRegex(ValueError, "pinned Git object"):
                 fixture.validate(bad)
 
@@ -44,8 +61,8 @@ class Contract(unittest.TestCase):
         for key, value in [("inputs", []), ("outputs", []),
                            ("counterBefore", 2**62), ("counterAfter", True),
                            ("class", "skip")]:
-            bad = copy.deepcopy(self.bundle)
-            bad["cases"][0]["observation"]["events"][0][key] = value
+            bad = replace_path(self.bundle,
+                               ("cases", 0, "observation", "events", 0, key), value)
             with self.subTest(key=key), self.assertRaises(ValueError):
                 fixture.validate(bad)
 
@@ -56,8 +73,8 @@ class Contract(unittest.TestCase):
     def test_driver_shape(self):
         for key, value in [("rx", [True, "AA"]), ("rx", [2**62, "AA"]),
                            ("rx", [0, "é"]), ("txs", "bad"), ("outputs", [])]:
-            bad = copy.deepcopy(self.bundle)
-            bad["cases"][0]["observation"]["driverEvents"][0][key] = value
+            bad = replace_path(self.bundle,
+                               ("cases", 0, "observation", "driverEvents", 0, key), value)
             with self.subTest(key=key, value=value), self.assertRaises(ValueError):
                 fixture.validate(bad)
 
