@@ -27,7 +27,7 @@ The next major milestone is
 The design owns acceptance criteria; the
 [implementation plan](notes/nano-certification.md) owns concrete deliverables,
 dependencies and exit checks. The user approved autonomous implementation,
-starting with N0/N1. Both core semantics and target composition must close.
+starting with N0/N1, then requested completion through N2. Both core semantics and target composition must close.
 Broader full-P4 M3 remains paused.
 
 The plan proceeds from the complete obligation inventory (N0), through early
@@ -41,7 +41,7 @@ printing dispatch and faithful runtime representation with contextual failure
 checks. N2 implementation is validated at `76bed84`; closure is recorded at
 `d85e82c`, with independent review, all 44 local gate stages and successful
 [final CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
-The session is wrapped up; N3 is the next proposed milestone, not started.
+N3 is the next proposed milestone, not started or authorized.
 The plan owns the [remaining effort estimate](notes/nano-certification.md#remaining-effort-estimate);
 status owns the next concrete step.
 

@@ -1,7 +1,9 @@
 # Bounded Nano target
 
-Active Nano feasibility boundary under the approved certification plan.
-Updated 2026-09-26. Historical target/packet/driver/verify evidence remains
+Paused: no target work is active; N4 target composition may overlap N3.
+Retained because it owns the current target exclusions that constrain claims
+under the approved certification plan. Updated 2026-09-26.
+Historical target/packet/driver/verify evidence remains
 below; new raw-receiver continuation checks are recorded in the
 [Nano checkpoint](nano-certification.md). Full-P4 integration remains paused. Current reproduction belongs to
 [NanoSwitch target](../../P4SpecTecTest/Oracle/NanoSwitch/Target/README.md) and

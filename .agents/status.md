@@ -1,7 +1,7 @@
 # Status
 
-Session handoff, updated 2026-09-27. The user requested repository maintenance
-and session wrap-up; no feature work is active. N3–N6 have not started and
+Session handoff, updated 2026-09-27. Only requested repository maintenance
+has run since N2 closed; no feature work is active. N3–N6 have not started and
 full-P4 M3 remains paused.
 
 ## Verified checkpoint
@@ -34,17 +34,11 @@ implementation authorization. Preserve the full scope and all corpus cases.
 
 ## Maintenance and repository state
 
-The earlier tend-repo pass changed documentation and working state only. It reuses
-unchanged executable validation through `d85e82c`, with fresh text/link checks
-and independent review; [stewardship](notes/repository-stewardship.md) records
-scope, evidence and any publication follow-up. No new full build or upstream
-recapture is needed for these edits. Inspect the latest main CI at the next
-session before new work; routine maintenance CI may be pending at publication.
-
-A later agent-parity pass (see [stewardship](notes/repository-stewardship.md#agent-parity-2026-09-27))
-links `.claude/skills` to `.agents/skills/` and adds its check to the gate;
-it changes gate behavior. Full `nix develop -c scripts/check.sh` on the
-final executable tree returned actual exit 0: all 44 stages, no skips.
+Maintenance since the N2 closure changed no semantics, pins or generated data.
+The latest pass linked `.claude/skills` to `.agents/skills/` and added its gate
+check. [Stewardship](notes/repository-stewardship.md) records each pass's
+review, validation and CI. Inspect the latest main CI at the next session,
+before new work.
 
 One worktree remains on `main`. The merged N2 branch is removed; the older
 `docs/repository-review` branch and local archive backup are preserved.

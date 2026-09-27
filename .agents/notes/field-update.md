@@ -1,6 +1,6 @@
 # Field-update consumer evidence
 
-Completed bounded example; retained evidence and limits, compacted 2026-09-26.
+Durable: completed bounded example; retained evidence and limits, compacted 2026-09-26.
 The maintained proof, walkthrough and tests live together in
 [ExampleProofs/NanoP4FieldUpdate](../../ExampleProofs/NanoP4FieldUpdate/).
 [Certification](../../docs/certification.md) owns the user-facing guarantee.

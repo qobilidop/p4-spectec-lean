@@ -1,7 +1,8 @@
 # Generated certificate coverage
 
-Implemented and published as `ffa961c`, 2026-09-26. Owns implementation and
-review evidence for the approved machine-readable coverage increment.
+Durable: implemented and published as `ffa961c`, 2026-09-26. Retained as the
+implementation and review evidence for the approved machine-readable coverage
+increment.
 Broader M3 remains paused.
 
 ## Contract and choices
