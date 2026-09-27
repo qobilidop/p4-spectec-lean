@@ -20,8 +20,9 @@ core semantics and target composition as separate required acceptance stages.
 scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
 first authorized settling this scope and then explicitly approved autonomous
-implementation of the Nano plan, then explicitly requested completion through N2.
-N3–N6 remain planned; broader full-P4 M3 remains paused. Use the model tiers in
+implementation of the Nano plan, then explicitly requested completion through N2,
+then on 2026-09-27 approved starting N3 at its first checkpoint. N4–N6 remain
+planned; broader full-P4 M3 remains paused. Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit
 ownership and one integrator. Confidence high in the milestone choice;

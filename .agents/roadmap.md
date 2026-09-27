@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated 2026-09-27. Nano work through N2 is authorized; other backlog remains deferred.
+Updated 2026-09-27. Nano work through N3 is authorized; other backlog remains deferred.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -41,7 +41,8 @@ printing dispatch and faithful runtime representation with contextual failure
 checks. N2 implementation is validated at `76bed84`; closure is recorded at
 `d85e82c`, with independent review, all 44 local gate stages and successful
 [final CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
-N3 is the next proposed milestone, not started or authorized.
+The user authorized N3 on 2026-09-27, starting from the Program_load/Expr_eval
+checkpoint; it is in progress ([status](status.md)). N4–N6 remain planned.
 The plan owns the [remaining effort estimate](notes/nano-certification.md#remaining-effort-estimate);
 status owns the next concrete step.
 

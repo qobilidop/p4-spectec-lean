@@ -43,7 +43,8 @@ theorem Parameter_ok.refines
     (h0 : Rel v0 p0)
     (h1 : Rel v1 p1)
     (h2 : Rel v2 p2) :
-    Refines (fun vs (o : NanoP4Spec.parameterIR × NanoP4Spec.typingContext) => Outs vs [toValue o.1, toValue o.2])
+    Refines (fun vs (o : NanoP4Spec.parameterIR × NanoP4Spec.typingContext) =>
+         Outs vs [toValue o.1, toValue o.2])
       (Interp_al.Interp.invoke_rel fuel cfg internal ctx (Q.i "Parameter_ok") [v0, v1, v2])
       (ExceptT.mk (NanoP4Spec.Parameter_ok.run p0 p1 p2)) :=
   by refine_al
@@ -63,7 +64,8 @@ theorem Parameter_ok.realizes
     (h0 : Rel v0 p0)
     (h1 : Rel v1 p1)
     (h2 : Rel v2 p2) :
-    Realizes (fun vs (o : NanoP4Spec.parameterIR × NanoP4Spec.typingContext) => Outs vs [toValue o.1, toValue o.2])
+    Realizes (fun vs (o : NanoP4Spec.parameterIR × NanoP4Spec.typingContext) =>
+         Outs vs [toValue o.1, toValue o.2])
       (fun fuel => (Interp_al.Interp.invoke_rel fuel cfg internal ctx
           (Q.i "Parameter_ok")
           [v0, v1, v2]))

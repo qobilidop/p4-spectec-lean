@@ -229,25 +229,34 @@ def closeValueEqConflict (s : SimpSet) : TacticM Bool := do
     if closed then return true
   return false
 
-/-- A generated list test (`xs.beq []`) the interpreter already decided on the related
-value: split the generated list, so that each branch's related value decides the same
-test, and continue with `k`; impossible branches close by their conflicting tests. -/
+/-- The list variable of a generated emptiness test, `xs.beq []`, `xs == []` or
+`xs.isEmpty`, at the head of `e`'s condition; other conditions are not list tests. -/
+def generatedListTest? (e : Expr) : MetaM (Option FVarId) := do
+  unless e.isAppOfArity ``ite 5 do return none
+  let condition := (← instantiateMVars (e.getArg! 1)).consumeMData
+  let some (_, test, _) := condition.eq? | return none
+  let test := test.consumeMData
+  let emptyTest (list other : Expr) : Option FVarId :=
+    if other.consumeMData.isAppOfArity ``List.nil 1 then
+      match list.consumeMData with | .fvar f => some f | _ => none
+    else none
+  if test.isAppOfArity ``List.beq 4 then
+    return emptyTest (test.getArg! 2) (test.getArg! 3)
+  if test.isAppOfArity ``BEq.beq 4 then
+    return emptyTest (test.getArg! 2) (test.getArg! 3)
+  if test.isAppOfArity ``List.isEmpty 2 then
+    return match (test.getArg! 1).consumeMData with | .fvar f => some f | _ => none
+  return none
+
+/-- A generated emptiness test the interpreter already decided on the related value:
+split the generated list, so that each branch's related value decides the same test,
+and continue with `k`; impossible branches close by their conflicting tests. -/
 def splitGeneratedList (s : SimpSet) (n : Expr) (k : TacticM Unit) : TacticM Bool := do
   let goal ← getMainGoal
-  let list ← goal.withContext do
-    let gh := chainHead n
-    unless gh.isAppOfArity ``ite 5 do return none
-    let ((), vars) ← ((← instantiateMVars (gh.getArg! 1)).collectFVars).run {}
-    let mut found : Option FVarId := none
-    for f in vars.fvarIds do
-      if found.isNone && (← whnfR (← f.getType)).isAppOfArity ``List 1 then
-        found := some f
-    pure found
-  let some f := list | return false
-  let name ← goal.withContext do pure (← f.getDecl).userName
-  traceStep m!"cases {name} (generated list test)"
-  evalTactic (← `(tactic| cases $(mkIdent name):ident))
-  for g in ← getGoals do
+  let some f ← goal.withContext (generatedListTest? (chainHead n)) | return false
+  traceStep m!"cases {← goal.withContext do pure (← f.getDecl).userName} (generated list test)"
+  let subgoals ← goal.cases f
+  for g in subgoals.map (·.mvarId) do
     setGoals [g]
     normalizeFacts s
     expose
@@ -703,6 +712,8 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
     noteAction "callee"
     let tail := (chainTail m).isNone
     calleeStep s m n
+    -- an impossible branch may have closed the goal instead of pairing the calls
+    if (← getGoals).isEmpty then return
     let goals ← getGoals
     let valueGoals := if tail then goals else goals.dropLast
     noteAction "callee: values"

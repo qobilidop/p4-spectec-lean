@@ -41,7 +41,8 @@ theorem Parameters_ok.refines_group :
          Rel v0 p0 →
          Rel v1 p1 →
          Rel v2 p2 →
-         Refines (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) => Outs vs [toValue o.1, toValue o.2])
+         Refines (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) =>
+              Outs vs [toValue o.1, toValue o.2])
            (Interp_al.Interp.invoke_rel fuel cfg internal ctx (Q.i "Parameters_ok") [v0, v1, v2])
            (ExceptT.mk (NanoP4Spec.Parameters_ok.run p0 p1 p2))) := by
   intro fuel
@@ -64,7 +65,8 @@ theorem Parameters_ok.refines
     (h0 : Rel v0 p0)
     (h1 : Rel v1 p1)
     (h2 : Rel v2 p2) :
-    Refines (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) => Outs vs [toValue o.1, toValue o.2])
+    Refines (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) =>
+         Outs vs [toValue o.1, toValue o.2])
       (Interp_al.Interp.invoke_rel fuel cfg internal ctx (Q.i "Parameters_ok") [v0, v1, v2])
       (ExceptT.mk (NanoP4Spec.Parameters_ok.run p0 p1 p2)) :=
   (NanoP4Spec.Parameters_ok.refines_group fuel)
@@ -106,7 +108,8 @@ private def Parameters_ok.realizesMotive
     ∃ r, EventuallyRuns (fun fuel => (Interp_al.Interp.invoke_rel fuel cfg internal ctx
         (Q.i "Parameters_ok")
         [v0, v1, v2])) r ∧
-    ResRel (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) => Outs vs [toValue o.1, toValue o.2]) r q
+    ResRel (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) =>
+       Outs vs [toValue o.1, toValue o.2]) r q
 
 theorem Parameters_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -121,7 +124,8 @@ theorem Parameters_ok.realizes
     (h0 : Rel v0 p0)
     (h1 : Rel v1 p1)
     (h2 : Rel v2 p2) :
-    Realizes (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) => Outs vs [toValue o.1, toValue o.2])
+    Realizes (fun vs (o : (List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext) =>
+         Outs vs [toValue o.1, toValue o.2])
       (fun fuel => (Interp_al.Interp.invoke_rel fuel cfg internal ctx
           (Q.i "Parameters_ok")
           [v0, v1, v2]))
@@ -129,7 +133,8 @@ theorem Parameters_ok.realizes
   intro q hq
   exact NanoP4Spec.Parameters_ok.run.partial_correctness
     (motive := Parameters_ok.realizesMotive) (by
-      intro rec ih p0 p1 p2 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 v2 h0 h1 h2
+      intro rec ih p0 p1 p2 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 v2 h0 h1
+          h2
       realize_step (relations) hq)
     p0 p1 p2 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 v2 h0 h1 h2
 

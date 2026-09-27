@@ -66,6 +66,7 @@ elab "subtype_canon " lib:ident " [" injections:ident,* "]" : tactic => withoutR
     let goal ← instantiateMVars (← getMainTarget)
     pure (goal.getUsedConstants.filter fun name => lib.isPrefixOf name && select name)
   let mut extra : Array (TSyntax `Lean.Parser.Tactic.simpLemma) := #[]
+  let mut proved : Array Name := #[]
   for _ in [0:8] do
     if (← getGoals).isEmpty then return
     let encoders ← used (·.getString! == "toValue")
@@ -74,9 +75,10 @@ elab "subtype_canon " lib:ident " [" injections:ident,* "]" : tactic => withoutR
     let rules : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (lemmas ++ extra)
     unless ← tryTac (evalTactic (← `(tactic| simp only [$rules,*]))) do
       -- nothing left to unfold: prove the nested list helpers' list-map equations
-      let helpers ← used (·.getString!.startsWith "toValue_")
+      let helpers := (← used (·.getString!.startsWith "toValue_")).filter (!proved.contains ·)
       if helpers.isEmpty then break
       for helper in helpers do
+        proved := proved.push helper
         let some encoder ← listEncoder? helper | continue
         let fact ← freshName "rf_c_encoding"
         let enc ← withMainContext do Term.exprToSyntax encoder
@@ -85,7 +87,6 @@ elab "subtype_canon " lib:ident " [" injections:ident,* "]" : tactic => withoutR
             intro xs
             induction xs <;> simp_all [$(mkIdent helper):ident]))
         extra := extra.push (← `(Lean.Parser.Tactic.simpLemma| $(mkIdent fact):ident))
-      if extra.isEmpty then break
   unless (← getGoals).isEmpty do throwError "subtype_canon: canonical encodings differ"
 
 /-- Related raw lists have the lengths of their explicitly encoded typed lists. -/

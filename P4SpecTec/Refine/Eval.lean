@@ -80,6 +80,9 @@ theorem orElse_unmatch {α : Type} {a : Eval α} : Eval.orElse a (throw .unmatch
 /-- A check that holds. -/
 @[simp] theorem check_true : Eval.check true = pure () := rfl
 
+/-- A check that fails. -/
+@[simp] theorem check_false : Eval.check false = throw .unmatch := rfl
+
 /-- Generated option tests (`eps = $f(…)`) compare with the derived `Option` equality;
 these decide it on constructors, leaving element equality for `some`. -/
 @[simp] theorem option_beq_none_none {α : Type} [BEq α] :
@@ -96,9 +99,6 @@ these decide it on constructors, leaving element equality for `some`. -/
 /-- Present options compare their elements. -/
 @[simp] theorem option_beq_some_some {α : Type} [BEq α] (a b : α) :
     Option.instBEq.beq (some a) (some b) = (a == b) := rfl
-
-/-- A check that fails. -/
-@[simp] theorem check_false : Eval.check false = throw .unmatch := rfl
 
 /-- Divergence absorbs a continuation. -/
 @[simp] theorem diverge_bind {α β : Type} {k : α → Eval β} : (Eval.diverge >>= k) = Eval.diverge :=

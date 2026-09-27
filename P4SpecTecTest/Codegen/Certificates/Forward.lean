@@ -1,6 +1,7 @@
 import NanoP4Spec.Refinement.Spec
 import P4SpecTec.Codegen.Certificates.Forward
 import P4SpecTec.Codegen.Certificates.Reverse
+import P4SpecTec.Codegen.Certificates.SourceEntry
 import P4SpecTec.Refine.Init
 import P4SpecTec.Refine.Subtype
 import P4SpecTec.Interp.InterpAl.Interp
@@ -164,15 +165,28 @@ private def nestedGuard : Lang.Il.exp :=
 #guard !Validate.scalarTypeCheckExp env nestedGuard
 #guard Props.requiresTypeRulesExp nestedGuard
 
-private def unsupportedNewRecursive : List String :=
-  ["expression_is_lvalue", "flatten_tableActionList", "flatten_parserStateList",
-   "lvalue_of_expression", "expression_of_lvalue", "flatten_nameList", "flatten_argumentList",
-   "flatten_parameterList", "find_var_t", "find_var_e", "update_var_e", "add_vars_t"]
+-- Recursive functions with subtype checks are admitted; registering type parameters is not.
+-- Every builtin has a checked contract, so all enter the caller frontier, as in the emitter.
+private def builtins : List String := NanoP4Spec.spec.filterMap fun d => match d.it with
+  | .BuiltinDecD name .. => some name.it
+  | _ => none
 
-#guard unsupportedNewRecursive.all fun name =>
-  (NanoP4Spec.spec.find? (fun d => d.it.id.it == name)).any fun d =>
-    Validate.recursiveFunction env d &&
-      (Validate.unsupported env [] d ["find_map", "add_map", "update_map"]).isSome
+private def recursiveReason (name : String) : Option (Option String) :=
+  (NanoP4Spec.spec.find? (fun d => d.it.id.it == name)).bind fun d =>
+    if Validate.recursiveFunction env d then
+      some (Validate.unsupported env [] d builtins)
+    else none
+
+private def supportedRecursive : List String :=
+  ["flatten_tableActionList", "flatten_parserStateList", "lvalue_of_expression",
+   "expression_of_lvalue", "flatten_nameList", "flatten_argumentList", "flatten_parameterList",
+   "find_var_t", "find_var_e"]
+
+#guard supportedRecursive.all fun name => recursiveReason name == some none
+#guard ["update_var_e", "add_vars_t"].all fun name => recursiveReason name ==
+  some (some "recursive function registration-freshness proof is not implemented")
+#guard recursiveReason "expression_is_lvalue" ==
+  some (some "unused downcast binding composition is not implemented")
 #guard Validate.unusedDowncastBinding NanoP4Spec.«$is_object_typeIR».al
 #guard (Validate.unsupported env [] NanoP4Spec.«$is_object_typeIR».al).isSome
 #guard (Validate.unsupported env [] NanoP4Spec.«$un_op».al ["pow2", "int_to_bitstr"]).isSome
@@ -193,7 +207,9 @@ private def duplicateParameter (d : Lang.Al.def) : Lang.Al.def :=
     { d with it := .FuncDecD name (tp :: tp :: tps) ps ret clauses ec hints }
   | _ => d
 
-#guard (Validate.unsupported env [] (changedOutput NanoP4Spec.«$in_set».al)).isSome
+-- A constant output leaves the membership shape; it is then an ordinary pure clause.
+#guard !Validate.polymorphicMembership env (changedOutput NanoP4Spec.«$in_set».al)
+#guard Validate.polymorphicPure env (changedOutput NanoP4Spec.«$in_set».al)
 #guard (Validate.unsupported env [] (duplicateParameter NanoP4Spec.«$in_set».al)).isSome
 #guard (Validate.unsupported env [] (changedOutput NanoP4Spec.«$dom_map».al)).isSome
 #guard (Validate.unsupported env [] (duplicateParameter NanoP4Spec.«$dom_map».al)).isSome
@@ -301,5 +317,28 @@ private def iteration (kind : Lang.Il.iter) (bound bind : List Lang.Il.var) : La
   (iteration .List [Q.v "left" parameterType [], Q.v "left" parameterType []] [])
 #guard !Validate.relationIterationPrem env [lengthGuard]
   (iteration .List [Q.v "left" .BoolT [], Q.v "right" parameterType []] [])
+
+-- The print-hint hypothesis follows the actual callable closure, not the shared name `id`
+-- (a type and a function), and stops at builtins.
+#guard Props.reachesPrintHints env NanoP4Spec.«$id».al
+#guard Props.reachesPrintHints env NanoP4Spec.Parameters_ok.al
+#guard !Props.reachesPrintHints env NanoP4Spec.Type_ok.al
+#guard !Props.reachesPrintHints env NanoP4Spec.«$find_map».al
+
+-- Pure polymorphic clauses: no premises and no calls; shadowing a global type is rejected.
+#guard Validate.polymorphicPure env NanoP4Spec.«$empty_map».al
+#guard !Validate.polymorphicPure env NanoP4Spec.«$ite».al
+#guard !Validate.polymorphicPure env NanoP4Spec.«$add_map».al
+#guard !Validate.polymorphicPure env NanoP4Spec.«$empty_frame».al
+
+-- Chained updates and optional unwrapping select the structural preset; one update does not.
+#guard Props.requiresStructureRulesOf NanoP4Spec.«$inherit_e».al
+#guard Props.requiresStructureRulesOf NanoP4Spec.«$make_evalContext».al
+#guard !Props.requiresStructureRulesOf NanoP4Spec.«$enter_e».al
+
+-- A plain alias's encoder converts a codec's explicit relation to the resolved instance.
+#guard (SourceEntry.aliasEncoders env (Q.t (Q.varT "expression" []))).contains
+  "NanoP4Spec.argument.toValue"
+#guard SourceEntry.aliasEncoders env (Q.t (Q.varT "typeIR" [])) == []
 
 end P4SpecTecTest.Codegen.ForwardCertificates

@@ -130,7 +130,7 @@ def factHyps : TacticM (List Name) := do
 structure PreparedSimpRules where
   /-- The global lemma names used to prepare the context. -/
   lemmas : Array Name
-  /-- The simproc names used to prepare the context. -/
+  /-- The simproc and pre-order (`↓`) lemma names used to prepare the context. -/
   procs : Array Name
   /-- Lean's elaborated simplifier context and procedures. -/
   result : MkSimpContextResult

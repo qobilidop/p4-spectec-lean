@@ -66,9 +66,9 @@ def polymorphicPairProjection (env : Env) (d : Lang.Al.def) : Bool :=
       premises.isEmpty && (callsOfDef d).isEmpty && shape.getD false
   | _ => false
 
-/-- Polymorphic clauses without premises or calls: their results are built from pattern
-bindings and constants only, so no operation depends on the represented type arguments.
-The actual type registration is still checked through its freshness hypotheses. -/
+/-- Polymorphic clauses without premises or calls. Selection is syntactic only; the
+remaining expression forms pass the ordinary fragment checks, and the kernel-checked
+certificate carries the actual type registration through its freshness hypotheses. -/
 def polymorphicPure (env : Env) (d : Lang.Al.def) : Bool :=
   match d.it with
   | .FuncDecD _ tparams params _ clauses none _ =>
@@ -440,8 +440,8 @@ def resultRel (m : Member) : Format :=
       | 1 => [Format.text "toValue o"]
       | n => (projections n).map fun p => Format.text ("toValue o" ++ p)
     let binder := if m.nOuts == 0 then "(_ : Unit)" else "(o : " ++ (render m.ret.fmt) ++ ")"
-    Format.paren (Format.text ("fun vs " ++ binder ++ " => Outs vs [") ++
-      Format.joinSep vals (Format.text ", ") ++ "]")
+    Format.paren (Format.group (Format.nest 2 (Format.text ("fun vs " ++ binder ++ " =>") ++
+      Format.line ++ "Outs vs [" ++ Format.joinSep vals (Format.text ", ") ++ "]")))
 
 /-- Raw AL type arguments in declaration order; their representation contracts are separate. -/
 def typeArgumentNames (m : Member) : List String :=

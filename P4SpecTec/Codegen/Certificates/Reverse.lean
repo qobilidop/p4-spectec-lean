@@ -45,6 +45,11 @@ def motive (lib : String) (m : Member) : Format := Id.run do
     Format.line ++ "∃ r, EventuallyRuns " ++ reference m ++ " r ∧" ++
     Format.line ++ "ResRel " ++ Validate.resultRel m ++ " r q"))
 
+/-- Space-separated words that break across lines within the column limit. -/
+private def words (head : String) (items : List String) : Format :=
+  let parts := (if head.isEmpty then [] else [head]) ++ items
+  Format.fill (Format.nest 4 (Format.joinSep (parts.map Format.text) Format.line))
+
 /-- Emit a singleton recursive certificate using its actual outcome induction principle. -/
 def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
   let owner := m.localName.replace ".run" ""
@@ -70,9 +75,9 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
   let proof := Format.nest 2 (Format.line ++ "intro q hq" ++ Format.line ++
     Format.text ("exact " ++ m.defName ++ ".partial_correctness") ++
     Format.nest 2 (Format.line ++ Format.text ("(motive := " ++ motiveName ++ ") (by") ++
-      Format.nest 2 (Format.line ++ Format.text ("intro " ++ " ".intercalate introArgs) ++
+      Format.nest 2 (Format.line ++ words "intro" introArgs ++
         Format.line ++ Format.text step) ++
-      Format.line ++ Format.text (" ".intercalate finalArgs)))
+      Format.line ++ words "" finalArgs))
   return [motiveDef, header ++ proof, Validate.audit (qualified ++ ".realizes")]
 
 /-- A member's outcome-indexed statement for joint fixed-point induction. -/

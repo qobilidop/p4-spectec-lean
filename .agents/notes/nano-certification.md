@@ -3,8 +3,8 @@
 Durable completion evidence and remaining plan, updated 2026-09-27.
 N0/N1/N2 are closed. N2 implementation is validated at `76bed84`; closure is
 recorded at `d85e82c`, with independent review and passing full local/remote gates.
-N3–N6 remain planned.
-The user authorized completion through N2; full-P4 M3 remains paused.
+N3 is in progress (first checkpoint below); N4–N6 remain planned.
+The user authorized N3; full-P4 M3 remains paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
 and [status](../status.md) owns the next immediate action.
@@ -27,7 +27,8 @@ composition remain separate acceptance stages.
   decoder soundness at arbitrary fuel, and stable sufficient decoding for each
   source value. Recursive/nested families use source derivations and actual
   carrier induction; parameter codecs and dictionaries remain explicit.
-- Both correspondence directions cover 39 of 153 bodied declarations. The strict
+- At N2 closure both correspondence directions covered 39 of 153 bodied declarations
+  (67 after the first N3 checkpoint below). The strict
   N2 exit requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and
   Var_init, with their complete 30-definition dependency/SCC closure. It also
   requires source input coverage, successful source outputs and every actual
@@ -62,6 +63,52 @@ Call/producer certificates establish composition rather than assuming that
 membership supplies source validity. The declared objectState extern domain
 admits arbitrary JSON; the additional value.runtimeExtern carrier constructor
 is excluded from the source value grammar. General target composition remains N4.
+
+## N3 first checkpoint (in progress)
+
+Authorized 2026-09-27. Three commits (`8ae7998`, `42c3fd3`, `63a95cd`) raise
+paired forward/reverse coverage from 39 to 67 of 153 bodied definitions without
+changing any existing claim statement (checked by claim-by-claim diff):
+
+- Print callers: a definition whose actual callable closure reaches `print_`
+  states `cfg.printHints = []` in forward, reverse and source-entry statements.
+- Relation premises binding outputs (`Parameter_ok`/`Parameters_ok`): the
+  interpreter's Int-indexed input/output split, generated `xs.beq []` tests,
+  and branches whose decided tests conflict.
+- Pure polymorphic clauses (`empty_map`, `empty_set`) and the context builders
+  above them, including `make_loadContext`, `make_evalContext`, `NanoSwitch_setup`.
+- Recursive functions with subtype checks (`flatten_argumentList`, `find_var_e`),
+  via generated `canon_toValue` injection bridges and the `subtype_canon` tactic.
+  Recursive functions that register type parameters stay excluded.
+
+Neither entry point is closed yet. Remaining direct blockers:
+
+| Closure | Blocker | State |
+|---|---|---|
+| Program_load | `Decl_load`: literal list indexing (`argument*[0]`) | Admitting `IdxE` on a list with a numeric literal emits exactly `Decl_load`, `Decls_load`, `Program_load`; `Decl_load.refines` then exceeds 4M heartbeats (seven rule paths over `declaration`). Profile before retrying; semantics agree (out of range is `Fail.err` on both sides). |
+| Expr_eval | `Expr_eval`, `bin_eq`: iterated premises (`(value_field nameIR_field ';' = fieldValue)*`, `forall_` over pairs) | Not started. |
+| Expr_eval | `un_op`, `bin_op`: numeric function coercions | Not started. |
+
+Reassessment: the 4–8-hour checkpoint budget was consumed reaching 67/153 with
+both entry points still open, so N3's 16–32-hour range is optimistic; treat
+24–40 hours as the working N3 range until the iteration and heartbeat costs
+below are reduced. Most elapsed time went to rebuilds: any tactic change
+rebuilds every certificate (about 5 minutes for `NanoP4Spec`), and single
+certificate retries cost 30 seconds to 5 minutes.
+
+Independent review of `aa5865f..63a95cd`: a read-only Claude Opus subagent
+(not human review), without building; it spot-checked generated modules. It
+found no soundness blocker. Resolved before publication: a possible empty-goal
+`getLast!` after a conflict closed inside a non-tail callee step; the list split
+now accepts only `xs.beq []`/`xs == []`/`xs.isEmpty`, cases the `FVarId` directly,
+and is shared by both drivers; `polymorphicPure`'s docstring no longer claims a
+check it does not make; unit tests now cover `reachesPrintHints`, `polymorphicPure`,
+`requiresStructureRulesOf`, `aliasEncoders` and the recursive admission reasons;
+`subtype_canon` proves each helper once; docstring, ordering and wrap nits.
+Kept: `Builtin.requiresPrintHints` remains beside `reachesPrintHints` (a test uses
+it), and the first commit subject is exactly 50 characters (published as is).
+The first full gate also caught generated lines over 100 columns and two unit
+tests predating the widened fragment; both were fixed.
 
 ## Verification and independent review
 
@@ -230,7 +277,7 @@ remote CI must pass before declaring the milestone complete.
 
 ## Execution after N2
 
-N3 is the next proposed increment; it has not started. N2 publication is complete.
+N3 is in progress; its first checkpoint is recorded above.
 Preserve all 78 typing programs and 39 STF sessions. Only three STF sessions have
 stored observations; missing observations are not successful replay.
 Full-P4 M3 stays paused. The dynamic NanoSwitch port and shared verify ABI limits

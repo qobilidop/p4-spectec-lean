@@ -186,20 +186,14 @@ def introOne (s : SimpSet) (conjunctions : Bool := false) : TacticM Unit := do
         obtain ⟨$(mkIdent left):ident, $(mkIdent right):ident⟩ := $(mkIdent name):ident))
   pure ()
 
-/-- A generated list test (`xs.beq []`) after the reference side already reached its outcome:
+/-- A generated emptiness test after the reference side already reached its outcome:
 split the generated list, so each branch's related reference value is exposed. -/
-def splitGeneratedList (genHead : Expr) : TacticM Bool := withMainContext do
-  unless genHead.isAppOfArity ``ite 5 do return false
-  let condition ← instantiateMVars (genHead.getArg! 1)
-  unless (valueEqs condition).isEmpty do return false
-  let ((), vars) ← condition.collectFVars.run {}
-  for f in vars.fvarIds do
-    if (← whnfR (← f.getType)).isAppOfArity ``List 1 then
-      let name := (← f.getDecl).userName
-      traceStep m!"cases {name} (generated list test)"
-      evalTactic (← `(tactic| cases $(mkIdent name):ident))
-      return true
-  return false
+def splitGeneratedList (genHead : Expr) : TacticM Bool := do
+  let goal ← getMainGoal
+  let some f ← goal.withContext (generatedListTest? genHead) | return false
+  traceStep m!"cases {← goal.withContext do pure (← f.getDecl).userName} (generated list test)"
+  replaceMainGoal ((← goal.cases f).map (·.mvarId)).toList
+  return true
 
 /-- Compose one reverse step, retaining the local fuel offset in the reference family. -/
 partial def step (s : SimpSet) (remaining : Nat := 300)
@@ -279,7 +273,8 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
           return
       -- Differing terminal outcomes can only occur in a branch whose decided tests conflict.
       let terminal (e : Expr) := e.isAppOfArity ``Pure.pure 4 || e.isAppOfArity ``throw 5
-      if terminal head && terminal genHead && head.getAppFn != genHead.getAppFn then
+      if terminal head && terminal genHead &&
+          head.getAppFn.constName? != genHead.getAppFn.constName? then
         if ← closeBoolConflict then return
         if ← closeConstructorClash then return
         if ← closeValueEqConflict s then return
@@ -378,7 +373,8 @@ elab "realize_step " run:ident : tactic => withoutRecover do
   evalTactic (← `(tactic| apply Realizes.outcome (hq := $run) ))
   body
 
-/-- Construct a recursive relation's body witness with the relation-premise preset. -/
+/-- Construct a recursive body witness with the relation-premise and subtype preset, for
+relations and for functions with subtype or structural rules. -/
 elab "realize_step" "(" "relations" ")" run:ident : tactic => withoutRecover do
   evalTactic (← `(tactic| apply Realizes.outcome (hq := $run)))
   body true

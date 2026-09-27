@@ -1,51 +1,42 @@
 # Status
 
-Session handoff, updated 2026-09-27. Only requested repository maintenance
-has run since N2 closed; no feature work is active. N3–N6 have not started and
+Session handoff, updated 2026-09-27. N3 is authorized and in progress; its first
+checkpoint (Program_load/Expr_eval) is partly done. N4–N6 have not started and
 full-P4 M3 remains paused.
 
 ## Verified checkpoint
 
-N0/N1/N2 are complete. N2 implementation and its clean-checkout test correction
-are published through `76bed8485032a6bb2e95b248b37f99dcf0c45267`; closure is
-recorded at `d85e82c02a4d714bdcc7a78ee681cf64490aee78` on `main`.
-[Final closure CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027)
-passed, following
-[implementation CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521).
-The corrected full local `nix develop -c scripts/check.sh` returned actual
-exit 0 (session 47761): all 44 stages, no skips. The 36 inventory tests also
-passed with the ignored raw Nano export absent. Independent reviews and their
-limits are summarized in the [Nano plan](notes/nano-certification.md).
+N0/N1/N2 are complete (closure `d85e82c`, CI 36316496027). The first N3 checkpoint
+adds four commits on `main`: `8ae7998`, `42c3fd3`, `63a95cd` and the review/working-state
+follow-up. Paired forward/reverse correspondence now covers 67 of 153 bodied
+definitions (39 at N2), with no existing claim statement changed. Details, the
+blocker table and the review record are in the
+[Nano plan](notes/nano-certification.md#n3-first-checkpoint-in-progress).
 
-N2 delivers all 162 source codecs, all 26 builtin contracts, and the required
-30-definition dependency/SCC closure. Paired executable correspondence covers
-39/153 definitions overall. The broader inventory has 888 obligations,
-381 bindings and 507 unresolved; complete Nano certification is not claimed.
-[Certification](../docs/certification.md) owns the detailed public guarantees.
+Local evidence: full `nix develop -c scripts/check.sh` on the final tree returned
+actual exit 0, all 44 stages, no skips (an earlier run failed only text hygiene on
+one line, fixed). Remote CI for the pushed revision was pending at handoff; check
+it before unrelated work.
 
 ## Resume point
 
-On a future request to begin N3, start with Program_load/Expr_eval dependency
-closures and both proof directions, including actual intermediate call domains.
-The [remaining plan and estimate](notes/nano-certification.md#remaining-effort-estimate)
-budget 45–90 elapsed working hours for N3–N6, about 60 as a working estimate;
-reassess after a 4–8-hour first N3 checkpoint. This is a forecast, not new
-implementation authorization. Preserve the full scope and all corpus cases.
+Neither N3 entry point is closed. Next, in order:
+
+1. `Decl_load` (Program_load): reapply literal list indexing (`IdxE` on a list
+   with a `NumE` index, kept in the ignored `.artifacts/n3/indexing-wip.diff`;
+   re-derive it if absent) and profile `Decl_load.refines`, which exceeded
+   4M heartbeats. That emits exactly `Decl_load`, `Decls_load`, `Program_load`.
+2. Expr_eval: iterated premises in `Expr_eval` and `bin_eq`, then numeric
+   function coercions in `un_op`/`bin_op`.
+3. Reassess the N3 estimate (now 24–40 hours working range) at the close of
+   both entry points.
+
+Iteration cost dominates: any tactic change rebuilds every certificate (about
+5 minutes), and a single certificate retry costs 30 seconds to 5 minutes.
+Improving this is the next process step; see the plan's reassessment.
 
 ## Maintenance and repository state
 
-Maintenance since the N2 closure changed no semantics, pins or generated data.
-Current requested upkeep exercises `tend-repo` under Codex and strengthens the
-layout gate to require `.claude/skills` to be a symlink to the shared
-`.agents/skills/`, beyond merely finding a skill at that path. The base
-`777977f` CI passed; shell syntax and six link-layout scenarios passed.
-Full `nix develop -c scripts/check.sh` returned actual exit 0 (session 47002),
-with no skip setting; fresh text hygiene and diff checks also passed.
-Independent GPT-6 Astra review found no blockers; its scope and limits are in
-[Stewardship](notes/repository-stewardship.md). The maintenance checkpoint is
-locally validated. No feature milestone resumes; the next implementation
-scope needs a user request.
-
-One worktree remains on `main`. The merged N2 branch is removed; the older
-`docs/repository-review` branch and local archive backup are preserved.
-The expected upstream exporter patch remains applied. No source pins changed.
+One worktree on `main`. The older `docs/repository-review` branch and local
+archive backup are preserved. The expected upstream exporter patch remains
+applied. No source pins changed.
