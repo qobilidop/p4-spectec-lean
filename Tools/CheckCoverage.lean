@@ -1,6 +1,5 @@
 import Lean.Util.Path
 import P4SpecTec.Codegen.Coverage.Check
-import NanoP4Spec
 
 /-!
 Runtime validation of Nano's generated coverage inventory against the current
@@ -29,7 +28,7 @@ def main (args : List String) : IO UInt32 := do
   try
     -- Use Lean's ordinary frontend to initialize notation and elaborator extensions.
     -- The only interpolated text is a Lean-escaped list of strings, never raw source.
-    let source := "import Tools.CheckCoverage\n" ++
+    let source := "import Tools.CheckCoverage\nimport NanoP4Spec\n" ++
       "run_cmd do\n  runCoverageChecks (← Lean.getEnv) " ++ reprStr args ++ "\n"
     let result ← IO.Process.output {
       cmd := ((← findSysroot) / "bin" / "lean").toString, args := #["--stdin"]

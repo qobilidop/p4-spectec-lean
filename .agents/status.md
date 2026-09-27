@@ -49,7 +49,13 @@ Nano proof implementation and broader full-P4 M3 remain paused during this work.
   access removes full-buffer boxing; census now 3.8–5.3s in isolated native runs.
   Full combined gate 81923 passed, actual exit 0, no skips; every stage passed.
   CI 36284518064 for `19195eb` succeeded (gate 8m11s). This validated batch is ready
-  to publish; next inspect unnecessary native proof-tactic imports.
+  to publish, and is now `b916f9c`; exact-head CI 36285243949 passed.
+- Native dependency cleanup is reviewed and validated: runtime executables
+  exclude unused refinement-tactic native objects; coverage's explicit Lake
+  prerequisite still builds the full child model. A downstream implicit import
+  caught by the first gate was made explicit. Corrected full gate 5946 passed
+  with no skips in 51.5s on warm artifacts. Next measure the bounded redundant
+  normalization experiment, then record final performance evidence.
 
 The [Nano plan and evidence](notes/nano-certification.md) owns N0/N1 details.
 N0 is complete; N1 is incomplete. Current coverage: 350 declarations,

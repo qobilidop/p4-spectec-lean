@@ -276,3 +276,48 @@ ordering run. This is observational CI evidence with different invalidation
 patterns, not a controlled clean-build benchmark. The replay stage still spent
 140s, mostly hidden executable builds; investigate unnecessary native tactic
 imports next. No remote failures are known.
+
+
+## Native dependency ownership
+
+Runtime replay now imports its actual typing-definition owner. Quoted Spec
+modules use Prelude/Quote support, while certificate modules retain their exact
+prior proof imports. The coverage launcher loads full NanoP4Spec in its child
+frontend; Lake `needs = ["NanoP4Spec"]` builds all model/certificate leanArts first
+without adding them to the launcher's native link closure. No theorem checker,
+argument escaping, exit propagation, generated body or proof statement changed.
+Only three imports changed in the generated Spec module; all other generated
+files remain byte-identical after regeneration.
+
+Independent Sol cross-reviews exclude each author's own files:
+- `enforce_library_layers` reviewed generator/Spec diff against `b916f9c`,
+  SHA-256 `79e794fa4a6a863ed2fa0ce81c5a1a9f34d06d61ee44428a68287f8b1a7b4929`.
+  Minimal imports supply the referenced namespaces/types; no introduced finding.
+- `organize_lean_tests` reviewed launcher/Lake/replay diff against `b916f9c`,
+  SHA-256 `4ed8b1f002a6e42341a162f1c432a40e832508bcbd166f3415e0d1b3e1c358ea`.
+  Pinned Lake's extraDep/needs and default leanArts implementation preserve fresh
+  standalone coverage execution; all claims remain in the child environment.
+
+The initial full gate 95154 failed because the downstream Environment example
+had received HoldsSpec indirectly through Spec/Calc. Root added its explicit
+owning-module import. Independent Sol addendum reviewed generator/Spec/example
+scope, SHA-256 `590ac71a5859de1d0bf6f5cbd8007f2964d58942246575fbfb4a58dc9d6068d1`;
+no remaining finding. Example build 23762 then passed. A separate pre-existing
+review observation: empty-spec planning appears to emit a leading cons token;
+this scope did not test or expand empty-spec support. Revisit with generator
+empty-input coverage, not as an import-cleanup regression.
+
+Native build 24303 passed. Actual linker response files show all five refinement
+tactic objects removed from each of nano-p4-run, check-coverage, check-quotes and
+check-nano-packet. Lake's no-build transImports query shrinks replay 107→50 and
+coverage 129→38 imported modules. These are dependency counts, not timing claims.
+Before/after response files and JSON summaries are under
+`.artifacts/ci-performance/`. Root moved the compiled Nano root aside, confirmed
+it absent, then standalone `lake exe check-coverage` rebuilt it byte-identically
+and checked all 97 claims successfully (session 63559). This checks the explicit
+prerequisite instead of relying on an already-present root artifact.
+
+Full corrected gate 5946 passed, actual exit 0, no skips, 51.524s wall time with
+warm artifacts. All 44 stages passed; raw log/measurement:
+`.artifacts/ci-performance/native-import-gate-fixed.{log,json}`. The earlier
+published byte-access batch `b916f9c` also passed exact-head CI 36285243949.

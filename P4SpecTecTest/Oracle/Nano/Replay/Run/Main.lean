@@ -1,6 +1,6 @@
 import P4SpecTecTest.Oracle.Nano.Replay.Support
 import P4SpecTec.Lang.Il.Json
-import NanoP4Spec
+import NanoP4Spec.«5.13-typing-call-convention»
 
 /-!
 `lake exe nano-p4-run <program.json>...`: the Lean side of the differential

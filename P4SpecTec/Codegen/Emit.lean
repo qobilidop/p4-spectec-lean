@@ -442,28 +442,32 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (Li
     prev := some module
     modules := modules ++ [module]
   -- the refinement theorems, after every spec file
-  let refPrelude := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.Audit\n" ++
-    "import P4SpecTec.Refine.Quote\nimport P4SpecTec.Refine.Calc\n" ++
-    "import P4SpecTec.Tactic.Refine\n"
+  let specSupportImports : List String := ["P4SpecTec.Prelude", "P4SpecTec.Refine.Quote"]
+  let proofSupportImports : List String := [
+    "P4SpecTec.Prelude", "P4SpecTec.Tactic.Audit", "P4SpecTec.Refine.Quote",
+    "P4SpecTec.Refine.Calc", "P4SpecTec.Tactic.Refine"]
   let refOptions := String.join [
     "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
     "set_option autoImplicit false\nset_option maxHeartbeats 4000000\n",
     "-- the quoted spec is one deep `::` chain\nset_option maxRecDepth 8192\n\n",
     "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
     s!"namespace {lib}\n\n"]
-  let refModule (name what : String) (imports : List String) (body : Format) : Output :=
+  let refModule (name what : String) (supportImports imports : List String)
+      (body : Format) : Output :=
     { path := s!"{lib}/Refinement/{name}.lean",
-      text := headerLine lib exportPath what ++ "\n" ++ refPrelude ++
+      text := headerLine lib exportPath what ++ "\n" ++
+        String.join (supportImports.map fun m => s!"import {m}\n") ++
         String.join (imports.map fun m => s!"import {lib}.{m}\n") ++ "\n" ++
         s!"/-! # {lib}.Refinement.{name}\n\n" ++ "Generated: " ++ what ++
         ".\nRung 3, design section 5.1.\n-/\n\n" ++ refOptions ++ render body ++
         s!"\n\nend {lib}\n" }
-  outs := outs ++ [refModule "Spec" "the quoted specification as a list" prev.toList
-    refinement.spec]
+  outs := outs ++ [refModule "Spec" "the quoted specification as a list" specSupportImports
+    prev.toList refinement.spec]
   modules := modules ++ ["Refinement.Spec"]
   for g in refinement.groups do
     let deps := "Refinement.Spec" :: g.deps.map (s!"Refinement.{·}")
-    outs := outs ++ [refModule g.name s!"refinement theorems, group {g.name}" deps g.decls]
+    outs := outs ++ [refModule g.name s!"refinement theorems, group {g.name}"
+      proofSupportImports deps g.decls]
     modules := modules ++ [s!"Refinement.{g.name}"]
   let refImports := String.join ((["Refinement.Spec"] ++
     refinement.groups.map (s!"Refinement.{·.name}")).map fun m => s!"import {lib}.{m}\n")

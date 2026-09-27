@@ -48,6 +48,7 @@ root = "Tools.CheckQuotes"
 [[lean_exe]]
 name = "check-coverage"
 root = "Tools.CheckCoverage"
+needs = ["NanoP4Spec"]
 
 [[lean_exe]]
 name = "p4spectec-census"
