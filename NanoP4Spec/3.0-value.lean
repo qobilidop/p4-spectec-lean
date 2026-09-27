@@ -239,6 +239,8 @@ inductive value where
   | HEADER_lbrace_rbrace (typeId : P4SpecTec.ByteText) (fieldValue : List NanoP4Spec.fieldValue)
   | PACKET (typeId : P4SpecTec.ByteText) (objectState : NanoP4Spec.objectState)
   | TABLE (nameIR : P4SpecTec.ByteText) (tableProperties : NanoP4Spec.tableProperties)
+  -- Runtime-only carrier; not an AL source constructor.
+  | runtimeExtern (state : ExternValue)
 
 end
 
@@ -313,6 +315,7 @@ def value.toValue : NanoP4Spec.value → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
             (.Arg (ToValue.toValue x0)),
             (.Arg (ToValue.toValue x1))])
+  | .runtimeExtern state => ToValue.toValue state
 
 def fieldValue.toValue_0 : List NanoP4Spec.fieldValue → List Lang.Il.value
   | [] => []
@@ -427,6 +430,7 @@ def value.ofValue : Nat → Lang.Il.value → Option NanoP4Spec.value
                pure (NanoP4Spec.value.TABLE
                   (← OfValue.ofValue fuel a0)
                   (← OfValue.ofValue fuel a1)))))))))
+    | .ExternV json => some (.runtimeExtern ⟨json⟩)
     | _ => none
 
 end

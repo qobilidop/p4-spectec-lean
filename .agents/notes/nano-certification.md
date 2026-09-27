@@ -4,8 +4,10 @@ Active implementation plan, 2026-09-26. The user approved autonomous execution
 after the planning checkpoint, starting with N0/N1. The contract is
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance), not this
 work breakdown. Both core semantics and target composition must close.
-Broader full-P4 M3 remains paused. Nano implementation is temporarily paused
-for the user-requested organization and maintenance work; Status owns resumption.
+Broader full-P4 M3 remains paused. The user explicitly resumed implementation
+after organization/performance work and authorized completion of N1. Root owns
+integration, Astra reverse proofs and target representation, and Sol observation
+composition; broad proof generation remains blocked until N1's exit criteria close.
 
 ## Baseline and critical path
 
@@ -251,7 +253,7 @@ scope or a milestone-completion claim.
 Immediate implementation increment: N0, then the three bounded N1 probes.
 Autonomous execution is now authorized; preserve scope and the trust boundary.
 
-## Active N0/N1 findings
+## Early N0/N1 findings (historical)
 
 - Luna inventory confirms 350 AL declarations: 161 defined types, one external
   type, eight variables and the 180 callables already in coverage metadata.
@@ -320,7 +322,7 @@ and reverse-foundation commit `f6d1b05` are published; exact-head
 [CI run 36276724234](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36276724234)
 succeeded. This publication obligation is closed.
 
-## N1 reverse calculus checkpoint
+## N1 reverse calculus checkpoint (`f6d1b05`, historical)
 
 `Refine/Realize.lean` introduces `EventuallyRuns` (one outcome at every
 sufficiently large fuel) and `Realizes` (each terminating generated outcome
@@ -365,7 +367,7 @@ source `packetValue`/`objectValue` or repair the value with a `PACKET` wrapper.
 The checked continuation and printing results are recorded below; a faithful
 representation and its contextual contract remain open.
 
-## N1 target and printing checkpoint
+## N1 target and printing checkpoint (`9309e26`, historical)
 
 Actual quoted `Callee_eval`/`Call_eval` now run in the existing packet checker
 from its checked free-pass context, with source callbacks and guards disabled.
@@ -432,47 +434,225 @@ completion binding has been added, and N1's full exit criteria remain open.
 
 ## N1 recursive-proof handoff
 
-Local unpushed branch `wip/nano-reverse`, commit
-`efd626c7cb40004f8d6725f2b29172d09ecd8dbe`, preserves the experiment under
-`.agents/notes/nano-reverse-proof/`. Its temporary worktree was removed and
-absence verified; all author verification processes are stopped/completed.
-The branch has not passed the full repository gate and is not release evidence.
-Recover its README and artifacts with `git show` or an isolated checkout; do not
-merge its replacement WIP status over main's current status.
+Resolved by `7b4e0b3`; current proof and review evidence follows below. The old
+unpublished draft was `efd626c7cb40004f8d6725f2b29172d09ecd8dbe` on
+`wip/nano-reverse`, with artifacts under `.agents/notes/nano-reverse-proof/`.
+It had checked clause bridges but no verified whole-function induction or full
+gate. Its temporary worktree was removed. Historical artifact hashes, review
+limits and recovery instructions remain in the pre-N1 version of this note at
+`fd7ff9f`; never use that draft as release evidence.
 
-`Checked.lean` passed direct Lean checking (10.55s, 12 exact axiom audits).
-Independent Astra `/root/review_nano_plan` verified its SHA-256
-`9f1e3d1634b721330e963d75736130bba3cef5bdc24f0738f8d6ebaf81f53aca`
-and reran it successfully. No substantive findings. It preserves actual quoted
-clauses, matched contexts, raw notes, eager tail invocation and fuel offsets.
-`recursiveClause` assumes successful tail execution; `emptyEventually` has no
-recursive-call hypothesis but retains configuration/environment assumptions.
-The review suggested this wording in place of the artifact comment's
-"unconditional" label. The checked prefix does not establish whole-function
-induction, exercise generated partial_correctness, or discharge initialization.
+Retained proof lessons: exclude early Q.v_eq/Q.rp_eq from broad normalization to
+avoid a rewrite loop; state matched-context HoldsSpec/empty-fenv facts explicitly;
+unfold only Motive for induction-hypothesis application. Explicit arithmetic
+rewriting avoids expensive interpreter reduction across reassociated fuel bounds.
 
-`ExistsDraft.lean` is unverified (SHA-256
-`02b9be380d08aa42ac2bbb6dfd108b87a6adae4d5c80acddee7114892625c5a7`).
-The author isolated its generalized partial_correctness application through
-recursive IH specialization in about 12.3s. Final generated-outcome extraction
-and approximately twenty lines of bound + 33 composition remain unchecked;
-a latest Option.some.inj patch has no passing full-file result. No complete
-reverse certificate, initialization result or public Realizes corollary exists.
+## Resumed N1 implementation
 
-Resume lessons: exclude early Q.v_eq/Q.rp_eq from broad normalization to avoid
-a rewrite loop; state matched-context HoldsSpec/empty-fenv facts explicitly and
-unfold only Motive for IH application. Use bounded, declaration-local diagnostics
-before another full attempt. Complete this actual recursive certificate before
-moving to the Type_eq/ParameterType_eq relation probe or broad proof generation.
+The user explicitly authorized completing N1 after the performance work. The
+starting revision `fd7ff9f` passed exact-head CI 36286394307. This phase covers
+actual recursive proof feasibility, a faithful raw-extern runtime carrier, and
+printing dispatch composition; broad N2 proof generation remains outside this step.
 
-Independent handoff review by Sol `/root/nano_corpus` found no issues, verified
-the local branch/artifact hashes, checked links/anchors and confirmed worktree
-removal. Reviewed status blob `142fc6aeaa11ee4746ffe76a5038214741fa6c02` and
-note blob `7a6c9554757661265bcc2ebf4926e435ac061948` before this review footer.
-This documentation-only checkpoint reuses the unchanged code's passing full gate
-8909 and receives final text/whitespace checks; no proof or replay is newly claimed.
+### Optional execution and negation
+
+Root added `Realizes.notHold` and `Realizes.optionMapM` to the existing reverse
+calculus. They use actual eventual witnesses, preserve hard errors and mismatch,
+and never infer fuel stability from one bounded run. Optional absence skips the
+body; a present exhausted computation remains exhausted. Existing delayed fixtures
+exercise the generic rules, with kernel-checked absent/error/exhaustion examples.
+
+Independent read-only Sol `/root/organize_lean_tests` found no issues in the two-file
+diff against `fd7ff9f`, SHA-256
+`7d0603100a8d1e2f8688408dc39712a89640564675d1c59b658c061eab4856ea`.
+Review covered proof statements/composition and unchanged contracts; builds were
+integrator evidence. Focused `lake build --wfail P4SpecTec.Refine.Realize` and
+`lake build --wfail P4SpecTecTest.Refine.Realize` passed (sessions 53124 and 95369),
+including exact axiom audits. Full integration gate 40282 subsequently passed.
+
+### Printing dispatch composition
+
+Sol extended the existing unhinted congruence result through actual pure builtin
+dispatch, guard-free `invoke_func` and global builtin lookup. The final theorem
+applies to Nano's actual quoted `print_` declaration and generated implementation
+for every related input, preserving exact encoded bytes and hard errors. The
+premises explicitly require empty print hints, guard=false, no local override,
+and the actual global declaration; it does not infer empty hints from HoldsSpec.
+Nested values are covered by the existing generic congruence theorem. Source
+and compiled empty-policy checks remain in the quotation checker.
+
+Root independently reviewed the two-file diff against `fd7ff9f`, SHA-256
+`2e44cbfc3c350bc4a76e83566cfb30abf73b878bd870ccca18a9d2965046d9e0`, against
+Effects.builtinEval, invoke_func/body/builtin_func, and the generated print body.
+No findings: all three fuel entries, input/output guard bypasses and hard-error
+classification match the actual pure interpreter. The author's focused
+`lake build --wfail P4SpecTec.Refine.Print P4SpecTecTest.Refine.Print` passed in
+1.630s (library 1.2s; test 379ms), with all exact axiom audits. Root did not rerun
+that focused build; full integration gate 40282 subsequently passed.
+
+### Actual recursive reverse certificate
+
+Astra `/root/review_oracle_refactor` completed the recovered `exists_` induction in
+`P4SpecTecTest/Refine/NanoReverseExists.lean`, with quoted-clause bridges in the
+adjacent `NanoReverseExistsClauses.lean`. The public `realizes` theorem quantifies
+all Boolean lists, all related raw inputs (including arbitrary notes), and every
+terminating generated outcome. It constructs eventual reference execution under
+guard=false, an empty local function table and the actual HoldsSpec contract.
+The generated partial-correctness induction rules out error outcomes; it does
+not omit them from the quantifier. It preserves the failed first alternative and
+the eager recursive tail. It does not prove initialization or total termination,
+and adds no generated completion binding.
+
+Root independently read both final proof bodies, the actual generated induction
+application, raw-list/Boolean relation inversion, matched-context preservation and
+fuel bounds (18 for empty, recursive witness + 33). No semantic findings. The
+scratch namespace was changed to the permanent test namespace on review.
+Final reviewed source SHA-256: clauses
+`63c7097e58b1e60b552283aaa71b0dfb1fbb845d65ecce28f0b12e53403de1eb`, induction
+`265d61eedebbc8453adb18e60c765aedd3506e638aae481d1f316266fa6a9bab`.
+Author `lake build --wfail P4SpecTecTest.Refine.NanoReverseExists` passed in
+11.196s including clause rebuilding; all 14 exact audits use only propext,
+Classical.choice and Quot.sound. The induction alone built in 449ms with warm
+clauses. Independent review was read-only; full integration gate 40282 subsequently passed.
+Ignored build metadata is `.artifacts/n1-reverse/exists-final-build.{log,json}`.
+
+An implicit conversion across reassociated fuel expressions caused enormous
+interpreter reduction during the initial attempt. Explicit arithmetic rewriting
+and small retry/pure equalities made the final composition check promptly;
+no semantic bound or recursion domain was reduced to solve this cost issue.
+
+### Actual recursive relation feasibility
+
+Sol's `P4SpecTecTest/Refine/NanoRelation.lean` loads 26 unchanged quoted type/relation
+definitions and proves paired actual interpreter/generated execution for recursive
+Type_eq and ParameterType_eq, direction mismatch, recursive type disagreement and
+unequal lengths. A checked exhausted run remains distinct from a generated success.
+A generic generated ParameterType_eq equation consumes the executable Type_eq
+outcome directly, including failures; it requires no logical determinism theorem.
+Six exact axiom audits pass. Native nested package/control/kind cases supplement
+these proofs. An ignored 121-constructor-pair matrix agreed on 11 successes and
+110 mismatches; it is supplementary executable evidence, not universal coverage.
+
+Independent read-only Astra `/root/review_oracle_refactor` reviewed the final file
+at `7b4e0b3`, SHA-256
+`9b5b29a39060691353d99e48bba663f03cdfa3c9902de3a2a5c9ca320563dda1`.
+No findings. Initialization is part of each paired kernel fact; no synthetic
+callee bodies or override tables substitute for source execution. Expected-result
+checks cannot accept two divergences as a matching success or failure. Positive-depth
+MixopSC source checks and guarded generated projections explain why no hard error
+was identified on these typed probes; universal error freedom is not proved.
+The author warning-failing build passed in 7.496s; six exact audits use only
+propext, Classical.choice and Quot.sound. Reviewer inspected source and build log
+without rerunning Lean/upstream/full gate. Raw evidence:
+`.artifacts/n1-relation/final-build.{log,json}` and `constructor-matrix.log`.
+N2 retains the full recursive-group two-way certificate obligation.
+
+### Runtime representation and configuration review
+
+The generator now takes an explicit runtime representation profile. Nano uses
+`--runtime-extern value`; unsupported profiles and extension-sensitive subchecks
+fail generation. The carrier and codecs preserve raw extern payloads without
+changing source quotations, packet/object membership or source constructor order.
+SkipSC still succeeds; MixopSC follows the supplied source constructor test.
+Same-static-type casts retain the raw value. Production-emitter fixtures elaborate
+the generated declarations and check rejection of invalid configurations.
+
+Root independently reviewed Astra's generator, fixtures and short/full packet
+continuation replay, frozen staged diff SHA-256
+`9ab8cec317151e104a2be727b2094f77f5bcdbf312ecc30f471767561b0ea3a0`.
+Review requested an empty-profile fast path in transitive
+runtime-type detection to avoid adding unnecessary full-P4 census cost; it was
+implemented. The Nano library rebuilt successfully (session 63657), including
+all 18 existing forward certificates. Quotations and completion metadata did not
+change. The packet replay passed (author session 90544); it compares complete
+canonical contexts and fresh counters, not merely output bytes.
+
+Independent read-only Astra `/root/review_oracle_refactor` reviewed root's six-file
+configuration integration against `fd7ff9f`, final diff SHA-256
+`5fdc8013844988d774de00a59c3868c08737e6bd1b87d57b0db4fb315460827b`.
+The review caught a coverage mutation test still using the default representation
+profile. It now uses the same explicit Nano profile as production coverage checks;
+follow-up review found no remaining issue. Focused warning-failing coverage builds
+passed (session 11180), with all 11 invalid mutations rejected.
+
+### Independent exit audit
+
+The final `NanoTargetRepresentation.lean` now includes `calleeMismatchPair`: both
+the actual initialized 21-definition source closure and the generated evaluator
+reject the same closed runtime receiver context. Its null payload is a bounded
+fixture; generic codec/source-membership facts and real packet replay cover the
+separate arbitrary-payload and actual callback obligations. This is not a full
+target certificate. The module has 12 exact standard-three-axiom audits.
+
+Root independently reviewed the final module, SHA-256
+`a3d0f661af43312d4a567782b0955f83d647d81ec64e9a981901b8a791635090`, including
+actual source initialization, generated lookup, the generic mismatch application
+and all representation/copy-out assumptions. No findings. The author's focused
+warning-failing build passed (session 75128, module 22s).
+
+The initial normalization attempt hit a lazy imported-equation budget, not a
+semantic counterexample: reducing the lookup tried to generate all 48 builtin
+dispatcher equations under import-time options. A local `cbv_eval` rule proved
+by `rfl` for the actual `find_maps` branch bypasses that work. No dispatcher,
+interpreter semantics or package-wide budget changed. Astra
+`/root/review_oracle_refactor` contributed this diagnosis and independently ran
+the minimal source proof (21.333s, standard axiom audit); root supplied the
+independent integrated-proof review.
+
+Sol `/root/organize_lean_tests` independently compared the implementation with
+the N1 exit at `591eb60bfbb74b006dafcaee095f24dfa2601ae8`. The only remaining
+implementation item was the paired actual source/generated raw-receiver kernel
+fact; final review and integration gates were also pending. No additional N1
+scope gap was found. The runtime design/decision diff SHA-256 was
+`2ac9d3f46f4a0aa56211624209e3a35a58cab2f3e83a38ff00a5e91ddb29d26d`;
+review was read-only, without builds.
+
+The audit preserves two distinctions: actual subsequent AL receiver selection
+returns `unmatch`, whereas direct raw-receiver target dispatch returns `err` on a
+separate path; typed relation probes establish no universal error-freedom result.
+Full recursive-group certificates and domain adequacy remain N2, while complete
+target/boot/STF composition remains N4.
+
+Sol separately reviewed the public capability text, retained target note, CLI
+documentation and new test-root import at `591eb60`, diff SHA-256
+`a1496aa952e825a3c2a86b223332f12da3863153e4564200939d1dc8ce7aacf4`.
+The one wording finding was resolved by describing the full-context comparison as
+canonical equality and the fresh-counter comparison as exact. Context equality
+compares externs by compressed JSON; it does not compare source notes/regions.
+No other finding; this review did not run builds.
 
 ## Plan review and validation
+
+### N1 integration checkpoint
+
+The full local gate `nix develop -c bash
+/Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh` passed with actual exit 0
+(session 40282, 104.859s), all 44 stages and no skips. Ignored raw evidence is
+`.artifacts/n1-full-gate.{log,json}`. This includes both 78-program typing replay
+legs, packet/verify replay, existing certificates and mutations, generated freshness,
+coverage/quotation checks and the full-P4 census. Source pins, quotes, completion
+counts and corpus denominators are unchanged. Final prose receives text/link checks.
+
+All three N1 implementation exits now have checked evidence:
+
+| Workstream | Selected interface and evidence | Retained boundary |
+|---|---|---|
+| Reverse execution | EventuallyRuns/Realizes composition, actual exists_ induction, actual recursive relation probes | N2 owns universal generated two-way/domain/initialization contracts |
+| Target representation | Explicit raw runtime carrier, generic codecs/source separation, paired receiver failure and actual extract context replay | N4 owns complete target/boot/STF composition |
+| Printing | Canonical relation plus explicit empty hints, actual builtin/global dispatch preserving results and errors | Hinted specifications require stronger provenance; N2 owns broader primitive contracts |
+
+The selected interfaces have no unresolved N1 counterexample. This establishes
+feasibility, not full Nano certification or new generated completion bindings.
+Publication and exact-final-revision remote CI remain pending at this checkpoint.
+
+Independent read-only Sol checkpoint review at `591eb60`, four-file documentation
+diff SHA-256 `7038caa80711d66eb860a8863b38af10f6b870c4dd79c476d12f3d21696a44be`,
+confirmed the bounded N1 claims and retained N2/N4 obligations, and independently
+read the gate's successful result. Three stale focused-build paragraphs saying
+integration remained pending were corrected to point to gate 40282. Text hygiene,
+whitespace and all 69 relative file-link targets passed after the checkpoint rewrite.
+
+### Historical plan validation
 
 The plan is grounded in the current generated dependency graph, retained target
 and print constraints, and a read-only proof-infrastructure investigation by

@@ -2,6 +2,7 @@ import Std.Data.HashMap
 import P4SpecTec.Lang.Al.Ast
 import P4SpecTec.Codegen.Names
 import P4SpecTec.Codegen.Mode
+import P4SpecTec.Codegen.Representation
 
 /-!
 The spec environment the compiler consults: every definition by name,
@@ -65,6 +66,8 @@ structure RelInfo where
 
 /-- The environment. -/
 structure Env where
+  /-- Explicit runtime-carrier extensions, independent of source definitions. -/
+  representation : Representation := {}
   /-- Uniform execution carrier selected from builtin declarations. -/
   mode : ExecMode := .pure
   /-- The generated library's name, the namespace every reference is qualified with. -/
@@ -202,6 +205,20 @@ def deftypRefs : deftyp' → List String
   | .StructT fields => fields.flatMap fun (_, t) => typeRefs t.it
   | .VariantT cases =>
     cases.flatMap fun c => (Mixfix.args c.nottyp.it).flatMap fun t => typeRefs t.it
+
+/-- Whether an encoding can contain an explicitly extended runtime carrier. -/
+partial def runtimeAffected (env : Env) (t : typ') : Bool :=
+  !env.representation.rawExternTypes.isEmpty && go [] t
+where
+  /-- Follow named payload types once, so recursive source definitions terminate. -/
+  go (seen : List String) (t : typ') : Bool :=
+    (typeRefs t).any fun id =>
+      env.representation.hasRawExtern id ||
+        (!seen.contains id && match env.types.get? id with
+          | some { deftyp := some dt, .. } =>
+            (deftypRefs dt).any fun child =>
+              go (id :: seen) (.VarT (mkPhrase child) [])
+          | _ => false)
 
 end Env
 

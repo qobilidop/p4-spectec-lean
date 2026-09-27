@@ -114,7 +114,10 @@ def «$write_value_from_bits'» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
     ((do
         have value := p0
         have «b*» := p1
-        let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+        let _ ← Eval.check (match value with
+           | NanoP4Spec.value.W _ _ => true
+           | NanoP4Spec.value.S _ _ => true
+           | _ => false)
         let tmp_0 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
         have integerLiteral := tmp_0
         let _ ← Eval.check (match integerLiteral with
@@ -136,7 +139,10 @@ def «$write_value_from_bits'» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
      ((do
          have value := p0
          have «b*» := p1
-         let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+         let _ ← Eval.check (match value with
+            | NanoP4Spec.value.W _ _ => true
+            | NanoP4Spec.value.S _ _ => true
+            | _ => false)
          let tmp_6 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
          have integerLiteral := tmp_6
          let _ ← Eval.check (match integerLiteral with
@@ -158,7 +164,9 @@ def «$write_value_from_bits'» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
       ((do
           have value := p0
           have «b*» := p1
-          let _ ← Eval.check (NanoP4Spec.value.is_boolValue value)
+          let _ ← Eval.check (match value with
+             | NanoP4Spec.value._B _ => true
+             | _ => false)
           let tmp_12 ← Eval.err? (NanoP4Spec.value.of_boolValue value)
           let ._B _b := tmp_12
           let _ ← Eval.check (!(List.isEmpty «b*»))
@@ -167,7 +175,9 @@ def «$write_value_from_bits'» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
        ((do
            have value := p0
            have «b*» := p1
-           let _ ← Eval.check (NanoP4Spec.value.is_structValue value)
+           let _ ← Eval.check (match value with
+              | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+              | _ => false)
            let tmp_13 ← Eval.err? (NanoP4Spec.value.of_structValue value)
            let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_13
            let tmp_14 ← ExceptT.mk (NanoP4Spec.«$write_value_fields_from_bits'» «fieldValue*» «b*»)
@@ -178,7 +188,9 @@ def «$write_value_from_bits'» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.bits)
         (do
            have value := p0
            have «b*» := p1
-           let _ ← Eval.check (NanoP4Spec.value.is_headerValue value)
+           let _ ← Eval.check (match value with
+              | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+              | _ => false)
            let tmp_15 ← Eval.err? (NanoP4Spec.value.of_headerValue value)
            let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_15
            let tmp_16 ← ExceptT.mk (NanoP4Spec.«$write_value_fields_from_bits'» «fieldValue*» «b*»)

@@ -111,7 +111,9 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
         let _ ← Eval.check (match unop with
            | NanoP4Spec.unop.bang => true
            | _ => false)
-        let _ ← Eval.check (NanoP4Spec.value.is_boolValue value)
+        let _ ← Eval.check (match value with
+           | NanoP4Spec.value._B _ => true
+           | _ => false)
         let tmp_0 ← Eval.err? (NanoP4Spec.value.of_boolValue value)
         let ._B b := tmp_0
         pure (NanoP4Spec.boolValue.to_value (NanoP4Spec.boolValue._B (!b)))) <|>
@@ -121,7 +123,10 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
          let _ ← Eval.check (match unop with
             | NanoP4Spec.unop.tilde => true
             | _ => false)
-         let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+         let _ ← Eval.check (match value with
+            | NanoP4Spec.value.W _ _ => true
+            | NanoP4Spec.value.S _ _ => true
+            | _ => false)
          let tmp_1 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
          have integerLiteral := tmp_1
          let _ ← Eval.check (match integerLiteral with
@@ -137,7 +142,10 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
           let _ ← Eval.check (match unop with
              | NanoP4Spec.unop.tilde => true
              | _ => false)
-          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+          let _ ← Eval.check (match value with
+             | NanoP4Spec.value.W _ _ => true
+             | NanoP4Spec.value.S _ _ => true
+             | _ => false)
           let tmp_3 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
           have integerLiteral := tmp_3
           let _ ← Eval.check (match integerLiteral with
@@ -154,7 +162,10 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
            let _ ← Eval.check (match unop with
               | NanoP4Spec.unop.minus => true
               | _ => false)
-           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+           let _ ← Eval.check (match value with
+              | NanoP4Spec.value.W _ _ => true
+              | NanoP4Spec.value.S _ _ => true
+              | _ => false)
            let tmp_5 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
            have integerLiteral := tmp_5
            let _ ← Eval.check (match integerLiteral with
@@ -170,7 +181,10 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
             let _ ← Eval.check (match unop with
                | NanoP4Spec.unop.minus => true
                | _ => false)
-            let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+            let _ ← Eval.check (match value with
+               | NanoP4Spec.value.W _ _ => true
+               | NanoP4Spec.value.S _ _ => true
+               | _ => false)
             let tmp_7 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
             have integerLiteral := tmp_7
             let _ ← Eval.check (match integerLiteral with
@@ -187,7 +201,10 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
              let _ ← Eval.check (match unop with
                 | NanoP4Spec.unop.plus => true
                 | _ => false)
-             let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+             let _ ← Eval.check (match value with
+                | NanoP4Spec.value.W _ _ => true
+                | NanoP4Spec.value.S _ _ => true
+                | _ => false)
              let tmp_10 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
              have integerLiteral := tmp_10
              let _ ← Eval.check (match integerLiteral with
@@ -201,7 +218,10 @@ def «$un_op» (p0 : NanoP4Spec.unop) (p1 : NanoP4Spec.value)
              let _ ← Eval.check (match unop with
                 | NanoP4Spec.unop.plus => true
                 | _ => false)
-             let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+             let _ ← Eval.check (match value with
+                | NanoP4Spec.value.W _ _ => true
+                | NanoP4Spec.value.S _ _ => true
+                | _ => false)
              let tmp_11 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
              have integerLiteral := tmp_11
              let _ ← Eval.check (match integerLiteral with
@@ -703,34 +723,48 @@ def «$bin_eq» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.value) : Option (Except
     ((do
         have value := p0
         have value' := p1
-        let _ ← Eval.check (NanoP4Spec.value.is_boolValue value)
+        let _ ← Eval.check (match value with
+           | NanoP4Spec.value._B _ => true
+           | _ => false)
         let tmp_0 ← Eval.err? (NanoP4Spec.value.of_boolValue value)
         let ._B b_a := tmp_0
-        let _ ← Eval.check (NanoP4Spec.value.is_boolValue value')
+        let _ ← Eval.check (match value' with
+           | NanoP4Spec.value._B _ => true
+           | _ => false)
         let tmp_1 ← Eval.err? (NanoP4Spec.value.of_boolValue value')
         let ._B b_b := tmp_1
         pure (b_a == b_b)) <|>
      ((do
          have value := p0
          have value' := p1
-         let _ ← Eval.check (NanoP4Spec.value.is_matchKindValue value)
+         let _ ← Eval.check (match value with
+            | NanoP4Spec.value.MATCH_KIND_dot _ => true
+            | _ => false)
          let tmp_2 ← Eval.err? (NanoP4Spec.value.of_matchKindValue value)
          let .MATCH_KIND_dot id_a := tmp_2
-         let _ ← Eval.check (NanoP4Spec.value.is_matchKindValue value')
+         let _ ← Eval.check (match value' with
+            | NanoP4Spec.value.MATCH_KIND_dot _ => true
+            | _ => false)
          let tmp_3 ← Eval.err? (NanoP4Spec.value.of_matchKindValue value')
          let .MATCH_KIND_dot id_b := tmp_3
          pure (id_a == id_b)) <|>
       ((do
           have value := p0
           have value' := p1
-          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+          let _ ← Eval.check (match value with
+             | NanoP4Spec.value.W _ _ => true
+             | NanoP4Spec.value.S _ _ => true
+             | _ => false)
           let tmp_4 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
           have integerLiteral := tmp_4
           let _ ← Eval.check (match integerLiteral with
              | NanoP4Spec.integerLiteral.W _ _ => true
              | _ => false)
           let .W w_a i_a := integerLiteral | throw Fail.err
-          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+          let _ ← Eval.check (match value' with
+             | NanoP4Spec.value.W _ _ => true
+             | NanoP4Spec.value.S _ _ => true
+             | _ => false)
           let tmp_5 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
           have integerLiteral' := tmp_5
           let _ ← Eval.check (match integerLiteral' with
@@ -741,14 +775,20 @@ def «$bin_eq» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.value) : Option (Except
        ((do
            have value := p0
            have value' := p1
-           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+           let _ ← Eval.check (match value with
+              | NanoP4Spec.value.W _ _ => true
+              | NanoP4Spec.value.S _ _ => true
+              | _ => false)
            let tmp_6 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
            have integerLiteral := tmp_6
            let _ ← Eval.check (match integerLiteral with
               | NanoP4Spec.integerLiteral.S _ _ => true
               | _ => false)
            let .S w_a i_a := integerLiteral | throw Fail.err
-           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+           let _ ← Eval.check (match value' with
+              | NanoP4Spec.value.W _ _ => true
+              | NanoP4Spec.value.S _ _ => true
+              | _ => false)
            let tmp_7 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
            have integerLiteral' := tmp_7
            let _ ← Eval.check (match integerLiteral' with
@@ -759,10 +799,14 @@ def «$bin_eq» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.value) : Option (Except
         ((do
             have value := p0
             have value' := p1
-            let _ ← Eval.check (NanoP4Spec.value.is_structValue value)
+            let _ ← Eval.check (match value with
+               | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+               | _ => false)
             let tmp_8 ← Eval.err? (NanoP4Spec.value.of_structValue value)
             let .STRUCT_lbrace_rbrace typeId_a «fieldValue_a*» := tmp_8
-            let _ ← Eval.check (NanoP4Spec.value.is_structValue value')
+            let _ ← Eval.check (match value' with
+               | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+               | _ => false)
             let tmp_9 ← Eval.err? (NanoP4Spec.value.of_structValue value')
             let .STRUCT_lbrace_rbrace typeId_b «fieldValue_b*» := tmp_9
             let tmp_10 ←
@@ -808,10 +852,14 @@ def «$bin_eq» (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.value) : Option (Except
          (do
             have value := p0
             have value' := p1
-            let _ ← Eval.check (NanoP4Spec.value.is_headerValue value)
+            let _ ← Eval.check (match value with
+               | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+               | _ => false)
             let tmp_16 ← Eval.err? (NanoP4Spec.value.of_headerValue value)
             let .HEADER_lbrace_rbrace typeId_a «fieldValue_a*» := tmp_16
-            let _ ← Eval.check (NanoP4Spec.value.is_headerValue value')
+            let _ ← Eval.check (match value' with
+               | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+               | _ => false)
             let tmp_17 ← Eval.err? (NanoP4Spec.value.of_headerValue value')
             let .HEADER_lbrace_rbrace typeId_b «fieldValue_b*» := tmp_17
             let tmp_18 ←
@@ -1708,14 +1756,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
         let _ ← Eval.check (match binop with
            | NanoP4Spec.binop.plus => true
            | _ => false)
-        let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+        let _ ← Eval.check (match value with
+           | NanoP4Spec.value.W _ _ => true
+           | NanoP4Spec.value.S _ _ => true
+           | _ => false)
         let tmp_0 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
         have integerLiteral := tmp_0
         let _ ← Eval.check (match integerLiteral with
            | NanoP4Spec.integerLiteral.W _ _ => true
            | _ => false)
         let .W w i_l := integerLiteral | throw Fail.err
-        let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+        let _ ← Eval.check (match value' with
+           | NanoP4Spec.value.W _ _ => true
+           | NanoP4Spec.value.S _ _ => true
+           | _ => false)
         let tmp_1 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
         have integerLiteral' := tmp_1
         let _ ← Eval.check (match integerLiteral' with
@@ -1737,14 +1791,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
          let _ ← Eval.check (match binop with
             | NanoP4Spec.binop.plus => true
             | _ => false)
-         let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+         let _ ← Eval.check (match value with
+            | NanoP4Spec.value.W _ _ => true
+            | NanoP4Spec.value.S _ _ => true
+            | _ => false)
          let tmp_5 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
          have integerLiteral := tmp_5
          let _ ← Eval.check (match integerLiteral with
             | NanoP4Spec.integerLiteral.S _ _ => true
             | _ => false)
          let .S w i_l := integerLiteral | throw Fail.err
-         let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+         let _ ← Eval.check (match value' with
+            | NanoP4Spec.value.W _ _ => true
+            | NanoP4Spec.value.S _ _ => true
+            | _ => false)
          let tmp_6 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
          have integerLiteral' := tmp_6
          let _ ← Eval.check (match integerLiteral' with
@@ -1766,14 +1826,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
           let _ ← Eval.check (match binop with
              | NanoP4Spec.binop.minus => true
              | _ => false)
-          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+          let _ ← Eval.check (match value with
+             | NanoP4Spec.value.W _ _ => true
+             | NanoP4Spec.value.S _ _ => true
+             | _ => false)
           let tmp_10 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
           have integerLiteral := tmp_10
           let _ ← Eval.check (match integerLiteral with
              | NanoP4Spec.integerLiteral.W _ _ => true
              | _ => false)
           let .W w i_l := integerLiteral | throw Fail.err
-          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+          let _ ← Eval.check (match value' with
+             | NanoP4Spec.value.W _ _ => true
+             | NanoP4Spec.value.S _ _ => true
+             | _ => false)
           let tmp_11 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
           have integerLiteral' := tmp_11
           let _ ← Eval.check (match integerLiteral' with
@@ -1795,14 +1861,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
            let _ ← Eval.check (match binop with
               | NanoP4Spec.binop.minus => true
               | _ => false)
-           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+           let _ ← Eval.check (match value with
+              | NanoP4Spec.value.W _ _ => true
+              | NanoP4Spec.value.S _ _ => true
+              | _ => false)
            let tmp_15 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
            have integerLiteral := tmp_15
            let _ ← Eval.check (match integerLiteral with
               | NanoP4Spec.integerLiteral.S _ _ => true
               | _ => false)
            let .S w i_l := integerLiteral | throw Fail.err
-           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+           let _ ← Eval.check (match value' with
+              | NanoP4Spec.value.W _ _ => true
+              | NanoP4Spec.value.S _ _ => true
+              | _ => false)
            let tmp_16 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
            have integerLiteral' := tmp_16
            let _ ← Eval.check (match integerLiteral' with
@@ -1824,14 +1896,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
             let _ ← Eval.check (match binop with
                | NanoP4Spec.binop.minus => true
                | _ => false)
-            let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+            let _ ← Eval.check (match value with
+               | NanoP4Spec.value.W _ _ => true
+               | NanoP4Spec.value.S _ _ => true
+               | _ => false)
             let tmp_20 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
             have integerLiteral := tmp_20
             let _ ← Eval.check (match integerLiteral with
                | NanoP4Spec.integerLiteral.W _ _ => true
                | _ => false)
             let .W w i_l := integerLiteral | throw Fail.err
-            let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+            let _ ← Eval.check (match value' with
+               | NanoP4Spec.value.W _ _ => true
+               | NanoP4Spec.value.S _ _ => true
+               | _ => false)
             let tmp_21 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
             have integerLiteral' := tmp_21
             let _ ← Eval.check (match integerLiteral' with
@@ -1853,14 +1931,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
              let _ ← Eval.check (match binop with
                 | NanoP4Spec.binop.minus => true
                 | _ => false)
-             let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+             let _ ← Eval.check (match value with
+                | NanoP4Spec.value.W _ _ => true
+                | NanoP4Spec.value.S _ _ => true
+                | _ => false)
              let tmp_25 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
              have integerLiteral := tmp_25
              let _ ← Eval.check (match integerLiteral with
                 | NanoP4Spec.integerLiteral.S _ _ => true
                 | _ => false)
              let .S w i_l := integerLiteral | throw Fail.err
-             let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+             let _ ← Eval.check (match value' with
+                | NanoP4Spec.value.W _ _ => true
+                | NanoP4Spec.value.S _ _ => true
+                | _ => false)
              let tmp_26 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
              have integerLiteral' := tmp_26
              let _ ← Eval.check (match integerLiteral' with
@@ -1882,14 +1966,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
               let _ ← Eval.check (match binop with
                  | NanoP4Spec.binop.star => true
                  | _ => false)
-              let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+              let _ ← Eval.check (match value with
+                 | NanoP4Spec.value.W _ _ => true
+                 | NanoP4Spec.value.S _ _ => true
+                 | _ => false)
               let tmp_30 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
               have integerLiteral := tmp_30
               let _ ← Eval.check (match integerLiteral with
                  | NanoP4Spec.integerLiteral.W _ _ => true
                  | _ => false)
               let .W w i_l := integerLiteral | throw Fail.err
-              let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+              let _ ← Eval.check (match value' with
+                 | NanoP4Spec.value.W _ _ => true
+                 | NanoP4Spec.value.S _ _ => true
+                 | _ => false)
               let tmp_31 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
               have integerLiteral' := tmp_31
               let _ ← Eval.check (match integerLiteral' with
@@ -1911,14 +2001,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                let _ ← Eval.check (match binop with
                   | NanoP4Spec.binop.star => true
                   | _ => false)
-               let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+               let _ ← Eval.check (match value with
+                  | NanoP4Spec.value.W _ _ => true
+                  | NanoP4Spec.value.S _ _ => true
+                  | _ => false)
                let tmp_35 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                have integerLiteral := tmp_35
                let _ ← Eval.check (match integerLiteral with
                   | NanoP4Spec.integerLiteral.S _ _ => true
                   | _ => false)
                let .S w i_l := integerLiteral | throw Fail.err
-               let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+               let _ ← Eval.check (match value' with
+                  | NanoP4Spec.value.W _ _ => true
+                  | NanoP4Spec.value.S _ _ => true
+                  | _ => false)
                let tmp_36 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                have integerLiteral' := tmp_36
                let _ ← Eval.check (match integerLiteral' with
@@ -1940,14 +2036,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                 let _ ← Eval.check (match binop with
                    | NanoP4Spec.binop.lteq => true
                    | _ => false)
-                let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                let _ ← Eval.check (match value with
+                   | NanoP4Spec.value.W _ _ => true
+                   | NanoP4Spec.value.S _ _ => true
+                   | _ => false)
                 let tmp_40 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                 have integerLiteral := tmp_40
                 let _ ← Eval.check (match integerLiteral with
                    | NanoP4Spec.integerLiteral.W _ _ => true
                    | _ => false)
                 let .W w i_l := integerLiteral | throw Fail.err
-                let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                let _ ← Eval.check (match value' with
+                   | NanoP4Spec.value.W _ _ => true
+                   | NanoP4Spec.value.S _ _ => true
+                   | _ => false)
                 let tmp_41 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                 have integerLiteral' := tmp_41
                 let _ ← Eval.check (match integerLiteral' with
@@ -1964,14 +2066,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                  let _ ← Eval.check (match binop with
                     | NanoP4Spec.binop.lteq => true
                     | _ => false)
-                 let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                 let _ ← Eval.check (match value with
+                    | NanoP4Spec.value.W _ _ => true
+                    | NanoP4Spec.value.S _ _ => true
+                    | _ => false)
                  let tmp_42 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                  have integerLiteral := tmp_42
                  let _ ← Eval.check (match integerLiteral with
                     | NanoP4Spec.integerLiteral.S _ _ => true
                     | _ => false)
                  let .S w i_l := integerLiteral | throw Fail.err
-                 let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                 let _ ← Eval.check (match value' with
+                    | NanoP4Spec.value.W _ _ => true
+                    | NanoP4Spec.value.S _ _ => true
+                    | _ => false)
                  let tmp_43 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                  have integerLiteral' := tmp_43
                  let _ ← Eval.check (match integerLiteral' with
@@ -1992,14 +2100,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                   let _ ← Eval.check (match binop with
                      | NanoP4Spec.binop.gteq => true
                      | _ => false)
-                  let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                  let _ ← Eval.check (match value with
+                     | NanoP4Spec.value.W _ _ => true
+                     | NanoP4Spec.value.S _ _ => true
+                     | _ => false)
                   let tmp_46 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                   have integerLiteral := tmp_46
                   let _ ← Eval.check (match integerLiteral with
                      | NanoP4Spec.integerLiteral.W _ _ => true
                      | _ => false)
                   let .W w i_l := integerLiteral | throw Fail.err
-                  let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                  let _ ← Eval.check (match value' with
+                     | NanoP4Spec.value.W _ _ => true
+                     | NanoP4Spec.value.S _ _ => true
+                     | _ => false)
                   let tmp_47 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                   have integerLiteral' := tmp_47
                   let _ ← Eval.check (match integerLiteral' with
@@ -2016,14 +2130,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                    let _ ← Eval.check (match binop with
                       | NanoP4Spec.binop.gteq => true
                       | _ => false)
-                   let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                   let _ ← Eval.check (match value with
+                      | NanoP4Spec.value.W _ _ => true
+                      | NanoP4Spec.value.S _ _ => true
+                      | _ => false)
                    let tmp_48 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                    have integerLiteral := tmp_48
                    let _ ← Eval.check (match integerLiteral with
                       | NanoP4Spec.integerLiteral.S _ _ => true
                       | _ => false)
                    let .S w i_l := integerLiteral | throw Fail.err
-                   let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                   let _ ← Eval.check (match value' with
+                      | NanoP4Spec.value.W _ _ => true
+                      | NanoP4Spec.value.S _ _ => true
+                      | _ => false)
                    let tmp_49 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                    have integerLiteral' := tmp_49
                    let _ ← Eval.check (match integerLiteral' with
@@ -2044,14 +2164,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                     let _ ← Eval.check (match binop with
                        | NanoP4Spec.binop.lt => true
                        | _ => false)
-                    let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                    let _ ← Eval.check (match value with
+                       | NanoP4Spec.value.W _ _ => true
+                       | NanoP4Spec.value.S _ _ => true
+                       | _ => false)
                     let tmp_52 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                     have integerLiteral := tmp_52
                     let _ ← Eval.check (match integerLiteral with
                        | NanoP4Spec.integerLiteral.W _ _ => true
                        | _ => false)
                     let .W w i_l := integerLiteral | throw Fail.err
-                    let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                    let _ ← Eval.check (match value' with
+                       | NanoP4Spec.value.W _ _ => true
+                       | NanoP4Spec.value.S _ _ => true
+                       | _ => false)
                     let tmp_53 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                     have integerLiteral' := tmp_53
                     let _ ← Eval.check (match integerLiteral' with
@@ -2068,14 +2194,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                      let _ ← Eval.check (match binop with
                         | NanoP4Spec.binop.lt => true
                         | _ => false)
-                     let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                     let _ ← Eval.check (match value with
+                        | NanoP4Spec.value.W _ _ => true
+                        | NanoP4Spec.value.S _ _ => true
+                        | _ => false)
                      let tmp_54 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                      have integerLiteral := tmp_54
                      let _ ← Eval.check (match integerLiteral with
                         | NanoP4Spec.integerLiteral.S _ _ => true
                         | _ => false)
                      let .S w i_l := integerLiteral | throw Fail.err
-                     let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                     let _ ← Eval.check (match value' with
+                        | NanoP4Spec.value.W _ _ => true
+                        | NanoP4Spec.value.S _ _ => true
+                        | _ => false)
                      let tmp_55 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                      have integerLiteral' := tmp_55
                      let _ ← Eval.check (match integerLiteral' with
@@ -2096,14 +2228,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                       let _ ← Eval.check (match binop with
                          | NanoP4Spec.binop.gt => true
                          | _ => false)
-                      let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                      let _ ← Eval.check (match value with
+                         | NanoP4Spec.value.W _ _ => true
+                         | NanoP4Spec.value.S _ _ => true
+                         | _ => false)
                       let tmp_58 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                       have integerLiteral := tmp_58
                       let _ ← Eval.check (match integerLiteral with
                          | NanoP4Spec.integerLiteral.W _ _ => true
                          | _ => false)
                       let .W w i_l := integerLiteral | throw Fail.err
-                      let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                      let _ ← Eval.check (match value' with
+                         | NanoP4Spec.value.W _ _ => true
+                         | NanoP4Spec.value.S _ _ => true
+                         | _ => false)
                       let tmp_59 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                       have integerLiteral' := tmp_59
                       let _ ← Eval.check (match integerLiteral' with
@@ -2120,14 +2258,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                        let _ ← Eval.check (match binop with
                           | NanoP4Spec.binop.gt => true
                           | _ => false)
-                       let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                       let _ ← Eval.check (match value with
+                          | NanoP4Spec.value.W _ _ => true
+                          | NanoP4Spec.value.S _ _ => true
+                          | _ => false)
                        let tmp_60 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                        have integerLiteral := tmp_60
                        let _ ← Eval.check (match integerLiteral with
                           | NanoP4Spec.integerLiteral.S _ _ => true
                           | _ => false)
                        let .S w i_l := integerLiteral | throw Fail.err
-                       let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                       let _ ← Eval.check (match value' with
+                          | NanoP4Spec.value.W _ _ => true
+                          | NanoP4Spec.value.S _ _ => true
+                          | _ => false)
                        let tmp_61 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                        have integerLiteral' := tmp_61
                        let _ ← Eval.check (match integerLiteral' with
@@ -2167,14 +2311,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                           let _ ← Eval.check (match binop with
                              | NanoP4Spec.binop.amp => true
                              | _ => false)
-                          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                          let _ ← Eval.check (match value with
+                             | NanoP4Spec.value.W _ _ => true
+                             | NanoP4Spec.value.S _ _ => true
+                             | _ => false)
                           let tmp_66 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                           have integerLiteral := tmp_66
                           let _ ← Eval.check (match integerLiteral with
                              | NanoP4Spec.integerLiteral.W _ _ => true
                              | _ => false)
                           let .W w i_l := integerLiteral | throw Fail.err
-                          let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                          let _ ← Eval.check (match value' with
+                             | NanoP4Spec.value.W _ _ => true
+                             | NanoP4Spec.value.S _ _ => true
+                             | _ => false)
                           let tmp_67 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                           have integerLiteral' := tmp_67
                           let _ ← Eval.check (match integerLiteral' with
@@ -2194,14 +2344,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                            let _ ← Eval.check (match binop with
                               | NanoP4Spec.binop.amp => true
                               | _ => false)
-                           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                           let _ ← Eval.check (match value with
+                              | NanoP4Spec.value.W _ _ => true
+                              | NanoP4Spec.value.S _ _ => true
+                              | _ => false)
                            let tmp_70 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                            have integerLiteral := tmp_70
                            let _ ← Eval.check (match integerLiteral with
                               | NanoP4Spec.integerLiteral.S _ _ => true
                               | _ => false)
                            let .S w i_l := integerLiteral | throw Fail.err
-                           let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                           let _ ← Eval.check (match value' with
+                              | NanoP4Spec.value.W _ _ => true
+                              | NanoP4Spec.value.S _ _ => true
+                              | _ => false)
                            let tmp_71 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                            have integerLiteral' := tmp_71
                            let _ ← Eval.check (match integerLiteral' with
@@ -2226,14 +2382,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                             let _ ← Eval.check (match binop with
                                | NanoP4Spec.binop.caret => true
                                | _ => false)
-                            let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                            let _ ← Eval.check (match value with
+                               | NanoP4Spec.value.W _ _ => true
+                               | NanoP4Spec.value.S _ _ => true
+                               | _ => false)
                             let tmp_76 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                             have integerLiteral := tmp_76
                             let _ ← Eval.check (match integerLiteral with
                                | NanoP4Spec.integerLiteral.W _ _ => true
                                | _ => false)
                             let .W w i_l := integerLiteral | throw Fail.err
-                            let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                            let _ ← Eval.check (match value' with
+                               | NanoP4Spec.value.W _ _ => true
+                               | NanoP4Spec.value.S _ _ => true
+                               | _ => false)
                             let tmp_77 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                             have integerLiteral' := tmp_77
                             let _ ← Eval.check (match integerLiteral' with
@@ -2254,14 +2416,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                              let _ ← Eval.check (match binop with
                                 | NanoP4Spec.binop.caret => true
                                 | _ => false)
-                             let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                             let _ ← Eval.check (match value with
+                                | NanoP4Spec.value.W _ _ => true
+                                | NanoP4Spec.value.S _ _ => true
+                                | _ => false)
                              let tmp_80 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                              have integerLiteral := tmp_80
                              let _ ← Eval.check (match integerLiteral with
                                 | NanoP4Spec.integerLiteral.S _ _ => true
                                 | _ => false)
                              let .S w i_l := integerLiteral | throw Fail.err
-                             let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                             let _ ← Eval.check (match value' with
+                                | NanoP4Spec.value.W _ _ => true
+                                | NanoP4Spec.value.S _ _ => true
+                                | _ => false)
                              let tmp_81 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                              have integerLiteral' := tmp_81
                              let _ ← Eval.check (match integerLiteral' with
@@ -2286,14 +2454,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                               let _ ← Eval.check (match binop with
                                  | NanoP4Spec.binop.bar => true
                                  | _ => false)
-                              let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                              let _ ← Eval.check (match value with
+                                 | NanoP4Spec.value.W _ _ => true
+                                 | NanoP4Spec.value.S _ _ => true
+                                 | _ => false)
                               let tmp_86 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                               have integerLiteral := tmp_86
                               let _ ← Eval.check (match integerLiteral with
                                  | NanoP4Spec.integerLiteral.W _ _ => true
                                  | _ => false)
                               let .W w i_l := integerLiteral | throw Fail.err
-                              let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                              let _ ← Eval.check (match value' with
+                                 | NanoP4Spec.value.W _ _ => true
+                                 | NanoP4Spec.value.S _ _ => true
+                                 | _ => false)
                               let tmp_87 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                               have integerLiteral' := tmp_87
                               let _ ← Eval.check (match integerLiteral' with
@@ -2314,14 +2488,20 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                                let _ ← Eval.check (match binop with
                                   | NanoP4Spec.binop.bar => true
                                   | _ => false)
-                               let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value)
+                               let _ ← Eval.check (match value with
+                                  | NanoP4Spec.value.W _ _ => true
+                                  | NanoP4Spec.value.S _ _ => true
+                                  | _ => false)
                                let tmp_90 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value)
                                have integerLiteral := tmp_90
                                let _ ← Eval.check (match integerLiteral with
                                   | NanoP4Spec.integerLiteral.S _ _ => true
                                   | _ => false)
                                let .S w i_l := integerLiteral | throw Fail.err
-                               let _ ← Eval.check (NanoP4Spec.value.is_integerLiteral value')
+                               let _ ← Eval.check (match value' with
+                                  | NanoP4Spec.value.W _ _ => true
+                                  | NanoP4Spec.value.S _ _ => true
+                                  | _ => false)
                                let tmp_91 ← Eval.err? (NanoP4Spec.value.of_integerLiteral value')
                                have integerLiteral' := tmp_91
                                let _ ← Eval.check (match integerLiteral' with
@@ -2348,10 +2528,14 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                                 let _ ← Eval.check (match binop with
                                    | NanoP4Spec.binop.ampamp => true
                                    | _ => false)
-                                let _ ← Eval.check (NanoP4Spec.value.is_boolValue value)
+                                let _ ← Eval.check (match value with
+                                   | NanoP4Spec.value._B _ => true
+                                   | _ => false)
                                 let tmp_96 ← Eval.err? (NanoP4Spec.value.of_boolValue value)
                                 let ._B b_l := tmp_96
-                                let _ ← Eval.check (NanoP4Spec.value.is_boolValue value')
+                                let _ ← Eval.check (match value' with
+                                   | NanoP4Spec.value._B _ => true
+                                   | _ => false)
                                 let tmp_97 ← Eval.err? (NanoP4Spec.value.of_boolValue value')
                                 let ._B b_r := tmp_97
                                 pure (NanoP4Spec.boolValue.to_value
@@ -2363,10 +2547,14 @@ def «$bin_op» (p0 : NanoP4Spec.binop) (p1 : NanoP4Spec.value) (p2 : NanoP4Spec
                                 let _ ← Eval.check (match binop with
                                    | NanoP4Spec.binop.barbar => true
                                    | _ => false)
-                                let _ ← Eval.check (NanoP4Spec.value.is_boolValue value)
+                                let _ ← Eval.check (match value with
+                                   | NanoP4Spec.value._B _ => true
+                                   | _ => false)
                                 let tmp_98 ← Eval.err? (NanoP4Spec.value.of_boolValue value)
                                 let ._B b_l := tmp_98
-                                let _ ← Eval.check (NanoP4Spec.value.is_boolValue value')
+                                let _ ← Eval.check (match value' with
+                                   | NanoP4Spec.value._B _ => true
+                                   | _ => false)
                                 let tmp_99 ← Eval.err? (NanoP4Spec.value.of_boolValue value')
                                 let ._B b_r := tmp_99
                                 pure (NanoP4Spec.boolValue.to_value

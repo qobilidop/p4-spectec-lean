@@ -6,6 +6,7 @@ import P4SpecTecTest.Codegen.CoverageChecks
 import P4SpecTecTest.Codegen.Monotonicity
 import P4SpecTecTest.Codegen.PrintHints
 import P4SpecTecTest.Codegen.QuoteChecks
+import P4SpecTecTest.Codegen.RuntimeExtension
 import P4SpecTecTest.Codegen.State
 import P4SpecTecTest.Codegen.StateProps
 import P4SpecTecTest.Codegen.Subtypes

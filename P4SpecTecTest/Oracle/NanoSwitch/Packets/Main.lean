@@ -147,6 +147,50 @@ private def failedAs (label : String) (expected : Fail) (state : FreshState)
   let some (.error actual, final) := r | throw s!"{label}: expected failure absent"
   unless actual == expected && final == state do throw s!"{label}: failure/state differs"
 
+private def generatedResult (label : String) (r : Option (Except Fail α)) : Except String α :=
+  match r with
+  | some (.ok x) => pure x
+  | some (.error e) => throw s!"{label}: {if e == .err then "err" else "unmatch"}"
+  | none => throw s!"{label}: diverged"
+
+private def decodeRuntime (α : Type) [OfValue α] (label : String) (v : Lang.Il.value) :
+    Except String α :=
+  match OfValue.ofValue 10000 v with
+  | some x => pure x
+  | none => throw s!"{label}: runtime decoding failed"
+
+-- Re-run the actual extern branch with generated copy-in/out and receiver write.
+-- The handler still calls the quoted Nano definitions with guards disabled.
+private def generatedContinuation (g : Ctx.global) (cfg : Interp.Config StateEval)
+    (ctx callee args : Lang.Il.value) (state : FreshState) :
+    Except String (NanoP4Spec.evalContext × FreshState) := do
+  let caller ← decodeRuntime NanoP4Spec.evalContext "caller" ctx
+  let selected ← decodeRuntime NanoP4Spec.callee "callee" callee
+  let arguments ← decodeRuntime (List NanoP4Spec.argument) "arguments" args
+  let .EXTERN_METHOD_dot_lparen_rparen receiverLvalue method parameters := selected
+    | throw "generated continuation: expected extern method"
+  let receiver ← generatedResult "generated receiver lookup"
+    (NanoP4Spec.Lvalue_eval.run .LOCAL caller receiverLvalue)
+  let calleeContext ← generatedResult "generated inherit"
+    (NanoP4Spec.«$inherit_e» .GLOBAL caller)
+  let (calleeContext, lvalues) ← generatedResult "generated Copy_in"
+    (NanoP4Spec.Copy_in.run .LOCAL caller parameters .LOCAL calleeContext arguments)
+  let names := parameters.map fun (.mk _ _ name) => name
+  let ([raw, calleeAfter], finalState) ← succeeded "actual extract callback" (StateEval.run
+    (eval_extern_method_call (fun name ts vs => Interp.do_eval_func 1000000 cfg g name ts vs)
+      [ToValue.toValue calleeContext, ToValue.toValue receiver, ToValue.toValue method,
+        ToValue.toValue names]) state)
+    | throw "generated continuation: wrong callback output arity"
+  let receiverAfter ← decodeRuntime NanoP4Spec.value "raw callback receiver" raw
+  let .runtimeExtern _ := receiverAfter
+    | throw "generated continuation: callback result was repaired"
+  let calleeAfter ← decodeRuntime NanoP4Spec.evalContext "callee after callback" calleeAfter
+  let copied ← generatedResult "generated Copy_out"
+    (NanoP4Spec.Copy_out.run .LOCAL caller parameters .LOCAL calleeAfter lvalues)
+  let written ← generatedResult "generated Lvalue_write"
+    (NanoP4Spec.Lvalue_write.run .LOCAL copied receiverLvalue receiverAfter)
+  pure (written, finalState)
+
 private def extractReceiver (size : Nat) : Lang.Il.value :=
   let packet : BackendSim.Core.Object.PacketIn.t :=
     { bits := Array.replicate size true, idx := 0, len := size }
@@ -210,8 +254,18 @@ private def extractContinuation (base : Interp.Config StateEval) (event : Lean.J
     unless packet.idx == (if size == 24 then 24 else 0) &&
         packet.len == size && packet.bits == Array.replicate size true do
       throw "extract continuation: packet state differs"
-    unless (NanoP4Spec.value.ofValue 10000 receiver).isNone do
-      throw "extract continuation: raw receiver decoded as generated value"
+    let represented ← decodeRuntime NanoP4Spec.value "raw post-call receiver" receiver
+    let .runtimeExtern _ := represented
+      | throw "extract continuation: raw receiver decoded into source constructor"
+    unless Runtime.Value.eq receiver (ToValue.toValue represented) do
+      throw "extract continuation: raw receiver roundtrip differs"
+    let (generatedAfter, generatedState) ← generatedContinuation g cfg ctx callee args state1
+    unless Runtime.Value.eq after (ToValue.toValue generatedAfter) && generatedState == state2 do
+      throw "extract continuation: generated full context/state differs"
+    let typedExpression ← decodeRuntime NanoP4Spec.lvalue "receiver expression" expression
+    let some (.error .unmatch) :=
+      NanoP4Spec.Callee_eval.run .LOCAL generatedAfter typedExpression
+      | throw "extract continuation: generated receiver reuse did not mismatch"
     unless Runtime.Value.eq header (copiedHeader size).toValue do
       throw "extract continuation: header Copy_out differs"
     failedAs "subsequent Callee_eval" .unmatch state3 (StateEval.run

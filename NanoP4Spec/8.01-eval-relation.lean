@@ -567,7 +567,9 @@ def Expr_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : Na
                 let tmp_13 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC memberAccessBase)
                 have value_base := tmp_13
                 have value := value_base
-                let _ ← Eval.check (NanoP4Spec.value.is_structValue value)
+                let _ ← Eval.check (match value with
+                   | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+                   | _ => false)
                 let tmp_14 ← Eval.err? (NanoP4Spec.value.of_structValue value)
                 let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_14
                 let tmp_15 ←
@@ -600,7 +602,9 @@ def Expr_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : Na
                 let tmp_18 ← ExceptT.mk (NanoP4Spec.Expr_eval.run scope EC memberAccessBase)
                 have value_base := tmp_18
                 have value := value_base
-                let _ ← Eval.check (NanoP4Spec.value.is_headerValue value)
+                let _ ← Eval.check (match value with
+                   | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+                   | _ => false)
                 let tmp_19 ← Eval.err? (NanoP4Spec.value.of_headerValue value)
                 let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_19
                 let tmp_20 ←
@@ -740,7 +744,10 @@ inductive Expr_eval : NanoP4Spec.scope →
         (NanoP4Spec.expression.of_memberAccessExpression expression =
            some (NanoP4Spec.memberAccessExpression.dot memberAccessBase member)) →
         (NanoP4Spec.Expr_eval scope EC memberAccessBase value) →
-        ((NanoP4Spec.value.is_structValue value : Bool) = true) →
+        (((match value with
+               | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+               | _ => false) : Bool) =
+           true) →
         (NanoP4Spec.value.of_structValue value =
            some (NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue*»)) →
         (List.length «fieldValue*» = List.length tmp_3) →
@@ -772,7 +779,10 @@ inductive Expr_eval : NanoP4Spec.scope →
         (NanoP4Spec.expression.of_memberAccessExpression expression =
            some (NanoP4Spec.memberAccessExpression.dot memberAccessBase member)) →
         (NanoP4Spec.Expr_eval scope EC memberAccessBase value) →
-        ((NanoP4Spec.value.is_headerValue value : Bool) = true) →
+        (((match value with
+               | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+               | _ => false) : Bool) =
+           true) →
         (NanoP4Spec.value.of_headerValue value =
            some (NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue*»)) →
         (List.length «fieldValue*» = List.length tmp_3) →
@@ -1780,7 +1790,9 @@ def Callee_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : 
          (do
             let tmp_4 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC lvalue_base)
             have value := tmp_4
-            let _ ← Eval.check (NanoP4Spec.value.is_packetValue value)
+            let _ ← Eval.check (match value with
+               | NanoP4Spec.value.PACKET _ _ => true
+               | _ => false)
             let tmp_5 ← Eval.err? (NanoP4Spec.value.of_packetValue value)
             have packetValue := tmp_5
             let .PACKET typeId objectState := packetValue
@@ -1819,7 +1831,9 @@ def Callee_eval.run (p0 : NanoP4Spec.scope) (p1 : NanoP4Spec.evalContext) (p2 : 
          (do
             let tmp_11 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC lvalue_base)
             have value := tmp_11
-            let _ ← Eval.check (NanoP4Spec.value.is_tableValue value)
+            let _ ← Eval.check (match value with
+               | NanoP4Spec.value.TABLE _ _ => true
+               | _ => false)
             let tmp_12 ← Eval.err? (NanoP4Spec.value.of_tableValue value)
             have tableValue := tmp_12
             let .TABLE nameIR tableProperties := tableValue
@@ -1882,7 +1896,10 @@ inductive Callee_eval : NanoP4Spec.scope →
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.Lvalue_eval scope EC lvalue_base value) →
-        ((NanoP4Spec.value.is_packetValue value : Bool) = true) →
+        (((match value with
+               | NanoP4Spec.value.PACKET _ _ => true
+               | _ => false) : Bool) =
+           true) →
         (NanoP4Spec.value.of_packetValue value =
            some (NanoP4Spec.packetValue.PACKET typeId objectState)) →
         (NanoP4Spec.«$id» member = some (.ok callableId)) →
@@ -1925,7 +1942,10 @@ inductive Callee_eval : NanoP4Spec.scope →
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.Lvalue_eval scope EC lvalue_base value) →
-        ((NanoP4Spec.value.is_tableValue value : Bool) = true) →
+        (((match value with
+               | NanoP4Spec.value.TABLE _ _ => true
+               | _ => false) : Bool) =
+           true) →
         (NanoP4Spec.value.of_tableValue value =
            some (NanoP4Spec.tableValue.TABLE nameIR tableProperties)) →
         NanoP4Spec.Callee_eval

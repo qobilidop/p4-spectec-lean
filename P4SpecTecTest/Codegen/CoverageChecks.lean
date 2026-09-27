@@ -71,7 +71,7 @@ private def sensitivity (env : Environment) (report : Report) : IO Unit := do
 run_cmd do
   let env ← getEnv
   let report ← Check.checkFiles env "NanoP4Spec" "exports/nano-p4.al.json"
-    "NanoP4Spec/coverage.json"
+    "NanoP4Spec/coverage.json" { rawExternTypes := ["value"] }
   sensitivity env report
 
 end P4SpecTecTest.Codegen.CoverageChecks

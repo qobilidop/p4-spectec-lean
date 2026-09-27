@@ -225,8 +225,11 @@ restrictions, not only choices imposed by Lean. Each needs compatibility with
 the claimed observations; new differences require an explicit entry.
 
 - **Syntax representation:** named inductives and ordinary constructor unions
-  replace OCaml recursive tuples and polymorphic variants. Unmodeled EL hint
-  syntax remains JSON; consumers must validate supported forms.
+  replace OCaml recursive tuples and polymorphic variants. Explicit runtime-only
+  alternatives may carry callback results absent from the source variant; they
+  do not extend source membership or change quotations. Nano's `value` carrier
+  admits raw externs this way, preserving their payload through later operations.
+  Unmodeled EL hint syntax remains JSON; consumers must validate supported forms.
 - **Control effects:** explicit fuel and error data replace unrestricted
   reference recursion and exceptions. Exhaustion never becomes a default.
 - **Execution profile:** sequential, cache-free interpretation omits cache

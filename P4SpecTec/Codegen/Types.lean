@@ -166,6 +166,21 @@ def ctorNames (cases : List typcase) : List String := Id.run do
     out := out ++ [if n == 0 then b else b ++ "_" ++ toString (n + 1)]
   pure out
 
+/-- Validate runtime extensions without modifying the source type environment. -/
+def validateRepresentation (env : Env) : Except String Unit := do
+  let names := env.representation.rawExternTypes
+  if names.eraseDups.length != names.length then
+    throw "runtime extern extension: duplicate type"
+  for id in names do
+    let some info := env.types.get? id
+      | throw s!"runtime extern extension: unknown type {id}"
+    if !info.tparams.isEmpty then
+      throw s!"runtime extern extension: {id} must be monomorphic"
+    let some (.VariantT cases) := info.deftyp
+      | throw s!"runtime extern extension: {id} must be a variant"
+    if (ctorNames cases).contains Representation.rawExternCtor then
+      throw s!"runtime extern extension: reserved constructor in {id}"
+
 /-- The type parameter binders of a type. -/
 def tparamBinders (tparams : List String) : Format :=
   if tparams.isEmpty then Format.nil
@@ -209,7 +224,12 @@ def typeDecl (env : Env) (unfold : List String) (id : String) (tparams : List St
       Term.hardLine ++
         Format.group (Format.nest 4 (Format.text ("| " ++ cname) ++ Format.join binders))
     Format.text s!"inductive {name}" ++ tparamBinders tparams ++ " where" ++
-      Format.nest 2 (Format.join cs)
+      Format.nest 2 (Format.join cs ++
+        if env.representation.hasRawExtern id then
+          Term.hardLine ++ Format.text "-- Runtime-only carrier; not an AL source constructor." ++
+            Term.hardLine ++ Format.text
+              s!"| {Representation.rawExternCtor} (state : ExternValue)"
+        else Format.nil)
 
 /-! ## Value encoders
 
@@ -310,7 +330,11 @@ where
             (Term.call "Runtime.Value.Make.case"
               [noteTerm t, mixfixTerm (Mixfix.to_mixop c.nottyp.it) inners]).fmt)
         pure <| Format.text s!"def {name} : " ++ ty ++ " → Lang.Il.value" ++
-          Format.nest 2 (Format.join arms)
+          Format.nest 2 (Format.join arms ++
+            if env.representation.hasRawExtern i.it then
+              arm (Format.text s!".{Representation.rawExternCtor} state")
+                (Format.text "ToValue.toValue state")
+            else Format.nil)
       | some (.StructT fields) =>
         let anames := (List.range fields.length).map fun k => s!"x{k}"
         let inners ← (fields.zip anames).mapM fun ((_, ft), n) =>
@@ -367,7 +391,11 @@ def toValueDecls (env : Env) (group : List (String × List String × deftyp')) :
           (Term.call "Runtime.Value.Make.case"
             [note, mixfixTerm (Mixfix.to_mixop c.nottyp.it) inners]).fmt]
       fns := fns ++ [header ++ " : " ++ self.fmt ++ " → Lang.Il.value" ++
-        Format.nest 2 (Format.join arms)]
+        Format.nest 2 (Format.join arms ++
+          if env.representation.hasRawExtern tid then
+            arm (Format.text s!".{Representation.rawExternCtor} state")
+              (Format.text "ToValue.toValue state")
+          else Format.nil)]
   let decls := fns ++ st.decls
   let block := if decls.length == 1 then joinDecls decls else mutualBlock decls
   let instances := group.map fun (tid, tparams, _) =>
@@ -415,9 +443,12 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
                 [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) (some "none"),
             Format.text "pure " ++
               (Term.call (env.q (Names.typeName i.it) ++ "." ++ cname) decs).arg])
-        .paren (.matchOn (.proj v "it") [
-          (Format.text ".CaseV c", alternatives alts),
-          (Format.text "_", .atom "none")])
+        .paren (.matchOn (.proj v "it") (
+          [(Format.text ".CaseV c", alternatives alts)] ++
+          (if env.representation.hasRawExtern i.it then
+            [(Format.text ".ExternV json", .atom
+              s!"some (.{Representation.rawExternCtor} ⟨json⟩)")]
+          else []) ++ [(Format.text "_", .atom "none")]))
       | _ => .call "OfValue.ofValue" [.atom "fuel", v]
     else .call "OfValue.ofValue" [.atom "fuel", v]
   | .IterT e .List =>
@@ -490,9 +521,12 @@ def ofValueDecls (env : Env) (group : List (String × List String × deftyp')) :
                 [.atom "c", mixopTerm (Mixfix.to_mixop c.nottyp.it)]) (some "none"),
             Format.text "pure " ++
               (Term.call (env.q (Names.typeName tid) ++ "." ++ cname) decs).arg])
-        Format.text "| fuel + 1, v => " ++ (Term.matchOn (.atom "v.it") [
-          (Format.text ".CaseV c", ofValueTerm.alternatives alts),
-          (Format.text "_", .atom "none")]).fmt
+        Format.text "| fuel + 1, v => " ++ (Term.matchOn (.atom "v.it") (
+          [(Format.text ".CaseV c", ofValueTerm.alternatives alts)] ++
+          (if env.representation.hasRawExtern tid then
+            [(Format.text ".ExternV json", .atom
+              s!"some (.{Representation.rawExternCtor} ⟨json⟩)")]
+          else []) ++ [(Format.text "_", .atom "none")])).fmt
     fns := fns ++ [header ++ Format.nest 2 (Format.line ++ "| 0, _ => none" ++ Format.line ++ body)]
   let block := if fns.length == 1 then joinDecls fns else mutualBlock fns
   let instances := group.map fun (tid, tparams, _) =>
@@ -622,8 +656,11 @@ def subtypeDecls (env : Env) (s t : typ') : Except String Format := do
   let sig (name : String) (ts : List Term) : Format :=
     Format.group (Format.nest 4 (Format.text s!"def {name} :" ++ Format.line ++
       Term.arrows (ts.map (·.fmt))))
+  if env.representation.hasRawExtern (typeHead s) then
+    throw s!"{label}: injection from a runtime-extended subtype is unsupported"
   let up := sig (upName s t) [sT, tT] ++ arms ups
-  let partial_ := downs.length < tCases.length
+  let partial_ := downs.length < tCases.length ||
+    env.representation.hasRawExtern (typeHead t)
   let down := sig (downName s t) [tT, .call "Option" [sT]] ++
     arms (downs ++ (if partial_ then [Format.text "| _ => none"] else []))
   let chk := sig (isName s t) [tT, .atom "Bool"] ++

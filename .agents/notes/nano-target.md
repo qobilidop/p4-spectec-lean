@@ -24,10 +24,11 @@ Pins for the historical evidence are P4-SpecTec
 
 - Nano extract returns raw `ExternV objectState`, while the Nano AL relation
   declares a `value` output and writes it into the receiver. Generated value
-  constructors include PACKET but not bare ExternV; canonicalization retains
-  that distinction. Restoring PACKET would repair upstream semantics, not
-  faithfully port it. Full contexts and subsequent calls matter, not merely
-  final transmitted bytes.
+  source constructors include PACKET but not bare ExternV; canonicalization retains
+  that distinction. An explicit runtime-only generated alternative now carries
+  raw externs while source packet/object membership stays unchanged. Restoring
+  PACKET would repair upstream semantics, not faithfully port it. Full contexts
+  and subsequent calls matter, not merely final transmitted bytes.
 - Three original unguarded STF cases (`free-pass`, `field-access`,
   `action-call-table-2`) passed; extract observations returned raw ExternV.
   Guarded field-access failed after its first such result. The observation

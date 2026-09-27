@@ -22,12 +22,17 @@ structure Args where
   out : String := "."
   /-- Write instead of check. -/
   update : Bool := false
+  /-- Explicit runtime-only raw extern alternatives. -/
+  representation : Codegen.Representation := {}
 
 /-- Parse the command line. -/
 def parseArgs : List String → Except String Args
   | [] => pure {}
   | "--lib" :: l :: rest => do pure { ← parseArgs rest with lib := l }
   | "--out" :: o :: rest => do pure { ← parseArgs rest with out := o }
+  | "--runtime-extern" :: name :: rest => do
+    let args ← parseArgs rest
+    pure { args with representation.rawExternTypes := name :: args.representation.rawExternTypes }
   | "--update" :: rest => do pure { ← parseArgs rest with update := true }
   | "--check" :: rest => do pure { ← parseArgs rest with update := false }
   | e :: rest => do
@@ -41,10 +46,10 @@ def main (argv : List String) : IO UInt32 := do
     | .error e => do IO.eprintln s!"p4spectec-gen: {e}"; return 2
   if args.exportPath.isEmpty || args.lib.isEmpty then
     IO.eprintln "usage: p4spectec-gen <export.al.json> --lib <Lib>"
-    IO.eprintln "                     [--out DIR] [--update|--check]"
+    IO.eprintln "                     [--out DIR] [--runtime-extern TYPE] [--update|--check]"
     return 2
   let spec ← Lang.Al.Json.readSpec args.exportPath
-  let outs ← match Codegen.Emit.generate args.lib args.exportPath spec with
+  let outs ← match Codegen.Emit.generate args.lib args.exportPath spec args.representation with
     | .ok o => pure o
     | .error e => do IO.eprintln s!"p4spectec-gen: {e}"; return 1
   let mut stale := 0

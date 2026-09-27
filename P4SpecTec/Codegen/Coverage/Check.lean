@@ -76,9 +76,10 @@ def inEnvironment (env : Environment) (library : String) (action : TermElabM α)
 
 /-- Recompute metadata from the actual export, then check the compiled environment.
 Only canonical generated JSON is accepted, including its schema and every entry. -/
-def checkFiles (env : Environment) (library input reportPath : String) : IO Report := do
+def checkFiles (env : Environment) (library input reportPath : String)
+    (representation : Representation := {}) : IO Report := do
   let spec ← Lang.Al.Json.readSpec input
-  let regenerated ← match Emit.coverage library input spec with
+  let regenerated ← match Emit.coverage library input spec representation with
     | .ok report => pure report
     | .error msg => throw <| IO.userError msg
   let text ← IO.FS.readFile reportPath

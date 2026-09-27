@@ -78,7 +78,8 @@ def ctorFor (t : typ') (m : Mixfix.mixop) : CgM (String × Bool) := do
   match ← variantOf t with
   | some (tid, cases, names) =>
     match (cases.zip names).find? fun (c, _) => Mixfix.eq_mixop c.nottyp.it m with
-    | some (_, n) => pure (env.q (Names.typeName tid) ++ "." ++ n, cases.length > 1)
+    | some (_, n) => pure (env.q (Names.typeName tid) ++ "." ++ n,
+        cases.length > 1 || env.representation.hasRawExtern tid)
     | none => fail s!"case {Mixfix.to_string m} is not a case of {tid}"
   | none => fail s!"case {Mixfix.to_string m} used at a non-variant type"
 

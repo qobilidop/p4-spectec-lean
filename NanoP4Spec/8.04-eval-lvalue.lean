@@ -283,7 +283,9 @@ def Lvalue_write.run
             let tmp_3 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC_0 lvalue_base)
             have value_base := tmp_3
             have value' := value_base
-            let _ ← Eval.check (NanoP4Spec.value.is_structValue value')
+            let _ ← Eval.check (match value' with
+               | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+               | _ => false)
             let tmp_4 ← Eval.err? (NanoP4Spec.value.of_structValue value')
             let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_4
             let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» member)
@@ -305,7 +307,9 @@ def Lvalue_write.run
             let tmp_8 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC_0 lvalue_base)
             have value_base := tmp_8
             have value' := value_base
-            let _ ← Eval.check (NanoP4Spec.value.is_headerValue value')
+            let _ ← Eval.check (match value' with
+               | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+               | _ => false)
             let tmp_9 ← Eval.err? (NanoP4Spec.value.of_headerValue value')
             let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_9
             let tmp_10 ← ExceptT.mk (NanoP4Spec.«$id» member)
@@ -374,7 +378,10 @@ inductive Lvalue_write : NanoP4Spec.scope →
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.Lvalue_eval scope EC_0 lvalue_base value') →
-        ((NanoP4Spec.value.is_structValue value' : Bool) = true) →
+        (((match value' with
+               | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
+               | _ => false) : Bool) =
+           true) →
         (NanoP4Spec.value.of_structValue value' =
            some (NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue*»)) →
         (NanoP4Spec.«$id» member = some (.ok nameIR)) →
@@ -405,7 +412,10 @@ inductive Lvalue_write : NanoP4Spec.scope →
                | _ => false) : Bool) =
            true) →
         (NanoP4Spec.Lvalue_eval scope EC_0 lvalue_base value') →
-        ((NanoP4Spec.value.is_headerValue value' : Bool) = true) →
+        (((match value' with
+               | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+               | _ => false) : Bool) =
+           true) →
         (NanoP4Spec.value.of_headerValue value' =
            some (NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue*»)) →
         (NanoP4Spec.«$id» member = some (.ok nameIR)) →

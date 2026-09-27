@@ -83,7 +83,7 @@ scripts/check-mirror.py     # mirrored modules have upstream's constructors in o
 lake env python3 scripts/check-library-boundaries.py  # libraries cannot import examples/tests
 scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token table
 scripts/time-elab.sh <Lib>  # per-module build durations; see docs/performance.md
-lake exe p4spectec-gen <export> --lib <Lib> [--update|--check]   # the compiler
+lake exe p4spectec-gen <export> --lib <Lib> [--runtime-extern TYPE] [--update|--check]
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
@@ -158,6 +158,8 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   the exports and fails on any diff; never hand-edit a generated file,
   regenerate it with `--update`. `P4SpecTec/Codegen/Keywords.lean` is
   generated too, from Lean's token table.
+  Nano regeneration additionally uses `--runtime-extern value` for the explicit
+  runtime-only extern alternative; source quotations and source types stay unchanged.
   Both spec snapshots are committed as `exports/<name>.al.json.gz` plus
   a raw SHA-256; the gate verifies and extracts the ignored JSON files.
   The intended full-P4 output is `P4Spec/`, which has no library target until

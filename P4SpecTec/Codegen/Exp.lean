@@ -169,6 +169,25 @@ partial def isSub (sub sup : typ') (x : Term) : CgM Term := do
 
 end
 
+/-- Compile the actual supplied subcheck when runtime extensions invalidate a
+static source-membership shortcut. Unsupported recursive checks fail generation. -/
+def runtimeSubcheck (t : typ') (sc : subcheck) (x : Term) : CgM Term := do
+  match sc with
+  | .SkipSC => pure (.atom "true")
+  | .MixopSC mixops =>
+    let some (tid, cases, names) ← variantOf t
+      | fail "runtime extern extension: mixop subcheck needs a variant carrier"
+    let env := (← read).env
+    let selected := (cases.zip names).filter fun (c, _) =>
+      mixops.any fun m => Mixfix.eq_mixop c.nottyp.it m
+    let arms := selected.map fun (c, n) =>
+      let wild := (List.replicate (Mixfix.arity c.nottyp.it) "_")
+      (Term.patApp (env.q (Names.typeName tid) ++ "." ++ n) wild, Term.atom "true")
+    let partial_ := selected.length < cases.length || env.representation.hasRawExtern tid
+    pure (.paren (.matchOn x
+      (arms ++ if partial_ then [(Format.text "_", .atom "false")] else [])))
+  | _ => fail "runtime extern extension: unsupported subcheck on an affected carrier"
+
 /-! ## Expressions -/
 
 mutual
@@ -228,9 +247,10 @@ partial def compileExp (e : exp) : CgM Term := do
     let t ← compileExp a
     let m ← castDown typ.it a.note t
     hoistErr (← typOf e.note) m
-  | .SubE a typ _ =>
+  | .SubE a typ sc =>
     let t ← compileExp a
-    isSub typ.it a.note t
+    if env.runtimeAffected a.note then runtimeSubcheck a.note sc t
+    else isSub typ.it a.note t
   | .MatchE a p =>
     let t ← compileExp a
     match p with

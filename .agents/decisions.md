@@ -88,9 +88,8 @@ errors, and the quote checker independently checks decoded/compiled emptiness.
 Reason: this is the actual Nano policy table; the broader provenance invariant
 is needed only for hinted specifications. Confidence high. Revisit on any pin
 or policy change; do not generalize the empty-table result to hinted printing.
-The raw-extern runtime representation remains an open N1 design obligation;
-its current-codec impossibility is checked, and PACKET rewrapping changes the
-actual subsequent callee result.
+The raw-extern obstruction motivates the runtime-only carrier choice below;
+PACKET rewrapping changes the actual subsequent callee result and remains forbidden.
 
 These topic constraints remain binding when their work resumes:
 
@@ -104,6 +103,23 @@ These topic constraints remain binding when their work resumes:
   constrain coverage claims.
 - [Nano target](notes/nano-target.md): preserve raw ExternV and shared verify
   ABI mismatches; do not invent typed target or boot/STF coverage.
+
+## Nano runtime representation (2026-09-26)
+
+Preserve extract's raw `ExternV` result through an explicitly configured
+runtime-only alternative in the generated `value` carrier. Keep source AL
+quotations, `packetValue` and `objectValue` unchanged; do not wrap the result in
+PACKET. Follow the actual supplied subtype-check mode: SkipSC remains true,
+MixopSC matches source constructors, and unsupported extension-sensitive checks
+reject generation. Same-static-type casts preserve the raw value.
+
+Reason: the pinned guard-free semantics writes this value into the receiver;
+changing its shape would repair upstream behavior and change subsequent calls.
+The chosen interface uses ordinary codecs and contextual contracts, with exact
+callback/state evidence separate from full target certification. Confidence high
+for this Nano profile. Revisit if a pin changes the callback result, subtype-check
+forms, or a new carrier needs a different runtime extension. N2 still owes broad
+source-domain adequacy; N4 still owes complete target composition.
 
 ## Knowledge ownership (2026-09-26)
 

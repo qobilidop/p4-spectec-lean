@@ -141,6 +141,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     Except String (List Unit × List String × RefPlan) := do
   if env.mode == .freshState then
     throw "stateful generation requires structural propositions and run-soundness support"
+  Types.validateRepresentation env
   Funcs.validateSignatures env
   let printEnv ← P4.Unparse.hints_of_spec_al spec
   PrintHints.validate env spec printEnv
@@ -406,14 +407,17 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       groups := refGroups, coverage := coverageEntries })
 
 /-- Recompute coverage through the production planner, without claiming compilation. -/
-def coverage (lib exportPath : String) (spec : Lang.Al.spec) : Except String Coverage.Report := do
-  let (_, _, refinement) ← plan (Env.ofSpec lib spec) spec
+def coverage (lib exportPath : String) (spec : Lang.Al.spec)
+    (representation : Representation := {}) : Except String Coverage.Report := do
+  let env := { Env.ofSpec lib spec with representation }
+  let (_, _, refinement) ← plan env spec
   pure { library := lib, input := exportPath, definitions := refinement.coverage }
 
 
 /-- Generate every output file of a library. -/
-def generate (lib exportPath : String) (spec : Lang.Al.spec) : Except String (List Output) := do
-  let env := Env.ofSpec lib spec
+def generate (lib exportPath : String) (spec : Lang.Al.spec)
+    (representation : Representation := {}) : Except String (List Output) := do
+  let env := { Env.ofSpec lib spec with representation }
   let (units, files, refinement) ← plan env spec
   let used := (units.map (·.file)).eraseDups.mergeSort (· ≤ ·)
   let specRoot := Names.specRoot files

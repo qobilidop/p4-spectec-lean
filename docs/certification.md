@@ -27,6 +27,7 @@ the user-facing account of current capabilities and their guarantees.
 | Generated Nano-P4 refinement theorems | Every terminating reference outcome has a matching generated outcome | One direction, for the supported fragment and related inputs under the theorem's environment assumptions |
 | Field-update certificate | Both directions of executable correspondence, representation coverage and initialization; distinct-name update commutation transfers to reference executions | One helper on a declared scalar source domain, not arbitrary P4 assignments |
 | Generated relation soundness theorems | Successful generated execution implies the generated logical relation | Does not by itself connect that relation to AL or prove every relational witness executable |
+| Handwritten recursive reverse certificate | Every terminating generated `exists_` result has an eventual reference witness for all related Boolean lists | Explicit guard-free/global-environment assumptions; neither initialization nor generated reverse coverage |
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its
 [refinement index](../NanoP4Spec/Refinement.lean) currently record forward
@@ -38,6 +39,11 @@ These counts are not a percentage of P4 language behavior certified.
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
 General generated-to-reference proofs are also not yet generated.
+The [recursive reverse certificate](../P4SpecTecTest/Refine/NanoReverseExists.lean)
+checks this approach on actual quoted recursive clauses. Separate
+[relation probes](../P4SpecTecTest/Refine/NanoRelation.lean) kernel-check selected
+recursive successes, ordered mismatches and exhaustion for `Type_eq` and
+`ParameterType_eq`; full-domain relation correspondence remains open.
 
 ### Coverage metadata and checked evidence
 
@@ -120,13 +126,21 @@ These limitations describe the implementation, not the intended design:
   a complete generated typed target, Lean boot/STF implementation or proof of
   all packet behavior. The shared verify helper retains upstream's full-P4
   calling convention, which does not establish Nano source-level support.
-  Checked [representation obstructions](../P4SpecTecTest/Refine/NanoTargetRepresentation.lean)
-  show that the current generated `value` cannot represent or decode raw externs.
-  Actual short/full extract continuation tests preserve the resulting receiver,
-  subsequent callee mismatch and distinct direct-handler hard error.
+  Explicit `--runtime-extern value` generation adds a runtime-only alternative
+  for raw extern callback results, preserving source quotations and membership.
+  Checked [representation contracts](../P4SpecTecTest/Refine/NanoTargetRepresentation.lean)
+  cover its codec, source packet/object separation, continuation interfaces and
+  a paired source/generated receiver failure on a bounded runtime context.
+  Actual short/full extract probes compare generated copy-in/out and receiver
+  writes with the complete canonical reference context and exact fresh counters.
+  Subsequent callee
+  mismatch and the distinct direct-handler hard error remain observable; no PACKET
+  wrapper repairs the receiver. General target composition remains open.
 - [Unhinted printing](../P4SpecTec/Refine/Print.lean) preserves output and errors
-  under canonical equality. The quote checker verifies that both decoded and
-  compiled Nano have empty print environments. General hinted-print
+  under canonical equality, through actual pure builtin dispatch and global
+  lookup under explicit guard-free, empty-hint and environment assumptions.
+  The quote checker verifies that both decoded and compiled Nano have empty
+  print environments. General hinted-print
   correspondence remains open: equal canonical values can select different
   policies through their type notes. Builtin, cast, iteration and higher-order
   proof coverage must be read from the generated exclusions.

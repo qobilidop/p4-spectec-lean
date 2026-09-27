@@ -12,7 +12,7 @@ open P4SpecTec.Codegen.Coverage
 /-- Validate compiled Nano claims and optionally explain an entry point. -/
 def runCoverageChecks (env : Environment) (args : List String) : IO Unit := do
   let report ← Check.checkFiles env "NanoP4Spec" "exports/nano-p4.al.json"
-    "NanoP4Spec/coverage.json"
+    "NanoP4Spec/coverage.json" { rawExternTypes := ["value"] }
   let count := (report.definitions.map (·.claims.length)).sum
   IO.println s!"[coverage] {report.definitions.length} definitions; {count} claims checked"
   if let some entryPoint := args.head? then
