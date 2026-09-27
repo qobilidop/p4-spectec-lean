@@ -164,4 +164,23 @@ theorem Valid.iterElement {spec externalDomain} {element element' : typ} {kind v
 #guard_msgs (whitespace := lax) in #print axioms Valid.iterElement
 #audit_axioms Valid.iterElement
 
+/-- Named source domains ignore the head identifier's source region. -/
+theorem Valid.nominalName {spec externalDomain} {name name' : id} {args : List typ} {v}
+    (same : name.it = name'.it) (valid : Valid spec externalDomain (.VarT name args) v) :
+    Valid spec externalDomain (.VarT name' args) v := by
+  cases valid with
+  | «alias» name args parameters definition instantiated v declared fields payload =>
+    exact .alias name' args parameters definition instantiated v (same ▸ declared) fields payload
+  | variant name args parameters cases constructor instantiated v tree
+      declared member shape mixop fields payload =>
+    exact .variant name' args parameters cases constructor instantiated v tree
+      (same ▸ declared) member shape mixop fields payload
+  | external name v declared payload =>
+    exact .external name' v (same ▸ declared) (same ▸ payload)
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.Valid.nominalName' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Valid.nominalName
+#audit_axioms Valid.nominalName
+
 end P4SpecTec.Refine.Representation.Source

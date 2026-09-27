@@ -207,7 +207,15 @@ Source codecs are being integrated into a separate type inventory in coverage
 schema 2. The completion denominator is unchanged; caller domains, initialization
 and primitive/container obligations stay independently tracked. Nineteen Python
 adapter tests pass, including rejection of missing, duplicate, misclassified and
-wrong-source type entries. Actual generated codec checks remain to be completed.
+wrong-source type entries. The integrated generated certificate and compiled
+coverage test subsequently passed with `--wfail` (session 89912, exit 0, 201 jobs),
+including the original 18 two-way functions, new in_set two-way certificate,
+seven atomic source codecs and fifteen exact-boundary mutations. Evidence:
+`.artifacts/n2-source-coverage-check.log`. Regeneration used relative
+`exports/nano-p4.al.json` with `--runtime-extern value` (session 74812 exit 0);
+completion metadata update (49976) and nineteen adapter tests (49449) passed.
+The local inventory has 148 checked bindings and 740 unresolved obligations,
+with 888 total. This is a focused integration verdict, not a full gate or N2 closure.
 
 #### Independent source-domain support checkpoint
 
@@ -243,8 +251,10 @@ Independent reviews, based on `feec9b6` with the specified working snapshots:
 - Astra `/root/review_oracle_refactor` reviewed container construction and delay,
   with no findings; later inversion additions received a separate read-only
   review from `/root/organize_oracles`, also no findings. The latter also reviewed
-  SourceAlias's original declaration/alias inversion. Root independently reviewed
-  the notation fork/transitivity laws and their exact source-only assumptions.
+  SourceAlias's original declaration/alias inversion. Astra separately reviewed
+  all later alias/substitution/container metadata-transport and inversion additions
+  at the final hashes below, with no findings. Root independently reviewed the
+  notation fork/transitivity laws and their exact source-only assumptions.
 - Final source snapshot hashes: Source
   `9e8ed5d313493721fc422fa02a0d6e74ef6771b3c35f2efc000ccbb91068a291`, SourceAlias
   `96c4c7ee1cb76641f66d0da34268d0f0882f1c2dfead4a6c688564664e54bce2`, SourceContainer
@@ -263,6 +273,51 @@ snapshot `74cb643cde954b776c88eae6dba2a1fe77cda1de41862e59a78a79aef23a76f8`.
 Both type and callable claims retain exact compiled theorem/axiom validation;
 source codecs bind only representation obligations. Source-domain, initialization
 and primitive obligations remain separate. No full build was repeated by reviewer.
+
+#### Continued source and caller integration
+
+Local source support now includes `SourceCodec` primitive/list/option contracts,
+`SourceVariant` constructor-domain inversion/construction, `SourceAtomic`'s
+agreement between the two independent atomic grammar interfaces, and nominal
+identifier metadata transport. Exact axiom checks and focused `--wfail` builds
+passed (sessions 48896 and 69748; final 33 jobs). These preserve strict numeric
+tags, positional fields, actual declaration membership and substitution premises.
+
+Independent read-only Astra review by `/root/review_oracle_refactor` found no
+issue in SourceCodec SHA-256
+`dfd5c85a07c6243d7f9fa24ec56ba12838eef07c436d0bc9b63f2d3ef299571e` and SourceVariant
+`9cfa941a00266650626efc355a135dc20571c8bfd6b3dfeb219ba3081db42692`.
+Evidence: `.artifacts/n2-reverse/source-codec-variant-review.json`.
+Astra `/root/organize_oracles` separately inspected SourceAtomic and nominal
+metadata transport, with no findings. Limits: read-only inspection, no independent
+build and no whole-Nano representation claim.
+
+Text-alias codec generation binds both named encoder and named decoder explicitly.
+The synthetic alias-chain test distinguishes captured fuel layers and rejects
+cycles, unknown declarations and runtime-extended aliases. Independent read-only
+Sol review found no issue in the three-file emitter/test snapshot SHA-256
+`b2646d420fe817d04c8254e26e1bdb782fcb5d1b8fa5df3f489ff9e9620a4035`.
+Focused emitter/test checks passed; the four actual generated alias sidecars and
+the generated dom_map/codom_map two-way sidecars passed together with `--wfail`
+(session 97707, 117 jobs). Relative-input regeneration wrote 91 files (35911,
+exit 0). The exact aggregate coverage checker has not yet validated this expansion.
+
+Actual dom_map plus add_var_e forward/reverse composition passed all four audits
+in 41.045s, using production in_set/add_map contracts and transitive K/V freshness.
+The full Type_ok forward closure passed in 71.693s, and typeIR_of_typeDefIR reverse
+passed in 37.600s. These are focused probes; conservative production caller
+eligibility and the remaining reverse closure are still being integrated.
+
+The complete TypeIR SCC has source encoding-validity and unconditional stable
+source-decoder sufficiency against the full actual quotation, at arbitrary depth
+(combined probe 29078, exit 0, no Lean warnings). All eleven actual TypeIR decoder
+constructor soundness lemmas also pass, with exact axiom audits (44406, exit 0).
+The full recursive soundness assembly and generated production bindings remain
+open. At least 92 source families occur in the original eighteen input-type
+closures; this is a lower bound that excludes separately collected result types.
+Generic emission must cover those dependencies, including recursive and legally
+instantiated containers, rather than treating the TypeIR probe as N2 completion.
+No full gate or publication is claimed on this evolving continuation.
 
 #### N2 checkpoint review and validation
 

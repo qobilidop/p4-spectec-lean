@@ -71,8 +71,8 @@ issue in the equality/freshness implementation. The topic note records scope and
 review limits. Source representation inventory/schema integration is in progress;
 no additional completion binding is claimed before production codec validation.
 
-The substitution change is committed locally as `feec9b6`. Independent finite
-source grammar, alias/container construction and inversion, notation laws and
+Local commits are `feec9b6` (substitution bounds) and `996dc22` (independent
+source-domain support). Finite source grammar, alias/container construction and inversion, notation laws and
 decoder-layer fuel composition now pass focused warning-as-error checks. Their
 source predicates do not depend on generated encoders or decoder success.
 The topic note records independent reviews and exact snapshot hashes.
@@ -82,8 +82,19 @@ preset. Seven atomic source codecs pass; the complete TypeIR group now has
 encoding-validity evidence against the actual full quotation, while its decoder
 completeness is still active. Actual `in_set` passes both directions; `dom_map`
 and `add_var_e` pass forward in focused probes. Production schema-2 and `in_set`
-regeneration succeeded, but integrated compiled-coverage validation remains due.
-Type_eq/ParameterType_eq, Default and reverse iteration proofs remain active.
+regeneration and integrated compiled-coverage validation passed (`--wfail`,
+session 89912, 201 jobs), including fifteen exact-boundary mutations. The local
+inventory has 148 compiled claim bindings and 740 unresolved obligations; the
+888-obligation denominator is unchanged. Nineteen Python adapter tests pass.
+Four generated text-alias codecs and dom_map/codom_map in both directions now
+pass focused production checks. Actual add_var_e passes both directions in a
+composed probe; Type_ok's whole forward closure and typeIR_of_typeDefIR reverse
+pass. Source constructor and primitive/container support passed independent review
+and focused checks. TypeIR has unbounded source-decoder sufficiency; all eleven
+constructor soundness lemmas pass, with recursive assembly and general emission
+still active. At least 92 families occur in the original eighteen input-type
+closures; their production codecs remain required. Type_eq/ParameterType_eq,
+Type_ok reverse, Default and call-preservation integration remain active.
 No full gate has been run on this evolving continuation and it has not been pushed.
 
 ## Next step and remaining N2 obligations

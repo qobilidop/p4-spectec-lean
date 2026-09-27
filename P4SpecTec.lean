@@ -87,9 +87,12 @@ import P4SpecTec.Refine.Representation.Delay
 import P4SpecTec.Refine.Representation.Equality
 import P4SpecTec.Refine.Representation.Source
 import P4SpecTec.Refine.Representation.SourceAlias
+import P4SpecTec.Refine.Representation.SourceAtomic
+import P4SpecTec.Refine.Representation.SourceCodec
 import P4SpecTec.Refine.Representation.SourceContainer
 import P4SpecTec.Refine.Representation.SourceMixfix
 import P4SpecTec.Refine.Representation.SourceSubst
+import P4SpecTec.Refine.Representation.SourceVariant
 import P4SpecTec.Refine.StateCalc
 import P4SpecTec.Refine.StateInterp
 import P4SpecTec.Refine.StateNormalize
