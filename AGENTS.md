@@ -177,6 +177,11 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   including `snake_case`, so the side-by-side audit holds. Our own code
   (codegen, prelude, P4Lib) follows Lean style: `lowerCamelCase` for
   definitions and theorems, `UpperCamelCase` for types and namespaces.
+- **Ordering:** preserve behavior-sensitive and upstream/generated order first.
+  Otherwise group related configuration entries and aggregate imports by purpose
+  or layer, then alphabetize equivalent peers. Use dependency/workflow order when
+  it explains the structure better. Keep the rule obvious from the grouping and
+  short comments; avoid incidental append order or a new sorting framework.
 - **Placement:** use module hierarchies within the current Lake package by
   default. Add a library for a concrete artifact/build boundary, not an empty
   future placeholder. Match Lean unit-test paths to their owning subsystem;

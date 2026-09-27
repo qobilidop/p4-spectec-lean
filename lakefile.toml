@@ -21,98 +21,83 @@ name = "batteries"
 git = "https://github.com/leanprover-community/batteries"
 rev = "v4.34.0"
 
-# Core: IL/AL syntax, AL semantics, prelude, codegen, validation tactics.
+# Libraries: core semantics, generated model, downstream examples, then tests.
 [[lean_lib]]
 name = "P4SpecTec"
 
-# Test-only modules: mirror checks, prelude vs builtins, decode round-trips,
-# #guard_msgs files. Every module under P4SpecTecTest/ is built by `lake test`.
+[[lean_lib]]
+name = "NanoP4Spec"
+
+[[lean_lib]]
+name = "ExampleProofs"
+
 [[lean_lib]]
 name = "P4SpecTecTest"
 globs = ["P4SpecTecTest", "P4SpecTecTest.+"]
 leanOptions = { linter.missingDocs = false }
 
-# Pilot: the Nano-P4 specification, generated from exports/nano-p4.al.json.
-[[lean_lib]]
-name = "NanoP4Spec"
-
-# Downstream verification examples; not a reusable semantics/proof library.
-[[lean_lib]]
-name = "ExampleProofs"
-
-# The compiler: reads AL exports and writes one generated .lean module per
-# upstream spec file. `--update` refreshes committed output; CI diffs it.
+# Generation, source identity, compiled certification and capability inventory.
 [[lean_exe]]
 name = "p4spectec-gen"
 root = "Tools.Generate"
 
-# The Lean side of the differential harness: decode booted Nano-P4 programs
-# and run the generated typing relation on them (P4SpecTecTest/Oracle/Nano/Replay/replay.py drives it).
-[[lean_exe]]
-name = "nano-p4-run"
-root = "P4SpecTecTest.Oracle.Nano.Replay.Run.Main"
-
-# The second leg: the Lean port of the AL interpreter on the same programs.
-[[lean_exe]]
-name = "nano-p4-interp"
-root = "P4SpecTecTest.Oracle.Nano.Replay.Interp.Main"
-
-# Full-P4 interpreter replay against the pinned typed-value oracle.
-[[lean_exe]]
-name = "p4-interp-replay"
-root = "P4SpecTecTest.Oracle.P4.Replay.Main"
-
-# Corpus-v2 spec-once streaming worker; no corpus execution in the ordinary gate.
-[[lean_exe]]
-name = "p4-corpus-worker"
-root = "P4SpecTecTest.Oracle.P4.Corpus.Main"
-
-# The compiled quoted AST must match the current export, modulo regions/hints.
 [[lean_exe]]
 name = "check-quotes"
 root = "Tools.CheckQuotes"
 
-# Fresh coverage metadata must describe the compiled theorem types and axioms.
 [[lean_exe]]
 name = "check-coverage"
 root = "Tools.CheckCoverage"
 
-# Read-only emission probes and dependency census, including unsupported specs.
 [[lean_exe]]
 name = "p4spectec-census"
 root = "Tools.Census"
 
-# Exact print-hint outputs observed from the pinned upstream printer.
+# Shared runtime observations against pinned upstream oracles.
 [[lean_exe]]
 name = "check-print"
 root = "P4SpecTecTest.Oracle.Print.Main"
 
-# Byte-level text builtin outputs observed from pinned upstream OCaml.
-[[lean_exe]]
-name = "check-text-builtins"
-root = "P4SpecTecTest.Oracle.Text.Main"
-
-# Stateful AL interpreter observations from the pinned upstream revision.
 [[lean_exe]]
 name = "check-state-oracle"
 root = "P4SpecTecTest.Oracle.State.Main"
 
-# Bounded packet data and raw dynamic target observations at the exact upstream pin.
+[[lean_exe]]
+name = "check-text-builtins"
+root = "P4SpecTecTest.Oracle.Text.Main"
+
+# Paired Nano replay: generated typing followed by the AL reference interpreter.
+[[lean_exe]]
+name = "nano-p4-run"
+root = "P4SpecTecTest.Oracle.Nano.Replay.Run.Main"
+
+[[lean_exe]]
+name = "nano-p4-interp"
+root = "P4SpecTecTest.Oracle.Nano.Replay.Interp.Main"
+
+# NanoSwitch operations precede packet-relation and driver composition.
 [[lean_exe]]
 name = "check-nano-target"
 root = "P4SpecTecTest.Oracle.NanoSwitch.Target.Main"
 
-# Actual AL packet-driving relation replay with the bounded dynamic Nano target.
+[[lean_exe]]
+name = "check-nano-verify"
+root = "P4SpecTecTest.Oracle.NanoSwitch.Verify.Main"
+
 [[lean_exe]]
 name = "check-nano-packet"
 root = "P4SpecTecTest.Oracle.NanoSwitch.Packets.Main"
 
-# Original dynamic Nano driver observations, including failure post-state.
 [[lean_exe]]
 name = "check-nano-driver"
 root = "P4SpecTecTest.Oracle.NanoSwitch.Driver.Main"
 
-# Shared verify and Nano dispatch; Nano source-level verify remains unreachable.
+# Bounded full-P4 replay tool; the gate builds it and checks its harness contracts.
 [[lean_exe]]
-name = "check-nano-verify"
-root = "P4SpecTecTest.Oracle.NanoSwitch.Verify.Main"
+name = "p4-interp-replay"
+root = "P4SpecTecTest.Oracle.P4.Replay.Main"
+
+# Corpus campaign worker; no corpus execution in the ordinary gate.
+[[lean_exe]]
+name = "p4-corpus-worker"
+root = "P4SpecTecTest.Oracle.P4.Corpus.Main"

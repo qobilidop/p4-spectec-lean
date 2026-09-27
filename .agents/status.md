@@ -8,9 +8,12 @@ The user approved the [code/test organization refactor](notes/code-organization.
 and explicitly authorized execution. It takes priority over Nano implementation:
 concrete library boundaries, nearby related code/tests, shared harness plumbing,
 responsibility-based module splits and evidence-backed test consolidation.
-The refactor is implemented and independently reviewed; the full local gate
-passed with exit 0 (session 65742, no skips). Nano proof implementation remains
-incomplete and is the next work item.
+The refactor is published as `ad1ac33`; its full local gate passed with exit 0
+(session 65742, no skips), and exact-head CI 36280484313 succeeded. The user
+additionally authorized a bounded configuration/import-ordering cleanup while CI ran.
+The follow-up passed independent Sol review and the full local gate (session
+61425, exit 0, no skips); publication CI remains to be verified. The user requested
+`tend-repo` after committing it. Nano proof implementation remains paused and incomplete.
 
 Autonomous implementation of the [Nano certification plan](notes/nano-certification.md)
 is approved, with both core and target stages required by
@@ -33,8 +36,8 @@ handled proof work and independent review; root integrated the changes.
   log `.artifacts/code-organization-final-gate.log`, session 65742. All 78
   programs agree on both differential legs. Completion remains 350 declarations,
   888 obligations, 95 bindings and 793 unresolved. No full-P4 campaign was run.
-  Publication verification must match the resulting checkpoint SHA in
-  [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/workflows/ci.yml).
+  Exact-head [CI 36280484313](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36280484313)
+  succeeded for `ad1ac3310e034494fa05bdbcdac395b5053860de`.
 
 - `35bda29`: complete Nano obligation and pinned corpus inventories. There are
   350 declarations, 888 obligations, 95 existing compiled bindings and 793 open
@@ -65,8 +68,9 @@ and [generic coverage increment](notes/coverage.md) remain complete.
 
 ## Immediate next step
 
-The organization refactor is complete locally. Verify successful main CI for
-the checkpoint revision before resuming the Nano proof work below.
+Commit the validated ordering cleanup, then perform the requested `tend-repo`
+consistency, compaction and learning pass. Verify publication CI. Keep Nano proof
+work paused during maintenance; its next implementation step is below.
 
 Finish the actual exists_ reverse induction from local unpushed branch
 `wip/nano-reverse`, commit `efd626c7cb40004f8d6725f2b29172d09ecd8dbe`.

@@ -1,8 +1,8 @@
 # Code and test organization
 
-Completed locally, 2026-09-26: user-approved refactor before resuming Nano
-certification. Retained for review and verification evidence; publication CI
-must match the resulting checkpoint revision.
+Published and verified, 2026-09-26: user-approved refactor before resuming Nano
+certification. Retained for review and verification evidence; the bounded
+configuration-ordering follow-up below has also passed local validation.
 
 ## Design constraints
 
@@ -38,7 +38,7 @@ part of the refactor. Broader full-P4 work and the Nano reverse WIP remain pause
 
 Initial tree: `5687b0d13fa048fb989713975662bdcaac9fd2f7`, only the expected
 upstream exporter patch dirty. Sol owns bounded placement and checker tasks;
-root integrates. Independent reviews are complete; final full-gate validation is in progress.
+root integrates. Independent reviews and full-gate validation are complete.
 
 Test removal justified so far: `P4SpecTecTest/Smoke.lean` only checks `1 + 1`
 and the standard-library `Nat.zero_add` axiom set; normal elaboration and the
@@ -125,8 +125,8 @@ are not claims that re-elaboration or an entire unsupported full-P4 model passed
 Initial integration gate session 95117 exited 1: the completion check caught a
 changed logical corpus path caused by relocation. Restored the committed corpus
 ID while resolving actual source reads through oracle_paths; no inventory or
-fixture regeneration. A settled-tree full gate is required after this fix and
-the final capture/state-certificate placement changes. No publication yet.
+fixture regeneration. The settled-tree gate below includes this fix and the
+final capture/state-certificate placement changes.
 
 Settled-tree gate: `nix develop -c bash scripts/check.sh`, session 65742,
 **exit 0**, no skips; `.artifacts/code-organization-final-gate.log`. Both Nano
@@ -134,5 +134,38 @@ legs agree on all 78 programs (48 compare outputs); all mutation/oracle checks,
 fresh coverage/quotation checks, source completion accounting and full-P4 census
 pass. Generated files, fixture payloads and coverage counts remain unchanged.
 A final git whitespace check removed one extra EOF blank line from oracle_build;
-no executable behavior changed after review. Check publication CI for this
-checkpoint before resuming Nano work.
+no executable behavior changed after review. Published revision
+`ad1ac3310e034494fa05bdbcdac395b5053860de` passed exact-head
+[CI 36280484313](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36280484313)
+(watch session 49961, exit 0).
+
+## Configuration ordering follow-up
+
+Active, explicitly authorized while the published refactor's CI runs. Apply
+semantic/upstream order first, then logical groups and alphabetical peers to
+handwritten configuration and aggregate import lists. Keep lockfiles, generated
+sources, mirrored definitions, linker dependency sequences and CI execution
+order intact. Sol owns the bounded configuration/facade edits; root integrates,
+records independent review and runs the full gate. No sorting framework or new
+regression tests are needed for this membership-preserving cleanup.
+
+Independent read-only review: Sol (`enforce_library_layers`), against
+`ad1ac3310e034494fa05bdbcdac395b5053860de`, no outstanding findings. The six-file
+configuration/import diff SHA-256 is
+`076e98772b44d06f65c57a47605179039504f24d760a7d777195bb489d19d9e4`.
+Lake values and target membership, all 131 aggregate imports, ignore patterns,
+Nix package/system membership and the pinned OCaml dependency sequence are
+preserved. The reviewer also checked the AGENTS ordering rule and final comment
+and spacing fixes. This was an AI-agent review, not human review; no builds were
+run by the reviewer. Import initialization/instance order is covered by root's
+full gate, not by the membership comparison alone.
+
+Author checks passed: parsed Lake comparison, aggregate import comparison,
+ignore-pattern comparison, Nix parsing and evaluation of both shells on all four
+systems. CI sequencing, lockfiles, generated output and ExampleProofs' existing
+source/certificate/walkthrough order were left intact. Full local gate
+`nix develop -c bash scripts/check.sh`, session 61425, passed with actual exit 0,
+no skips; log `.artifacts/config-ordering-gate.log`. Both differential legs pass
+all 78 programs; generated output and completion counts remain unchanged.
+Only working-note metadata changed after the gate; text/whitespace checks were
+rerun. Exact-head publication CI remains required.

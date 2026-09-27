@@ -5,7 +5,7 @@
 
   outputs = { self, nixpkgs }:
     let
-      systems = [ "aarch64-darwin" "x86_64-darwin" "x86_64-linux" "aarch64-linux" ];
+      systems = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
       forAll = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
@@ -24,6 +24,7 @@
             findlib
             menhir
             menhirLib
+
             bignum
             core
             core_unix
@@ -52,11 +53,13 @@
           # exports/. Kept separate because only that step needs OCaml.
           upstream = pkgs.mkShell {
             packages = upstreamPackages ++ (with pkgs; [
-              gmp
-              pkg-config
-              gnumake
+              # Build and replay tools, then native libraries.
               git
+              gnumake
+              pkg-config
               python3
+
+              gmp
             ]);
           };
         });

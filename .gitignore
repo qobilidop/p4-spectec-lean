@@ -10,15 +10,15 @@ result
 .artifacts/
 
 # Working inputs; lossless gzip snapshots and checksums are committed.
-/exports/p4.al.json
 /exports/nano-p4.al.json
+/exports/p4.al.json
 
 # Python
-__pycache__/
 *.pyc
 .venv/
+__pycache__/
 
 # Editors
-.vscode/
-.idea/
 .DS_Store
+.idea/
+.vscode/
