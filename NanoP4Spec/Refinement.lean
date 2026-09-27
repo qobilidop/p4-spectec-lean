@@ -286,6 +286,8 @@ import NanoP4Spec.Refinement.bxor
 import NanoP4Spec.Refinement.SourceDomain.bxor
 import NanoP4Spec.Refinement.bor
 import NanoP4Spec.Refinement.SourceDomain.bor
+import NanoP4Spec.Refinement.un_op
+import NanoP4Spec.Refinement.SourceEntry.un_op
 import NanoP4Spec.Refinement.CallAdmission.un_op
 import NanoP4Spec.Refinement.Producer.bin_eq
 import NanoP4Spec.Refinement.bits_to_int_unsigned
@@ -543,8 +545,8 @@ recursion group under `Refinement/`, and the definitions without a theorem, with
 the reason. Generated.
 -/
 
--- forward refinement theorems: 67 of 153 definitions
--- reverse realization theorems: 67 of 153 definitions
+-- forward refinement theorems: 68 of 153 definitions
+-- reverse realization theorems: 68 of 153 definitions
 -- builtin dispatch contracts: 26 of 26 definitions
 
 -- no refinement theorem: ite
@@ -553,22 +555,17 @@ the reason. Generated.
 -- no refinement theorem: repeat_
     --   recursive function registration-freshness proof is not implemented
 
--- no refinement theorem: un_op
-    --   numeric function coercion composition is not implemented
-
 -- no refinement theorem: bin_eq
     --   iterated premise
 
 -- no refinement theorem: bin_op
-    --   numeric function coercion composition is not implemented
     --   calls bin_eq, which has no theorem
 
 -- no refinement theorem: write_value_from_bits'
-    --   numeric function coercion composition is not implemented
+    --   slicing
 
 -- no refinement theorem: write_value_fields_from_bits'
-    --   group member write_value_from_bits': numeric function coercion composition is not
-    --   implemented
+    --   group member write_value_from_bits': slicing
 
 -- no refinement theorem: write_value_from_bits
     --   calls write_value_from_bits', which has no theorem
@@ -748,7 +745,6 @@ the reason. Generated.
 
 -- no refinement theorem: Expr_eval
     --   iterated premise
-    --   calls un_op, which has no theorem
     --   calls bin_op, which has no theorem
 
 -- no refinement theorem: Lvalue_eval

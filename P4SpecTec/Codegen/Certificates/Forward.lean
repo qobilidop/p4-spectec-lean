@@ -360,15 +360,6 @@ def unusedDowncastBinding (d : Lang.Al.def) : Bool :=
     clauses.any clauseUnsupported || alternative.any clauseUnsupported
   | _ => false
 
-/-- Numeric function coercions need additional expression composition support.
-The checked relation pattern boundary is retained for the actual scalar subtype fragment. -/
-partial def numericCast (e : exp) : Bool :=
-  let direct := match e.it with
-    | .UpCastE target _ | .DownCastE target _ =>
-      match target.it with | .NumT _ => true | _ => false
-    | _ => false
-  direct || (pairsOfExp.children e).any numericCast
-
 /-- Why `d` is outside the fragment, if it is. -/
 def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
     (certifiedBuiltins : List String := []) : Option String := Id.run do
@@ -382,9 +373,6 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
   let columns := functionListColumns env d
   if recursiveFunction env d && !(registrationNames env d).isEmpty then
     return some "recursive function registration-freshness proof is not implemented"
-  if let .FuncDecD .. := d.it then
-    if (expsOfDef d).any numericCast && !columns then
-      return some "numeric function coercion composition is not implemented"
   if unusedDowncastBinding d then
     return some "unused downcast binding composition is not implemented"
   if requiresTypeRulesOf d && (iterationRelationOf env d).isSome then

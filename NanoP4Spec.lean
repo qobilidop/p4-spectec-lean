@@ -313,6 +313,8 @@ import NanoP4Spec.Refinement.bxor
 import NanoP4Spec.Refinement.SourceDomain.bxor
 import NanoP4Spec.Refinement.bor
 import NanoP4Spec.Refinement.SourceDomain.bor
+import NanoP4Spec.Refinement.un_op
+import NanoP4Spec.Refinement.SourceEntry.un_op
 import NanoP4Spec.Refinement.CallAdmission.un_op
 import NanoP4Spec.Refinement.Producer.bin_eq
 import NanoP4Spec.Refinement.bits_to_int_unsigned

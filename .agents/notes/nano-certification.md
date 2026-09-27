@@ -28,7 +28,7 @@ composition remain separate acceptance stages.
   source value. Recursive/nested families use source derivations and actual
   carrier induction; parameter codecs and dictionaries remain explicit.
 - At N2 closure both correspondence directions covered 39 of 153 bodied declarations
-  (67 after the first N3 checkpoint below). The strict
+  (68 after the N3 work below). The strict
   N2 exit requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and
   Var_init, with their complete 30-definition dependency/SCC closure. It also
   requires source input coverage, successful source outputs and every actual
@@ -86,8 +86,12 @@ Neither entry point is closed yet. Remaining direct blockers:
 | Closure | Blocker | State |
 |---|---|---|
 | Program_load | `Decl_load`: literal list indexing (`argument*[0]`) | Admitting `IdxE` on a list with a numeric literal emits exactly `Decl_load`, `Decls_load`, `Program_load`; `Decl_load.refines` then exceeds 4M heartbeats (seven rule paths over `declaration`). Profile before retrying; semantics agree (out of range is `Fail.err` on both sides). |
-| Expr_eval | `Expr_eval`, `bin_eq`: iterated premises (`(value_field nameIR_field ';' = fieldValue)*`, `forall_` over pairs) | Not started. |
-| Expr_eval | `un_op`, `bin_op`: numeric function coercions | Not started. |
+| Expr_eval | `bin_eq` (hence `bin_op`): two-column extraction premises and iterated recursive calls over zipped columns | Local WIP branch `n3-expr-eval` (`b451d9e`) admits the shape; both extraction premises prove, then the forward proof stalls where a fuel split inside the iterated calls leaves `List.mapM (fun _ => diverge) (zip …)` against the generated traversal. Needs ordered-traversal pairing over zipped extracted columns with the recursion hypothesis. |
+| Expr_eval | `Expr_eval`: the same extraction premise, then an iterated pair into `assoc_` | Waits on `bin_op`; untested. |
+
+`un_op` is certified: the numeric-coercion exclusion was stale, and the current
+tactics prove both directions (68 of 153). Removing it exposed slicing as the
+actual blocker of the `write_value_from_bits'` group.
 
 Reassessment: the 4–8-hour checkpoint budget was consumed reaching 67/153 with
 both entry points still open, so N3's 16–32-hour range is optimistic; treat

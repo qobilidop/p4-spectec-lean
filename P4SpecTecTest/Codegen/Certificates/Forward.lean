@@ -189,7 +189,10 @@ private def supportedRecursive : List String :=
   some (some "unused downcast binding composition is not implemented")
 #guard Validate.unusedDowncastBinding NanoP4Spec.«$is_object_typeIR».al
 #guard (Validate.unsupported env [] NanoP4Spec.«$is_object_typeIR».al).isSome
-#guard (Validate.unsupported env [] NanoP4Spec.«$un_op».al ["pow2", "int_to_bitstr"]).isSome
+-- Numeric casts compose like other expressions; only an uncertified `bitstr_to_int` blocks.
+#guard (Validate.unsupported env [] NanoP4Spec.«$un_op».al ["pow2", "int_to_bitstr"]) ==
+  some "calls a builtin"
+#guard (Validate.unsupported env [] NanoP4Spec.«$un_op».al builtins).isNone
 #guard !Validate.unusedDowncastBinding NanoP4Spec.«$typeIR_of_typeDefIR».al
 #guard !Validate.unusedDowncastBinding NanoP4Spec.Type_ok.al
 
