@@ -106,28 +106,84 @@ def factHyps : TacticM (List Name) := do
         if isFact then out := decl.userName :: out
     pure out.reverse
 
+/-- Global simplifier rules prepared for one tactic invocation, without local facts. -/
+structure PreparedSimpRules where
+  /-- The global lemma names used to prepare the context. -/
+  lemmas : Array Name
+  /-- The simproc names used to prepare the context. -/
+  procs : Array Name
+  /-- Lean's elaborated simplifier context and procedures. -/
+  result : MkSimpContextResult
+
 /-- The names of the whole simp set, once per tactic call. -/
 structure SimpSet where
   /-- The lemmas and definitions. -/
   lemmas : Array Name
   /-- The simprocs. -/
   procs : Array Name
+  /-- Optional global-rule preparation; never contains the changing local facts. -/
+  prepared? : Option PreparedSimpRules := none
+
+/-- Construct the explicit simp syntax used by both preparation and the fallback path. -/
+def simpSyntax (lemmas procs : Array Name) (hyp? : Option Name := none) :
+    TacticM (TSyntax `tactic) := do
+  let args ← lemmas.mapM fun n => `(Lean.Parser.Tactic.simpLemma| $(mkIdent n):ident)
+  let procs ← procs.mapM fun n => `(Lean.Parser.Tactic.simpLemma| ↓ $(mkIdent n):ident)
+  let all : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (args ++ procs)
+  match hyp? with
+  | none => `(tactic| simp only [$all,*])
+  | some h => `(tactic| simp only [$all,*] at $(mkIdent h):ident)
+
+/-- Elaborate the fixed global rules once, before the tactic changes its local context.
+The cached names are checked at each use, so extending a prepared set cannot omit rules. -/
+def prepareSimpSet (s : SimpSet) : TacticM SimpSet := withMainContext do
+  let result ← mkSimpContext (← simpSyntax s.lemmas s.procs) (eraseLocal := false)
+  for (_, arg) in result.simpArgs do
+    if let .addLetToUnfold _ := arg then
+      throwError "refine_al: prepared rules must not contain local declarations"
+    for thm in arg.simpTheorems do
+      if thm.proof.hasFVar || thm.proof.hasMVar then
+        throwError "refine_al: prepared rules must not contain local declarations"
+  pure { s with prepared? := some { lemmas := s.lemmas, procs := s.procs, result } }
+
+/-- Normalize with fixed global rules and freshly elaborated facts for this goal.
+Only rule preparation is reused: simplification results and local assumptions are not cached. -/
+def runNormalization (s : SimpSet) (facts : List Name) (hyp? : Option Name := none) :
+    TacticM Unit := withMainContext do
+  if let some prepared := s.prepared? then
+    if prepared.lemmas == s.lemmas && prepared.procs == s.procs then
+      let base := prepared.result
+      let stx ← simpSyntax facts.toArray #[]
+      let localRules ← elabSimpArgs stx.raw[4] base.ctx base.simprocs false .simp
+      let r : MkSimpContextResult := { base with
+        ctx := localRules.ctx, simprocs := localRules.simprocs
+        simpArgs := base.simpArgs ++ localRules.simpArgs }
+      let loc := match hyp? with
+        | none => Location.targets #[] true
+        | some h => Location.targets #[mkIdent h] false
+      withSimpDiagnostics do
+        let stats ← r.dischargeWrapper.with fun discharge? =>
+          withLoopChecking r (simpLocation r.ctx r.simprocs discharge? loc)
+        if tactic.simp.trace.get (← getOptions) then
+          let traceStx ← simpSyntax (s.lemmas ++ facts.toArray) s.procs hyp?
+          traceSimpCall traceStx stats.usedTheorems
+        else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then
+          withRef stx do warnUnusedSimpArgs r.simpArgs stats.usedTheorems
+        pure stats.diag
+      return
+  evalTactic (← simpSyntax (s.lemmas ++ facts.toArray) s.procs hyp?)
 
 /-- Run `simp only` with the set and the facts at the goal; `false` when
 nothing changed. -/
 def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
   if (← getGoals).isEmpty then return false
   let facts ← factHyps
-  let names := s.lemmas ++ facts.toArray
-  let args ← names.mapM fun n => `(Lean.Parser.Tactic.simpLemma| $(mkIdent n):ident)
-  let procs ← s.procs.mapM fun n => `(Lean.Parser.Tactic.simpLemma| ↓ $(mkIdent n):ident)
-  let all : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (args ++ procs)
-  let s ← saveState
+  let saved ← saveState
   try
-    evalTactic (← `(tactic| simp only [$all,*]))
+    runNormalization s facts
     pure true
   catch e =>
-    s.restore
+    saved.restore
     let msg := e.toMessageData
     unless (← msg.toString).startsWith "simp made no progress" do
       traceStep m!"normalize failed: {msg}"
@@ -137,16 +193,12 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
 def normalizeAt (s : SimpSet) (h : Name) : TacticM Bool := timed "normalizeAt" do
   if (← getGoals).isEmpty then return false
   let facts := (← factHyps).filter (· != h)
-  let names := s.lemmas ++ facts.toArray
-  let args ← names.mapM fun n => `(Lean.Parser.Tactic.simpLemma| $(mkIdent n):ident)
-  let procs ← s.procs.mapM fun n => `(Lean.Parser.Tactic.simpLemma| ↓ $(mkIdent n):ident)
-  let all : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (args ++ procs)
-  let s ← saveState
+  let saved ← saveState
   try
-    evalTactic (← `(tactic| simp only [$all,*] at $(mkIdent h):ident))
+    runNormalization s facts h
     pure true
   catch e =>
-    s.restore
+    saved.restore
     let msg := e.toMessageData
     unless (← msg.toString).startsWith "simp made no progress" do
       traceStep m!"normalize at {h} failed: {msg}"

@@ -31,6 +31,8 @@ import P4SpecTecTest.Refine.StateRules
 
 import P4SpecTecTest.Runtime.Type
 
+import P4SpecTecTest.Tactic.Refine
+
 import P4SpecTecTest.Util.ByteText
 
 /-!

@@ -577,7 +577,7 @@ def refineAl (s : SimpSet) : TacticM Unit := do
 elab "refine_al" : tactic => do
   let s ← simpSet
   -- no error recovery: a failing step must fail the proof, not admit a goal
-  try withoutRecover (refineAl s)
+  try withoutRecover do refineAl (← prepareSimpSet s)
   catch e =>
     throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
 

@@ -131,3 +131,46 @@ This run rebuilt certificates, unit tests and downstream examples, so its total
 is not a warm-gate comparison. Log: `.artifacts/ci-census-tactic-gate.log`.
 The two independently reviewed source changes will be committed separately and
 published together at the fully validated combined revision.
+
+## Refinement rule preparation (under integration)
+
+Astra `review_oracle_refactor` profiled original generated proof files. More than
+80% of elapsed time was spent normalizing goals/hypotheses; the large fixed global
+simp set was elaborated at every normalization. The implementation prepares those
+rules once per `refine_al` call, freshly elaborates local facts per goal and leaves
+simplification results uncached. Changed rule lists fall back to ordinary simp
+elaboration, as does the existing unprepared StateRefine path. Preparation rejects
+local or unresolved rule expressions.
+
+Matching original-file `lake env lean -Drefine_al.trace=true` runs, in seconds:
+
+| Generated certificate | Before | After |
+|---|---:|---:|
+| split_dataplane_parameters | 63.367 | 18.890 |
+| directionless_trailing_p | 55.060 | 11.323 |
+| update_fieldValue | 45.640 | 10.112 |
+
+All three original proofs and their existing axiom audits passed; no generated
+file changed. These are serial direct Lean runs with dependency artifacts already
+built, not clean build or kernel-only measurements. Author checks also passed for
+tactic/StateRefine warning-free builds, StateForward tests and five new regressions:
+changed rule lists, opposing sibling facts, hypothesis self-exclusion, local-rule
+rejection and no-progress rollback. Root wires the regression module into lake test.
+
+Root's independent review compares the implementation against pinned Lean's
+`mkSimpContext`, `elabSimpArgs`, `simpLocation` and `evalSimp`. It found a diagnostic
+fidelity issue: traced hypothesis normalization omitted its location. The author
+corrected it and added an exact trace regression; proof semantics were unaffected.
+Root re-reviewed the fix: no outstanding findings. Six focused regressions now
+pass. Final three-file content digest (ordered path + NUL + bytes, SHA-256):
+`6bbe5dec5f49e799d5d260944677cfbb79c2a5de545e6a8ca8c787ebe5c3f6d1`. Review is independent of authoring; full-gate
+validation remains the integrator's next check.
+
+
+Integration gate 63747 above covers the final tactic code including its trace
+correction and all six regressions. All 18 forward certificates rebuilt with
+unchanged axiom audits. Library/certificate build 26s, unit tests 36s and downstream
+examples 27s were followed by passing runtime replay, mutations and census.
+The mutation stage fell from 88s to 24s locally without any runner change.
+StateForward's unprepared stateful path still takes 34s in the unit-test build;
+preparing its completed global rules is the next measured experiment.

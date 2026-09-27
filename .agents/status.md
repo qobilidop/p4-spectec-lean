@@ -36,8 +36,11 @@ Nano proof implementation and broader full-P4 M3 remain paused during this work.
   36283667100 passed. The graph-based census optimization passed independent
   Sol review and preserves byte-identical reports; matching native runs improved
   from 83–84s to 14–15s. Combined local gate 63747 passed, actual exit 0, no skips,
-  including the independently reviewed tactic optimization being committed next.
-  The paired changes will be pushed together after recording the final checkpoint.
+  including the independently reviewed tactic optimization. Census change
+  `859e8aa` and per-invocation global simp preparation are published together.
+  Three original generated proof runs improve 3–5x; the mutation stage improves
+  from 88s to 24s without removing checks. Next measure prepared StateRefine rules
+  and the remaining warm-gate costs; preserve all existing certification coverage.
 
 The [Nano plan and evidence](notes/nano-certification.md) owns N0/N1 details.
 N0 is complete; N1 is incomplete. Current coverage: 350 declarations,
