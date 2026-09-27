@@ -21,6 +21,11 @@ import P4SpecTecTest.Lang.Hints.Alter
 
 import P4SpecTecTest.Prelude.StateEval
 
+import P4SpecTecTest.Refine.Builtin.List
+import P4SpecTecTest.Refine.Builtin.Map
+import P4SpecTecTest.Refine.Builtin.Numeric
+import P4SpecTecTest.Refine.Builtin.Set
+import P4SpecTecTest.Refine.Builtin.Text
 import P4SpecTecTest.Refine.GeneratedState
 import P4SpecTecTest.Refine.NanoRelation
 import P4SpecTecTest.Refine.NanoReverseExists

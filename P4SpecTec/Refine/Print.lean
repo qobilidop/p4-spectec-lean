@@ -1,4 +1,4 @@
-import P4SpecTec.Refine.Environment
+import P4SpecTec.Refine.Builtin.Invoke
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Value
 import P4SpecTec.Interface.P4.Unparse
@@ -142,14 +142,9 @@ theorem invokePrintRunOfRel {α : Type} [Prelude.ToValue α] {v : value} {x : α
       (Util.Source.mkPhrase "print_") targs [v]).run =
       (Prelude.Eval.err? ((printWithHints [] (Prelude.toValue x)).toOption.map
         ByteText.ofString)).run.map (Except.map Runtime.Value.Make.text) := by
-  simp only [Interp_al.Interp.invoke_func, traced_eq, hfind,
-    check_func_inputs_off hguard]
-  cases internal <;>
-    simp only [Bool.not_false, Bool.not_true, Bool.false_eq_true, ite_false, ite_true,
-      Interp_al.Effects.liftPure, pure_bind, bind_pure,
-      Interp_al.Interp.invoke_func_body, Interp_al.Interp.invoke_builtin_func,
-      check_func_output_off hguard, hhints]
-  all_goals exact printBuiltinRunOfRel h targs
+  rw [Builtin.invokeRun fuel cfg hguard ctx internal cursor "print_"
+    tparams params output targs [v] hfind, hhints]
+  exact printBuiltinRunOfRel h targs
 
 /-- info: 'P4SpecTec.Refine.invokePrintRunOfRel' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -168,11 +163,9 @@ theorem printRunOfHolds {α : Type} [Prelude.ToValue α] {v : value} {x : α}
       (Q.i "print_") targs [v]).run =
       (Prelude.Eval.err? ((printWithHints [] (Prelude.toValue x)).toOption.map
         ByteText.ofString)).run.map (Except.map Runtime.Value.Make.text) := by
-  apply invokePrintRunOfRel h fuel cfg hguard hhints ctx internal .Global
-    tparams params output targs
-  change ctx.global.ftbl.get? "print_" = some (.Builtin tparams params output) at hdecl
-  simp only [Interp_al.Ctx.find_func, Interp_al.Ctx.find_func_opt, hfenv, List.lookup, hdecl]
-  rfl
+  rw [Builtin.invokeRunOfHolds fuel cfg hguard ctx internal "print_"
+    tparams params output targs [v] hfenv hdecl, hhints]
+  exact printBuiltinRunOfRel h targs
 
 /-- info: 'P4SpecTec.Refine.printRunOfHolds' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/

@@ -65,6 +65,13 @@ import P4SpecTec.Prelude.Num
 import P4SpecTec.Prelude.StateEval
 import P4SpecTec.Prelude.Value
 
+import P4SpecTec.Refine.Builtin.Collection
+import P4SpecTec.Refine.Builtin.Invoke
+import P4SpecTec.Refine.Builtin.List
+import P4SpecTec.Refine.Builtin.Map
+import P4SpecTec.Refine.Builtin.Numeric
+import P4SpecTec.Refine.Builtin.Set
+import P4SpecTec.Refine.Builtin.Text
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Refine.Init
 import P4SpecTec.Refine.Print
