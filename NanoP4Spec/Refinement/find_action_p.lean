@@ -7,6 +7,7 @@ import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
 import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
+import NanoP4Spec.Refinement.Equality
 
 /-! # NanoP4Spec.Refinement.find_action_p
 
@@ -41,6 +42,8 @@ theorem «$find_action'».refines_group :
   intro fuel
   induction fuel using Nat.strongRecOn with
   | ind fuel ih => refine_al
+
+#audit_axioms NanoP4Spec.«$find_action'».refines_group
 
 theorem «$find_action'».refines
     (fuel : Nat)

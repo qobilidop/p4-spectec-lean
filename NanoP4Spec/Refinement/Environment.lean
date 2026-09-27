@@ -25,6 +25,8 @@ namespace Environment
 
 private theorem namesUnique : Refine.Init.NamesUnique NanoP4Spec.spec := by decide
 
+#audit_axioms namesUnique
+
 /-- The concrete global tables of the complete generated quotation. -/
 def global : Interp_al.Ctx.global := Refine.Init.global NanoP4Spec.spec
 
@@ -47,6 +49,30 @@ def ctx : Interp_al.Ctx.t := Interp_al.Ctx.empty global
 theorem localFenvEmpty : ctx.local.fenv = [] := rfl
 
 #audit_axioms localFenvEmpty
+
+/-- The initialized type table leaves this callable parameter name fresh. -/
+theorem typeParameterFresh_X : global.tdtbl.get? "X" = none :=
+  Refine.Init.globalTypeAbsent NanoP4Spec.spec "X" (by decide)
+
+#audit_axioms typeParameterFresh_X
+
+/-- The initialized type table leaves this callable parameter name fresh. -/
+theorem typeParameterFresh_K : global.tdtbl.get? "K" = none :=
+  Refine.Init.globalTypeAbsent NanoP4Spec.spec "K" (by decide)
+
+#audit_axioms typeParameterFresh_K
+
+/-- The initialized type table leaves this callable parameter name fresh. -/
+theorem typeParameterFresh_Y : global.tdtbl.get? "Y" = none :=
+  Refine.Init.globalTypeAbsent NanoP4Spec.spec "Y" (by decide)
+
+#audit_axioms typeParameterFresh_Y
+
+/-- The initialized type table leaves this callable parameter name fresh. -/
+theorem typeParameterFresh_V : global.tdtbl.get? "V" = none :=
+  Refine.Init.globalTypeAbsent NanoP4Spec.spec "V" (by decide)
+
+#audit_axioms typeParameterFresh_V
 
 end Environment
 

@@ -113,6 +113,27 @@ theorem optionIff {spec externalDomain} (element : typ) (v : value) :
 #guard_msgs (whitespace := lax) in #print axioms optionIff
 #audit_axioms optionIff
 
+/-- An independent child-domain implication transports lists and options at every depth. -/
+theorem Valid.iterDomain {spec externalDomain} {element element' : typ} {kind v}
+    (transfer : ∀ w, Valid spec externalDomain element.it w →
+      Valid spec externalDomain element'.it w)
+    (valid : Valid spec externalDomain (.IterT element kind) v) :
+    Valid spec externalDomain (.IterT element' kind) v := by
+  cases kind with
+  | List =>
+    obtain ⟨values, shape, elements⟩ := (listIff element v).mp valid
+    exact (listIff element' v).mpr
+      ⟨values, shape, fun w member => transfer w (elements w member)⟩
+  | Opt =>
+    rcases (optionIff element v).mp valid with shape | ⟨inner, shape, payload⟩
+    · exact (optionIff element' v).mpr (.inl shape)
+    · exact (optionIff element' v).mpr (.inr ⟨inner, shape, transfer inner payload⟩)
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.Valid.iterDomain' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Valid.iterDomain
+#audit_axioms Valid.iterDomain
+
 /-- The primitive Boolean codec discharges its actual independent source grammar. -/
 theorem boolCodec {spec externalDomain} :
     Codec (Valid spec externalDomain .BoolT) (fun _ : Bool => True) := by
@@ -197,4 +218,47 @@ theorem optionCodec {spec externalDomain} {α : Type} [ToValue α] [OfValue α]
 #guard_msgs (whitespace := lax) in #print axioms optionCodec
 #audit_axioms optionCodec
 
+/-- The standard positional list encoding is source-valid exactly when every encoding is.
+The element dictionary is explicit in the theorem's type; no decoder is used. -/
+theorem encodedListIff {α : Type} [ToValue α] {spec externalDomain}
+    (element : typ) (xs : List α) :
+    Valid spec externalDomain (.IterT element .List) (toValue xs) ↔
+      ∀ x ∈ xs, Valid spec externalDomain element.it (toValue x) := by
+  constructor
+  · intro valid
+    obtain ⟨raw, shape, payload⟩ := (listIff element _).mp valid
+    have equality : xs.map toValue = raw := value'.ListV.inj shape
+    subst raw
+    intro x member
+    exact payload _ (List.mem_map.mpr ⟨x, member, rfl⟩)
+  · intro valid
+    apply (listIff element _).mpr
+    refine ⟨xs.map toValue, rfl, ?_⟩
+    intro raw member
+    obtain ⟨x, hx, rfl⟩ := List.mem_map.mp member
+    exact valid x hx
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.encodedListIff' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms encodedListIff
+#audit_axioms encodedListIff
+
 end P4SpecTec.Refine.Representation.Source
+
+namespace P4SpecTec.Refine.Representation
+open P4SpecTec.Prelude
+
+/-- Equivalent independently stated source domains preserve the exact codec dictionaries. -/
+theorem Codec.sourceIff {α : Type} [ToValue α] [OfValue α] {source target : SourceDomain}
+    {admitted : α → Prop} (same : ∀ v, source v ↔ target v)
+    (contract : Codec source admitted) : Codec target admitted := by
+  have domains : source = target := funext fun v => propext (same v)
+  rw [domains] at contract
+  exact contract
+
+/-- info: 'P4SpecTec.Refine.Representation.Codec.sourceIff' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Codec.sourceIff
+#audit_axioms Codec.sourceIff
+
+end P4SpecTec.Refine.Representation

@@ -25,7 +25,8 @@ namespace NanoP4Spec
 
 abbrev id : Type := P4SpecTec.ByteText
 
-def id.toValue (x : NanoP4Spec.id) : Lang.Il.value := ToValue.toValue x
+def id.toValue (x : NanoP4Spec.id) : Lang.Il.value :=
+  @ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x
 
 instance : ToValue NanoP4Spec.id := ⟨NanoP4Spec.id.toValue⟩
 instance : BEq NanoP4Spec.id := ⟨valueEq⟩
@@ -40,7 +41,8 @@ def id.al : Lang.Al.def := Q.d (.TypD (Q.i "id") [] (Q.dt (.PlainT (Q.t .TextT))
 
 abbrev callableId : Type := P4SpecTec.ByteText
 
-def callableId.toValue (x : NanoP4Spec.callableId) : Lang.Il.value := ToValue.toValue x
+def callableId.toValue (x : NanoP4Spec.callableId) : Lang.Il.value :=
+  @ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x
 
 instance : ToValue NanoP4Spec.callableId := ⟨NanoP4Spec.callableId.toValue⟩
 instance : BEq NanoP4Spec.callableId := ⟨valueEq⟩
@@ -56,7 +58,8 @@ def callableId.al : Lang.Al.def :=
 
 abbrev nameIR : Type := P4SpecTec.ByteText
 
-def nameIR.toValue (x : NanoP4Spec.nameIR) : Lang.Il.value := ToValue.toValue x
+def nameIR.toValue (x : NanoP4Spec.nameIR) : Lang.Il.value :=
+  @ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x
 
 instance : ToValue NanoP4Spec.nameIR := ⟨NanoP4Spec.nameIR.toValue⟩
 instance : BEq NanoP4Spec.nameIR := ⟨valueEq⟩
@@ -125,7 +128,7 @@ def scope.al : Lang.Al.def :=
 
 abbrev typeId : Type := NanoP4Spec.id
 
-def typeId.toValue (x : NanoP4Spec.typeId) : Lang.Il.value := ToValue.toValue x
+def typeId.toValue (x : NanoP4Spec.typeId) : Lang.Il.value := NanoP4Spec.id.toValue x
 
 instance : ToValue NanoP4Spec.typeId := ⟨NanoP4Spec.typeId.toValue⟩
 instance : BEq NanoP4Spec.typeId := ⟨valueEq⟩

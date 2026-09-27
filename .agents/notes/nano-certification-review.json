@@ -1,0 +1,1392 @@
+{
+  "status": "Durable review provenance for the N2 implementation; individual historical records retain their original findings and limits. Later resolutions are separate, never rewritten into original verdicts.",
+  "baseline": "709326f2090a54fac93730b2b0f87bee50b61650",
+  "records": {
+    "n2-cached-catalog-source-entry-review.json": {
+      "reviewer": "Independent read-only review by Codex subagent /root/organize_oracles of root-authored sections only",
+      "scope": "Cached SCC catalog plan/available nominal callback; root acyclic total import dependency repair; Emit source codec/wholeCarrier/sourceEntry exactclaim plumbing; SourceEntry cached callback override. Excludes my newly written recursiveTotal catalog branch, which requires root independent review.",
+      "verdict": "no findings",
+      "reasoning": [
+        "Catalog source type namespace filtering and declaration SCC dependency order retain exact named nominal contracts and concrete failures.",
+        "Emit uses the same cached plan for declaration bytes, exact codec claim type, imports, and available SourceEntry nominal callback.",
+        "Acyclic wholeCarrier claims require emitted TotalContract proof and rechecked nominal admission; direct type references with available totals are imported rather than assumed visible.",
+        "SourceEntry available callback replaces repeated standalone planning, without changing source input phrases or invocation order; explicit Codec.adequate projection supplies admitted witnesses and both actual invocation directions.",
+        "Claim types retain actual full source predicates, exact dictionary bindings, configuration/environment/freshness hypotheses and per-member public theorem identity."
+      ],
+      "limits": [
+        "Read-only inspection, no independent full production build; root 45502 production pass recorded.",
+        "Does not independently review recursiveTotal branch authored by this reviewer.",
+        "This review covers planning/import/exactclaim plumbing; kernel checking remains the final production verdict."
+      ],
+      "hashes": {
+        "P4SpecTec/Codegen/Certificates/Representation.lean": "ce46e38c84459b128290032c7bb150424c3f74c3fddd7b80248639ea1624c757",
+        "P4SpecTec/Codegen/Certificates/SourceEntry.lean": "49e0610bd138f4512c0d3cc5061f7d09900b0cf4d2569df6c3ad146e1e305a73",
+        "P4SpecTec/Codegen/Emit.lean": "2ccc93315ba3920aa72602ff5a903d53de0fd8e770a7b2622cdb878071e8aa5e"
+      }
+    },
+    "n2-call/caller-frontier-review-snapshot.json": {
+      "head": "98631608c4029701fe59212cf3e1004187c4920a",
+      "author": "OpenAI Codex (GPT-6 Sol)",
+      "snapshot_sha256": "6575ac2578523581dcb0fb2310473961fde971d63e87939a8f87b175a716b37b",
+      "paths": {
+        "P4SpecTec/Codegen/Certificates/Forward.lean": "74ae2b07374bd3a06b0fb145cf3867c34ea72def87bfa985424b9fd69663436e",
+        "P4SpecTec/Codegen/Certificates/RunSound.lean": "0217d2e02e8db0e1cbc200a3fd538d618afb6b0813bba08d1cff5e13503bd336",
+        "P4SpecTec/Codegen/Certificates/Builtin.lean": "5e58d5d843454545b8fd0fb4fb926878656a00a7067a2f18ebaefc5351fcf28a",
+        "P4SpecTec/Codegen/Emit.lean": "76145c55eac5c40a406b62520535bf8797f2a153e831ef9becaec64e9da96f60",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "44d0ddadbf2200a3091c7652f8746f36f7859f1a91e684a57269ddc01ada1d7a",
+        "P4SpecTecTest/Codegen/Certificates/Forward.lean": "3771c68ab216c524e3dbc4af1089da021083eb16ec9ac788b3e7b4c795d7e796",
+        "P4SpecTecTest/Codegen/Certificates/Builtin.lean": "81a5c053ce1b69fcc04d4aa7d47870794f3083dbd13a422eb884a057a099f0a6"
+      },
+      "behavior": "source-derived conservative builtin/scalar caller eligibility; generated Option record projection generalization; no semantic changes or added theorem premises",
+      "evidence": {
+        "type_ok_six_paired": {
+          "exit": 0,
+          "seconds": 132.3783998329891
+        },
+        "add_callable_production_paired": {
+          "exit": 0,
+          "seconds": 27.455601583002135
+        },
+        "focused_gates": "lake build P4SpecTec.Codegen.Certificates.Forward P4SpecTecTest.Codegen.Certificates.Forward --wfail exit0,100jobs (513ms/1.5s); P4SpecTec.Tactic.Refine.Forward --wfail exit0,68jobs (2.0s)"
+      },
+      "text_violations": [],
+      "limits": [
+        "independent review pending",
+        "conservative regenerated full production build pending",
+        "full gate pending",
+        "Default/Var_init and source-domain closure incomplete"
+      ]
+    },
+    "n2-call/source-domain-independent-review.json": {
+      "reviewer": "OpenAI Codex Sol, independent read-only agent /root/organize_lean_tests",
+      "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/SourceBuiltin.lean": "aaa6389ae635969dbe6a8e98b786a867e53e55edfb2f2357be7d4c444ab60b75",
+        "P4SpecTec/Codegen/Certificates/SourcePolymorphic.lean": "e7610cb7ce11607c02f2511e722cc9863e438015032b7e5a4894113ce03b7909",
+        "P4SpecTec/Refine/SourceBuiltin.lean": "da15eb35cee73a49bd56034de74d1f3789bed0aecb9df32be5e851caeb7e5b75",
+        "P4SpecTecTest/Codegen/Certificates/SourceBuiltin.lean": "1d7f8e20b63d29bbfa4fd25002a83a7df481c555d0b5312b75f33505732393f2",
+        "P4SpecTecTest/Codegen/Certificates/SourcePolymorphic.lean": "547a66b94714cbd25e838e3bbe1e05073ad72a1cf1cc69e9c7b09d759cbf5332",
+        "P4SpecTec/Codegen/Certificates/ProducerComposition.lean": "3c59847871e0144b2154f374cda92de9970a4832281961b199e2c628470d307c",
+        "P4SpecTecTest/Codegen/Certificates/ProducerComposition.lean": "ab433599fa9d07e5c4ef36e5dfd6a78489225d391e15b74cd9076d23e7c1c8ea",
+        "scripts/nano-certification.py": "2356cb2a8d3567f974e8633563e1f1547763cb10239f6db5229d75e39916c275",
+        "scripts/test_nano_certification.py": "d121d5a1cb7ad9df0e409362bbed02473d7c8a64f341af0b587b3dc9c1c5b345"
+      },
+      "findings": [],
+      "scope": [
+        "Operation-specific source coverage and successful-output preservation for all26 builtins, separate from actual dispatch/error/refines/realizes contracts",
+        "SourcePolymorphic structurally selected membership/map projections and legal explicit type codec dictionaries",
+        "ProducerComposition actual sequential relation calls; callArgumentsSource uses successful preceding calls only, independent of current/final success",
+        "Strict N2 checker exact complete source type identities,8VarD profile,26builtin fourclaim bindings,30selected closure identity and full call-admission directions",
+        "CLI source identity and fresh manifest precede compiledcoverage and quotations before presence-only N2 binding checks"
+      ],
+      "limits": [
+        "Own SourceTuple implementation excluded from independent review",
+        "No Lean builds, Nano regeneration, full local gate or remote CI performed by reviewer",
+        "Legal parameter Codec premises remain explicit; independent source-domain predicates are not inferred from decoder images",
+        "Strict --require-n2 is bounded selectedclosure certification, not full N3 callable or N4 concrete target completion",
+        "Raw success-output source validity is paired with separate checked dispatch errors and two-way invocation proofs"
+      ],
+      "authorEvidence": [
+        ".artifacts/n2-reverse/source-domain-final-snapshot.json",
+        ".artifacts/n2-reverse/composition-prefix-final.json",
+        ".artifacts/n2-reverse/n2-validator-final-snapshot.json"
+      ],
+      "focusedCheck": {
+        "command": "nix develop --command python3 scripts/test_nano_certification.py",
+        "session": 87591,
+        "exit": 0,
+        "tests": 36,
+        "testSeconds": 12.287
+      }
+    },
+    "n2-call-admission-emit-independent-review.json": {
+      "reviewer": "organize_oracles agent, independent read-only review of root-owned changes",
+      "verdict": "No semantic findings in reviewed files",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/CallAdmission.lean": "6e19733312f95cb8f02426a3fb2178826ae883301069939cfb2c8b89d73c4b85",
+        "P4SpecTecTest/Codegen/Certificates/CallAdmission.lean": "1c3b0c3fb052022209a97102e4433d723d1516de5d40c8af1904ac796372e98a",
+        "P4SpecTec/Codegen/Certificates/ProducerTotal.lean": "6811444e7c574c1721af7ed1c3778eac3ec51b0f3e3c6bdcf9b6332bb829c9f2",
+        "P4SpecTecTest/Codegen/Certificates/ProducerTotal.lean": "15638b264070dfbb52a6c3d3ea33d0f7931c327aac2fb0dec8094222ec46b1f7",
+        "P4SpecTec/Codegen/Certificates/RepresentationTotal.lean": "2fd9679c9c483649688047b855999064d306a650c9139d22671a2f14ff3790d3",
+        "P4SpecTec/Codegen/Emit.lean": "e5009d81d9cb26987893b71286434a5ace7c01f22763481ca293541a5edb2a8f",
+        "P4SpecTec/Codegen/Coverage.lean": "852cc14a7f28e2695a98062a88ae16f3d05827ab4aa8561893558e36ab60d6f3",
+        "P4SpecTec/Codegen/Coverage/Check.lean": "983404eb779097e1ba06ae2ce999a362a7c52c3f596400a5798348d76cc8d441",
+        "P4SpecTecTest/Codegen/Coverage.lean": "1a95fa5d98ab89963c435584f15c57e9b5a10503474f5eaf7148bf654557797e",
+        "P4SpecTecTest/Codegen/CoverageChecks.lean": "11fa50963afcee6a0c98373582139bad87da8c76a02afb8e2d828a3af706f33f",
+        "Tools/CheckCoverage.lean": "38b89af320bc06469b2846a177bdaa87d667a1ac0d6f1f4b8c7e71566b8b5605"
+      },
+      "reviewed": [
+        "CallAdmission source traversal, instantiated signature/argument notes, relation modes, nonempty obligation guard, exact dictionaries and carrier totals",
+        "ProducerTotal closed actual result contract, actual Unit/emptyTuple result for zero-output relations, exact encoder/decoder proof binding; no admission inferred from runtime flags",
+        "RepresentationTotal named casesOn render layout preserves constructor fields/predicate and emitted show rechecks actual complete admission",
+        "Emit source profile/schema3/type namespace separation, one cached representation registry, exact emitted-claim coupling, producer priority and actual specialized call obligations/dependencies",
+        "Coverage schema freshness before declaration checking, fully elaborated expected type with forbidden-axiom audit, separate representations/profiles; diagnostic comment wrapping and mutation tests",
+        "Latest CallAdmission emitted docstring shortening read-only; proof and expected type unchanged"
+      ],
+      "limits": [
+        "No independent new build of root-owned files in this review; parent reported candidate build70279 pass181jobs",
+        "Newest production generation/kernel inventory/full gate still parent-owned and pending",
+        "ProducerTotal test file alone lacks zero-output emitted test; parent reports Sol separate tuple fixture owns that coverage",
+        "Alternate specialized call admission claims coexist with conservative exclusions from universal-carrier eligibility; strict completion checking must match exact required claim directions instead of rejecting every exclusion of the kind",
+        "I did not re-review detailed SourceBuiltin/Polymorphic semantic templates, only integration eligibility/dependencies; existing independent reviews are separate",
+        "Three owned test namespace fixes are author changes, not independent review: ContextProof build21086 exit0, UpdateCall direct28163 exit0, ContextCall direct40073 exit0 after parent restored generated dependencies."
+      ]
+    },
+    "n2-declared-extern-review.json": {
+      "date": "2026-09-27",
+      "reviewer": "Independent read-only Codex agent /root/organize_oracles",
+      "files": {
+        "P4SpecTec/Refine/Representation/SourceExtern.lean": "33838f93717c0333e7bc9c48e236bd40b9671244f4f0322a758400b4c726e2f2",
+        "P4SpecTec/Codegen/Certificates/RepresentationExtern.lean": "3632a5c94f540cd3798cda97e193c590f8f630b386d78445067287e85f3efce6",
+        "P4SpecTec/Codegen/Certificates/RepresentationField.lean": "44710c5c9f6a9b696dbb523b3a0796604fe80f0366d0132541111b11dae723ef",
+        "P4SpecTec/Codegen/Certificates/Representation.lean": "282e3a1fc5d0b2a9020759255c1cdbf4de7e4b5d6a04c5bc4fd5707bbca2da6c",
+        "P4SpecTec/Codegen/Types.lean": "603acd8fb048a8e181dc427211e73cf54fe529e0dc51eb92e7e87730def63bab"
+      },
+      "verdict": "No findings in focused declared-extern scope",
+      "scope": [
+        "Canonical external source domain is Shape.extern any JSON; Valid.external still requires actual type-namespace declaration",
+        "externCheckedIff connects positive-fuel pinned-port sub_checked membership exactly, preserving metadata",
+        "externalBodyNone/externalIff/externalCodec separate declared opaque extern from runtime-only variant alternatives",
+        "Opaque Field contract guards actual declaration and rejects open parameters; fixes explicit primitive extern dictionaries",
+        "Plan registers exact actual ExternTypD obligation; explicit encoder/decoder lookup honors scoped bound parameters"
+      ],
+      "limits": [
+        "Read-only source inspection; parent reported focused membership/hostile-dictionary/actual codec passes, not independently rerun",
+        "No claim that arbitrary generated value runtimeExtern is source valid; recursive admission must exclude it",
+        "Parametric opaque extern applications remain unsupported by emitter"
+      ]
+    },
+    "n2-default-columns-root-review.json": {
+      "reviewer": "Root Codex independent read-only review of review_oracle_refactor implementation",
+      "date": "2026-09-27",
+      "files": {
+        "P4SpecTec/Refine/IterationColumns.lean": "5352eb15ae56656d87d8b1c226637a21b679a8e61a9852c872926cf9cdf41856",
+        "P4SpecTec/Refine/IterationPrem.lean": "1971ab6446ccf426add67e19fb459df43797ac46f6bd1026179bb4a032193e00",
+        "P4SpecTec/Refine/IterationLength.lean": "6517f43c395ef16d8b7c0706ccb0d1b0e97177c4f8d12b70269e6b40cc6c20dc",
+        "P4SpecTecTest/Refine/IterationColumns.lean": "7756f768a411535d90d6e6faeddc60b268fb79d08f19e91c02d7a97769bfbebe",
+        "P4SpecTec/Tactic/IterationColumns.lean": "4959f77e226c759b8fb6eabab6085806fc4174bf6e76ed4974eedd8171090e19",
+        "P4SpecTecTest/Tactic/IterationColumns.lean": "f34a95b7870fb96ed0ae15dd3b89dd02ad5ea3256560d353e0283ce41bfaa077",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "4fd9e94d55e66fc1eff07922631e0cedac8de24aebf0d1bed5f022511eb7e8d6"
+      },
+      "findings": [],
+      "scope": [
+        "Exact source output arity retained on empty batches",
+        "Rectangular transposition and positional explicit encoder observations",
+        "Actual iteration-premise equation preserves context/metadata/failure behavior",
+        "Mapped source context witness retained",
+        "Both mapM directions preserve successful generated input/output length and all failure outcomes",
+        "Tactic uses checked source arity and produces kernel-checked terms",
+        "Forward opt-in columns preset preserves separate zero-output subtype equation and uses checked helper relations"
+      ],
+      "limits": [
+        "Foundation and opt-in tactic support only; Default/Var_init proofs unfinished",
+        "No full gate or production generation claim for new optional driver"
+      ]
+    },
+    "n2-explicit-encoder-independent-review.json": {
+      "reviewer": "Codex subagent /root/organize_oracles; independent read-only review",
+      "scope": "Root-owned explicit source nominal/primitive/list/option encoder and declared extern decoder dictionary selection, plus hostile ambient dictionary fixtures. Read tracked diff and scoped encoder implementation.",
+      "verdict": "no findings",
+      "checks": [
+        "Bound parameter names remain removed from env.types by parameterScope, so fallback dictionaries for K remain actual parameter dictionaries.",
+        "Named closed TypD encoders bind actual named functions and explicit recursively source-selected argument dictionaries.",
+        "List/Option and Bool/Nat/Int/ByteText dictionaries are anchored; declared monomorphic extern uses canonical JSON dictionaries.",
+        "Actual recursive members retain named native calls and existing helper-specialization path.",
+        "Hostile ByteText/Extern encoder/decoder fixtures cover direct primitives, nominal aliases, list nesting, generic box parameters and declared extern payloads."
+      ],
+      "limits": [
+        "Read-only; no independent Types build during root regeneration.",
+        "Tuple/function and unsupported source forms retain pre-existing generic fallback and are outside this fix/actual Nano field census."
+      ],
+      "hashes": {
+        "P4SpecTec/Codegen/Types.lean": "6be1dda4381d0631a8dd3247203a1d284e6d1fa27fdb9cd5e4feba54c8e87c61",
+        "P4SpecTecTest/Codegen/Types.lean": "14e2d7dec0f6775e22fd73206db7bb6cd428ab4f74df3aaced55f63fd94a1fb9"
+      }
+    },
+    "n2-mutual-root-review.json": {
+      "reviewer": "root Codex agent, independent read-only review of Astra-authored changes",
+      "snapshot": "5c1e1012641415d86e05e20f11ae0a7fa9158b84841bd92383212657245b1c44",
+      "reviewed_paths": {
+        "P4SpecTec/Codegen/Certificates/Reverse.lean": "438554aec7f5467366bd3de14b59a9b82c22704d02dba85315f695694b9327ab",
+        "P4SpecTec/Tactic/Encoding.lean": "8fe20bc019579d43b0e5c8b24a1a95146715ce005e8795eddcb642a5b956a0f6",
+        "P4SpecTec/Tactic/OutcomeInduction.lean": "ed652b277afcc671fe2316150c8a9417afe8c0143d53c02c6f093c350207172b",
+        "P4SpecTec/Refine/RealizeChoice.lean": "ca8ffd9e28d907e369f25ac84fd398c7f49e5074da4e601fc78647e456f41778",
+        "P4SpecTec/Tactic/Realize.lean": "a5bfbb5255524312b05fa058a559ed628403d643a7ec8c011bbaf67e1396388c",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "c22e125d7bb3f981c0736f44782c1c617972dadc7b57eeaa93cabf79b2428104"
+      },
+      "findings": [],
+      "evidence": "combined-passed.json, actual full-Spec source-derived Member renderers pass both directions/audits at exit0 in252.12s; emitter-only explicit forward group audit subsequently passed focused checks",
+      "checks": [
+        "Conjunct permutation matches actual generated outcome induction; each case is discharged and reconstructed term type checked.",
+        "Choice reassociation preserves hard errors, retryable mismatch and undefined outcomes.",
+        "Canonical shape facts follow payload equalities, retaining arbitrary metadata, and never assume a discriminator false.",
+        "Public realization statements retain HoldsSpec, guard and local-environment conditions; both directions use exact original declared inputs/outcomes."
+      ],
+      "limits": [
+        "No independent build in this review.",
+        "Prior shared traversal and exact interpreter equation review remains in n2-shared-proof-review.json.",
+        "Some companion helpers and renderer edits are covered by prior reviews, not claimed rereviewed line-by-line here.",
+        "Structural selector and final production aggregate still require validation."
+      ]
+    },
+    "n2-nominal-decoder-review.json": {
+      "base": "98631608c4029701fe59212cf3e1004187c4920a",
+      "reviewer": "/root/organize_oracles (Astra), independent read-only review",
+      "files": {
+        "P4SpecTec/Codegen/Types.lean": "db7bb27e1b7972ee174d764b5658d2ca8e781bc54d1b87f459dcb302580b3fdf",
+        "P4SpecTecTest/Codegen/Types.lean": "698fea34b66dccff4f8dbfaecb7cd085393b021e33bb621d928dd518fb922acc",
+        "P4SpecTecTest/Codegen/Certificates/Representation.lean": "ec09bff1529d9c12bd10552adcceda465f0ec727eed790b53055c5441af1c7a0"
+      },
+      "originalFinding": "Nominal lookup could select global type K instead of current type parameter K.",
+      "resolution": "parameterScope erases current parameters from lookup in type, encoder and decoder declaration generation; filter shadowed member/unfold names; global Boolean K vs box<K> byte-text fixture passes.",
+      "finalFindings": [],
+      "validation": "Focused --wfail session61214 exit0,42jobs; production regenerated session97363 exit0,121files, aggregate build running.",
+      "limits": [
+        "No independent build",
+        "Nonrecursive tuple and function-type dictionary behavior unchanged",
+        "No fuel-threshold backwards-compatibility claim"
+      ]
+    },
+    "n2-plain-alias-domain-review.json": {
+      "reviewer": "/root/organize_oracles (Codex), independent read-only review",
+      "files": {
+        "P4SpecTec/Refine/Representation/SourceAlias.lean": "bf555b069ad162c247a20b323d5c348bc8981d6fd8d2c0df9876922e46235205"
+      },
+      "reviewed_theorems": [
+        "plainAliasDomainIff"
+      ],
+      "findings": [],
+      "observations": [
+        "Forward inversion requires actual PlainT body and empty-substitution domain transport",
+        "Reverse constructs actual alias derivation with explicit identity substitution",
+        "No equation of instantiated phrase metadata",
+        "No encoder-image or decoder-success source domain"
+      ],
+      "limits": [
+        "Proof/interface review; author --wfail97878 exit0, module rebuilt in record fixture68091 exit0",
+        "Reviewed named theorem scope; not a whole-Nano claim"
+      ]
+    },
+    "n2-record-emitter-root-review.json": {
+      "reviewer": "Independent read-only review by root Codex agent; implementation by organize_oracles",
+      "date": "2026-09-27",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationRecord.lean": "a65467b5c211d6682565b5e7f2155f7098d0d2d8938c2e7dc8e7b9f46abc065c",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationRecord.lean": "e48180026c4144507abcd91d8cc96a79a514423d13f8d5e93c9df16cd366dbf0"
+      },
+      "findings": [],
+      "reviewed": [
+        "Source.Valid uses actual compiled spec, exact named source and ordered labels",
+        "Every field contract binds explicit dictionaries and independent admission",
+        "Substitution inversion retains source metadata and projects full field validity",
+        "Any-fuel soundness and sufficiently-large stable fuel cover all fields",
+        "Immediate audits cover generated helper theorems and final codec",
+        "Distinguishing tests cover hostile instance and permissive wrong-label decoder behavior"
+      ],
+      "limits": [
+        "Acyclic nonempty Keyword-labelled monomorphic records only",
+        "Dependent shared Field changes require separate review",
+        "No production full gate implied"
+      ]
+    },
+    "n2-record-review.json": {
+      "base": "98631608c4029701fe59212cf3e1004187c4920a",
+      "reviewer": "/root (Codex GPT-6 Astra), independent read-only review of organize_oracles implementation",
+      "files": {
+        "P4SpecTec/Refine/Representation/Source.lean": "73b4c943c937928ee2c6d629e89744ad2369d9f8f03b8a1511f6227ee06c9299",
+        "P4SpecTec/Refine/Representation/SourceAlias.lean": "6f94f7455ce6f151158f8296a22c6d046f6f365604d541dd285bde1cd7e63560",
+        "P4SpecTec/Refine/Representation/SourceAtomic.lean": "8cb2fa0cdc18c6ce738a524dc516009278ef4c7f973496b640370e0c178d083f",
+        "P4SpecTec/Refine/Representation/SourceVariant.lean": "3bf1366f2864e89bc9ec7025e81f04ca2fea1f9dfed342357060134c53e13e14",
+        "P4SpecTec/Refine/Representation/SourceContainer.lean": "fe5039ce50306eaade8f858ccaad6e0a684d4a53263bf38a07a06af866de79ee",
+        "P4SpecTec/Refine/Representation/SourceRecord.lean": "d18eaa099ea0864e397d3abdaf1f866eddf8ba3d6ed956628956687bde64589a",
+        "P4SpecTecTest/Refine/Representation/Source.lean": "313d535fc8af21fa522ee8610acef2ed11dd4aa1e51eaf8270b6c1f5d040a209"
+      },
+      "findings": [],
+      "limits": [
+        "Author focused --wfail evidence, not independent build",
+        "Exact ordered record domain; not a whole-Nano codec claim",
+        "Generated record encoder label conversion remains checked by future actual family codecs"
+      ]
+    },
+    "n2-recursive-descriptor-root-review.json": {
+      "date": "2026-09-27",
+      "reviewer": "Independent root Codex read-only review of organize_oracles implementation",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationRecursive.lean": "c9efd784064e470494302b69c324f3e7d5d18aea4a9c3e5629bf4d617acbd070",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationRecursive.lean": "0b0ea922eded26b728e3b33a2abb0a20963699e046f122ef29c3941abd03345e"
+      },
+      "findings": [],
+      "scope": [
+        "Source SCC identity and bound type-parameter treatment",
+        "Alias-cycle and recursive polymorphic carrier rejection before compiler traversal",
+        "Finite family deduplication by semantic source type equality",
+        "Actual encoder-helper replay and contextual decoder dictionaries",
+        "Independent metadata-insensitive Matches constructors and audited empty-substitution proof"
+      ],
+      "limits": [
+        "Descriptor and Matches scaffolding only; no recursive Codec theorem or production binding",
+        "Actively extending emitter: review applies only to these exact file hashes",
+        "Generated primitive kind classification rejects unsupported source forms through leaf resolution"
+      ]
+    },
+    "n2-recursive-encoding-independent-review.json": {
+      "reviewer": "OpenAI Codex recursive decoder proof writer; independent read-only review of root-owned encoding emitter",
+      "revision": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationRecursiveEncoding.lean": "b05937026daa1d72336cfc2a624adb1f24e19732e8c4e022f320d277fa012ecd",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationRecursiveIteration.lean": "b6c02aa5103a2e46a49f829c5b60a33a84bf7e16295ccfccca7bc6b95d609a39"
+      },
+      "findings": [],
+      "scope": [
+        "Variant rules use actual source declaration lookup, ordered source constructor membership, exact mixfix rendering and closed instantiated-field Source.Substitutes proofs.",
+        "List and option encoding retains order, multiplicity and tags, with each child independently source-valid.",
+        "Aliases preserve actual child encoder equations and original source parameter instantiation.",
+        "Leaves project encodingValid from explicitly bound checked codecs; no admission assumption is used to manufacture source validity.",
+        "Final mutual AdmittedF recursor follows only source constructors; runtime-only extern alternatives have no admission minor.",
+        "Every emitted helper and final encodingValid carries immediate axiom audit. Unsupported local recursive records/functions/tuples are explicit rejection paths.",
+        "Renamed self-recursive list/option fixture additionally elaborates full source encoding rules and admitted recursor without hardcoded Nano identifiers; author exit0 session77703 reviewed."
+      ],
+      "validation": {
+        "author_actual_type_ir_direct_lean": "exit0 session23593 warningAsError, all audits",
+        "author_emitter_build": "exit0 session37846",
+        "independent_integration": "Combined actual five Codec fixture --wfail115jobs session70021 exit0, no Lean warnings; all audits."
+      },
+      "limits": [
+        "No independent build of encoding-only probe; combined Codec integration will check the same statements.",
+        "Actual required recursive groups tested first through TypeIR; other groups retain explicit production obligations."
+      ]
+    },
+    "n2-recursive-iteration-independent-review.json": {
+      "reviewer": "OpenAI Codex recursive-codec writer, independent read-only review of root-owned implementation",
+      "reviewed_revision": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "paths": {
+        "P4SpecTec/Codegen/Certificates/RepresentationRecursiveIteration.lean": "eba149eb1934145a15c0f0840325ba7c957797499ea575c42701269fbaeb589a",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationRecursiveIteration.lean": "0946f03a5e2050285677bc5e5f88e90c798ad3002ac9532c4b3dc76db254ea4f"
+      },
+      "findings": [],
+      "scope": [
+        "Exact source-shaped conditional ListV and OptV decoder equations preserve actual specialization fuel policy.",
+        "List fidelity derives positional typed witnesses from mapM decoding, checks each independent child admission, preserves canonical order/multiplicity, and constructs structural list admission.",
+        "Option fidelity checks the raw payload child and constructs structural None/Some admission; encoding equation only exposes actual compiler helpers.",
+        "Stable wrappers use explicit child dictionaries and finite common bounds, with no depth cutoff or encoder-image source predicate.",
+        "Renamed self-recursive list+option fixture elaborates actual Types-generated helper dictionaries and all emitted theorem audits."
+      ],
+      "evidence": {
+        "author_checks": [
+          "actual TypeIR lists direct Lean exit0 session35873",
+          "synthetic option direct Lean exit0 session45139",
+          "combined fixture --wfail exit0 session90093"
+        ],
+        "independent_integration": "Actual TypeIR lists integrated in our focused recursive source fidelity fixture exit0 session88728."
+      },
+      "limits": [
+        "Conditional wrappers alone are not complete codecs; full source recursion and admitted encoding validity are separate obligations.",
+        "No independent standalone option rerun; option fixture source and author recorded exit were reviewed."
+      ]
+    },
+    "n2-recursive-registry-independent-review.json": {
+      "reviewer": "OpenAI Codex recursive codec writer; independent read-only review of root-owned registry/callback integration",
+      "revision": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/Representation.lean": "c3fdc965144dfd6d3c9fa314c33777f047378499dbcbcbc38205d1df66afc587",
+        "P4SpecTec/Codegen/Emit.lean": "433611441d88b30f891d31f199b47b359723da97921500245f38ea2a123211bf",
+        "P4SpecTec/Codegen/Certificates/SourceEntry.lean": "49e0610bd138f4512c0d3cc5061f7d09900b0cf4d2569df6c3ad146e1e305a73"
+      },
+      "findings": [],
+      "scope": [
+        "SCC plan uses exact source-derived recursive bundle only in source group leader sidecar; nonleaders import leader while retaining their own exact public Codec claim.",
+        "Catalog resolves declarations in source type dependency/SCC order, excluding bound type parameters and providing only completed prior nominal codecs. The callback is captured before each SCC, so internal members remain recursive rather than accidental leaves.",
+        "Actual external leaf declarations are resolved independently by the canonical extern contract. Polymorphic container/map codecs remain separate parameterized obligations.",
+        "Emit records one exact representation claim per actual declared type, with concrete exclusions on planning failure and source-sidecar imports following leaf dependencies.",
+        "SourceEntry available callback substitutes only completed nominal contracts; declaration input syntax, exact encoder/decoder dictionaries, independent source predicates and two-way invocation hypotheses are preserved.",
+        "Entry claim expected type and emitted proof receive the same available callback; dependencies include both invocation sidecar and all nominal codec sidecars."
+      ],
+      "validation": {
+        "author_catalog_build": "exit0 session25644",
+        "author_production_generation": "exit0 session61424;162plannedcodecs/36entries, not yet a kernel verdict",
+        "independent_recursive_bundle": "exact actual5 Codec fixture exit0 session70021 with all audits"
+      },
+      "limits": [
+        "No independent full production rebuild; root production99555 kernel check pending at review time.",
+        "162 planned codec claims must not be reported as checked until all kernel targets and exact coverage inventory pass.",
+        "Total admission and producer-output preservation remain separate obligations."
+      ]
+    },
+    "n2-recursive-source-root-review.json": {
+      "reviewer": "Independent root Codex read-only review of organize_oracles implementation",
+      "date": "2026-09-27",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationRecursiveSource.lean": "61d4e15d8addc1d7740db103787274be342253894786e1bd3f998bc2e6321d0a"
+      },
+      "findings": [],
+      "scope": [
+        "Field forms read from original source declaration and matched positionally to instantiated descriptor",
+        "Exact reversed parameter bindings and argument-family hypotheses",
+        "Classification proceeds by Source.Substitutes inversion, not encoding or decoding",
+        "Immediate generated private helper axiom audits"
+      ],
+      "limits": [
+        "Source classification scaffolding only; no recursive codec conclusion",
+        "Read-only review relies on focused actual TypeIR emitted proof check reported by author"
+      ]
+    },
+    "n2-representation-plan-review.json": {
+      "reviewer": "Codex agent /root/organize_oracles, independent read-only review of root-owned changes",
+      "date": "2026-09-27",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/Representation.lean": "d24e123271f4439b51084759673b97affdba9526ba244ea307e90dd731819209",
+        "P4SpecTec/Codegen/Certificates/RepresentationField.lean": "d56b6b796b9b3d9c23759787c594bade8536cdccbf9f6b07f86bc2767c803fe6",
+        "P4SpecTec/Codegen/Certificates/RepresentationAlias.lean": "ffe90ba34e544aa1bb3a13adfe390cfa60d2ea667a89958d02ec2b1bbdb06ab9",
+        "P4SpecTec/Codegen/Fmt.lean": "2b692e3be22d96d2d877908f75168c26380f6b1b889d670556df9f704226f594"
+      },
+      "verdict": "No findings in reviewed scope",
+      "scope": [
+        "Dependency-ordered full-source planning and atomic Source.Valid bridge; cycles remain explicit failures",
+        "Exact dictionary field resolution for primitive, nominal, list/option, supported closed pair/list-container/map instances; honest unsupported substitution fragment",
+        "fieldSupport/fieldCodecType/fieldDeclarations: actual alias source-domain transport, admission preserved, named decoder fuel layer retained, immediate audits",
+        "boundedLines lexical literal/quoted identifier preservation, at-target grouping, bullet continuation indentation"
+      ],
+      "limits": [
+        "Read-only source inspection; no independent full gate or production regeneration",
+        "Bounded formatter does not guarantee a width bound for individual unsplittable tokens, and is only a proof-template formatter",
+        "Generic recursive proof emission remains unimplemented; this review does not establish 92-family input closure"
+      ]
+    },
+    "n2-reverse/builtin-emitter-review.json": {
+      "reviewer": "OpenAI Codex Astra independent read-only review",
+      "head": "56cf92c2201e25c11d1263cbdf6895a827afc612",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/Builtin.lean": "29ae9d9b15d38da20679ddc1fab1ff242c2edc3b0a8bfd714a44cd0561bdedcb",
+        "P4SpecTecTest/Codegen/Certificates/Builtin.lean": "f172cb16c4c6e678c8ee9c485948551475f3c3d1927216ac498f9d9606ecb9d4",
+        "P4SpecTecTest/Codegen/CoverageChecks.lean": "775a3f90f8f37ca200123ff5f040cea1b6c68704ea7d52adf51079497032d703",
+        "P4SpecTec/Codegen/Emit.lean": "cb617c3c24195c4a8e7f25ddea361970636d015650024fe18e78d2660be809fb"
+      },
+      "findings": [],
+      "textViolations": [],
+      "reviewed": [
+        "All 26 signature selections and actual set/pair/map/bits carrier checks",
+        "Shared exact closed dispatch/invocation APIs, actual global declaration and raw type arguments",
+        "Primitive/list/set/map proof template correspondence to generated wrappers and checked family lemmas",
+        "Per-operation support imports and declaration audits",
+        "Actual reverse-versus-forward and dispatch-versus-invocation mutation tests"
+      ],
+      "limits": [
+        "No builds or source edits during root integrated build",
+        "Author-reported 78 theorem scratch audit is evidence, not independently rerun",
+        "Core represented-input contracts retain independent source-domain and legal type-instance obligations",
+        "Full gate and production claim regeneration remain root-owned"
+      ]
+    },
+    "n2-reverse/caller-frontier-review.json": {
+      "reviewer": "OpenAI Codex (GPT-6 Astra), agent /root/review_oracle_refactor",
+      "mode": "independent read-only caller gate and normalization review; own tiny recursive forwardProof renderer excluded",
+      "base": "98631608c4029701fe59212cf3e1004187c4920a",
+      "snapshot": "6575ac2578523581dcb0fb2310473961fde971d63e87939a8f87b175a716b37b",
+      "reviewed_hashes": {
+        "P4SpecTec/Codegen/Certificates/Forward.lean": "74ae2b07374bd3a06b0fb145cf3867c34ea72def87bfa985424b9fd69663436e",
+        "P4SpecTec/Codegen/Certificates/RunSound.lean": "0217d2e02e8db0e1cbc200a3fd538d618afb6b0813bba08d1cff5e13503bd336",
+        "P4SpecTec/Codegen/Certificates/Builtin.lean": "5e58d5d843454545b8fd0fb4fb926878656a00a7067a2f18ebaefc5351fcf28a",
+        "P4SpecTec/Codegen/Emit.lean": "76145c55eac5c40a406b62520535bf8797f2a153e831ef9becaec64e9da96f60",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "44d0ddadbf2200a3091c7652f8746f36f7859f1a91e684a57269ddc01ada1d7a",
+        "P4SpecTecTest/Codegen/Certificates/Forward.lean": "3771c68ab216c524e3dbc4af1089da021083eb16ec9ac788b3e7b4c795d7e796",
+        "P4SpecTecTest/Codegen/Certificates/Builtin.lean": "81a5c053ce1b69fcc04d4aa7d47870794f3083dbd13a422eb884a057a099f0a6"
+      },
+      "changed_since_snapshot": [],
+      "findings": [],
+      "scope": [
+        "Structural recursion/type-freshness and numeric function restrictions; unused downcast rejection",
+        "Source-derived typed call arity/closed type syntax and bounded membership/pair projection eligibility",
+        "Explicit raw type arguments, legal equality and transitive registration freshness binders",
+        "Actual checkSupport-derived builtin frontier in both directions, print hints excluded, exact statement APIs retained",
+        "Option projection generalization preserves all hypotheses and goal through checked generalizeHyp; no semantic interpreter edits"
+      ],
+      "evidence": "Read source and distinguishing tests; author reports focused --wfail and actual Type_ok/add_callableDef_l kernel proofs. No independent build or full gate run.",
+      "limits": [
+        "No independently verified all-new-frontier production pass; root aggregate previously found proof gaps and current restrictions require regenerated validation.",
+        "Own recursive forwardProof renderer change excluded from independent verdict.",
+        "Representation/schema changes in Emit outside caller frontier are separately reviewed; not part of this verdict.",
+        "No claim of N2 closure, Default/Var_init or universal source-domain coverage."
+      ]
+    },
+    "n2-reverse/caller-review.json": {
+      "reviewer": "Codex GPT-6 Astra /root/review_oracle_refactor",
+      "baseline": "feec9b647e90f9eecf6f2ecdd0ab2b7bfc762a1c",
+      "scope": {
+        "P4SpecTec/Codegen/Certificates/Forward.lean": "0d9a1b79bd050068a42df3f26b99a1b4051d4f72311f42245507e8b6bdb4eaeb",
+        "P4SpecTec/Codegen/Certificates/RunSound.lean": "d9914b2de82f125b5ef42e1d3cdcb16967061a9e73b67a7300b49c3f82864732",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "7039ad7bfc5a5b56e519a547e781324fb77653b92e9aecabf39edc6f6dce206d",
+        "P4SpecTec/Tactic/Refine/ForwardRules.lean": "f71a1d129db5921460e0a026ba73ba234249def84729e573cad46ea3ef4def01",
+        "P4SpecTec/Refine/Call.lean": "7d158253303d990ed0d86c6cffe9030c60e1cd7f249d06a064edf24bf376b3e2",
+        "P4SpecTec/Refine/Iteration.lean": "a0389ff189d5a333c344d31ec88162e74db9e75311d9563c78e8a1f38d314939",
+        "P4SpecTecTest/Codegen/Certificates/Forward.lean": "d7219f72a228007b1c21dc4d64b0fd7df33ac23cee1d3f01376d9b110d105cf6"
+      },
+      "scopeSha256": "f9389272401d4bf4270276d248790d2839ef11c2ab1dc52bf82014e564247b5d",
+      "findings": [],
+      "docPrecision": "Refines.mapM undefined-computation wording does not itself establish divergence equivalence; sent author minor wording clarification.",
+      "checked": "Read current scoped source and diff; reviewed lookup/context and ordered traversal proofs, emitted type/freshness binders, bounded membership eligibility, actual boundary regressions.",
+      "limits": [
+        "No independent build in this review; author focused evidence in checkpoint.json.",
+        "New checked-type substitution rule inventory read but actual add_var_e proof not certified by this review.",
+        "Future transitive callee freshness excluded.",
+        "Eligibility is conservative selection plus exact compiled certificate checking, not a universal success guarantee."
+      ]
+    },
+    "n2-reverse/columns-renderer-root-review.json": {
+      "files": {
+        "P4SpecTec/Codegen/Certificates/Reverse.lean": "a03e7ac504c8a2d128d6b55a0a30a5038b6f3a81118d60eb4261eec64b458762",
+        "P4SpecTec/Tactic/Realize.lean": "476a21645ae338663cdbacda56738837b218b89a5684102280a4cba407e312a1"
+      },
+      "change": "Select requiresColumns in recursive reverse proof renderer and nonrecursive body renderer; add nonrecursive realize_al(columns) forwarding to already checked body true none true. No prior paths changed.",
+      "check": {
+        "session": 90180,
+        "exit": 0,
+        "log": ".artifacts/n2-reverse/columns-renderer.log"
+      },
+      "previousReview": ".artifacts/n2-reverse/default-root-review.json",
+      "reviewer": "Root Codex independent of Astra author",
+      "verdict": "No findings",
+      "reasoning": "The new requiresColumns flag selects the already reviewed symmetric column body in recursive singleton and nonrecursive paths. Prior modes retain precedence after the new exact flag. New tactic entrypoint uses withoutRecover and unfolds the actual generated definition. Structural singleton eligibility independently reviewed by Astra with mutual-cycle finding fixed by Sol.",
+      "limits": "Production regenerated proofs not yet built on this selector."
+    },
+    "n2-reverse/columns-selector-review.json": {
+      "reviewer": "Independent read-only Astra /root/review_oracle_refactor (owns reverse renderer and tactic support, not this selector)",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RunSound.lean": "d893f12dfb7aa44e88862d19b595020ef90ba44120018ec545cd69f05712bf54",
+        "P4SpecTec/Codegen/Certificates/Forward.lean": "b542bbfd333e37c616b3c7c3a371635a2a3c360339fe889c6aa039d49ff5fe8a",
+        "P4SpecTecTest/Codegen/Certificates/Forward.lean": "160ec8aa9c21d2d84ef41d09c3776b3ea82082a921aeb63efa5ab887a0c96be2"
+      },
+      "finding": {
+        "severity": "medium; fail-closed proof availability, not soundness",
+        "location": "P4SpecTec/Codegen/Certificates/Forward.lean functionListColumns recursiveFunction condition",
+        "description": "recursiveFunction includes distinct-member cycles, but reverse mutual proof mode does not select output columns. Narrow to checked singleton recursive SCC; test mutual-cycle rejection.",
+        "status": "resolved by singleton self-recursive SCC restriction; independent read-only addendum confirms"
+      },
+      "checked": [
+        "Source list-only/non-nested three-stage contiguous extraction/call/reconstruction shape",
+        "Independent unique typed input/output columns, defined monomorphic one-argument callee signature, and final paired-input shared lineage",
+        "Preserved global registration-freshness exclusion and no source-name whitelist",
+        "Member flag only selects proof mode; exact compiled statement/axiom validation remains coverage boundary"
+      ],
+      "limits": "No independent Lean build. Numeric-cast exemption for a selected pipeline remains syntactic proof-search eligibility, not theorem evidence for every hypothetical changed scalar clause. Existing actual proof checks establish current Default. Excludes reviewer-authored recursive renderer/audit.",
+      "resolution": {
+        "files": {
+          "P4SpecTec/Codegen/Certificates/RunSound.lean": "d893f12dfb7aa44e88862d19b595020ef90ba44120018ec545cd69f05712bf54",
+          "P4SpecTec/Codegen/Certificates/Forward.lean": "b2e21866c5a363846778141b1fff5bc7283eaa34a82dd906587864584d7685bb",
+          "P4SpecTecTest/Codegen/Certificates/Forward.lean": "3054ae3e378b0fc0b04907bd484a32e48bbe1731e18727dd121e8f1fed3bbae8"
+        },
+        "check": "Author focused --wfail97188 exit0,100jobs; actual Default retained; source-derived mutually recursive peer mutation rejected. No reviewer build.",
+        "verdict": "No remaining findings. Distinct callee reachability back to current definition is excluded even if a self edge also exists."
+      }
+    },
+    "n2-reverse/consumer-review.json": {
+      "reviewer": "OpenAI Codex Astra independent read-only review",
+      "head": "56cf92c2201e25c11d1263cbdf6895a827afc612",
+      "files": {
+        "ExampleProofs/NanoP4FieldUpdate/Correspondence.lean": "20ae20c82b404c8be237a5b50c1d712c909cc56ce3ccc6689851d78589e4aec7",
+        "ExampleProofs/NanoP4FieldUpdate/test/run.py": "b20add6fb5503a8cce1399a0847f54a28ea9cf2bedcb0286481e204bad4b8dab"
+      },
+      "publicTheoremsUnchanged": [
+        "alRealizesUpdate",
+        "referenceSound",
+        "referenceWritesSound",
+        "referenceObservationSound",
+        "referenceRealizes",
+        "referenceWritesRealize",
+        "referenceObservesIff"
+      ],
+      "removedPrivateDeclarations": 34,
+      "qualifiedExternalHelperReferences": [],
+      "findings": [],
+      "limits": [
+        "No build or mutation harness rerun by reviewer",
+        "Existing harness tests forward refinement, independent quotation comparison and representation; it does not independently replay reverse proof"
+      ]
+    },
+    "n2-reverse/default-review-snapshot.json": {
+      "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Refine/IterationColumns.lean": "5352eb15ae56656d87d8b1c226637a21b679a8e61a9852c872926cf9cdf41856",
+        "P4SpecTec/Refine/IterationPrem.lean": "1971ab6446ccf426add67e19fb459df43797ac46f6bd1026179bb4a032193e00",
+        "P4SpecTec/Refine/IterationLength.lean": "6517f43c395ef16d8b7c0706ccb0d1b0e97177c4f8d12b70269e6b40cc6c20dc",
+        "P4SpecTec/Tactic/IterationColumns.lean": "a130f9e1e88af650c24b38dfc462e34cd9591bc046a89a4b9550fc0555decce8",
+        "P4SpecTec/Tactic/RealizeTraversal.lean": "0ba175884918d29bd43d0dd68091601b4f62fcb397b9f88b7795b861aded2347",
+        "P4SpecTec/Tactic/Realize.lean": "6f21ba5b20dec31486f6739a54ef3217d4996eb383953b99d799a39a3e3c9761",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "9b28cd712c0fdffd4391406949aff301580d94fcee523c404601daebf9959016",
+        "P4SpecTec/Tactic/Refine/Normalize.lean": "4d2a22035b1ee468255cd863465d700faa09540897fd6cde02ae345532330915",
+        "P4SpecTecTest/Refine/IterationColumns.lean": "7756f768a411535d90d6e6faeddc60b268fb79d08f19e91c02d7a97769bfbebe",
+        "P4SpecTecTest/Tactic/IterationColumns.lean": "b144575b11e874790ebdf935147e4d3b1cabcb3d7913a6193b6c39f7dd971d4b",
+        "P4SpecTecTest/Tactic/Refine.lean": "41b60d7438cb8b068cd89e0e03068d982bd9431d8d7b1d74ab5dd357a8d013e9"
+      },
+      "combinedSha256": "f2388fca151d0cba66fdf7fa38def2e6ab93fbd227284aac8f88eaa4aecfa1f3",
+      "evidence": {
+        "forwardScratch": {
+          "session": 66938,
+          "exit": 0,
+          "wallSeconds": 55.51,
+          "log": ".artifacts/n2-reverse/default-production-limit.log"
+        },
+        "promotedForwardFocused": {
+          "session": 33139,
+          "exit": 0,
+          "log": ".artifacts/n2-reverse/default-promoted.log"
+        },
+        "reverseFocused": {
+          "session": 9518,
+          "exit": 0,
+          "log": ".artifacts/n2-reverse/default-reverse-support2.log"
+        },
+        "actualReverse": {
+          "session": 31844,
+          "exit": 0,
+          "wallSeconds": 70.49,
+          "log": ".artifacts/n2-reverse/default-reverse1.log"
+        },
+        "finalFocused": {
+          "session": 86258,
+          "exit": 0,
+          "log": ".artifacts/n2-reverse/default-focused-final.log",
+          "jobs": 83
+        },
+        "actualDefaultVarInit": {
+          "session": 94493,
+          "exit": 0,
+          "wallSeconds": 122.81,
+          "log": ".artifacts/n2-reverse/default-var-init-final.log",
+          "source": ".artifacts/n2-reverse/DefaultVarInit.lean",
+          "sourceSha256": "87aad72bedc4eb2808390f3843b406490129230d3108d5e47909a0221a6e8afb",
+          "notes": "No Lean diagnostics. Default all-fuel forward group+corollary and outcome-inductive reverse; Var_init both directions. All5 theorem audit commands pass. Only two unused Var_init binder names changed after prior proof run."
+        }
+      },
+      "limits": "No production Default/Var_init claims yet. No full gate. Actual current-source combined proofs passed with normal production4m/8192 limits and standard axiom audits. Full source-domain/output/call preservation remain separate open N2 obligations."
+    },
+    "n2-reverse/default-root-review.json": {
+      "reviewer": "Root Codex agent independent of Astra author",
+      "reviewedHead": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Refine/IterationColumns.lean": "5352eb15ae56656d87d8b1c226637a21b679a8e61a9852c872926cf9cdf41856",
+        "P4SpecTec/Refine/IterationPrem.lean": "1971ab6446ccf426add67e19fb459df43797ac46f6bd1026179bb4a032193e00",
+        "P4SpecTec/Refine/IterationLength.lean": "6517f43c395ef16d8b7c0706ccb0d1b0e97177c4f8d12b70269e6b40cc6c20dc",
+        "P4SpecTec/Tactic/IterationColumns.lean": "a130f9e1e88af650c24b38dfc462e34cd9591bc046a89a4b9550fc0555decce8",
+        "P4SpecTec/Tactic/RealizeTraversal.lean": "0ba175884918d29bd43d0dd68091601b4f62fcb397b9f88b7795b861aded2347",
+        "P4SpecTec/Tactic/Realize.lean": "6f21ba5b20dec31486f6739a54ef3217d4996eb383953b99d799a39a3e3c9761",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "9b28cd712c0fdffd4391406949aff301580d94fcee523c404601daebf9959016",
+        "P4SpecTec/Tactic/Refine/Normalize.lean": "4d2a22035b1ee468255cd863465d700faa09540897fd6cde02ae345532330915",
+        "P4SpecTecTest/Refine/IterationColumns.lean": "7756f768a411535d90d6e6faeddc60b268fb79d08f19e91c02d7a97769bfbebe",
+        "P4SpecTecTest/Tactic/IterationColumns.lean": "b144575b11e874790ebdf935147e4d3b1cabcb3d7913a6193b6c39f7dd971d4b",
+        "P4SpecTecTest/Tactic/Refine.lean": "41b60d7438cb8b068cd89e0e03068d982bd9431d8d7b1d74ab5dd357a8d013e9"
+      },
+      "combinedSha256": "f2388fca151d0cba66fdf7fa38def2e6ab93fbd227284aac8f88eaa4aecfa1f3",
+      "verdict": "No findings",
+      "scope": "Extension after reviewed Type_eq/relation and initial columns foundations: actual output columns, length retention, canonical projection normalization, both drivers and distinguishing regressions.",
+      "checks": [
+        "One source column encodes its entire generated carrier; two source columns use separately selected component encoders.",
+        "Column collection keeps actual arity and empty-list behavior, and does not erase ragged-row failures.",
+        "The mapM length conjunct follows successful execution only; both semantic theorems retain existing failures and reverse eventuality without global monotonicity.",
+        "Projected input normalization and dynamically built relations are checked proof terms; actual hypotheses retain reference contexts.",
+        "Canon fact extension accepts only variables or direct projections of variables; tests demonstrate the old omission.",
+        "All new driver entrypoints use withoutRecover; unresolved obligations fail elaboration and generated audits remain mandatory."
+      ],
+      "validation": {
+        "forwardScratch": {
+          "session": 66938,
+          "exit": 0,
+          "wallSeconds": 55.51,
+          "log": ".artifacts/n2-reverse/default-production-limit.log"
+        },
+        "promotedForwardFocused": {
+          "session": 33139,
+          "exit": 0,
+          "log": ".artifacts/n2-reverse/default-promoted.log"
+        },
+        "reverseFocused": {
+          "session": 9518,
+          "exit": 0,
+          "log": ".artifacts/n2-reverse/default-reverse-support2.log"
+        },
+        "actualReverse": {
+          "session": 31844,
+          "exit": 0,
+          "wallSeconds": 70.49,
+          "log": ".artifacts/n2-reverse/default-reverse1.log"
+        }
+      },
+      "limits": "No production Default/Var_init eligibility or inventory review yet; combined source-derived proof and source-structural selector validation still separate."
+    },
+    "n2-reverse/final-consistency-review.json": {
+      "reviewer": "OpenAI Codex Astra independent read-only checkpoint consistency review",
+      "head": "56cf92c2201e25c11d1263cbdf6895a827afc612",
+      "stagedDiffSha256": "5bdeeae2d21f5353bfffbadf829f643319fae3c2e6ca3c0a6387118c398dc514",
+      "stagedFiles": {
+        "docs/certification.md": "d0dc6cb98276196eef9f6d959c4026e3e61e65d407ebfd4791900a35d98ebebb",
+        ".agents/status.md": "4fbed5d7e500b2b21dfedcaeab5b94d01ac2c744062b3a9668cf10a198e5c280",
+        ".agents/roadmap.md": "66a9309d38275fdd5c435cdf015ae6271e20d7e6c1de48960961096afc7caa5a",
+        ".agents/decisions.md": "24580f4474cc0c3994c7ef477bdd0638301a0008aea2f7b68ec878385750a2cf",
+        ".agents/notes/nano-certification.md": "8076579b5b08d2a86b7aea531102ac709fb636514c3fea58356654d5bcea1086",
+        "P4SpecTec.lean": "3e34781ba61d2b1551777f2b5f1407770ee36c5aad7e83df51a630b85b5a88d1",
+        "P4SpecTecTest.lean": "c8cb162d75ec9d75c74ecca17bfc9374a5417cf1d65413d82d7395b9154a5b71",
+        "P4SpecTecTest/Refine/Builtin/Text.lean": "a7861360ce44cd60c23e52aaf9dacc41c37b4fbaf841274204cfdff60954d687",
+        "P4SpecTecTest/Refine/Builtin/List.lean": "89986012ce1dcde0f52ee59384bce4493d05cc82b523645a37a891e2caa213c6",
+        "P4SpecTecTest/Refine/Builtin/Numeric.lean": "a84247c449179ee10d324797e1e8b3a67ce3d7345756996db9e4581ac6c4085b",
+        "NanoP4Spec/completion.json": "428f3a6aa76c482cb139e5cf1876db0d4219ee1f99cfa54c19236fbc5dfb1221"
+      },
+      "findings": [],
+      "verified": [
+        "350 declarations / 888 obligations / 139 bindings = 18 forward + 18 reverse + 26 dispatch + 77 run-soundness / 749 unresolved",
+        "N2 explicitly remains active; source-domain and relation closure obligations retained",
+        "All added Lean modules reachable from core/test/generated/example roots; no reusable imports of tests/examples",
+        "Retained builtin tests include exact raw dispatch equalities, arbitrary metadata hypotheses, unsigned/signed numeric width rejection, empty bits, invalid UTF8/NUL/tab bytes, and list reversal/association checks"
+      ],
+      "limits": [
+        "Full gate 60774 running; no verdict inferred",
+        "No builds or executable edits by reviewer",
+        "Deleted three test-only Realizes blocks lack pre-removal snapshot; exact deletion comparison relies on original author Sol review of record, not an independent text-exact comparison here"
+      ]
+    },
+    "n2-reverse/final-integration-review.json": {
+      "reviewer": "Independent read-only review by Codex Astra subagent /root/review_oracle_refactor; author of earlier reverse proof machinery, not author of reviewed final formatting/gate/docs changes.",
+      "base": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "scope": [
+        "docs/certification.md current staged+unstaged diff against HEAD",
+        "scripts/check.sh strict --require-n2 wiring",
+        "root-authored Reverse.mutualTheorems projection-application formatting only",
+        "root-authored Emit.headerLine and refModule trailing-whitespace rendering only"
+      ],
+      "hashes": {
+        "docs/certification.md": "b5dd5d376e3e663c748af019a9eeea2d8a06065f13c674cc113ab2f863b51752",
+        "scripts/check.sh": "b24b2319611a8ca4614b6a46d34197d326ee3cce4779cb0af15a559e881e9450",
+        "P4SpecTec/Codegen/Certificates/Reverse.lean": "9bfeb8d433b277740b704f6b23c3d40dece3aba186aa01f33cfc34ffc57d8133",
+        "P4SpecTec/Codegen/Emit.lean": "e5009d81d9cb26987893b71286434a5ace7c01f22763481ca293541a5edb2a8f",
+        "NanoP4Spec/coverage.json": "6bfb503dc92f6c4fe04ec915ee8140c6826d1341cf654ea6ebd02db1e32bc6ff",
+        "NanoP4Spec/completion.json": "61616a360857f3abf8b1e2d6522d973cac3c19d70e4d32e169579ff12497a2ab"
+      },
+      "findings": [],
+      "nonblockingNotes": [
+        {
+          "file": "P4SpecTec/Codegen/Emit.lean",
+          "lines": "107-108",
+          "note": "headerLine docstring says two lines but long provenance uses three. Optional comment-only precision fix; reported to root."
+        }
+      ],
+      "observations": [
+        "Current coverage contains39 paired bodied definitions of153 and162 sourceCodec claims.",
+        "Current completion has888 obligations,381 claim bindings,507 unresolved.",
+        "Documentation distinguishes related-input correspondence, full source grammar, admission/preservation and runtime target boundary; core and target remain explicitly incomplete.",
+        "Strict N2 stage failure sets gate fail flag; preceding library/executable/generation failures retain fail status.",
+        "Mutual projection application formatting preserves projection and argument order; audits remain.",
+        "Header first generated marker and source provenance retained; long artifact provenance moves to its own comment. Current generated proof rendering trailing-whitespace cleanup does not alter tokens."
+      ],
+      "validation": "Read-only source/diff inspection and Python JSON inventory; no Lean processes, tests or full gate started by reviewer.",
+      "limits": [
+        "Not a new independent review of earlier authored reverse semantics or all Emit changes; earlier independent reviews remain authoritative.",
+        "Metadata counts alone are not proof validation. Parent reports aggregate16874 actual exit0 for621jobs; full gate46818 remains pending at review.",
+        "Example mutation fixture edits, obsolete generated-file deletion and final gate/remote CI are outside this scoped review."
+      ]
+    },
+    "n2-reverse/final-review-snapshot.json": {
+      "author": "OpenAI Codex (GPT-6 Astra), /root/review_oracle_refactor",
+      "paths": {
+        "P4SpecTec/Codegen/Certificates/Reverse.lean": "438554aec7f5467366bd3de14b59a9b82c22704d02dba85315f695694b9327ab",
+        "P4SpecTec/Codegen/Certificates/Forward.lean": "4a6d5100257b07eadd76a8d5070cf4b405ddfeb27f5f1c1d6f50935770dbb7da",
+        "P4SpecTec/Tactic/Realize.lean": "a5bfbb5255524312b05fa058a559ed628403d643a7ec8c011bbaf67e1396388c",
+        "P4SpecTec/Tactic/Refine/Forward.lean": "c22e125d7bb3f981c0736f44782c1c617972dadc7b57eeaa93cabf79b2428104",
+        "P4SpecTec/Tactic/OutcomeInduction.lean": "ed652b277afcc671fe2316150c8a9417afe8c0143d53c02c6f093c350207172b",
+        "P4SpecTec/Tactic/RunSound.lean": "728fea0d7b9856637549fc07798b8f421452fa25bed089078a6030de6501caf5",
+        "P4SpecTec/Tactic/Encoding.lean": "8fe20bc019579d43b0e5c8b24a1a95146715ce005e8795eddcb642a5b956a0f6",
+        "P4SpecTec/Tactic/Traversal.lean": "268fb9d8a0c60c9467f55958c4fca5bc91fe64ad88b548b3ca86af3831526c0c",
+        "P4SpecTec/Tactic/RealizeTraversal.lean": "a689223e4ffbf1e466e6af1d6d8409fec5f57ecb3eca72662164b68d957ec307",
+        "P4SpecTec/Refine/RealizeFuel.lean": "c3d96d1fac416d514e87357a61b8a4ca60af3a12b93f9b67e4e69cf9efea1337",
+        "P4SpecTec/Refine/RealizeChoice.lean": "ca8ffd9e28d907e369f25ac84fd398c7f49e5074da4e601fc78647e456f41778",
+        "P4SpecTec/Refine/RealizeInterp.lean": "079986812876473239457ac90cac7ffb82d1fba793e9ec9bae56dc7f788ebd04",
+        "P4SpecTec/Refine/RealizeIteration.lean": "f5665d0603d0a93d137e24ab62437405e955531a8b828d3e7ec01c59a35018e6",
+        "P4SpecTec/Refine/Realize.lean": "808732a79c365771ae8822342ada8b1150f2576cb087abf5cd493e6ea72a083e",
+        "P4SpecTecTest/Tactic/Encoding.lean": "0e0ac2843c71b0de55e85b4a003369e1f509479e637a8563a110fc57cda36959",
+        "P4SpecTecTest/Tactic/RealizeTraversal.lean": "b047953b9c51570d0f073db5206d7a6c26707476794e19cbc6ad081ff8db515c",
+        "P4SpecTecTest/Tactic/OutcomeInduction.lean": "41c94c5eb29c60bb55dcc61eb534b322d51baaa500e4f5f1553131c8f4b3e018",
+        "P4SpecTecTest/Codegen/Certificates/Forward.lean": "a1dff31ec625268b1cceb1b1a4e8e036705d6ce53617bad4901c06e08a196cae"
+      },
+      "snapshot_sha256": "5c1e1012641415d86e05e20f11ae0a7fa9158b84841bd92383212657245b1c44",
+      "text_violations": [],
+      "status": "Frozen: final combined proof passed; subsequent emitter-only explicit group audit and distinguishing test passed --wfail100jobs",
+      "ownership_limits": [
+        "Codegen Forward: author owns only recursive group proof-mode dispatch edit; other changes independently reviewed Sol snapshot6575ac.",
+        "Tactic Forward: author owns final opt-in subtype traversal flag, positional mapM helper reuse, empty-row unit transport, shape/length facts and And destructuring; previous caller normalization authored Sol and separately reviewed.",
+        "Existing Refine.Realize: only added ofBindPure, already root-reviewed; other calculus rules preexist."
+      ],
+      "changes": "Actual mutual outcome induction, exact output-free reference iteration, zip observations, symbolic recursive list encoder equations, payload canonical transport, opt-in forward/reverse subtype/iteration support. No runtime/source statements or admissible domains changed."
+    },
+    "n2-reverse/integration-review.json": {
+      "head": "56cf92c2201e25c11d1263cbdf6895a827afc612",
+      "diffSha256": "e82879cb7c1230297c418c327fc76fb0f4431ca31da72e12b35d7b9df6b3e60c",
+      "files": {
+        "P4SpecTec/Codegen/Coverage.lean": "09ac1225783d55b8892ad87e4ce641a5f6ae353152ca3a140d9472f9d9eb59cc",
+        "P4SpecTec/Codegen/Emit.lean": "cee763a424a2b1a1d72e0a03a11800ef928e27ab22957b8dde6f6c7ed6f98050",
+        "scripts/nano-certification.py": "5b68da3dbf9ae9083224e074072d671a177200c59d602d7737dfb9b7b4ddbb81",
+        "scripts/test_nano_certification.py": "bd87de534226c9f79c2d23cd7b44d3205d3e6caa7373040c2eda1957e402a7b3",
+        "P4SpecTecTest/Codegen/Coverage.lean": "7716fc71383821458e324719935eb3b4bb66a2e80bcf991029aa305f1350733e"
+      },
+      "scope": "Independent read-only integration review, excluding authored Reverse certificate renderer and not a full builtin proof review",
+      "findings": [],
+      "limits": [
+        "No builds run during root combined coverage build",
+        "Builtin supportImports API still being revised by its owner; final compilation and final integration reread required",
+        "Final same-tree full gate pending"
+      ]
+    },
+    "n2-reverse/mutual-eligibility-review.json": {
+      "reviewer": "Astra /root/review_oracle_refactor",
+      "mode": "independent read-only source review; no additional builds",
+      "snapshot": {
+        "files": {
+          "P4SpecTec/Codegen/Certificates/Forward.lean": "c855cf9f5f2d0c9e33104128d07f2f01db438b107f55aa72aad41dbc64cd67af",
+          "P4SpecTec/Codegen/Certificates/RunSound.lean": "714762264c040b4d9679e4d64b486c414bb648c834de26f81dd54f56c475bac1",
+          "P4SpecTecTest/Codegen/Certificates/Forward.lean": "51d5501eeb8775309dcd3d3649f5351d22e9ccc9a5f08b245fd907cc7166cc9d"
+        },
+        "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+        "check": [
+          "lake",
+          "build",
+          "P4SpecTecTest.Codegen.Certificates.Forward",
+          "--wfail"
+        ],
+        "exit": 0,
+        "log": ".artifacts/n2-call/mutual-eligibility.log"
+      },
+      "scope": "Only new zeroOutputRelation/relationIterationPrem/relationListIteration selectors and unsupportedPrem integration, relationHasIteration preset, and distinguishing tests. Excludes own renderer/audit and prior tactic implementation.",
+      "findings": [],
+      "assessment": [
+        "Source-derived zero-output defined relation with exact unique ordered bound variables and matching expression types; optional, output-binding, nested and unguarded two-column iteration rejected.",
+        "All common/path premise sequences checked; two-column case requires explicit prior equality of exact named list lengths. Existing exact theorem compilation and axiom checks remain the acceptance boundary.",
+        "Actual Type_eq/ParameterType_eq accepted; mutation checks retain guard/type/uniqueness/kind/output boundaries."
+      ],
+      "limits": [
+        "Does not establish general tactic termination for every syntactically accepted future definition.",
+        "Production regeneration and full gate pending; successful actual full-spec mutual proof was independently checked separately."
+      ]
+    },
+    "n2-reverse/producer-bridges-root-review.json": {
+      "reviewer": "Codex Astra subagent review_oracle_refactor",
+      "mode": "Independent read-only review of root additions; reviewer originally authored encodedListIff before relocation.",
+      "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationRecord.lean": "8f309176ad800493151c5c95456a9f50b42c700240eb4a5f3f79e524daa9d981",
+        "P4SpecTec/Codegen/Certificates/RepresentationAlias.lean": "ac90256ac630ac6ad1d8f43876db0c3f007d345f37617332d70d1a054c44c6a6",
+        "P4SpecTec/Codegen/Certificates/RepresentationContainer.lean": "46334741abb7367534bd52f897909cf89460432c06d3ab327f70e960252cb8b4",
+        "P4SpecTec/Codegen/Certificates/RepresentationMap.lean": "aadbe2e678895b805cceef2a46e7367a93034fe28b74f6437c08967916eb6fed",
+        "P4SpecTec/Refine/Producer.lean": "8ff3e3b1a1fe3e0c39ea9a49ef08bed36d3d54924d2cd9da8b8a2b898b043635",
+        "P4SpecTec/Refine/ProducerMap.lean": "fdb5eb90e8ef2b54a43cbe3d0f76b4f4aec8121f251064b8de82f12d48a9cd9b",
+        "P4SpecTec/Refine/Representation/SourceCodec.lean": "11fa48f05c1a99c586f6043728e2700726a5d161bd7619909ba24277730dc60b"
+      },
+      "findings": [],
+      "scope": [
+        "encodingSourceIff additions in record/alias/pair/list/map emitters; exact independent source field predicates, explicit dictionary positions, actual source substitutions and ordered payloads",
+        "encodedListIff relocation preserves statement/proof, not claimed independent review of original authored theorem",
+        "Produces.bindAny derives output preservation for every continuation result without asserting intermediate admission",
+        "ProducerMap.update preserves whole pair predicate under actual first-match update, no equality-law premise required"
+      ],
+      "authorChecks": [
+        {
+          "session": 15708,
+          "exit": 0,
+          "scope": "record/alias"
+        },
+        {
+          "session": 91041,
+          "exit": 0,
+          "scope": "container/map"
+        },
+        {
+          "session": 6284,
+          "exit": 0,
+          "scope": "relocated list helper"
+        }
+      ],
+      "limits": "No reviewer builds; did not re-review complete prior codec templates, SCC codecs, context producer integration, or claim call-input preservation from bindAny."
+    },
+    "n2-reverse/producer-emitter-review-snapshot.json": {
+      "files": {
+        "P4SpecTec/Codegen/Certificates/Producer.lean": "28728e4fe3988521a09f5fee1331b61945d11e06b95641d19e6b86e9a2ae1d29",
+        "P4SpecTecTest/Codegen/Certificates/Producer.lean": "7fd2572a00f605c75e7edac64680efe5a146a6e765e99e1e565f4cc32e0515d1"
+      },
+      "checks": [
+        {
+          "file": "RenderProducer.lean",
+          "log": "render-producer-final.log",
+          "exit": 0,
+          "seconds": 0.6290882920147851
+        },
+        {
+          "file": "EmittedProducer.lean",
+          "log": "emitted-producer-final.log",
+          "exit": 0,
+          "seconds": 0.5893595420056954
+        }
+      ],
+      "focused": {
+        "session": 39382,
+        "exit": 0,
+        "log": "producer-emitter-tests.log"
+      },
+      "limits": "Updater only. No producer claims wired yet; no total admission/SCC or caller closure claimed. No full gate."
+    },
+    "n2-reverse/source-codec-variant-review.json": {
+      "reviewer": "Independent read-only review by Astra subagent /root/review_oracle_refactor",
+      "head": "996dc228d6f59fa2cf798aa7dee08c0ae8920e7b",
+      "files": {
+        "P4SpecTec/Refine/Representation/SourceCodec.lean": "dfd5c85a07c6243d7f9fa24ec56ba12838eef07c436d0bc9b63f2d3ef299571e",
+        "P4SpecTec/Refine/Representation/SourceVariant.lean": "9cfa941a00266650626efc355a135dc20571c8bfd6b3dfeb219ba3081db42692"
+      },
+      "findings": [],
+      "checked": [
+        "Strict primitive tag domains exactly match Source.Valid constructors and Shape predicates; no accidental widening to runtime membership.",
+        "List/option domain equivalences preserve positional validity, element metadata and unrestricted finite lengths. Codec combinators carry explicit legal element contracts and admitted-value predicates.",
+        "Variant inversion retains actual Source.body lookup, constructor membership, exact runtime case payload, Mixfix.eq_mixop and simultaneous instantiatedFields premise; introduction reconstructs same source derivation."
+      ],
+      "limits": [
+        "No independent build; parent reports focused --wfail pass.",
+        "SourceMixfix implementation remains separately reviewed by parent; reviewed only its interface here.",
+        "These are compositional helper contracts, not a full Nano source-domain adequacy or N2 completion certificate."
+      ]
+    },
+    "n2-reverse/source-container-delay-review.json": {
+      "reviewer": "Codex GPT-6 Astra /root/review_oracle_refactor",
+      "baseline": "feec9b647e90f9eecf6f2ecdd0ab2b7bfc762a1c",
+      "files": {
+        "P4SpecTec/Refine/Representation/SourceContainer.lean": "4db8b4778b11343d737d8638816212c6fb0cacc925d4924bf51ad437fe475fc1",
+        "P4SpecTec/Refine/Representation/Delay.lean": "e99782b9e1500108f5d71cee12dff84bd92c39e91b98859975cece6be559ae03"
+      },
+      "findings": [],
+      "checked": [
+        "Source constructor rules retain exact declared bodies, field count/order and simultaneous K/V instantiation; no generated decoder defines their domain.",
+        "Delay preserves source/admitted predicates and explicit decoder argument, requires finite sufficient bound shifted by one, and excludes zero fuel."
+      ],
+      "limits": [
+        "Read-only review, no independent process validation; parent reports focused --wfail exits 0.",
+        "SourceContainer gives construction rules under explicit quoted-body and shape hypotheses, not complete Nano source coverage.",
+        "Underlying Source model read for interfaces; not a new comprehensive independent audit of its entire implementation."
+      ],
+      "payloadInversionAddendum": {
+        "files": {
+          "P4SpecTec/Refine/Representation/SourceAlias.lean": "96c4c7ee1cb76641f66d0da34268d0f0882f1c2dfead4a6c688564664e54bce2",
+          "P4SpecTec/Refine/Representation/SourceSubst.lean": "e53d73aa4ab11cfcb677cef0e33309e6d2c4d7287b866ff171e77a3a272e8d2f",
+          "P4SpecTec/Refine/Representation/SourceContainer.lean": "8fc6189c825ca5a5e031b37de02473a27a4586e0f9e5738a8692e2f6d0af3bd2"
+        },
+        "findings": [],
+        "checked": "Read Valid.arguments/plainPayload, Values.types, Valid.iterElement, Substitutes.namedArguments, pairFields/setFields/mapPayload against actual Source inductive rules. Outer type metadata transport retains exact syntax equality; map substitution remains simultaneous and pair field positions preserved. Unit mixop uses explicit SourceMixfix transitivity contract.",
+        "limits": "No independent build. SourceMixfix full implementation review belongs to root. These are conditional source construction/inversion rules, not full Nano coverage."
+      }
+    },
+    "n2-reverse/source-observation-review.json": {
+      "reviewer": "Independent read-only Astra agent /root/review_oracle_refactor; no authorship of SourceObservation",
+      "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "file": "P4SpecTec/Refine/Representation/SourceObservation.lean",
+      "sha256": "03c5c0a6e87e46a3eae06792c1198471ee2781c7dd0ff8745bb6bf895b37d237",
+      "findings": [],
+      "reviewed": [
+        "Every Source.Valid/Values constructor is transported through actual canonical shape equality; alias instantiation and source declaration premises are unchanged.",
+        "Lists retain lengths, records retain ordered labels and payloads, variants retain actual mixop match and ordered argument validity.",
+        "External-domain stability remains an explicit premise for generic transport; concrete extern domain requires ExternV and canonical transport does not claim payload equality.",
+        "Codec.sourceOfRelated requires admitted generated output and the actual Codec.encodingValid proof; it neither derives admission nor uses decoder-defined source membership.",
+        "Public theorems have standard exact axiom guards and audit commands."
+      ],
+      "evidence": "Author reports focused --wfail2945 exit0,40jobs. No independent builds run; read-only source and owning definitions inspected.",
+      "limits": "Does not review pre-existing Source.Valid domain design, prove actual producer admission, or establish production call preservation. No full gate claim."
+    },
+    "n2-reverse/source-tuple-independent-review.json": {
+      "reviewer": "Codex Astra /root/review_oracle_refactor, independent read-only review of Sol-authored tuple helper",
+      "files": {
+        "P4SpecTec/Refine/Representation/SourceTuple.lean": "c3f59a71759346b7b230a680282d9212f051160e81329a102be5f88cef92d706",
+        "P4SpecTecTest/Refine/Representation/SourceTuple.lean": "c24962a9fdc76936b68774409e7bd474821dcf655addca36a68ccb136a054537"
+      },
+      "findings": [],
+      "reviewed": [
+        "Exact two-field encoder freezes the right component as one value; no global tuple instance added.",
+        "Codec soundness inverts independent Source.Valid exact arity and applies both actual child decoder soundness rules.",
+        "Sufficiency uses max of child sufficient bounds with no fixed depth or uniform bound.",
+        "Unit decoder accepts only TupleV[]; source metadata is retained through canonical observation.",
+        "Focused regression distinguishes outer2/inner2 from ambient flattened outer3 and checks exact rejection."
+      ],
+      "evidence": [
+        "Author focused --wfail exit0,33jobs, reported.",
+        "Reviewer actual emitted assoc full-source coverage/output theorem and audit passed as part of all26 fixture26500."
+      ],
+      "limits": [
+        "No independent rebuild of helper, no full gate.",
+        "No assertion of a general ambient product codec; dictionaries are explicit and contextual."
+      ]
+    },
+    "n2-reverse/substitution-review.json": {
+      "head": "c8f78f781c5625c1eecbd452ddecfb518d35307f",
+      "reviewer": "OpenAI Codex Astra, independent read-only review",
+      "files": {
+        "P4SpecTec/Runtime/Type/SubstDepth.lean": "dafed4acb3f25c9518b5c13b9ccd321908b053c8d38ff4dcc77feb9fabf35479",
+        "P4SpecTec/Runtime/Type/Expand.lean": "00cbe664598127ef3928d45cf1f8cd6e7f39ea85363e60dc20bc81063f0494c6",
+        "P4SpecTec/Runtime/Type/Equiv.lean": "f8c0f2876eb4a9efa75a2c3215e8f63392e654a8440703e0b9eaf8b1080a682d",
+        "P4SpecTec/Runtime/Value/Match.lean": "bdf1d69af5b76a766ecf3a53b92f3a049f8d7f8c1e9d2862fe3022f8aefa633b",
+        "P4SpecTec/Interp/InterpAl/Interp.lean": "461f3f5119993867b2c0812c4c76a8bf342c33bf066cde29ca367e332f3f8ded",
+        "P4SpecTecTest/Runtime/Type/SubstDepth.lean": "adc3705720450ddbea3d0d12e3845972d0ad8c62175e82cc36e5b9e216a6612d"
+      },
+      "findings": [
+        {
+          "severity": "low",
+          "file": "P4SpecTec/Runtime/Type/SubstDepth.lean",
+          "declarations": [
+            "substType",
+            "substTypes",
+            "substNotation"
+          ],
+          "issue": "Syntax depth is computed eagerly even for empty theta, where the legacy checked wrappers return input immediately; preserve this fast path outside the bound computation."
+        }
+      ],
+      "semanticFindings": [],
+      "verified": [
+        "Bound follows exactly recursive input syntax, with max over list branches",
+        "Replacement syntax is returned simultaneously without recursive substitution",
+        "Stable/defined proofs retain errors and prove a concrete finite result",
+        "All production fixed Subst.fuel checked-substitution callers migrated; legacy APIs retained",
+        "Tests cross 1100 nesting and preserve simultaneous replacement/higher-order/function errors"
+      ],
+      "limits": [
+        "No independent builds or performance measurement during concurrent proof work",
+        "Recursive alias expansion and checked membership retain separate bounds"
+      ],
+      "resolution": {
+        "SubstDepthSha256": "b9d0024fdb8c8afa564239276243e4ad2330ea17e8df58e4de49dbd98dfd6be4",
+        "verdict": "Empty-theta fast paths confirmed outside depth/argument traversal; low performance finding resolved. No remaining findings.",
+        "authorValidation": "Root reports focused --wfail session66512 exit0; reviewer did not rerun."
+      }
+    },
+    "n2-root-context-domain-review.json": {
+      "reviewer": "root Codex independent read-only review of agent-authored implementation",
+      "findings": [],
+      "files": {
+        "P4SpecTec/Codegen/Certificates/ProducerContextProof.lean": "5979a18cb52029d3638d54b19537b24d3debcce2829f2ee5f3ef07f1c5b6de0e",
+        "P4SpecTecTest/Codegen/Certificates/ProducerContextProof.lean": "25e9a771b83e3eb0cbbd03468e2e6455e48a8d122d4c6b52660cc9c2ab637a45",
+        "P4SpecTec/Codegen/Certificates/SourceBuiltin.lean": "aaa6389ae635969dbe6a8e98b786a867e53e55edfb2f2357be7d4c444ab60b75",
+        "P4SpecTec/Codegen/Certificates/SourcePolymorphic.lean": "e7610cb7ce11607c02f2511e722cc9863e438015032b7e5a4894113ce03b7909",
+        "P4SpecTec/Refine/SourceBuiltin.lean": "da15eb35cee73a49bd56034de74d1f3789bed0aecb9df32be5e851caeb7e5b75",
+        "P4SpecTec/Refine/Representation/SourceTuple.lean": "c3f59a71759346b7b230a680282d9212f051160e81329a102be5f88cef92d706"
+      },
+      "checked": [
+        "source-selected insertion and list-tail classifiers feed complete source grammar preservation",
+        "projection maps retain declared key/payload encoders",
+        "builtin domain includes universal admitted-input output preservation and full raw source coverage",
+        "parameter codec assumptions are explicit and copied rather than guessed",
+        "tuple codec preserves exact2 arity including hidden product children; decoder any-fuel sound and monotone sufficient bound"
+      ],
+      "limits": [
+        "new SourceTuple tests not yet read",
+        "root Emit integration not independently reviewed here",
+        "composition hint policy and later call-input bridges excluded",
+        "upstream canonical grammar alignment audit ongoing"
+      ]
+    },
+    "n2-root-integration-review.json": {
+      "reviewer": "root Codex independent read-only review of agent-authored sources",
+      "findings": [],
+      "limits": [
+        "No independent rerun of agent direct Lean proofs; production root builds separately recorded.",
+        "SourceProfile empty-variable follow-up not yet reviewed.",
+        "ProducerComposition unconditioned actual Var_init still awaits context producer."
+      ],
+      "files": {
+        "P4SpecTec/Codegen/Certificates/ProducerDefault.lean": "b9b8977b07c1eb1e8122fa0107388d3fff3759e14beeb4e675006e6452166e4a",
+        "P4SpecTec/Codegen/Certificates/ProducerConstructor.lean": "c14a24bf413bf2cf0e9db8dc82751ec222b47b76e77e165f093e9e98be9e2fbc",
+        "P4SpecTec/Codegen/Certificates/ProducerComposition.lean": "690ed9a25c65296f15f7fcf515145da1cfe79e3fdcd507902186d3205bcb132f",
+        "P4SpecTec/Codegen/Certificates/RepresentationRecursiveTotality.lean": "795c7bb82de6d3d244719abc5696189bb80f6bd21ffee278dbf5cdcda67fc28d",
+        "P4SpecTec/Tactic/CarrierInduction.lean": "8db2d86e560c3c4c34efd29383f780b30bbaf7d8201d084beff8fc2afd78dd47",
+        "P4SpecTec/Refine/SourceProfile.lean": "c9ecbfbf2ced1e720fd0f6af6dd9c068de33f388fb002bd524d53f7cb0a36100",
+        "P4SpecTec/Codegen/Certificates/SourceProfile.lean": "ca66568d0af4c8da41e63850b15b0a4370d895983f100f4f058cc470a589a9f9",
+        "P4SpecTec/Tactic/Refine/ForwardRules.lean": "d6dbdc7ca77b34cc5f68294242ad952b42359d519b0a3228adb00c6305b62c4b"
+      }
+    },
+    "n2-shared-proof-review.json": {
+      "reviewer": "root Codex agent, independent of authoring subagents",
+      "date": "2026-09-27",
+      "kind": "read-only source review",
+      "findings": [],
+      "scope": [
+        "Exact output-free interpreter iteration retains context construction, premise errors, traversal and transpose behavior.",
+        "Traversal observations come from checked canonical equations and positional zip laws; tactic success builds kernel-checked proof terms.",
+        "Field codec contracts bind primitive and nominal encoders/decoders explicitly, independently source-typed; unknown and unsupported dependencies fail closed.",
+        "Source-domain transport requires proved implication/iff and does not redefine admission by decoder success."
+      ],
+      "limits": [
+        "No additional build during review. Focused authors checks recorded separately.",
+        "No claim for unresolved recursive SCC emission, full field coverage or N2 closure."
+      ],
+      "sha256": {
+        "P4SpecTec/Tactic/Traversal.lean": "268fb9d8a0c60c9467f55958c4fca5bc91fe64ad88b548b3ca86af3831526c0c",
+        "P4SpecTec/Refine/RealizeInterp.lean": "079986812876473239457ac90cac7ffb82d1fba793e9ec9bae56dc7f788ebd04",
+        "P4SpecTec/Refine/Realize.lean": "808732a79c365771ae8822342ada8b1150f2576cb087abf5cd493e6ea72a083e",
+        "P4SpecTec/Codegen/Certificates/RepresentationField.lean": "1e96c8328aeb51640d3f2e7e7b5a373646bec43daa7deba6c698e94defb24fab",
+        "P4SpecTec/Refine/Representation/SourceCodec.lean": "8104e5350d66c4192b4b02582ef6a6f1f1c4da0212d95782227d74be4dcaf7f2"
+      }
+    },
+    "n2-source-entry-review.json": {
+      "date": "2026-09-27",
+      "reviewer": "Independent read-only Codex agent /root/organize_oracles",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/SourceEntry.lean": "e513de0659d5c8cc0b86db696d13bfda8ec1acdae8edac31a929c9cdf1e8bcf4",
+        "P4SpecTecTest/Codegen/Certificates/SourceEntry.lean": "0852590fd32af680f954b0d8afdb088c29feece388543dfa3395ff922f738606",
+        "P4SpecTec/Codegen/Emit.lean": "cd4f66402c9a31483b99366ddc3463c34f2351286d79b2ab2dbad8f64aa7c16c"
+      },
+      "verdict": "No findings",
+      "scope": [
+        "Source input extraction uses actual declared input order; first-order monomorphic guards and member arity check",
+        "Actual codec adequate coverage supplies admitted typed witnesses and Rel without decode-success assumptions",
+        "Both invocation directions retain exact guard/local-env/spec/type-freshness hypotheses",
+        "Emit source-entry claims only when reverseReasons (including forward reasons) empty; imports exact paired and representation dependencies; inventory checks exact expected type"
+      ],
+      "limits": [
+        "SourceEntry is input adequacy plus invocation correspondence, not admitted-output preservation",
+        "No original18 domain completion implied",
+        "Read-only review; parent reported focused --wfail exit0 session3251; independent full production generation not run"
+      ]
+    },
+    "n2-source-variant-helper-review.json": {
+      "reviewer": "/root/organize_oracles (Codex), independent read-only review",
+      "files": {
+        "P4SpecTec/Refine/Representation/SourceVariant.lean": "43a13470e4d5d4c7f4d2eaa64b25d0fd581d48f989024235ebacadc2e3470c68"
+      },
+      "reviewed_theorems": [
+        "Values.domains",
+        "Valid.singleConstructor"
+      ],
+      "findings": [],
+      "limits": [
+        "Read-only proof/interface review; author-reported --wfail session74453 exit0",
+        "No claim of whole-Nano codec completion"
+      ],
+      "observations": [
+        "Field transport explicitly requires each source Valid domain imply the target Valid domain",
+        "Actual single-constructor declaration, constructor membership and parameter substitution retained",
+        "No encoder-image or decoder-success admission",
+        "No source-region equality strengthening"
+      ]
+    },
+    "n2-type-ir-retirement-review.json": {
+      "retiredFile": "P4SpecTecTest/Refine/Representation/TypeIR.lean",
+      "retiredSha256": "e2b6ce66dfc57bdab6aff564ae15dcf19a58fe126875f8f5f92b348addfa045e",
+      "retiredLines": 631,
+      "review": "Semantic comparison by organize_oracles, with independent parent approval to retire recorded in collaboration. Retired probe author and reviewer are same agent; parent provides independent decision review.",
+      "obligations": [
+        {
+          "old": "parameterEncodingSource",
+          "replacement": "@Representation.Codec.encodingValid NanoP4Spec.parameterIR explicit named encoder/decoder dictionaries NanoP4Spec.parameterIR.codec x (NanoP4Spec.parameterIR.admittedAll x)",
+          "scope": "all native values, arbitrary recursive depth, actual complete quoted source grammar"
+        },
+        {
+          "old": "fieldEncodingSource",
+          "replacement": "@Representation.Codec.encodingValid NanoP4Spec.fieldTypeIR explicit named encoder/decoder dictionaries NanoP4Spec.fieldTypeIR.codec x (NanoP4Spec.fieldTypeIR.admittedAll x)",
+          "scope": "all native values, arbitrary recursive depth, actual complete quoted source grammar"
+        },
+        {
+          "old": "methodEncodingSource",
+          "replacement": "@Representation.Codec.encodingValid NanoP4Spec.externMethodTypeDefIR explicit named encoder/decoder dictionaries NanoP4Spec.externMethodTypeDefIR.codec x (NanoP4Spec.externMethodTypeDefIR.admittedAll x)",
+          "scope": "all native values, arbitrary recursive depth, actual complete quoted source grammar"
+        },
+        {
+          "old": "typeEncodingSource",
+          "replacement": "@Representation.Codec.encodingValid NanoP4Spec.typeIR explicit named encoder/decoder dictionaries NanoP4Spec.typeIR.codec x (NanoP4Spec.typeIR.admittedAll x)",
+          "scope": "all native values, arbitrary recursive depth, actual complete quoted source grammar"
+        },
+        {
+          "old": "envEncodingSource",
+          "replacement": "@Representation.Codec.encodingValid NanoP4Spec.externMethodTypeDefEnv explicit named encoder/decoder dictionaries NanoP4Spec.externMethodTypeDefEnv.codec x (NanoP4Spec.externMethodTypeDefEnv.admittedAll x)",
+          "scope": "all native values, arbitrary recursive depth, actual complete quoted source grammar"
+        }
+      ],
+      "uniqueTests": "None: only five positive advertised encoding theorems with exact axiom guards/audits. All private node/list/substitution helpers stage those proofs. Unused private parameterDecode has no consumer or mutation assertion; generic emitted constructor decoder composition plus actual decoderCorrect covers its intended role.",
+      "externalDomainDifference": "Old false callback and canonical extern callback differ syntactically, but independent declared type closure has13actualTypD families and no ExternTypD. No source derivation reachable from these five roots uses Valid.external. See n2-type-ir-retirement-closure.json; open parameter references K/V instantiated only by closed members in actual map/set/pair paths.",
+      "kernelProjectionProbe": {
+        "file": "/tmp/p4-type-ir-retirement.lean",
+        "sha256": "17b267912cf8763f084316897c4d66b78a0517440bcca2f30829ec30388f1b8e",
+        "session": 80617,
+        "command": "nix develop --command lake env lean -DwarningAsError=true -Dlinter.missingDocs=false /tmp/p4-type-ir-retirement.lean",
+        "exit": 0,
+        "covers": "five direct actual production Codec.encodingValid(admittedAll) theorem witnesses and axiom audits"
+      },
+      "preservedAdditionalPower": "Production codecs also prove faithful actual decoder soundness and stable sufficient decoding, absent from retired encoding-only probe. Existing generic source grammar/mutation fixtures remain.",
+      "limits": [
+        "Projection scratch uses current canonical extern domain; no new formal generic callback-erasure theorem authored",
+        "Full gate continuation owned by parent",
+        "Retired handwritten probe no longer matches explicit source-selected encoder dictionaries; this retirement replaces duplicated staging proofs with production certificates, not an unproved assertion"
+      ]
+    },
+    "n2-variant/container-map-review.json": {
+      "reviewer": "Codex Sol (independent read-only review of root-authored files)",
+      "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationContainer.lean": "45b90598cd672556a93e249b54c3d06a71cc7ed079dd70a70b612f268fbef02c",
+        "P4SpecTec/Codegen/Certificates/RepresentationMap.lean": "12e6fea6d0ce21c411c460cbb01415b0099b23faf362656f2b8e68f1d7783d6a",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationContainer.lean": "fb0cd74d1f37834d2cf5f3a1958e00e656d7c1f552ceb04e3eca0f8829449f14"
+      },
+      "findings": [],
+      "scope": [
+        "complete source grammar and parameter substitution",
+        "explicit generated dictionaries and full decoder outcomes",
+        "stable sufficient fuel and exact alias delay",
+        "structural rejection and renamed constructor fixtures"
+      ],
+      "limits": [
+        "No independent build performed; author focused/prototype evidence inspected via reported results.",
+        "Excluded own dispatcher/variant changes; aggregate integration gate pending."
+      ]
+    },
+    "n2-variant/mixed-root-review.json": {
+      "reviewer": "Root Codex agent; independent of Sol author",
+      "scope": "Complete frozen nullary/unary emitter, ordered branch helper, SourceMixfix.caseArgsDisjoint and regression tests",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationConstructor.lean": "194893888f520a80f679acf4b2aefd05786d71850b8ad0d1b0ce20e3239c620e",
+        "P4SpecTec/Codegen/Certificates/RepresentationMixedVariant.lean": "0a1fc14f8c5e7691f6e27422edf2f873940998ecb7611eb6d1271320d6127cc2",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationMixedVariant.lean": "0e64dac16e952d7a11c1b84d5764295339eb155b671de1a27ed607fc77a5efdc",
+        ".artifacts/n2-variant/MixedEmitted.lean": "10b7b28b062dc3fbb4e8e1f8581a27e089793080f1a859d262e97d7dd29b249b"
+      },
+      "verdict": "No findings",
+      "reasoning": [
+        "Full source Valid bound to actual declaration; all declared alternatives included in source order.",
+        "Field domains normalize explicit empty substitution and use fixed dictionary codecs; all child failures are retained.",
+        "Actual decoder branch selected only after exact positional arity and notation disjointness checks.",
+        "Soundness handles arbitrary fuel and stable sufficiency consumes exactly one outer decoder frame.",
+        "Source/runtime extension families and cyclic nominal dependencies rejected; no coverage for Nary/SCC claimed."
+      ],
+      "validation": "Reviewed recorded actual exits 88871 and 13410; read full emitter before subsequent Nary edits and checked exact theorem shapes. Did not rerun frozen files in separate worktree.",
+      "limits": "The ongoing Nary extension requires separate final review. Frozen directory copy lost emitter due to a basename collision; listed reviewed hash is from author snapshot and source was read before mutation."
+    },
+    "n2-variant/nary-root-review.json": {
+      "reviewer": "Root Codex agent independent of Sol author",
+      "snapshot": {
+        "files": {
+          "P4SpecTec/Codegen/Certificates/RepresentationConstructor.lean": "194893888f520a80f679acf4b2aefd05786d71850b8ad0d1b0ce20e3239c620e",
+          "P4SpecTec/Codegen/Certificates/RepresentationMixedVariant.lean": "cfce565e93768d1c8144b891a740d24f2df7273a64ac356b98ac37918d39cce0",
+          "P4SpecTecTest/Codegen/Certificates/RepresentationMixedVariant.lean": "b530c39b59812ed879d304d3fcfb34a261558d5df5926f507b329919c3576931"
+        },
+        "checks": [
+          {
+            "command": "lake build P4SpecTecTest.Codegen.Certificates.RepresentationMixedVariant --wfail",
+            "actualExit": 0,
+            "session": 95746,
+            "jobs": 55,
+            "log": ".artifacts/n2-variant/nary-final.log",
+            "fixture": "one renamed complete family of arities4/0/2, covering Bool/Text/List Text/Option Bool/Nat/Int and ordered alternatives"
+          },
+          {
+            "command": "lake env lean -E warning .artifacts/n2-variant/MixedEmitted.lean",
+            "actualExit": 0,
+            "session": 9283,
+            "log": ".artifacts/n2-variant/nary-actual.log",
+            "scope": "actual full Nano Spec nonTypeName emitted full Codec; sourceExtern policy; nine emitted theorem audits"
+          }
+        ],
+        "scope": "complete acyclic nonempty monomorphic variants of arbitrary positional arity; recursive children require separately checked nominal Codec contracts",
+        "copies": ".artifacts/n2-variant/nary-frozen/"
+      },
+      "verdict": "No findings",
+      "scope": "Complete arbitrary-arity acyclic variant emission; earlier helper and nullary/unary review retained",
+      "reasoning": [
+        "Every source positional field has exact fixed dictionaries and independent codec; no case or field is silently omitted.",
+        "Constructor source order and field order are preserved. Actual source grammar inversion retains field arity and substitution proof.",
+        "Soundness splits each actual child decode, retains rejection paths and combines canonical field equalities positionally.",
+        "Sufficiency picks maximum child bound plus the actual outer decoder frame; no uniform value-depth cutoff introduced.",
+        "Runtime-extended carriers and recursive source graph paths remain explicitly rejected.",
+        "Immediate audits accompany all generated helper and complete codec claims."
+      ],
+      "limits": "Full Nano registry regeneration/production build remains separate; no recursive SCC support claimed."
+    },
+    "n2-variant/root-review.json": {
+      "reviewer": "Independent root Codex read-only review; Sol implementation",
+      "date": "2026-09-27",
+      "files": {
+        "P4SpecTec/Codegen/Certificates/RepresentationVariant.lean": "f7f7b40198c8608403c1cfee403d220d2e6118678d65ce03613e76b20eb5a016",
+        "P4SpecTecTest/Codegen/Certificates/RepresentationVariant.lean": "5c30c21623cb08f9c0c64b71698958b5d0a0e2d0b87984442896bb5d458b10fb",
+        "P4SpecTecTest/Codegen/Certificates/Representation.lean": "45e687b626d0d05ba08a1c5bd8637c4e5c695bbb70978d8ad4912c0af9f0ce5d"
+      },
+      "findings": [],
+      "scope": [
+        "Full actual Source.Valid and independently stated child admission",
+        "Exact explicit nominal encoder and decoder dictionaries",
+        "Any-fuel soundness and stable sufficient fuel",
+        "Immediate generated helper and public theorem audits",
+        "Long nominal child regression through records and aliases"
+      ],
+      "resolved_findings": [
+        "Integration found multiline template indentation and nominal decoder rewrite mismatch; fixed and combined focused --wfail53jobs passed"
+      ],
+      "limits": [
+        "Single-constructor single-field variants only; finite mixed variants and recursive SCC remain separate",
+        "No production aggregate or full gate verdict implied"
+      ]
+    },
+    "closure-fixture-fixes": {
+      "reviewer": "Root Codex, independent read-only review of Sol edits and Oracles retirement",
+      "findings": [],
+      "files": {
+        "files": {
+          "ExampleProofs/NanoP4FieldUpdate/test/run.py": "3b5137435ab913d8895fb77d5347d97501a84d4759636ad0264f36a7cfd187c9",
+          "ExampleProofs/NanoP4FieldUpdate/test/test_runner.py": "c9b524cd43b28848b5b330f6aee12567413dbc61332ac3627918c44fee0b0618",
+          "P4SpecTecTest/Codegen/Certificates/RepresentationField.lean": "2c664fc6343f5f4405b245d7d6679c04fc023d31e97a1617be1fece237c345b9",
+          "P4SpecTecTest/Codegen/Certificates/Producer.lean": "1210f2422b0af4e573bc903e10fdfa0b9e30e22c8284997ca831df21b8190731",
+          "P4SpecTecTest/Codegen/Certificates/StateForward.lean": "9b8aedcd49ac97a9555f43f6027e8cac6b76e8a6095ebf8d8280daff9119b4d3"
+        },
+        "checks": [
+          {
+            "command": "nix develop --command python3 ExampleProofs/NanoP4FieldUpdate/test/test_runner.py",
+            "exit": 0,
+            "tests": 11,
+            "seconds": 0.01
+          },
+          {
+            "command": "nix develop --command lake build P4SpecTecTest.Codegen.Certificates.RepresentationField P4SpecTecTest.Codegen.Certificates.Producer P4SpecTecTest.Codegen.Certificates.StateForward --wfail",
+            "session": 73653,
+            "exit": 0,
+            "jobs": 146,
+            "rebuiltStateForwardSeconds": 9.1
+          }
+        ],
+        "changes": [
+          "Replay extraction ends at exact group audit marker; exact ExceptT computation clause targets Scratch; baseline and three rejection boundaries/timeouts unchanged",
+          "Unit/exact2 tuple field resolution positive; unsupported1/3arity and function type negatives retained",
+          "Zero-output relation now positively requires Unit producer statement; invalid mode count/duplicates/negative/out-of-range tests retained",
+          "Local source variable alias renamed aliasDef consistently in fixture only; generated state outputs/assertions unchanged"
+        ],
+        "integrationEvidence": {
+          "reportedBy": "root",
+          "fullGateSession": 46818,
+          "actualMutations": "passed18s; no separate rerun",
+          "limits": "First full gate has known unrelated failing oldfixtures; root second full gate pending"
+        }
+      },
+      "verdict": "Exact generated outcome mutation retains baseline-first checking; Unit/pair tests reflect actual new support and retain unsupported arity/mode negatives; StateForward binder rename preserves source semantics. Obsolete five-theorem encoding probe is subsumed by production codecs and totality; actual replacement witnesses passed80617.",
+      "limits": "Full gate and publication evidence belongs to status; these reviewed fixes do not alone establish completion."
+    },
+    "n2-call/final-note-semantics-review.json": {
+      "reviewer": "OpenAI Codex Sol /root/organize_lean_tests, independent read-only review",
+      "head": "709326f2090a54fac93730b2b0f87bee50b61650",
+      "files": {
+        "ExampleProofs/NanoP4FieldUpdate/Semantics.lean": "a58dbdabe530968b177d7fc846743d93a528cf0e22269d4b057c02cffaddf9b1",
+        ".agents/notes/nano-certification.md": "3521dcf6f2160e1adcb5807e5ec8e6742f694e81fefc99b23ca5f13506b894ee",
+        ".agents/notes/nano-certification-review.json": "ff67098663f58b15718f8db367d5054c519afdc22f74ceef97443dd4b4ded114"
+      },
+      "findings": [],
+      "assessment": [
+        "Semantics.nameEq change removes only two unused simp entries; theorem type, other proof commands and exact axiom guard preserved",
+        "Compacted note retains unchanged full N2 requirement text, complete30closure, all162types/8variables/26builtins and explicit legal parameter assumptions",
+        "Actual metadata confirms806claims,888obligations/381bindings/507unresolved and39 twoWay bodied definitions",
+        "N2 finalfullgate/publication remains pending; no claim of fullN3 or concreteN4 target completion",
+        "Review collection stores original scoped records/findings/limits separately; historical pending statements are retained provenance, not current unqualified verdicts"
+      ],
+      "editorialObservation": "Second complete gate pending may be updated to record54175 downstream warning failure once target60286 passes; current wording does not claim a passing gate.",
+      "limits": [
+        "No builds or tests by reviewer in this task; target60286 and fullgate verdict supplied separately by root",
+        "Read-only evidence review, not re-proving whole N2 source grammar scope"
+      ]
+    }
+  },
+  "laterResolutions": [
+    "Final source tuple, context and prefix contracts supersede earlier incomplete probes; production aggregate16874 and strict N2 check in gate46818 pass.",
+    "Final contextual tests use distinct fixture namespaces; no production theorem names are redefined.",
+    "Root corrected only the Emit header docstring after final integration review and wrapped a CallAdmission source string across lines without changing emitted text.",
+    "The first full-gate findings are fixed and await a second full-gate verdict; see status.",
+    "Full local gate40389 passed all44stages with recorded exit0 on e654712bd9385535ec73c3a88b883b57054036fe; no skips. Publication/remoteCI remains separate."
+  ]
+}

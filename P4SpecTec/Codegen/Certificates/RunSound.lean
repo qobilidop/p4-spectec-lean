@@ -47,6 +47,18 @@ structure Member where
   /-- For a relation: why no determinism theorem is attempted (one rule
   path, no recursion, no iterated premise are required), or `none`. -/
   detReason : Option String := some "not a relation"
+  /-- Declared function type parameters, retained for actual invocation certificates. -/
+  tparams : List String := []
+  /-- A polymorphic source membership expression uses its actual equality dictionary. -/
+  valueEquality : Bool := false
+  /-- An explicit observation relation for a checked paired-pattern iteration. -/
+  iterationRelation : Option Format := none
+  /-- Global names that must remain fresh for actual defined-function registration. -/
+  typeFreshness : List String := []
+  /-- Actual casts, checked membership or explicit call types need the exact subtype preset. -/
+  requiresTypeRules : Bool := false
+  /-- Function list premises produce checked one- or two-column intermediate bindings. -/
+  requiresColumns : Bool := false
   deriving Inhabited
 
 /-- The binders `(p0 : T0) (p1 : T1)` of the parameters, each after a
@@ -176,6 +188,101 @@ def groupTheorems (externs recursive : Bool) (members : List Member) : List Form
     out := out ++ [corollary externs m (some proj), audit (m.defName ++ "_sound")]
   pure out
 
+/-- A list pattern iteration binding two distinct, uniterated variables in order. -/
+def pairIterationVars? (e : exp) : Option (Lang.Il.var × Lang.Il.var) := do
+  let .IterE inner (.mk .List [left, right]) := e.it | none
+  let .CaseE mixop := inner.it | none
+  let [a, b] := Mixfix.args mixop | none
+  let .VarE aid := a.it | none
+  let .VarE bid := b.it | none
+  let sameOrder := aid.it == left.id.it && bid.it == right.id.it
+  let reverseOrder := aid.it == right.id.it && bid.it == left.id.it
+  if !(sameOrder || reverseOrder) || aid.it == bid.it ||
+      !left.iters.isEmpty || !right.iters.isEmpty then none
+  else some (left, right)
+
+/-- Collect paired-pattern iterations from the actual expression tree. -/
+partial def pairIterations (e : exp) : List (Lang.Il.var × Lang.Il.var) :=
+  (pairIterationVars? e).toList ++ (pairsOfExp.children e).flatMap pairIterations
+
+/-- Derive the checked context-to-tuple observation relation from the actual pattern.
+Multiple different intermediate relations remain outside this bounded driver interface. -/
+def iterationRelationOf (env : Env) (d : Lang.Al.def) : Option Format :=
+  let relations := (expsOfDef d).flatMap pairIterations |>.map fun (left, right) =>
+    let pairType := typTerm.prod [typTerm env [] (varTyp left), typTerm env [] (varTyp right)]
+    Format.group (Format.nest 2 (
+      Format.text "PairLookupRel" ++ Format.line ++
+      Format.text s!"(Q.i {left.id.it.quote}, []) (Q.i {right.id.it.quote}, [])" ++
+      Format.line ++ "(fun x : " ++ pairType.fmt ++ " => toValue x.1)" ++
+      Format.line ++ "(fun x : " ++ pairType.fmt ++ " => toValue x.2)"))
+  match relations with
+  | first :: rest => if rest.all (fun r => r.pretty == first.pretty) then some first else none
+  | [] => none
+
+/-- Detect nested casts, subtype guards and explicitly instantiated calls. -/
+partial def requiresTypeRulesExp (e : exp) : Bool :=
+  let direct := match e.it with
+    | .SubE .. | .UpCastE .. | .DownCastE .. => true
+    | .CallE _ types _ => !types.isEmpty
+    | _ => false
+  direct || (pairsOfExp.children e).any requiresTypeRulesExp
+
+/-- Relation premise traversal requires the exact source iteration normalization preset. -/
+def relationHasIteration (d : Lang.Al.def) : Bool :=
+  match d.it with
+  | .RelD _ _ _ groups alternative _ =>
+    let iterated (ps : List prem) := ps.any fun p =>
+      match p.it with | .IterPr .. => true | _ => false
+    groups.any (fun group =>
+      let (_, (_, _, common), paths) := group.it
+      iterated common || paths.any (fun (_, premises, _) => iterated premises)) ||
+      alternative.any (fun group =>
+        let (_, (_, _, common), (_, premises, _)) := group.it
+        iterated common || iterated premises)
+  | _ => false
+
+/-- Select precise type/encoder and relation-iteration normalization from source syntax. -/
+def requiresTypeRulesOf (d : Lang.Al.def) : Bool :=
+  (expsOfDef d).any requiresTypeRulesExp || relationHasIteration d
+
+/-- Detect function output-column iteration syntax for the opt-in checked column driver.
+The complete supported fragment is separately selected by `Validate.functionListColumns`. -/
+def requiresColumnsOf (d : Lang.Al.def) : Bool :=
+  let iterated (ps : List prem) := ps.any fun p => match p.it with
+    | .IterPr _ (.mk _ _ outputs) => !outputs.isEmpty
+    | _ => false
+  match d.it with
+  | .FuncDecD _ _ _ _ clauses alternative _ =>
+    clauses.any (fun clause => let (_, _, ps) := clause.it; iterated ps) ||
+      alternative.any (fun clause => let (_, _, ps) := clause.it; iterated ps)
+  | _ => false
+
+/-- Conservatively collect registration names through the actual callable closure.
+Builtin dispatch does not register its type parameters; defined calls do, after localizing. -/
+def registrationNames (env : Env) (d : Lang.Al.def) : List String := Id.run do
+  let own := match d.it with
+    | .FuncDecD _ ps .. => ps.map (·.it)
+    | _ => []
+  let mut names := own
+  let mut pending := callsOfDef d
+  let mut seen : List String := []
+  for _ in List.range (env.defs.length + 1) do
+    if pending.isEmpty then break
+    let current := pending
+    pending := []
+    for name in current do
+      if seen.contains name then continue
+      seen := name :: seen
+      for callee in env.defs do
+        if callee.it.id.it != name then continue
+        match callee.it with
+        | .FuncDecD _ ps .. =>
+          names := names ++ ps.map (·.it)
+          pending := pending ++ callsOfDef callee
+        | .RelD .. | .TableDecD .. => pending := pending ++ callsOfDef callee
+        | _ => pure ()
+  return names.eraseDups
+
 /-- A member from a definition. -/
 def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
   let env := ctx.env
@@ -209,11 +316,22 @@ def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
       else if iterated then some "iterated premise"
       else none
     pure (Member.mk i.it true (env.q (Names.relName i.it ++ ".run")) (Names.relName i.it ++ ".run")
-      inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason)
-  | .FuncDecD i _ params ret _ _ _ | .BuiltinDecD i _ params ret _ | .TableDecD i params ret _ _ =>
+      inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason [] false none
+      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d))
+  | .FuncDecD i tparams params ret _ _ _ | .BuiltinDecD i tparams params ret _ =>
+    let valueEquality := (expsOfDef d).any fun e => match e.it with
+      | .MemE .. => true
+      | _ => false
     pure (Member.mk i.it false (env.q (Names.funcName i.it)) (Names.funcName i.it)
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
-      Format.nil Format.nil [] (some "not a relation"))
+      Format.nil Format.nil [] (some "not a relation") (tparams.map (·.it)) valueEquality
+      (iterationRelationOf env d) (registrationNames env d)
+      (requiresTypeRulesOf d) (requiresColumnsOf d))
+  | .TableDecD i params ret _ _ =>
+    pure (Member.mk i.it false (env.q (Names.funcName i.it)) (Names.funcName i.it)
+      ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
+      Format.nil Format.nil [] (some "not a relation") [] false (iterationRelationOf env d)
+      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d))
   | _ => throw s!"not a function or relation: {d.it.id.it}"
 
 end P4SpecTec.Codegen.Props

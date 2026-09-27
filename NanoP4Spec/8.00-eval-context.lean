@@ -25,7 +25,13 @@ namespace NanoP4Spec
 
 abbrev frame : Type := NanoP4Spec.map NanoP4Spec.nameIR NanoP4Spec.value
 
-def frame.toValue (x : NanoP4Spec.frame) : Lang.Il.value := ToValue.toValue x
+def frame.toValue (x : NanoP4Spec.frame) : Lang.Il.value :=
+  @NanoP4Spec.map.toValue
+    NanoP4Spec.nameIR
+    NanoP4Spec.value
+    (ToValue.mk (fun x => NanoP4Spec.nameIR.toValue x))
+    (ToValue.mk (fun x => NanoP4Spec.value.toValue x))
+    x
 
 instance : ToValue NanoP4Spec.frame := ⟨NanoP4Spec.frame.toValue⟩
 instance : BEq NanoP4Spec.frame := ⟨valueEq⟩
@@ -61,11 +67,11 @@ def globalEvalLayer.toValue : NanoP4Spec.globalEvalLayer → Lang.Il.value
   | ⟨x0, x1, x2, x3, x4⟩ =>
       Runtime.Value.Make.str
         (Prelude.Value.varT "globalEvalLayer")
-        [("TYPE", ToValue.toValue x0),
-         ("CALLABLE", ToValue.toValue x1),
-         ("FRAME", ToValue.toValue x2),
-         ("PARSER", ToValue.toValue x3),
-         ("CONTROL", ToValue.toValue x4)]
+        [("TYPE", NanoP4Spec.typeDefEnv.toValue x0),
+         ("CALLABLE", NanoP4Spec.callableDefEnv.toValue x1),
+         ("FRAME", NanoP4Spec.frame.toValue x2),
+         ("PARSER", NanoP4Spec.parserDeclarationIR.toValue x3),
+         ("CONTROL", NanoP4Spec.controlDeclarationIR.toValue x4)]
 
 instance : ToValue NanoP4Spec.globalEvalLayer := ⟨NanoP4Spec.globalEvalLayer.toValue⟩
 instance : BEq NanoP4Spec.globalEvalLayer := ⟨valueEq⟩
@@ -107,7 +113,9 @@ structure blockEvalLayer where
 
 def blockEvalLayer.toValue : NanoP4Spec.blockEvalLayer → Lang.Il.value
   | ⟨x0⟩ =>
-      Runtime.Value.Make.str (Prelude.Value.varT "blockEvalLayer") [("FRAME", ToValue.toValue x0)]
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "blockEvalLayer")
+        [("FRAME", NanoP4Spec.frame.toValue x0)]
 
 instance : ToValue NanoP4Spec.blockEvalLayer := ⟨NanoP4Spec.blockEvalLayer.toValue⟩
 instance : BEq NanoP4Spec.blockEvalLayer := ⟨valueEq⟩
@@ -135,7 +143,15 @@ structure localEvalLayer where
 
 def localEvalLayer.toValue : NanoP4Spec.localEvalLayer → Lang.Il.value
   | ⟨x0⟩ =>
-      Runtime.Value.Make.str (Prelude.Value.varT "localEvalLayer") [("FRAMES", ToValue.toValue x0)]
+      Runtime.Value.Make.str
+        (Prelude.Value.varT "localEvalLayer")
+        [("FRAMES",
+          @ToValue.toValue
+            (List NanoP4Spec.frame)
+            (@P4SpecTec.Prelude.instToValueList
+               NanoP4Spec.frame
+               (ToValue.mk (fun x => NanoP4Spec.frame.toValue x)))
+            x0)]
 
 instance : ToValue NanoP4Spec.localEvalLayer := ⟨NanoP4Spec.localEvalLayer.toValue⟩
 instance : BEq NanoP4Spec.localEvalLayer := ⟨valueEq⟩
@@ -169,9 +185,9 @@ def evalContext.toValue : NanoP4Spec.evalContext → Lang.Il.value
   | ⟨x0, x1, x2⟩ =>
       Runtime.Value.Make.str
         (Prelude.Value.varT "evalContext")
-        [("GLOBAL", ToValue.toValue x0),
-         ("BLOCK", ToValue.toValue x1),
-         ("LOCAL", ToValue.toValue x2)]
+        [("GLOBAL", NanoP4Spec.globalEvalLayer.toValue x0),
+         ("BLOCK", NanoP4Spec.blockEvalLayer.toValue x1),
+         ("LOCAL", NanoP4Spec.localEvalLayer.toValue x2)]
 
 instance : ToValue NanoP4Spec.evalContext := ⟨NanoP4Spec.evalContext.toValue⟩
 instance : BEq NanoP4Spec.evalContext := ⟨valueEq⟩

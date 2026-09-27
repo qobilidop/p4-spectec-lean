@@ -21,4 +21,26 @@ theorem assignVar (fuel : Nat) (ctx : Ctx.t) (i : Lang.Il.id) (t : Lang.Il.typ')
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms assignVar
 
+/-- An output-free source iteration uses the same traversal in its empty case.
+The actual context construction, premise evaluation and transpose failures are preserved. -/
+theorem iterPremListNoOutputs (fuel : Nat) (cfg : Interp.Config) (ctx : Ctx.t)
+    (premise : Lang.Il.prem) (variables : List Lang.Il.var) :
+    Interp.eval_iter_prem_list (fuel + 1) cfg ctx premise variables [] = (do
+      let contexts ← Ctx.sub_list ctx variables
+      let rows ← contexts.mapM fun sub => do
+        let _ ← Interp.eval_prem fuel cfg sub premise
+        pure ([] : List Lang.Il.value)
+      let _ ← Ctx.transpose rows
+      pure ctx) := by
+  simp only [Interp.eval_iter_prem_list]
+  congr 1
+  funext contexts
+  cases contexts <;>
+    simp only [List.map_nil, List.zip_nil_left, List.foldl_nil, Ctx.find_values,
+      List.mapM_nil, pure_bind, Ctx.transpose] <;> rfl
+
+/-- info: 'P4SpecTec.Refine.iterPremListNoOutputs' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms iterPremListNoOutputs
+
 end P4SpecTec.Refine

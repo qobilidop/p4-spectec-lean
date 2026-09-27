@@ -105,6 +105,8 @@ theorem pairFields {spec externalDomain} (keyType valueType : typ) (v : value)
       Mixfix.args tree = [key, item] ∧ Valid spec externalDomain keyType.it key ∧
       Valid spec externalDomain valueType.it item := by
   cases valid with
+  | record name args parameters sourceFields instantiated v valueFields found =>
+    simp [declared] at found
   | «alias» name args parameters definition instantiated v found =>
     simp [declared] at found
   | variant name args parameters cases constructor instantiated v tree
@@ -151,6 +153,8 @@ theorem setFields {spec externalDomain} (element : typ) (v : value)
       Mixfix.args tree = [contents] ∧
       Valid spec externalDomain (.IterT element .List) contents := by
   cases valid with
+  | record name args parameters sourceFields instantiated v valueFields found =>
+    simp [declared] at found
   | «alias» name args parameters definition instantiated v found =>
     simp [declared] at found
   | variant name args parameters cases constructor instantiated v tree

@@ -31,7 +31,11 @@ def set.toValue {τK : Type} [ToValue τK] : NanoP4Spec.set τK → Lang.Il.valu
         (Prelude.Value.varT "set")
         (.Brack
            (Prelude.Value.atom .LBrace)
-           (.Arg (ToValue.toValue x0))
+           (.Arg
+              (@ToValue.toValue
+                 (List τK)
+                 (@P4SpecTec.Prelude.instToValueList τK (ToValue.mk (fun x => ToValue.toValue x)))
+                 x0))
            (Prelude.Value.atom .RBrace))
 
 instance {τK : Type} [ToValue τK] : ToValue (NanoP4Spec.set τK) := ⟨NanoP4Spec.set.toValue⟩
@@ -123,7 +127,17 @@ abbrev map (τK : Type) (τV : Type) : Type := NanoP4Spec.set (NanoP4Spec.pair �
 def map.toValue {τK τV : Type} [ToValue τK] [ToValue τV] (x : NanoP4Spec.map
     τK
     τV) : Lang.Il.value :=
-  ToValue.toValue x
+  @NanoP4Spec.set.toValue
+    (NanoP4Spec.pair τK τV)
+    (ToValue.mk
+       (fun x =>
+          @NanoP4Spec.pair.toValue
+            τK
+            τV
+            (ToValue.mk (fun x => ToValue.toValue x))
+            (ToValue.mk (fun x => ToValue.toValue x))
+            x))
+    x
 
 instance {τK τV : Type} [ToValue τK] [ToValue τV] : ToValue (NanoP4Spec.map τK τV) :=
   ⟨NanoP4Spec.map.toValue⟩

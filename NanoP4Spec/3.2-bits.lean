@@ -25,7 +25,8 @@ namespace NanoP4Spec
 
 abbrev bit : Type := Bool
 
-def bit.toValue (x : NanoP4Spec.bit) : Lang.Il.value := ToValue.toValue x
+def bit.toValue (x : NanoP4Spec.bit) : Lang.Il.value :=
+  @ToValue.toValue Bool P4SpecTec.Prelude.instToValueBool x
 
 instance : ToValue NanoP4Spec.bit := ⟨NanoP4Spec.bit.toValue⟩
 instance : BEq NanoP4Spec.bit := ⟨valueEq⟩
@@ -40,7 +41,13 @@ def bit.al : Lang.Al.def := Q.d (.TypD (Q.i "bit") [] (Q.dt (.PlainT (Q.t .BoolT
 
 abbrev bits : Type := List NanoP4Spec.bit
 
-def bits.toValue (x : NanoP4Spec.bits) : Lang.Il.value := ToValue.toValue x
+def bits.toValue (x : NanoP4Spec.bits) : Lang.Il.value :=
+  @ToValue.toValue
+    (List NanoP4Spec.bit)
+    (@P4SpecTec.Prelude.instToValueList
+       NanoP4Spec.bit
+       (ToValue.mk (fun x => NanoP4Spec.bit.toValue x)))
+    x
 
 instance : ToValue NanoP4Spec.bits := ⟨NanoP4Spec.bits.toValue⟩
 instance : BEq NanoP4Spec.bits := ⟨valueEq⟩

@@ -57,3 +57,15 @@ example (p : Prop) (h : p) : p := by
     if ← normalize s then throwError "normalization unexpectedly changed the goal"
     unless before == (← getGoals) do throwError "no-progress failure changed the goals"
   exact h
+-- Canonical observations of raw tuple projections remain usable after constructor assembly.
+theorem canonicalProjectionFact (pair : Nat × P4SpecTec.Lang.Il.value)
+    (value : P4SpecTec.Lang.Il.value)
+    (h : P4SpecTec.Refine.canon pair.2 = P4SpecTec.Refine.canon value) :
+    [P4SpecTec.Refine.canon pair.2] = [P4SpecTec.Refine.canon value] := by
+  run_tac
+    let _ ← normalize { lemmas := #[], procs := #[] }
+    unless (← getGoals).isEmpty do throwError "canonical projection fact was not used"
+
+/-- info: 'canonicalProjectionFact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in
+#print axioms canonicalProjectionFact

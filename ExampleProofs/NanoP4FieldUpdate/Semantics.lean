@@ -20,8 +20,7 @@ def names (fields : List fieldValue) : List nameIR := fields.map fieldName
 /-- Generated name comparison is exact equality of byte strings. -/
 theorem nameEq (left right : nameIR) : (left == right) = true ↔ left = right := by
   unfold BEq.beq NanoP4Spec.instBEqTypeId valueEq
-  simp only [ToValue.toValue, NanoP4Spec.typeId.toValue, NanoP4Spec.nameIR.toValue,
-    NanoP4Spec.callableId.toValue, NanoP4Spec.id.toValue, Runtime.Value.eq,
+  simp only [ToValue.toValue, NanoP4Spec.typeId.toValue, NanoP4Spec.id.toValue, Runtime.Value.eq,
     Runtime.Value.Make.text, Runtime.Value.Make.mk, Runtime.Value.compare,
     Runtime.Value.compare']
   simp only [beq_iff_eq]

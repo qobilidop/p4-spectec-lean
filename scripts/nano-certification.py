@@ -29,6 +29,33 @@ CALLABLE_KINDS = {
 }
 SOURCE_KINDS = set(CALLABLE_KINDS) | {"TypD", "ExternTypD", "VarD"}
 
+# The retained original certificate frontier plus the three N2 integration roots.
+# This scope is intentionally smaller than N3's complete callable denominator.
+N2_ROOTS = frozenset({
+    "exists_", "forall_", "flatten_statementList", "flatten_typeFieldList",
+    "flatten_externMethodPrototypeList", "flatten_selectCaseList",
+    "flatten_parserLocalDeclarationList", "flatten_tableEntryList",
+    "flatten_controlLocalDeclarationList", "flatten_program", "params_of_callableTypeDef",
+    "exit_t", "split_dataplane_parameters", "find_action'", "find_action",
+    "directionless_trailing'", "exit_e", "update_fieldValue", "Type_eq", "ParameterType_eq",
+    "Type_ok", "Var_init",
+})
+N2_CLOSURE = N2_ROOTS | {
+    "typeIR_of_typeDefIR", "find_typeDef_t", "find_map", "default", "add_var_e",
+    "dom_map", "in_set", "add_map",
+}
+N2_CALL_DIRECTIONS = frozenset({
+    "allCallArgumentCarriers", "sourceRecursiveSuffixes", "sourceContextCalls",
+    "sourceCallPrefixes",
+})
+N2_PROFILES = (
+    ("sourceVariables", "typedOmissionPreservesInitialization"),
+    ("primitiveRepresentation", "legalSourceCodecs"),
+    ("tableInitialization", "checkedInitialization"),
+    ("tableInitialization", "completeSourceLookups"),
+    ("tableInitialization", "noLocalOverrides"),
+)
+
 # These requirements are intentionally independent of emitter eligibility.
 # Text specifies the obligation, not a theorem that this tool may assume.
 REQUIREMENTS = {
@@ -149,11 +176,11 @@ def build_manifest(source, coverage, corpus_ids, identity):
     """Join the full source inventory to existing callable proof evidence.
 
     No independent callable-dependency or proof-eligibility algorithm is used.
-    Forward, reverse, builtin dispatch and run-soundness contracts have evidence adapters.
+    Forward, reverse, builtin dispatch, source codec and run-soundness contracts have adapters.
     All other obligations remain explicit, with no user-editable discharge bit.
     """
     if (not isinstance(source, list) or type(coverage.get("schemaVersion")) is not int
-            or coverage["schemaVersion"] != 1):
+            or coverage["schemaVersion"] != 3):
         raise CertificationError("unsupported source or coverage schema")
     if coverage.get("library") != "NanoP4Spec" or coverage.get("input") != str(EXPORT):
         raise CertificationError("coverage library/input does not match Nano profile")
@@ -161,7 +188,12 @@ def build_manifest(source, coverage, corpus_ids, identity):
     by_id = {entry["id"]: entry for entry in entries}
     if len(by_id) != len(entries):
         raise CertificationError("duplicate callable coverage identity")
+    representation_entries = coverage.get("representations", [])
+    representations_by_id = {entry["id"]: entry for entry in representation_entries}
+    if len(representations_by_id) != len(representation_entries):
+        raise CertificationError("duplicate type coverage identity")
     declarations, obligations, seen, callables = [], [], set(), set()
+    represented_types = set()
     type_keys = {d["it"][1]["it"]: f"{d['it'][0]}:{d['it'][1]['it']}" for d in source
                  if isinstance(d, dict) and isinstance(d.get("it"), list)
                  and d["it"][0] in ("TypD", "ExternTypD")}
@@ -176,6 +208,10 @@ def build_manifest(source, coverage, corpus_ids, identity):
         if len(found) > 1:
             raise CertificationError(f"duplicate required claim: {entry['id']} {kind}")
         return found[0]["name"] if found else None
+
+    def profile_claim(kind, direction):
+        return claim({"id": "source profile", "claims": coverage.get("profiles", [])},
+                     kind, direction)
 
     for ordinal, definition in enumerate(source):
         try:
@@ -194,9 +230,18 @@ def build_manifest(source, coverage, corpus_ids, identity):
         representations = ["profile:primitiveRepresentations"] + [f"representation:{ref}"
                            for ref in named_type_references(definition, type_keys) if ref != key]
         if tag in ("TypD", "ExternTypD"):
-            add(f"representation:{key}", "representation", key, dependencies=representations)
+            represented_types.add(name)
+            entry = representations_by_id.get(name)
+            expected_kind = "type" if tag == "TypD" else "externType"
+            if entry is None or entry["kind"] != expected_kind:
+                raise CertificationError(f"source type missing/mismatched in coverage: {key}")
+            if entry["source"] != location["file"]:
+                raise CertificationError(f"type source differs from coverage: {key}")
+            add(f"representation:{key}", "representation", key, dependencies=representations,
+                evidence=claim(entry, "representation", "sourceCodec"))
         elif tag == "VarD":
-            add(f"variable:{key}", "variable", key, dependencies=representations)
+            add(f"variable:{key}", "variable", key, dependencies=representations,
+                evidence=profile_claim("sourceVariables", "typedOmissionPreservesInitialization"))
         else:
             callables.add(name)
             entry = by_id.get(name)
@@ -205,7 +250,11 @@ def build_manifest(source, coverage, corpus_ids, identity):
             if entry["source"] != location["file"]:
                 raise CertificationError(f"callable source differs from coverage: {key}")
             domain = f"domain:{name}"
-            add(domain, "domain", key, dependencies=representations)
+            # This combined contract covers calls only when there are no nested call sites.
+            # Other call-domain components are checked separately by the bounded N2 validator.
+            domain_claim = claim(entry, "sourceDomain", "sourceInputsAndOutput")
+            add(domain, "domain", key, dependencies=representations,
+                evidence=domain_claim if not entry["dependencies"] else None)
             if entry["kind"] == "builtin":
                 add(f"contract:{name}", "builtin", key, dependencies=[domain],
                     evidence=claim(entry, "builtinContract", "twoWayDispatch"))
@@ -232,9 +281,12 @@ def build_manifest(source, coverage, corpus_ids, identity):
                 if tag == "RelD":
                     add(f"soundness:{name}", "soundness", key,
                         evidence=claim(entry, "runSoundness", "generatedSuccessToRelation"))
+    if represented_types != set(representations_by_id):
+        raise CertificationError("coverage contains a type absent from the source")
     if callables != set(by_id):
         raise CertificationError("coverage contains a callable absent from the source")
-    add("profile:primitiveRepresentations", "representation", "primitive and container codecs")
+    add("profile:primitiveRepresentations", "representation", "primitive and container codecs",
+        evidence=profile_claim("primitiveRepresentation", "legalSourceCodecs"))
     add("profile:sourceIdentity", "sourceIdentity", "NanoP4Spec")
     add("profile:initialization", "initialization", "NanoP4Spec", dependencies=
         ["profile:sourceIdentity"] + [o["id"] for o in obligations if o["requirement"] == "variable"])
@@ -290,18 +342,110 @@ def outstanding(manifest, stage="all"):
             if o["stage"] in stages and o["coverageClaim"] is None]
 
 
+def _required_claim(entry, kind, directions):
+    """Check binding presence only; the caller must first run the compiled Lean checker."""
+    found = [claim for claim in entry.get("claims", [])
+             if claim.get("kind") == kind and claim.get("direction") in directions]
+    if len(found) > 1:
+        raise CertificationError(f"duplicate N2 claim: {entry.get('id', 'profile')} {kind}")
+    return bool(found)
+
+
+
+def n2_missing(source, coverage):
+    """List every missing N2 binding after independent compiled checking.
+
+    This does not turn JSON into proof evidence. The CLI first verifies exact source
+    identity, manifest freshness, compiled claim types/axioms and quotations. The scope
+    comes from the entire pinned source type/variable/builtin inventories and the complete
+    checked dependency closure of the explicitly retained N2 roots, never emitter success.
+    """
+    # Reject inventory additions/removals and mismatched source identities independently
+    # of whether their remaining claim counts happen to equal the old denominator.
+    build_manifest(source, coverage, [], {})
+    entries = {entry["id"]: entry for entry in coverage["definitions"]}
+    representations = {entry["id"]: entry for entry in coverage["representations"]}
+    declarations = {(d["it"][0], d["it"][1]["it"]): d for d in source}
+    missing = []
+
+    def require(entry, kind, direction, subject):
+        if not _required_claim(entry, kind, {direction}):
+            missing.append(f"{subject}: {kind}/{direction}")
+
+    for (kind, name), definition in declarations.items():
+        if kind in ("TypD", "ExternTypD"):
+            require(representations[name], "representation", "sourceCodec", f"{kind}:{name}")
+        elif kind == "BuiltinDecD":
+            require(entries[name], "builtinContract", "twoWayDispatch", name)
+            require(entries[name], "sourceDomain", "sourceInputsAndOutput", name)
+            require(entries[name], "refinement", "referenceToGenerated", name)
+            require(entries[name], "refinement", "generatedToReference", name)
+    # These pin-local tripwires supplement, never replace, identity-by-identity matching.
+    for kind, expected in (("VarD", 8), ("BuiltinDecD", 26)):
+        actual = sum(tag == kind for tag, _ in declarations)
+        if actual != expected:
+            missing.append(f"source {kind} inventory: expected {expected}, found {actual}")
+    profiles = {"id": "source profile", "claims": coverage.get("profiles", [])}
+    for kind, direction in N2_PROFILES:
+        require(profiles, kind, direction, "profile")
+
+    pending, reached = list(sorted(N2_ROOTS)), set()
+    while pending:
+        name = pending.pop()
+        if name in reached:
+            continue
+        reached.add(name)
+        entry = entries.get(name)
+        if entry is None:
+            missing.append(f"{name}: missing N2 root or dependency")
+            continue
+        pending.extend(entry["dependencies"] + entry["group"])
+    for name in sorted(N2_CLOSURE - reached):
+        missing.append(f"{name}: removed from the required N2 dependency closure")
+    for name in sorted(reached - N2_CLOSURE):
+        missing.append(f"{name}: new N2 dependency requires explicit scope review")
+
+    for name in sorted(reached):
+        entry = entries.get(name)
+        if entry is None or entry["kind"] == "builtin":
+            continue
+        kind = next((tag for tag, _name in declarations if _name == name
+                     and tag in CALLABLE_KINDS), None)
+        if kind not in ("FuncDecD", "RelD", "TableDecD"):
+            missing.append(f"{name}: unsupported N2 external dependency")
+            continue
+        definition = declarations[kind, name]
+        require(entry, "refinement", "referenceToGenerated", name)
+        require(entry, "refinement", "generatedToReference", name)
+        polymorphic = kind == "FuncDecD" and bool(definition["it"][2])
+        if polymorphic:
+            require(entry, "sourceDomain", "sourceInputsAndOutput", name)
+        else:
+            require(entry, "sourceEntry", "sourceInputsToTwoWay", name)
+            # Output-free relations still have a checked Unit/source-empty-tuple producer.
+            require(entry, "producer", "sourceInputsToSourceOutput", name)
+        if kind == "RelD":
+            require(entry, "runSoundness", "generatedSuccessToRelation", name)
+        if entry["dependencies"] and not _required_claim(
+                entry, "callAdmission", N2_CALL_DIRECTIONS):
+            missing.append(f"{name}: callAdmission/fullSourceCallInputs")
+    return sorted(missing)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--update", action="store_true", help="regenerate metadata, not proof evidence")
     parser.add_argument("--require-complete", choices=("core", "target", "all"))
+    parser.add_argument("--require-n2", action="store_true",
+                        help="require the bounded N2 profile; broader stages stay independent")
     args = parser.parse_args(argv)
-    if args.update and args.require_complete:
-        parser.error("--update cannot be combined with --require-complete")
+    if args.update and (args.require_complete or args.require_n2):
+        parser.error("--update cannot be combined with a completion requirement")
     try:
         corpus = corpus_module(ROOT)
         corpus_ids = corpus.check(root=ROOT, path=source_path(ROOT, str(CORPUS)))
-        manifest = build_manifest(read_json(ROOT / EXPORT), read_json(ROOT / COVERAGE),
-                                  corpus_ids, source_identity(ROOT))
+        source, coverage = read_json(ROOT / EXPORT), read_json(ROOT / COVERAGE)
+        manifest = build_manifest(source, coverage, corpus_ids, source_identity(ROOT))
         if args.update:
             (ROOT / MANIFEST).write_text(canonical(manifest))
             print(f"[completion] wrote {MANIFEST}; metadata only, no validation verdict")
@@ -314,6 +458,14 @@ def main(argv=None):
         print(f"[completion] {len(manifest['declarations'])} source declarations; "
               f"{len(manifest['obligations'])} obligations; {bound} compiled claim bindings; "
               f"{len(missing)} unresolved")
+        if args.require_n2:
+            n2 = n2_missing(source, coverage)
+            for obligation in n2:
+                print(f"[completion] missing N2 {obligation}")
+            if n2:
+                raise CertificationError(f"Nano N2 certification is incomplete ({len(n2)} bindings)")
+            print("[completion] bounded N2 source-domain and selected-closure checks passed; "
+                  "broader core, target and release obligations remain independent")
         if args.require_complete and missing:
             for kind in REQUIREMENTS:
                 count = sum(o["requirement"] == kind for o in missing)

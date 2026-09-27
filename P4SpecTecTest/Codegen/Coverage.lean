@@ -63,7 +63,7 @@ def coveredCycle : Lang.Al.spec := [func "a" (call "b"), func "b" (call "a")]
 
 #guard (Emit.coverage "Fixture" "test.json" coveredCycle).toOption.any fun r =>
   r.definitions.length == 2 && r.definitions.all fun e => e.recursive && e.hasForwardRefinement &&
-    e.claims.all (·.direction == "referenceToGenerated")
+    (e.claims.filter (·.kind == "refinement")).all (·.direction == "referenceToGenerated")
 
 -- A forward-certified recursive SCC cannot lend a missing reverse theorem to callers.
 def reverseBlockedCaller : Lang.Al.spec := coveredCycle ++ [func "caller" (call "a")]
@@ -96,7 +96,8 @@ def supportedBuiltin : Lang.Al.spec :=
 #guard (Emit.coverage "Fixture" "test.json" supportedBuiltin).toOption.any fun r =>
   r.definitions.length == 1 && r.definitions.all fun e =>
     !e.isBodied && e.hasBuiltinContract && e.hasForwardRefinement && e.hasReverseRefinement &&
-      e.claims.length == 3 && e.exclusions.isEmpty
+      e.claims.length == 4 && e.exclusions.isEmpty &&
+      e.claims.any (fun c => c.kind == "sourceDomain" && c.direction == "sourceInputsAndOutput")
 
 def externFixture : Lang.Al.spec :=
   [Q.d (.ExternDecD (Q.i "outside") [] [] (Q.t .BoolT) []),
@@ -115,5 +116,11 @@ def stateful : Lang.Al.spec :=
   | .error e =>
     e == "stateful generation requires structural propositions and run-soundness support"
   | .ok _ => false
+
+-- Long transitive blocker diagnostics remain comments within the generated line limit.
+#guard ((Codegen.Coverage.summary [{ reverseOnly with claims := [], exclusions := [{
+  definition := "a_long_recursive_group_member", kind := "refinement",
+  reason := "recursive function subtype or registration-freshness proof is not implemented" }] }]
+  ).splitOn "\n").all (fun line => line.length ≤ 100)
 
 end P4SpecTecTest.Coverage

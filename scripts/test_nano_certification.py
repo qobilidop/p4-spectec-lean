@@ -32,8 +32,11 @@ def fixture():
                               "direction": "referenceToGenerated", "expectedType": "True"}]
     entries[1]["claims"] = [{"name": "NanoP4Spec.R.run_sound", "kind": "runSoundness",
                               "direction": "generatedSuccessToRelation", "expectedType": "True"}]
-    coverage = {"schemaVersion": 1, "library": "NanoP4Spec",
-                "input": "exports/nano-p4.al.json", "definitions": entries}
+    representations = [{"id": name, "kind": kind, "source": "test.watsup", "claims": []}
+                       for kind, name in (("type", "value"), ("externType", "object"))]
+    coverage = {"schemaVersion": 3, "library": "NanoP4Spec",
+                "input": "exports/nano-p4.al.json", "definitions": entries,
+                "representations": representations, "profiles": []}
     return source, coverage
 
 
@@ -60,6 +63,27 @@ class CompletionTests(unittest.TestCase):
         self.assertIsNone(obligations["reverse:f"]["coverageClaim"])
         self.assertEqual(obligations["soundness:R"]["coverageClaim"], "NanoP4Spec.R.run_sound")
         self.assertIn("contract:extern", obligations["reverse:R"]["dependencies"])
+
+    def test_typed_variable_omission_retains_type_domains(self):
+        self.coverage["profiles"] = [{
+            "name": "NanoP4Spec.SourceProfile.variablesIgnored", "kind": "sourceVariables",
+            "direction": "typedOmissionPreservesInitialization", "expectedType": "True"}]
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        obligation = next(o for o in manifest["obligations"] if o["id"] == "variable:VarD:x")
+        self.assertEqual(obligation["coverageClaim"],
+                         "NanoP4Spec.SourceProfile.variablesIgnored")
+        self.assertIn("profile:primitiveRepresentations", obligation["dependencies"])
+        self.coverage["profiles"][0]["direction"] = "wrongDirection"
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        obligation = next(o for o in manifest["obligations"] if o["id"] == "variable:VarD:x")
+        self.assertIsNone(obligation["coverageClaim"])
+
+    def test_duplicate_profile_claim_is_rejected(self):
+        evidence = {"name": "ignored", "kind": "sourceVariables",
+                    "direction": "typedOmissionPreservesInitialization", "expectedType": "True"}
+        self.coverage["profiles"] = [evidence, evidence]
+        with self.assertRaisesRegex(completion.CertificationError, "duplicate required claim"):
+            completion.build_manifest(self.source, self.coverage, [], {})
 
     def test_reverse_binding_keeps_independent_domain_obligations(self):
         self.coverage["definitions"][0]["claims"].append({
@@ -90,6 +114,27 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(obligations["contract:builtin"]["dependencies"], ["domain:builtin"])
         self.assertIsNone(obligations["domain:builtin"]["coverageClaim"])
         self.assertTrue(completion.outstanding(manifest, "core"))
+
+    def test_source_codec_binding_keeps_call_domain_separate(self):
+        self.coverage["representations"][0]["claims"] = [{
+            "name": "NanoP4Spec.value.codec", "kind": "representation",
+            "direction": "sourceCodec", "expectedType": "True"}]
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        obligations = {o["id"]: o for o in manifest["obligations"]}
+        self.assertEqual(obligations["representation:TypD:value"]["coverageClaim"],
+                         "NanoP4Spec.value.codec")
+        self.assertIsNone(obligations["domain:f"]["coverageClaim"])
+        self.assertIsNone(obligations["profile:initialization"]["coverageClaim"])
+
+    def test_type_inventory_mismatches_rejected(self):
+        for change in (lambda entries: entries.pop(),
+                       lambda entries: entries.append(copy.deepcopy(entries[0])),
+                       lambda entries: entries[0].update(kind="externType"),
+                       lambda entries: entries[0].update(source="other.watsup")):
+            coverage = copy.deepcopy(self.coverage)
+            change(coverage["representations"])
+            with self.assertRaises(completion.CertificationError):
+                completion.build_manifest(self.source, coverage, [], {})
 
     def test_missing_source_type(self):
         self.reject_changed(lambda m: m["declarations"].pop(0))
@@ -153,6 +198,171 @@ class CompletionTests(unittest.TestCase):
         with patch.object(completion.subprocess, "run", return_value=result):
             with self.assertRaisesRegex(completion.CertificationError, "prerequisite failed.*9"):
                 completion.run(ROOT, ["lake", "exe", "check-coverage"])
+
+
+def n2_fixture():
+    """Bindings are synthetic; only the CLI's separate Lean checker can validate them."""
+    source = completion.read_json(ROOT / completion.EXPORT)
+    coverage = completion.read_json(ROOT / completion.COVERAGE)
+    def claim(kind, direction):
+        return {"name": f"Fixture.{kind}.{direction}", "kind": kind,
+                "direction": direction, "expectedType": "True"}
+    for entry in coverage["representations"]:
+        entry["claims"] = [claim("representation", "sourceCodec")]
+    for entry in coverage["definitions"]:
+        entry["claims"] = [claim(kind, direction) for kind, direction in (
+            ("refinement", "referenceToGenerated"), ("refinement", "generatedToReference"),
+            ("runSoundness", "generatedSuccessToRelation"),
+            ("sourceEntry", "sourceInputsToTwoWay"), ("sourceDomain", "sourceInputsAndOutput"),
+            ("producer", "sourceInputsToSourceOutput"),
+            ("callAdmission", "allCallArgumentCarriers"), ("builtinContract", "twoWayDispatch"))]
+    coverage["profiles"] = [claim(kind, direction) for kind, direction in completion.N2_PROFILES]
+    return source, coverage
+
+
+class N2Tests(unittest.TestCase):
+    def setUp(self):
+        self.source, self.coverage = n2_fixture()
+
+    def entry(self, name):
+        return next(entry for entry in self.coverage["definitions"] if entry["id"] == name)
+
+    def remove(self, name, kind, direction):
+        entry = self.entry(name)
+        entry["claims"] = [claim for claim in entry["claims"]
+                           if (claim["kind"], claim["direction"]) != (kind, direction)]
+
+    def test_exact_bound_scope_does_not_close_broader_stages(self):
+        self.assertEqual(completion.n2_missing(self.source, self.coverage), [])
+        self.assertEqual(len(completion.N2_CLOSURE), 30)
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        self.assertTrue(completion.outstanding(manifest, "core"))
+        self.assertTrue(completion.outstanding(manifest, "target"))
+        self.assertTrue(completion.outstanding(manifest, "all"))
+
+    def test_every_actual_type_identity_requires_a_codec(self):
+        expected = {d["it"][1]["it"] for d in self.source
+                    if d["it"][0] in ("TypD", "ExternTypD")}
+        self.assertEqual(expected, {entry["id"] for entry in self.coverage["representations"]})
+        for entry in self.coverage["representations"]:
+            saved = entry["claims"]
+            entry["claims"] = []
+            self.assertIn(f"{entry['kind'] == 'type' and 'TypD' or 'ExternTypD'}:{entry['id']}: "
+                          "representation/sourceCodec",
+                          completion.n2_missing(self.source, self.coverage))
+            entry["claims"] = saved
+
+    def test_same_count_different_type_identity_fails(self):
+        self.coverage["representations"][0]["id"] = "unrelatedType"
+        with self.assertRaises(completion.CertificationError):
+            completion.n2_missing(self.source, self.coverage)
+
+    def test_dropped_variable_is_not_an_omission_proof(self):
+        self.source.pop(next(i for i, d in enumerate(self.source) if d["it"][0] == "VarD"))
+        self.assertTrue(any("VarD inventory" in message
+                            for message in completion.n2_missing(self.source, self.coverage)))
+
+    def test_every_initialization_and_primitive_profile_is_required(self):
+        for profile in list(self.coverage["profiles"]):
+            self.coverage["profiles"].remove(profile)
+            self.assertIn(f"profile: {profile['kind']}/{profile['direction']}",
+                          completion.n2_missing(self.source, self.coverage))
+            self.coverage["profiles"].append(profile)
+
+    def test_every_actual_builtin_needs_domain_and_dispatch(self):
+        names = [d["it"][1]["it"] for d in self.source if d["it"][0] == "BuiltinDecD"]
+        self.assertEqual(len(names), 26)
+        for name in names:
+            for kind, direction in (("sourceDomain", "sourceInputsAndOutput"),
+                                    ("builtinContract", "twoWayDispatch"),
+                                    ("refinement", "referenceToGenerated"),
+                                    ("refinement", "generatedToReference")):
+                saved = list(self.entry(name)["claims"])
+                self.remove(name, kind, direction)
+                self.assertIn(f"{name}: {kind}/{direction}",
+                              completion.n2_missing(self.source, self.coverage))
+                self.entry(name)["claims"] = saved
+
+    def test_reports_all_missing_components(self):
+        for name, kind, direction in (
+                ("exists_", "refinement", "generatedToReference"),
+                ("Var_init", "producer", "sourceInputsToSourceOutput"),
+                ("Var_init", "sourceEntry", "sourceInputsToTwoWay"),
+                ("in_set", "sourceDomain", "sourceInputsAndOutput"),
+                ("Type_eq", "runSoundness", "generatedSuccessToRelation")):
+            self.remove(name, kind, direction)
+        missing = completion.n2_missing(self.source, self.coverage)
+        self.assertEqual(len(missing), 5)
+
+    def test_output_preservation_does_not_discharge_intermediate_calls(self):
+        for name in ("update_fieldValue", "add_var_e", "Var_init"):
+            self.remove(name, "callAdmission", "allCallArgumentCarriers")
+            self.entry(name)["claims"].append({"name": "Partial.projection", "expectedType": "True",
+                "kind": "callAdmission", "direction": "sourceContextProjections"})
+        missing = completion.n2_missing(self.source, self.coverage)
+        self.assertEqual(len(missing), 3)
+        self.assertTrue(all("fullSourceCallInputs" in message for message in missing))
+
+    def test_precise_full_call_contracts_are_accepted(self):
+        for name, direction in (("update_fieldValue", "sourceRecursiveSuffixes"),
+                                ("add_var_e", "sourceContextCalls"),
+                                ("Var_init", "sourceCallPrefixes")):
+            for claim in self.entry(name)["claims"]:
+                if claim["kind"] == "callAdmission":
+                    claim["direction"] = direction
+        self.assertEqual(completion.n2_missing(self.source, self.coverage), [])
+
+    def test_output_free_relation_still_needs_checked_unit_producer(self):
+        self.remove("Type_eq", "producer", "sourceInputsToSourceOutput")
+        self.assertIn("Type_eq: producer/sourceInputsToSourceOutput",
+                      completion.n2_missing(self.source, self.coverage))
+
+    def test_removed_dependency_cannot_shrink_scope(self):
+        self.entry("Var_init")["dependencies"] = []
+        missing = completion.n2_missing(self.source, self.coverage)
+        self.assertTrue(any("required N2 dependency closure" in message for message in missing))
+
+    def test_new_dependency_does_not_silently_expand_checked_scope(self):
+        self.entry("exists_")["dependencies"].append("Program_load")
+        missing = completion.n2_missing(self.source, self.coverage)
+        self.assertTrue(any("new N2 dependency" in message for message in missing))
+
+    def test_known_kind_wrong_direction_is_missing(self):
+        for claim in self.entry("find_map")["claims"]:
+            if claim["kind"] == "sourceDomain":
+                claim["direction"] = "representedInputsOnly"
+        self.assertIn("find_map: sourceDomain/sourceInputsAndOutput",
+                      completion.n2_missing(self.source, self.coverage))
+
+    def test_n2_cli_rejects_changed_quoted_inputs_before_binding_check(self):
+        fake_corpus = type("Corpus", (), {"check": staticmethod(lambda **_: [])})
+        with patch.object(completion, "corpus_module", return_value=fake_corpus), \
+                patch.object(completion, "source_identity", return_value={}), \
+                patch.object(completion, "read_json", side_effect=[self.source, self.coverage]), \
+                patch.object(completion, "check_stored"), \
+                patch.object(Path, "read_text", return_value=""), \
+                patch.object(completion, "run", side_effect=["", completion.CertificationError(
+                    "quotation input type changed")]) as checked, \
+                patch.object(completion, "n2_missing") as inspected:
+            self.assertEqual(completion.main(["--require-n2"]), 1)
+            self.assertEqual(checked.call_args_list[-1].args,
+                             (completion.ROOT, ["lake", "exe", "check-quotes"]))
+            inspected.assert_not_called()
+
+    def test_n2_cli_never_skips_failed_compiled_checks(self):
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        fake_corpus = type("Corpus", (), {"check": staticmethod(lambda **_: [])})
+        with patch.object(completion, "corpus_module", return_value=fake_corpus), \
+                patch.object(completion, "source_identity", return_value={}), \
+                patch.object(completion, "read_json", side_effect=[self.source, self.coverage]), \
+                patch.object(completion, "check_stored"), \
+                patch.object(Path, "read_text", return_value=completion.canonical(manifest)), \
+                patch.object(completion, "run", side_effect=completion.CertificationError(
+                    "compiled check failed")) as checked, \
+                patch.object(completion, "n2_missing") as inspected:
+            self.assertEqual(completion.main(["--require-n2"]), 1)
+            checked.assert_called_once_with(completion.ROOT, ["lake", "exe", "check-coverage"])
+            inspected.assert_not_called()
 
 
 if __name__ == "__main__":

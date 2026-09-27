@@ -14,7 +14,7 @@ namespace P4SpecTecTest.Codegen.Initialization
 open P4SpecTec P4SpecTec.Refine
 
 private def builtin : Lang.Al.def :=
-  Q.d (.BuiltinDecD (Q.i "same") [] [] (Q.t .BoolT) [])
+  Q.d (.BuiltinDecD (Q.i "same") [Q.i "K", Q.i "same"] [] (Q.t .BoolT) [])
 
 def spec : List Lang.Al.def :=
   [Q.d (.ExternTypD (Q.i "same") []),
@@ -23,12 +23,18 @@ def spec : List Lang.Al.def :=
 open Lean Elab Command in
 run_cmd do
   let declarations := P4SpecTec.Codegen.Initialization.declarations
-    "P4SpecTecTest.Codegen.Initialization"
+    "P4SpecTecTest.Codegen.Initialization" spec
   for source in declarations.pretty.splitOn "\n\n" do
     let command ← match Parser.runParserCategory (← getEnv) `command source with
       | .ok command => pure command
       | .error message => throwError "{source}\n{message}"
     elabCommand command
+
+example : Environment.global.tdtbl.get? "K" = none :=
+  Environment.typeParameterFresh_K
+
+#guard !(Codegen.Initialization.declarations "Fixture" spec).pretty.contains
+  "typeParameterFresh_same"
 
 /-- Duplicate declarations cannot satisfy the generated certificate's uniqueness proof. -/
 theorem duplicateRejected : ¬ Init.NamesUnique [builtin, builtin] := by decide

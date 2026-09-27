@@ -1,6 +1,10 @@
 import P4SpecTec.Tactic.Refine
+import P4SpecTec.Tactic.Encoding
+import P4SpecTec.Tactic.RealizeTraversal
+import P4SpecTec.Refine.RealizeChoice
 import P4SpecTec.Refine.RealizeFuel
 import P4SpecTec.Refine.RealizeInterp
+import P4SpecTec.Refine.Subtype
 
 /-!
 Reverse symbolic execution over fuel families. The driver combines independently
@@ -29,6 +33,7 @@ def premises (s : SimpSet) : TacticM Unit := do
     let _ ← normalize s
     if (← getGoals).isEmpty then continue
     if ← tryTac (evalTactic (← `(tactic| assumption))) then continue
+    if ← declarationFromSpec then continue
     proveValue s
   setGoals []
 
@@ -61,12 +66,14 @@ def callee (s : SimpSet) (generated : Expr) : TacticM Unit := withMainContext do
     throwError "realize_al: expected generated callee, got {generated}"
   let call := (generated.getArg! 3).consumeMData
   match call.getAppFn.consumeMData with
-  | .fvar _ =>
+  | .fvar f =>
+    let some (ih, _) ← ihFor f
+      | throwError "realize_al: no outcome induction hypothesis for {call.getAppFn}"
     let args ← call.getAppArgs.mapM fun a => Term.exprToSyntax a
     let q ← freshName "rz_q"
     let hq ← freshName "rz_hq"
     evalTactic (← `(tactic| intro $(mkIdent q):ident $(mkIdent hq):ident))
-    evalTactic (← `(tactic| apply $(mkIdent `ih):ident $args*
+    evalTactic (← `(tactic| apply $(mkIdent ih):ident $args*
       $(mkIdent q):ident $(mkIdent hq):ident))
   | .const name _ =>
     let owner := if name.getString! == "run" then name.getPrefix else name
@@ -107,9 +114,16 @@ def equalityFact (s : SimpSet) (name : Name) (lhs rhs : Expr)
   setGoals [next]
 
 /-- Align source equality tests with generated tests using checked canonical relations. -/
-def alignTests (s : SimpSet) (source generated : Expr) : TacticM Bool := do
+def alignTests (s : SimpSet) (source generated : Expr)
+    (useFacts : Bool := false) : TacticM Bool := do
   let tests := (valueEqs source).eraseDups
   let counterparts := (valueEqs generated).eraseDups
+  let facts ← withMainContext do
+    let mut tests := []
+    for d in ← getLCtx do
+      if d.userName.toString.startsWith "rf_c" then
+        tests := tests ++ valueEqs (← instantiateMVars d.type)
+    pure tests.eraseDups
   for (a, i) in tests.zipIdx do
     let h ← freshName "rz_eq"
     let finish : TacticM Unit := withMainContext do
@@ -124,10 +138,30 @@ def alignTests (s : SimpSet) (source generated : Expr) : TacticM Bool := do
       if ← tryTac do
           equalityFact s h a counterparts[i]! ``eq_of_canon
           finish then return true
+    for b in (if useFacts then facts else []) do
+      if ← tryTac do
+          equalityFact s h a b ``eq_of_canon
+          finish then return true
   return false
 
+/-- Discharge equality guards whose encoded constructor shapes are now exposed. -/
+def canonicalConditions (s : SimpSet) : TacticM Unit := do
+  let facts ← withMainContext do
+    let mut facts := []
+    for d in ← getLCtx do
+      if d.userName.toString.startsWith "rf_c" then
+        for test in (valueEqs (← instantiateMVars d.type)).eraseDups do
+          facts := (d.userName, test) :: facts
+    pure facts
+  for (guard, test) in facts do
+    if (← getGoals).isEmpty then return
+    let _ := test
+    withMainContext do
+      evalTactic (← `(tactic| simp only [eq_iff_canon] at $(mkIdent guard):ident))
+    let _ ← normalizeAt s guard
+
 /-- Introduce one accessible binder, preserving representation equalities as facts. -/
-def introOne (s : SimpSet) : TacticM Unit := do
+def introOne (s : SimpSet) (conjunctions : Bool := false) : TacticM Unit := do
   let g ← getMainGoal
   let ty ← g.withContext do whnfR (← g.getType)
   let .forallE name _ _ _ := ty | throwError "realize_al: expected binder"
@@ -135,10 +169,25 @@ def introOne (s : SimpSet) : TacticM Unit := do
   evalTactic (← `(tactic| intro $(mkIdent name):ident))
   let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs] at $(mkIdent name):ident)))
   let _ ← normalizeAt s name
+  if conjunctions && !(← getGoals).isEmpty then
+    let conjunction ← withMainContext do
+      let some decl := (← getLCtx).findFromUserName? name | return false
+      return (← whnf (← instantiateMVars decl.type)).isAppOfArity ``And 2
+    if conjunction then
+      let left ← freshName "rf_g_left"
+      let isLength ← withMainContext do
+        let some declaration := (← getLCtx).findFromUserName? name | return false
+        let type ← whnf (← instantiateMVars declaration.type)
+        let some (_, lhs, _) := (type.getArg! 1).eq? | return false
+        return lhs.isAppOfArity ``List.length 2
+      let right ← freshName (if isLength then "rf_c_traversalLength" else "rf_g_right")
+      evalTactic (← `(tactic|
+        obtain ⟨$(mkIdent left):ident, $(mkIdent right):ident⟩ := $(mkIdent name):ident))
   pure ()
 
 /-- Compose one reverse step, retaining the local fuel offset in the reference family. -/
-partial def step (s : SimpSet) (remaining : Nat := 300) : TacticM Unit := do
+partial def step (s : SimpSet) (remaining : Nat := 300)
+    (relations : Bool := false) (iterRel : Option Expr := none) : TacticM Unit := do
   pruneSolvedGoals
   if (← getGoals).isEmpty then return
   withMainContext do
@@ -147,43 +196,92 @@ partial def step (s : SimpSet) (remaining : Nat := 300) : TacticM Unit := do
     if (← getGoals).isEmpty then return
     normalizeFacts s
     if (← getGoals).isEmpty then return
+    if relations then
+      canonicalConditions s
+      if !(← getGoals).isEmpty then encodingShapes
+      normalizeFacts s
+      if !(← getGoals).isEmpty then encodingLengths
+      if !(← getGoals).isEmpty then
+        if let some f ← relatedOption then
+          let name ← withMainContext do pure (← f.getDecl).userName
+          evalTactic (← `(tactic| cases $(mkIdent name):ident))
+          let goals ← getGoals
+          for g in goals do
+            setGoals [g]
+            step s (remaining - 1) relations iterRel
+          setGoals []
+          return
+    if (← getGoals).isEmpty then return
     let beforeExpose ← getGoals
     expose
     if (← getGoals).isEmpty then return
     -- Newly exposed constructors must reduce before selecting another discriminant.
-    if (← getGoals) != beforeExpose then return ← step s (remaining - 1)
+    if (← getGoals) != beforeExpose then return ← step s (remaining - 1) relations iterRel
     if ← tryTac (evalTactic (← `(tactic| contradiction))) then return
     let ty ← withMainContext do instantiateMVars (← (← getMainGoal).getType)
     if ty.isForall then
-      introOne s
-      return ← step s (remaining - 1)
-    if ← tableFacts (← libOf) then return ← step s (remaining - 1)
+      introOne s relations
+      return ← step s (remaining - 1) relations iterRel
+    if ← tableFacts (← libOf) then return ← step s (remaining - 1) relations iterRel
     let (_, reference, generated) ← goalParts
     withMainContext <| withLocalDeclD `rz_fuel (mkConst ``Nat) fun fuel => do
       let source := (mkApp reference fuel).headBeta.consumeMData
       let head := chainHead source
       let genHead := chainHead generated
+      if relations then
+        if ← emptyTraversalResult head then
+          return ← step s (remaining - 1) relations iterRel
+        if ← columnTraversalResult head then
+          return ← step s (remaining - 1) relations iterRel
+        if head.isAppOfArity ``Ctx.transpose 1 then
+          if ← normalize s then return ← step s (remaining - 1) relations iterRel
       traceStep m!"reverse {remaining}: {head.getAppFn} / {genHead.getAppFn}"
+      let traversalRelation ← match iterRel with
+        | some relation => pure (some relation)
+        | none =>
+          let columnRelation ←
+            if relations then columnTraversalRelation source generated else pure none
+          if let some relation := columnRelation then pure (some relation)
+          else if relations && head.isAppOfArity ``List.mapM 6 &&
+              genHead.isAppOfArity ``List.mapM 6 then
+            if (← isDefEq (head.getArg! 3) (mkApp (mkConst ``List [Level.zero])
+                (mkConst ``P4SpecTec.Lang.Il.value))) &&
+                (← isDefEq (genHead.getArg! 3) (mkConst ``Unit)) then
+              pure (some (← Term.elabTerm
+                (← `(fun (row : List P4SpecTec.Lang.Il.value) (_ : Unit) => row = [])) none))
+            else pure none
+          else pure none
+      if let some relation := traversalRelation then
+        if ← lookupTraversalAt s source then
+          return ← step s (remaining - 1) relations iterRel
+        if ← traversalGoals s relation source generated then
+          let goals ← getGoals
+          for g in goals do
+            setGoals [g]
+            step s (remaining - 1) relations iterRel
+          setGoals []
+          return
       if generated.isAppOfArity ``letFun 4 then
         evalTactic (← `(tactic| apply Realizes.have))
       else if source.isAppOfArity ``Eval.orElse 3 then
         unless generated.isAppOfArity ``Eval.orElse 3 do
           throwError "realize_al: ordered-choice shapes differ"
         evalTactic (← `(tactic| apply Realizes.orElse))
-      else if head.isAppOfArity ``Pure.pure 4 && (chainTail source).isNone then
+      else if head.isAppOfArity ``Pure.pure 4 && (chainTail source).isNone &&
+          (!relations ||
+            (genHead.isAppOfArity ``Pure.pure 4 && (chainTail generated).isNone)) then
         evalTactic (← `(tactic| apply Realizes.pure))
         if !(← getGoals).isEmpty then proveValue s
-      else if head.isAppOfArity ``throw 5 && (chainTail source).isNone then
+      else if head.isAppOfArity ``throw 5 && (chainTail source).isNone &&
+          (!relations ||
+            (genHead.isAppOfArity ``throw 5 && (chainTail generated).isNone)) then
         evalTactic (← `(tactic| exact Realizes.error _ _))
       else if invocations.any (head.isAppOf ·) && genHead.isAppOfArity ``ExceptT.mk 4 then
         let saved ← getGoals
         if (chainTail source).isSome then
-          try evalTactic (← `(tactic| apply Realizes.bind))
-          catch _ =>
-            let mut facts : Array MessageData := #[]
-            for d in ← getLCtx do
-              if d.userName.toString.startsWith "rf_c" then facts := facts.push m!"{d.type}"
-            throwError "realize_al: cannot compose generated bind {generated}; conditions {facts}"
+          if (chainTail generated).isNone then
+            evalTactic (← `(tactic| apply Realizes.ofBindPure))
+          evalTactic (← `(tactic| apply Realizes.bind))
           let gs ← getGoals
           let first := gs.head!
           let rest := gs.tail!
@@ -196,42 +294,69 @@ partial def step (s : SimpSet) (remaining : Nat := 300) : TacticM Unit := do
         if (← getGoals) == saved then throwError "realize_al: callee made no progress"
       else if (← stuckFuel head).isSome then
         evalTactic (← `(tactic| apply Realizes.ofAdd 1))
+      else if relations &&
+          ((head.isAppOfArity ``ite 5 && !(valueEqs (head.getArg! 1)).isEmpty) ||
+           (genHead.isAppOfArity ``ite 5 && !(valueEqs (genHead.getArg! 1)).isEmpty)) then
+        if ← alignTests s head genHead relations then
+          return ← step s (remaining - 1) relations iterRel
+        if ← alignTests s genHead genHead relations then
+          return ← step s (remaining - 1) relations iterRel
+        let c := if head.isAppOfArity ``ite 5 then head.getArg! 1 else genHead.getArg! 1
+        let stx ← Term.exprToSyntax c
+        let h ← freshName "rf_c"
+        evalTactic (← `(tactic| by_cases $(mkIdent h):ident : $stx:term))
       else if ← splitData genHead then pure ()
       else if ← splitData head then pure ()
       else
         let cond? := if head.isAppOfArity ``ite 5 then some (head.getArg! 1)
           else if genHead.isAppOfArity ``ite 5 then some (genHead.getArg! 1) else none
         if let some c := cond? then
-          if ← alignTests s head genHead then return ← step s (remaining - 1)
-          if ← alignTests s genHead genHead then return ← step s (remaining - 1)
+          if ← alignTests s head genHead relations then
+            return ← step s (remaining - 1) relations iterRel
+          if ← alignTests s genHead genHead relations then
+            return ← step s (remaining - 1) relations iterRel
           let stx ← Term.exprToSyntax c
           let h ← freshName "rf_c"
           evalTactic (← `(tactic| by_cases $(mkIdent h):ident : $stx:term))
         else if ← tryTac (evalTactic (← `(tactic| split))) then pure ()
-        else throwError "realize_al: stuck at {head} against {genHead}"
+        else
+          throwError "realize_al: stuck at {head} against {genHead}"
       let goals ← getGoals
       for g in goals do
         setGoals [g]
-        step s (remaining - 1)
+        step s (remaining - 1) relations iterRel
       setGoals []
 
 /-- Expose only the outer invocation; recursive invocations remain abstract for contracts. -/
-def body : TacticM Unit := do
-  let rules ← simpSet
+def body (relations : Bool := false) (iterRel : Option Expr := none)
+    (withColumns : Bool := false) : TacticM Unit := do
+  let rules ← if relations then subtypeSimpSet else simpSet
+  let rules := if relations then
+    { rules with lemmas := rules.lemmas.filter (fun n => !(``Ctx.transpose).isPrefixOf n) ++
+        #[``checkedTypePure, ``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse,
+          ``transposeEmptyRows, ``List.mapM_map] }
+    else rules
   -- This slot emits `↓` rules, before the generic assignment equations unfold.
-  let s ← prepareSimpSet { rules with procs := rules.procs.push ``assignVar }
+  let procedures := if withColumns then rules.procs.push ``iterPremListColumns
+    else if relations then rules.procs.push ``iterPremListNoOutputs else rules.procs
+  let s ← prepareSimpSet { rules with procs := procedures.push ``assignVar }
   let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs] at *)))
   evalTactic (← `(tactic| apply Realizes.ofAdd 1))
   let mut names : Array Name := #[]
   for f in invocations do names := names ++ (← eqnsOf f).toArray
   evalTactic (← simpSyntax names #[])
-  step s
+  step s 300 relations iterRel
   unless (← getGoals).isEmpty do throwError "realize_al: goals remain"
 
 /-- Construct the body witness in a generated partial-correctness induction step. -/
 elab "realize_step " run:ident : tactic => withoutRecover do
   evalTactic (← `(tactic| apply Realizes.outcome (hq := $run) ))
   body
+
+/-- Construct recursive witnesses through source premises with encoded output columns. -/
+elab "realize_step" "(" "columns" ")" run:ident : tactic => withoutRecover do
+  evalTactic (← `(tactic| apply Realizes.outcome (hq := $run)))
+  body true none true
 
 /-- Prove a nonrecursive reverse certificate by actual quotation reduction. -/
 elab "realize_al" : tactic => withoutRecover do
@@ -243,5 +368,55 @@ elab "realize_al" : tactic => withoutRecover do
   let .const name _ := call.getAppFn | throwError "realize_al: expected defined function"
   evalTactic (← `(tactic| unfold $(mkIdent name):ident))
   body
+
+/-- Prove a reverse certificate with an explicit relation for traversal intermediates. -/
+elab "realize_al" "(" "iteration" ":=" relation:term ")" : tactic => withoutRecover do
+  introNamed
+  let relation ← withMainContext do Term.elabTerm relation none
+  let (_, _, generated) ← goalParts
+  unless generated.isAppOfArity ``ExceptT.mk 4 do
+    throwError "realize_al: generated computation is not ExceptT.mk"
+  let call := generated.getArg! 3
+  let .const name _ := call.getAppFn | throwError "realize_al: expected defined function"
+  evalTactic (← `(tactic| unfold $(mkIdent name):ident))
+  body false (some relation)
+
+/-- Reverse execution with exact outer subtype checks and generated encoding bridges. -/
+elab "realize_al" "(" "subtypes" ")" : tactic => withoutRecover do
+  introNamed
+  let (_, _, generated) ← goalParts
+  unless generated.isAppOfArity ``ExceptT.mk 4 do
+    throwError "realize_al: generated computation is not ExceptT.mk"
+  let call := generated.getArg! 3
+  let .const name _ := call.getAppFn | throwError "realize_al: expected defined function"
+  evalTactic (← `(tactic| unfold $(mkIdent name):ident))
+  body true
+
+/-- Reverse execution through source list premises with separately encoded output columns. -/
+elab "realize_al" "(" "columns" ")" : tactic => withoutRecover do
+  introNamed
+  let (_, _, generated) ← goalParts
+  unless generated.isAppOfArity ``ExceptT.mk 4 do
+    throwError "realize_al: generated computation is not ExceptT.mk"
+  let call := generated.getArg! 3
+  let .const name _ := call.getAppFn | throwError "realize_al: expected defined function"
+  evalTactic (← `(tactic| unfold $(mkIdent name):ident))
+  body true none true
+
+/-- Prove one joint induction case, selecting its actual defined-outcome equation. -/
+def inductionCase : TacticM Unit := do
+  introNamed
+  let equation ← withMainContext do
+    for d in ← getLCtx do
+      if let some (_, _, rhs) := (← instantiateMVars d.type).consumeMData.eq? then
+        if rhs.consumeMData.isAppOfArity ``Option.some 2 then return d.userName
+    throwError "realize_al: induction case has no defined-outcome equation"
+  evalTactic (← `(tactic| apply Realizes.outcome (hq := $(mkIdent equation):ident)))
+  body true
+
+/-- Prove all members of a recursive group without assuming logical determinism. -/
+elab "realize_group " p:ident : tactic => withoutRecover do
+  let principle ← realizeGlobalConstNoOverloadWithInfo p
+  proveOutcomeGroup principle inductionCase
 
 end P4SpecTec.Tactic.Realize

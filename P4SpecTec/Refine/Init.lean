@@ -126,6 +126,44 @@ abbrev NamesUnique (ds : List Lang.Al.def) : Prop := (keys ds).Nodup
 /-- Concrete global tables used as the witness for checked initialization. -/
 def global (ds : List Lang.Al.def) : Ctx.global := loads {} ds
 
+private theorem containsLoadsAbsent (ds : List Lang.Al.def) (g : Ctx.global) (k : Key)
+    (absent : k ∉ keys ds) : contains (loads g ds) k = contains g k := by
+  induction ds generalizing g with
+  | nil => rfl
+  | cons d ds ih =>
+    have tail : k ∉ keys ds := by
+      intro hk
+      apply absent
+      cases hd : key d <;> simp only [keysCons, hd, List.mem_cons]
+      · exact hk
+      · exact Or.inr hk
+    have different : key d ≠ some k := by
+      intro hd
+      apply absent
+      simp [keysCons, hd]
+    rw [loads, ih (load g d) tail, containsLoad]
+    simp [different]
+
+/-- The source declares no global type with this callable parameter name. -/
+abbrev TypeNameFresh (ds : List Lang.Al.def) (name : String) : Prop :=
+  (Table.typ, name) ∉ keys ds
+
+/-- An undeclared type name remains absent after complete table initialization. -/
+theorem globalTypeAbsent (ds : List Lang.Al.def) (name : String)
+    (fresh : TypeNameFresh ds name) : (global ds).tdtbl.get? name = none := by
+  have hc := containsLoadsAbsent ds {} (.typ, name) fresh
+  have hc : (global ds).tdtbl.contains name = false := by
+    simpa [contains, global] using hc
+  simp only [Std.HashMap.get?_eq_getElem?]
+  cases h : (global ds).tdtbl[name]? with
+  | none => rfl
+  | some td => simp [Std.HashMap.contains_eq_isSome_getElem?, h] at hc
+
+/-- info: 'P4SpecTec.Refine.Init.globalTypeAbsent' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms globalTypeAbsent
+#audit_axioms globalTypeAbsent
+
 /-- Unique definition names suffice for successful checked AL initialization. -/
 theorem initEqOk (ds : List Lang.Al.def) (unique : NamesUnique ds) :
     Ctx.init ds = .ok (global ds) := by

@@ -68,7 +68,9 @@ private def sensitivity (env : Environment) (report : Report) : IO Unit := do
         { claim with direction := "reverse" } } }
   for (label, kind, direction) in
       [("reverse replaced by forward", "refinement", "generatedToReference"),
-       ("dispatch replaced by invocation", "builtinContract", "twoWayDispatch")] do
+       ("dispatch replaced by invocation", "builtinContract", "twoWayDispatch"),
+       ("source entry replaced by invocation", "sourceEntry", "sourceInputsToTwoWay"),
+       ("producer replaced by invocation", "producer", "sourceInputsToSourceOutput")] do
     let some entry := report.definitions.find? fun candidate =>
         candidate.claims.any fun claim => claim.kind == kind && claim.direction == direction
       | throw <| IO.userError s!"coverage sensitivity requires {direction} evidence"
@@ -78,7 +80,20 @@ private def sensitivity (env : Environment) (report : Report) : IO Unit := do
     let some forward := entry.claims.find? (·.direction == "referenceToGenerated")
       | throw <| IO.userError s!"missing forward claim for {entry.id}"
     expectRejected label "type mismatch" <| check { expected with name := forward.name }
-  IO.println "[coverage] thirteen mutations rejected at their intended boundaries"
+  expectRejected "missing type inventory" "differs from current source" <|
+    checkReport { report with representations := [] }
+  expectRejected "missing source profile" "differs from current source" <|
+    checkReport { report with profiles := [] }
+  let some variables := report.profiles.find? (·.kind == "sourceVariables")
+    | throw <| IO.userError "source-profile sensitivity requires variable omission evidence"
+  expectRejected "variable omission replaced by unrelated theorem" "type mismatch" <|
+    check { variables with name := baseClaim.name }
+  let codecs := report.representations.flatMap (·.claims)
+  let first :: second :: _ := codecs
+    | throw <| IO.userError "representation sensitivity requires two source codec claims"
+  expectRejected "codec replaced by another source family" "type mismatch" <|
+    check { first with name := second.name }
+  IO.println "[coverage] nineteen mutations rejected at their intended boundaries"
 
 run_cmd do
   let env ← getEnv

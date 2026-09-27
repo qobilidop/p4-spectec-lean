@@ -31,7 +31,8 @@ the user-facing account of current capabilities and their guarantees.
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its
 [refinement index](../NanoP4Spec/Refinement.lean) currently record forward and reverse
-AL theorems for the same 18 of 153 bodied definitions, all functions. Both reports come from
+AL theorems for the same 39 of 153 bodied definitions, including the recursive
+`Type_eq`/`ParameterType_eq` group and the `Type_ok` and `Var_init` closures. Both reports come from
 the same generation plan. They record exclusions, including blockers inherited
 from dependencies or other members of a recursive group.
 These counts are not a percentage of P4 language behavior certified.
@@ -40,23 +41,36 @@ Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
 Generated reverse certificates construct finite reference executions using
 outcome induction for recursive functions, including failures. They assume
-related inputs; they do not establish full source-domain coverage or total
-termination. The [handwritten regression](../P4SpecTecTest/Refine/NanoReverseExists.lean)
-also checks exact Boolean result metadata. Separate
-[relation probes](../P4SpecTecTest/Refine/NanoRelation.lean) kernel-check selected
-recursive successes, ordered mismatches and exhaustion for `Type_eq` and
-`ParameterType_eq`; full-domain relation correspondence remains open.
+related inputs and do not establish total termination. Separate generated
+source-entry, codec and producer theorems establish source-domain coverage and
+preservation for the selected fragment. The [handwritten regression](../P4SpecTecTest/Refine/NanoReverseExists.lean)
+also checks exact Boolean result metadata. Generated relation certificates now
+cover arbitrary admitted inputs for `Type_eq` and `ParameterType_eq`, including
+ordered attempts and failure outcomes. Their logical relations retain separate
+run-soundness claims; there is no blanket logical converse claim.
+
+All 162 declared source type families have generated codecs proving encoding
+validity, decoder soundness at any fuel and a sufficient bound for each source
+value. This includes recursive syntax, nested containers and legal polymorphic
+instantiations. The independent grammar follows source constructors: numeric
+casts produce the declared numeric tag, and options use explicit absent/present
+wrappers. It is deliberately distinct from permissive runtime subtype membership,
+which can accept other raw shapes. Source input witnesses, successful output
+preservation and actual intermediate call admission are separate checked claims.
+The runtime-only raw extern alternative remains outside the declared `value`
+grammar; target callback composition is still a separate obligation.
 
 ### Coverage metadata and checked evidence
 
-`coverage.json` inventories the emitted per-definition claims. Schema version 1
-records the library and export path, each callable's AL identifier and source
+`coverage.json` inventories the emitted claims. Schema version 3 records the library and export path, each callable's AL identifier and source
 file, its recursive group and direct dependencies, theorem names and expected
 types, and exclusions. The claim kinds and directions distinguish forward AL
 refinement, reverse realization, builtin dispatch equality, generated-run soundness
-and relation determinism. Types, source variables and
-helper group theorems are outside this inventory; externs and builtins are
-included as dependency boundaries, but excluded from the bodied denominator.
+and relation determinism, as well as source entry, output preservation and call
+admission. Source type codecs have a separate namespace. Profile claims bind
+primitive codecs, typed schematic-variable omission and actual table initialization.
+Helper group theorems support these claims without duplicating the denominator.
+Externs and builtins are dependency boundaries, excluded from the bodied denominator.
 
 The report is metadata, not a certificate or a stored build verdict.
 `check-coverage` regenerates it from the current export, requires an exact
@@ -78,8 +92,11 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 139 compiled claim bindings (18 forward,
-18 reverse, 26 builtin dispatch and 77 run-soundness); 749 remain unresolved. These counts are neither behavioral
+The current 888 obligations have 381 compiled claim bindings; 507 remain
+unresolved. The bounded N2 check additionally requires the selected 30-definition
+closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
+primitive codecs and table initialization. It checks input coverage, output
+preservation and full intermediate call admission separately. These counts are neither behavioral
 coverage nor estimates of remaining effort. Even a definition with both directions
 bound still needs its domain and environment obligations.
 
@@ -103,13 +120,15 @@ are inputs to replay, not proof that both Lean paths agree. The completion
 inventory keeps all 117 replay obligations open until checked evidence is wired
 to them; this does not negate the existing bounded replay tests.
 
-Normal checking accepts an accurately reported incomplete inventory. Strict
-checking returns a nonzero exit while the selected stage has unresolved
+Normal checking accepts an accurately reported incomplete inventory. The full
+gate additionally requires `--require-n2`; this does not complete the broader
+core or target stage. Strict full-stage checking returns a nonzero exit while
+that stage has unresolved
 obligations (`target` includes core prerequisites; `all` includes release
 evidence). Neither stage is complete today:
 
 ```sh
-nix develop --command python3 scripts/nano-certification.py
+nix develop --command python3 scripts/nano-certification.py --require-n2
 nix develop --command python3 scripts/nano-certification.py --require-complete all
 ```
 
@@ -183,9 +202,11 @@ There are further obligations when making a source-level claim:
 - **Source identity:** the quotation must correspond to the intended export.
   `check-quotes` compares compiled Nano-P4 quotations with the decoded pinned
   export. The [comparison](../P4SpecTec/Codegen/QuoteCheck.lean) erases regions and hints
-  and omits source `VarD` declarations; expression/path type notes, type
-  origins, input positions and ordering remain significant. This is a runtime
-  check, not a kernel proof of the exporter.
+  and handles the eight typed schematic `VarD` declarations in a separate
+  source-order comparison. A checked omission theorem proves that they leave
+  initialization unchanged. Expression/path type notes, type origins, input
+  positions and ordering remain significant. This is a runtime check, not a
+  kernel proof of the exporter.
 - **Representation coverage:** every input in the claimed source domain must
   have an appropriate generated representation. A theorem conditional on
   `Rel` alone does not prove that no relevant input was left out.

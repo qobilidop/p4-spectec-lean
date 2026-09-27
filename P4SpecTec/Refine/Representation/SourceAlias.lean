@@ -44,6 +44,8 @@ theorem plainAliasIff {spec externalDomain} (name : id) (definition : typ)
         cases tail
         have hs := stable _ sub
         simpa only [hs] using payload
+    | record name arguments parameters sourceFields instantiated v valueFields found =>
+      simp [declared] at found
     | variant name arguments parameters cases constructor instantiated v tree found =>
       simp [declared] at found
     | external name v found payload =>
@@ -90,6 +92,12 @@ theorem Valid.arguments {spec externalDomain} {name : id} {args args' : List typ
     apply Valid.alias name args' parameters definition instantiated v declared
     · simpa only [instantiatedFields, ← lengths, ← same] using fields
     · exact payload
+  | record name args parameters sourceFields instantiated v valueFields
+      declared shape labels fields payload =>
+    apply Valid.record name args' parameters sourceFields instantiated v valueFields
+      declared shape labels
+    · simpa only [instantiatedFields, ← lengths, ← same] using fields
+    · exact payload
   | variant name args parameters cases constructor instantiated v tree
       declared member shape mixop fields payload =>
     apply Valid.variant name args' parameters cases constructor instantiated v tree
@@ -117,6 +125,8 @@ theorem Valid.plainPayload {spec externalDomain} {name : id} {args parameters} {
     have heq := Option.some.inj (found.symm.trans declared)
     cases heq
     exact ⟨instantiated, fields, payload⟩
+  | record name args parameters sourceFields instantiated v valueFields found =>
+    simp [declared] at found
   | variant name args parameters cases constructor instantiated v tree found =>
     simp [declared] at found
   | external name v found payload =>
@@ -171,6 +181,10 @@ theorem Valid.nominalName {spec externalDomain} {name name' : id} {args : List t
   cases valid with
   | «alias» name args parameters definition instantiated v declared fields payload =>
     exact .alias name' args parameters definition instantiated v (same ▸ declared) fields payload
+  | record name args parameters sourceFields instantiated v valueFields
+      declared shape labels fields payload =>
+    exact .record name' args parameters sourceFields instantiated v valueFields
+      (same ▸ declared) shape labels fields payload
   | variant name args parameters cases constructor instantiated v tree
       declared member shape mixop fields payload =>
     exact .variant name' args parameters cases constructor instantiated v tree
@@ -182,5 +196,28 @@ theorem Valid.nominalName {spec externalDomain} {name name' : id} {args : List t
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms Valid.nominalName
 #audit_axioms Valid.nominalName
+
+/-- A plain alias has the body's domain when empty substitution preserves source validity.
+Only domain implication is required; instantiated source-region metadata may differ. -/
+theorem plainAliasDomainIff {spec externalDomain} (name : id) (definition : typ)
+    (declared : body spec name.it = some ([], .PlainT definition))
+    (normalize : ∀ actual : typ, Substitutes [] definition.it actual.it →
+      ∀ v, Valid spec externalDomain actual.it v → Valid spec externalDomain definition.it v)
+    (identity : Substitutes [] definition.it definition.it) (v : value) :
+    Valid spec externalDomain (.VarT name []) v ↔ Valid spec externalDomain definition.it v := by
+  constructor
+  · intro h
+    obtain ⟨actual, fields, payload⟩ := h.plainPayload declared
+    obtain ⟨_, substitutions⟩ := fields
+    cases substitutions with
+    | cons substitution rest =>
+      cases rest
+      exact normalize actual substitution v payload
+  · intro payload
+    exact .alias name [] [] definition definition v declared ⟨rfl, .cons identity .nil⟩ payload
+/-- info: 'P4SpecTec.Refine.Representation.Source.plainAliasDomainIff' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms plainAliasDomainIff
+#audit_axioms plainAliasDomainIff
 
 end P4SpecTec.Refine.Representation.Source

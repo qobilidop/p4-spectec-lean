@@ -4,6 +4,7 @@ import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Builtin.Invoke
 import P4SpecTec.Refine.Builtin.List
 import NanoP4Spec.Refinement.Spec
+import NanoP4Spec.Refinement.Equality
 
 /-! # NanoP4Spec.Refinement.assoc_
 

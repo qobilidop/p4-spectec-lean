@@ -184,4 +184,42 @@ def mutualBlock (ds : List Format) : Format :=
 /-- Indent a format by two spaces on every line after the first. -/
 def indent (f : Format) : Format := Format.nest 2 f
 
+private def words (line : String) : List String := Id.run do
+  let mut result := []
+  let mut word := ""
+  let mut identifier := false
+  let mut quoted := false
+  let mut escaped := false
+  for c in line.toList do
+    if c == '«' && !quoted then identifier := true
+    if c == '"' && !identifier && !escaped then quoted := !quoted
+    escaped := quoted && c == '\\' && !escaped
+    if c == ' ' && !identifier && !quoted then
+      if !word.isEmpty then result := result ++ [word]
+      word := ""
+    else word := word.push c
+    if c == '»' && !quoted then identifier := false
+  if !word.isEmpty then result := result ++ [word]
+  return result
+
+private def tacticLocations : List String → List String
+  | "at" :: target :: rest => ("at " ++ target) :: tacticLocations rest
+  | word :: rest => word :: tacticLocations rest
+  | [] => []
+
+/-- Wrap proof source while preserving literals, quoted names and tactic locations. -/
+def boundedLines (text : String) : String :=
+  "\n".intercalate (text.splitOn "\n" |>.flatMap fun line => Id.run do
+    let indent := (line.toList.takeWhile (· == ' ')).length
+    let continuation := indent + (if line.trimAscii.toString.startsWith "· " then 4 else 2)
+    let mut result := []
+    let mut current := String.ofList (List.replicate indent ' ')
+    for word in tacticLocations (words line) do
+      let separator := if current.trimAscii.toString.isEmpty then "" else " "
+      if current.length + separator.length + word.length > 96 then
+        result := result ++ [current]
+        current := String.ofList (List.replicate continuation ' ') ++ word
+      else current := current ++ separator ++ word
+    return result ++ [current])
+
 end P4SpecTec.Codegen

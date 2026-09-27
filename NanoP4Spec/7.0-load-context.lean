@@ -35,12 +35,18 @@ def actionDeclarationIR.toValue : NanoP4Spec.actionDeclarationIR → Lang.Il.val
         (Prelude.Value.varT "actionDeclarationIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
 
 instance : ToValue NanoP4Spec.actionDeclarationIR := ⟨NanoP4Spec.actionDeclarationIR.toValue⟩
 instance : BEq NanoP4Spec.actionDeclarationIR := ⟨valueEq⟩
@@ -101,14 +107,22 @@ def parserDeclarationIR.toValue : NanoP4Spec.parserDeclarationIR → Lang.Il.val
         (Prelude.Value.varT "parserDeclarationIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
+               (.Seq
+                  [(.Arg (NanoP4Spec.parserLocalDeclarationList.toValue x2)),
+                   (.Arg (NanoP4Spec.parserStateList.toValue x3))])
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.parserDeclarationIR := ⟨NanoP4Spec.parserDeclarationIR.toValue⟩
@@ -179,17 +193,23 @@ def controlDeclarationIR.toValue : NanoP4Spec.controlDeclarationIR → Lang.Il.v
         (Prelude.Value.varT "controlDeclarationIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
                (.Seq
-                  [(.Arg (ToValue.toValue x2)),
+                  [(.Arg (NanoP4Spec.controlLocalDeclarationList.toValue x2)),
                    (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
-                   (.Arg (ToValue.toValue x3))])
+                   (.Arg (NanoP4Spec.controlBody.toValue x3))])
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.controlDeclarationIR := ⟨NanoP4Spec.controlDeclarationIR.toValue⟩
@@ -270,42 +290,62 @@ def callableDef.toValue : NanoP4Spec.callableDef → Lang.Il.value
         (Prelude.Value.varT "callableDef")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
   | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "callableDef")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
+               (.Seq
+                  [(.Arg (NanoP4Spec.parserLocalDeclarationList.toValue x2)),
+                   (.Arg (NanoP4Spec.parserStateList.toValue x3))])
                (Prelude.Value.atom .RBrace))])
   | .CONTROL_lparen_rparen_lbrace_APPLY_rbrace x0 x1 x2 x3 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "callableDef")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
                (.Seq
-                  [(.Arg (ToValue.toValue x2)),
+                  [(.Arg (NanoP4Spec.controlLocalDeclarationList.toValue x2)),
                    (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
-                   (.Arg (ToValue.toValue x3))])
+                   (.Arg (NanoP4Spec.controlBody.toValue x3))])
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.callableDef := ⟨NanoP4Spec.callableDef.toValue⟩
@@ -428,7 +468,13 @@ def callableDef.al : Lang.Al.def :=
 
 abbrev callableDefEnv : Type := NanoP4Spec.map NanoP4Spec.callableId NanoP4Spec.callableDef
 
-def callableDefEnv.toValue (x : NanoP4Spec.callableDefEnv) : Lang.Il.value := ToValue.toValue x
+def callableDefEnv.toValue (x : NanoP4Spec.callableDefEnv) : Lang.Il.value :=
+  @NanoP4Spec.map.toValue
+    NanoP4Spec.callableId
+    NanoP4Spec.callableDef
+    (ToValue.mk (fun x => NanoP4Spec.callableId.toValue x))
+    (ToValue.mk (fun x => NanoP4Spec.callableDef.toValue x))
+    x
 
 instance : ToValue NanoP4Spec.callableDefEnv := ⟨NanoP4Spec.callableDefEnv.toValue⟩
 instance : BEq NanoP4Spec.callableDefEnv := ⟨valueEq⟩
@@ -465,10 +511,22 @@ def globalLoadLayer.toValue : NanoP4Spec.globalLoadLayer → Lang.Il.value
   | ⟨x0, x1, x2, x3⟩ =>
       Runtime.Value.Make.str
         (Prelude.Value.varT "globalLoadLayer")
-        [("CALLABLE_TYPE", ToValue.toValue x0),
-         ("CALLABLE", ToValue.toValue x1),
-         ("PARSER", ToValue.toValue x2),
-         ("CONTROL", ToValue.toValue x3)]
+        [("CALLABLE_TYPE", NanoP4Spec.callableTypeDefEnv.toValue x0),
+         ("CALLABLE", NanoP4Spec.callableDefEnv.toValue x1),
+         ("PARSER",
+          @ToValue.toValue
+            (Option NanoP4Spec.parserDeclarationIR)
+            (@P4SpecTec.Prelude.instToValueOption
+               NanoP4Spec.parserDeclarationIR
+               (ToValue.mk (fun x => NanoP4Spec.parserDeclarationIR.toValue x)))
+            x2),
+         ("CONTROL",
+          @ToValue.toValue
+            (Option NanoP4Spec.controlDeclarationIR)
+            (@P4SpecTec.Prelude.instToValueOption
+               NanoP4Spec.controlDeclarationIR
+               (ToValue.mk (fun x => NanoP4Spec.controlDeclarationIR.toValue x)))
+            x3)]
 
 instance : ToValue NanoP4Spec.globalLoadLayer := ⟨NanoP4Spec.globalLoadLayer.toValue⟩
 instance : BEq NanoP4Spec.globalLoadLayer := ⟨valueEq⟩
@@ -507,7 +565,8 @@ def globalLoadLayer.al : Lang.Al.def :=
 
 abbrev loadContext : Type := NanoP4Spec.globalLoadLayer
 
-def loadContext.toValue (x : NanoP4Spec.loadContext) : Lang.Il.value := ToValue.toValue x
+def loadContext.toValue (x : NanoP4Spec.loadContext) : Lang.Il.value :=
+  NanoP4Spec.globalLoadLayer.toValue x
 
 instance : ToValue NanoP4Spec.loadContext := ⟨NanoP4Spec.loadContext.toValue⟩
 instance : BEq NanoP4Spec.loadContext := ⟨valueEq⟩

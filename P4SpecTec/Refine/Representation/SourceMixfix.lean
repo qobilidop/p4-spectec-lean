@@ -117,4 +117,51 @@ end
 #guard_msgs (whitespace := lax) in #print axioms mixopsTrans
 #audit_axioms mixopsTrans
 
+/-- Related constructor fields and matching notation imply related case values. -/
+theorem caseRelation {v w : Lang.Il.value} {tree rendered : Mixfix.t Lang.Il.value}
+    (sourceShape : v.it = .CaseV tree) (renderedShape : w.it = .CaseV rendered)
+    (mixop : Mixfix.eq_mixop tree rendered = true)
+    (fields : canons (Mixfix.args tree) = canons (Mixfix.args rendered)) : Rel v w := by
+  have same := reconstructMixfix tree rendered mixop fields
+  simp only [Rel, Prelude.ToValue.toValue, _root_.id, canon, canon',
+    sourceShape, renderedShape]
+  rw [same]
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.caseRelation' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms caseRelation
+#audit_axioms caseRelation
+
+/-- Successful runtime notation matching preserves the exact positional field list. -/
+theorem caseArgsFields {tree : Mixfix.t Lang.Il.value} {pattern : Mixfix.mixop}
+    {fields : List Lang.Il.value} (matched : Prelude.Value.caseArgs tree pattern = some fields) :
+    Mixfix.eq_mixop tree pattern = true ∧ Mixfix.args tree = fields := by
+  unfold Prelude.Value.caseArgs at matched
+  split at matched
+  · rename_i matching
+    exact ⟨matching, Option.some.inj matched⟩
+  · cases matched
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.caseArgsFields' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms caseArgsFields
+#audit_axioms caseArgsFields
+
+/-- A matched source constructor excludes a differently shaped decoder alternative. -/
+theorem caseArgsDisjoint (tree : Mixfix.t Lang.Il.value) (left right : Mixfix.mixop)
+    (matched : Mixfix.eq_mixop tree left = true)
+    (distinct : Mixfix.eq_mixop left right = false) :
+    Prelude.Value.caseArgs tree right = none := by
+  have mismatch : Mixfix.eq_mixop tree right ≠ true := by
+    intro other
+    have common := mixopFork tree left right matched other
+    rw [distinct] at common
+    cases common
+  simp [Prelude.Value.caseArgs, mismatch]
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.caseArgsDisjoint' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms caseArgsDisjoint
+#audit_axioms caseArgsDisjoint
+
 end P4SpecTec.Refine.Representation.Source

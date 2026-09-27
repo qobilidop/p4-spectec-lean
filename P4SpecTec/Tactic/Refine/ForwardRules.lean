@@ -1,7 +1,11 @@
 import P4SpecTec.Tactic.Refine.Normalize
+import P4SpecTec.Tactic.Encoding
 import P4SpecTec.Prelude
+import P4SpecTec.Refine.Call
 import P4SpecTec.Refine.Eval
+import P4SpecTec.Refine.Representation.Equality
 import P4SpecTec.Refine.Syntax
+import P4SpecTec.Refine.Subtype
 
 /-!
 The forward lockstep driver's interpreter equations, runtime simplifications
@@ -54,12 +58,22 @@ def helperFunctions : List Name := [
   ``Interp.numCmpop, ``Interp.pattern_matches, ``Interp.dot, ``Interp.index_of, ``Interp.index,
   ``Interp.slice, ``Interp.eval_arg_def, ``Interp.subst_targs, ``Interp.typ_note,
   ``Interp.typ_of_value, ``Interp.is_iter_var_exp,
+  ``Interp.checked_type,
+  ``P4SpecTec.Runtime.Type.Subst.substType, ``P4SpecTec.Runtime.Type.Subst.substTypes,
+  ``P4SpecTec.Runtime.Type.Subst.substNotation,
+  ``P4SpecTec.Runtime.Type.Subst.subst_typ_checked,
+  ``P4SpecTec.Runtime.Type.Subst.subst_typs_checked,
+  ``P4SpecTec.Runtime.Type.Subst.subst_nottyp_checked,
+  ``P4SpecTec.Runtime.Type.Subst.subst_typ_inner_checked,
+  ``P4SpecTec.Runtime.Type.Subst.subst_typs_inner_checked,
+  ``P4SpecTec.Runtime.Type.Subst.syntaxDepth, ``P4SpecTec.Runtime.Type.Subst.syntaxDepths,
   ``Backtrack.back_err, ``Backtrack.back_unmatch_silent, ``Backtrack.back_unmatch,
   ``Backtrack.back_nest, ``Backtrack.check_back_err, ``Backtrack.choose_sequential,
   ``P4SpecTec.Interp_al.Effects.chooseSequential,
   ``P4SpecTec.Interp_al.Effects.builtin, ``P4SpecTec.Interp_al.Effects.builtinEval,
   ``Ctx.find_rel, ``Ctx.find_rel_opt, ``Ctx.find_func, ``Ctx.find_func_opt, ``Ctx.find_value,
-  ``Ctx.find_value_opt, ``Ctx.find_values, ``Ctx.add_value, ``Ctx.localize, ``Ctx.empty,
+  ``Ctx.find_value_opt, ``Ctx.find_values, ``Ctx.add_value, ``Ctx.add_typdef,
+  ``Ctx.bound_typdef, ``Ctx.find_typdef_opt, ``Ctx.localize, ``Ctx.empty,
   ``Ctx.empty_local, ``Ctx.back_undef, ``Ctx.sub_opt, ``Ctx.sub_list, ``Ctx.transpose,
   ``P4SpecTec.Lang.Hints.Input.split, ``P4SpecTec.Domain.Mixfix.args,
   ``P4SpecTec.Domain.Mixfix.to_mixop, ``P4SpecTec.Domain.Mixfix.map,
@@ -94,7 +108,7 @@ def calcLemmas : List Name := [
   ``Q.ar_it, ``Q.pm_it, ``Q.nt_it, ``Q.dt_it, ``Q.cl_it, ``Q.rg_it, ``Q.eg_it, ``Q.tr_it, ``Q.d_it,
   ``Q.rp_eq, ``Q.v_eq, ``traced_eq, ``check_rel_inputs_off, ``check_rel_outputs_off,
   ``check_func_inputs_off, ``check_func_output_off, ``Var.eq_eq, ``Atom.eq_eq, ``hOrElse_eq,
-  ``orElse_unmatch,
+  ``orElse_unmatch, ``checkedTypePure, ``checkedPureRun,
   ``diverge_bind, ``throw_bind, ``mk_run, ``err_some, ``err_none, ``check_true, ``check_false,
   ``canon_mk, ``canon_make_mk, ``canons_append, ``canons_length, ``eq_nat, ``eq_int,
   ``eq_bool, ``eq_text, ``eq_refl,
@@ -107,6 +121,7 @@ def calcLemmas : List Name := [
   ``List.lookup, ``List.isEmpty, ``List.reverse_cons, ``List.reverse_nil, ``List.range_zero,
   ``List.range_succ, ``List.getElem?_cons_zero, ``List.getElem?_cons_succ, ``List.getElem?_nil,
   ``List.flatMap_cons, ``List.flatMap_nil, ``List.map_cons, ``List.map_nil, ``List.map_append,
+  ``List.map_map,
   ``List.all_cons,
   ``List.all_nil, ``List.any_cons, ``List.any_nil, ``List.foldl_cons, ``List.foldl_nil,
   ``Option.map_some, ``Option.map_none, ``Option.bind_some, ``Option.bind_none,
@@ -145,7 +160,8 @@ def simprocs : List Name := [
 
 /-- The constants of the library and the prelude whose names say they are
 `ToValue` or `BEq` instances, or `toValue` functions: what relating an
-interpreter value to a generated value must unfold. -/
+interpreter value to a generated value must unfold. Recursive encoder unfolding
+equations are excluded: their constructor equations fire only on known constructors. -/
 def valueConstants (lib : Name) : MetaM (List Name) := do
   let env ← getEnv
   let mut out : List Name := []
@@ -156,7 +172,7 @@ def valueConstants (lib : Name) : MetaM (List Name) := do
     if (inLib || inPrelude) && !n.isInternal then
       if (s.splitOn ".instToValue").length > 1 then out := n :: out
       else if (s.splitOn ".instBEq").length > 1 then out := n :: out
-      else if inLib && (s.splitOn ".toValue").length > 1 && !s.endsWith "toValue.eq_def" then
+      else if inLib && (s.splitOn ".toValue").length > 1 && n.getString! != "eq_def" then
         out := n :: out
   pure out
 
@@ -172,5 +188,29 @@ def simpSet : TacticM SimpSet := do
   for f in [``canon', ``canonFields, ``canons, ``canonMixfix, ``canonMixfixes] do
     lemmas := lemmas ++ (← eqnsOf f).toArray
   pure { lemmas, procs := simprocs.toArray }
+
+/-- Extend the forward preset with exact outer subtype checks and generated bridges.
+The ordinary function preset remains unchanged; recursive encoders are not simp rewrites. -/
+def subtypeSimpSet : TacticM SimpSet := do
+  let rules ← simpSet
+  let lib ← libOf
+  encodingFacts lib
+  let mut subtypeRules := #[``checkedMixop, ``checkedRecurseNat,
+    ``P4SpecTec.Runtime.Value.Match.fuel,
+    ``Function.comp_def, ``transposeOne, ``transposeTwo,
+    ``Option.isSome_some, ``Option.isSome_none]
+  for f in [``Ctx.find_defined_typdef, ``Ctx.find_typdef, ``Ctx.find_typdef_opt,
+      ``P4SpecTec.Runtime.Type.Subst.of_lists_checked, ``P4SpecTec.Prelude.Num.toNat?] do
+    subtypeRules := subtypeRules ++ (← eqnsOf f).toArray
+  for (name, info) in (← getEnv).constants.map₂.toList ++ (← getEnv).constants.map₁.toList do
+    if lib.isPrefixOf name && !name.isInternal && info.isDefinition then
+      let short := name.getString!
+      if short.startsWith "of_" || short.startsWith "is_" || short.startsWith "to_" then
+        subtypeRules := subtypeRules ++ (← eqnsOf name).toArray
+  let lemmas := rules.lemmas.filter fun n =>
+    !(``Interp.checked_type).isPrefixOf n &&
+    !(lib.isPrefixOf n && n.getString! == "eq_def" &&
+      (n.toString.splitOn ".toValue").length > 1)
+  pure { rules with lemmas := lemmas ++ subtypeRules }
 
 end P4SpecTec.Tactic

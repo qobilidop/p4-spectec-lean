@@ -277,9 +277,39 @@ partial def toValueTerm (env : Env) (members : List String) (t : typ') (x : Term
   match t with
   | .VarT i [] =>
     if members.contains i.it then pure (.call (env.q (toValueName i.it)) [x])
+    else if (env.types[i.it]?).any (fun info => info.deftyp.isNone) then
+      pure (.call "@ToValue.toValue"
+        [.atom "ExternValue", .atom "P4SpecTec.Prelude.instToValueExternValue", x])
+    else if env.types.contains i.it then pure (.call (env.q (toValueName i.it)) [x])
     else pure (.call toValueRef [x])
   | _ =>
-    if !mentions members t then pure (.call toValueRef [x])
+    if !mentions members t then
+      match t with
+      | .VarT name arguments =>
+        if (env.types[name.it]?).any (fun info => info.deftyp.isSome) then
+          let types := arguments.map fun t => typTerm env [] t.it
+          let dictionaries ← arguments.mapM fun t => do
+            let encoder ← toValueTerm env [] t.it (.atom "x")
+            pure (Term.paren (.call "ToValue.mk" [.lam ["x"] encoder]))
+          pure (.call ("@" ++ env.q (toValueName name.it)) (types ++ dictionaries ++ [x]))
+        else pure (.call toValueRef [x])
+      | .IterT element kind =>
+        let encoder ← toValueTerm env [] element.it (.atom "x")
+        let carrier := typTerm env [] element.it
+        let container := if kind == .List then "List" else "Option"
+        let dictionary := Term.paren (.call
+          ("@P4SpecTec.Prelude.instToValue" ++ container)
+          [carrier, .paren (.call "ToValue.mk" [.lam ["x"] encoder])])
+        pure (.call "@ToValue.toValue" [.paren (.call container [carrier]), dictionary, x])
+      | .BoolT => pure (.call "@ToValue.toValue"
+          [.atom "Bool", .atom "P4SpecTec.Prelude.instToValueBool", x])
+      | .NumT .NatT => pure (.call "@ToValue.toValue"
+          [.atom "Nat", .atom "P4SpecTec.Prelude.instToValueNat", x])
+      | .NumT .IntT => pure (.call "@ToValue.toValue"
+          [.atom "Int", .atom "P4SpecTec.Prelude.instToValueInt", x])
+      | .TextT => pure (.call "@ToValue.toValue"
+          [.atom "P4SpecTec.ByteText", .atom "P4SpecTec.Prelude.instToValueByteText", x])
+      | _ => pure (.call toValueRef [x])
     else
       let key := render (typTerm env [] t).fmt
       let st ← get
@@ -467,6 +497,9 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
         Term.paren (.call "OfValue.mk"
           [.lam ["fuel", "v"] (ofValueTerm env [] t.it (.atom "v"))]))
       .call ("@" ++ env.q (ofValueName i.it)) (types ++ dictionaries ++ [.atom "fuel", v])
+    else if env.types.contains i.it then
+      .call "@OfValue.ofValue" [.atom "ExternValue",
+        .atom "P4SpecTec.Prelude.instOfValueExternValue", .atom "fuel", v]
     else .call "OfValue.ofValue" [.atom "fuel", v]
   | .IterT e .List =>
     .paren (.matchOn (.proj v "it") [

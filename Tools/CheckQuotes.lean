@@ -1,6 +1,8 @@
 import P4SpecTec.Interface.P4.Unparse
 import P4SpecTec.Codegen.QuoteCheck
+import P4SpecTec.Codegen.Certificates.SourceProfile
 import NanoP4Spec.Refinement.Spec
+import NanoP4Spec.Refinement.SourceProfile
 
 /-! Compare the actual compiled Nano-P4 quotation with the current export. -/
 
@@ -10,6 +12,10 @@ def main : IO UInt32 := do
   match P4SpecTec.Codegen.QuoteCheck.compareSpecs source NanoP4Spec.spec with
   | .error e => IO.eprintln e; return 1
   | .ok n => IO.println s!"[quotes] {n} definitions match the decoded export"
+  match P4SpecTec.Codegen.SourceProfiles.compareVariables source
+      NanoP4Spec.SourceProfile.variableDeclarations with
+  | .error e => IO.eprintln e; return 1
+  | .ok n => IO.println s!"[quotes] {n} typed schematic declarations match in source order"
   -- The no-hint print contract requires the actual source environment, not only
   -- equality of normalized quotations (which intentionally erases hint metadata).
   for (name, spec) in [("decoded", source), ("compiled", NanoP4Spec.spec)] do

@@ -187,6 +187,17 @@ theorem Realizes.error (P : α → β → Prop) (e : Fail) :
 depends on axioms: [propext] -/
 #guard_msgs in #print axioms Realizes.error
 
+/-- A generated tail call can be composed with its identity continuation. -/
+theorem Realizes.ofBindPure {P : α → β → Prop} {reference : Nat → Eval α}
+    {generated : Eval β} (h : Realizes P reference (generated >>= Pure.pure)) :
+    Realizes P reference generated := by
+  rw [bind_pure] at h
+  exact h
+
+/-- info: 'P4SpecTec.Refine.Realizes.ofBindPure' depends on axioms:
+[propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Realizes.ofBindPure
+
 /-- Defined generated binds compose using the actual related intermediate values. -/
 theorem Realizes.bind {P : α → β → Prop} {Q : γ → δ → Prop}
     {m : Nat → Eval α} {n : Eval β} {next : Nat → α → Eval γ} {cont : β → Eval δ}

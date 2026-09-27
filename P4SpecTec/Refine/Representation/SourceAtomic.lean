@@ -25,6 +25,8 @@ theorem atomicIff {spec externalDomain annotations} (d : Lang.Al.def) (name : id
   constructor
   · intro valid
     cases valid with
+    | record name args parameters sourceFields instantiated v valueFields found =>
+      simp [declared] at found
     | «alias» name args parameters definition instantiated v found =>
       simp [declared] at found
     | variant name args parameters cases' constructor instantiated v tree

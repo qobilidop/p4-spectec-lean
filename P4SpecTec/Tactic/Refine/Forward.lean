@@ -1,6 +1,11 @@
 import Lean.Elab.Tactic.Split
+import Lean.Meta.Tactic.Generalize
 import Lean.Elab.Tactic.Omega.Frontend
 import P4SpecTec.Tactic.Refine.Context
+import P4SpecTec.Tactic.Traversal
+import P4SpecTec.Tactic.IterationColumns
+import P4SpecTec.Refine.RealizeInterp
+import P4SpecTec.Refine.RealizeChoice
 
 /-!
 Forward lockstep refinement: callee theorem pairing, value and equality proofs,
@@ -51,6 +56,21 @@ def conjunctIndex (stmt : Expr) (d : Name) : MetaM (Option Nat) := do
     | .proj _ _ e => mentions e
     | _ => false
   pure (parts.findIdx? mentions)
+
+/-- Discharge an actual quoted declaration obligation from source-specification membership.
+The resulting proof is checked against the goal's exact global environment. -/
+def declarationFromSpec : TacticM Bool := tryTac do
+  let goal ← getMainGoal
+  let ty ← goal.withContext do instantiateMVars (← goal.getType)
+  unless ty.isAppOfArity ``Holds 2 do throwError "not a declaration hypothesis"
+  let .const declaration _ := (ty.getArg! 1).consumeMData
+    | throwError "not a quoted declaration"
+  let some (hspec, spec) ← specHyp | throwError "no source environment hypothesis"
+  let proof ← goal.withContext do
+    let hs ← fvarOf hspec
+    let mem ← memProof spec declaration
+    Term.exprToSyntax (mkApp2 (.fvar hs) (mkConst declaration) mem)
+  evalTactic (← `(tactic| exact $proof))
 
 /-- Pair the interpreter's invocation at the head of `m` with the generated
 call at the head of `n`: the callee's refinement theorem, or the induction
@@ -130,7 +150,8 @@ def calleeStep (s : SimpSet) (m n : Expr) : TacticM Unit := timed "callee" do
     if ty.consumeMData.isAppOfArity ``Rel 4 then
       valueGoals := valueGoals ++ [g]
     else
-      unless ← tryTac (evalTactic (← `(tactic| assumption))) do
+      let fromSpec ← declarationFromSpec
+      unless fromSpec || (← tryTac (evalTactic (← `(tactic| assumption)))) do
         let _ ← normalize s
         unless (← getGoals).isEmpty do
           unless ← tryTac (evalTactic (← `(tactic| assumption))) do
@@ -145,12 +166,33 @@ that two canonical lists agree, by computing `canon` on both sides with
 the facts. -/
 def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
   let goal ← getMainGoal
+  let ty ← goal.withContext do instantiateMVars (← goal.getType)
+  if ty.isAppOf ``PairLookupRel then
+    evalTactic (← `(tactic| constructor))
+    let goals ← getGoals
+    for g in goals do
+      setGoals [g]
+      evalTactic (← `(tactic| refine ⟨_, by rfl, ?_⟩))
+      let _ ← normalize s
+      unless (← getGoals).isEmpty do
+        unless ← tryTac (evalTactic (← `(tactic| assumption))) do
+          evalTactic (← `(tactic| rfl))
+    return
   let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs])))
   if (← getGoals).isEmpty then return
   let _ ← normalize s
   if (← getGoals).isEmpty then return
   if ← tryTac (evalTactic (← `(tactic| rfl))) then return
   if ← tryTac (evalTactic (← `(tactic| assumption))) then return
+  if ← tryTac (evalTactic (← `(tactic|
+      exact Representation.ValueBEq.elemOfRel (by assumption) (by assumption)))) then return
+  if ← tryTac do
+      encodingShapes
+      if !(← getGoals).isEmpty then
+        let _ ← normalize s
+        pure ()
+      unless (← getGoals).isEmpty do throwError "canonical shape proof remains open"
+    then return
   throwError "refine_al: values not related:{Lean.MessageData.ofGoal (← getMainGoal)}\
     \n(from{Lean.MessageData.ofGoal goal})"
 
@@ -255,23 +297,124 @@ def alignEqualities (s : SimpSet) (c : Expr) : TacticM Expr := do
   let h' := chainHead m'
   pure (if h'.isAppOfArity ``ite 5 then (h'.getArg! 1).consumeMData else c')
 
+/-- Pair ordered traversals using checked positional input observations, including zips. -/
+def mapMGoals (s : SimpSet) (relation : Expr) (m n : Expr) : TacticM Bool := withMainContext do
+  let mh := chainHead m
+  let nh := chainHead n
+  unless mh.isAppOf ``List.mapM && nh.isAppOf ``List.mapM &&
+      (chainTail m).isSome && (chainTail n).isSome do return false
+  let some inputs ← columnTraversalInputs (proveValue s) mh.getAppArgs.back! nh.getAppArgs.back!
+    | return false
+  let q ← Term.exprToSyntax relation
+  let h ← Term.exprToSyntax inputs
+  if (← columnTraversalRelation m n).isSome then
+    let inputsSyntax ← Term.exprToSyntax nh.getAppArgs.back!
+    evalTactic (← `(tactic|
+      apply refines_bind (P := fun outputs results =>
+        List.Forall₂ $q outputs results ∧ List.length results = List.length $inputsSyntax)
+        (Refines.mapMWithLength $h ?_)))
+  else
+    evalTactic (← `(tactic|
+      apply refines_bind (P := List.Forall₂ $q) (Refines.mapM $h ?_)))
+  return true
+
+/-- Execute a concrete reference traversal of checked local lookups.
+This entry point is shared by the forward and reverse drivers. -/
+def lookupTraversalAt (s : SimpSet) (m : Expr) : TacticM Bool := do
+  unless (chainHead m).isAppOf ``List.mapM do return false
+  let hypotheses ← (← getMainGoal).withContext do
+    let mut names : List Name := []
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail then continue
+      let ty ← instantiateMVars decl.type
+      if ty.isAppOfArity ``List.Forall₂ 5 &&
+          (ty.getArg! 2).isAppOf ``PairLookupRel then
+        names := names ++ [decl.userName]
+    pure names
+  for h in hypotheses do
+    for projection in [``pairLookupLeft, ``pairLookupRight] do
+      let vs ← freshName "rf_lookupValues"
+      let eq ← freshName "rf_lookupEq"
+      let canonEq ← freshName "rf_lookupCanons"
+      if ← tryTac (do
+          evalTactic (← `(tactic|
+            obtain ⟨$(mkIdent vs):ident, $(mkIdent eq):ident, $(mkIdent canonEq):ident⟩ :=
+              lookupMapM _ _ ($(mkIdent projection) $(mkIdent h))))
+          let _ ← normalizeAt s eq
+          evalTactic (← `(tactic| rw [$(mkIdent eq):ident]))) then return true
+  return false
+
+/-- Execute checked local lookup traversal in the current forward refinement goal. -/
+def lookupTraversal (s : SimpSet) : TacticM Bool := do
+  let some (_, m, _) ← refinesGoal | return false
+  lookupTraversalAt s m
+
+/-- Find a related generated option, generalizing record projections before shape exposure. -/
+def relatedOption : TacticM (Option FVarId) := withMainContext do
+  let lib ← libOf
+  for d in ← getLCtx do
+    if d.isImplementationDetail then continue
+    if let some (_, lhs, rhs) := (← instantiateMVars d.type).consumeMData.eq? then
+      if !lhs.isAppOfArity ``canon' 1 && !lhs.isAppOfArity ``P4SpecTec.Refine.canon 1 then continue
+      let rhs := if rhs.isAppOfArity ``P4SpecTec.Util.Source.info.mk 6 then
+          rhs.getAppArgs[rhs.getAppArgs.size - 3]! else rhs
+      let rhs := if rhs.isAppOfArity ``canon' 1 then rhs.getArg! 0 else rhs
+      if !rhs.isAppOfArity ``P4SpecTec.Lang.Il.value'.OptV 1 then continue
+      let encoded := (rhs.getArg! 0).consumeMData
+      if !encoded.isAppOf ``Option.map then continue
+      let receiver := encoded.getAppArgs.back!.consumeMData
+      if let .fvar f := receiver then
+        if (← whnfR (← f.getType)).isAppOfArity ``Option 1 && (← isGeneratedVar lib f) then
+          return some f
+      let environment ← getEnv
+      let projection := match receiver with
+        | .proj .. => true
+        | _ => match receiver.getAppFn with
+          | .const name _ => (environment.getProjectionFnInfo? name).isSome
+          | _ => false
+      if projection then
+        if !(← whnfR (← inferType receiver)).isAppOfArity ``Option 1 then continue
+        let ((), state) ← receiver.collectFVars.run {}
+        if !(← state.fvarIds.anyM (fun f => isGeneratedVar lib f)) then continue
+        let hyps := (← getLCtx).foldl (init := #[]) fun ids declaration =>
+          if declaration.isImplementationDetail then ids else ids.push declaration.fvarId
+        let name ← mkFreshUserName `rf_option
+        let (_, variables, goal) ← (← getMainGoal).generalizeHyp
+          #[{ expr := receiver, xName? := some name }] hyps
+        setGoals [goal]
+        return variables[0]?
+  return none
+
 /-! ## The driver -/
 
 mutual
 
-/-- One step on the main goal; `true` when the goal was closed or split
-into goals the loop continues on. -/
-partial def step (s : SimpSet) : TacticM Unit := do
+/-- Normalize the main goal and dispatch its next refinement step. -/
+partial def step (s : SimpSet) (iteration : Option Expr := none)
+    (subtypes : Bool := false) : TacticM Unit := do
   if (← getGoals).isEmpty then return
   let _ ← normalize s
   if (← getGoals).isEmpty then return
+  if subtypes then
+    encodingShapes
+    if !(← getGoals).isEmpty then encodingLengths
   normalizeFacts s
   if (← getGoals).isEmpty then return
+  let beforeExpose ← getGoals
   expose
   if (← getGoals).isEmpty then return
+  if subtypes && (← getGoals) != beforeExpose then return ← step s iteration subtypes
+  if let some f ← relatedOption then
+    let name ← withMainContext do pure (← f.getDecl).userName
+    evalTactic (← `(tactic| cases $(mkIdent name):ident))
+    let goals ← getGoals
+    for g in goals do
+      setGoals [g]
+      step s iteration subtypes
+    return
   if ← tryTac (evalTactic (← `(tactic| contradiction))) then return
   let goal ← getMainGoal
-  try stepCore s goal
+  try stepCore s goal iteration subtypes
   catch e =>
     let msg := e.toMessageData
     if ((← msg.toString).splitOn "during ").length > 1 then throw e
@@ -282,7 +425,8 @@ partial def step (s : SimpSet) : TacticM Unit := do
       {indentExpr head}\nagainst the generated{indentExpr gen}"
 
 /-- The step proper, on `goal`. -/
-partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
+partial def stepCore (s : SimpSet) (goal : MVarId)
+    (iteration : Option Expr := none) (subtypes : Bool := false) : TacticM Unit := do
   let ty ← goal.withContext do whnfR (← instantiateMVars (← goal.getType))
   -- binders
   if ty.consumeMData.isForall then
@@ -297,15 +441,34 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
     let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs] at $(mkIdent n):ident)))
     let _ ← tryTac (evalTactic (← `(tactic| dsimp only at $(mkIdent n):ident)))
     let _ ← normalizeAt s n
+    if subtypes && !(← getGoals).isEmpty then
+      let conjunction ← withMainContext do
+        let some declaration := (← getLCtx).findFromUserName? n | return false
+        return (← whnf (← instantiateMVars declaration.type)).isAppOfArity ``And 2
+      if conjunction then
+        let left ← freshName "rf_g_left"
+        let isLength ← withMainContext do
+          let some declaration := (← getLCtx).findFromUserName? n | return false
+          let type ← whnf (← instantiateMVars declaration.type)
+          let some (_, lhs, _) := (type.getArg! 1).eq? | return false
+          return lhs.isAppOfArity ``List.length 2
+        let right ← freshName (if isLength then "rf_c_traversalLength" else "rf_g_right")
+        evalTactic (← `(tactic|
+          obtain ⟨$(mkIdent left):ident, $(mkIdent right):ident⟩ := $(mkIdent n):ident))
     expose
-    return ← step s
+    return ← step s iteration subtypes
   let some (_, m, n) ← refinesGoal
     | throwError "refine_al: not a refinement goal:{Lean.MessageData.ofGoal goal}"
   -- table entries the interpreter looks up
   if ← tableFacts (← libOf) then
     let _ ← normalize s
-    return ← step s
+    return ← step s iteration subtypes
   let head := chainHead m
+  if subtypes then
+    if ← emptyTraversalResult head then return ← step s iteration subtypes
+    if ← columnTraversalResult head then return ← step s iteration subtypes
+    if head.isAppOfArity ``Ctx.transpose 1 then
+      if ← normalize s then return ← step s iteration subtypes
   -- divergence
   if head.isAppOfArity ``P4SpecTec.Prelude.Eval.diverge 1 then
     traceStep m!"diverge; interpreter side is{indentExpr m}"
@@ -321,7 +484,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
     noteAction "have"
     traceStep m!"have {x}"
     evalTactic (← `(tactic| refine refines_have fun $(mkIdent x):ident $(mkIdent hx):ident => ?_))
-    return ← step s
+    return ← step s iteration subtypes
   -- sequential choice, before any fuel inside the alternatives is split:
   -- a split there would copy the whole proof into a zero branch that
   -- does not diverge
@@ -335,8 +498,31 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
     let goals ← getGoals
     for g in goals do
       setGoals [g]
-      step s
+      step s iteration subtypes
     return
+  -- ordered list traversals retain the actual reference contexts
+  if ← lookupTraversal s then return ← step s iteration subtypes
+  let relation ← match iteration with
+    | some relation => pure (some relation)
+    | none => withMainContext do
+      if subtypes then
+        if let some relation ← columnTraversalRelation m n then return some relation
+      let generated := chainHead n
+      if subtypes && head.isAppOfArity ``List.mapM 6 &&
+          generated.isAppOfArity ``List.mapM 6 then
+        if (← isDefEq (head.getArg! 3) (mkApp (mkConst ``List [Level.zero])
+            (mkConst ``P4SpecTec.Lang.Il.value))) &&
+            (← isDefEq (generated.getArg! 3) (mkConst ``Unit)) then
+          return some (← Term.elabTerm
+            (← `(fun (row : List P4SpecTec.Lang.Il.value) (_ : Unit) => row = [])) none)
+      return none
+  if let some relation := relation then
+    if ← mapMGoals s relation m n then
+      let goals ← getGoals
+      for g in goals do
+        setGoals [g]
+        step s iteration subtypes
+      return
   -- the fuel
   if let some f ← goal.withContext (stuckFuel head) then
     let fn ← goal.withContext do pure (← f.getDecl).userName
@@ -352,7 +538,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
       setGoals [g]
       let _ ← normalize s
       if (← getGoals).isEmpty then continue
-      step s
+      step s iteration subtypes
     return
   -- a pure result
   if head.isAppOfArity ``Pure.pure 4 && (chainTail m).isNone then
@@ -368,10 +554,25 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
   if head.isAppOfArity ``throw 5 && (chainTail m).isNone then
     noteAction "throw"
     traceStep "throw"
-    unless ← tryTac (evalTactic (← `(tactic| exact refines_throw))) do
-      throwError "refine_al: the interpreter fails but the generated code does not fail alike:\
-        {Lean.MessageData.ofGoal goal}"
-    return
+    if ← tryTac (evalTactic (← `(tactic| exact refines_throw))) then return
+    -- An unresolved generated option can still determine a source pattern mismatch.
+    let option ← goal.withContext do
+      let ((), vars) ← ((← instantiateMVars n).collectFVars).run {}
+      let mut found : Option FVarId := none
+      for f in vars.fvarIds do
+        if found.isNone && (← whnfR (← f.getType)).isAppOfArity ``Option 1 then
+          found := some f
+      pure found
+    if let some f := option then
+      let name ← goal.withContext do pure (← f.getDecl).userName
+      evalTactic (← `(tactic| cases $(mkIdent name):ident))
+      let goals ← getGoals
+      for g in goals do
+        setGoals [g]
+        step s iteration subtypes
+      return
+    throwError "refine_al: the interpreter fails but the generated code does not fail alike:\
+      {Lean.MessageData.ofGoal goal}"
   -- an invocation
   if invocations.any (head.isAppOf ·) then
     noteAction "callee"
@@ -387,7 +588,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
       setGoals []
       return
     setGoals [goals.getLast!]
-    return ← step s
+    return ← step s iteration subtypes
   -- the generated side: a match or `if` on a variable, or on a projection
   -- of a variable of a generated structure (destructured first, so that
   -- the projection computes)
@@ -452,7 +653,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
       let _ ← normalize s
       if (← getGoals).isEmpty then continue
       noteAction "cases generated: step"
-      step s
+      step s iteration subtypes
     return
   -- the interpreter side: stuck on a value whose generated counterpart is a variable
   if let some g ← stuckOn head then
@@ -467,7 +668,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
       expose
       let _ ← normalize s
       if (← getGoals).isEmpty then continue
-      step s
+      step s iteration subtypes
     return
   -- an `if` on a boolean term on either side
   let cond? : Option Expr :=
@@ -508,7 +709,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
       if (← getGoals).isEmpty then continue
       let _ ← normalize s
       if (← getGoals).isEmpty then continue
-      step s
+      step s iteration subtypes
     return
   -- a generated match on a compound discriminant
   if let some _ ← goal.withContext do matchMatcherApp? (chainHead n) then
@@ -523,7 +724,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
         expose
         let _ ← normalize s
         if (← getGoals).isEmpty then continue
-        step s
+        step s iteration subtypes
       return
   goal.withContext do
     throwError "refine_al: stuck at the interpreter step{indentExpr head}\nagainst the generated\
@@ -532,7 +733,8 @@ partial def stepCore (s : SimpSet) (goal : MVarId) : TacticM Unit := do
 end
 
 /-- The tactic's body. -/
-def refineAl (s : SimpSet) : TacticM Unit := do
+def refineAl (s : SimpSet) (iteration : Option Expr := none)
+    (subtypes : Bool := false) : TacticM Unit := do
   -- the generated definition, unfolded once
   noteAction "entry: intro"
   introNamed
@@ -569,7 +771,7 @@ def refineAl (s : SimpSet) : TacticM Unit := do
   let _ ← normalize s
   phaseTimes.set []
   noteAction "entry: step"
-  try step s
+  try step s iteration subtypes
   finally traceStep m!"phase times (ms): {← phaseTimes.get}"
   unless (← getGoals).isEmpty do throwError "refine_al: goals left open"
 
@@ -580,5 +782,35 @@ elab "refine_al" : tactic => do
   try withoutRecover do refineAl (← prepareSimpSet s)
   catch e =>
     throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
+
+/-- Forward iteration with a checked, syntax-derived intermediate value relation. -/
+elab "refine_al" "(" "iteration" ":=" relation:term ")" : tactic => do
+  introNamed
+  let q ← Term.elabTerm relation none
+  let s ← simpSet
+  try withoutRecover do refineAl (← prepareSimpSet s) (some q)
+  catch e => throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
+
+/-- Forward execution using exact outer subtype checks and generated subtype bridges. -/
+elab "refine_al" "(" "subtypes" ")" : tactic => do
+  let rules ← subtypeSimpSet
+  let s := { rules with
+    lemmas := rules.lemmas.filter (fun name => !(``Ctx.transpose).isPrefixOf name) ++
+      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse,
+        ``transposeEmptyRows, ``List.mapM_map]
+    procs := rules.procs.push ``iterPremListNoOutputs }
+  try withoutRecover do refineAl (← prepareSimpSet s) none true
+  catch e => throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
+
+/-- Forward list premises with separately encoded output columns at each traversal. -/
+elab "refine_al" "(" "columns" ")" : tactic => do
+  let rules ← subtypeSimpSet
+  let s := { rules with
+    lemmas := rules.lemmas.filter (fun name => !(``Ctx.transpose).isPrefixOf name) ++
+      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse,
+        ``transposeEmptyRows, ``List.mapM_map]
+    procs := rules.procs.push ``iterPremListColumns }
+  try withoutRecover do refineAl (← prepareSimpSet s) none true
+  catch e => throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
 
 end P4SpecTec.Tactic

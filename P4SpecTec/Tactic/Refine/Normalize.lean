@@ -80,6 +80,14 @@ projection of a variable or a `canon` of a variable, and the guard. -/
 def factHyps : TacticM (List Name) := do
   (← getMainGoal).withContext do
     let mut out := []
+    let environment ← getEnv
+    let directProjection (value : Expr) : Bool :=
+      match value.consumeMData with
+      | .proj _ _ receiver => receiver.consumeMData.isFVar
+      | value => match value.getAppFn with
+        | .const name _ => (environment.getProjectionFnInfo? name).isSome &&
+            value.getAppArgs.back?.any (·.consumeMData.isFVar)
+        | _ => false
     for decl in ← getLCtx do
       if decl.isImplementationDetail then continue
       let ty := (← instantiateMVars decl.type).consumeMData
@@ -90,7 +98,9 @@ def factHyps : TacticM (List Name) := do
       if let some (_, lhs, rhs) := ty.eq? then
         let lhs := lhs.consumeMData
         let isFact :=
-          (lhs.isAppOfArity ``P4SpecTec.Refine.canon 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
+          (lhs.isAppOfArity ``P4SpecTec.Refine.canon 1 &&
+            let value := (lhs.getArg! 0).consumeMData
+            value.isFVar || directProjection value) ||
           (lhs.isAppOfArity ``canon' 1 &&
             let payload := (lhs.getArg! 0).consumeMData
             payload.isFVar ||

@@ -14,6 +14,7 @@ private def builtins := NanoP4Spec.spec.filter fun d => match d.it with
   | _ => false
 
 #guard builtins.length == 26
+#guard (builtins.filter requiresPrintHints).map (·.it.id.it) == ["print_"]
 #guard builtins.all fun d => (checkSupport env d).isOk
 #guard builtins.all fun d => (declarations env d).toOption.any fun source =>
   (source.pretty.splitOn "\n").all (fun line => line.length ≤ 100)

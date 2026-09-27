@@ -7,6 +7,7 @@ import P4SpecTec.Refine.Calc
 import P4SpecTec.Tactic.Refine
 import P4SpecTec.Tactic.Realize
 import NanoP4Spec.Refinement.Spec
+import NanoP4Spec.Refinement.Equality
 
 /-! # NanoP4Spec.Refinement.params_of_callableTypeDef
 

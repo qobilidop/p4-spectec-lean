@@ -35,7 +35,7 @@ def integerTypeIR.toValue : NanoP4Spec.integerTypeIR → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "INT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0))
                (Prelude.Value.atom .RAngle))])
   | .BIT_langle_rangle x0 =>
       Runtime.Value.Make.case
@@ -44,7 +44,7 @@ def integerTypeIR.toValue : NanoP4Spec.integerTypeIR → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "BIT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0))
                (Prelude.Value.atom .RAngle))])
 
 instance : ToValue NanoP4Spec.integerTypeIR := ⟨NanoP4Spec.integerTypeIR.toValue⟩
@@ -117,7 +117,7 @@ def baseTypeIR.toValue : NanoP4Spec.baseTypeIR → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "INT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0))
                (Prelude.Value.atom .RAngle))])
   | .BIT_langle_rangle x0 =>
       Runtime.Value.Make.case
@@ -126,7 +126,7 @@ def baseTypeIR.toValue : NanoP4Spec.baseTypeIR → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "BIT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0))
                (Prelude.Value.atom .RAngle))])
   | .BOOL =>
       Runtime.Value.Make.case
@@ -243,9 +243,9 @@ def parameterIR.toValue : NanoP4Spec.parameterIR → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "parameterIR")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.direction.toValue x0)),
             (.Arg (NanoP4Spec.typeIR.toValue x1)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.nameIR.toValue x2))])
 
 def fieldTypeIR.toValue : NanoP4Spec.fieldTypeIR → Lang.Il.value
   | .semi x0 x1 =>
@@ -253,7 +253,7 @@ def fieldTypeIR.toValue : NanoP4Spec.fieldTypeIR → Lang.Il.value
         (Prelude.Value.varT "fieldTypeIR")
         (.Seq
            [(.Arg (NanoP4Spec.typeIR.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.id.toValue x1)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 def externMethodTypeDefIR.toValue : NanoP4Spec.externMethodTypeDefIR → Lang.Il.value
@@ -262,7 +262,7 @@ def externMethodTypeDefIR.toValue : NanoP4Spec.externMethodTypeDefIR → Lang.Il
         (Prelude.Value.varT "externMethodTypeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "VOID"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.callableId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (Runtime.Value.Make.list Lang.Il.typ'.TextT (parameterIR.toValue_0 x1)))
@@ -279,7 +279,7 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "INT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0))
                (Prelude.Value.atom .RAngle))])
   | .BIT_langle_rangle x0 =>
       Runtime.Value.Make.case
@@ -288,7 +288,7 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "BIT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0))
                (Prelude.Value.atom .RAngle))])
   | .BOOL =>
       Runtime.Value.Make.case
@@ -303,7 +303,7 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
         (Prelude.Value.varT "typeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
                (.Arg (Runtime.Value.Make.list Lang.Il.typ'.TextT (parameterIR.toValue_5 x1)))
@@ -313,7 +313,7 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
         (Prelude.Value.varT "typeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
                (.Arg (Runtime.Value.Make.list Lang.Il.typ'.TextT (parameterIR.toValue_5 x1)))
@@ -323,14 +323,14 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
         (Prelude.Value.varT "typeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Arg (NanoP4Spec.externMethodTypeDefEnv.toValue x1))])
   | .PARSER_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (Runtime.Value.Make.list Lang.Il.typ'.TextT (parameterIR.toValue_0 x1)))
@@ -340,7 +340,7 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
         (Prelude.Value.varT "typeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (Runtime.Value.Make.list Lang.Il.typ'.TextT (parameterIR.toValue_0 x1)))
@@ -350,7 +350,7 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
         (Prelude.Value.varT "typeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (Runtime.Value.Make.list Lang.Il.typ'.TextT (parameterIR.toValue_0 x1)))
@@ -358,7 +358,8 @@ def typeIR.toValue : NanoP4Spec.typeIR → Lang.Il.value
   | .TABLE x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeIR")
-        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg (NanoP4Spec.typeId.toValue x0))])
 
 def parameterIR.toValue_0 : List NanoP4Spec.parameterIR → List Lang.Il.value
   | [] => []
@@ -371,7 +372,7 @@ def parameterIR.toValue_4 : NanoP4Spec.pair
       Runtime.Value.Make.case
         (Prelude.Value.varT "pair")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.callableId.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator ":"))),
             (.Arg (NanoP4Spec.externMethodTypeDefIR.toValue x1))])
 
@@ -801,9 +802,9 @@ def argumentIR.toValue : NanoP4Spec.argumentIR → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentIR")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.expression.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "#"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.typeIR.toValue x1))])
 
 instance : ToValue NanoP4Spec.argumentIR := ⟨NanoP4Spec.argumentIR.toValue⟩
 instance : BEq NanoP4Spec.argumentIR := ⟨valueEq⟩
@@ -849,10 +850,16 @@ def structTypeIR.toValue : NanoP4Spec.structTypeIR → Lang.Il.value
         (Prelude.Value.varT "structTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.fieldTypeIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.fieldTypeIR
+                        (ToValue.mk (fun x => NanoP4Spec.fieldTypeIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.structTypeIR := ⟨NanoP4Spec.structTypeIR.toValue⟩
@@ -910,10 +917,16 @@ def headerTypeIR.toValue : NanoP4Spec.headerTypeIR → Lang.Il.value
         (Prelude.Value.varT "headerTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.fieldTypeIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.fieldTypeIR
+                        (ToValue.mk (fun x => NanoP4Spec.fieldTypeIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.headerTypeIR := ⟨NanoP4Spec.headerTypeIR.toValue⟩
@@ -972,20 +985,32 @@ def dataTypeIR.toValue : NanoP4Spec.dataTypeIR → Lang.Il.value
         (Prelude.Value.varT "dataTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.fieldTypeIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.fieldTypeIR
+                        (ToValue.mk (fun x => NanoP4Spec.fieldTypeIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RBrace))])
   | .HEADER_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "dataTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.fieldTypeIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.fieldTypeIR
+                        (ToValue.mk (fun x => NanoP4Spec.fieldTypeIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.dataTypeIR := ⟨NanoP4Spec.dataTypeIR.toValue⟩
@@ -1069,8 +1094,8 @@ def externObjectTypeIR.toValue : NanoP4Spec.externObjectTypeIR → Lang.Il.value
         (Prelude.Value.varT "externObjectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
+            (.Arg (NanoP4Spec.externMethodTypeDefEnv.toValue x1))])
 
 instance : ToValue NanoP4Spec.externObjectTypeIR := ⟨NanoP4Spec.externObjectTypeIR.toValue⟩
 instance : BEq NanoP4Spec.externObjectTypeIR := ⟨valueEq⟩
@@ -1117,10 +1142,16 @@ def parserObjectTypeIR.toValue : NanoP4Spec.parserObjectTypeIR → Lang.Il.value
         (Prelude.Value.varT "parserObjectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.parserObjectTypeIR := ⟨NanoP4Spec.parserObjectTypeIR.toValue⟩
@@ -1178,10 +1209,16 @@ def controlObjectTypeIR.toValue : NanoP4Spec.controlObjectTypeIR → Lang.Il.val
         (Prelude.Value.varT "controlObjectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.controlObjectTypeIR := ⟨NanoP4Spec.controlObjectTypeIR.toValue⟩
@@ -1239,10 +1276,16 @@ def packageObjectTypeIR.toValue : NanoP4Spec.packageObjectTypeIR → Lang.Il.val
         (Prelude.Value.varT "packageObjectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.packageObjectTypeIR := ⟨NanoP4Spec.packageObjectTypeIR.toValue⟩
@@ -1298,7 +1341,8 @@ def tableObjectTypeIR.toValue : NanoP4Spec.tableObjectTypeIR → Lang.Il.value
   | .TABLE x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableObjectTypeIR")
-        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg (NanoP4Spec.typeId.toValue x0))])
 
 instance : ToValue NanoP4Spec.tableObjectTypeIR := ⟨NanoP4Spec.tableObjectTypeIR.toValue⟩
 instance : BEq NanoP4Spec.tableObjectTypeIR := ⟨valueEq⟩
@@ -1343,42 +1387,61 @@ def objectTypeIR.toValue : NanoP4Spec.objectTypeIR → Lang.Il.value
         (Prelude.Value.varT "objectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
+            (.Arg (NanoP4Spec.externMethodTypeDefEnv.toValue x1))])
   | .PARSER_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .CONTROL_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .PACKAGE_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .TABLE x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeIR")
-        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))), (.Arg (NanoP4Spec.typeId.toValue x0))])
 
 instance : ToValue NanoP4Spec.objectTypeIR := ⟨NanoP4Spec.objectTypeIR.toValue⟩
 instance : BEq NanoP4Spec.objectTypeIR := ⟨valueEq⟩
@@ -1506,7 +1569,8 @@ def objectTypeIR.al : Lang.Al.def :=
 
 abbrev externTypeDefIR : Type := NanoP4Spec.externObjectTypeIR
 
-def externTypeDefIR.toValue (x : NanoP4Spec.externTypeDefIR) : Lang.Il.value := ToValue.toValue x
+def externTypeDefIR.toValue (x : NanoP4Spec.externTypeDefIR) : Lang.Il.value :=
+  NanoP4Spec.externObjectTypeIR.toValue x
 
 instance : ToValue NanoP4Spec.externTypeDefIR := ⟨NanoP4Spec.externTypeDefIR.toValue⟩
 instance : BEq NanoP4Spec.externTypeDefIR := ⟨valueEq⟩
@@ -1522,7 +1586,8 @@ def externTypeDefIR.al : Lang.Al.def :=
 
 abbrev parserTypeDefIR : Type := NanoP4Spec.parserObjectTypeIR
 
-def parserTypeDefIR.toValue (x : NanoP4Spec.parserTypeDefIR) : Lang.Il.value := ToValue.toValue x
+def parserTypeDefIR.toValue (x : NanoP4Spec.parserTypeDefIR) : Lang.Il.value :=
+  NanoP4Spec.parserObjectTypeIR.toValue x
 
 instance : ToValue NanoP4Spec.parserTypeDefIR := ⟨NanoP4Spec.parserTypeDefIR.toValue⟩
 instance : BEq NanoP4Spec.parserTypeDefIR := ⟨valueEq⟩
@@ -1538,7 +1603,8 @@ def parserTypeDefIR.al : Lang.Al.def :=
 
 abbrev controlTypeDefIR : Type := NanoP4Spec.controlObjectTypeIR
 
-def controlTypeDefIR.toValue (x : NanoP4Spec.controlTypeDefIR) : Lang.Il.value := ToValue.toValue x
+def controlTypeDefIR.toValue (x : NanoP4Spec.controlTypeDefIR) : Lang.Il.value :=
+  NanoP4Spec.controlObjectTypeIR.toValue x
 
 instance : ToValue NanoP4Spec.controlTypeDefIR := ⟨NanoP4Spec.controlTypeDefIR.toValue⟩
 instance : BEq NanoP4Spec.controlTypeDefIR := ⟨valueEq⟩
@@ -1555,7 +1621,8 @@ def controlTypeDefIR.al : Lang.Al.def :=
 
 abbrev packageTypeDefIR : Type := NanoP4Spec.packageObjectTypeIR
 
-def packageTypeDefIR.toValue (x : NanoP4Spec.packageTypeDefIR) : Lang.Il.value := ToValue.toValue x
+def packageTypeDefIR.toValue (x : NanoP4Spec.packageTypeDefIR) : Lang.Il.value :=
+  NanoP4Spec.packageObjectTypeIR.toValue x
 
 instance : ToValue NanoP4Spec.packageTypeDefIR := ⟨NanoP4Spec.packageTypeDefIR.toValue⟩
 instance : BEq NanoP4Spec.packageTypeDefIR := ⟨valueEq⟩
@@ -1582,37 +1649,55 @@ def objectTypeDefIR.toValue : NanoP4Spec.objectTypeDefIR → Lang.Il.value
         (Prelude.Value.varT "objectTypeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
+            (.Arg (NanoP4Spec.externMethodTypeDefEnv.toValue x1))])
   | .PARSER_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .CONTROL_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .PACKAGE_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "objectTypeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.objectTypeDefIR := ⟨NanoP4Spec.objectTypeDefIR.toValue⟩
@@ -1743,57 +1828,87 @@ def typeDefIR.toValue : NanoP4Spec.typeDefIR → Lang.Il.value
         (Prelude.Value.varT "typeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.fieldTypeIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.fieldTypeIR
+                        (ToValue.mk (fun x => NanoP4Spec.fieldTypeIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RBrace))])
   | .HEADER_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.fieldTypeIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.fieldTypeIR
+                        (ToValue.mk (fun x => NanoP4Spec.fieldTypeIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RBrace))])
   | .EXTERN x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
+            (.Arg (NanoP4Spec.externMethodTypeDefEnv.toValue x1))])
   | .PARSER_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .CONTROL_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
   | .PACKAGE_lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDefIR")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.typeId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.typeDefIR := ⟨NanoP4Spec.typeDefIR.toValue⟩

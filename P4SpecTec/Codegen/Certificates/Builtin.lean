@@ -67,6 +67,12 @@ partial def shape (parameters : List String) : typ' → String
   | .TupleT ts => "tuple(" ++ ",".intercalate (ts.map fun t => shape parameters t.it) ++ ")"
   | _ => "unsupported"
 
+/-- Printing needs an extra environment contract which callers must explicitly preserve. -/
+def requiresPrintHints (d : Lang.Al.def) : Bool :=
+  match d.it with
+  | .BuiltinDecD name .. => name.it == "print_"
+  | _ => false
+
 /-- Reject unknown operations, changed signatures, callbacks and stateful wrappers. -/
 def checkSupport (env : Env) (d : Lang.Al.def) : Except String Unit := do
   unless env.mode == .pure do throw "stateful builtin certificates are not implemented"
@@ -329,35 +335,6 @@ def supportImports (d : Lang.Al.def) : List String :=
     else if id.endsWith "_map" || id == "find_maps" then "P4SpecTec.Refine.Builtin.Map"
     else "P4SpecTec.Refine.Builtin.Numeric"
   ["P4SpecTec.Tactic.Audit", "P4SpecTec.Refine.Builtin.Invoke", family]
-
-private def words (line : String) : List String := Id.run do
-  let mut result := []
-  let mut word := ""
-  let mut identifier := false
-  let mut quoted := false
-  for c in line.toList do
-    if c == '«' then identifier := true
-    if c == '"' && !identifier then quoted := !quoted
-    if c == ' ' && !identifier && !quoted then
-      if !word.isEmpty then result := result ++ [word]
-      word := ""
-    else word := word.push c
-    if c == '»' then identifier := false
-  if !word.isEmpty then result := result ++ [word]
-  return result
-
-private def boundedLines (text : String) : String :=
-  "\n".intercalate (text.splitOn "\n" |>.flatMap fun line => Id.run do
-    let indent := (line.toList.takeWhile (· == ' ')).length
-    let mut result := []
-    let mut current := String.ofList (List.replicate indent ' ')
-    for word in words line do
-      let separator := if current.trimAscii.toString.isEmpty then "" else " "
-      if current.length + separator.length + word.length > 96 then
-        result := result ++ [current]
-        current := String.ofList (List.replicate (indent + 2) ' ') ++ word
-      else current := current ++ separator ++ word
-    return result ++ [current])
 
 /-- Emit checked represented-input certificates; unsupported declarations fail closed. -/
 def declarations (env : Env) (d : Lang.Al.def) : Except String Format := do

@@ -5,8 +5,8 @@ import P4SpecTec.Refine.Representation
 Finite source-grammar derivations from actual AL type declarations. The grammar
 uses source constructor signatures and strict value tags, independently of generated
 carriers and decoding. Relational substitution has no syntactic-depth cutoff.
-Function and record shapes need separate contracts; this first fragment covers
-primitive, list, optional, tuple, alias and variant declarations.
+Function shapes need a separate capture-avoiding substitution contract; this fragment covers
+primitive, list, optional, tuple, alias, ordered record and variant declarations.
 -/
 
 namespace P4SpecTec.Refine.Representation.Source
@@ -105,6 +105,17 @@ inductive Valid (spec : Lang.Al.spec) (externalDomain : String → value → Pro
       (declared : body spec name.it = some (parameters, .PlainT definition))
       (fields : instantiatedFields parameters arguments [definition] [instantiated])
       (payload : Valid spec externalDomain instantiated.it v) :
+      Valid spec externalDomain (.VarT name arguments) v
+  /-- A record retains the actual source labels, their order and every instantiated field. -/
+  | record (name : id) (arguments : List typ) (parameters : List tparam)
+      (sourceFields : List typfield) (instantiated : List typ)
+      (v : value) (valueFields : List valuefield)
+      (declared : body spec name.it = some (parameters, .StructT sourceFields))
+      (shape : v.it = .StructV valueFields)
+      (labels : List.Forall₂ (fun source actual => Atom.eq source.1.it actual.1.it = true)
+        sourceFields valueFields)
+      (fields : instantiatedFields parameters arguments (sourceFields.map (·.2)) instantiated)
+      (payload : Values spec externalDomain instantiated (valueFields.map (·.2))) :
       Valid spec externalDomain (.VarT name arguments) v
   /-- A variant is selected from the quoted source cases, with all its fields valid. -/
   | variant (name : id) (arguments : List typ) (parameters : List tparam)

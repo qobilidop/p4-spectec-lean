@@ -16,7 +16,7 @@
 # 7. Rung 2: the generated typing relation and the Lean port of the AL
 #    interpreter agree with upstream's verdict on every exported Nano-P4
 #    program (P4SpecTecTest/Oracle/Nano/Replay/replay.py, both legs).
-# 8. Quoted Nano-P4 AL matches the decoded export, except regions/hints/VarD.
+# 8. Quoted Nano-P4 AL matches the export, with typed VarD checked separately.
 # 9. The full P4 export decodes and its reconnaissance report is current.
 # 10. The bounded field-update certificate's mutations fail at the intended boundaries.
 # A missing lake is a failure, not a skip, unless P4SPECTEC_SKIP_LEAN=1 says
@@ -175,9 +175,10 @@ if command -v lake >/dev/null 2>&1; then
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
     check-nano-target check-nano-packet check-nano-driver check-nano-verify \
     || { say "reconnaissance tools failed to build"; fail=1; }
-  # Completion diagnostics include the existing compiled-claim/quotation checks.
-  # Strict completion remains deliberately failing until all obligations close.
+  # N2 requires all source representations and its complete selected call closure.
+  # Broader core/target completion remains incomplete and is reported separately.
   runStage "Completion inventory, coverage and quotation" python3 "$root/scripts/nano-certification.py" \
+    --require-n2 \
     || { say "Nano completion inventory/coverage/quotation check failed"; fail=1; }
   runStage "Field-update certificate mutations" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }

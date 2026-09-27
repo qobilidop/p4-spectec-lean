@@ -5,8 +5,9 @@ import Lean.Data.Json.Printer
 Deterministic metadata for the certificates emitted with a generated library.
 This is an inventory, not proof evidence: `Coverage.Check` separately checks
 the claims against compiled declarations and a freshly regenerated report.
-Only callable definitions are inventoried; types and source variables are not
-certificate candidates. Recursion groups share refinement exclusions.
+Callable definitions and source type representations have separate inventories,
+so equal names in separate source namespaces cannot collide. Source profiles
+account for cross-cutting claims. Recursion groups share refinement exclusions.
 -/
 
 namespace P4SpecTec.Codegen.Coverage
@@ -17,7 +18,7 @@ open Lean
 structure Claim where
   /-- Fully qualified Lean name, in Lean source syntax. -/
   name : String
-  /-- `refinement`, `builtinContract`, `runSoundness`, or `determinism`. -/
+  /-- The checked contract family, including invocation, source entry and representation. -/
   kind : String
   /-- The checked direction or dispatch equality; not an unqualified equivalence claim. -/
   direction : String
@@ -37,11 +38,11 @@ structure Exclusion where
   dependency : Option String := none
   deriving BEq, FromJson, ToJson, Inhabited
 
-/-- One callable definition and its emitted per-definition certificates. -/
+/-- One declaration and its emitted certificates, stored in its source namespace. -/
 structure Entry where
   /-- Original AL identifier, without Lean escaping or the function `$` prefix. -/
   id : String
-  /-- `function`, `relation`, `table`, `builtin`, `externFunction`, `externRelation`. -/
+  /-- Callable kind, or `type`/`externType` in the representation inventory. -/
   kind : String
   /-- Source spec file recorded in the AL export. -/
   source : String
@@ -49,7 +50,7 @@ structure Entry where
   group : List String
   /-- Whether the component requires recursive generation. -/
   recursive : Bool
-  /-- Direct callable dependencies in source traversal order. -/
+  /-- Direct dependencies within this declaration namespace. -/
   dependencies : List String
   /-- Emitted claims, not a cached assertion that Lean has checked them. -/
   claims : List Claim
@@ -60,13 +61,17 @@ structure Entry where
 /-- Versioned report for one generated library and AL export. -/
 structure Report where
   /-- Bump when changing the report contract. -/
-  schemaVersion : Nat := 1
+  schemaVersion : Nat := 3
   /-- Generated Lean library namespace. -/
   library : String
   /-- Export path passed to the generator; provenance, not a content digest. -/
   input : String
   /-- Callable definitions in deterministic planner order. -/
   definitions : List Entry
+  /-- Source type declarations and their checked codec claims, in a separate namespace. -/
+  representations : List Entry := []
+  /-- Cross-cutting source-profile claims, separately checked against compiled theorem types. -/
+  profiles : List Claim := []
   deriving BEq, FromJson, ToJson, Inhabited
 
 /-- Stable JSON text used by the ordinary generator freshness check. -/
@@ -91,6 +96,18 @@ def Entry.hasBuiltinContract (entry : Entry) : Bool :=
 def Entry.isBodied (entry : Entry) : Bool :=
   ["function", "relation", "table"].contains entry.kind
 
+private def reasonLines (reason : String) : List String := Id.run do
+  let commentPrefix := "    --   "
+  let mut result := []
+  let mut current := commentPrefix
+  for word in reason.splitOn " " do
+    if current.length > commentPrefix.length && current.length + word.length + 1 > 100 then
+      result := result ++ [current]
+      current := commentPrefix ++ word
+    else
+      current := current ++ (if current == commentPrefix then "" else " ") ++ word
+  return result ++ [current]
+
 /-- Human-readable refinement index, derived from the same entries as the JSON. -/
 def summary (entries : List Entry) : String := Id.run do
   let bodied := entries.filter Entry.isBodied
@@ -109,17 +126,17 @@ def summary (entries : List Entry) : String := Id.run do
     for reason in reasons do
       let origin := if reason.definition == entry.id then ""
         else s!"group member {reason.definition}: "
-      lines := lines ++ [s!"    --   {origin}{reason.reason}"]
+      lines := lines ++ reasonLines (origin ++ reason.reason)
   for entry in bodied do
     if !entry.hasForwardRefinement || entry.hasReverseRefinement then continue
     lines := lines ++ ["", s!"-- no reverse theorem: {entry.id}"]
     for reason in entry.exclusions.filter (·.kind == "realization") do
-      lines := lines ++ [s!"    --   {reason.reason}"]
+      lines := lines ++ reasonLines reason.reason
   for entry in builtins do
     if entry.hasBuiltinContract then continue
     lines := lines ++ ["", s!"-- no builtin dispatch contract: {entry.id}"]
     for reason in entry.exclusions do
-      lines := lines ++ [s!"    --   {reason.reason}"]
+      lines := lines ++ reasonLines reason.reason
   "\n".intercalate lines
 
 /-- Reachable callable dependencies and SCC peers; cycles are visited once.

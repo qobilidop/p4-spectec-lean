@@ -104,17 +104,36 @@ These topic constraints remain binding when their work resumes:
 - [Nano target](notes/nano-target.md): preserve raw ExternV and shared verify
   ABI mismatches; do not invent typed target or boot/STF coverage.
 
-## Nominal decoder binding (2026-09-27)
+## Nominal codec dictionary binding (2026-09-27)
 
-Generated closed nominal fields bind their source declaration's decoder with
-explicit parameter dictionaries. Primitive and list/option fields use the same
+Generated closed nominal fields bind their source declaration's encoder and
+decoder with explicit parameter dictionaries. Primitive and list/option fields use the same
 explicit selection recursively. Local source type parameters shadow global
 names. Reducible Lean aliases must not let unrelated later instances change a
-field's decoder or add accidental fuel layers. A declared alias retains one
-frame; its old incidental minimum fuel is not preserved. Nonrecursive tuples
-and function-type dictionaries remain unchanged pending separate support.
+field's codec or add accidental fuel layers. Production recursive syntax exposed
+opaque encoder alias capture in initializer/selectCase fields; explicit source
+encoder binding removes that accidental instance dependency. A declared alias retains one
+frame; its old incidental minimum fuel is not preserved. Contextual tuples now have exact empty/two-field codecs with explicit dictionaries;
+closed right products that would flatten and unsupported arities fail closed.
+Function-type dictionaries remain unchanged pending separate support.
 Confidence: high, supported by hostile-instance and bound-name regressions and
 actual source-codec proofs. Revisit when tuple/function field support expands.
+
+## Declared source extern domains (2026-09-27)
+
+Opaque source declarations use the independent `ExternV` shape with arbitrary
+JSON, matching pinned upstream `runtime/value/match.ml` and the checked Lean
+membership rule. `Source.Valid.external` still requires an actual external
+source declaration. Generated source codecs share this domain consistently;
+using `False` would incorrectly remove `objectState` and the PACKET alternative
+from the full Nano source domain. The separate runtime-only `value` alternative
+remains excluded from source admission. Opaque fields bind canonical extern
+encoder/decoder dictionaries explicitly, including under reducible aliases.
+
+Confidence: high; checked membership equivalence, actual objectState codec,
+raw-extern rejection for the defined value family and hostile-instance regressions
+pass. Revisit if upstream changes opaque type membership. Additional target-state
+invariants remain target contracts, not an unrecorded restriction of core syntax.
 
 ## Nano runtime representation (2026-09-26)
 

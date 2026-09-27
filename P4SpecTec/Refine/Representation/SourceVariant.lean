@@ -25,6 +25,8 @@ theorem Valid.variantPayload {spec externalDomain} (name : id) (args : List typ)
       instantiatedFields parameters args (Mixfix.args constructor.nottyp.it) fields ∧
       ConstructorDomain spec externalDomain constructor fields v := by
   cases valid with
+  | record name args parameters sourceFields instantiated v valueFields found =>
+    simp [declared] at found
   | «alias» name args parameters definition instantiated v found =>
     simp [declared] at found
   | variant name args parameters cases constructor instantiated v tree
@@ -58,5 +60,44 @@ theorem ConstructorDomain.valid {spec externalDomain} (name : id) (args : List t
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms ConstructorDomain.valid
 #audit_axioms ConstructorDomain.valid
+
+/-- Pointwise independent field-domain implications transport positional source validity. -/
+theorem Values.domains {spec externalDomain} {types types' : List typ} {values}
+    (transfer : List.Forall₂ (fun a b : typ => ∀ v,
+      Valid spec externalDomain a.it v → Valid spec externalDomain b.it v) types types')
+    (valid : Values spec externalDomain types values) :
+    Values spec externalDomain types' values := by
+  induction transfer generalizing values with
+  | nil => cases valid; exact .nil
+  | cons h hs ih =>
+    cases valid with
+    | cons type v types values head tail => exact .cons _ v _ _ (h v head) (ih tail)
+
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.Values.domains' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Values.domains
+#audit_axioms Values.domains
+
+/-- A single declared source constructor exposes fields in proved independent field domains. -/
+theorem Valid.singleConstructor {spec externalDomain} (name : id) (arguments : List typ)
+    (parameters : List tparam) (constructor : typcase) (fields : List typ) (v : value)
+    (declared : body spec name.it = Option.some (parameters, .VariantT [constructor]))
+    (normalize : ∀ instantiated,
+      instantiatedFields parameters arguments (Mixfix.args constructor.nottyp.it) instantiated →
+      List.Forall₂ (fun a b : typ => ∀ v,
+        Valid spec externalDomain a.it v → Valid spec externalDomain b.it v) instantiated fields)
+    (valid : Valid spec externalDomain (.VarT name arguments) v) :
+    ConstructorDomain spec externalDomain constructor fields v := by
+  obtain ⟨selected, member, instantiated, subs, tree, shape, matching, payload⟩ :=
+    valid.variantPayload name arguments parameters [constructor] v declared
+  have same := List.mem_singleton.mp member
+  subst selected
+  exact ⟨tree, shape, matching, payload.domains (normalize instantiated subs)⟩
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.Valid.singleConstructor' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Valid.singleConstructor
+#audit_axioms Valid.singleConstructor
 
 end P4SpecTec.Refine.Representation.Source

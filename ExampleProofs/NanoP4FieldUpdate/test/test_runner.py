@@ -22,6 +22,14 @@ class RunnerTests(unittest.TestCase):
         baseline = run.probe("baseline", "nonce")
         for case in run.CASES[1:]:
             self.assertNotEqual(baseline, run.probe(case, "nonce"))
+        for case in ("baseline", "behavior"):
+            source, _, _ = run.proof_probe(case, "nonce")
+            self.assertIn("theorem _root_.NanoP4Spec.«$mutation_fieldValue».refines_group",
+                          source)
+            self.assertEqual(source.count(
+                "(ExceptT.mk (Scratch.«$update_fieldValue» p0 p1 p2))"), 1)
+            self.assertNotIn("#audit_axioms NanoP4Spec.«$update_fieldValue».refines_group",
+                             source)
 
     def test_semantic_reports(self):
         for case, report in [("baseline", "true:true:true"),

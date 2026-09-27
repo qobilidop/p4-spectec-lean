@@ -126,9 +126,10 @@ def proof_probe(case, nonce):
     emitted = (ROOT / "NanoP4Spec/Refinement/update_fieldValue.lean").read_text()
     refinement = "theorem _root_.NanoP4Spec.«$mutation_fieldValue».refines_group" + extract(emitted,
         "theorem «$update_fieldValue».refines_group",
-        "theorem «$update_fieldValue».refines\n")
-    refinement = replace_once(refinement, 'NanoP4Spec.«$update_fieldValue»',
-                              'Scratch.«$update_fieldValue»')
+        "#audit_axioms NanoP4Spec.«$update_fieldValue».refines_group")
+    refinement = replace_once(refinement,
+        "(ExceptT.mk (NanoP4Spec.«$update_fieldValue» p0 p1 p2))",
+        "(ExceptT.mk (Scratch.«$update_fieldValue» p0 p1 p2))")
     definitions += "set_option maxRecDepth 8192\nset_option maxHeartbeats 4000000\n"
     if case != "quotation":
         definitions += ("example : Scratch.«$update_fieldValue».al = "

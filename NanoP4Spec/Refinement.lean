@@ -2,50 +2,485 @@
 -- source: exports/nano-p4.al.json, every file (rung 3)
 import NanoP4Spec.Refinement.Spec
 import NanoP4Spec.Refinement.Environment
+import NanoP4Spec.Refinement.SourceProfile
+import NanoP4Spec.Refinement.Equality
+import NanoP4Spec.Refinement.Representation.set
+import NanoP4Spec.Refinement.Representation.pair
+import NanoP4Spec.Refinement.Representation.map
+import NanoP4Spec.Refinement.Representation.booleanLiteral
+import NanoP4Spec.Refinement.Representation.integerLiteral
+import NanoP4Spec.Refinement.Representation.identifier
+import NanoP4Spec.Refinement.Representation.typeIdentifier
+import NanoP4Spec.Refinement.Representation.nonTypeName
+import NanoP4Spec.Refinement.Representation.typeName
+import NanoP4Spec.Refinement.Representation.name
+import NanoP4Spec.Refinement.Representation.nameList
+import NanoP4Spec.Refinement.Representation.member
+import NanoP4Spec.Refinement.Representation.direction
+import NanoP4Spec.Refinement.Representation.integerType
+import NanoP4Spec.Refinement.Representation.baseType
+import NanoP4Spec.Refinement.Representation.namedType
+import NanoP4Spec.Refinement.Representation.type
+import NanoP4Spec.Refinement.Representation.parameter
+import NanoP4Spec.Refinement.Representation.nonEmptyParameterList
+import NanoP4Spec.Refinement.Representation.parameterList
+import NanoP4Spec.Refinement.Representation.literalExpression
+import NanoP4Spec.Refinement.Representation.referenceExpression
+import NanoP4Spec.Refinement.Representation.unop
+import NanoP4Spec.Refinement.Representation.binop
+import NanoP4Spec.Refinement.Representation.callTarget
+import NanoP4Spec.Refinement.Representation.expression
+import NanoP4Spec.Refinement.Representation.memberAccessBase
+import NanoP4Spec.Refinement.Representation.argument
+import NanoP4Spec.Refinement.Representation.argumentListNonEmpty
+import NanoP4Spec.Refinement.Representation.argumentList
+import NanoP4Spec.Refinement.Representation.unaryExpression
+import NanoP4Spec.Refinement.Representation.binaryExpression
+import NanoP4Spec.Refinement.Representation.memberAccessExpression
+import NanoP4Spec.Refinement.Representation.callExpression
+import NanoP4Spec.Refinement.Representation.parenthesizedExpression
+import NanoP4Spec.Refinement.Representation.lvalue
+import NanoP4Spec.Refinement.Representation.emptyStatement
+import NanoP4Spec.Refinement.Representation.assignmentStatement
+import NanoP4Spec.Refinement.Representation.callStatement
+import NanoP4Spec.Refinement.Representation.initializer
+import NanoP4Spec.Refinement.Representation.blockStatement
+import NanoP4Spec.Refinement.Representation.statement
+import NanoP4Spec.Refinement.Representation.statementList
+import NanoP4Spec.Refinement.Representation.conditionalStatement
+import NanoP4Spec.Refinement.Representation.variableDeclaration
+import NanoP4Spec.Refinement.Representation.functionPrototype
+import NanoP4Spec.Refinement.Representation.actionDeclaration
+import NanoP4Spec.Refinement.Representation.instantiation
+import NanoP4Spec.Refinement.Representation.matchKindDeclaration
+import NanoP4Spec.Refinement.Representation.typeField
+import NanoP4Spec.Refinement.Representation.typeFieldList
+import NanoP4Spec.Refinement.Representation.structTypeDeclaration
+import NanoP4Spec.Refinement.Representation.headerTypeDeclaration
+import NanoP4Spec.Refinement.Representation.derivedTypeDeclaration
+import NanoP4Spec.Refinement.Representation.externMethodPrototype
+import NanoP4Spec.Refinement.Representation.externMethodPrototypeList
+import NanoP4Spec.Refinement.Representation.externObjectDeclaration
+import NanoP4Spec.Refinement.Representation.externDeclaration
+import NanoP4Spec.Refinement.Representation.selectCase
+import NanoP4Spec.Refinement.Representation.selectCaseList
+import NanoP4Spec.Refinement.Representation.selectExpression
+import NanoP4Spec.Refinement.Representation.stateExpression
+import NanoP4Spec.Refinement.Representation.transitionStatement
+import NanoP4Spec.Refinement.Representation.parserTypeDeclaration
+import NanoP4Spec.Refinement.Representation.parserState
+import NanoP4Spec.Refinement.Representation.parserStateList
+import NanoP4Spec.Refinement.Representation.parserLocalDeclaration
+import NanoP4Spec.Refinement.Representation.parserLocalDeclarationList
+import NanoP4Spec.Refinement.Representation.parserDeclaration
+import NanoP4Spec.Refinement.Representation.tableKey
+import NanoP4Spec.Refinement.Representation.tableActionReference
+import NanoP4Spec.Refinement.Representation.tableAction
+import NanoP4Spec.Refinement.Representation.tableActionList
+import NanoP4Spec.Refinement.Representation.tableEntry
+import NanoP4Spec.Refinement.Representation.tableEntryList
+import NanoP4Spec.Refinement.Representation.tableKeyProperty
+import NanoP4Spec.Refinement.Representation.tableActionsProperty
+import NanoP4Spec.Refinement.Representation.tableEntriesProperty
+import NanoP4Spec.Refinement.Representation.tableProperties
+import NanoP4Spec.Refinement.Representation.tableDeclaration
+import NanoP4Spec.Refinement.Representation.controlTypeDeclaration
+import NanoP4Spec.Refinement.Representation.controlBody
+import NanoP4Spec.Refinement.Representation.controlLocalDeclaration
+import NanoP4Spec.Refinement.Representation.controlLocalDeclarationList
+import NanoP4Spec.Refinement.Representation.controlDeclaration
+import NanoP4Spec.Refinement.Representation.packageTypeDeclaration
+import NanoP4Spec.Refinement.Representation.typeDeclaration
+import NanoP4Spec.Refinement.Representation.declaration
+import NanoP4Spec.Refinement.Representation.program
+import NanoP4Spec.Refinement.Representation.id
+import NanoP4Spec.Refinement.Representation.callableId
+import NanoP4Spec.Refinement.Representation.nameIR
+import NanoP4Spec.Refinement.Representation.scope
+import NanoP4Spec.Refinement.Representation.typeId
+import NanoP4Spec.Refinement.Representation.integerTypeIR
+import NanoP4Spec.Refinement.Representation.baseTypeIR
+import NanoP4Spec.Refinement.Representation.parameterIR
+import NanoP4Spec.Refinement.Representation.fieldTypeIR
+import NanoP4Spec.Refinement.Representation.externMethodTypeDefIR
+import NanoP4Spec.Refinement.Representation.externMethodTypeDefEnv
+import NanoP4Spec.Refinement.Representation.typeIR
+import NanoP4Spec.Refinement.Representation.argumentIR
+import NanoP4Spec.Refinement.Representation.structTypeIR
+import NanoP4Spec.Refinement.Representation.headerTypeIR
+import NanoP4Spec.Refinement.Representation.dataTypeIR
+import NanoP4Spec.Refinement.Representation.externObjectTypeIR
+import NanoP4Spec.Refinement.Representation.parserObjectTypeIR
+import NanoP4Spec.Refinement.Representation.controlObjectTypeIR
+import NanoP4Spec.Refinement.Representation.packageObjectTypeIR
+import NanoP4Spec.Refinement.Representation.tableObjectTypeIR
+import NanoP4Spec.Refinement.Representation.objectTypeIR
+import NanoP4Spec.Refinement.Representation.externTypeDefIR
+import NanoP4Spec.Refinement.Representation.parserTypeDefIR
+import NanoP4Spec.Refinement.Representation.controlTypeDefIR
+import NanoP4Spec.Refinement.Representation.packageTypeDefIR
+import NanoP4Spec.Refinement.Representation.objectTypeDefIR
+import NanoP4Spec.Refinement.Representation.typeDefIR
+import NanoP4Spec.Refinement.Representation.integerValue
+import NanoP4Spec.Refinement.Representation.boolValue
+import NanoP4Spec.Refinement.Representation.matchKindValue
+import NanoP4Spec.Refinement.Representation.baseValue
+import NanoP4Spec.Refinement.Representation.objectState
+import NanoP4Spec.Refinement.Representation.fieldValue
+import NanoP4Spec.Refinement.Representation.value
+import NanoP4Spec.Refinement.Representation.structValue
+import NanoP4Spec.Refinement.Representation.headerValue
+import NanoP4Spec.Refinement.Representation.dataValue
+import NanoP4Spec.Refinement.Representation.packetValue
+import NanoP4Spec.Refinement.Representation.tableValue
+import NanoP4Spec.Refinement.Representation.objectValue
+import NanoP4Spec.Refinement.Representation.bit
+import NanoP4Spec.Refinement.Representation.bits
+import NanoP4Spec.Refinement.Representation.typeDefEnv
+import NanoP4Spec.Refinement.Representation.callableTypeDef
+import NanoP4Spec.Refinement.Representation.callableTypeDefEnv
+import NanoP4Spec.Refinement.Representation.varTypeIR
+import NanoP4Spec.Refinement.Representation.typeFrame
+import NanoP4Spec.Refinement.Representation.globalTypingLayer
+import NanoP4Spec.Refinement.Representation.blockTypingLayer
+import NanoP4Spec.Refinement.Representation.localTypingLayer
+import NanoP4Spec.Refinement.Representation.typingContext
+import NanoP4Spec.Refinement.Representation.matchKey
+import NanoP4Spec.Refinement.Representation.matchAction
+import NanoP4Spec.Refinement.Representation.tableContext
+import NanoP4Spec.Refinement.Representation.actionDeclarationIR
+import NanoP4Spec.Refinement.Representation.parserDeclarationIR
+import NanoP4Spec.Refinement.Representation.controlDeclarationIR
+import NanoP4Spec.Refinement.Representation.callableDef
+import NanoP4Spec.Refinement.Representation.callableDefEnv
+import NanoP4Spec.Refinement.Representation.globalLoadLayer
+import NanoP4Spec.Refinement.Representation.loadContext
+import NanoP4Spec.Refinement.Representation.frame
+import NanoP4Spec.Refinement.Representation.globalEvalLayer
+import NanoP4Spec.Refinement.Representation.blockEvalLayer
+import NanoP4Spec.Refinement.Representation.localEvalLayer
+import NanoP4Spec.Refinement.Representation.evalContext
+import NanoP4Spec.Refinement.Representation.transitionResult
+import NanoP4Spec.Refinement.Representation.actionCallee
+import NanoP4Spec.Refinement.Representation.externMethodCallee
+import NanoP4Spec.Refinement.Representation.tableApplyMethodCallee
+import NanoP4Spec.Refinement.Representation.callee
+import NanoP4Spec.Refinement.Representation.forwardingDecision
 import NanoP4Spec.Refinement.print_
+import NanoP4Spec.Refinement.SourceDomain.print_
 import NanoP4Spec.Refinement.strip_all_whitespace
+import NanoP4Spec.Refinement.SourceDomain.strip_all_whitespace
 import NanoP4Spec.Refinement.exists_
+import NanoP4Spec.Refinement.SourceEntry.exists_
+import NanoP4Spec.Refinement.CallAdmission.exists_
+import NanoP4Spec.Refinement.Producer.exists_
 import NanoP4Spec.Refinement.forall_
+import NanoP4Spec.Refinement.SourceEntry.forall_
+import NanoP4Spec.Refinement.CallAdmission.forall_
+import NanoP4Spec.Refinement.Producer.forall_
 import NanoP4Spec.Refinement.rev_
+import NanoP4Spec.Refinement.SourceDomain.rev_
 import NanoP4Spec.Refinement.distinct_
+import NanoP4Spec.Refinement.SourceDomain.distinct_
 import NanoP4Spec.Refinement.assoc_
+import NanoP4Spec.Refinement.SourceDomain.assoc_
+import NanoP4Spec.Refinement.in_set
+import NanoP4Spec.Refinement.SourceDomain.in_set
 import NanoP4Spec.Refinement.intersect_set
+import NanoP4Spec.Refinement.SourceDomain.intersect_set
 import NanoP4Spec.Refinement.union_set
+import NanoP4Spec.Refinement.SourceDomain.union_set
 import NanoP4Spec.Refinement.unions_set
+import NanoP4Spec.Refinement.SourceDomain.unions_set
 import NanoP4Spec.Refinement.diff_set
+import NanoP4Spec.Refinement.SourceDomain.diff_set
 import NanoP4Spec.Refinement.sub_set
+import NanoP4Spec.Refinement.SourceDomain.sub_set
 import NanoP4Spec.Refinement.eq_set
+import NanoP4Spec.Refinement.SourceDomain.eq_set
+import NanoP4Spec.Refinement.dom_map
+import NanoP4Spec.Refinement.SourceDomain.dom_map
+import NanoP4Spec.Refinement.codom_map
+import NanoP4Spec.Refinement.SourceDomain.codom_map
 import NanoP4Spec.Refinement.find_map
+import NanoP4Spec.Refinement.SourceDomain.find_map
 import NanoP4Spec.Refinement.find_maps
+import NanoP4Spec.Refinement.SourceDomain.find_maps
 import NanoP4Spec.Refinement.add_map
+import NanoP4Spec.Refinement.SourceDomain.add_map
 import NanoP4Spec.Refinement.update_map
+import NanoP4Spec.Refinement.SourceDomain.update_map
+import NanoP4Spec.Refinement.CallAdmission.flatten_nameList
+import NanoP4Spec.Refinement.Producer.flatten_nameList
+import NanoP4Spec.Refinement.CallAdmission.flatten_parameterList
+import NanoP4Spec.Refinement.Producer.flatten_parameterList
+import NanoP4Spec.Refinement.CallAdmission.flatten_argumentList
+import NanoP4Spec.Refinement.Producer.flatten_argumentList
 import NanoP4Spec.Refinement.flatten_statementList
+import NanoP4Spec.Refinement.SourceEntry.flatten_statementList
+import NanoP4Spec.Refinement.CallAdmission.flatten_statementList
+import NanoP4Spec.Refinement.Producer.flatten_statementList
 import NanoP4Spec.Refinement.flatten_typeFieldList
+import NanoP4Spec.Refinement.SourceEntry.flatten_typeFieldList
+import NanoP4Spec.Refinement.CallAdmission.flatten_typeFieldList
+import NanoP4Spec.Refinement.Producer.flatten_typeFieldList
 import NanoP4Spec.Refinement.flatten_externMethodPrototypeList
+import NanoP4Spec.Refinement.SourceEntry.flatten_externMethodPrototypeList
+import NanoP4Spec.Refinement.CallAdmission.flatten_externMethodPrototypeList
+import NanoP4Spec.Refinement.Producer.flatten_externMethodPrototypeList
 import NanoP4Spec.Refinement.flatten_selectCaseList
+import NanoP4Spec.Refinement.SourceEntry.flatten_selectCaseList
+import NanoP4Spec.Refinement.CallAdmission.flatten_selectCaseList
+import NanoP4Spec.Refinement.Producer.flatten_selectCaseList
+import NanoP4Spec.Refinement.CallAdmission.flatten_parserStateList
+import NanoP4Spec.Refinement.Producer.flatten_parserStateList
 import NanoP4Spec.Refinement.flatten_parserLocalDeclarationList
+import NanoP4Spec.Refinement.SourceEntry.flatten_parserLocalDeclarationList
+import NanoP4Spec.Refinement.CallAdmission.flatten_parserLocalDeclarationList
+import NanoP4Spec.Refinement.Producer.flatten_parserLocalDeclarationList
+import NanoP4Spec.Refinement.CallAdmission.flatten_tableActionList
+import NanoP4Spec.Refinement.Producer.flatten_tableActionList
 import NanoP4Spec.Refinement.flatten_tableEntryList
+import NanoP4Spec.Refinement.SourceEntry.flatten_tableEntryList
+import NanoP4Spec.Refinement.CallAdmission.flatten_tableEntryList
+import NanoP4Spec.Refinement.Producer.flatten_tableEntryList
 import NanoP4Spec.Refinement.flatten_controlLocalDeclarationList
+import NanoP4Spec.Refinement.SourceEntry.flatten_controlLocalDeclarationList
+import NanoP4Spec.Refinement.CallAdmission.flatten_controlLocalDeclarationList
+import NanoP4Spec.Refinement.Producer.flatten_controlLocalDeclarationList
 import NanoP4Spec.Refinement.flatten_program
+import NanoP4Spec.Refinement.SourceEntry.flatten_program
+import NanoP4Spec.Refinement.CallAdmission.flatten_program
+import NanoP4Spec.Refinement.Producer.flatten_program
+import NanoP4Spec.Refinement.CallAdmission.id
+import NanoP4Spec.Refinement.Producer.id
+import NanoP4Spec.Refinement.default
+import NanoP4Spec.Refinement.SourceEntry.default
+import NanoP4Spec.Refinement.CallAdmission.default
+import NanoP4Spec.Refinement.Producer.default
 import NanoP4Spec.Refinement.bitstr_to_int
+import NanoP4Spec.Refinement.SourceDomain.bitstr_to_int
 import NanoP4Spec.Refinement.int_to_bitstr
+import NanoP4Spec.Refinement.SourceDomain.int_to_bitstr
 import NanoP4Spec.Refinement.pow2
+import NanoP4Spec.Refinement.SourceDomain.pow2
 import NanoP4Spec.Refinement.bneg
+import NanoP4Spec.Refinement.SourceDomain.bneg
 import NanoP4Spec.Refinement.band
+import NanoP4Spec.Refinement.SourceDomain.band
 import NanoP4Spec.Refinement.bxor
+import NanoP4Spec.Refinement.SourceDomain.bxor
 import NanoP4Spec.Refinement.bor
+import NanoP4Spec.Refinement.SourceDomain.bor
+import NanoP4Spec.Refinement.CallAdmission.un_op
+import NanoP4Spec.Refinement.Producer.bin_eq
 import NanoP4Spec.Refinement.bits_to_int_unsigned
+import NanoP4Spec.Refinement.SourceDomain.bits_to_int_unsigned
 import NanoP4Spec.Refinement.bits_to_int_signed
+import NanoP4Spec.Refinement.SourceDomain.bits_to_int_signed
 import NanoP4Spec.Refinement.int_to_bits_unsigned
+import NanoP4Spec.Refinement.SourceDomain.int_to_bits_unsigned
 import NanoP4Spec.Refinement.int_to_bits_signed
+import NanoP4Spec.Refinement.SourceDomain.int_to_bits_signed
+import NanoP4Spec.Refinement.Producer.empty_typeDefEnv
 import NanoP4Spec.Refinement.params_of_callableTypeDef
+import NanoP4Spec.Refinement.SourceEntry.params_of_callableTypeDef
+import NanoP4Spec.Refinement.Producer.params_of_callableTypeDef
+import NanoP4Spec.Refinement.Producer.empty_callableTypeDefEnv
+import NanoP4Spec.Refinement.Producer.empty_typeFrame
+import NanoP4Spec.Refinement.Producer.empty_typingContext
+import NanoP4Spec.Refinement.Producer.enter_t
 import NanoP4Spec.Refinement.exit_t
+import NanoP4Spec.Refinement.SourceEntry.exit_t
+import NanoP4Spec.Refinement.Producer.exit_t
+import NanoP4Spec.Refinement.add_var_t
+import NanoP4Spec.Refinement.SourceEntry.add_var_t
+import NanoP4Spec.Refinement.CallAdmission.add_var_t
+import NanoP4Spec.Refinement.Producer.add_var_t
+import NanoP4Spec.Refinement.CallAdmission.add_vars_t
+import NanoP4Spec.Refinement.Producer.add_vars_t
+import NanoP4Spec.Refinement.add_callableDef_t
+import NanoP4Spec.Refinement.SourceEntry.add_callableDef_t
+import NanoP4Spec.Refinement.CallAdmission.add_callableDef_t
+import NanoP4Spec.Refinement.Producer.add_callableDef_t
+import NanoP4Spec.Refinement.add_typeDef_t
+import NanoP4Spec.Refinement.SourceEntry.add_typeDef_t
+import NanoP4Spec.Refinement.CallAdmission.add_typeDef_t
+import NanoP4Spec.Refinement.Producer.add_typeDef_t
+import NanoP4Spec.Refinement.Producer.find_var_t
+import NanoP4Spec.Refinement.find_typeDef_t
+import NanoP4Spec.Refinement.SourceEntry.find_typeDef_t
+import NanoP4Spec.Refinement.CallAdmission.find_typeDef_t
+import NanoP4Spec.Refinement.Producer.find_typeDef_t
+import NanoP4Spec.Refinement.find_callableTypeDef_t
+import NanoP4Spec.Refinement.SourceEntry.find_callableTypeDef_t
+import NanoP4Spec.Refinement.CallAdmission.find_callableTypeDef_t
+import NanoP4Spec.Refinement.Producer.find_callableTypeDef_t
+import NanoP4Spec.Refinement.typeIR_of_typeDefIR
+import NanoP4Spec.Refinement.SourceEntry.typeIR_of_typeDefIR
+import NanoP4Spec.Refinement.Producer.typeIR_of_typeDefIR
+import NanoP4Spec.Refinement.Type_ok
+import NanoP4Spec.Refinement.SourceEntry.Type_ok
+import NanoP4Spec.Refinement.CallAdmission.Type_ok
+import NanoP4Spec.Refinement.Producer.Type_ok
+import NanoP4Spec.Refinement.Type_eq
+import NanoP4Spec.Refinement.SourceEntry.Type_eq
+import NanoP4Spec.Refinement.CallAdmission.Type_eq
+import NanoP4Spec.Refinement.Producer.Type_eq
+import NanoP4Spec.Refinement.SourceEntry.ParameterType_eq
+import NanoP4Spec.Refinement.CallAdmission.ParameterType_eq
+import NanoP4Spec.Refinement.Producer.ParameterType_eq
+import NanoP4Spec.Refinement.CallAdmission.Expr_ok
+import NanoP4Spec.Refinement.Producer.Expr_ok
+import NanoP4Spec.Refinement.CallAdmission.Argument_ok
+import NanoP4Spec.Refinement.Producer.Argument_ok
+import NanoP4Spec.Refinement.CallAdmission.ArgumentList_ok
+import NanoP4Spec.Refinement.Producer.ArgumentList_ok
+import NanoP4Spec.Refinement.CallAdmission.Lvalue_ok
+import NanoP4Spec.Refinement.Producer.Lvalue_ok
+import NanoP4Spec.Refinement.CallAdmission.expression_is_lvalue
+import NanoP4Spec.Refinement.Producer.expression_is_lvalue
+import NanoP4Spec.Refinement.CallAdmission.Call_convention_arg_ok
+import NanoP4Spec.Refinement.Producer.Call_convention_arg_ok
+import NanoP4Spec.Refinement.CallAdmission.Call_convention_ok
+import NanoP4Spec.Refinement.Producer.Call_convention_ok
+import NanoP4Spec.Refinement.CallAdmission.VarDecl_ok
+import NanoP4Spec.Refinement.Producer.VarDecl_ok
+import NanoP4Spec.Refinement.CallAdmission.expression_of_lvalue
+import NanoP4Spec.Refinement.Producer.expression_of_lvalue
+import NanoP4Spec.Refinement.CallAdmission.Statement_ok
+import NanoP4Spec.Refinement.Producer.Statement_ok
+import NanoP4Spec.Refinement.CallAdmission.Statements_ok
+import NanoP4Spec.Refinement.Producer.Statements_ok
+import NanoP4Spec.Refinement.CallAdmission.Block_ok
+import NanoP4Spec.Refinement.Producer.Block_ok
+import NanoP4Spec.Refinement.CallAdmission.ParserLocalDecl_ok
+import NanoP4Spec.Refinement.Producer.ParserLocalDecl_ok
+import NanoP4Spec.Refinement.CallAdmission.ParserLocalDecls_ok
+import NanoP4Spec.Refinement.Producer.ParserLocalDecls_ok
+import NanoP4Spec.Refinement.CallAdmission.ParserLocalDeclList_ok
+import NanoP4Spec.Refinement.Producer.ParserLocalDeclList_ok
+import NanoP4Spec.Refinement.CallAdmission.ParserTransition_ok
+import NanoP4Spec.Refinement.Producer.ParserTransition_ok
+import NanoP4Spec.Refinement.CallAdmission.ParserState_ok
+import NanoP4Spec.Refinement.Producer.ParserState_ok
+import NanoP4Spec.Refinement.CallAdmission.ParserStateList_ok
+import NanoP4Spec.Refinement.Producer.ParserStateList_ok
+import NanoP4Spec.Refinement.CallAdmission.TableKey_ok
+import NanoP4Spec.Refinement.Producer.TableKey_ok
 import NanoP4Spec.Refinement.split_dataplane_parameters
+import NanoP4Spec.Refinement.SourceEntry.split_dataplane_parameters
+import NanoP4Spec.Refinement.CallAdmission.split_dataplane_parameters
+import NanoP4Spec.Refinement.Producer.split_dataplane_parameters
+import NanoP4Spec.Refinement.CallAdmission.TableAction_ok
+import NanoP4Spec.Refinement.Producer.TableAction_ok
+import NanoP4Spec.Refinement.CallAdmission.TableActions_ok
+import NanoP4Spec.Refinement.Producer.TableActions_ok
+import NanoP4Spec.Refinement.CallAdmission.TableActionList_ok
+import NanoP4Spec.Refinement.Producer.TableActionList_ok
 import NanoP4Spec.Refinement.find_action_p
+import NanoP4Spec.Refinement.SourceEntry.find_action_p
+import NanoP4Spec.Refinement.CallAdmission.find_action_p
+import NanoP4Spec.Refinement.Producer.find_action_p
 import NanoP4Spec.Refinement.find_action
+import NanoP4Spec.Refinement.SourceEntry.find_action
+import NanoP4Spec.Refinement.CallAdmission.find_action
+import NanoP4Spec.Refinement.Producer.find_action
+import NanoP4Spec.Refinement.CallAdmission.TableEntry_ok
+import NanoP4Spec.Refinement.Producer.TableEntry_ok
+import NanoP4Spec.Refinement.CallAdmission.TableEntries_ok
+import NanoP4Spec.Refinement.Producer.TableEntries_ok
+import NanoP4Spec.Refinement.CallAdmission.TableProperties_ok
+import NanoP4Spec.Refinement.Producer.TableProperties_ok
+import NanoP4Spec.Refinement.CallAdmission.TableDecl_ok
+import NanoP4Spec.Refinement.Producer.TableDecl_ok
+import NanoP4Spec.Refinement.CallAdmission.ControlLocalDecl_ok
+import NanoP4Spec.Refinement.Producer.ControlLocalDecl_ok
+import NanoP4Spec.Refinement.CallAdmission.ControlLocalDecls_ok
+import NanoP4Spec.Refinement.Producer.ControlLocalDecls_ok
+import NanoP4Spec.Refinement.CallAdmission.ControlLocalDeclList_ok
+import NanoP4Spec.Refinement.Producer.ControlLocalDeclList_ok
+import NanoP4Spec.Refinement.CallAdmission.Parameter_ok
+import NanoP4Spec.Refinement.CallAdmission.Parameters_ok
+import NanoP4Spec.Refinement.CallAdmission.distinct_params
+import NanoP4Spec.Refinement.Producer.distinct_params
+import NanoP4Spec.Refinement.CallAdmission.ParameterList_ok
+import NanoP4Spec.Refinement.CallAdmission.ExternMethod_ok
+import NanoP4Spec.Refinement.Producer.ExternMethod_ok
 import NanoP4Spec.Refinement.directionless_trailing_p
+import NanoP4Spec.Refinement.SourceEntry.directionless_trailing_p
+import NanoP4Spec.Refinement.CallAdmission.directionless_trailing_p
+import NanoP4Spec.Refinement.Producer.directionless_trailing_p
+import NanoP4Spec.Refinement.directionless_trailing
+import NanoP4Spec.Refinement.SourceEntry.directionless_trailing
+import NanoP4Spec.Refinement.CallAdmission.directionless_trailing
+import NanoP4Spec.Refinement.Producer.directionless_trailing
+import NanoP4Spec.Refinement.CallAdmission.ActionDecl_ok
+import NanoP4Spec.Refinement.Producer.ActionDecl_ok
+import NanoP4Spec.Refinement.CallAdmission.ExternDecl_ok
+import NanoP4Spec.Refinement.Producer.ExternDecl_ok
+import NanoP4Spec.Refinement.Producer.is_object_typeIR
+import NanoP4Spec.Refinement.CallAdmission.no_object_params
+import NanoP4Spec.Refinement.Producer.no_object_params
+import NanoP4Spec.Refinement.CallAdmission.TypeDecl_ok
+import NanoP4Spec.Refinement.Producer.TypeDecl_ok
+import NanoP4Spec.Refinement.CallAdmission.Decl_ok
+import NanoP4Spec.Refinement.Producer.Decl_ok
+import NanoP4Spec.Refinement.CallAdmission.Decls_ok
+import NanoP4Spec.Refinement.Producer.Decls_ok
+import NanoP4Spec.Refinement.CallAdmission.Program_ok
+import NanoP4Spec.Refinement.Producer.Program_ok
+import NanoP4Spec.Refinement.CallAdmission.lvalue_of_expression
+import NanoP4Spec.Refinement.Producer.lvalue_of_expression
+import NanoP4Spec.Refinement.Producer.empty_callableDefEnv
+import NanoP4Spec.Refinement.Producer.make_loadContext
+import NanoP4Spec.Refinement.find_callableDef_l
+import NanoP4Spec.Refinement.SourceEntry.find_callableDef_l
+import NanoP4Spec.Refinement.CallAdmission.find_callableDef_l
+import NanoP4Spec.Refinement.Producer.find_callableDef_l
+import NanoP4Spec.Refinement.add_callableDef_l
+import NanoP4Spec.Refinement.SourceEntry.add_callableDef_l
+import NanoP4Spec.Refinement.CallAdmission.add_callableDef_l
+import NanoP4Spec.Refinement.Producer.add_callableDef_l
+import NanoP4Spec.Refinement.find_callableTypeDef_l
+import NanoP4Spec.Refinement.SourceEntry.find_callableTypeDef_l
+import NanoP4Spec.Refinement.CallAdmission.find_callableTypeDef_l
+import NanoP4Spec.Refinement.Producer.find_callableTypeDef_l
+import NanoP4Spec.Refinement.CallAdmission.Decl_load
+import NanoP4Spec.Refinement.Producer.Decl_load
+import NanoP4Spec.Refinement.CallAdmission.Decls_load
+import NanoP4Spec.Refinement.Producer.Decls_load
+import NanoP4Spec.Refinement.CallAdmission.Program_load
+import NanoP4Spec.Refinement.Producer.Program_load
+import NanoP4Spec.Refinement.add_var_e
+import NanoP4Spec.Refinement.SourceEntry.add_var_e
+import NanoP4Spec.Refinement.Producer.add_var_e
+import NanoP4Spec.Refinement.find_callableDef_e
+import NanoP4Spec.Refinement.SourceEntry.find_callableDef_e
+import NanoP4Spec.Refinement.CallAdmission.find_callableDef_e
+import NanoP4Spec.Refinement.Producer.find_callableDef_e
+import NanoP4Spec.Refinement.find_typeDef_e
+import NanoP4Spec.Refinement.SourceEntry.find_typeDef_e
+import NanoP4Spec.Refinement.CallAdmission.find_typeDef_e
+import NanoP4Spec.Refinement.Producer.find_typeDef_e
 import NanoP4Spec.Refinement.exit_e
+import NanoP4Spec.Refinement.SourceEntry.exit_e
+import NanoP4Spec.Refinement.Producer.exit_e
 import NanoP4Spec.Refinement.update_fieldValue
+import NanoP4Spec.Refinement.SourceEntry.update_fieldValue
+import NanoP4Spec.Refinement.Producer.update_fieldValue
+import NanoP4Spec.Refinement.CallAdmission.find_parserState
+import NanoP4Spec.Refinement.Producer.find_parserState
+import NanoP4Spec.Refinement.Producer.Callee_eval
+import NanoP4Spec.Refinement.Producer.match_entry_value
+import NanoP4Spec.Refinement.Producer.match_case_value
+import NanoP4Spec.Refinement.Producer.ParserTransition_eval
+import NanoP4Spec.Refinement.Producer.ParserSelect_eval
+import NanoP4Spec.Refinement.Var_init
+import NanoP4Spec.Refinement.SourceEntry.Var_init
+import NanoP4Spec.Refinement.Producer.Var_init
+import NanoP4Spec.Refinement.CallAdmission.NanoSwitch_init
+import NanoP4Spec.Refinement.Producer.nanoswitch_forwarding
 
 /-! # NanoP4Spec.Refinement
 
@@ -54,96 +489,68 @@ recursion group under `Refinement/`, and the definitions without a theorem, with
 the reason. Generated.
 -/
 
--- forward refinement theorems: 18 of 153 definitions
--- reverse realization theorems: 18 of 153 definitions
+-- forward refinement theorems: 39 of 153 definitions
+-- reverse realization theorems: 39 of 153 definitions
 -- builtin dispatch contracts: 26 of 26 definitions
 
 -- no refinement theorem: ite
     --   type parameters
 
 -- no refinement theorem: repeat_
-    --   type parameters
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: empty_set
-    --   type parameters
-
--- no refinement theorem: in_set
     --   type parameters
 
 -- no refinement theorem: empty_map
     --   type parameters
 
--- no refinement theorem: dom_map
-    --   type parameters
-
--- no refinement theorem: codom_map
-    --   type parameters
-
 -- no refinement theorem: flatten_nameList
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: flatten_parameterList
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: flatten_argumentList
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: flatten_parserStateList
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: flatten_tableActionList
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: id
     --   calls a builtin
     --   calls print_, which has no theorem
 
--- no refinement theorem: default
-    --   subtype check
-
 -- no refinement theorem: un_op
-    --   calls a builtin
-    --   calls pow2, which has no theorem
-    --   calls int_to_bitstr, which has no theorem
-    --   calls bitstr_to_int, which has no theorem
+    --   numeric function coercion composition is not implemented
 
 -- no refinement theorem: bin_eq
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: bin_op
-    --   calls a builtin
-    --   calls bitstr_to_int, which has no theorem
-    --   calls int_to_bitstr, which has no theorem
+    --   numeric function coercion composition is not implemented
     --   calls bin_eq, which has no theorem
-    --   calls band, which has no theorem
-    --   calls bxor, which has no theorem
-    --   calls bor, which has no theorem
 
 -- no refinement theorem: write_value_from_bits'
-    --   calls a builtin
-    --   calls int_to_bitstr, which has no theorem
-    --   calls bits_to_int_unsigned, which has no theorem
-    --   calls bits_to_int_signed, which has no theorem
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: write_value_fields_from_bits'
-    --   group member write_value_from_bits': calls a builtin
-    --   group member write_value_from_bits': calls int_to_bitstr, which has no theorem
-    --   group member write_value_from_bits': calls bits_to_int_unsigned, which has no theorem
-    --   group member write_value_from_bits': calls bits_to_int_signed, which has no theorem
+    --   group member write_value_from_bits': recursive function subtype or registration-freshness
+    --   proof is not implemented
 
 -- no refinement theorem: write_value_from_bits
     --   calls write_value_from_bits', which has no theorem
 
 -- no refinement theorem: empty_typeDefEnv
-    --   call with type arguments
     --   calls empty_map, which has no theorem
 
 -- no refinement theorem: empty_callableTypeDefEnv
-    --   call with type arguments
     --   calls empty_map, which has no theorem
 
 -- no refinement theorem: empty_typeFrame
-    --   call with type arguments
     --   calls empty_map, which has no theorem
 
 -- no refinement theorem: empty_typingContext
@@ -154,60 +561,16 @@ the reason. Generated.
 -- no refinement theorem: enter_t
     --   calls empty_typeFrame, which has no theorem
 
--- no refinement theorem: add_var_t
-    --   calls a builtin
-    --   calls in_set, which has no theorem
-    --   calls dom_map, which has no theorem
-    --   calls add_map, which has no theorem
-
 -- no refinement theorem: add_vars_t
-    --   calls add_var_t, which has no theorem
-
--- no refinement theorem: add_callableDef_t
-    --   calls a builtin
-    --   calls in_set, which has no theorem
-    --   calls dom_map, which has no theorem
-    --   calls add_map, which has no theorem
-
--- no refinement theorem: add_typeDef_t
-    --   calls a builtin
-    --   calls in_set, which has no theorem
-    --   calls dom_map, which has no theorem
-    --   calls add_map, which has no theorem
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: find_var_t
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-    --   calls find_maps, which has no theorem
-
--- no refinement theorem: find_typeDef_t
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-
--- no refinement theorem: find_callableTypeDef_t
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-
--- no refinement theorem: typeIR_of_typeDefIR
-    --   subtype check
-
--- no refinement theorem: Type_ok
-    --   subtype check
-    --   calls find_typeDef_t, which has no theorem
-    --   calls typeIR_of_typeDefIR, which has no theorem
-
--- no refinement theorem: Type_eq
-    --   subtype check
-
--- no refinement theorem: ParameterType_eq
-    --   group member Type_eq: subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: Expr_ok
-    --   calls a builtin
+    --   combined subtype and paired iteration proof is not implemented
     --   calls id, which has no theorem
     --   calls find_var_t, which has no theorem
-    --   calls assoc_, which has no theorem
-    --   calls find_callableTypeDef_t, which has no theorem
 
 -- no refinement theorem: Argument_ok
     --   calls Expr_ok, which has no theorem
@@ -218,71 +581,54 @@ the reason. Generated.
     --   calls Argument_ok, which has no theorem
 
 -- no refinement theorem: Lvalue_ok
-    --   calls a builtin
+    --   iterated premise
     --   calls id, which has no theorem
     --   calls find_var_t, which has no theorem
-    --   calls assoc_, which has no theorem
 
 -- no refinement theorem: expression_is_lvalue
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: Call_convention_arg_ok
-    --   calls Type_eq, which has no theorem
     --   calls expression_is_lvalue, which has no theorem
 
 -- no refinement theorem: Call_convention_ok
     --   calls Call_convention_arg_ok, which has no theorem
 
 -- no refinement theorem: VarDecl_ok
-    --   calls Type_ok, which has no theorem
     --   calls Expr_ok, which has no theorem
-    --   calls Type_eq, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_var_t, which has no theorem
 
 -- no refinement theorem: expression_of_lvalue
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: Statement_ok
-    --   calls a builtin
     --   calls VarDecl_ok, which has no theorem
     --   calls Lvalue_ok, which has no theorem
     --   calls Expr_ok, which has no theorem
-    --   calls Type_eq, which has no theorem
     --   calls id, which has no theorem
-    --   calls find_callableTypeDef_t, which has no theorem
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
     --   calls expression_of_lvalue, which has no theorem
-    --   calls find_map, which has no theorem
     --   calls enter_t, which has no theorem
 
 -- no refinement theorem: Statements_ok
-    --   group member Statement_ok: calls a builtin
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
     --   group member Statement_ok: calls Lvalue_ok, which has no theorem
     --   group member Statement_ok: calls Expr_ok, which has no theorem
-    --   group member Statement_ok: calls Type_eq, which has no theorem
     --   group member Statement_ok: calls id, which has no theorem
-    --   group member Statement_ok: calls find_callableTypeDef_t, which has no theorem
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
     --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
-    --   group member Statement_ok: calls find_map, which has no theorem
     --   group member Statement_ok: calls enter_t, which has no theorem
 
 -- no refinement theorem: Block_ok
-    --   group member Statement_ok: calls a builtin
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
     --   group member Statement_ok: calls Lvalue_ok, which has no theorem
     --   group member Statement_ok: calls Expr_ok, which has no theorem
-    --   group member Statement_ok: calls Type_eq, which has no theorem
     --   group member Statement_ok: calls id, which has no theorem
-    --   group member Statement_ok: calls find_callableTypeDef_t, which has no theorem
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
     --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
-    --   group member Statement_ok: calls find_map, which has no theorem
     --   group member Statement_ok: calls enter_t, which has no theorem
 
 -- no refinement theorem: ParserLocalDecl_ok
@@ -298,7 +644,6 @@ the reason. Generated.
     --   membership
     --   calls id, which has no theorem
     --   calls Expr_ok, which has no theorem
-    --   calls Type_eq, which has no theorem
 
 -- no refinement theorem: ParserState_ok
     --   calls enter_t, which has no theorem
@@ -306,10 +651,9 @@ the reason. Generated.
     --   calls ParserTransition_ok, which has no theorem
 
 -- no refinement theorem: ParserStateList_ok
-    --   calls a builtin
+    --   iterated premise
     --   calls flatten_parserStateList, which has no theorem
     --   calls id, which has no theorem
-    --   calls distinct_, which has no theorem
     --   calls ParserState_ok, which has no theorem
 
 -- no refinement theorem: TableKey_ok
@@ -317,13 +661,11 @@ the reason. Generated.
     --   calls Expr_ok, which has no theorem
     --   calls id, which has no theorem
     --   calls find_var_t, which has no theorem
-    --   calls strip_all_whitespace, which has no theorem
     --   calls print_, which has no theorem
 
 -- no refinement theorem: TableAction_ok
-    --   subtype check
+    --   iterated premise
     --   calls id, which has no theorem
-    --   calls find_callableTypeDef_t, which has no theorem
     --   calls flatten_argumentList, which has no theorem
     --   calls Argument_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
@@ -332,15 +674,13 @@ the reason. Generated.
     --   calls TableAction_ok, which has no theorem
 
 -- no refinement theorem: TableActionList_ok
-    --   calls a builtin
+    --   iterated premise
     --   calls flatten_tableActionList, which has no theorem
     --   calls TableActions_ok, which has no theorem
-    --   calls distinct_, which has no theorem
 
 -- no refinement theorem: TableEntry_ok
-    --   subtype check
+    --   slicing
     --   calls Expr_ok, which has no theorem
-    --   calls Type_eq, which has no theorem
     --   calls id, which has no theorem
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
@@ -354,13 +694,10 @@ the reason. Generated.
     --   calls TableEntries_ok, which has no theorem
 
 -- no refinement theorem: TableDecl_ok
-    --   upcast
     --   calls TableProperties_ok, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_var_t, which has no theorem
 
 -- no refinement theorem: ControlLocalDecl_ok
-    --   subtype check
     --   calls VarDecl_ok, which has no theorem
     --   calls TableDecl_ok, which has no theorem
 
@@ -371,16 +708,13 @@ the reason. Generated.
     --   calls ControlLocalDecls_ok, which has no theorem
 
 -- no refinement theorem: Parameter_ok
-    --   calls Type_ok, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_var_t, which has no theorem
 
 -- no refinement theorem: Parameters_ok
     --   calls Parameter_ok, which has no theorem
 
 -- no refinement theorem: distinct_params
-    --   calls a builtin
-    --   calls distinct_, which has no theorem
+    --   iterated premise
 
 -- no refinement theorem: ParameterList_ok
     --   calls flatten_parameterList, which has no theorem
@@ -391,59 +725,44 @@ the reason. Generated.
     --   calls ParameterList_ok, which has no theorem
     --   calls id, which has no theorem
 
--- no refinement theorem: directionless_trailing
-    --   calls a builtin
-    --   calls rev_, which has no theorem
-
 -- no refinement theorem: ActionDecl_ok
     --   iterated premise
     --   calls flatten_parameterList, which has no theorem
-    --   calls directionless_trailing, which has no theorem
     --   calls Parameters_ok, which has no theorem
     --   calls Block_ok, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_callableDef_t, which has no theorem
 
 -- no refinement theorem: ExternDecl_ok
-    --   calls a builtin
+    --   combined subtype and paired iteration proof is not implemented
     --   calls ExternMethod_ok, which has no theorem
-    --   calls distinct_, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_typeDef_t, which has no theorem
 
 -- no refinement theorem: is_object_typeIR
-    --   subtype check
+    --   unused downcast binding composition is not implemented
 
 -- no refinement theorem: no_object_params
     --   calls is_object_typeIR, which has no theorem
 
 -- no refinement theorem: TypeDecl_ok
-    --   calls a builtin
-    --   calls Type_ok, which has no theorem
+    --   combined subtype and paired iteration proof is not implemented
     --   calls id, which has no theorem
-    --   calls distinct_, which has no theorem
-    --   calls add_typeDef_t, which has no theorem
     --   calls ParameterList_ok, which has no theorem
     --   calls no_object_params, which has no theorem
     --   calls flatten_parameterList, which has no theorem
 
 -- no refinement theorem: Decl_ok
-    --   calls a builtin
-    --   calls find_typeDef_t, which has no theorem
+    --   iterated premise
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_var_t, which has no theorem
     --   calls ActionDecl_ok, which has no theorem
     --   calls flatten_nameList, which has no theorem
-    --   calls distinct_, which has no theorem
     --   calls repeat_, which has no theorem
     --   calls add_vars_t, which has no theorem
     --   calls ExternDecl_ok, which has no theorem
     --   calls ParameterList_ok, which has no theorem
     --   calls ParserLocalDeclList_ok, which has no theorem
     --   calls ParserStateList_ok, which has no theorem
-    --   calls add_callableDef_t, which has no theorem
     --   calls ControlLocalDeclList_ok, which has no theorem
     --   calls Block_ok, which has no theorem
     --   calls TypeDecl_ok, which has no theorem
@@ -456,36 +775,18 @@ the reason. Generated.
     --   calls Decls_ok, which has no theorem
 
 -- no refinement theorem: lvalue_of_expression
-    --   subtype check
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: empty_callableDefEnv
-    --   call with type arguments
     --   calls empty_map, which has no theorem
 
 -- no refinement theorem: make_loadContext
     --   calls empty_callableDefEnv, which has no theorem
 
--- no refinement theorem: find_callableDef_l
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-
--- no refinement theorem: add_callableDef_l
-    --   calls a builtin
-    --   calls in_set, which has no theorem
-    --   calls dom_map, which has no theorem
-    --   calls add_map, which has no theorem
-
--- no refinement theorem: find_callableTypeDef_l
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-
 -- no refinement theorem: Decl_load
-    --   subtype check
+    --   indexing
     --   calls flatten_argumentList, which has no theorem
-    --   calls find_callableDef_l, which has no theorem
     --   calls id, which has no theorem
-    --   calls find_callableTypeDef_l, which has no theorem
-    --   calls add_callableDef_l, which has no theorem
 
 -- no refinement theorem: Decls_load
     --   calls Decl_load, which has no theorem
@@ -495,7 +796,6 @@ the reason. Generated.
     --   calls Decls_load, which has no theorem
 
 -- no refinement theorem: empty_frame
-    --   call with type arguments
     --   calls empty_map, which has no theorem
 
 -- no refinement theorem: make_evalContext
@@ -505,55 +805,32 @@ the reason. Generated.
     --   calls empty_frame, which has no theorem
 
 -- no refinement theorem: find_var_e
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-    --   calls find_maps, which has no theorem
-
--- no refinement theorem: add_var_e
-    --   calls a builtin
-    --   calls in_set, which has no theorem
-    --   calls dom_map, which has no theorem
-    --   calls add_map, which has no theorem
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: update_var_e
-    --   calls a builtin
-    --   calls in_set, which has no theorem
-    --   calls dom_map, which has no theorem
-    --   calls update_map, which has no theorem
-
--- no refinement theorem: find_callableDef_e
-    --   calls a builtin
-    --   calls find_map, which has no theorem
-
--- no refinement theorem: find_typeDef_e
-    --   calls a builtin
-    --   calls find_map, which has no theorem
+    --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: enter_e
     --   calls empty_frame, which has no theorem
 
 -- no refinement theorem: Expr_eval
-    --   calls a builtin
+    --   iterated premise
     --   calls id, which has no theorem
     --   calls find_var_e, which has no theorem
     --   calls un_op, which has no theorem
     --   calls bin_op, which has no theorem
-    --   calls assoc_, which has no theorem
 
 -- no refinement theorem: Lvalue_eval
     --   calls expression_of_lvalue, which has no theorem
     --   calls Expr_eval, which has no theorem
 
 -- no refinement theorem: Lvalue_write
-    --   subtype check
     --   calls id, which has no theorem
     --   calls update_var_e, which has no theorem
     --   calls Lvalue_eval, which has no theorem
 
 -- no refinement theorem: Copy_in_arg
     --   calls Expr_eval, which has no theorem
-    --   calls add_var_e, which has no theorem
-    --   calls default, which has no theorem
     --   calls lvalue_of_expression, which has no theorem
 
 -- no refinement theorem: Copy_in
@@ -562,7 +839,6 @@ the reason. Generated.
 -- no refinement theorem: VarDecl_eval
     --   calls Expr_eval, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_var_e, which has no theorem
 
 -- no refinement theorem: ParserLocalDecl_eval
     --   calls VarDecl_eval, which has no theorem
@@ -577,12 +853,8 @@ the reason. Generated.
     --   calls id, which has no theorem
 
 -- no refinement theorem: Callee_eval
-    --   calls a builtin
     --   calls id, which has no theorem
-    --   calls find_callableDef_e, which has no theorem
     --   calls Lvalue_eval, which has no theorem
-    --   calls find_typeDef_e, which has no theorem
-    --   calls find_map, which has no theorem
 
 -- no refinement theorem: Copy_out_arg
     --   calls find_var_e, which has no theorem
@@ -651,14 +923,12 @@ the reason. Generated.
     --   calls bin_eq, which has no theorem
 
 -- no refinement theorem: ParserTransition_eval
-    --   subtype check
     --   group member ParserSelect_eval: iterated premise
     --   calls id, which has no theorem
     --   group member ParserSelect_eval: calls Expr_eval, which has no theorem
     --   group member ParserSelect_eval: calls match_case_value, which has no theorem
 
 -- no refinement theorem: ParserSelect_eval
-    --   group member ParserTransition_eval: subtype check
     --   iterated premise
     --   group member ParserTransition_eval: calls id, which has no theorem
     --   calls Expr_eval, which has no theorem
@@ -674,10 +944,8 @@ the reason. Generated.
     --   extern
 
 -- no refinement theorem: ControlLocalDecl_eval
-    --   subtype check
     --   calls VarDecl_eval, which has no theorem
     --   calls id, which has no theorem
-    --   calls add_var_e, which has no theorem
 
 -- no refinement theorem: ControlLocalDecls_eval
     --   calls ControlLocalDecl_eval, which has no theorem
@@ -688,25 +956,15 @@ the reason. Generated.
 -- no refinement theorem: Control_apply
     --   extern
 
--- no refinement theorem: Var_init
-    --   calls default, which has no theorem
-    --   calls add_var_e, which has no theorem
-
 -- no refinement theorem: NanoSwitch_init
     --   calls Program_ok, which has no theorem
     --   calls Program_load, which has no theorem
     --   calls make_evalContext, which has no theorem
 
 -- no refinement theorem: NanoSwitch_setup
-    --   upcast
     --   calls empty_frame, which has no theorem
-    --   calls add_var_e, which has no theorem
-    --   calls typeIR_of_typeDefIR, which has no theorem
-    --   calls find_typeDef_e, which has no theorem
-    --   calls Var_init, which has no theorem
 
 -- no refinement theorem: nanoswitch_forwarding
-    --   upcast
     --   calls find_var_e, which has no theorem
 
 -- no refinement theorem: NanoSwitch_parse

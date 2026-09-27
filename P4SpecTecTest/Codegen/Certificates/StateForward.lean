@@ -41,10 +41,10 @@ def «$hardError».al : Lang.Al.def :=
 
 def «$echo».al : Lang.Al.def :=
   let n := Q.e (.VarE (Q.i "n")) (.NumT .NatT)
-  let alias := Q.e (.VarE (Q.i "alias")) (.NumT .NatT)
+  let aliasDef := Q.e (.VarE (Q.i "aliasDef")) (.NumT .NatT)
   Q.d (.FuncDecD (Q.i "echo") [] [Q.pm (.ExpP (Q.t (.NumT .NatT)))] (Q.t (.NumT .NatT))
-    [Q.cl [Q.ar (.ExpA n)] alias
-      [Q.pr (.LetPr alias n), Q.pr (.DebugPr (Q.e (.CallE (Q.i "choose") []
+    [Q.cl [Q.ar (.ExpA n)] aliasDef
+      [Q.pr (.LetPr aliasDef n), Q.pr (.DebugPr (Q.e (.CallE (Q.i "choose") []
         [Q.ar (.ExpA (Q.e (.BoolE true) .BoolT))]) .TextT))]] none [])
 
 def «$mismatch».al : Lang.Al.def :=

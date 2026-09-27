@@ -40,7 +40,7 @@ def transitionResult.toValue : NanoP4Spec.transitionResult → Lang.Il.value
   | .STATE x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "transitionResult")
-        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "STATE"))), (.Arg (ToValue.toValue x0))])
+        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "STATE"))), (.Arg (NanoP4Spec.id.toValue x0))])
 
 instance : ToValue NanoP4Spec.transitionResult := ⟨NanoP4Spec.transitionResult.toValue⟩
 instance : BEq NanoP4Spec.transitionResult := ⟨valueEq⟩
@@ -94,12 +94,18 @@ def actionCallee.toValue : NanoP4Spec.actionCallee → Lang.Il.value
         (Prelude.Value.varT "actionCallee")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.callableId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
 
 instance : ToValue NanoP4Spec.actionCallee := ⟨NanoP4Spec.actionCallee.toValue⟩
 instance : BEq NanoP4Spec.actionCallee := ⟨valueEq⟩
@@ -159,12 +165,18 @@ def externMethodCallee.toValue : NanoP4Spec.externMethodCallee → Lang.Il.value
         (Prelude.Value.varT "externMethodCallee")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN_METHOD"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.callableId.toValue x1)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x2))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x2))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.externMethodCallee := ⟨NanoP4Spec.externMethodCallee.toValue⟩
@@ -229,12 +241,12 @@ def tableApplyMethodCallee.toValue : NanoP4Spec.tableApplyMethodCallee → Lang.
         (Prelude.Value.varT "tableApplyMethodCallee")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
             (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.tableProperties.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.tableApplyMethodCallee := ⟨NanoP4Spec.tableApplyMethodCallee.toValue⟩
@@ -301,35 +313,47 @@ def callee.toValue : NanoP4Spec.callee → Lang.Il.value
         (Prelude.Value.varT "callee")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.callableId.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
   | .EXTERN_METHOD_dot_lparen_rparen x0 x1 x2 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "callee")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN_METHOD"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.callableId.toValue x1)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x2))
+               (.Arg
+                  (@ToValue.toValue
+                     (List NanoP4Spec.parameterIR)
+                     (@P4SpecTec.Prelude.instToValueList
+                        NanoP4Spec.parameterIR
+                        (ToValue.mk (fun x => NanoP4Spec.parameterIR.toValue x)))
+                     x2))
                (Prelude.Value.atom .RParen))])
   | .TABLE_dot_APPLY_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "callee")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.nameIR.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
             (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.tableProperties.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.callee := ⟨NanoP4Spec.callee.toValue⟩

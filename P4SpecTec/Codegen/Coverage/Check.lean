@@ -52,11 +52,13 @@ def checkClaim (claim : Claim) : TermElabM Unit := withoutErrToSorry do
 def checkReport (stored regenerated : Report) : TermElabM Unit := do
   unless stored == regenerated do
     throwError "coverage report differs from current source/planner output"
-  unless stored.schemaVersion == 1 do
+  unless stored.schemaVersion == 3 do
     throwError "unsupported coverage schema: {stored.schemaVersion}"
-  for entry in stored.definitions do
+  for entry in stored.definitions ++ stored.representations do
     for claim in entry.claims do
       checkClaim claim
+  for claim in stored.profiles do
+    checkClaim claim
 
 /-- Run a checker action under the generated library's proof elaboration context. -/
 def inEnvironment (env : Environment) (library : String) (action : TermElabM α) : IO α := do

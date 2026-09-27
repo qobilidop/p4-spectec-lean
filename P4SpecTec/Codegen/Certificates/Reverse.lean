@@ -48,7 +48,8 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
   let ps := paramNames m.params.length
   let vs := (List.range m.params.length).map fun i => s!"v{i}"
   let hs := (List.range m.params.length).map fun i => s!"h{i}"
-  let config := ["cfg", "ctx", "internal", "hguard", "hfenv", "hspec"]
+  let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
+  let config := ["cfg", "ctx", "internal", "hguard", functionEnv, "hspec"]
   let args := config ++ vs ++ hs
   let motiveDef := Format.group (Format.nest 4 (
     Format.text ("private def " ++ motiveName) ++ paramBinders m.params ++
@@ -58,30 +59,76 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
     Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++ " := by"))
   let introArgs := ["rec", "ih"] ++ ps ++ ["q", "hq"] ++ args
   let finalArgs := ps ++ ["q", "hq"] ++ args
+  let step := if m.requiresColumns then "realize_step (columns) hq)" else "realize_step hq)"
   let proof := Format.nest 2 (Format.line ++ "intro q hq" ++ Format.line ++
     Format.text ("exact " ++ m.defName ++ ".partial_correctness") ++
     Format.nest 2 (Format.line ++ Format.text ("(motive := " ++ motiveName ++ ") (by") ++
       Format.nest 2 (Format.line ++ Format.text ("intro " ++ " ".intercalate introArgs) ++
-        Format.line ++ "realize_step hq)") ++
+        Format.line ++ Format.text step) ++
       Format.line ++ Format.text (" ".intercalate finalArgs)))
   return [motiveDef, header ++ proof, Validate.audit (qualified ++ ".realizes")]
 
-/-- Emit reverse contracts for checked singleton groups; unsupported groups remain explicit. -/
+/-- A member's outcome-indexed statement for joint fixed-point induction. -/
+def groupStatement (lib : String) (m : Member) : Format :=
+  let ps := paramNames m.params.length
+  Format.group (Format.nest 2 (Format.text "∀" ++ paramBinders m.params ++
+    Format.line ++ "(q : Except Fail " ++ m.ret.arg ++ ")," ++
+    Format.line ++ (Term.call m.defName (ps.map Term.atom)).fmt ++ " = some q →" ++
+    Format.line ++ motive lib m))
+
+/-- Joint reverse induction, followed by exact per-member realization corollaries. -/
+def mutualTheorems (lib : String) (members : List Member) : List Format := Id.run do
+  let first := members.head!
+  let owner := first.localName.replace ".run" ""
+  let qualified := first.defName.replace ".run" ""
+  let groupName := qualified ++ ".realizes_group"
+  let statement := Format.joinSep (members.map fun m => Format.paren (groupStatement lib m))
+    (Format.text " ∧" ++ Format.line)
+  let declaration := Format.text ("theorem " ++ owner ++ ".realizes_group :") ++
+    Format.nest 2 (Format.line ++ statement) ++ " := by" ++
+    Format.nest 2 (Format.line ++ Format.text
+      ("realize_group " ++ first.defName ++ ".mutual_partial_correctness"))
+  let mut result := [declaration, Validate.audit groupName]
+  for (m, i) in members.zipIdx do
+    let name := m.localName.replace ".run" "" ++ ".realizes"
+    let projection := groupName ++ String.join ((List.range i).map fun _ => ".2") ++
+      (if i == members.length - 1 then "" else ".1")
+    let ps := paramNames m.params.length
+    let vs := (List.range m.params.length).map fun i => s!"v{i}"
+    let hs := (List.range m.params.length).map fun i => s!"h{i}"
+    let functionEnv := if m.isRel && m.requiresTypeRules then "_hfenv" else "hfenv"
+    let args := ps ++ ["q", "hq", "cfg", "ctx", "internal", "hguard", functionEnv, "hspec"] ++
+      vs ++ hs
+    result := result ++ [
+      Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
+        Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++
+        " := by")) ++ Format.nest 2 (Format.line ++ "intro q hq" ++
+          Format.line ++ Format.group (Format.nest 2 (Format.text ("exact " ++ projection) ++
+            Format.line ++ Format.joinSep (args.map Format.text) Format.line))),
+      Validate.audit (m.defName.replace ".run" "" ++ ".realizes")]
+  return result
+
+/-- Select the source-derived observation relation for a nonrecursive traversal. -/
+def bodyTactic (m : Member) : Format :=
+  if m.requiresColumns then "realize_al (columns)" else
+  match m.iterationRelation with
+  | none => if m.requiresTypeRules then "realize_al (subtypes)" else "realize_al"
+  | some relation => Format.group (Format.nest 2 (
+      Format.text "realize_al (iteration :=" ++ Format.line ++ relation ++ ")"))
+
+/-- Emit reverse contracts for supported definitions, using joint induction for mutual groups. -/
 def groupTheorems (lib : String) (recursive : Bool) (members : List Member)
     (reasons : List (String × String)) : List Format := Id.run do
   if !reasons.isEmpty then
     return reasons.map fun (id, reason) =>
       Format.text s!"-- no reverse theorem: {id}\n--   {reason}"
-  if members.length > 1 then
-    return members.map fun m =>
-      Format.text s!"-- no reverse theorem: {m.id}\n--   " ++
-        "mutual reverse induction is not implemented"
+  if members.length > 1 then return mutualTheorems lib members
   if recursive then return members.flatMap (recursiveTheorems lib)
   return members.flatMap fun m =>
     let name := m.localName.replace ".run" "" ++ ".realizes"
     [Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
         Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++
-        " := by")) ++ Format.nest 2 (Format.line ++ "realize_al"),
+        " := by")) ++ Format.nest 2 (Format.line ++ bodyTactic m),
       Validate.audit (m.defName.replace ".run" "" ++ ".realizes")]
 
 end P4SpecTec.Codegen.Reverse

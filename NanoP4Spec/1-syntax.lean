@@ -76,16 +76,16 @@ def integerLiteral.toValue : NanoP4Spec.integerLiteral → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "integerLiteral")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "W"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | .S x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "integerLiteral")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "S"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
 
 instance : ToValue NanoP4Spec.integerLiteral := ⟨NanoP4Spec.integerLiteral.toValue⟩
 instance : BEq NanoP4Spec.integerLiteral := ⟨valueEq⟩
@@ -140,7 +140,9 @@ def identifier.toValue : NanoP4Spec.identifier → Lang.Il.value
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "identifier")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
 
 instance : ToValue NanoP4Spec.identifier := ⟨NanoP4Spec.identifier.toValue⟩
 instance : BEq NanoP4Spec.identifier := ⟨valueEq⟩
@@ -175,7 +177,9 @@ def typeIdentifier.toValue : NanoP4Spec.typeIdentifier → Lang.Il.value
   | ._TID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeIdentifier")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "TID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "TID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
 
 instance : ToValue NanoP4Spec.typeIdentifier := ⟨NanoP4Spec.typeIdentifier.toValue⟩
 instance : BEq NanoP4Spec.typeIdentifier := ⟨valueEq⟩
@@ -216,7 +220,9 @@ def nonTypeName.toValue : NanoP4Spec.nonTypeName → Lang.Il.value
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "nonTypeName")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "nonTypeName")
@@ -288,7 +294,8 @@ def nonTypeName.al : Lang.Al.def :=
 
 abbrev typeName : Type := NanoP4Spec.typeIdentifier
 
-def typeName.toValue (x : NanoP4Spec.typeName) : Lang.Il.value := ToValue.toValue x
+def typeName.toValue (x : NanoP4Spec.typeName) : Lang.Il.value :=
+  NanoP4Spec.typeIdentifier.toValue x
 
 instance : ToValue NanoP4Spec.typeName := ⟨NanoP4Spec.typeName.toValue⟩
 instance : BEq NanoP4Spec.typeName := ⟨valueEq⟩
@@ -304,7 +311,7 @@ def typeName.al : Lang.Al.def :=
 
 abbrev name : Type := NanoP4Spec.nonTypeName
 
-def name.toValue (x : NanoP4Spec.name) : Lang.Il.value := ToValue.toValue x
+def name.toValue (x : NanoP4Spec.name) : Lang.Il.value := NanoP4Spec.nonTypeName.toValue x
 
 instance : ToValue NanoP4Spec.name := ⟨NanoP4Spec.name.toValue⟩
 instance : BEq NanoP4Spec.name := ⟨valueEq⟩
@@ -330,7 +337,9 @@ def nameList.toValue : NanoP4Spec.nameList → Lang.Il.value
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "nameList")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "nameList")
@@ -353,7 +362,7 @@ def nameList.toValue : NanoP4Spec.nameList → Lang.Il.value
         (.Seq
            [(.Arg (NanoP4Spec.nameList.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator ","))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.name.toValue x1))])
 
 instance : ToValue NanoP4Spec.nameList := ⟨NanoP4Spec.nameList.toValue⟩
 instance : BEq NanoP4Spec.nameList := ⟨valueEq⟩
@@ -425,7 +434,7 @@ def nameList.al : Lang.Al.def :=
 
 abbrev member : Type := NanoP4Spec.name
 
-def member.toValue (x : NanoP4Spec.member) : Lang.Il.value := ToValue.toValue x
+def member.toValue (x : NanoP4Spec.member) : Lang.Il.value := NanoP4Spec.name.toValue x
 
 instance : ToValue NanoP4Spec.member := ⟨NanoP4Spec.member.toValue⟩
 instance : BEq NanoP4Spec.member := ⟨valueEq⟩
@@ -514,7 +523,7 @@ def integerType.toValue : NanoP4Spec.integerType → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "BIT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x0))
                (Prelude.Value.atom .RAngle))])
   | .INT_langle_rangle x0 =>
       Runtime.Value.Make.case
@@ -523,7 +532,7 @@ def integerType.toValue : NanoP4Spec.integerType → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "INT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x0))
                (Prelude.Value.atom .RAngle))])
 
 instance : ToValue NanoP4Spec.integerType := ⟨NanoP4Spec.integerType.toValue⟩
@@ -596,7 +605,7 @@ def baseType.toValue : NanoP4Spec.baseType → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "BIT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x0))
                (Prelude.Value.atom .RAngle))])
   | .INT_langle_rangle x0 =>
       Runtime.Value.Make.case
@@ -605,7 +614,7 @@ def baseType.toValue : NanoP4Spec.baseType → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "INT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x0))
                (Prelude.Value.atom .RAngle))])
   | .BOOL =>
       Runtime.Value.Make.case
@@ -684,7 +693,7 @@ def baseType.al : Lang.Al.def :=
 
 abbrev namedType : Type := NanoP4Spec.typeName
 
-def namedType.toValue (x : NanoP4Spec.namedType) : Lang.Il.value := ToValue.toValue x
+def namedType.toValue (x : NanoP4Spec.namedType) : Lang.Il.value := NanoP4Spec.typeName.toValue x
 
 instance : ToValue NanoP4Spec.namedType := ⟨NanoP4Spec.namedType.toValue⟩
 instance : BEq NanoP4Spec.namedType := ⟨valueEq⟩
@@ -713,7 +722,7 @@ def type.toValue : NanoP4Spec.type → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "BIT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x0))
                (Prelude.Value.atom .RAngle))])
   | .INT_langle_rangle x0 =>
       Runtime.Value.Make.case
@@ -722,7 +731,7 @@ def type.toValue : NanoP4Spec.type → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "INT"))),
             (.Brack
                (Prelude.Value.atom .LAngle)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x0))
                (Prelude.Value.atom .RAngle))])
   | .BOOL =>
       Runtime.Value.Make.case
@@ -735,7 +744,9 @@ def type.toValue : NanoP4Spec.type → Lang.Il.value
   | ._TID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "type")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "TID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "TID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
 
 instance : ToValue NanoP4Spec.type := ⟨NanoP4Spec.type.toValue⟩
 instance : BEq NanoP4Spec.type := ⟨valueEq⟩
@@ -823,7 +834,9 @@ def parameter.toValue : NanoP4Spec.parameter → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "parameter")
         (.Seq
-           [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+           [(.Arg (NanoP4Spec.direction.toValue x0)),
+            (.Arg (NanoP4Spec.type.toValue x1)),
+            (.Arg (NanoP4Spec.name.toValue x2))])
 
 instance : ToValue NanoP4Spec.parameter := ⟨NanoP4Spec.parameter.toValue⟩
 instance : BEq NanoP4Spec.parameter := ⟨valueEq⟩
@@ -870,14 +883,16 @@ def nonEmptyParameterList.toValue : NanoP4Spec.nonEmptyParameterList → Lang.Il
       Runtime.Value.Make.case
         (Prelude.Value.varT "nonEmptyParameterList")
         (.Seq
-           [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+           [(.Arg (NanoP4Spec.direction.toValue x0)),
+            (.Arg (NanoP4Spec.type.toValue x1)),
+            (.Arg (NanoP4Spec.name.toValue x2))])
   | .comma x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "nonEmptyParameterList")
         (.Seq
            [(.Arg (NanoP4Spec.nonEmptyParameterList.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator ","))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.parameter.toValue x1))])
 
 instance : ToValue NanoP4Spec.nonEmptyParameterList := ⟨NanoP4Spec.nonEmptyParameterList.toValue⟩
 instance : BEq NanoP4Spec.nonEmptyParameterList := ⟨valueEq⟩
@@ -944,14 +959,16 @@ def parameterList.toValue : NanoP4Spec.parameterList → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "parameterList")
         (.Seq
-           [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+           [(.Arg (NanoP4Spec.direction.toValue x0)),
+            (.Arg (NanoP4Spec.type.toValue x1)),
+            (.Arg (NanoP4Spec.name.toValue x2))])
   | .comma x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "parameterList")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.nonEmptyParameterList.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator ","))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.parameter.toValue x1))])
 
 instance : ToValue NanoP4Spec.parameterList := ⟨NanoP4Spec.parameterList.toValue⟩
 instance : BEq NanoP4Spec.parameterList := ⟨valueEq⟩
@@ -1025,16 +1042,16 @@ def literalExpression.toValue : NanoP4Spec.literalExpression → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "literalExpression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "W"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | .S x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "literalExpression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "S"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
 
 instance : ToValue NanoP4Spec.literalExpression := ⟨NanoP4Spec.literalExpression.toValue⟩
 instance : BEq NanoP4Spec.literalExpression := ⟨valueEq⟩
@@ -1095,7 +1112,7 @@ def literalExpression.al : Lang.Al.def :=
 abbrev referenceExpression : Type := NanoP4Spec.name
 
 def referenceExpression.toValue (x : NanoP4Spec.referenceExpression) : Lang.Il.value :=
-  ToValue.toValue x
+  NanoP4Spec.name.toValue x
 
 instance : ToValue NanoP4Spec.referenceExpression := ⟨NanoP4Spec.referenceExpression.toValue⟩
 instance : BEq NanoP4Spec.referenceExpression := ⟨valueEq⟩
@@ -1341,7 +1358,7 @@ def binop.al : Lang.Al.def :=
 
 abbrev callTarget : Type := NanoP4Spec.namedType
 
-def callTarget.toValue (x : NanoP4Spec.callTarget) : Lang.Il.value := ToValue.toValue x
+def callTarget.toValue (x : NanoP4Spec.callTarget) : Lang.Il.value := NanoP4Spec.namedType.toValue x
 
 instance : ToValue NanoP4Spec.callTarget := ⟨NanoP4Spec.callTarget.toValue⟩
 instance : BEq NanoP4Spec.callTarget := ⟨valueEq⟩
@@ -1442,20 +1459,22 @@ def expression.toValue : NanoP4Spec.expression → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "W"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | .S x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "S"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
@@ -1475,13 +1494,13 @@ def expression.toValue : NanoP4Spec.expression → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
+        (.Seq [(.Arg (NanoP4Spec.unop.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
   | .mk_2 x0 x1 x2 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
         (.Seq
            [(.Arg (NanoP4Spec.expression.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.binop.toValue x1)),
             (.Arg (NanoP4Spec.expression.toValue x2))])
   | .dot x0 x1 =>
       Runtime.Value.Make.case
@@ -1489,12 +1508,12 @@ def expression.toValue : NanoP4Spec.expression → Lang.Il.value
         (.Seq
            [(.Arg (NanoP4Spec.memberAccessBase.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.member.toValue x1))])
   | .lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "expression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.callTarget.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (NanoP4Spec.argumentList.toValue x1))
@@ -1525,20 +1544,22 @@ def argumentListNonEmpty.toValue : NanoP4Spec.argumentListNonEmpty → Lang.Il.v
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "W"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | .S x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "S"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
@@ -1558,13 +1579,13 @@ def argumentListNonEmpty.toValue : NanoP4Spec.argumentListNonEmpty → Lang.Il.v
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
+        (.Seq [(.Arg (NanoP4Spec.unop.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
   | .mk_2 x0 x1 x2 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
         (.Seq
            [(.Arg (NanoP4Spec.expression.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.binop.toValue x1)),
             (.Arg (NanoP4Spec.expression.toValue x2))])
   | .dot x0 x1 =>
       Runtime.Value.Make.case
@@ -1572,12 +1593,12 @@ def argumentListNonEmpty.toValue : NanoP4Spec.argumentListNonEmpty → Lang.Il.v
         (.Seq
            [(.Arg (NanoP4Spec.memberAccessBase.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.member.toValue x1))])
   | .lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentListNonEmpty")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.callTarget.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (NanoP4Spec.argumentList.toValue x1))
@@ -1614,20 +1635,22 @@ def argumentList.toValue : NanoP4Spec.argumentList → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "W"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | .S x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (@ToValue.toValue Nat P4SpecTec.Prelude.instToValueNat x0)),
             (.Atom (Prelude.Value.atom (.Keyword "S"))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (@ToValue.toValue Int P4SpecTec.Prelude.instToValueInt x1))])
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
@@ -1647,13 +1670,13 @@ def argumentList.toValue : NanoP4Spec.argumentList → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
+        (.Seq [(.Arg (NanoP4Spec.unop.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
   | .mk_2 x0 x1 x2 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
         (.Seq
            [(.Arg (NanoP4Spec.expression.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.binop.toValue x1)),
             (.Arg (NanoP4Spec.expression.toValue x2))])
   | .dot x0 x1 =>
       Runtime.Value.Make.case
@@ -1661,12 +1684,12 @@ def argumentList.toValue : NanoP4Spec.argumentList → Lang.Il.value
         (.Seq
            [(.Arg (NanoP4Spec.memberAccessBase.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.member.toValue x1))])
   | .lparen_rparen x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "argumentList")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.callTarget.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
                (.Arg (NanoP4Spec.argumentList.toValue x1))
@@ -2258,7 +2281,7 @@ def unaryExpression.toValue : NanoP4Spec.unaryExpression → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "unaryExpression")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq [(.Arg (NanoP4Spec.unop.toValue x0)), (.Arg (NanoP4Spec.expression.toValue x1))])
 
 instance : ToValue NanoP4Spec.unaryExpression := ⟨NanoP4Spec.unaryExpression.toValue⟩
 instance : BEq NanoP4Spec.unaryExpression := ⟨valueEq⟩
@@ -2300,7 +2323,9 @@ def binaryExpression.toValue : NanoP4Spec.binaryExpression → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "binaryExpression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+           [(.Arg (NanoP4Spec.expression.toValue x0)),
+            (.Arg (NanoP4Spec.binop.toValue x1)),
+            (.Arg (NanoP4Spec.expression.toValue x2))])
 
 instance : ToValue NanoP4Spec.binaryExpression := ⟨NanoP4Spec.binaryExpression.toValue⟩
 instance : BEq NanoP4Spec.binaryExpression := ⟨valueEq⟩
@@ -2344,9 +2369,9 @@ def memberAccessExpression.toValue : NanoP4Spec.memberAccessExpression → Lang.
       Runtime.Value.Make.case
         (Prelude.Value.varT "memberAccessExpression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.memberAccessBase.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.member.toValue x1))])
 
 instance : ToValue NanoP4Spec.memberAccessExpression := ⟨NanoP4Spec.memberAccessExpression.toValue⟩
 instance : BEq NanoP4Spec.memberAccessExpression := ⟨valueEq⟩
@@ -2391,10 +2416,10 @@ def callExpression.toValue : NanoP4Spec.callExpression → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "callExpression")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.callTarget.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.argumentList.toValue x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.callExpression := ⟨NanoP4Spec.callExpression.toValue⟩
@@ -2445,7 +2470,7 @@ def parenthesizedExpression.toValue : NanoP4Spec.parenthesizedExpression → Lan
         (Prelude.Value.varT "parenthesizedExpression")
         (.Brack
            (Prelude.Value.atom .LParen)
-           (.Arg (ToValue.toValue x0))
+           (.Arg (NanoP4Spec.expression.toValue x0))
            (Prelude.Value.atom .RParen))
 
 instance : ToValue NanoP4Spec.parenthesizedExpression :=
@@ -2495,7 +2520,9 @@ def lvalue.toValue : NanoP4Spec.lvalue → Lang.Il.value
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "lvalue")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "lvalue")
@@ -2518,7 +2545,7 @@ def lvalue.toValue : NanoP4Spec.lvalue → Lang.Il.value
         (.Seq
            [(.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "."))),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.member.toValue x1))])
   | .lparen_rparen x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "lvalue")
@@ -2647,9 +2674,9 @@ def assignmentStatement.toValue : NanoP4Spec.assignmentStatement → Lang.Il.val
       Runtime.Value.Make.case
         (Prelude.Value.varT "assignmentStatement")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "="))),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.expression.toValue x1)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.assignmentStatement := ⟨NanoP4Spec.assignmentStatement.toValue⟩
@@ -2700,10 +2727,10 @@ def callStatement.toValue : NanoP4Spec.callStatement → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "callStatement")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.argumentList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
@@ -2752,7 +2779,9 @@ def initializer.toValue : NanoP4Spec.initializer → Lang.Il.value
   | .eq x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "initializer")
-        (.Seq [(.Atom (Prelude.Value.atom (.Operator "="))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Operator "="))),
+            (.Arg (NanoP4Spec.expression.toValue x0))])
 
 instance : ToValue NanoP4Spec.initializer := ⟨NanoP4Spec.initializer.toValue⟩
 instance : BEq NanoP4Spec.initializer := ⟨valueEq⟩
@@ -2829,26 +2858,26 @@ def statement.toValue : NanoP4Spec.statement → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "statement")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
-            (.Arg (ToValue.toValue x2)),
+           [(.Arg (NanoP4Spec.type.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x1)),
+            (.Arg (NanoP4Spec.initializer.toValue x2)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .eq_semi x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "statement")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator "="))),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.expression.toValue x1)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .lparen_rparen_semi x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "statement")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.lvalue.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.argumentList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .lbrace_rbrace x0 =>
@@ -2865,7 +2894,7 @@ def statement.toValue : NanoP4Spec.statement → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "IF"))),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.expression.toValue x0))
                (Prelude.Value.atom .RParen)),
             (.Arg (NanoP4Spec.blockStatement.toValue x1)),
             (.Atom (Prelude.Value.atom (.Keyword "ELSE"))),
@@ -3086,11 +3115,11 @@ def conditionalStatement.toValue : NanoP4Spec.conditionalStatement → Lang.Il.v
            [(.Atom (Prelude.Value.atom (.Keyword "IF"))),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.expression.toValue x0))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.blockStatement.toValue x1)),
             (.Atom (Prelude.Value.atom (.Keyword "ELSE"))),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
 
 instance : ToValue NanoP4Spec.conditionalStatement := ⟨NanoP4Spec.conditionalStatement.toValue⟩
 instance : BEq NanoP4Spec.conditionalStatement := ⟨valueEq⟩
@@ -3143,9 +3172,9 @@ def variableDeclaration.toValue : NanoP4Spec.variableDeclaration → Lang.Il.val
       Runtime.Value.Make.case
         (Prelude.Value.varT "variableDeclaration")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
-            (.Arg (ToValue.toValue x2)),
+           [(.Arg (NanoP4Spec.type.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x1)),
+            (.Arg (NanoP4Spec.initializer.toValue x2)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.variableDeclaration := ⟨NanoP4Spec.variableDeclaration.toValue⟩
@@ -3198,10 +3227,10 @@ def functionPrototype.toValue : NanoP4Spec.functionPrototype → Lang.Il.value
         (Prelude.Value.varT "functionPrototype")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "VOID"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.functionPrototype := ⟨NanoP4Spec.functionPrototype.toValue⟩
@@ -3257,12 +3286,12 @@ def actionDeclaration.toValue : NanoP4Spec.actionDeclaration → Lang.Il.value
         (Prelude.Value.varT "actionDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
 
 instance : ToValue NanoP4Spec.actionDeclaration := ⟨NanoP4Spec.actionDeclaration.toValue⟩
 instance : BEq NanoP4Spec.actionDeclaration := ⟨valueEq⟩
@@ -3316,12 +3345,12 @@ def instantiation.toValue : NanoP4Spec.instantiation → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "instantiation")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.type.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.argumentList.toValue x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2)),
+            (.Arg (NanoP4Spec.name.toValue x2)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.instantiation := ⟨NanoP4Spec.instantiation.toValue⟩
@@ -3376,7 +3405,7 @@ def matchKindDeclaration.toValue : NanoP4Spec.matchKindDeclaration → Lang.Il.v
            [(.Atom (Prelude.Value.atom (.Keyword "MATCH_KIND"))),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.nameList.toValue x0))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.matchKindDeclaration := ⟨NanoP4Spec.matchKindDeclaration.toValue⟩
@@ -3425,8 +3454,8 @@ def typeField.toValue : NanoP4Spec.typeField → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeField")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
+           [(.Arg (NanoP4Spec.type.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x1)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.typeField := ⟨NanoP4Spec.typeField.toValue⟩
@@ -3476,7 +3505,8 @@ def typeFieldList.toValue : NanoP4Spec.typeFieldList → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeFieldList")
-        (.Seq [(.Arg (NanoP4Spec.typeFieldList.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq
+           [(.Arg (NanoP4Spec.typeFieldList.toValue x0)), (.Arg (NanoP4Spec.typeField.toValue x1))])
 
 instance : ToValue NanoP4Spec.typeFieldList := ⟨NanoP4Spec.typeFieldList.toValue⟩
 instance : BEq NanoP4Spec.typeFieldList := ⟨valueEq⟩
@@ -3520,10 +3550,10 @@ def structTypeDeclaration.toValue : NanoP4Spec.structTypeDeclaration → Lang.Il
         (Prelude.Value.varT "structTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.structTypeDeclaration := ⟨NanoP4Spec.structTypeDeclaration.toValue⟩
@@ -3576,10 +3606,10 @@ def headerTypeDeclaration.toValue : NanoP4Spec.headerTypeDeclaration → Lang.Il
         (Prelude.Value.varT "headerTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.headerTypeDeclaration := ⟨NanoP4Spec.headerTypeDeclaration.toValue⟩
@@ -3633,20 +3663,20 @@ def derivedTypeDeclaration.toValue : NanoP4Spec.derivedTypeDeclaration → Lang.
         (Prelude.Value.varT "derivedTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
   | .HEADER_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "derivedTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.derivedTypeDeclaration := ⟨NanoP4Spec.derivedTypeDeclaration.toValue⟩
@@ -3718,7 +3748,9 @@ def externMethodPrototype.toValue : NanoP4Spec.externMethodPrototype → Lang.Il
   | .semi x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "externMethodPrototype")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Atom (Prelude.Value.atom (.Operator ";")))])
+        (.Seq
+           [(.Arg (NanoP4Spec.functionPrototype.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.externMethodPrototype := ⟨NanoP4Spec.externMethodPrototype.toValue⟩
 instance : BEq NanoP4Spec.externMethodPrototype := ⟨valueEq⟩
@@ -3766,7 +3798,8 @@ def externMethodPrototypeList.toValue : NanoP4Spec.externMethodPrototypeList →
       Runtime.Value.Make.case
         (Prelude.Value.varT "externMethodPrototypeList")
         (.Seq
-           [(.Arg (NanoP4Spec.externMethodPrototypeList.toValue x0)), (.Arg (ToValue.toValue x1))])
+           [(.Arg (NanoP4Spec.externMethodPrototypeList.toValue x0)),
+            (.Arg (NanoP4Spec.externMethodPrototype.toValue x1))])
 
 instance : ToValue NanoP4Spec.externMethodPrototypeList :=
   ⟨NanoP4Spec.externMethodPrototypeList.toValue⟩
@@ -3817,10 +3850,10 @@ def externObjectDeclaration.toValue : NanoP4Spec.externObjectDeclaration → Lan
         (Prelude.Value.varT "externObjectDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.externMethodPrototypeList.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.externObjectDeclaration :=
@@ -3873,7 +3906,7 @@ def externObjectDeclaration.al : Lang.Al.def :=
 abbrev externDeclaration : Type := NanoP4Spec.externObjectDeclaration
 
 def externDeclaration.toValue (x : NanoP4Spec.externDeclaration) : Lang.Il.value :=
-  ToValue.toValue x
+  NanoP4Spec.externObjectDeclaration.toValue x
 
 instance : ToValue NanoP4Spec.externDeclaration := ⟨NanoP4Spec.externDeclaration.toValue⟩
 instance : BEq NanoP4Spec.externDeclaration := ⟨valueEq⟩
@@ -3900,9 +3933,9 @@ def selectCase.toValue : NanoP4Spec.selectCase → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "selectCase")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.expression.toValue x0)),
             (.Atom (Prelude.Value.atom (.Operator ":"))),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.name.toValue x1)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.selectCase := ⟨NanoP4Spec.selectCase.toValue⟩
@@ -3957,7 +3990,9 @@ def selectCaseList.toValue : NanoP4Spec.selectCaseList → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "selectCaseList")
-        (.Seq [(.Arg (NanoP4Spec.selectCaseList.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq
+           [(.Arg (NanoP4Spec.selectCaseList.toValue x0)),
+            (.Arg (NanoP4Spec.selectCase.toValue x1))])
 
 instance : ToValue NanoP4Spec.selectCaseList := ⟨NanoP4Spec.selectCaseList.toValue⟩
 instance : BEq NanoP4Spec.selectCaseList := ⟨valueEq⟩
@@ -4006,11 +4041,11 @@ def selectExpression.toValue : NanoP4Spec.selectExpression → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "SELECT"))),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.expression.toValue x0))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.selectCaseList.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.selectExpression := ⟨NanoP4Spec.selectExpression.toValue⟩
@@ -4064,7 +4099,7 @@ def stateExpression.toValue : NanoP4Spec.stateExpression → Lang.Il.value
   | .semi x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "stateExpression")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Atom (Prelude.Value.atom (.Operator ";")))])
+        (.Seq [(.Arg (NanoP4Spec.name.toValue x0)), (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .SELECT_lparen_rparen_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "stateExpression")
@@ -4072,11 +4107,11 @@ def stateExpression.toValue : NanoP4Spec.stateExpression → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "SELECT"))),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.expression.toValue x0))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.selectCaseList.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.stateExpression := ⟨NanoP4Spec.stateExpression.toValue⟩
@@ -4137,7 +4172,9 @@ def transitionStatement.toValue : NanoP4Spec.transitionStatement → Lang.Il.val
   | .TRANSITION x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "transitionStatement")
-        (.Seq [(.Atom (Prelude.Value.atom (.Keyword "TRANSITION"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Keyword "TRANSITION"))),
+            (.Arg (NanoP4Spec.stateExpression.toValue x0))])
 
 instance : ToValue NanoP4Spec.transitionStatement := ⟨NanoP4Spec.transitionStatement.toValue⟩
 instance : BEq NanoP4Spec.transitionStatement := ⟨valueEq⟩
@@ -4180,10 +4217,10 @@ def parserTypeDeclaration.toValue : NanoP4Spec.parserTypeDeclaration → Lang.Il
         (Prelude.Value.varT "parserTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
@@ -4239,10 +4276,12 @@ def parserState.toValue : NanoP4Spec.parserState → Lang.Il.value
         (Prelude.Value.varT "parserState")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STATE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Seq [(.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+               (.Seq
+                  [(.Arg (NanoP4Spec.statementList.toValue x1)),
+                   (.Arg (NanoP4Spec.transitionStatement.toValue x2))])
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.parserState := ⟨NanoP4Spec.parserState.toValue⟩
@@ -4305,15 +4344,19 @@ def parserStateList.toValue : NanoP4Spec.parserStateList → Lang.Il.value
         (Prelude.Value.varT "parserStateList")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STATE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Seq [(.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+               (.Seq
+                  [(.Arg (NanoP4Spec.statementList.toValue x1)),
+                   (.Arg (NanoP4Spec.transitionStatement.toValue x2))])
                (Prelude.Value.atom .RBrace))])
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "parserStateList")
-        (.Seq [(.Arg (NanoP4Spec.parserStateList.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq
+           [(.Arg (NanoP4Spec.parserStateList.toValue x0)),
+            (.Arg (NanoP4Spec.parserState.toValue x1))])
 
 instance : ToValue NanoP4Spec.parserStateList := ⟨NanoP4Spec.parserStateList.toValue⟩
 instance : BEq NanoP4Spec.parserStateList := ⟨valueEq⟩
@@ -4375,7 +4418,7 @@ def parserStateList.al : Lang.Al.def :=
 abbrev parserLocalDeclaration : Type := NanoP4Spec.variableDeclaration
 
 def parserLocalDeclaration.toValue (x : NanoP4Spec.parserLocalDeclaration) : Lang.Il.value :=
-  ToValue.toValue x
+  NanoP4Spec.variableDeclaration.toValue x
 
 instance : ToValue NanoP4Spec.parserLocalDeclaration := ⟨NanoP4Spec.parserLocalDeclaration.toValue⟩
 instance : BEq NanoP4Spec.parserLocalDeclaration := ⟨valueEq⟩
@@ -4409,7 +4452,8 @@ def parserLocalDeclarationList.toValue : NanoP4Spec.parserLocalDeclarationList �
       Runtime.Value.Make.case
         (Prelude.Value.varT "parserLocalDeclarationList")
         (.Seq
-           [(.Arg (NanoP4Spec.parserLocalDeclarationList.toValue x0)), (.Arg (ToValue.toValue x1))])
+           [(.Arg (NanoP4Spec.parserLocalDeclarationList.toValue x0)),
+            (.Arg (NanoP4Spec.parserLocalDeclaration.toValue x1))])
 
 instance : ToValue NanoP4Spec.parserLocalDeclarationList :=
   ⟨NanoP4Spec.parserLocalDeclarationList.toValue⟩
@@ -4462,14 +4506,16 @@ def parserDeclaration.toValue : NanoP4Spec.parserDeclaration → Lang.Il.value
         (Prelude.Value.varT "parserDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
+               (.Seq
+                  [(.Arg (NanoP4Spec.parserLocalDeclarationList.toValue x2)),
+                   (.Arg (NanoP4Spec.parserStateList.toValue x3))])
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.parserDeclaration := ⟨NanoP4Spec.parserDeclaration.toValue⟩
@@ -4532,9 +4578,9 @@ def tableKey.toValue : NanoP4Spec.tableKey → Lang.Il.value
         (.Brack
            (Prelude.Value.atom .LBrace)
            (.Seq
-              [(.Arg (ToValue.toValue x0)),
+              [(.Arg (NanoP4Spec.expression.toValue x0)),
                (.Atom (Prelude.Value.atom (.Operator ":"))),
-               (.Arg (ToValue.toValue x1)),
+               (.Arg (NanoP4Spec.name.toValue x1)),
                (.Atom (Prelude.Value.atom (.Operator ";")))])
            (Prelude.Value.atom .RBrace))
 
@@ -4596,7 +4642,9 @@ def tableActionReference.toValue : NanoP4Spec.tableActionReference → Lang.Il.v
   | ._ID x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableActionReference")
-        (.Seq [(.Atom (Prelude.Value.atom (.Tag "ID"))), (.Arg (ToValue.toValue x0))])
+        (.Seq
+           [(.Atom (Prelude.Value.atom (.Tag "ID"))),
+            (.Arg (@ToValue.toValue P4SpecTec.ByteText P4SpecTec.Prelude.instToValueByteText x0))])
   | .APPLY =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableActionReference")
@@ -4617,10 +4665,10 @@ def tableActionReference.toValue : NanoP4Spec.tableActionReference → Lang.Il.v
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableActionReference")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.argumentList.toValue x1))
                (Prelude.Value.atom .RParen))])
 
 instance : ToValue NanoP4Spec.tableActionReference := ⟨NanoP4Spec.tableActionReference.toValue⟩
@@ -4701,7 +4749,9 @@ def tableAction.toValue : NanoP4Spec.tableAction → Lang.Il.value
   | .semi x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableAction")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Atom (Prelude.Value.atom (.Operator ";")))])
+        (.Seq
+           [(.Arg (NanoP4Spec.tableActionReference.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.tableAction := ⟨NanoP4Spec.tableAction.toValue⟩
 instance : BEq NanoP4Spec.tableAction := ⟨valueEq⟩
@@ -4741,11 +4791,15 @@ def tableActionList.toValue : NanoP4Spec.tableActionList → Lang.Il.value
   | .semi x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableActionList")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Atom (Prelude.Value.atom (.Operator ";")))])
+        (.Seq
+           [(.Arg (NanoP4Spec.tableActionReference.toValue x0)),
+            (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableActionList")
-        (.Seq [(.Arg (NanoP4Spec.tableActionList.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq
+           [(.Arg (NanoP4Spec.tableActionList.toValue x0)),
+            (.Arg (NanoP4Spec.tableAction.toValue x1))])
 
 instance : ToValue NanoP4Spec.tableActionList := ⟨NanoP4Spec.tableActionList.toValue⟩
 instance : BEq NanoP4Spec.tableActionList := ⟨valueEq⟩
@@ -4800,10 +4854,10 @@ def tableEntry.toValue : NanoP4Spec.tableEntry → Lang.Il.value
         (.Seq
            [(.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.expression.toValue x0))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ":"))),
-            (.Arg (ToValue.toValue x1)),
+            (.Arg (NanoP4Spec.tableActionReference.toValue x1)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
 instance : ToValue NanoP4Spec.tableEntry := ⟨NanoP4Spec.tableEntry.toValue⟩
@@ -4858,7 +4912,9 @@ def tableEntryList.toValue : NanoP4Spec.tableEntryList → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableEntryList")
-        (.Seq [(.Arg (NanoP4Spec.tableEntryList.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq
+           [(.Arg (NanoP4Spec.tableEntryList.toValue x0)),
+            (.Arg (NanoP4Spec.tableEntry.toValue x1))])
 
 instance : ToValue NanoP4Spec.tableEntryList := ⟨NanoP4Spec.tableEntryList.toValue⟩
 instance : BEq NanoP4Spec.tableEntryList := ⟨valueEq⟩
@@ -4904,7 +4960,7 @@ def tableKeyProperty.toValue : NanoP4Spec.tableKeyProperty → Lang.Il.value
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "KEY"))),
             (.Atom (Prelude.Value.atom (.Operator "="))),
-            (.Arg (ToValue.toValue x0))])
+            (.Arg (NanoP4Spec.tableKey.toValue x0))])
 
 instance : ToValue NanoP4Spec.tableKeyProperty := ⟨NanoP4Spec.tableKeyProperty.toValue⟩
 instance : BEq NanoP4Spec.tableKeyProperty := ⟨valueEq⟩
@@ -4954,7 +5010,7 @@ def tableActionsProperty.toValue : NanoP4Spec.tableActionsProperty → Lang.Il.v
             (.Atom (Prelude.Value.atom (.Operator "="))),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.tableActionList.toValue x0))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.tableActionsProperty := ⟨NanoP4Spec.tableActionsProperty.toValue⟩
@@ -5010,7 +5066,7 @@ def tableEntriesProperty.toValue : NanoP4Spec.tableEntriesProperty → Lang.Il.v
             (.Atom (Prelude.Value.atom (.Operator "="))),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.tableEntryList.toValue x0))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.tableEntriesProperty := ⟨NanoP4Spec.tableEntriesProperty.toValue⟩
@@ -5068,12 +5124,16 @@ def tableProperties.toValue : NanoP4Spec.tableProperties → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableProperties")
-        (.Seq [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq
+           [(.Arg (NanoP4Spec.tableKeyProperty.toValue x0)),
+            (.Arg (NanoP4Spec.tableActionsProperty.toValue x1))])
   | .mk_2 x0 x1 x2 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "tableProperties")
         (.Seq
-           [(.Arg (ToValue.toValue x0)), (.Arg (ToValue.toValue x1)), (.Arg (ToValue.toValue x2))])
+           [(.Arg (NanoP4Spec.tableKeyProperty.toValue x0)),
+            (.Arg (NanoP4Spec.tableActionsProperty.toValue x1)),
+            (.Arg (NanoP4Spec.tableEntriesProperty.toValue x2))])
 
 instance : ToValue NanoP4Spec.tableProperties := ⟨NanoP4Spec.tableProperties.toValue⟩
 instance : BEq NanoP4Spec.tableProperties := ⟨valueEq⟩
@@ -5129,10 +5189,10 @@ def tableDeclaration.toValue : NanoP4Spec.tableDeclaration → Lang.Il.value
         (Prelude.Value.varT "tableDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.tableProperties.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.tableDeclaration := ⟨NanoP4Spec.tableDeclaration.toValue⟩
@@ -5185,10 +5245,10 @@ def controlTypeDeclaration.toValue : NanoP4Spec.controlTypeDeclaration → Lang.
         (Prelude.Value.varT "controlTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
@@ -5234,7 +5294,8 @@ def controlTypeDeclaration.al : Lang.Al.def :=
 
 abbrev controlBody : Type := NanoP4Spec.blockStatement
 
-def controlBody.toValue (x : NanoP4Spec.controlBody) : Lang.Il.value := ToValue.toValue x
+def controlBody.toValue (x : NanoP4Spec.controlBody) : Lang.Il.value :=
+  NanoP4Spec.blockStatement.toValue x
 
 instance : ToValue NanoP4Spec.controlBody := ⟨NanoP4Spec.controlBody.toValue⟩
 instance : BEq NanoP4Spec.controlBody := ⟨valueEq⟩
@@ -5257,19 +5318,19 @@ def controlLocalDeclaration.toValue : NanoP4Spec.controlLocalDeclaration → Lan
       Runtime.Value.Make.case
         (Prelude.Value.varT "controlLocalDeclaration")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
-            (.Arg (ToValue.toValue x1)),
-            (.Arg (ToValue.toValue x2)),
+           [(.Arg (NanoP4Spec.type.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x1)),
+            (.Arg (NanoP4Spec.initializer.toValue x2)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .TABLE_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "controlLocalDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "TABLE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.tableProperties.toValue x1))
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.controlLocalDeclaration :=
@@ -5353,7 +5414,7 @@ def controlLocalDeclarationList.toValue : NanoP4Spec.controlLocalDeclarationList
         (Prelude.Value.varT "controlLocalDeclarationList")
         (.Seq
            [(.Arg (NanoP4Spec.controlLocalDeclarationList.toValue x0)),
-            (.Arg (ToValue.toValue x1))])
+            (.Arg (NanoP4Spec.controlLocalDeclaration.toValue x1))])
 
 instance : ToValue NanoP4Spec.controlLocalDeclarationList :=
   ⟨NanoP4Spec.controlLocalDeclarationList.toValue⟩
@@ -5406,17 +5467,17 @@ def controlDeclaration.toValue : NanoP4Spec.controlDeclaration → Lang.Il.value
         (Prelude.Value.varT "controlDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
                (.Seq
-                  [(.Arg (ToValue.toValue x2)),
+                  [(.Arg (NanoP4Spec.controlLocalDeclarationList.toValue x2)),
                    (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
-                   (.Arg (ToValue.toValue x3))])
+                   (.Arg (NanoP4Spec.controlBody.toValue x3))])
                (Prelude.Value.atom .RBrace))])
 
 instance : ToValue NanoP4Spec.controlDeclaration := ⟨NanoP4Spec.controlDeclaration.toValue⟩
@@ -5479,10 +5540,10 @@ def packageTypeDeclaration.toValue : NanoP4Spec.packageTypeDeclaration → Lang.
         (Prelude.Value.varT "packageTypeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
@@ -5539,30 +5600,30 @@ def typeDeclaration.toValue : NanoP4Spec.typeDeclaration → Lang.Il.value
         (Prelude.Value.varT "typeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
   | .HEADER_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
   | .PARSER_lparen_rparen_semi x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "typeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .CONTROL_lparen_rparen_semi x0 x1 =>
@@ -5570,10 +5631,10 @@ def typeDeclaration.toValue : NanoP4Spec.typeDeclaration → Lang.Il.value
         (Prelude.Value.varT "typeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .PACKAGE_lparen_rparen_semi x0 x1 =>
@@ -5581,10 +5642,10 @@ def typeDeclaration.toValue : NanoP4Spec.typeDeclaration → Lang.Il.value
         (Prelude.Value.varT "typeDeclaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
@@ -5744,24 +5805,24 @@ def declaration.toValue : NanoP4Spec.declaration → Lang.Il.value
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
-           [(.Arg (ToValue.toValue x0)),
+           [(.Arg (NanoP4Spec.type.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.argumentList.toValue x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2)),
+            (.Arg (NanoP4Spec.name.toValue x2)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .ACTION_lparen_rparen x0 x1 x2 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "ACTION"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
-            (.Arg (ToValue.toValue x2))])
+            (.Arg (NanoP4Spec.blockStatement.toValue x2))])
   | .MATCH_KIND_lbrace_rbrace x0 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
@@ -5769,78 +5830,80 @@ def declaration.toValue : NanoP4Spec.declaration → Lang.Il.value
            [(.Atom (Prelude.Value.atom (.Keyword "MATCH_KIND"))),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x0))
+               (.Arg (NanoP4Spec.nameList.toValue x0))
                (Prelude.Value.atom .RBrace))])
   | .EXTERN_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "EXTERN"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.externMethodPrototypeList.toValue x1))
                (Prelude.Value.atom .RBrace))])
   | .PARSER_lparen_rparen_lbrace_rbrace x0 x1 x2 x3 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Seq [(.Arg (ToValue.toValue x2)), (.Arg (ToValue.toValue x3))])
+               (.Seq
+                  [(.Arg (NanoP4Spec.parserLocalDeclarationList.toValue x2)),
+                   (.Arg (NanoP4Spec.parserStateList.toValue x3))])
                (Prelude.Value.atom .RBrace))])
   | .CONTROL_lparen_rparen_lbrace_APPLY_rbrace x0 x1 x2 x3 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Brack
                (Prelude.Value.atom .LBrace)
                (.Seq
-                  [(.Arg (ToValue.toValue x2)),
+                  [(.Arg (NanoP4Spec.controlLocalDeclarationList.toValue x2)),
                    (.Atom (Prelude.Value.atom (.Keyword "APPLY"))),
-                   (.Arg (ToValue.toValue x3))])
+                   (.Arg (NanoP4Spec.controlBody.toValue x3))])
                (Prelude.Value.atom .RBrace))])
   | .STRUCT_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "STRUCT"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
   | .HEADER_lbrace_rbrace x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "HEADER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LBrace)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.typeFieldList.toValue x1))
                (Prelude.Value.atom .RBrace))])
   | .PARSER_lparen_rparen_semi x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PARSER"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .CONTROL_lparen_rparen_semi x0 x1 =>
@@ -5848,10 +5911,10 @@ def declaration.toValue : NanoP4Spec.declaration → Lang.Il.value
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "CONTROL"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
   | .PACKAGE_lparen_rparen_semi x0 x1 =>
@@ -5859,10 +5922,10 @@ def declaration.toValue : NanoP4Spec.declaration → Lang.Il.value
         (Prelude.Value.varT "declaration")
         (.Seq
            [(.Atom (Prelude.Value.atom (.Keyword "PACKAGE"))),
-            (.Arg (ToValue.toValue x0)),
+            (.Arg (NanoP4Spec.name.toValue x0)),
             (.Brack
                (Prelude.Value.atom .LParen)
-               (.Arg (ToValue.toValue x1))
+               (.Arg (NanoP4Spec.parameterList.toValue x1))
                (Prelude.Value.atom .RParen)),
             (.Atom (Prelude.Value.atom (.Operator ";")))])
 
@@ -6160,7 +6223,7 @@ def program.toValue : NanoP4Spec.program → Lang.Il.value
   | .mk x0 x1 =>
       Runtime.Value.Make.case
         (Prelude.Value.varT "program")
-        (.Seq [(.Arg (NanoP4Spec.program.toValue x0)), (.Arg (ToValue.toValue x1))])
+        (.Seq [(.Arg (NanoP4Spec.program.toValue x0)), (.Arg (NanoP4Spec.declaration.toValue x1))])
 
 instance : ToValue NanoP4Spec.program := ⟨NanoP4Spec.program.toValue⟩
 instance : BEq NanoP4Spec.program := ⟨valueEq⟩
