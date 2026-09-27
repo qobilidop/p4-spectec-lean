@@ -4,12 +4,14 @@ Current checkpoint, updated 2026-09-26.
 
 ## Authorized scope
 
-The code/test organization refactor and ordering cleanup are committed and
-published. The requested `tend-repo` consistency and compaction pass is complete
-locally, with independent review and a passing full gate (session 41273, exit 0,
-no skips). Publication verification is the remaining maintenance obligation.
-Nano certification implementation is authorized but paused during maintenance.
-Broader full-P4 M3 remains paused.
+The organization refactor, ordering cleanup and requested `tend-repo` pass are
+committed and published. Maintenance commit `f6a96f2` passed independent review
+and the full local gate (session 41273, exit 0, no skips); its
+[CI 36283005578](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36283005578)
+is pending at this checkpoint. The user then requested CI performance diagnosis and explicitly
+authorized asynchronous remote CI for routine iteration. AGENTS owns that policy;
+pending CI must remain visible but does not block the next validated push.
+Nano proof implementation and broader full-P4 M3 remain paused during this work.
 
 ## Verified checkpoint
 
@@ -23,7 +25,7 @@ Broader full-P4 M3 remains paused.
   and preserved semantic/upstream order. Independent Sol review passed; the
   full local gate exited 0 (session 61425, no skips).
   [CI 36281893597](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36281893597)
-  is running for `29ddf22fc5dbfb3dc77d7a7a57fbcaa5ab04db2e`.
+  succeeded for `29ddf22fc5dbfb3dc77d7a7a57fbcaa5ab04db2e`.
 - [Maintenance evidence](notes/repository-stewardship.md) records refactor review
   provenance, compaction, retained obligations and this pass's checks.
 
@@ -44,8 +46,9 @@ and corpus completion remain open. The bounded field-update consumer and
 
 ## Next step and recovery
 
-Verify exact-head publication CI for the ordering and maintenance checkpoints.
-The next Nano implementation step is the actual `exists_` reverse induction
+Inspect latest main CI at the next checkpoint; prioritize any failure. Complete
+the requested performance diagnosis; optimization implementation needs its own
+bounded scope. The next Nano implementation step is the actual `exists_` reverse induction
 on local unpushed branch `wip/nano-reverse` at
 `efd626c7cb40004f8d6725f2b29172d09ecd8dbe`. Its historical
 `.agents/notes/nano-reverse-proof/README.md` distinguishes checked clauses from

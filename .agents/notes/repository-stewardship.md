@@ -1,6 +1,6 @@
 # Repository stewardship
 
-Locally completed requested maintenance, 2026-09-26, after ordering commit
+Completed requested maintenance, published as `f6a96f2`, 2026-09-26, after ordering commit
 `29ddf22fc5dbfb3dc77d7a7a57fbcaa5ab04db2e`. Retain this note until publication
 and compact its completed evidence at the next maintenance checkpoint.
 
@@ -59,7 +59,7 @@ diff SHA-256 against `ad1ac33`:
 `076e98772b44d06f65c57a47605179039504f24d760a7d777195bb489d19d9e4`.
 Author comparison/Nix checks and root's full gate passed (session 61425,
 exit 0, no skips). Import-order behavior is supported by that full gate, not
-membership comparison alone. Exact-head CI 36281893597 is still running.
+membership comparison alone. Exact-head CI 36281893597 succeeded.
 
 ## Current pass review and validation
 
@@ -85,4 +85,23 @@ The deleted note was verified in committed history and absent from the resulting
 passed with actual exit 0 (session 41273, no skips); log
 `.artifacts/tend-repo-gate.log`. Only review/checkpoint metadata and prose wrapping
 changed afterward; text and staged whitespace checks were rerun. Exact-head
-publication CI remains required for the resulting maintenance revision.
+publication CI was pending at publication of `f6a96f2` and remains tracked in
+Status. The user subsequently changed routine remote verification to asynchronous
+feedback; AGENTS owns the updated policy, not this historical checkpoint.
+
+## Asynchronous CI policy follow-up
+
+Explicit user request, 2026-09-26: remove the remote wait from ordinary iteration.
+Keep local checks and independent review before pushes, report pending remote
+results, prioritize known failures and retain exact-head CI for milestone/release
+completion and requested PR merges. Documentation-only validation may reuse the
+unchanged code's passing gate with fresh relevant checks. No workflow checks or
+branch protections were removed; this changes when agents wait.
+
+Independent read-only Sol `enforce_library_layers` review of root's AGENTS and
+Decisions edits against `f6a96f2`: no blocking findings or conflicting policy.
+Two-file diff SHA-256:
+`82bb26bef47277634e76b45e768c119f83614a53b0dcf6d76c7ac6ccbb0ac003`.
+No builds were run by the reviewer. This documentation-only follow-up reuses the
+unchanged executable inputs' passing full gate (session 41273, `f6a96f2`);
+fresh text/link/whitespace checks validate the final checkpoint edits.

@@ -129,8 +129,14 @@ guidance. Revisit packaging if another repository needs it.
 
 Direct commits are the default because this is currently a personal project;
 feature branches are optional isolation, PRs require explicit request.
-Review, validation and protections still apply as specified in AGENTS.
-Revisit when collaboration or protections make a PR useful.
+The user explicitly changed routine CI to asynchronous feedback after slow
+remote gates blocked iteration. Local validation and independent review remain
+pre-push checks; documentation-only work reuses unchanged code validation.
+AGENTS owns the rules for pending runs, failed CI and final release/PR checks.
+Reason: preserve verification while removing a serial wait from every turn and
+avoiding repeated full builds for evidence-only updates. Confidence high in the
+workflow split; revisit if failures remain unattended or collaboration/protections
+require stronger pre-merge coordination.
 
 Historical experiments were retired, not integrated or declared correct.
 The user chose a small committed-history bundle over the 24 GiB checkout

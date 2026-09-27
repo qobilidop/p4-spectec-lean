@@ -226,16 +226,30 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   its own change. Inspect the staged diff and final message before
   committing. Agent commits end with the required coauthor trailer.
 - **Direct commits to `main` are the default for this personal project.**
-  Use a feature branch only when isolation is useful. Keep independent
-  review and the full local gate before pushing; check remote CI after
-  pushing and address failures before declaring the work complete.
-  Merge finished feature branches locally after review and validation,
-  rerun the full gate if integration changes the tested tree, then push
-  main and verify CI. Delete their local and remote refs promptly after
-  verifying integration and successful main CI; remove any extra worktrees.
-  Create a PR only when the user explicitly requests one. Repository
-  protections still apply: if they prevent this workflow, report the
-  conflict rather than bypassing them or changing settings.
+  Use a feature branch only when isolation is useful. Independent review and
+  the local validation below gate pushes. Merge finished branches locally after
+  review and validation; rerun affected checks if integration changes the tested
+  tree. Delete their local and remote refs after verified integration and
+  successful main CI; remove extra worktrees. Create a PR only when explicitly
+  requested. Repository protections still apply; report conflicts rather than
+  bypassing them or changing settings.
+- **Remote CI is asynchronous during routine iteration.** After pushing, record
+  the revision and run link/state, then continue authorized work or end the turn
+  with CI explicitly pending. Do not poll to completion or delay a later reviewed,
+  locally validated push just to preserve an intermediate run/cache. Related
+  commits may be pushed together; the latest revision supersedes canceled runs.
+  Inspect the latest CI at the next checkpoint before unrelated work; a known
+  failure takes priority and blocks unrelated pushes until fixed. Never report
+  pending/canceled CI as passed. Milestone/release completion and requested PR
+  merges still require passing remote CI for the exact final revision. Do not
+  promise unattended monitoring after ending a turn.
+- **Local validation is proportional to the change.** Code, tests, build or
+  dependency configuration, generated artifacts and gate behavior require a
+  passing full `scripts/check.sh` before pushing. Documentation, comments and
+  working-state-only edits may reuse a recorded passing full gate for unchanged
+  executable inputs, with fresh text/link checks and independent review. Record
+  the reused revision and the reason; a prior pass does not cover changed code.
+  Final evidence-only edits need their relevant checks, not another full build.
 - **Preserve meaningful commits when integrating a feature branch.**
   Prefer a fast-forward when possible; use a merge commit when needed to
   preserve coherent history. Do not rewrite published commits just to make
@@ -272,10 +286,10 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
 - **Checkpoint unfinished work explicitly.** Commit coherent, validated
   changes; isolate incomplete or failing experiments on a feature branch
   with a work-in-progress commit saying what it holds and lacks. Never push
-  without a passing full local gate. If validation blocks publication,
+  without the required local validation above. If validation blocks publication,
   record the local commit and remaining obligations in the handoff.
-- **A push is gated on the recorded exit status** of the full gate, never
-  on a command that reads a log.
+- **A push is gated on recorded validation exit statuses**, never on a command
+  that reads a log. When the full gate is required, its actual exit 0 is the verdict.
 - **Independent read-only review after each step**, recorded beside the
   topic's working note, in a section or separate review file as warranted.
   Preserve reviewed revision, reviewer provenance, findings and limits;
