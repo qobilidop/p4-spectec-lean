@@ -83,7 +83,13 @@ import P4SpecTec.Refine.Realize
 import P4SpecTec.Refine.RealizeFuel
 import P4SpecTec.Refine.RealizeInterp
 import P4SpecTec.Refine.Representation
+import P4SpecTec.Refine.Representation.Delay
 import P4SpecTec.Refine.Representation.Equality
+import P4SpecTec.Refine.Representation.Source
+import P4SpecTec.Refine.Representation.SourceAlias
+import P4SpecTec.Refine.Representation.SourceContainer
+import P4SpecTec.Refine.Representation.SourceMixfix
+import P4SpecTec.Refine.Representation.SourceSubst
 import P4SpecTec.Refine.StateCalc
 import P4SpecTec.Refine.StateInterp
 import P4SpecTec.Refine.StateNormalize

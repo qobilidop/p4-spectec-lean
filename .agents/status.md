@@ -54,7 +54,7 @@ N2 remains active; this is not milestone closure.
 Strict core completion still rejects the inventory with actual exit 1 and the
 expected incomplete-certification diagnostic (`.artifacts/n2-strict-core.log`).
 
-## Current continuation (uncommitted, `n2-certification`)
+## Current continuation (`n2-certification`, local only)
 
 Checked substitution now derives sufficient fuel from finite input syntax. Five
 kernel-audited statements establish definitive results and stable type/list
@@ -71,12 +71,20 @@ issue in the equality/freshness implementation. The topic note records scope and
 review limits. Source representation inventory/schema integration is in progress;
 no additional completion binding is claimed before production codec validation.
 
-Concurrent owned work continues on actual Type_eq/ParameterType_eq, polymorphic
-in_set/dom_map iteration and the independent source grammar/recursive codecs.
-A broader check exposed regressions in the actively edited reverse tactic;
-restoring the original 18 certificates takes priority. The feature branch keeps
-those experiments isolated from published main. No full gate has been run on
-this evolving continuation and it has not been pushed.
+The substitution change is committed locally as `feec9b6`. Independent finite
+source grammar, alias/container construction and inversion, notation laws and
+decoder-layer fuel composition now pass focused warning-as-error checks. Their
+source predicates do not depend on generated encoders or decoder success.
+The topic note records independent reviews and exact snapshot hashes.
+
+The original 18 reverse certificates passed after restoring the function tactic
+preset. Seven atomic source codecs pass; the complete TypeIR group now has
+encoding-validity evidence against the actual full quotation, while its decoder
+completeness is still active. Actual `in_set` passes both directions; `dom_map`
+and `add_var_e` pass forward in focused probes. Production schema-2 and `in_set`
+regeneration succeeded, but integrated compiled-coverage validation remains due.
+Type_eq/ParameterType_eq, Default and reverse iteration proofs remain active.
+No full gate has been run on this evolving continuation and it has not been pushed.
 
 ## Next step and remaining N2 obligations
 
