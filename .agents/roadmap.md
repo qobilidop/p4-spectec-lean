@@ -35,11 +35,10 @@ reverse-proof/target/printing feasibility probes (N1), reusable contracts (N2),
 full core coverage (N3), target composition (N4), the whole-program proof (N5),
 and release evidence (N6). Target and consumer work begin alongside core work;
 their integration exits depend on checked core contracts. N0 is implemented
-and reviewed. N1 implementation and independent review are complete, including
-recursive reverse execution, actual relation probes, printing dispatch and the
-faithful runtime representation with contextual failure checks. The full local
-gate passes; final published-revision CI still gates N1 closure. Status owns the
-next concrete step. N2 expansion has not started.
+and reviewed. N1 is closed in `ccb8859`, with independent review and successful
+full local/remote gates: recursive reverse execution, actual relation probes,
+printing dispatch and faithful runtime representation with contextual failure
+checks. Status owns the next concrete step. N2 expansion has not started.
 
 ## Candidate next work
 

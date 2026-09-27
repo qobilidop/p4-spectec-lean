@@ -1,13 +1,14 @@
 # Nano-P4 certification implementation plan
 
-Active implementation plan, 2026-09-26. The user approved autonomous execution
+Active Nano completion plan and retained milestone evidence, 2026-09-26.
+N0 and N1 are closed; N2–N6 remain planned. The user approved autonomous execution
 after the planning checkpoint, starting with N0/N1. The contract is
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance), not this
 work breakdown. Both core semantics and target composition must close.
 Broader full-P4 M3 remains paused. The user explicitly resumed implementation
-after organization/performance work and authorized completion of N1. Root owns
-integration, Astra reverse proofs and target representation, and Sol observation
-composition; broad proof generation remains blocked until N1's exit criteria close.
+after organization/performance work and authorized completion of N1. Its proof,
+representation and observation exits are now closed. Broad proof generation is
+next through N2; no N2 implementation has started.
 
 ## Baseline and critical path
 
@@ -438,8 +439,9 @@ Resolved by `7b4e0b3`; current proof and review evidence follows below. The old
 unpublished draft was `efd626c7cb40004f8d6725f2b29172d09ecd8dbe` on
 `wip/nano-reverse`, with artifacts under `.agents/notes/nano-reverse-proof/`.
 It had checked clause bridges but no verified whole-function induction or full
-gate. Its temporary worktree was removed. Historical artifact hashes, review
-limits and recovery instructions remain in the pre-N1 version of this note at
+gate. Its temporary worktree was removed during handoff; the superseded branch
+was removed after N1 integration. Historical artifact hashes, review limits and
+recovery instructions remain in the pre-N1 version of this note at
 `fd7ff9f`; never use that draft as release evidence.
 
 Retained proof lessons: exclude early Q.v_eq/Q.rp_eq from broad normalization to
@@ -643,7 +645,26 @@ All three N1 implementation exits now have checked evidence:
 
 The selected interfaces have no unresolved N1 counterexample. This establishes
 feasibility, not full Nano certification or new generated completion bindings.
-Publication and exact-final-revision remote CI remain pending at this checkpoint.
+The executable checkpoint `ccb88591b82c29fe334cb2dcc844e298eae5773f` is published.
+[CI 36290248213](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290248213)
+succeeded on that exact revision with all 44 stages passing. Remote gate time was
+8m33s; job time was 9m44s, including generated-library, certificate and native
+rebuilds. These conditions differ from the local 104.859s warm-artifact gate.
+N1 is closed. The obsolete local `wip/nano-reverse` branch was deleted after main
+CI passed, and listing its name confirmed absence. One worktree remains; the
+unrelated documentation branch is preserved.
+
+This final closure update changes working-state prose only, reusing the unchanged
+executable tree's local gate and CI evidence, with independent review and final
+text/link checks. The final published documentation revision is also checked in
+CI before the user-facing milestone completion report.
+
+Independent read-only Sol closure review found no issues in the three-file diff
+against `ccb8859`, SHA-256
+`5668c5f399e1350a1235a22b4221e575a4b60fb8697e940542f9c07c53442175`.
+The reviewer verified exact-code CI metadata, all 44 passing stages, timings,
+branch absence and the one-worktree state. No builds were rerun for this prose-only
+update; unchanged executable inputs retain the passing full local gate 40282.
 
 Independent read-only Sol checkpoint review at `591eb60`, four-file documentation
 diff SHA-256 `7038caa80711d66eb860a8863b38af10f6b870c4dd79c476d12f3d21696a44be`,

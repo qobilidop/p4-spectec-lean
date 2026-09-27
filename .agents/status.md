@@ -5,17 +5,17 @@ Current checkpoint, updated 2026-09-26.
 ## Authorized scope
 
 The user explicitly resumed Nano certification and requested completion of N1.
-Its implementation and independent reviews are complete; publication and final
-remote verification are active. No N2 expansion has started. Broader full-P4 M3
-remains paused. The [Nano plan and evidence](notes/nano-certification.md) owns the
+N1 is complete and published, with independent review and successful local/remote
+validation. No implementation work is active and no N2 expansion has started.
+Broader full-P4 M3 remains paused. The [Nano plan and evidence](notes/nano-certification.md) owns the
 exit criteria, proof limits, review provenance and measured costs.
 
 ## Verified N1 checkpoint
 
-- Reviewed local commits: `60f2e72` (optional/negated reverse composition),
+- Reviewed commits: `60f2e72` (optional/negated reverse composition),
   `cc45c7f` (actual print dispatch), `7b4e0b3` (recursive exists_ reverse induction)
   and `591eb60` (actual recursive relation probes).
-- This checkpoint adds an explicit runtime-only raw-extern carrier, preserving
+- `ccb8859` adds an explicit runtime-only raw-extern carrier, preserving
   source quotes and packet/object membership. Actual short/full extract probes
   compare generated continuation contexts canonically and fresh counters exactly.
   A kernel-checked paired source/generated receiver-reuse mismatch closes the
@@ -37,7 +37,12 @@ exit criteria, proof limits, review provenance and measured costs.
   source pin checks and full-P4 census. Final prose updates receive text/link checks.
 
 N0 is complete. N1's proof/representation/observation feasibility work is complete;
-final remote CI still gates milestone closure. Coverage remains 350 declarations,
+the executable checkpoint `ccb88591b82c29fe334cb2dcc844e298eae5773f` passed
+[CI 36290248213](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290248213),
+all 44 stages. The remote gate took 8m33s with generated-library, certificate and
+native rebuilds; this differs from the warm local measurement. This final
+closure update changes working-state prose only and reuses gate 40282, with
+independent review and text/link checks. Coverage remains 350 declarations,
 888 obligations, 95 bindings and 793 unresolved: 18 generated forward certificates,
 77 relation run-soundness theorems and zero generated reverse certificates.
 The handwritten proofs add no completion binding. All 78 typing programs and
@@ -58,17 +63,16 @@ passing CI for the final published revision, as specified in AGENTS.
 
 ## Next step and recovery
 
-Publish the reviewed, locally validated N1 checkpoint, verify its remote CI,
-and close N1 with the exact publication evidence. Then N2's next concrete work
-is reusable source-domain/representation and primitive contracts, followed by
-generated two-way certificates for the original 18 functions, recursive relation
+N2 is the next planned phase: reusable source-domain/representation and primitive
+contracts, followed by generated two-way certificates for the original 18 functions, recursive relation
 group and Var_init closure. Full Nano certification remains incomplete.
 
 The old unpushed `wip/nano-reverse` draft at
 `efd626c7cb40004f8d6725f2b29172d09ecd8dbe` was recovered and completed in
 `7b4e0b3`; the [historical handoff](notes/nano-certification.md#n1-recursive-proof-handoff)
-records its limits and resolution. Remove the obsolete branch after successful
-integration and main CI. Its temporary worktree is already gone.
+records its limits and resolution. The obsolete branch was removed after successful
+integration and main CI; its absence was verified by listing the branch name.
+Its temporary worktree is already gone.
 
 The expected four-file upstream exporter patch remains applied; no pins changed.
 There is one registered worktree. The older `docs/repository-review` branch and
