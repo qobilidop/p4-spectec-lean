@@ -1,91 +1,46 @@
 # Status
 
-Current checkpoint, updated 2026-09-27.
+Session handoff, updated 2026-09-27. The user requested repository maintenance
+and session wrap-up; no feature work is active. N3–N6 have not started and
+full-P4 M3 remains paused.
 
-## Authorized scope
+## Verified checkpoint
 
-The user-authorized N2 milestone is closed at
-`76bed8485032a6bb2e95b248b37f99dcf0c45267` on `main`. Independent review, all 44
-full local gate stages and exact-revision remote CI passed. No implementation
-work is active.
-N3–N6 are planned, not started. Full-P4 M3 remains paused. The compacted
-[Nano plan](notes/nano-certification.md) owns scope, evidence and next milestones;
-[Certification](../docs/certification.md) states current artifact guarantees.
+N0/N1/N2 are complete. N2 implementation and its clean-checkout test correction
+are published through `76bed8485032a6bb2e95b248b37f99dcf0c45267`; closure is
+recorded at `d85e82c02a4d714bdcc7a78ee681cf64490aee78` on `main`.
+[Final closure CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027)
+passed, following
+[implementation CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521).
+The corrected full local `nix develop -c scripts/check.sh` returned actual
+exit 0 (session 47761): all 44 stages, no skips. The 36 inventory tests also
+passed with the ignored raw Nano export absent. Independent reviews and their
+limits are summarized in the [Nano plan](notes/nano-certification.md).
 
-## N2 implementation
+N2 delivers all 162 source codecs, all 26 builtin contracts, and the required
+30-definition dependency/SCC closure. Paired executable correspondence covers
+39/153 definitions overall. The broader inventory has 888 obligations,
+381 bindings and 507 unresolved; complete Nano certification is not claimed.
+[Certification](../docs/certification.md) owns the detailed public guarantees.
 
-- All 162 source type families have complete generated codecs, including recursive
-  syntax, nested containers and explicit legal polymorphic dictionaries.
-- Both correspondence directions cover 39/153 bodied definitions. Strict N2
-  requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and Var_init
-  with their complete 30-definition dependency/SCC closure.
-- All 26 builtins have dispatch, both invocation directions and independent
-  source input/output contracts. Source entry, output preservation and full
-  intermediate call admission are separately checked; no caller precondition
-  is inferred from decoder success or output preservation alone.
-- Schema 3 covers representations and source profiles: primitive/contextual
-  codecs, eight typed schematic-variable omissions and actual table initialization.
-  The source domain is the pinned constructor grammar, distinct from permissive
-  runtime subtype membership. Numeric casts and optional wrappers justify this
-  boundary; actual producer/call proofs establish composition.
-- The full gate now requires `--require-n2`. Its successful result leaves broader
-  core, target and release obligations independent: 888 obligations, 381 bindings,
-  507 unresolved. Full Nano certification is not claimed.
+## Resume point
 
-## Checked evidence
+On a future request to begin N3, start with Program_load/Expr_eval dependency
+closures and both proof directions, including actual intermediate call domains.
+The [remaining plan and estimate](notes/nano-certification.md#remaining-effort-estimate)
+budget 45–90 elapsed working hours for N3–N6, about 60 as a working estimate;
+reassess after a 4–8-hour first N3 checkpoint. This is a forecast, not new
+implementation authorization. Preserve the full scope and all corpus cases.
 
-Production `lake build --wfail NanoP4Spec.Refinement` passed session 16874,
-621 jobs; Type_eq took 235s and Var_init producer 589ms. Generation writes 511
-current files. No generated source was patched by hand. Source-table/variable
-quotation checks pass, with 342 ordinary declarations and 8 typed variables.
-Independent reviews found no unresolved semantic issue; exact file hashes,
-reviewer provenance and original limits are retained in
-[nano-certification-review.json](notes/nano-certification-review.json).
+## Maintenance and repository state
 
-The first full-gate attempt 46818 returned exit 1 on legacy fixture/formatting
-issues. The second 54175 passed library, all Lean tests, strict compiled N2,
-quotation, generation and replay stages; only the downstream example's two
-unused simp facts failed `--wfail`. These facts were removed without changing
-the theorem or its axiom audit; explicit `lake build --wfail ExampleProofs`
-then passed 60286. The final full gate passed with recorded exit 0 (session 40389),
-all 44 stages and no skips. Tested index tree:
-`e654712bd9385535ec73c3a88b883b57054036fe`.
-Evidence: `.artifacts/n2-closure-gate.{log,json}`. Only checkpoint prose changed
-before publishing `9668c63`; the subsequent test correction has its own full gate
-recorded below.
+This tend-repo pass changes documentation and working state only. It reuses
+unchanged executable validation through `d85e82c`, with fresh text/link checks
+and independent review; [stewardship](notes/repository-stewardship.md) records
+scope, evidence and any publication follow-up. No new full build or upstream
+recapture is needed for these edits. Inspect the latest main CI at the next
+session before new work; routine maintenance CI may be pending at publication.
 
-Other resolved integration findings: Unit/pair fixtures now reflect supported
-shapes and retain malformed-mode/unsupported-arity negatives; a reserved test
-binder is renamed; mutation extraction binds the exact generated outcome clause.
-The actual field-update mutation runner passed in 18s in the full gate. The obsolete
-631-line handwritten TypeIR encoding probe was retired after five production
-codec/totality replacement witnesses passed with audits (80617); no unique negative
-or mutation test was removed.
-
-## Publication and next action
-
-Implementation is committed and pushed on `main` at
-`9668c6342678c0100b662bef1fe0234553e85d92`, preserving continuation commits
-`feec9b6`, `996dc22`, `9863160` and `709326f` through a fast-forward.
-[CI 36312214560](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36312214560)
-failed only Completion inventory contracts: the new test fixture read the ignored
-raw export before snapshot extraction. All other stages, including library proofs,
-strict N2 and mutations, passed. The fixture now reads the committed compressed
-snapshot directly. All 36 tests passed with raw input absent (18940); the corrected
-full gate passed all 44 stages with actual exit 0 (47761). Evidence:
-`.artifacts/n2-clean-checkout-gate.log`. The correction is independently reviewed.
-The reviewed correction is pushed as `76bed8485032a6bb2e95b248b37f99dcf0c45267`.
-[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521)
-passed for that exact revision, including the full gate and both pin checks.
-The merged local `n2-certification` branch is removed; branch inventory and the
-single worktree are verified. Final closure edits affect working-state prose
-only and reuse the passing `76bed84` executable validation with fresh text/link
-checks and independent review.
-
-Next proposed milestone: N3, beginning with Program_load/Expr_eval dependency
-closures. It has not started; broader Nano core and target certification remain open.
-
-The older docs/repository-review branch and local archive backup are preserved.
-One worktree remains; upstream's expected four-file exporter patch remains applied.
-No source pins changed. N1 closed at `56cf92c2201e25c11d1263cbdf6895a827afc612` with
-[CI 36290916636](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290916636).
+One worktree remains on `main`. The merged N2 branch is removed; the older
+`docs/repository-review` branch and local archive backup are preserved.
+The expected upstream exporter patch remains applied. No source pins changed.

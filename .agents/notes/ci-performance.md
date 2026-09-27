@@ -5,7 +5,8 @@ optimization is complete through `4cba852`; retained for review provenance and
 measurement limits. Public results live in
 [the performance snapshot](../../docs/performance/build-test-ci-2026-09-26.md).
 All certification obligations, proof statements, axioms, corpus cases and failure
-classifications were preserved. Nano feature work and broader full-P4 campaigns
+classifications were preserved. Nano feature work was paused at that checkpoint;
+N0–N2 have since completed. Status owns current scope; broader full-P4 campaigns
 remain paused.
 
 ## Baseline evidence

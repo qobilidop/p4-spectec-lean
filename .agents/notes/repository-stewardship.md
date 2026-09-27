@@ -1,107 +1,83 @@
 # Repository stewardship
 
-Completed requested maintenance, published as `f6a96f2`, 2026-09-26, after ordering commit
-`29ddf22fc5dbfb3dc77d7a7a57fbcaa5ab04db2e`. Retain this note until publication
-and compact its completed evidence at the next maintenance checkpoint.
+Current requested maintenance and session handoff, 2026-09-27. Retained for
+scope, independent review and publication evidence; compact at the next upkeep.
+No implementation work is active and N3 is not authorized by this cleanup.
 
-## Scope and disposition
+## Disposition
 
-Check consistency, compact completed working state and retain evidence-backed
-lessons. No semantic implementation, pin change, campaign, branch/worktree or
-backup removal is part of this pass. Nano implementation and full-P4 M3 remain
-paused. Root owns edits; Luna inventories working notes and Sol audits public
-claims/current paths, then independently reviews root's changes.
+- Shorten status to the validated N2 checkpoint, future resume point and
+  preserved repository state. Distinguish implementation `76bed84` from the
+  final closure record `d85e82c`, whose exact-revision CI also passed.
+- Consolidate N2 verification and review history in its topic note; remove the
+  completed 54-record review collection after retaining provenance, resolved
+  findings, limits and historical recovery at
+  `d85e82c:.agents/notes/nano-certification-review.json`.
+- Preserve all N2 source-domain and composition constraints, the unchanged
+  N3–N6 exit criteria, full-P4 pause and all 78 typing/39 STF corpus cases.
+  Record the discussed 45–90-hour remaining forecast and 4–8-hour proposed
+  first N3 checkpoint, explicitly without new implementation authorization.
+- Clarify the old CI optimization note's historical pause and the original
+  coverage schema versus current schema 3. README/public certification remain
+  accurate; no semantic claims, pins, code, tests or generated data change.
+- Preserve the old docs branch, archive backup, single worktree and expected
+  upstream exporter patch. The already-removed N2 branch is not recreated.
 
-- Correct AGENTS descriptions of runtime support, generated output and checked
-  module reachability to match the implemented organization.
-- Shorten Status to current validation, open obligations and the next proof step.
-  Mark old Nano checkpoint paths/commands historical without rewriting the
-  evidence or weakening unresolved contracts; reconcile Roadmap's paused state.
-- Remove completed `code-organization.md` after retaining its outcomes in
-  AGENTS/Decisions and review/publication evidence here. Its complete original
-  is recoverable at `29ddf22:.agents/notes/code-organization.md`.
-- Replace the completed prior stewardship report with this checkpoint. The
-  original is recoverable at `6111eb7:.agents/notes/repository-stewardship.md`:
-  independent `compact_full_p4`/`compact_state` cross-reviews resolved ownership,
-  provenance and runtime wording findings; no semantic audit was claimed.
-  Its durable constraints already live in AGENTS, Decisions, topic notes and
-  the skill. Preserve coverage's inherited determinism bookkeeping limitation,
-  field-update evidence, all paused-topic reviews, the checked census and archive
-  recovery instructions. No skill change is justified by this pass.
+## Evidence-backed learning
 
-## Completed refactor evidence
+N2's first remote gate found an ignored raw export dependency that a warm local
+checkout hid. The committed fix `76bed84` makes inventory fixtures read the
+tracked compressed snapshot; all 36 tests passed with the raw export absent.
+The corrected full gate and remote CI then passed. This is a concrete fixture
+fix and retained validation example, not a reason to add another global rule.
+Nominal dictionary/parameter binding choices remain in Decisions and checked
+regressions; this cleanup introduces no new policy or skill requirement.
 
-`ad1ac3310e034494fa05bdbcdac395b5053860de` implements four concrete libraries,
-Tools executable roots, subsystem-owned Lean tests, colocated oracle suites,
-shared pinned-probe plumbing, checked library layers/reachability and existing
-compiler/proof responsibility splits. Only the trivial Smoke check and proven
-infrastructure duplicates were removed; semantic regressions, distinguishing
-mutations, axiom audits and both independent Nano computations remain.
+## Earlier upkeep evidence
 
-Independent read-only AI-agent reviews against `5687b0d`:
-Sol `organize_lean_tests` reviewed checker/Tools/proof/tactic work;
-Sol `enforce_library_layers` reviewed compiler/proof and final state-certificate
-moves; Astra `review_oracle_refactor` reviewed plumbing, provenance, keyed cache,
-relocations and consolidation. Each excluded its own implementation. No findings
-remain; exact scoped hashes and original review limits are at `29ddf22` above.
-All 49 generated files and 26 mapped payloads stayed byte-identical. Eight pinned
-upstream capture checks passed. No full-P4 campaign was run or claimed.
-The initial gate exposed a changed logical corpus ID; source lookup now resolves
-stable evidence IDs separately from physical paths, preserving completion data.
-The settled full gate passed (session 65742, exit 0, no skips), followed by
-[exact-head CI 36280484313](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36280484313).
+The code organization (`ad1ac33`) and meaningful ordering (`29ddf22`) passes
+remain complete. Their full gates and exact-revision CI passed; independent
+Sol/Astra cross-reviews excluded each author's own changes. Generated behavior
+and independent oracle comparisons were preserved. Current placement and
+ordering policy live in AGENTS/Decisions. Original scoped hashes, findings,
+validation and limits are recoverable at the historical Git path
+`d85e82c:.agents/notes/repository-stewardship.md`.
+The subsequent asynchronous-CI policy is owned by AGENTS, not this note.
 
-Ordering commit `29ddf22` preserved Lake values/membership, 131 aggregate imports,
-ignore patterns, Nix package/system membership and upstream OCaml order. Sol
-`enforce_library_layers` independently reviewed Sol `organize_lean_tests`'s work
-and root's final comment/spacing changes; no outstanding findings. Six-file
-diff SHA-256 against `ad1ac33`:
-`076e98772b44d06f65c57a47605179039504f24d760a7d777195bb489d19d9e4`.
-Author comparison/Nix checks and root's full gate passed (session 61425,
-exit 0, no skips). Import-order behavior is supported by that full gate, not
-membership comparison alone. Exact-head CI 36281893597 succeeded.
+## Current review and validation
 
-## Current pass review and validation
+Luna `maintenance_scan` independently checked Nano public claims and pin/runtime
+boundaries; no overclaim found. Its implementation-versus-closure revision
+clarification is reflected in the handoff. Sol `organize_lean_tests` inspected
+all 54 review records and found no unresolved findings before removal; the
+retained constraints and historical recovery are kept in the Nano note.
+These are read-only AI-agent checks, not fresh semantic proofs or recaptures.
 
-Read-only inventory (Luna `maintenance_inventory`) found no missing local
-Markdown targets; old logical oracle IDs are intentional. Public claim/path
-review (Sol `enforce_library_layers`) confirmed current certification/corpus
-counts and the four AGENTS corrections. These audits did not recapture upstream
-observations, run proofs or certify the entire repository's semantics.
+Independent read-only Sol `organize_lean_tests` review against `d85e82c` found
+no lost obligations or remaining findings. N2 requirements and N3–N6 plan
+sections remain byte-identical. The reviewer verified committed recovery and
+live deletion, source-domain constraints, estimate units and the lack of N3
+authorization. Ordered path+NUL+bytes fingerprint of the six changed existing
+files (excluding the deleted review collection):
+`791abc5636d1ae7d7b6986f5eb72fc690c63efda964a71c4e403e602acb270e2`.
+This review record and an optional wording precision ("resolved findings")
+were added afterward; no implementation change followed review.
 
-Independent read-only review: Sol `enforce_library_layers`, against `29ddf22`,
-found no lost obligation or substantive error. Seven-path diff SHA-256:
-`23bb8de44fdfe2a75e4e62af31f7c7bc4a17bcdc56d33f93498d3b95b360986d`.
-The reviewer checked historical recovery and absence of the removed note, scope
-and review limits, retained Nano WIP constraints and all changed Markdown links.
-A minor attribution suggestion was applied afterward: CI 36276724234 validates
-the combined `f6d1b05` checkpoint, not two independently checked commit heads.
-The review is by an AI agent and does not claim fresh semantic validation.
+Fresh checks passed with actual exit 0: `scripts/check-text.sh`,
+`git diff --cached --check`, and read-only local-link/anchor verification
+(39 Markdown files, 111 local targets, 16 Markdown anchors). All 54 original
+review records are recoverable at the named Git revision; directory listing
+confirmed the deleted file absent. The executable-tree comparison against
+`d85e82c`, excluding `.agents` and the expected dirty upstream submodule,
+returned exit 0. Lake library/executable ownership and strict `--require-n2`
+gate wiring remain unchanged.
+This documentation-only pass reuses full local gate 47761 (actual exit 0,
+all 44 stages, no skips) for implementation `76bed84`, with unchanged executable
+inputs through `d85e82c` and successful
+[CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
+No full rebuild, Lean test rerun, upstream recapture or corpus campaign is run
+for this prose-only maintenance. Routine publication CI is asynchronous.
 
-Root's link/anchor check passed for 107 local links across 36 Markdown files;
-tracked census/completion/coverage data, Lake config and lockfile are unchanged.
-The deleted note was verified in committed history and absent from the resulting
-17-topic-note inventory. Full local gate `nix develop -c bash scripts/check.sh`
-passed with actual exit 0 (session 41273, no skips); log
-`.artifacts/tend-repo-gate.log`. Only review/checkpoint metadata and prose wrapping
-changed afterward; text and staged whitespace checks were rerun. Exact-head
-publication CI was pending at publication of `f6a96f2` and remains tracked in
-Status. The user subsequently changed routine remote verification to asynchronous
-feedback; AGENTS owns the updated policy, not this historical checkpoint.
-
-## Asynchronous CI policy follow-up
-
-Explicit user request, 2026-09-26: remove the remote wait from ordinary iteration.
-Keep local checks and independent review before pushes, report pending remote
-results, prioritize known failures and retain exact-head CI for milestone/release
-completion and requested PR merges. Documentation-only validation may reuse the
-unchanged code's passing gate with fresh relevant checks. No workflow checks or
-branch protections were removed; this changes when agents wait.
-
-Independent read-only Sol `enforce_library_layers` review of root's AGENTS and
-Decisions edits against `f6a96f2`: no blocking findings or conflicting policy.
-Two-file diff SHA-256:
-`82bb26bef47277634e76b45e768c119f83614a53b0dcf6d76c7ac6ccbb0ac003`.
-No builds were run by the reviewer. This documentation-only follow-up reuses the
-unchanged executable inputs' passing full gate (session 41273, `f6a96f2`);
-fresh text/link/whitespace checks validate the final checkpoint edits.
+At the next session, inspect the latest main CI before starting unrelated work.
+This maintenance publication may still have its routine CI pending at handoff;
+never reuse the earlier implementation pass as a verdict for that new run.

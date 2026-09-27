@@ -12,7 +12,9 @@ Broader M3 remains paused.
 - The production planner records claims at its actual emission decisions.
   Human refinement comments and JSON use the same entries. No new fragment
   eligibility algorithm, proof coverage or full-P4 generation is introduced.
-- Schema 1 inventories callables, including externs/builtins as boundaries.
+- The original schema 1 inventoried callables; current schema 3 also covers
+  representations and profiles, as documented in Certification. Callable
+  entries include externs/builtins as boundaries.
   The refinement denominator excludes externs/builtins. Only per-definition
   theorems count; helper group proofs are audited through their dependents.
 - Expected theorem types share binder/conclusion construction with emitters.

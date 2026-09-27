@@ -1,8 +1,9 @@
 # Nano-P4 certification implementation plan
 
 Durable completion evidence and remaining plan, updated 2026-09-27.
-N0/N1/N2 are closed. N2 closed at `76bed8485032a6bb2e95b248b37f99dcf0c45267`,
-with independent review and passing full local/remote gates. N3–N6 remain planned.
+N0/N1/N2 are closed. N2 implementation is validated at `76bed84`; closure is
+recorded at `d85e82c`, with independent review and passing full local/remote gates.
+N3–N6 remain planned.
 The user authorized completion through N2; full-P4 M3 remains paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
@@ -12,21 +13,13 @@ and [status](../status.md) owns the next immediate action.
 
 The unchanged pins cover 350 source declarations: 162 types, eight schematic
 variables, 76 functions, 77 relations, 26 builtins and one extern relation.
-N1 closed at `56cf92c2201e25c11d1263cbdf6895a827afc612`, with all 44 local gate
-stages passing and [CI 36290916636](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290916636).
 N0 established the complete obligation inventory and pinned corpus accounting.
-N1 established reverse execution, recursive relation feasibility, unhinted
-printing and faithful runtime raw-extern representation on actual callback paths.
-Those probes did not complete full core or target composition.
-
-The pre-continuation N2 checkpoint `c8f78f7` passed the full local gate and
-[CI 36294851006](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36294851006).
-It covered both directions for the original 18 functions and dispatch contracts
-for all 26 builtins; source-domain and call invariants remained open then.
-Local continuation commits `feec9b6`, `996dc22`, `9863160` and `709326f` establish
-syntax-derived substitution bounds, independent source grammar, codec composition
-and explicit nominal decoder dictionaries. The final continuation adds the
-production bindings described below.
+N1 closed at `56cf92c` with
+[CI 36290916636](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290916636):
+reverse execution, recursive relation feasibility, unhinted printing and faithful
+runtime raw-extern representation on actual callback paths. N2 supplies the
+reusable source-domain and call contracts below. Full core and target
+composition remain separate acceptance stages.
 
 ## Current N2 evidence
 
@@ -72,63 +65,47 @@ is excluded from the source value grammar. General target composition remains N4
 
 ## Verification and independent review
 
-Production aggregate 40739 passed 580 jobs. After the final call-domain and tuple
-integration, `nix develop -c lake build --wfail NanoP4Spec.Refinement` passed
-16874 (621 jobs); Type_eq took 235s, context insertion 3.1s and Var_init producer
-589ms. These are warm/incremental observations, not controlled performance
-comparisons. Exact coverage/quotation plus `--require-n2` passed in the first full
-gate (46818, 38s). It checked 806 compiled claims, 342 ordinary quoted declarations,
-eight typed variables and the actual source profile. The manifest retains 888
-obligations, 381 bindings and 507 unresolved; broad core completion still fails.
+The corrected full local `nix develop -c scripts/check.sh` returned actual exit 0
+(session 47761), all 44 stages with no skips. It includes exact compiled theorem
+types/axioms, strict N2, quotation/generation freshness, both replay legs and
+field-update mutations. Source checks cover 342 ordinary declarations and eight
+typed variables; compiled coverage checks 806 claims. The manifest retains
+888 obligations, 381 bindings and 507 unresolved, independently of the strict
+30-definition N2 closure.
 
-The first complete gate returned exit 1: old Unit/tuple-negative fixtures,
-a reserved test binder, an obsolete handwritten TypeIR encoding probe, one text
-line and a mutation extraction boundary. The new semantic production proofs and
-strict N2 check passed. Fixes preserve negative arity/mode checks and the actual
-mutation runner passed (18s). The retired 631-line probe contained no unique
-mutation tests; five actual codec.encodingValid(admittedAll) replacement witnesses
-passed with audits (80617). A second complete gate found only two unused simp facts in the downstream example;
-removing them preserved the exact theorem and axiom audit, and ExampleProofs then
-passed 60286. Final full gate 40389 passed with actual exit 0, all 44 stages and
-no skips, on index tree `e654712bd9385535ec73c3a88b883b57054036fe`.
-Logs and stage results: `.artifacts/n2-closure-gate.{log,json}`. Subsequent
-checkpoint prose left executable inputs unchanged. Implementation `9668c63` was
-fast-forwarded to main and pushed.
-[CI 36312214560](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36312214560)
-failed only the early inventory contract fixture: it read the ignored raw Nano
-export before unpacking. All other stages passed, including strict compiled N2,
-Lean tests, replay and mutations. The fixture correction reads the committed gzip
-snapshot directly; all 36 tests passed with temporarily absent raw input (18940).
-Root independently reviewed the fixture diff. The corrected full gate passed
-all 44 stages with actual exit 0 (47761); evidence is
-`.artifacts/n2-clean-checkout-gate.log`. Corrected revision
-`76bed8485032a6bb2e95b248b37f99dcf0c45267` passed
-[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521),
-including the full gate and both pin checks. The merged feature branch is removed.
-Closure-only prose reuses this unchanged executable validation with fresh
-text/link checks and independent review. The earlier remote library/certificate
-build took 1534s;
-Type_eq alone took 938s. This first expanded build is not a controlled performance
-comparison; proof cost remains a practical constraint for broader N3 work.
+Implementation `76bed8485032a6bb2e95b248b37f99dcf0c45267` passed
+[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521).
+Closure-only `d85e82c02a4d714bdcc7a78ee681cf64490aee78` passed
+[CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
+Both include the full gate and pin checks. The merged N2 branch is removed.
+Earlier CI at `9668c63` failed only because inventory tests read the ignored raw
+export before unpacking; the fixture now reads the committed gzip directly.
+All 36 tests passed with raw input temporarily absent (18940). Warm artifacts
+must not be the only evidence for a fixture's input availability.
 
-Independent read-only reviews are preserved in
-[nano-certification-review.json](nano-certification-review.json), including exact
-file hashes, reviewer provenance, original findings, later resolutions and limits.
-Astra reviewed difficult semantics, recursive codecs and root integration; Sol
-reviewed the completed builtin/prefix contracts and strict validator; root reviewed
-agent-authored renderers, tuple proofs and final fixture changes. No AI review is
-represented as human review. Generic proof tests, actual generated certificates,
-negative eligibility mutations and exact compiled-type/axiom checks serve distinct
-obligations. The 36 Python inventory tests pass; no JSON boolean certifies a
-proof. Artifact log paths are local scratch, not persistent release evidence.
+Independent AI-agent reviews used Astra (`organize_oracles`,
+`review_oracle_refactor`), Sol (`organize_lean_tests`) and root cross-review.
+Each excluded its own authored changes. Reviews were scoped to the recorded
+diffs; they are separate from kernel checking, full gates and upstream evidence,
+and are not human review or a fresh proof of the reference interpreter.
+No unresolved findings remain. Resolved findings included parameter
+shadowing (explicit scoped dictionaries), mutual output-column eligibility
+(single-self-SCC restriction), and empty-substitution traversal (fast path).
+Actual production codecs replaced the obsolete handwritten TypeIR encoding
+probe only after five replacement witnesses passed with axiom audits; unique
+negative and mutation tests were retained.
 
-The gate now invokes `scripts/nano-certification.py --require-n2` after building
-and freshness checks. It requires every source type identity, all eight variables,
-all 26 builtin dispatch/invocation/domain contracts, primitive/initialization
-profiles and the full selected closure. Partial context projections cannot replace
-complete call contracts. Broad `--require-complete core|target|all` remains
-independent and incomplete. The recorded full-gate exit and exact-revision remote
-CI close N2 without claiming broader core or target completion.
+The 54 original review records, exact file hashes, findings, resolutions and
+limits are recoverable at the historical Git path
+`d85e82c:.agents/notes/nano-certification-review.json`. The chronological gate
+history is in that revision's Nano note. Ignored logs are supplementary scratch,
+not required resume or release evidence. Reusable constraints remain above and
+in Decisions; strict N2 does not close broader core, target or release stages.
+
+Observed proof cost: the first expanded remote library/certificate build took
+1534s, including 938s for Type_eq; a local Type_eq build took 235s. These are
+uncontrolled observations, not comparable benchmarks or additive wall times.
+Profile the remaining proof costs before expanding expensive recursive groups.
 
 ## N2. Build reusable representation and primitive contracts
 
@@ -267,3 +244,24 @@ records agreed milestone scope; proof eligibility still follows source structure
 Retain actual counterexamples and trustworthy failure classifications. Git history
 holds superseded experiments and chronological probes; this note holds current
 claims, constraints and the remaining plan.
+
+## Remaining effort estimate
+
+Planning forecast discussed with the user on 2026-09-27; moderate-to-low
+confidence, not implementation authorization. Units are elapsed working hours
+with the current lead and targeted specialists, including review, integration,
+builds and validation, not summed subagent-hours or a calendar commitment.
+
+| Milestone | Working estimate | Main uncertainty |
+|---|---:|---|
+| N3: complete core semantics | 16–32 hours | Remaining iteration/polymorphism, recursive groups and call/context invariants |
+| N4: target composition | 12–24 hours | Typed callbacks, intermediate state, initialization and full packet observations |
+| N5: whole-program theorem | 4–8 hours | Usability of completed N3/N4 contracts |
+| N6: release evidence | 4–8 hours | Scope audit, mutations, performance and final validation |
+
+The base total is 36–72 hours; budget 45–90 with contingency, about 60 as a
+working estimate. Definition/obligation counts are not effort percentages.
+The first proposed N3 checkpoint is Program_load/Expr_eval in 4–8 hours,
+included above; reassess the estimate against actual reusable proof coverage
+then. N4 has the highest semantic uncertainty. Some N3/N4 work can overlap,
+but the budget assumes no large parallelism discount before interfaces settle.
