@@ -297,6 +297,7 @@ partial def expose : TacticM Unit := do
               else if c == ``P4SpecTec.Lang.Il.value'.CaseV then some ``canon'_eq_case
               else if c == ``P4SpecTec.Lang.Il.value'.TupleV then some ``canon'_eq_tuple
               else if c == ``P4SpecTec.Lang.Il.value'.ListV then some ``canon'_eq_list
+              else if c == ``P4SpecTec.Lang.Il.value'.ExternV then some ``canon'_eq_extern
               else if c == ``P4SpecTec.Lang.Il.value'.OptV then
                 match (rhs.getArg! 0).consumeMData.getAppFn.consumeMData with
                 | .const ``Option.none _ => some ``canon'_eq_none

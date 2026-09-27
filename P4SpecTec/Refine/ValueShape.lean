@@ -119,6 +119,12 @@ theorem canon'_eq_some {p : value'} {w : value} (h : canon' p = .OptV (some w)) 
   rcases p with b' | n | s | fs | c | vs | (_ | w') | vs | i | j <;> simp [canon'] at h
   exact ⟨_, rfl, h⟩
 
+/-- A canonical extern payload: canonicalization compresses the carried JSON. -/
+theorem canon'_eq_extern {p : value'} {j : Lean.Json} (h : canon' p = .ExternV j) :
+    ∃ j', p = .ExternV j' ∧ Lean.Json.str j'.compress = j := by
+  rcases p with b' | n | s | fs | c | vs | (_ | w) | vs | i | j' <;> simp [canon'] at h
+  exact ⟨_, rfl, h⟩
+
 /-- Canonical lists are empty together. -/
 theorem canons_eq_nil {vs : List value} (h : canons vs = []) : vs = [] := by
   cases vs <;> simp [canons] at h; rfl

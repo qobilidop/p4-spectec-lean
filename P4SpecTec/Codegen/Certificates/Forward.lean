@@ -66,6 +66,21 @@ def polymorphicPairProjection (env : Env) (d : Lang.Al.def) : Bool :=
       premises.isEmpty && (callsOfDef d).isEmpty && shape.getD false
   | _ => false
 
+/-- Polymorphic clauses without premises or calls: their results are built from pattern
+bindings and constants only, so no operation depends on the represented type arguments.
+The actual type registration is still checked through its freshness hypotheses. -/
+def polymorphicPure (env : Env) (d : Lang.Al.def) : Bool :=
+  match d.it with
+  | .FuncDecD _ tparams params _ clauses none _ =>
+    !tparams.isEmpty && !clauses.isEmpty &&
+      (tparams.map (·.it)).eraseDups.length == tparams.length &&
+      tparams.all (fun p => !env.types.contains p.it) &&
+      params.all (fun p => match p.it with | .ExpP .. => true | _ => false) &&
+      clauses.all (fun clause => let (arguments, _, premises) := clause.it
+        arguments.length == params.length && premises.isEmpty) &&
+      (callsOfDef d).isEmpty
+  | _ => false
+
 /-- Closed call type syntax uses known constructor names with their exact source arities.
 Higher-order types and free type parameters need separate contracts. This checks syntax;
 compiled dictionaries and the actual caller proof still establish the operation contract. -/
@@ -360,6 +375,7 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
   if env.mode == .freshState then return some "stateful refinement is not implemented"
   let membership := polymorphicMembership env d
   let pairProjection := polymorphicPairProjection env d
+  let pureClauses := polymorphicPure env d
   let typedCalls := closedTypedCalls env d
   let scalarChecks := scalarTypeChecks env d
   let relationIteration := relationListIteration env d
@@ -397,7 +413,7 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
   match d.it with
   | .RelD _ _ _ _ (some _) _ => return some "else group"
   | .FuncDecD _ tparams params _ _ _ _ =>
-    if !tparams.isEmpty && !(membership || pairProjection) then
+    if !tparams.isEmpty && !(membership || pairProjection || pureClauses) then
       return some "type parameters"
     if params.any fun p => match p.it with | .DefP .. => true | _ => false then
       return some "function-typed parameter"
@@ -552,7 +568,8 @@ def audit (name : String) : Format := Format.text ("#audit_axioms " ++ name)
 def forwardProof (m : Member) : Format :=
   if m.requiresColumns then Format.text "refine_al (columns)" else
   match m.iterationRelation with
-  | none => Format.text (if m.requiresTypeRules then "refine_al (subtypes)" else "refine_al")
+  | none => Format.text (if m.requiresTypeRules || m.requiresStructureRules
+      then "refine_al (subtypes)" else "refine_al")
   | some relation => Format.group (Format.nest 2 (
       Format.text "refine_al (iteration :=" ++ Format.line ++ relation ++ ")"))
 

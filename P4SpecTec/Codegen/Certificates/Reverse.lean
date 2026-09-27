@@ -116,7 +116,8 @@ def mutualTheorems (lib : String) (members : List Member) : List Format := Id.ru
 def bodyTactic (m : Member) : Format :=
   if m.requiresColumns then "realize_al (columns)" else
   match m.iterationRelation with
-  | none => if m.requiresTypeRules then "realize_al (subtypes)" else "realize_al"
+  | none => if m.requiresTypeRules || m.requiresStructureRules then "realize_al (subtypes)"
+    else "realize_al"
   | some relation => Format.group (Format.nest 2 (
       Format.text "realize_al (iteration :=" ++ Format.line ++ relation ++ ")"))
 

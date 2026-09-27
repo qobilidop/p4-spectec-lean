@@ -111,6 +111,10 @@ def factHyps : TacticM (List Name) := do
           (lhs.isAppOfArity ``canonMixfix 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
           (lhs.isAppOfArity ``canonMixfixes 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
           (lhs.isAppOfArity ``canonFields 1 && (lhs.getArg! 0).consumeMData.isFVar) ||
+          -- an exposed extern payload's canonical JSON (`canon'_eq_extern`)
+          (lhs.isAppOfArity ``Lean.Json.str 1 &&
+            let text := (lhs.getArg! 0).consumeMData
+            text.isAppOfArity ``Lean.Json.compress 1 && (text.getArg! 0).consumeMData.isFVar) ||
           (lhs.isAppOfArity ``P4SpecTec.Util.Source.info.it 4 &&
             (lhs.getArg! 3).consumeMData.isFVar) ||
           (match lhs with | .proj _ _ x => x.consumeMData.isFVar | _ => false) ||

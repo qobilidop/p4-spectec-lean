@@ -62,6 +62,8 @@ structure Member where
   /-- The actual callable closure reaches `print_`, whose contract needs the pinned empty
   print-hint table; certificates then state `cfg.printHints = []` explicitly. -/
   printHints : Bool := false
+  /-- Chained updates or optional unwrapping need the subtype preset's structural rules. -/
+  requiresStructureRules : Bool := false
   deriving Inhabited
 
 /-- The binders `(p0 : T0) (p1 : T1)` of the parameters, each after a
@@ -230,6 +232,20 @@ partial def requiresTypeRulesExp (e : exp) : Bool :=
     | _ => false
   direct || (pairsOfExp.children e).any requiresTypeRulesExp
 
+/-- Detect chained record updates and optional-iteration unwrapping. Their reference
+reductions compose field maps and test option presence, which only the subtype preset
+normalizes (`Function.comp_def`, `Option.isSome_*`); they add no type checks. -/
+partial def requiresStructureRulesExp (e : exp) : Bool :=
+  let direct := match e.it with
+    | .UpdE base .. => match base.it with | .UpdE .. => true | _ => false
+    | .IterE _ (.mk .Opt _) => true
+    | _ => false
+  direct || (pairsOfExp.children e).any requiresStructureRulesExp
+
+/-- Select the normalization preset for structural reductions from source syntax. -/
+def requiresStructureRulesOf (d : Lang.Al.def) : Bool :=
+  (expsOfDef d).any requiresStructureRulesExp
+
 /-- Relation premise traversal requires the exact source iteration normalization preset. -/
 def relationHasIteration (d : Lang.Al.def) : Bool :=
   match d.it with
@@ -309,8 +325,8 @@ def reachesPrintHints (env : Env) (d : Lang.Al.def) : Bool := Id.run do
         pending := pending ++ callsOfDef callee
   return false
 
-/-- A member from a definition. -/
-def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
+/-- A member from a definition, before its normalization preset is selected. -/
+private def memberCore (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
   let env := ctx.env
   match d.it with
   | .RelD i nottyp inputs groups eg _ =>
@@ -344,7 +360,7 @@ def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
     pure (Member.mk i.it true (env.q (Names.relName i.it ++ ".run")) (Names.relName i.it ++ ".run")
       inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason [] false none
       (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
-      (reachesPrintHints env d))
+      (reachesPrintHints env d) false)
   | .FuncDecD i tparams params ret _ _ _ | .BuiltinDecD i tparams params ret _ =>
     let valueEquality := (expsOfDef d).any fun e => match e.it with
       | .MemE .. => true
@@ -353,13 +369,17 @@ def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
       Format.nil Format.nil [] (some "not a relation") (tparams.map (·.it)) valueEquality
       (iterationRelationOf env d) (registrationNames env d)
-      (requiresTypeRulesOf d) (requiresColumnsOf d) (reachesPrintHints env d))
+      (requiresTypeRulesOf d) (requiresColumnsOf d) (reachesPrintHints env d) false)
   | .TableDecD i params ret _ _ =>
     pure (Member.mk i.it false (env.q (Names.funcName i.it)) (Names.funcName i.it)
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
       Format.nil Format.nil [] (some "not a relation") [] false (iterationRelationOf env d)
       (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
-      (reachesPrintHints env d))
+      (reachesPrintHints env d) false)
   | _ => throw s!"not a function or relation: {d.it.id.it}"
+
+/-- A member from a definition. -/
+def memberOf (ctx : Ctx) (d : Lang.Al.def) : Except String Member := do
+  pure { ← memberCore ctx d with requiresStructureRules := requiresStructureRulesOf d }
 
 end P4SpecTec.Codegen.Props

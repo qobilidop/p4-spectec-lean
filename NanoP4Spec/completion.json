@@ -2806,7 +2806,7 @@
     "corpus": "test/nano-certification/corpus.json",
     "corpusSha256": "425a17c9c5490702a6754f64bf339b6858b6be6218cc1bbf23cd5ba6ab7ced1b",
     "coverage": "NanoP4Spec/coverage.json",
-    "coverageSha256": "f168727c558b984a184eaf5aa760147f52acac3a4a6ff41e51db8f65a9ba408f",
+    "coverageSha256": "744ad18c92bbec10d01d8b131190846f32580e91d6c5cb1f9019d39c3eee657c",
     "export": "exports/nano-p4.al.json",
     "exportSha256": "3a7b47d75ca97a1404026cde45df09bde0372a06e32c8d80b00ca3ef48b99dd6",
     "pins": {
@@ -3113,7 +3113,7 @@
       "subject": "FuncDecD:empty_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_set».refines",
       "dependencies": [
         "domain:empty_set",
         "profile:initialization",
@@ -3125,7 +3125,7 @@
       "subject": "FuncDecD:empty_set"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_set».realizes",
       "dependencies": [
         "domain:empty_set",
         "profile:initialization",
@@ -3333,7 +3333,7 @@
       "subject": "FuncDecD:empty_map"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_map».refines",
       "dependencies": [
         "domain:empty_map",
         "profile:initialization",
@@ -3345,7 +3345,7 @@
       "subject": "FuncDecD:empty_map"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_map».realizes",
       "dependencies": [
         "domain:empty_map",
         "profile:initialization",
@@ -6118,7 +6118,7 @@
       "subject": "FuncDecD:empty_typeDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typeDefEnv».refines",
       "dependencies": [
         "domain:empty_typeDefEnv",
         "profile:initialization",
@@ -6131,7 +6131,7 @@
       "subject": "FuncDecD:empty_typeDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typeDefEnv».realizes",
       "dependencies": [
         "domain:empty_typeDefEnv",
         "profile:initialization",
@@ -6217,7 +6217,7 @@
       "subject": "FuncDecD:empty_callableTypeDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_callableTypeDefEnv».refines",
       "dependencies": [
         "domain:empty_callableTypeDefEnv",
         "profile:initialization",
@@ -6230,7 +6230,7 @@
       "subject": "FuncDecD:empty_callableTypeDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_callableTypeDefEnv».realizes",
       "dependencies": [
         "domain:empty_callableTypeDefEnv",
         "profile:initialization",
@@ -6281,7 +6281,7 @@
       "subject": "FuncDecD:empty_typeFrame"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typeFrame».refines",
       "dependencies": [
         "domain:empty_typeFrame",
         "profile:initialization",
@@ -6294,7 +6294,7 @@
       "subject": "FuncDecD:empty_typeFrame"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typeFrame».realizes",
       "dependencies": [
         "domain:empty_typeFrame",
         "profile:initialization",
@@ -6387,7 +6387,7 @@
       "subject": "FuncDecD:empty_typingContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typingContext».refines",
       "dependencies": [
         "domain:empty_typingContext",
         "profile:initialization",
@@ -6402,7 +6402,7 @@
       "subject": "FuncDecD:empty_typingContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typingContext».realizes",
       "dependencies": [
         "domain:empty_typingContext",
         "profile:initialization",
@@ -6481,7 +6481,7 @@
       "subject": "FuncDecD:enter_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$enter_t».refines",
       "dependencies": [
         "domain:enter_t",
         "profile:initialization",
@@ -6494,7 +6494,7 @@
       "subject": "FuncDecD:enter_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$enter_t».realizes",
       "dependencies": [
         "domain:enter_t",
         "profile:initialization",
@@ -9748,7 +9748,7 @@
       "subject": "FuncDecD:empty_callableDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_callableDefEnv».refines",
       "dependencies": [
         "domain:empty_callableDefEnv",
         "profile:initialization",
@@ -9761,7 +9761,7 @@
       "subject": "FuncDecD:empty_callableDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_callableDefEnv».realizes",
       "dependencies": [
         "domain:empty_callableDefEnv",
         "profile:initialization",
@@ -9830,7 +9830,7 @@
       "subject": "FuncDecD:make_loadContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$make_loadContext».refines",
       "dependencies": [
         "domain:make_loadContext",
         "profile:initialization",
@@ -9843,7 +9843,7 @@
       "subject": "FuncDecD:make_loadContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$make_loadContext».realizes",
       "dependencies": [
         "domain:make_loadContext",
         "profile:initialization",
@@ -10190,7 +10190,7 @@
       "subject": "FuncDecD:empty_frame"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_frame».refines",
       "dependencies": [
         "domain:empty_frame",
         "profile:initialization",
@@ -10203,7 +10203,7 @@
       "subject": "FuncDecD:empty_frame"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_frame».realizes",
       "dependencies": [
         "domain:empty_frame",
         "profile:initialization",
@@ -10299,7 +10299,7 @@
       "subject": "FuncDecD:make_evalContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$make_evalContext».refines",
       "dependencies": [
         "domain:make_evalContext",
         "profile:initialization",
@@ -10312,7 +10312,7 @@
       "subject": "FuncDecD:make_evalContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$make_evalContext».realizes",
       "dependencies": [
         "domain:make_evalContext",
         "profile:initialization",
@@ -10340,7 +10340,7 @@
       "subject": "FuncDecD:inherit_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$inherit_e».refines",
       "dependencies": [
         "domain:inherit_e",
         "profile:initialization",
@@ -10353,7 +10353,7 @@
       "subject": "FuncDecD:inherit_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$inherit_e».realizes",
       "dependencies": [
         "domain:inherit_e",
         "profile:initialization",
@@ -10607,7 +10607,7 @@
       "subject": "FuncDecD:enter_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$enter_e».refines",
       "dependencies": [
         "domain:enter_e",
         "profile:initialization",
@@ -10620,7 +10620,7 @@
       "subject": "FuncDecD:enter_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$enter_e».realizes",
       "dependencies": [
         "domain:enter_e",
         "profile:initialization",
@@ -12679,7 +12679,7 @@
       "subject": "RelD:NanoSwitch_setup"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_setup.refines",
       "dependencies": [
         "domain:NanoSwitch_setup",
         "profile:initialization",
@@ -12696,7 +12696,7 @@
       "subject": "RelD:NanoSwitch_setup"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_setup.realizes",
       "dependencies": [
         "domain:NanoSwitch_setup",
         "profile:initialization",

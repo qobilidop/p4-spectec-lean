@@ -60,7 +60,8 @@ def calleeFuel : TacticM Unit := withMainContext do
 
 /-- Apply the recursive outcome induction hypothesis or a checked callee certificate. -/
 def callee (s : SimpSet) (generated : Expr) : TacticM Unit := withMainContext do
-  evalTactic (← `(tactic| simp only [Nat.add_assoc]))
+  -- a callee invoked at the unshifted fuel has no offset to reassociate
+  let _ ← tryTac (evalTactic (← `(tactic| simp only [Nat.add_assoc])))
   calleeFuel
   unless generated.isAppOfArity ``ExceptT.mk 4 do
     throwError "realize_al: expected generated callee, got {generated}"

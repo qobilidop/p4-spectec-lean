@@ -211,6 +211,7 @@ import NanoP4Spec.Refinement.distinct_
 import NanoP4Spec.Refinement.SourceDomain.distinct_
 import NanoP4Spec.Refinement.assoc_
 import NanoP4Spec.Refinement.SourceDomain.assoc_
+import NanoP4Spec.Refinement.empty_set
 import NanoP4Spec.Refinement.in_set
 import NanoP4Spec.Refinement.SourceDomain.in_set
 import NanoP4Spec.Refinement.intersect_set
@@ -225,6 +226,7 @@ import NanoP4Spec.Refinement.sub_set
 import NanoP4Spec.Refinement.SourceDomain.sub_set
 import NanoP4Spec.Refinement.eq_set
 import NanoP4Spec.Refinement.SourceDomain.eq_set
+import NanoP4Spec.Refinement.empty_map
 import NanoP4Spec.Refinement.dom_map
 import NanoP4Spec.Refinement.SourceDomain.dom_map
 import NanoP4Spec.Refinement.codom_map
@@ -311,13 +313,23 @@ import NanoP4Spec.Refinement.int_to_bits_unsigned
 import NanoP4Spec.Refinement.SourceDomain.int_to_bits_unsigned
 import NanoP4Spec.Refinement.int_to_bits_signed
 import NanoP4Spec.Refinement.SourceDomain.int_to_bits_signed
+import NanoP4Spec.Refinement.empty_typeDefEnv
+import NanoP4Spec.Refinement.SourceEntry.empty_typeDefEnv
 import NanoP4Spec.Refinement.Producer.empty_typeDefEnv
 import NanoP4Spec.Refinement.params_of_callableTypeDef
 import NanoP4Spec.Refinement.SourceEntry.params_of_callableTypeDef
 import NanoP4Spec.Refinement.Producer.params_of_callableTypeDef
+import NanoP4Spec.Refinement.empty_callableTypeDefEnv
+import NanoP4Spec.Refinement.SourceEntry.empty_callableTypeDefEnv
 import NanoP4Spec.Refinement.Producer.empty_callableTypeDefEnv
+import NanoP4Spec.Refinement.empty_typeFrame
+import NanoP4Spec.Refinement.SourceEntry.empty_typeFrame
 import NanoP4Spec.Refinement.Producer.empty_typeFrame
+import NanoP4Spec.Refinement.empty_typingContext
+import NanoP4Spec.Refinement.SourceEntry.empty_typingContext
 import NanoP4Spec.Refinement.Producer.empty_typingContext
+import NanoP4Spec.Refinement.enter_t
+import NanoP4Spec.Refinement.SourceEntry.enter_t
 import NanoP4Spec.Refinement.Producer.enter_t
 import NanoP4Spec.Refinement.exit_t
 import NanoP4Spec.Refinement.SourceEntry.exit_t
@@ -465,7 +477,11 @@ import NanoP4Spec.Refinement.CallAdmission.Program_ok
 import NanoP4Spec.Refinement.Producer.Program_ok
 import NanoP4Spec.Refinement.CallAdmission.lvalue_of_expression
 import NanoP4Spec.Refinement.Producer.lvalue_of_expression
+import NanoP4Spec.Refinement.empty_callableDefEnv
+import NanoP4Spec.Refinement.SourceEntry.empty_callableDefEnv
 import NanoP4Spec.Refinement.Producer.empty_callableDefEnv
+import NanoP4Spec.Refinement.make_loadContext
+import NanoP4Spec.Refinement.SourceEntry.make_loadContext
 import NanoP4Spec.Refinement.Producer.make_loadContext
 import NanoP4Spec.Refinement.find_callableDef_l
 import NanoP4Spec.Refinement.SourceEntry.find_callableDef_l
@@ -485,6 +501,12 @@ import NanoP4Spec.Refinement.CallAdmission.Decls_load
 import NanoP4Spec.Refinement.Producer.Decls_load
 import NanoP4Spec.Refinement.CallAdmission.Program_load
 import NanoP4Spec.Refinement.Producer.Program_load
+import NanoP4Spec.Refinement.empty_frame
+import NanoP4Spec.Refinement.SourceEntry.empty_frame
+import NanoP4Spec.Refinement.make_evalContext
+import NanoP4Spec.Refinement.SourceEntry.make_evalContext
+import NanoP4Spec.Refinement.inherit_e
+import NanoP4Spec.Refinement.SourceEntry.inherit_e
 import NanoP4Spec.Refinement.add_var_e
 import NanoP4Spec.Refinement.SourceEntry.add_var_e
 import NanoP4Spec.Refinement.Producer.add_var_e
@@ -496,6 +518,8 @@ import NanoP4Spec.Refinement.find_typeDef_e
 import NanoP4Spec.Refinement.SourceEntry.find_typeDef_e
 import NanoP4Spec.Refinement.CallAdmission.find_typeDef_e
 import NanoP4Spec.Refinement.Producer.find_typeDef_e
+import NanoP4Spec.Refinement.enter_e
+import NanoP4Spec.Refinement.SourceEntry.enter_e
 import NanoP4Spec.Refinement.exit_e
 import NanoP4Spec.Refinement.SourceEntry.exit_e
 import NanoP4Spec.Refinement.Producer.exit_e
@@ -515,6 +539,8 @@ import NanoP4Spec.Refinement.Var_init
 import NanoP4Spec.Refinement.SourceEntry.Var_init
 import NanoP4Spec.Refinement.Producer.Var_init
 import NanoP4Spec.Refinement.CallAdmission.NanoSwitch_init
+import NanoP4Spec.Refinement.NanoSwitch_setup
+import NanoP4Spec.Refinement.SourceEntry.NanoSwitch_setup
 import NanoP4Spec.Refinement.Producer.nanoswitch_forwarding
 import NanoP4Spec.Refinement
 

@@ -184,6 +184,7 @@ import NanoP4Spec.Refinement.distinct_
 import NanoP4Spec.Refinement.SourceDomain.distinct_
 import NanoP4Spec.Refinement.assoc_
 import NanoP4Spec.Refinement.SourceDomain.assoc_
+import NanoP4Spec.Refinement.empty_set
 import NanoP4Spec.Refinement.in_set
 import NanoP4Spec.Refinement.SourceDomain.in_set
 import NanoP4Spec.Refinement.intersect_set
@@ -198,6 +199,7 @@ import NanoP4Spec.Refinement.sub_set
 import NanoP4Spec.Refinement.SourceDomain.sub_set
 import NanoP4Spec.Refinement.eq_set
 import NanoP4Spec.Refinement.SourceDomain.eq_set
+import NanoP4Spec.Refinement.empty_map
 import NanoP4Spec.Refinement.dom_map
 import NanoP4Spec.Refinement.SourceDomain.dom_map
 import NanoP4Spec.Refinement.codom_map
@@ -284,13 +286,23 @@ import NanoP4Spec.Refinement.int_to_bits_unsigned
 import NanoP4Spec.Refinement.SourceDomain.int_to_bits_unsigned
 import NanoP4Spec.Refinement.int_to_bits_signed
 import NanoP4Spec.Refinement.SourceDomain.int_to_bits_signed
+import NanoP4Spec.Refinement.empty_typeDefEnv
+import NanoP4Spec.Refinement.SourceEntry.empty_typeDefEnv
 import NanoP4Spec.Refinement.Producer.empty_typeDefEnv
 import NanoP4Spec.Refinement.params_of_callableTypeDef
 import NanoP4Spec.Refinement.SourceEntry.params_of_callableTypeDef
 import NanoP4Spec.Refinement.Producer.params_of_callableTypeDef
+import NanoP4Spec.Refinement.empty_callableTypeDefEnv
+import NanoP4Spec.Refinement.SourceEntry.empty_callableTypeDefEnv
 import NanoP4Spec.Refinement.Producer.empty_callableTypeDefEnv
+import NanoP4Spec.Refinement.empty_typeFrame
+import NanoP4Spec.Refinement.SourceEntry.empty_typeFrame
 import NanoP4Spec.Refinement.Producer.empty_typeFrame
+import NanoP4Spec.Refinement.empty_typingContext
+import NanoP4Spec.Refinement.SourceEntry.empty_typingContext
 import NanoP4Spec.Refinement.Producer.empty_typingContext
+import NanoP4Spec.Refinement.enter_t
+import NanoP4Spec.Refinement.SourceEntry.enter_t
 import NanoP4Spec.Refinement.Producer.enter_t
 import NanoP4Spec.Refinement.exit_t
 import NanoP4Spec.Refinement.SourceEntry.exit_t
@@ -438,7 +450,11 @@ import NanoP4Spec.Refinement.CallAdmission.Program_ok
 import NanoP4Spec.Refinement.Producer.Program_ok
 import NanoP4Spec.Refinement.CallAdmission.lvalue_of_expression
 import NanoP4Spec.Refinement.Producer.lvalue_of_expression
+import NanoP4Spec.Refinement.empty_callableDefEnv
+import NanoP4Spec.Refinement.SourceEntry.empty_callableDefEnv
 import NanoP4Spec.Refinement.Producer.empty_callableDefEnv
+import NanoP4Spec.Refinement.make_loadContext
+import NanoP4Spec.Refinement.SourceEntry.make_loadContext
 import NanoP4Spec.Refinement.Producer.make_loadContext
 import NanoP4Spec.Refinement.find_callableDef_l
 import NanoP4Spec.Refinement.SourceEntry.find_callableDef_l
@@ -458,6 +474,12 @@ import NanoP4Spec.Refinement.CallAdmission.Decls_load
 import NanoP4Spec.Refinement.Producer.Decls_load
 import NanoP4Spec.Refinement.CallAdmission.Program_load
 import NanoP4Spec.Refinement.Producer.Program_load
+import NanoP4Spec.Refinement.empty_frame
+import NanoP4Spec.Refinement.SourceEntry.empty_frame
+import NanoP4Spec.Refinement.make_evalContext
+import NanoP4Spec.Refinement.SourceEntry.make_evalContext
+import NanoP4Spec.Refinement.inherit_e
+import NanoP4Spec.Refinement.SourceEntry.inherit_e
 import NanoP4Spec.Refinement.add_var_e
 import NanoP4Spec.Refinement.SourceEntry.add_var_e
 import NanoP4Spec.Refinement.Producer.add_var_e
@@ -469,6 +491,8 @@ import NanoP4Spec.Refinement.find_typeDef_e
 import NanoP4Spec.Refinement.SourceEntry.find_typeDef_e
 import NanoP4Spec.Refinement.CallAdmission.find_typeDef_e
 import NanoP4Spec.Refinement.Producer.find_typeDef_e
+import NanoP4Spec.Refinement.enter_e
+import NanoP4Spec.Refinement.SourceEntry.enter_e
 import NanoP4Spec.Refinement.exit_e
 import NanoP4Spec.Refinement.SourceEntry.exit_e
 import NanoP4Spec.Refinement.Producer.exit_e
@@ -488,6 +512,8 @@ import NanoP4Spec.Refinement.Var_init
 import NanoP4Spec.Refinement.SourceEntry.Var_init
 import NanoP4Spec.Refinement.Producer.Var_init
 import NanoP4Spec.Refinement.CallAdmission.NanoSwitch_init
+import NanoP4Spec.Refinement.NanoSwitch_setup
+import NanoP4Spec.Refinement.SourceEntry.NanoSwitch_setup
 import NanoP4Spec.Refinement.Producer.nanoswitch_forwarding
 
 /-! # NanoP4Spec.Refinement
@@ -497,8 +523,8 @@ recursion group under `Refinement/`, and the definitions without a theorem, with
 the reason. Generated.
 -/
 
--- forward refinement theorems: 43 of 153 definitions
--- reverse realization theorems: 43 of 153 definitions
+-- forward refinement theorems: 57 of 153 definitions
+-- reverse realization theorems: 57 of 153 definitions
 -- builtin dispatch contracts: 26 of 26 definitions
 
 -- no refinement theorem: ite
@@ -506,12 +532,6 @@ the reason. Generated.
 
 -- no refinement theorem: repeat_
     --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: empty_set
-    --   type parameters
-
--- no refinement theorem: empty_map
-    --   type parameters
 
 -- no refinement theorem: flatten_nameList
     --   recursive function subtype or registration-freshness proof is not implemented
@@ -547,23 +567,6 @@ the reason. Generated.
 
 -- no refinement theorem: write_value_from_bits
     --   calls write_value_from_bits', which has no theorem
-
--- no refinement theorem: empty_typeDefEnv
-    --   calls empty_map, which has no theorem
-
--- no refinement theorem: empty_callableTypeDefEnv
-    --   calls empty_map, which has no theorem
-
--- no refinement theorem: empty_typeFrame
-    --   calls empty_map, which has no theorem
-
--- no refinement theorem: empty_typingContext
-    --   calls empty_typeDefEnv, which has no theorem
-    --   calls empty_callableTypeDefEnv, which has no theorem
-    --   calls empty_typeFrame, which has no theorem
-
--- no refinement theorem: enter_t
-    --   calls empty_typeFrame, which has no theorem
 
 -- no refinement theorem: add_vars_t
     --   recursive function subtype or registration-freshness proof is not implemented
@@ -609,7 +612,6 @@ the reason. Generated.
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
     --   calls expression_of_lvalue, which has no theorem
-    --   calls enter_t, which has no theorem
 
 -- no refinement theorem: Statements_ok
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
@@ -618,7 +620,6 @@ the reason. Generated.
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
     --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
-    --   group member Statement_ok: calls enter_t, which has no theorem
 
 -- no refinement theorem: Block_ok
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
@@ -627,7 +628,6 @@ the reason. Generated.
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
     --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
-    --   group member Statement_ok: calls enter_t, which has no theorem
 
 -- no refinement theorem: ParserLocalDecl_ok
     --   calls VarDecl_ok, which has no theorem
@@ -643,7 +643,6 @@ the reason. Generated.
     --   calls Expr_ok, which has no theorem
 
 -- no refinement theorem: ParserState_ok
-    --   calls enter_t, which has no theorem
     --   calls Statements_ok, which has no theorem
     --   calls ParserTransition_ok, which has no theorem
 
@@ -748,17 +747,10 @@ the reason. Generated.
     --   calls Decl_ok, which has no theorem
 
 -- no refinement theorem: Program_ok
-    --   calls empty_typingContext, which has no theorem
     --   calls Decls_ok, which has no theorem
 
 -- no refinement theorem: lvalue_of_expression
     --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: empty_callableDefEnv
-    --   calls empty_map, which has no theorem
-
--- no refinement theorem: make_loadContext
-    --   calls empty_callableDefEnv, which has no theorem
 
 -- no refinement theorem: Decl_load
     --   indexing
@@ -768,26 +760,13 @@ the reason. Generated.
     --   calls Decl_load, which has no theorem
 
 -- no refinement theorem: Program_load
-    --   calls make_loadContext, which has no theorem
     --   calls Decls_load, which has no theorem
-
--- no refinement theorem: empty_frame
-    --   calls empty_map, which has no theorem
-
--- no refinement theorem: make_evalContext
-    --   calls empty_frame, which has no theorem
-
--- no refinement theorem: inherit_e
-    --   calls empty_frame, which has no theorem
 
 -- no refinement theorem: find_var_e
     --   recursive function subtype or registration-freshness proof is not implemented
 
 -- no refinement theorem: update_var_e
     --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: enter_e
-    --   calls empty_frame, which has no theorem
 
 -- no refinement theorem: Expr_eval
     --   iterated premise
@@ -925,10 +904,6 @@ the reason. Generated.
 -- no refinement theorem: NanoSwitch_init
     --   calls Program_ok, which has no theorem
     --   calls Program_load, which has no theorem
-    --   calls make_evalContext, which has no theorem
-
--- no refinement theorem: NanoSwitch_setup
-    --   calls empty_frame, which has no theorem
 
 -- no refinement theorem: nanoswitch_forwarding
     --   calls find_var_e, which has no theorem
