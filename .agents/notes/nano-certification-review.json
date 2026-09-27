@@ -1380,6 +1380,58 @@
         "No builds or tests by reviewer in this task; target60286 and fullgate verdict supplied separately by root",
         "Read-only evidence review, not re-proving whole N2 source grammar scope"
       ]
+    },
+    "n2-clean-checkout-fixture-review": {
+      "reviewer": "Root independent review of Sol /root/organize_lean_tests authored fixture correction",
+      "baseRevision": "9668c6342678c0100b662bef1fe0234553e85d92",
+      "files": {
+        "scripts/test_nano_certification.py": "3d2ddc572600ab82d08eff726d4f6ef2f0c466bd9894c31ec793d652c705b84b"
+      },
+      "findings": [],
+      "assessment": [
+        "The synthetic N2 mutation fixture reads the tracked compressed source rather than depending on an ignored unpacked file; all test assertions remain unchanged.",
+        "Production source input, snapshot checksum verification, compiled Lean checks and strict N2 requirements are unchanged."
+      ],
+      "validation": {
+        "reportedBy": "Sol /root/organize_lean_tests",
+        "session": 18940,
+        "exitCode": 0,
+        "tests": 36,
+        "condition": "Raw Nano JSON temporarily absent; restored in finally; backup absence verified."
+      },
+      "limits": "Root reviewed the four added/one removed lines; full gate and remote correction verdict are recorded separately."
+    },
+    "n2-publication-prose-review": {
+      "reviewer": "OpenAI Codex Sol /root/organize_lean_tests, independent read-only review",
+      "baseRevision": "9668c6342678c0100b662bef1fe0234553e85d92",
+      "files": {
+        ".agents/status.md": "ff79a9c7cade9bbcbab2f479bd85a0f9ad1fcaea340dc6aaefc698de909dc367",
+        ".agents/decisions.md": "44a89f60d172fc594c2b5044253110fb7008ca9eee9ada2812e4f56b20958a2c",
+        ".agents/roadmap.md": "e42b6bde4dd88f437c5d79f771efa66b2df32c5fca548de1b62a56f44a6d50d6"
+      },
+      "findings": [],
+      "assessment": [
+        "Syntax-derived substitution is correctly separated from remaining Match fallbacks; tuple constraints distinguish supported contextual dictionaries from rejected closed flattened right products.",
+        "Publication state was accurate at review time: pushed implementation with CI pending."
+      ],
+      "limits": "Read-only prose review; no builds. Later CI failure and its correction are subsequent evidence."
+    },
+    "n2-corrected-publication-prose-review": {
+      "reviewer": "OpenAI Codex Sol /root/organize_lean_tests, independent read-only review",
+      "baseRevision": "9668c6342678c0100b662bef1fe0234553e85d92",
+      "originalFindings": [
+        "Status prose-only claim needed qualification to before implementation publication, because the fixture then changed.",
+        "Status needed to report corrected local validation passed, with publication and remote validation active."
+      ],
+      "resolution": "Root corrected both statements; reviewer confirmed no remaining findings.",
+      "finalFiles": {
+        ".agents/status.md": "a8464ca002a118d355475e610d01094f11547ad8754c479b7ca4fa89ccba40d1",
+        ".agents/decisions.md": "e33313b6a2e5930423ae6e4848a07099d2ed89123e1974850e50524f2d3411c3",
+        ".agents/roadmap.md": "e42b6bde4dd88f437c5d79f771efa66b2df32c5fca548de1b62a56f44a6d50d6",
+        ".agents/notes/nano-certification.md": "f148aa0e8611fe4f32bdf2223c0a1776f0aa851122dcc4aea641936cf03945a7"
+      },
+      "validation": "All36local Markdown targets across four modified prose files resolve.",
+      "limits": "Read-only prose/link review; full gate supplied separately, corrected remote CI still required."
     }
   },
   "laterResolutions": [
@@ -1387,6 +1439,8 @@
     "Final contextual tests use distinct fixture namespaces; no production theorem names are redefined.",
     "Root corrected only the Emit header docstring after final integration review and wrapped a CallAdmission source string across lines without changing emitted text.",
     "The first full-gate findings are fixed and await a second full-gate verdict; see status.",
-    "Full local gate40389 passed all44stages with recorded exit0 on e654712bd9385535ec73c3a88b883b57054036fe; no skips. Publication/remoteCI remains separate."
+    "Full local gate40389 passed all44stages with recorded exit0 on e654712bd9385535ec73c3a88b883b57054036fe; no skips. Publication/remoteCI remains separate.",
+    "Remote CI36312214560 failed only Completion inventory contracts because the ignored raw export was absent before snapshot extraction. Every other gate stage passed; compressed-source fixture correction is independently reviewed and passes all36tests with raw export absent. Final corrected full gate and CI remain separate.",
+    "Corrected full local gate47761 returned actual exit0 and all44stages passed; log .artifacts/n2-clean-checkout-gate.log. The fix is ready for publication; exact corrected revision CI remains required."
   ]
 }

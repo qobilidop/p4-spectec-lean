@@ -2,7 +2,9 @@
 """Completion inventory mutations must fail without granting proof evidence."""
 
 import copy
+import gzip
 import importlib.util
+import json
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -202,7 +204,8 @@ class CompletionTests(unittest.TestCase):
 
 def n2_fixture():
     """Bindings are synthetic; only the CLI's separate Lean checker can validate them."""
-    source = completion.read_json(ROOT / completion.EXPORT)
+    with gzip.open(ROOT / "exports/nano-p4.al.json.gz", "rt", encoding="utf-8") as exported:
+        source = json.load(exported)
     coverage = completion.read_json(ROOT / completion.COVERAGE)
     def claim(kind, direction):
         return {"name": f"Fixture.{kind}.{direction}", "kind": kind,

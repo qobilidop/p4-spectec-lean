@@ -1,6 +1,6 @@
 # Decisions
 
-Current cross-cutting choices and reasons. Updated 2026-09-26.
+Current cross-cutting choices and reasons. Updated 2026-09-27.
 Rules belong in [AGENTS.md](../AGENTS.md), architecture in
 [Design](../docs/design.md), and detailed constraints in the linked topic
 notes. This register is not a chronological log.
@@ -20,12 +20,14 @@ core semantics and target composition as separate required acceptance stages.
 scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
 first authorized settling this scope and then explicitly approved autonomous
-implementation of the Nano plan, starting with N0/N1. Broader full-P4 M3 remains
-paused. Use Luna for bounded inventories, Sol for bounded implementation/tests,
+implementation of the Nano plan, then explicitly requested completion through N2.
+N3–N6 remain planned; broader full-P4 M3 remains paused. Use Luna for bounded
+inventories, Sol for bounded implementation/tests,
 and Astra for difficult semantics/proofs and independent review, with explicit
 ownership and one integrator. Confidence high in the milestone choice;
-schedule remains uncertain until reverse proofs and target representation
-blockers are investigated. Revisit scope only through an explicit design
+N1 settled reverse-proof and runtime-representation feasibility. Broader core
+coverage and concrete target composition still determine the remaining schedule.
+Revisit scope only through an explicit design
 decision, not by excluding difficult cases from coverage.
 
 The goal is a certifying compiler, technically a proof-producing semantics
@@ -149,8 +151,9 @@ changing its shape would repair upstream behavior and change subsequent calls.
 The chosen interface uses ordinary codecs and contextual contracts, with exact
 callback/state evidence separate from full target certification. Confidence high
 for this Nano profile. Revisit if a pin changes the callback result, subtype-check
-forms, or a new carrier needs a different runtime extension. N2 still owes broad
-source-domain adequacy; N4 still owes complete target composition.
+forms, or a new carrier needs a different runtime extension. N2 supplies all 162
+source codecs and the selected closure's call invariants; broader core coverage
+remains N3 and complete target composition remains N4.
 
 ## Knowledge ownership (2026-09-26)
 

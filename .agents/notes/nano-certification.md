@@ -92,8 +92,19 @@ removing them preserved the exact theorem and axiom audit, and ExampleProofs the
 passed 60286. Final full gate 40389 passed with actual exit 0, all 44 stages and
 no skips, on index tree `e654712bd9385535ec73c3a88b883b57054036fe`.
 Logs and stage results: `.artifacts/n2-closure-gate.{log,json}`. Subsequent
-checkpoint prose leaves executable inputs unchanged; exact-revision remote CI
-remains the publication obligation.
+checkpoint prose left executable inputs unchanged. Implementation `9668c63` was
+fast-forwarded to main and pushed.
+[CI 36312214560](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36312214560)
+failed only the early inventory contract fixture: it read the ignored raw Nano
+export before unpacking. All other stages passed, including strict compiled N2,
+Lean tests, replay and mutations. The fixture correction reads the committed gzip
+snapshot directly; all 36 tests passed with temporarily absent raw input (18940).
+Root independently reviewed the fixture diff. The corrected full gate passed
+all 44 stages with actual exit 0 (47761); evidence is
+`.artifacts/n2-clean-checkout-gate.log`. Corrected-revision remote CI remains required.
+Remote library/certificate build took 1534s;
+Type_eq alone took 938s. This first expanded build is not a controlled performance
+comparison; proof cost remains a practical constraint for broader N3 work.
 
 Independent read-only reviews are preserved in
 [nano-certification-review.json](nano-certification-review.json), including exact

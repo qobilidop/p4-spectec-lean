@@ -5,8 +5,9 @@ Current checkpoint, updated 2026-09-27.
 ## Authorized scope
 
 The user authorized completion of N2 after N0/N1. N2 implementation and its
-strict compiled check pass. All 44 full local gate stages passed; publication and
-exact-revision remote CI remain active.
+strict compiled check pass. All 44 full local gate stages passed. The first remote
+gate found a clean-checkout inventory-test input dependency. Its correction and
+local validation pass; publication and remote validation remain active.
 N3–N6 are planned, not started. Full-P4 M3 remains paused. The compacted
 [Nano plan](notes/nano-certification.md) owns scope, evidence and next milestones;
 [Certification](../docs/certification.md) states current artifact guarantees.
@@ -49,8 +50,9 @@ the theorem or its axiom audit; explicit `lake build --wfail ExampleProofs`
 then passed 60286. The final full gate passed with recorded exit 0 (session 40389),
 all 44 stages and no skips. Tested index tree:
 `e654712bd9385535ec73c3a88b883b57054036fe`.
-Evidence: `.artifacts/n2-closure-gate.{log,json}`. Later changes are checkpoint
-prose only; executable inputs are unchanged.
+Evidence: `.artifacts/n2-closure-gate.{log,json}`. Only checkpoint prose changed
+before publishing `9668c63`; the subsequent test correction has its own full gate
+recorded below.
 
 Other resolved integration findings: Unit/pair fixtures now reflect supported
 shapes and retain malformed-mode/unsupported-arity negatives; a reserved test
@@ -62,14 +64,19 @@ or mutation test was removed.
 
 ## Publication and next action
 
-Work is on `n2-certification`; last local commit is `709326f`, preceded by `feec9b6`,
-`996dc22` and `9863160`. The implementation is staged but not yet committed or pushed.
-Published main remains `c8f78f7` with successful
-[CI 36294851006](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36294851006).
-Next: commit with the session coauthor trailer, fast-forward main, push and
-verify its exact remote CI revision. Then remove the finished branch and mark N2 closed. N3's
-first proposed work is Program_load/Expr_eval dependency closures, not automatic
-work during publication.
+Implementation is committed and pushed on `main` at
+`9668c6342678c0100b662bef1fe0234553e85d92`, preserving continuation commits
+`feec9b6`, `996dc22`, `9863160` and `709326f` through a fast-forward.
+[CI 36312214560](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36312214560)
+failed only Completion inventory contracts: the new test fixture read the ignored
+raw export before snapshot extraction. All other stages, including library proofs,
+strict N2 and mutations, passed. The fixture now reads the committed compressed
+snapshot directly. All 36 tests passed with raw input absent (18940); the corrected
+full gate passed all 44 stages with actual exit 0 (47761). Evidence:
+`.artifacts/n2-clean-checkout-gate.log`. The correction is independently reviewed.
+Next: publish the reviewed correction, verify CI, remove the merged local
+`n2-certification` branch and record N2 closure. N3's first proposed work is
+Program_load/Expr_eval dependency closures; it is not started during publication.
 
 The older docs/repository-review branch and local archive backup are preserved.
 One worktree remains; upstream's expected four-file exporter patch remains applied.

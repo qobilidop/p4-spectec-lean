@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated 2026-09-26. Nano completion is authorized; other backlog remains deferred.
+Updated 2026-09-27. Nano work through N2 is authorized; other backlog remains deferred.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -49,16 +49,18 @@ Deferred priorities include broader representation adequacy, discriminating gene
 consumer-guided wrappers, and measured maintenance across upstream changes.
 These other priorities are not newly authorized implementation.
 
-Further correspondence needs operation-specific builtin contracts, ordered
-iteration, casts/subtype checks, indexing/slicing/membership, type parameters
-and extern contracts. Select a useful entry point and account for its dependency
-closure rather than count disconnected helper proofs. The first certified
-relation should exercise its actual relation form.
+N2 provides all builtin source contracts, recursive relation integration and
+selected iteration, cast/membership and polymorphic support. Broader N3 coverage
+still needs remaining source forms, including indexing/slicing, and each actual
+entry point's complete dependency/SCC closure. Target extern contracts remain N4;
+selected helper proofs do not establish whole-program composition.
 
 Known runtime boundaries before broadening claims:
-`Match.sub_`, `Match.check'` and `Subst.subst_typ_inner` retain legacy
-fuel-zero fallback behavior outside the certified fragment; a nested source
-tuple needs a representation distinguishing it from flattened products.
+`Match.sub_` and `Match.check'` retain legacy fallback behavior outside the
+certified fragment; selected N2 paths avoid these fallbacks. Substitution now
+uses a syntax-derived bound. Exact empty/two-field tuple dictionaries are
+supported; closed right products that ambient encoding would flatten remain
+rejected, alongside unsupported arities.
 Type-fresh, printer and state constraints remain in their topic notes.
 
 ## Longer-term backlog
