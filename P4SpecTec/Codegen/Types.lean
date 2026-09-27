@@ -724,4 +724,19 @@ def subtypeDecls (env : Env) (s t : typ') : Except String Format := do
     arms (checks ++ (if partial_ then [Format.text "| _ => false"] else []))
   pure (joinDecls [up, down, chk])
 
+/-- The injection from `s` into `t` preserves the canonical encoding: shared cases carry
+the same payloads and only the carrier's type note differs, which `canon` erases.
+The theorem belongs in the refinement sidecar; the subtype preset rewrites with it.
+Each case closes by reduction, or else by `subtype_canon`, which unfolds the encoders. -/
+def subtypeCanonTheorem (env : Env) (s t : typ') : Format :=
+  let name := upName s t ++ ".canon_toValue"
+  Format.group (Format.nest 4 (Format.text s!"theorem {name}" ++ Format.line ++
+    Format.text "(x : " ++ (typTerm env [] s).fmt ++ ") :" ++ Format.line ++
+    Format.text s!"Refine.canon (ToValue.toValue ({env.q (upName s t)} x)) =" ++
+      Format.line ++ "Refine.canon (ToValue.toValue x)" ++
+    " := by")) ++ Format.nest 2 (Term.hardLine ++ Format.text "cases x <;> first" ++
+      Format.nest 2 (Term.hardLine ++ "| rfl" ++ Term.hardLine ++
+        Format.text s!"| subtype_canon {env.lib} [{env.q (upName s t)}]")) ++
+    Term.hardLine ++ Term.hardLine ++ Format.text s!"#audit_axioms {env.q name}"
+
 end P4SpecTec.Codegen.Types

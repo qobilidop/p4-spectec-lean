@@ -46,10 +46,14 @@ theorem «$id».sourceCorrespondence
       Realizes Rel (fun fuel => (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "id")
         [] [v0])) (ExceptT.mk (NanoP4Spec.«$id» p0)) := by
   obtain ⟨p0, admitted0, h0⟩ :=
+    @Representation.Adequate.coverage (NanoP4Spec.name) ⟨NanoP4Spec.name.toValue⟩ _ _
     (@Representation.Codec.adequate (NanoP4Spec.name) ⟨NanoP4Spec.name.toValue⟩
       ⟨NanoP4Spec.name.ofValue⟩ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "name" [])).it) (NanoP4Spec.name.admitted)
-      (NanoP4Spec.name.codec)).coverage v0 hv0
+      (NanoP4Spec.name.codec)) v0 hv0
+  replace h0 : Rel v0 p0 := by
+    simpa only [Rel, ToValue.toValue, NanoP4Spec.member.toValue,
+      NanoP4Spec.referenceExpression.toValue] using h0
   refine ⟨p0, admitted0, h0, ?_, ?_⟩
   · intro fuel
     exact NanoP4Spec.«$id».refines fuel cfg ctx internal hguard hhints hfenv hspec v0 p0 h0

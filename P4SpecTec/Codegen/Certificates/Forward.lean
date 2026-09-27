@@ -380,9 +380,8 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
   let scalarChecks := scalarTypeChecks env d
   let relationIteration := relationListIteration env d
   let columns := functionListColumns env d
-  if recursiveFunction env d &&
-      ((requiresTypeRulesOf d && !columns) || !(registrationNames env d).isEmpty) then
-    return some "recursive function subtype or registration-freshness proof is not implemented"
+  if recursiveFunction env d && !(registrationNames env d).isEmpty then
+    return some "recursive function registration-freshness proof is not implemented"
   if let .FuncDecD .. := d.it then
     if (expsOfDef d).any numericCast && !columns then
       return some "numeric function coercion composition is not implemented"

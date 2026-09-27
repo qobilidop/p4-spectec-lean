@@ -110,6 +110,7 @@ def calcLemmas : List Name := [
   ``check_func_inputs_off, ``check_func_output_off, ``Var.eq_eq, ``Atom.eq_eq, ``hOrElse_eq,
   ``orElse_unmatch, ``checkedTypePure, ``checkedPureRun,
   ``diverge_bind, ``throw_bind, ``mk_run, ``err_some, ``err_none, ``check_true, ``check_false,
+  ``option_beq_none_none, ``option_beq_none_some, ``option_beq_some_none, ``option_beq_some_some,
   ``canon_mk, ``canon_make_mk, ``canons_append, ``canons_length, ``eq_nat, ``eq_int,
   ``eq_bool, ``eq_text, ``eq_refl,
   ``Outs,
@@ -197,6 +198,7 @@ def subtypeSimpSet : TacticM SimpSet := do
   let rules ← simpSet
   let lib ← libOf
   encodingFacts lib
+  let mut bridges : Array Name := #[]
   let mut subtypeRules := #[``checkedMixop, ``checkedRecurseNat,
     ``P4SpecTec.Runtime.Value.Match.fuel,
     ``Function.comp_def, ``transposeOne, ``transposeTwo,
@@ -209,10 +211,15 @@ def subtypeSimpSet : TacticM SimpSet := do
       let short := name.getString!
       if short.startsWith "of_" || short.startsWith "is_" || short.startsWith "to_" then
         subtypeRules := subtypeRules ++ (← eqnsOf name).toArray
+    -- generated subtype injections preserve canonical encodings; they rewrite before
+    -- (`↓`) the inner encoder is unfolded, which would hide the injection's pattern
+    if lib.isPrefixOf name && !name.isInternal && info.isTheorem &&
+        name.getString! == "canon_toValue" then
+      bridges := bridges.push name
   let lemmas := rules.lemmas.filter fun n =>
     !(``Interp.checked_type).isPrefixOf n &&
     !(lib.isPrefixOf n && n.getString! == "eq_def" &&
       (n.toString.splitOn ".toValue").length > 1)
-  pure { rules with lemmas := lemmas ++ subtypeRules }
+  pure { rules with lemmas := lemmas ++ subtypeRules, procs := rules.procs ++ bridges }
 
 end P4SpecTec.Tactic

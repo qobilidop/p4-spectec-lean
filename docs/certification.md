@@ -31,10 +31,11 @@ the user-facing account of current capabilities and their guarantees.
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its
 [refinement index](../NanoP4Spec/Refinement.lean) currently record forward and reverse
-AL theorems for the same 57 of 153 bodied definitions, including the recursive
+AL theorems for the same 67 of 153 bodied definitions, including the recursive
 `Type_eq`/`ParameterType_eq` group, the `Type_ok` and `Var_init` closures, the
 recursive output-producing `Parameters_ok` relation, the empty-context constructors
-behind `make_loadContext`/`make_evalContext`, and `NanoSwitch_setup`. A theorem whose callable closure
+behind `make_loadContext`/`make_evalContext`, `NanoSwitch_setup`, and recursive
+syntax flattening and variable lookup (`flatten_argumentList`, `find_var_e`). A theorem whose callable closure
 reaches `print_` states the pinned empty print-hint table as a hypothesis. Both reports come from
 the same generation plan. They record exclusions, including blockers inherited
 from dependencies or other members of a recursive group.

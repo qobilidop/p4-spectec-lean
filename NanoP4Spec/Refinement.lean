@@ -212,10 +212,16 @@ import NanoP4Spec.Refinement.add_map
 import NanoP4Spec.Refinement.SourceDomain.add_map
 import NanoP4Spec.Refinement.update_map
 import NanoP4Spec.Refinement.SourceDomain.update_map
+import NanoP4Spec.Refinement.flatten_nameList
+import NanoP4Spec.Refinement.SourceEntry.flatten_nameList
 import NanoP4Spec.Refinement.CallAdmission.flatten_nameList
 import NanoP4Spec.Refinement.Producer.flatten_nameList
+import NanoP4Spec.Refinement.flatten_parameterList
+import NanoP4Spec.Refinement.SourceEntry.flatten_parameterList
 import NanoP4Spec.Refinement.CallAdmission.flatten_parameterList
 import NanoP4Spec.Refinement.Producer.flatten_parameterList
+import NanoP4Spec.Refinement.flatten_argumentList
+import NanoP4Spec.Refinement.SourceEntry.flatten_argumentList
 import NanoP4Spec.Refinement.CallAdmission.flatten_argumentList
 import NanoP4Spec.Refinement.Producer.flatten_argumentList
 import NanoP4Spec.Refinement.flatten_statementList
@@ -234,12 +240,16 @@ import NanoP4Spec.Refinement.flatten_selectCaseList
 import NanoP4Spec.Refinement.SourceEntry.flatten_selectCaseList
 import NanoP4Spec.Refinement.CallAdmission.flatten_selectCaseList
 import NanoP4Spec.Refinement.Producer.flatten_selectCaseList
+import NanoP4Spec.Refinement.flatten_parserStateList
+import NanoP4Spec.Refinement.SourceEntry.flatten_parserStateList
 import NanoP4Spec.Refinement.CallAdmission.flatten_parserStateList
 import NanoP4Spec.Refinement.Producer.flatten_parserStateList
 import NanoP4Spec.Refinement.flatten_parserLocalDeclarationList
 import NanoP4Spec.Refinement.SourceEntry.flatten_parserLocalDeclarationList
 import NanoP4Spec.Refinement.CallAdmission.flatten_parserLocalDeclarationList
 import NanoP4Spec.Refinement.Producer.flatten_parserLocalDeclarationList
+import NanoP4Spec.Refinement.flatten_tableActionList
+import NanoP4Spec.Refinement.SourceEntry.flatten_tableActionList
 import NanoP4Spec.Refinement.CallAdmission.flatten_tableActionList
 import NanoP4Spec.Refinement.Producer.flatten_tableActionList
 import NanoP4Spec.Refinement.flatten_tableEntryList
@@ -321,6 +331,8 @@ import NanoP4Spec.Refinement.add_typeDef_t
 import NanoP4Spec.Refinement.SourceEntry.add_typeDef_t
 import NanoP4Spec.Refinement.CallAdmission.add_typeDef_t
 import NanoP4Spec.Refinement.Producer.add_typeDef_t
+import NanoP4Spec.Refinement.find_var_t
+import NanoP4Spec.Refinement.SourceEntry.find_var_t
 import NanoP4Spec.Refinement.Producer.find_var_t
 import NanoP4Spec.Refinement.find_typeDef_t
 import NanoP4Spec.Refinement.SourceEntry.find_typeDef_t
@@ -360,6 +372,8 @@ import NanoP4Spec.Refinement.CallAdmission.Call_convention_ok
 import NanoP4Spec.Refinement.Producer.Call_convention_ok
 import NanoP4Spec.Refinement.CallAdmission.VarDecl_ok
 import NanoP4Spec.Refinement.Producer.VarDecl_ok
+import NanoP4Spec.Refinement.expression_of_lvalue
+import NanoP4Spec.Refinement.SourceEntry.expression_of_lvalue
 import NanoP4Spec.Refinement.CallAdmission.expression_of_lvalue
 import NanoP4Spec.Refinement.Producer.expression_of_lvalue
 import NanoP4Spec.Refinement.CallAdmission.Statement_ok
@@ -448,6 +462,8 @@ import NanoP4Spec.Refinement.CallAdmission.Decls_ok
 import NanoP4Spec.Refinement.Producer.Decls_ok
 import NanoP4Spec.Refinement.CallAdmission.Program_ok
 import NanoP4Spec.Refinement.Producer.Program_ok
+import NanoP4Spec.Refinement.lvalue_of_expression
+import NanoP4Spec.Refinement.SourceEntry.lvalue_of_expression
 import NanoP4Spec.Refinement.CallAdmission.lvalue_of_expression
 import NanoP4Spec.Refinement.Producer.lvalue_of_expression
 import NanoP4Spec.Refinement.empty_callableDefEnv
@@ -480,6 +496,8 @@ import NanoP4Spec.Refinement.make_evalContext
 import NanoP4Spec.Refinement.SourceEntry.make_evalContext
 import NanoP4Spec.Refinement.inherit_e
 import NanoP4Spec.Refinement.SourceEntry.inherit_e
+import NanoP4Spec.Refinement.find_var_e
+import NanoP4Spec.Refinement.SourceEntry.find_var_e
 import NanoP4Spec.Refinement.add_var_e
 import NanoP4Spec.Refinement.SourceEntry.add_var_e
 import NanoP4Spec.Refinement.Producer.add_var_e
@@ -514,6 +532,8 @@ import NanoP4Spec.Refinement.Producer.Var_init
 import NanoP4Spec.Refinement.CallAdmission.NanoSwitch_init
 import NanoP4Spec.Refinement.NanoSwitch_setup
 import NanoP4Spec.Refinement.SourceEntry.NanoSwitch_setup
+import NanoP4Spec.Refinement.nanoswitch_forwarding
+import NanoP4Spec.Refinement.SourceEntry.nanoswitch_forwarding
 import NanoP4Spec.Refinement.Producer.nanoswitch_forwarding
 
 /-! # NanoP4Spec.Refinement
@@ -523,75 +543,54 @@ recursion group under `Refinement/`, and the definitions without a theorem, with
 the reason. Generated.
 -/
 
--- forward refinement theorems: 57 of 153 definitions
--- reverse realization theorems: 57 of 153 definitions
+-- forward refinement theorems: 67 of 153 definitions
+-- reverse realization theorems: 67 of 153 definitions
 -- builtin dispatch contracts: 26 of 26 definitions
 
 -- no refinement theorem: ite
     --   type parameters
 
 -- no refinement theorem: repeat_
-    --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: flatten_nameList
-    --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: flatten_parameterList
-    --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: flatten_argumentList
-    --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: flatten_parserStateList
-    --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: flatten_tableActionList
-    --   recursive function subtype or registration-freshness proof is not implemented
+    --   recursive function registration-freshness proof is not implemented
 
 -- no refinement theorem: un_op
     --   numeric function coercion composition is not implemented
 
 -- no refinement theorem: bin_eq
-    --   recursive function subtype or registration-freshness proof is not implemented
+    --   iterated premise
 
 -- no refinement theorem: bin_op
     --   numeric function coercion composition is not implemented
     --   calls bin_eq, which has no theorem
 
 -- no refinement theorem: write_value_from_bits'
-    --   recursive function subtype or registration-freshness proof is not implemented
+    --   numeric function coercion composition is not implemented
 
 -- no refinement theorem: write_value_fields_from_bits'
-    --   group member write_value_from_bits': recursive function subtype or registration-freshness
-    --   proof is not implemented
+    --   group member write_value_from_bits': numeric function coercion composition is not
+    --   implemented
 
 -- no refinement theorem: write_value_from_bits
     --   calls write_value_from_bits', which has no theorem
 
 -- no refinement theorem: add_vars_t
-    --   recursive function subtype or registration-freshness proof is not implemented
-
--- no refinement theorem: find_var_t
-    --   recursive function subtype or registration-freshness proof is not implemented
+    --   recursive function registration-freshness proof is not implemented
 
 -- no refinement theorem: Expr_ok
     --   combined subtype and paired iteration proof is not implemented
-    --   calls find_var_t, which has no theorem
 
 -- no refinement theorem: Argument_ok
     --   calls Expr_ok, which has no theorem
 
 -- no refinement theorem: ArgumentList_ok
     --   iterated premise
-    --   calls flatten_argumentList, which has no theorem
     --   calls Argument_ok, which has no theorem
 
 -- no refinement theorem: Lvalue_ok
     --   iterated premise
-    --   calls find_var_t, which has no theorem
 
 -- no refinement theorem: expression_is_lvalue
-    --   recursive function subtype or registration-freshness proof is not implemented
+    --   unused downcast binding composition is not implemented
 
 -- no refinement theorem: Call_convention_arg_ok
     --   calls expression_is_lvalue, which has no theorem
@@ -602,16 +601,12 @@ the reason. Generated.
 -- no refinement theorem: VarDecl_ok
     --   calls Expr_ok, which has no theorem
 
--- no refinement theorem: expression_of_lvalue
-    --   recursive function subtype or registration-freshness proof is not implemented
-
 -- no refinement theorem: Statement_ok
     --   calls VarDecl_ok, which has no theorem
     --   calls Lvalue_ok, which has no theorem
     --   calls Expr_ok, which has no theorem
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
-    --   calls expression_of_lvalue, which has no theorem
 
 -- no refinement theorem: Statements_ok
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
@@ -619,7 +614,6 @@ the reason. Generated.
     --   group member Statement_ok: calls Expr_ok, which has no theorem
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
-    --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
 
 -- no refinement theorem: Block_ok
     --   group member Statement_ok: calls VarDecl_ok, which has no theorem
@@ -627,7 +621,6 @@ the reason. Generated.
     --   group member Statement_ok: calls Expr_ok, which has no theorem
     --   group member Statement_ok: calls ArgumentList_ok, which has no theorem
     --   group member Statement_ok: calls Call_convention_ok, which has no theorem
-    --   group member Statement_ok: calls expression_of_lvalue, which has no theorem
 
 -- no refinement theorem: ParserLocalDecl_ok
     --   calls VarDecl_ok, which has no theorem
@@ -648,16 +641,13 @@ the reason. Generated.
 
 -- no refinement theorem: ParserStateList_ok
     --   iterated premise
-    --   calls flatten_parserStateList, which has no theorem
     --   calls ParserState_ok, which has no theorem
 
 -- no refinement theorem: TableKey_ok
     --   calls Expr_ok, which has no theorem
-    --   calls find_var_t, which has no theorem
 
 -- no refinement theorem: TableAction_ok
     --   iterated premise
-    --   calls flatten_argumentList, which has no theorem
     --   calls Argument_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
 
@@ -666,7 +656,6 @@ the reason. Generated.
 
 -- no refinement theorem: TableActionList_ok
     --   iterated premise
-    --   calls flatten_tableActionList, which has no theorem
     --   calls TableActions_ok, which has no theorem
 
 -- no refinement theorem: TableEntry_ok
@@ -700,7 +689,6 @@ the reason. Generated.
     --   iterated premise
 
 -- no refinement theorem: ParameterList_ok
-    --   calls flatten_parameterList, which has no theorem
     --   calls distinct_params, which has no theorem
 
 -- no refinement theorem: ExternMethod_ok
@@ -708,7 +696,6 @@ the reason. Generated.
 
 -- no refinement theorem: ActionDecl_ok
     --   iterated premise
-    --   calls flatten_parameterList, which has no theorem
     --   calls Block_ok, which has no theorem
 
 -- no refinement theorem: ExternDecl_ok
@@ -725,14 +712,12 @@ the reason. Generated.
     --   combined subtype and paired iteration proof is not implemented
     --   calls ParameterList_ok, which has no theorem
     --   calls no_object_params, which has no theorem
-    --   calls flatten_parameterList, which has no theorem
 
 -- no refinement theorem: Decl_ok
     --   iterated premise
     --   calls ArgumentList_ok, which has no theorem
     --   calls Call_convention_ok, which has no theorem
     --   calls ActionDecl_ok, which has no theorem
-    --   calls flatten_nameList, which has no theorem
     --   calls repeat_, which has no theorem
     --   calls add_vars_t, which has no theorem
     --   calls ExternDecl_ok, which has no theorem
@@ -749,12 +734,8 @@ the reason. Generated.
 -- no refinement theorem: Program_ok
     --   calls Decls_ok, which has no theorem
 
--- no refinement theorem: lvalue_of_expression
-    --   recursive function subtype or registration-freshness proof is not implemented
-
 -- no refinement theorem: Decl_load
     --   indexing
-    --   calls flatten_argumentList, which has no theorem
 
 -- no refinement theorem: Decls_load
     --   calls Decl_load, which has no theorem
@@ -762,20 +743,15 @@ the reason. Generated.
 -- no refinement theorem: Program_load
     --   calls Decls_load, which has no theorem
 
--- no refinement theorem: find_var_e
-    --   recursive function subtype or registration-freshness proof is not implemented
-
 -- no refinement theorem: update_var_e
-    --   recursive function subtype or registration-freshness proof is not implemented
+    --   recursive function registration-freshness proof is not implemented
 
 -- no refinement theorem: Expr_eval
     --   iterated premise
-    --   calls find_var_e, which has no theorem
     --   calls un_op, which has no theorem
     --   calls bin_op, which has no theorem
 
 -- no refinement theorem: Lvalue_eval
-    --   calls expression_of_lvalue, which has no theorem
     --   calls Expr_eval, which has no theorem
 
 -- no refinement theorem: Lvalue_write
@@ -784,7 +760,6 @@ the reason. Generated.
 
 -- no refinement theorem: Copy_in_arg
     --   calls Expr_eval, which has no theorem
-    --   calls lvalue_of_expression, which has no theorem
 
 -- no refinement theorem: Copy_in
     --   calls Copy_in_arg, which has no theorem
@@ -805,7 +780,6 @@ the reason. Generated.
     --   calls Lvalue_eval, which has no theorem
 
 -- no refinement theorem: Copy_out_arg
-    --   calls find_var_e, which has no theorem
     --   calls Lvalue_write, which has no theorem
 
 -- no refinement theorem: Copy_out
@@ -904,9 +878,6 @@ the reason. Generated.
 -- no refinement theorem: NanoSwitch_init
     --   calls Program_ok, which has no theorem
     --   calls Program_load, which has no theorem
-
--- no refinement theorem: nanoswitch_forwarding
-    --   calls find_var_e, which has no theorem
 
 -- no refinement theorem: NanoSwitch_parse
     --   extern

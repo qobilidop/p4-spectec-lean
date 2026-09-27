@@ -25,6 +25,19 @@ def inputTypes (d : Lang.Al.def) : Except String (List typ) := do
     pure (Exp.splitArgs (inputs.map (·.toNat)) fields).1
   | _ => throw "source entry needs a monomorphic defined callable"
 
+/-- Encoders of the plain aliases of a named source type. A later alias instance can be
+the one instance resolution picks for the aliased type. -/
+def aliasEncoders (env : Env) (type : typ) : List String :=
+  match type.it with
+  | .VarT name [] => List.mergeSort (le := (· ≤ ·)) <|
+    env.types.toList.filterMap fun (alias, info) => match info.deftyp with
+      | some (.PlainT body) => match body.it with
+        | .VarT target [] => if target.it == name.it then
+            some (env.q (Names.typeName alias ++ ".toValue")) else none
+        | _ => none
+      | _ => none
+  | _ => []
+
 /-- Checked source codecs for every declared input, including nested field occurrences. -/
 def contracts (env : Env) (d : Lang.Al.def)
     (available : Option (String → Option NominalContract) := none) :
@@ -75,10 +88,22 @@ def declarations (env : Env) (d : Lang.Al.def) (m : Props.Member)
   let qualified := m.defName.replace ".run" ""
   let mut proof := ""
   for ((type, contract), index) in fields.zipIdx do
-    proof := proof ++ s!"  obtain ⟨p{index}, admitted{index}, h{index}⟩ :=\n" ++
-      s!"    (@Representation.Codec.adequate ({contract.carrier}) ⟨{contract.encoder}⟩ " ++
-      s!"⟨{contract.decoder}⟩ ({source env type}) ({contract.admitted}) " ++
-      s!"({contract.codec})).coverage v{index} hv{index}\n"
+    let aliases := aliasEncoders env type
+    if aliases.isEmpty then
+      proof := proof ++ s!"  obtain ⟨p{index}, admitted{index}, h{index}⟩ :=\n" ++
+        s!"    (@Representation.Codec.adequate ({contract.carrier}) ⟨{contract.encoder}⟩ " ++
+        s!"⟨{contract.decoder}⟩ ({source env type}) ({contract.admitted}) " ++
+        s!"({contract.codec})).coverage v{index} hv{index}\n"
+    else
+      -- A plain alias's later instance is the one `Rel` resolves; its encoder is a separate
+      -- mutual definition, so the codec's explicit relation converts by its equation.
+      proof := proof ++ s!"  obtain ⟨p{index}, admitted{index}, h{index}⟩ :=\n" ++
+        s!"    @Representation.Adequate.coverage ({contract.carrier}) ⟨{contract.encoder}⟩ _ _\n" ++
+        s!"    (@Representation.Codec.adequate ({contract.carrier}) ⟨{contract.encoder}⟩ " ++
+        s!"⟨{contract.decoder}⟩ ({source env type}) ({contract.admitted}) " ++
+        s!"({contract.codec})) v{index} hv{index}\n" ++
+        s!"  replace h{index} : Rel v{index} p{index} := by\n" ++
+        s!"    simpa only [Rel, ToValue.toValue, {", ".intercalate aliases}] using h{index}\n"
   let indices := List.range fields.length
   let witnesses := indices.map (fun index => s!"p{index}") ++
     indices.flatMap (fun index => [s!"admitted{index}", s!"h{index}"]) ++ ["?_", "?_"]

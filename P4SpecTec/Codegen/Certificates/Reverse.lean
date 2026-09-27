@@ -64,7 +64,9 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
   let introArgs := ["rec", "ih"] ++ ps ++ ["q", "hq"] ++ args
   let finalArgs := ps ++ ["q", "hq"] ++ args
   let step := if m.requiresColumns then "realize_step (columns) hq)"
-    else if m.isRel then "realize_step (relations) hq)" else "realize_step hq)"
+    else if m.isRel || m.requiresTypeRules || m.requiresStructureRules then
+      "realize_step (relations) hq)"
+    else "realize_step hq)"
   let proof := Format.nest 2 (Format.line ++ "intro q hq" ++ Format.line ++
     Format.text ("exact " ++ m.defName ++ ".partial_correctness") ++
     Format.nest 2 (Format.line ++ Format.text ("(motive := " ++ motiveName ++ ") (by") ++

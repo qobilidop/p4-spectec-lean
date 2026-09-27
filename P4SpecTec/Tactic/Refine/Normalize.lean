@@ -139,7 +139,7 @@ structure PreparedSimpRules where
 structure SimpSet where
   /-- The lemmas and definitions. -/
   lemmas : Array Name
-  /-- The simprocs. -/
+  /-- The simprocs and pre-order rewrite lemmas, both applied with `↓`. -/
   procs : Array Name
   /-- Optional global-rule preparation; never contains the changing local facts. -/
   prepared? : Option PreparedSimpRules := none

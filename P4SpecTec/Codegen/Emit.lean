@@ -730,9 +730,11 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
   modules := modules ++ ["Refinement.SourceProfile"]
   if refinement.groups.any (·.name == "Equality") then
     throw "certificate group name Equality conflicts with the equality module"
+  let bridgeCanon := (pairsOfSpec env spec).map fun (s, t) => subtypeCanonTheorem env s t
   outs := outs ++ [refModule "Equality" "canonical equality of generated type dictionaries"
-    ["P4SpecTec.Refine.Representation.Equality"] ["Refinement.Spec"]
-    (EqualityCertificates.declarations env spec)]
+    ["P4SpecTec.Refine.Representation.Equality", "P4SpecTec.Refine.ValueShape",
+      "P4SpecTec.Tactic.Encoding"]
+    ["Refinement.Spec"] (joinDecls (EqualityCertificates.declarations env spec :: bridgeCanon))]
   modules := modules ++ ["Refinement.Equality"]
   for g in refinement.groups do
     let deps := ["Refinement.Spec", "Refinement.Equality"] ++

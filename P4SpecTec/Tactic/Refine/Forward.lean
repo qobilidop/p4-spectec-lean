@@ -118,93 +118,6 @@ def declarationFromSpec : TacticM Bool := tryTac do
     Term.exprToSyntax (mkApp2 (.fvar hs) (mkConst declaration) mem)
   evalTactic (← `(tactic| exact $proof))
 
-/-- Pair the interpreter's invocation at the head of `m` with the generated
-call at the head of `n`: the callee's refinement theorem, or the induction
-hypothesis when the callee is in the group. Leaves the value goals and the
-continuation. -/
-def calleeStep (s : SimpSet) (m n : Expr) : TacticM Unit := timed "callee" do
-  let head := chainHead m
-  -- a tail call on both sides is the callee's theorem itself; a generated
-  -- call without continuation against an interpreter chain is one
-  -- followed by `pure`
-  let tail := (chainTail m).isNone
-  let n ← if (chainTail n).isNone && !tail then do
-      evalTactic (← `(tactic| refine refines_of_bind_pure ?_))
-      let some (_, _, n') ← refinesGoal | throwError "refine_al: no goal"
-      pure n'
-    else pure n
-  let genHead := chainHead n
-  unless genHead.isAppOfArity ``ExceptT.mk 4 do
-    throwError "refine_al: the interpreter invokes a definition but the generated code does not:\
-      {indentExpr genHead}"
-  let call := (genHead.getArg! 3).consumeMData
-  let some (callee, _) := calleeOf call | throwError "refine_al: unknown callee {call}"
-  let thm := Name.str callee "refines"
-  let some fuel ← fuelArgument? head
-    | throwError "refine_al: interpreter invocation has no explicit natural fuel parameter"
-  -- the callee proof, as a term applied to the fuel and the goal's arguments
-  let ih? ← groupIH
-  let mut viaIH := false
-  let mut proof : Option Term := none
-  if let some ih := ih? then
-    let ihTy ← (← getMainGoal).withContext do
-      instantiateMVars (← (← fvarOf ih).getType)
-    -- `∀ m, m < fuel → (A ∧ B ∧ ...)`
-    let body := match ihTy with
-      | .forallE _ _ (.forallE _ _ b _) _ => b
-      | _ => ihTy
-    if let some k ← conjunctIndex body call.getAppFn.constName! then
-      let n := (conjuncts body).length
-      let fuelStx ← Term.exprToSyntax fuel
-      let mut t : Term ← `(($(mkIdent ih) $fuelStx (by omega)))
-      for _ in List.range k do t ← `(($t).2)
-      if k < n - 1 then t ← `(($t).1)
-      proof := some t
-      viaIH := true
-  if proof.isNone then
-    unless (← getEnv).contains thm do
-      throwError "refine_al: no refinement theorem {thm} for the callee"
-    proof := some (mkIdent thm)
-  let some p := proof | unreachable!
-  traceStep m!"callee {callee} {if viaIH then "by the induction hypothesis" else "by its theorem"}"
-  let mut contGoal? : Option MVarId := none
-  noteAction "callee: apply"
-  if tail then
-    evalTactic (← `(tactic| apply $p))
-  else
-    -- `refines_bind (callee ...) (fun a b h => ...)`
-    -- `apply`, not `refine`: the intermediate relation is found by unification
-    evalTactic (← `(tactic| apply refines_bind))
-    let goals ← (← getGoals).filterM fun g => do pure !(← g.isAssigned)
-    let typed ← goals.mapM fun g => do
-      pure (g, (← g.withContext do instantiateMVars (← g.getType)).consumeMData)
-    let some (calleeGoal, _) := typed.find? fun (_, t) => t.isAppOfArity ``Refines 5
-      | throwError "refine_al: no callee goal"
-    let some (contGoal, _) := typed.find? fun (_, t) => t.isForall
-      | throwError "refine_al: no cont goal"
-    contGoal? := some contGoal
-    setGoals [calleeGoal]
-    evalTactic (← `(tactic| apply $p))
-  -- the remaining goals: the guard, the tables, and the value relations
-  noteAction "callee: hypotheses"
-  let rest ← getGoals
-  let mut valueGoals : List MVarId := []
-  for g in rest do
-    if ← g.isAssigned then continue
-    setGoals [g]
-    let ty ← g.withContext do instantiateMVars (← g.getType)
-    if ty.consumeMData.isAppOfArity ``Rel 4 then
-      valueGoals := valueGoals ++ [g]
-    else
-      let fromSpec ← declarationFromSpec
-      unless fromSpec || (← tryTac (evalTactic (← `(tactic| assumption)))) do
-        let _ ← normalize s
-        unless (← getGoals).isEmpty do
-          unless ← tryTac (evalTactic (← `(tactic| assumption))) do
-            throwError "refine_al: cannot discharge a hypothesis of the callee:\
-              {Lean.MessageData.ofGoal g}"
-  setGoals (valueGoals ++ contGoal?.toList)
-
 /-! ## The value prover -/
 
 /-- Prove that an interpreter value is related to a generated value, or
@@ -345,6 +258,97 @@ def splitGeneratedList (s : SimpSet) (n : Expr) (k : TacticM Unit) : TacticM Boo
     if ← closeValueEqConflict s then continue
     k
   return true
+
+/-- Pair the interpreter's invocation at the head of `m` with the generated
+call at the head of `n`: the callee's refinement theorem, or the induction
+hypothesis when the callee is in the group. Leaves the value goals and the
+continuation. -/
+def calleeStep (s : SimpSet) (m n : Expr) : TacticM Unit := timed "callee" do
+  let head := chainHead m
+  -- a tail call on both sides is the callee's theorem itself; a generated
+  -- call without continuation against an interpreter chain is one
+  -- followed by `pure`
+  let tail := (chainTail m).isNone
+  let n ← if (chainTail n).isNone && !tail then do
+      evalTactic (← `(tactic| refine refines_of_bind_pure ?_))
+      let some (_, _, n') ← refinesGoal | throwError "refine_al: no goal"
+      pure n'
+    else pure n
+  let genHead := chainHead n
+  unless genHead.isAppOfArity ``ExceptT.mk 4 do
+    -- only an impossible branch can pair a call with a generated terminal outcome
+    if ← closeBoolConflict then return
+    if ← closeConstructorClash then return
+    if ← closeValueEqConflict s then return
+    throwError "refine_al: the interpreter invokes a definition but the generated code does not:\
+      {indentExpr genHead}"
+  let call := (genHead.getArg! 3).consumeMData
+  let some (callee, _) := calleeOf call | throwError "refine_al: unknown callee {call}"
+  let thm := Name.str callee "refines"
+  let some fuel ← fuelArgument? head
+    | throwError "refine_al: interpreter invocation has no explicit natural fuel parameter"
+  -- the callee proof, as a term applied to the fuel and the goal's arguments
+  let ih? ← groupIH
+  let mut viaIH := false
+  let mut proof : Option Term := none
+  if let some ih := ih? then
+    let ihTy ← (← getMainGoal).withContext do
+      instantiateMVars (← (← fvarOf ih).getType)
+    -- `∀ m, m < fuel → (A ∧ B ∧ ...)`
+    let body := match ihTy with
+      | .forallE _ _ (.forallE _ _ b _) _ => b
+      | _ => ihTy
+    if let some k ← conjunctIndex body call.getAppFn.constName! then
+      let n := (conjuncts body).length
+      let fuelStx ← Term.exprToSyntax fuel
+      let mut t : Term ← `(($(mkIdent ih) $fuelStx (by omega)))
+      for _ in List.range k do t ← `(($t).2)
+      if k < n - 1 then t ← `(($t).1)
+      proof := some t
+      viaIH := true
+  if proof.isNone then
+    unless (← getEnv).contains thm do
+      throwError "refine_al: no refinement theorem {thm} for the callee"
+    proof := some (mkIdent thm)
+  let some p := proof | unreachable!
+  traceStep m!"callee {callee} {if viaIH then "by the induction hypothesis" else "by its theorem"}"
+  let mut contGoal? : Option MVarId := none
+  noteAction "callee: apply"
+  if tail then
+    evalTactic (← `(tactic| apply $p))
+  else
+    -- `refines_bind (callee ...) (fun a b h => ...)`
+    -- `apply`, not `refine`: the intermediate relation is found by unification
+    evalTactic (← `(tactic| apply refines_bind))
+    let goals ← (← getGoals).filterM fun g => do pure !(← g.isAssigned)
+    let typed ← goals.mapM fun g => do
+      pure (g, (← g.withContext do instantiateMVars (← g.getType)).consumeMData)
+    let some (calleeGoal, _) := typed.find? fun (_, t) => t.isAppOfArity ``Refines 5
+      | throwError "refine_al: no callee goal"
+    let some (contGoal, _) := typed.find? fun (_, t) => t.isForall
+      | throwError "refine_al: no cont goal"
+    contGoal? := some contGoal
+    setGoals [calleeGoal]
+    evalTactic (← `(tactic| apply $p))
+  -- the remaining goals: the guard, the tables, and the value relations
+  noteAction "callee: hypotheses"
+  let rest ← getGoals
+  let mut valueGoals : List MVarId := []
+  for g in rest do
+    if ← g.isAssigned then continue
+    setGoals [g]
+    let ty ← g.withContext do instantiateMVars (← g.getType)
+    if ty.consumeMData.isAppOfArity ``Rel 4 then
+      valueGoals := valueGoals ++ [g]
+    else
+      let fromSpec ← declarationFromSpec
+      unless fromSpec || (← tryTac (evalTactic (← `(tactic| assumption)))) do
+        let _ ← normalize s
+        unless (← getGoals).isEmpty do
+          unless ← tryTac (evalTactic (← `(tactic| assumption))) do
+            throwError "refine_al: cannot discharge a hypothesis of the callee:\
+              {Lean.MessageData.ofGoal g}"
+  setGoals (valueGoals ++ contGoal?.toList)
 
 /-- When the interpreter's condition `c` and the generated condition test
 values for equality, rewrite the interpreter's tests into the generated

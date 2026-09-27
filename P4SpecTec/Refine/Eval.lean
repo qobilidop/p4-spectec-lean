@@ -80,6 +80,23 @@ theorem orElse_unmatch {α : Type} {a : Eval α} : Eval.orElse a (throw .unmatch
 /-- A check that holds. -/
 @[simp] theorem check_true : Eval.check true = pure () := rfl
 
+/-- Generated option tests (`eps = $f(…)`) compare with the derived `Option` equality;
+these decide it on constructors, leaving element equality for `some`. -/
+@[simp] theorem option_beq_none_none {α : Type} [BEq α] :
+    Option.instBEq.beq (none : Option α) none = true := rfl
+
+/-- An absent option differs from a present one. -/
+@[simp] theorem option_beq_none_some {α : Type} [BEq α] (a : α) :
+    Option.instBEq.beq (none : Option α) (some a) = false := rfl
+
+/-- A present option differs from an absent one. -/
+@[simp] theorem option_beq_some_none {α : Type} [BEq α] (a : α) :
+    Option.instBEq.beq (some a) (none : Option α) = false := rfl
+
+/-- Present options compare their elements. -/
+@[simp] theorem option_beq_some_some {α : Type} [BEq α] (a b : α) :
+    Option.instBEq.beq (some a) (some b) = (a == b) := rfl
+
 /-- A check that fails. -/
 @[simp] theorem check_false : Eval.check false = throw .unmatch := rfl
 

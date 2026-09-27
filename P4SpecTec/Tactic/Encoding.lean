@@ -52,6 +52,42 @@ def encodingFacts (lib : Name) : TacticM Unit := withMainContext do
           | cons x xs ih =>
             simpa only [$rules,*, List.map_cons] using congrArg (List.cons ($enc x)) ih))
 
+/-- Close one constructor case of a generated subtype-injection bridge
+`canon (toValue (up x)) = canon (toValue x)`: unfold the named injection and, repeatedly,
+every library encoder occurring in the goal (a resolved instance may belong to an alias),
+erase the carrier notes, and, when nested list helpers remain, rewrite them with their
+list-map equations proved by induction. The library's encoders are found under `lib`. -/
+elab "subtype_canon " lib:ident " [" injections:ident,* "]" : tactic => withoutRecover do
+  let lib := lib.getId
+  let base := injections.getElems ++ #[mkIdent ``P4SpecTec.Prelude.ToValue.toValue,
+    mkIdent ``P4SpecTec.Runtime.Value.Make.case, mkIdent ``P4SpecTec.Runtime.Value.Make.str,
+    mkIdent ``P4SpecTec.Refine.canon_make_mk]
+  let used (select : Name → Bool) : TacticM (Array Name) := withMainContext do
+    let goal ← instantiateMVars (← getMainTarget)
+    pure (goal.getUsedConstants.filter fun name => lib.isPrefixOf name && select name)
+  let mut extra : Array (TSyntax `Lean.Parser.Tactic.simpLemma) := #[]
+  for _ in [0:8] do
+    if (← getGoals).isEmpty then return
+    let encoders ← used (·.getString! == "toValue")
+    let names := base ++ encoders.map mkIdent
+    let lemmas ← names.mapM fun n => `(Lean.Parser.Tactic.simpLemma| $n:ident)
+    let rules : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (lemmas ++ extra)
+    unless ← tryTac (evalTactic (← `(tactic| simp only [$rules,*]))) do
+      -- nothing left to unfold: prove the nested list helpers' list-map equations
+      let helpers ← used (·.getString!.startsWith "toValue_")
+      if helpers.isEmpty then break
+      for helper in helpers do
+        let some encoder ← listEncoder? helper | continue
+        let fact ← freshName "rf_c_encoding"
+        let enc ← withMainContext do Term.exprToSyntax encoder
+        evalTactic (← `(tactic|
+          have $(mkIdent fact):ident : ∀ xs, $(mkIdent helper):ident xs = List.map $enc xs := by
+            intro xs
+            induction xs <;> simp_all [$(mkIdent helper):ident]))
+        extra := extra.push (← `(Lean.Parser.Tactic.simpLemma| $(mkIdent fact):ident))
+      if extra.isEmpty then break
+  unless (← getGoals).isEmpty do throwError "subtype_canon: canonical encodings differ"
+
 /-- Related raw lists have the lengths of their explicitly encoded typed lists. -/
 def encodingLengths : TacticM Unit := do
   let facts ← withMainContext do
