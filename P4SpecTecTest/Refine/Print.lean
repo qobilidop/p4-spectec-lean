@@ -47,6 +47,22 @@ theorem identifierNamePrint (s : ByteText) :
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms identifierNamePrint
 
+-- This composes the actual quoted builtin declaration, interpreter dispatch and
+-- generated implementation for every related input, not only this identifier.
+theorem nanoPrintRun {α : Type} [ToValue α] [BEq α] {v : Lang.Il.value} {x : α}
+    (h : Rel v x) (fuel : Nat) (cfg : Interp_al.Interp.Config)
+    (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
+    (ctx : Interp_al.Ctx.t) (internal : Bool) (targs : List Lang.Il.targ)
+    (hfenv : ctx.local.fenv = []) (hdecl : Holds ctx.global NanoP4Spec.«$print_».al) :
+    (Interp_al.Interp.invoke_func (fuel + 3) cfg internal ctx
+      (Q.i "print_") targs [v]).run =
+      (NanoP4Spec.«$print_» x).map (Except.map Runtime.Value.Make.text) := by
+  exact printRunOfHolds h fuel cfg hguard hhints ctx internal _ _ _ targs hfenv hdecl
+
+/-- info: 'P4SpecTecTest.NanoPrint.nanoPrintRun' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms nanoPrintRun
+
 def idMixop : Mixfix.mixop :=
   .Seq [.Atom (Prelude.Value.atom (.Tag "ID")), .Arg ()]
 

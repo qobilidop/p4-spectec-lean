@@ -1,10 +1,14 @@
+import P4SpecTec.Refine.Environment
+import P4SpecTec.Refine.Quote
 import P4SpecTec.Refine.Value
 import P4SpecTec.Interface.P4.Unparse
 
 /-!
 Printing congruence for the empty hint environment. Canonical equality erases
 type notes, so this result deliberately does not apply to arbitrary hinted
-printing. Unsupported runtime payloads remain printer errors.
+printing. Unsupported runtime payloads remain printer errors. The dispatch
+contracts compose this observation through the actual builtin and global-table
+lookup, with the guard-free profile and empty hint policy stated explicitly.
 -/
 
 namespace P4SpecTec.Refine
@@ -110,5 +114,68 @@ theorem printEqOfRel {α : Type} [Prelude.ToValue α] {v : value} {x : α}
 /-- info: 'P4SpecTec.Refine.printEqOfRel' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms printEqOfRel
+
+/-- Actual unhinted builtin dispatch preserves generated text bytes and hard errors. -/
+theorem printBuiltinRunOfRel {α : Type} [Prelude.ToValue α] {v : value} {x : α}
+    (h : Rel v x) (targs : List typ) :
+    (Interp_al.Effects.builtinEval [] "print_" targs [v]).run =
+      (Prelude.Eval.err? ((printWithHints [] (Prelude.toValue x)).toOption.map
+        ByteText.ofString)).run.map (Except.map Runtime.Value.Make.text) := by
+  unfold Interp_al.Effects.builtinEval
+  simp only [Builtin.Call.invokeWithHints, printEqOfRel h]
+  cases printWithHints [] (Prelude.toValue x) <;> rfl
+
+/-- info: 'P4SpecTec.Refine.printBuiltinRunOfRel' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms printBuiltinRunOfRel
+
+/-- Full guard-free AL invocation preserves the printer's bytes and errors once lookup succeeds.
+The three fuel steps cover function lookup, body dispatch and builtin invocation. -/
+theorem invokePrintRunOfRel {α : Type} [Prelude.ToValue α] {v : value} {x : α}
+    (h : Rel v x) (fuel : Nat) (cfg : Interp_al.Interp.Config)
+    (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
+    (ctx : Interp_al.Ctx.t) (internal : Bool) (cursor : Interp_al.Ctx.cursor)
+    (tparams : List tparam) (params : List param) (output : typ) (targs : List targ)
+    (hfind : Interp_al.Ctx.find_func ctx (Util.Source.mkPhrase "print_") =
+      pure (cursor, .Builtin tparams params output)) :
+    (Interp_al.Interp.invoke_func (fuel + 3) cfg internal ctx
+      (Util.Source.mkPhrase "print_") targs [v]).run =
+      (Prelude.Eval.err? ((printWithHints [] (Prelude.toValue x)).toOption.map
+        ByteText.ofString)).run.map (Except.map Runtime.Value.Make.text) := by
+  simp only [Interp_al.Interp.invoke_func, traced_eq, hfind,
+    check_func_inputs_off hguard]
+  cases internal <;>
+    simp only [Bool.not_false, Bool.not_true, Bool.false_eq_true, ite_false, ite_true,
+      Interp_al.Effects.liftPure, pure_bind, bind_pure,
+      Interp_al.Interp.invoke_func_body, Interp_al.Interp.invoke_builtin_func,
+      check_func_output_off hguard, hhints]
+  all_goals exact printBuiltinRunOfRel h targs
+
+/-- info: 'P4SpecTec.Refine.invokePrintRunOfRel' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms invokePrintRunOfRel
+
+/-- The actual builtin declaration in the global table supplies the unhinted print contract. -/
+theorem printRunOfHolds {α : Type} [Prelude.ToValue α] {v : value} {x : α}
+    (h : Rel v x) (fuel : Nat) (cfg : Interp_al.Interp.Config)
+    (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
+    (ctx : Interp_al.Ctx.t) (internal : Bool) (tparams : List tparam)
+    (params : List param) (output : typ) (targs : List targ)
+    (hfenv : ctx.local.fenv = [])
+    (hdecl : Holds ctx.global
+      (Q.d (.BuiltinDecD (Q.i "print_") tparams params output []))) :
+    (Interp_al.Interp.invoke_func (fuel + 3) cfg internal ctx
+      (Q.i "print_") targs [v]).run =
+      (Prelude.Eval.err? ((printWithHints [] (Prelude.toValue x)).toOption.map
+        ByteText.ofString)).run.map (Except.map Runtime.Value.Make.text) := by
+  apply invokePrintRunOfRel h fuel cfg hguard hhints ctx internal .Global
+    tparams params output targs
+  change ctx.global.ftbl.get? "print_" = some (.Builtin tparams params output) at hdecl
+  simp only [Interp_al.Ctx.find_func, Interp_al.Ctx.find_func_opt, hfenv, List.lookup, hdecl]
+  rfl
+
+/-- info: 'P4SpecTec.Refine.printRunOfHolds' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms printRunOfHolds
 
 end P4SpecTec.Refine
