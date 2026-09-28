@@ -14,7 +14,7 @@ private def arguments (env : Env) (expected : List typ') (actual : List exp) :
     Except String (List typ) := do
   unless expected.length == actual.length do throw "call admission argument arity differs"
   for (type, value) in expected.zip actual do
-    unless Types.typEq (env.resolve type) (env.resolve value.note) do
+    unless Types.typEq (env.resolveDeep type) (env.resolveDeep value.note) do
       throw "call admission argument note differs from its instantiated callee signature"
   pure (expected.map Q.t)
 
@@ -103,10 +103,10 @@ def plan (env : Env) (d : Lang.Al.def)
   let type := " ∧\n".intercalate (statements ++ ["True"])
   let declarations :=
     "/-- All values of the actual call argument carriers are source-valid. -/\n" ++
-    s!"theorem {owner}.callArgumentsSource :\n    " ++ type.replace "\n" "\n    " ++
+    s!"theorem {owner}.{env.part "callArgumentsSource"} :\n    " ++ type.replace "\n" "\n    " ++
     " :=\n  " ++ (if proofs.isEmpty then "trivial" else
       "⟨" ++ ", ".intercalate (proofs ++ ["trivial"]) ++ "⟩") ++ "\n" ++
-    s!"#audit_axioms {owner}.callArgumentsSource\n"
+    s!"#audit_axioms {owner}.{env.part "callArgumentsSource"}\n"
   pure { type, declarations := boundedLines declarations
          dependencies := (fields.flatMap (·.dependencies)).eraseDups }
 

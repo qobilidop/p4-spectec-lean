@@ -217,6 +217,25 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let runtimeSupport := RepresentationCertificates.supportImports ++
     ["P4SpecTec.Refine.Representation.SourceRuntime"]
   let mut runtimeClosedEmitted := false
+  let rt := { env with runtimeProfile := true }
+  -- runtime-profile codecs: the runtime catalog's, and every other type's lifted source codec
+  let runtimeKnown : String → Option RepresentationFields.NominalContract := fun name =>
+    match runtimeRepresentations[name]? with
+    | some (.ok plan) => plan.nominal
+    | _ => do
+      let nominal ← (← (← representations[name]?).toOption).nominal
+      let qualified := env.q (Names.typeName name)
+      let codec := rt.liftRuntime qualified (qualified ++ ".toValue")
+        (qualified ++ ".ofValue") nominal.codec
+      pure { nominal with codec }
+  let runtimeTotality := fun name => do
+    let plan ← match runtimeRepresentations[name]? with
+      | some (.ok plan) => some plan
+      | _ => (← representations[name]?).toOption
+    pure { nominal := ← runtimeKnown name, proof := ← plan.total :
+      RepresentationTotals.TotalContract }
+  let runtimeModules := fun (ids : List String) =>
+    "Representation.Runtime" :: ids.map runtimeDependency
   if !printEnv.isEmpty then
     units := [{ id := "H:print", file := 0, decls := ← PrintHints.tableDecl printEnv }]
   let mut unitOfType : Std.HashMap String Nat := {}   -- type id → unit index
@@ -641,6 +660,58 @@ def plan (env : Env) (spec : Lang.Al.spec) :
             kind := "producer", direction := "sourceInputsToSourceOutput"
             expectedType := ← Producer.theoremType env d }]
           claims := claims ++ callClaims
+      -- Runtime-profile domain evidence, where the source profile's is incomplete. Outside
+      -- the runtime closure both profiles have the same values; inside it, evaluation
+      -- contexts may hold the runtime-only raw extern after a callback.
+      let sourceIncomplete := exclusions.any fun e =>
+        ["sourceEntry", "producer"].contains e.kind ||
+          (e.kind == "callAdmission" && e.reason != "call admission needs a call site")
+      if (kind == "function" || kind == "relation") && reverseReasons.isEmpty &&
+          sourceIncomplete && !runtimeClosure.isEmpty then
+        let base := m.defName.replace ".run" ""
+        match SourceEntry.declarations rt d m (some runtimeKnown) with
+        | .error reason =>
+          exclusions := exclusions ++ [{ kind := "runtimeSourceEntry", definition := m.id, reason }]
+        | .ok proof =>
+          let fields ← SourceEntry.contracts rt d (some runtimeKnown)
+          let some pairedModule := groupModule.get? m.id
+            | throw s!"runtime entry has no paired invocation module: {m.id}"
+          refGroups := refGroups ++ [{
+            name := "SourceEntry.Runtime." ++ groupModuleName m.id, decls := proof
+            deps := pairedModule :: runtimeModules
+              (fields.flatMap fun (_, field) => field.dependencies).eraseDups
+            supportImports := some runtimeSupport }]
+          claims := claims ++ [{
+            name := base ++ "." ++ rt.part "sourceCorrespondence"
+            kind := "sourceEntry", direction := "runtimeInputsToTwoWay"
+            expectedType := ← SourceEntry.theoremType rt d m (some runtimeKnown) }]
+        match ProducerTotal.plan rt d runtimeTotality m.externs with
+        | .error reason =>
+          exclusions := exclusions ++ [{ kind := "runtimeProducer", definition := m.id, reason }]
+        | .ok total =>
+          refGroups := refGroups ++ [{
+            name := "Producer.Runtime." ++ groupModuleName m.id
+            decls := Format.text total.declarations, deps := runtimeModules total.dependencies
+            supportImports := some runtimeSupport }]
+          claims := claims ++ [{
+            name := base ++ "." ++ rt.part "producesSource"
+            kind := "producer", direction := "runtimeInputsToRuntimeOutput"
+            expectedType := ← Producer.theoremType rt d m.externs }]
+        if !(calls m.id).isEmpty then
+          match CallAdmission.plan rt d runtimeTotality with
+          | .error reason =>
+            exclusions := exclusions ++
+              [{ kind := "runtimeCallAdmission", definition := m.id, reason }]
+          | .ok admission =>
+            refGroups := refGroups ++ [{
+              name := "CallAdmission.Runtime." ++ groupModuleName m.id
+              decls := Format.text admission.declarations
+              deps := runtimeModules admission.dependencies
+              supportImports := some runtimeSupport }]
+            claims := claims ++ [{
+              name := base ++ "." ++ rt.part "callArgumentsSource"
+              kind := "callAdmission", direction := "runtimeCallArgumentCarriers"
+              expectedType := admission.type }]
       if kind == "builtin" then
         match BuiltinCertificates.declarations env d with
         | .error reason =>
@@ -696,6 +767,29 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       coveredIds := coveredIds ++ bodied.map (·.id)
     if reverseReasons.isEmpty then
       reverseCoveredIds := reverseCoveredIds ++ bodied.map (·.id)
+  -- runtime entry of each extern relation: every runtime-valid input is covered, and both
+  -- directions hold under the abstract extern contract
+  if !runtimeClosure.isEmpty then
+    for d in externDefs do
+      let some m := externMembers.find? (·.id == d.it.id.it) | continue
+      match SourceEntry.declarations rt d m (some runtimeKnown) with
+      | .error reason =>
+        coverageEntries := coverageEntries.map fun e => if e.id != m.id then e else
+          { e with exclusions := e.exclusions ++
+            [{ kind := "runtimeSourceEntry", definition := m.id, reason }] }
+      | .ok proof =>
+        let fields ← SourceEntry.contracts rt d (some runtimeKnown)
+        refGroups := refGroups ++ [{
+          name := "SourceEntry.Runtime." ++ groupModuleName m.id, decls := proof
+          deps := "Externs" :: runtimeModules
+            (fields.flatMap fun (_, field) => field.dependencies).eraseDups
+          supportImports := some runtimeSupport }]
+        let claim : Coverage.Claim := {
+          name := m.defName ++ "." ++ rt.part "sourceCorrespondence"
+          kind := "sourceEntry", direction := "runtimeInputsToTwoWay"
+          expectedType := ← SourceEntry.theoremType rt d m (some runtimeKnown) }
+        coverageEntries := coverageEntries.map fun e =>
+          if e.id == m.id then { e with claims := e.claims ++ [claim] } else e
   -- the quoted spec, in order, for the refinement theorems
   let quotedNames := spec.filterMap fun d => match d.it with
     | .RelD i .. | .ExternRelD i .. => some (env.q (Names.relName i.it) ++ ".al")

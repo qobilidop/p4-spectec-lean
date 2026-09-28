@@ -20,7 +20,7 @@ def inputTypes (d : Lang.Al.def) : Except String (List typ) := do
     parameters.mapM fun parameter => match parameter.it with
       | .ExpP type => pure type
       | _ => throw "source entry needs first-order input parameters"
-  | .RelD _ nottyp inputs .. =>
+  | .RelD _ nottyp inputs .. | .ExternRelD _ nottyp inputs _ =>
     let fields := Mixfix.args nottyp.it
     pure (Exp.splitArgs (inputs.map (·.toNat)) fields).1
   | _ => throw "source entry needs a monomorphic defined callable"
@@ -121,8 +121,8 @@ def declarations (env : Env) (d : Lang.Al.def) (m : Props.Member)
     s!"  · exact {qualified}.realizes " ++ " ".intercalate arguments ++ "\n"
   pure (Std.Format.text (boundedLines (
     "/-- Every declared source input has admitted witnesses with both execution directions. -/\n" ++
-    s!"theorem {owner}.sourceCorrespondence\n    " ++ assumptions env m fields ++ " :\n" ++
+    s!"theorem {owner}.{env.part "sourceCorrespondence"}\n    " ++ assumptions env m fields ++ " :\n" ++
     "    " ++ result m fields ++ " := by\n" ++ proof ++
-    s!"\n#audit_axioms {qualified}.sourceCorrespondence")))
+    s!"\n#audit_axioms {qualified}.{env.part "sourceCorrespondence"}")))
 
 end P4SpecTec.Codegen.SourceEntry

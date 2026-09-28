@@ -102,6 +102,28 @@ class CompletionTests(unittest.TestCase):
             expected = "NanoP4Spec.R.sourceEntry" if count == len(claims) else None
             self.assertEqual(domain["coverageClaim"], expected)
 
+    def test_domain_profiles_are_not_mixed(self):
+        source = [("sourceEntry", "sourceInputsToTwoWay"),
+                  ("producer", "sourceInputsToSourceOutput"),
+                  ("callAdmission", "allCallArgumentCarriers")]
+        runtime = [("sourceEntry", "runtimeInputsToTwoWay"),
+                   ("producer", "runtimeInputsToRuntimeOutput"),
+                   ("callAdmission", "runtimeCallArgumentCarriers")]
+        relation = self.coverage["definitions"][1]
+
+        def bound(claims):
+            relation["claims"] = [{"name": f"NanoP4Spec.R.{kind}.{direction}", "kind": kind,
+                                   "direction": direction, "expectedType": "True"}
+                                  for kind, direction in claims]
+            manifest = completion.build_manifest(self.source, self.coverage, [], {})
+            return next(o for o in manifest["obligations"]
+                        if o["id"] == "domain:R")["coverageClaim"]
+
+        self.assertEqual(bound(runtime), "NanoP4Spec.R.sourceEntry.runtimeInputsToTwoWay")
+        # one component from each profile is no complete evidence
+        self.assertIsNone(bound(source[:2] + runtime[2:]))
+        self.assertIsNone(bound(runtime[:2] + source[2:]))
+
     def test_owned_scope_excludes_later_owners_and_other_stages(self):
         owned = completion.outstanding(self.manifest, "core", checked=True, owned="N3")
         owners = {self.manifest["requirements"][o["requirement"]]["owner"] for o in owned}

@@ -200,6 +200,16 @@ partial def resolve (env : Env) : typ' → typ'
     | _ => .VarT i targs
   | t => t
 
+/-- `resolve` below every constructor as well: aliases inside lists, options, tuples and type
+arguments are unfolded too. -/
+partial def resolveDeep (env : Env) (t : typ') : typ' :=
+  let deep (u : typ) : typ := { u with it := env.resolveDeep u.it }
+  match env.resolve t with
+  | .VarT i targs => .VarT i (targs.map deep)
+  | .IterT u k => .IterT (deep u) k
+  | .TupleT us => .TupleT (us.map deep)
+  | u => u
+
 /-- Whether a type name is an alias. -/
 def isAlias (env : Env) (id : String) : Bool :=
   match env.types.get? id with

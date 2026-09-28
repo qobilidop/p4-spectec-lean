@@ -85,13 +85,12 @@ changing any existing claim statement (checked by claim-by-claim diff):
 
 The blocker table below is historical: on `n3-core` every bodied definition is
 admitted (the fragment gate lists no exclusion) and the forward/reverse theorems of
-all but three typing certificates build, including `Decl_load`, `bin_op`, `Expr_ok`,
-`Expr_eval` and the six-member `Call_eval` group. Remaining before the N3 exit:
-`TableActions_ok` and the typing chain downstream of the three late failures, the
-runtime-profile domain evidence (runtime codecs on branch `n3-runtime`, then entry,
-producer and call-admission claims for the evaluation side), producers for
-multi-output and multi-group relations, the completion manifest, docs, the full gate
-and independent review. Shapes added to the drivers, each exercised by a named
+all of them build (local `lake test`, not yet the gate), including `Decl_load`,
+`bin_op`, `Expr_ok`, `Expr_eval` and the six-member `Call_eval` group. Domain evidence
+uses runtime-profile codecs and claims where the source profile's is incomplete;
+remaining before the N3 exit: compiling the latest domain claims, the domain contracts
+of `ite`, `repeat_`, `empty_set` and `empty_map`, docs, the full gate and independent
+review ([status](../status.md) has the exact state). Shapes added to the drivers, each exercised by a named
 certificate: guarded cast unfolding (`Expr_ok`, `Decl_load`), relation pattern
 iteration presets (`Expr_ok`), membership conflicts through `ValueBEq.elemOfRel`
 (`ParserTransition_ok`, `ParserStateList_ok`), bare generated traversals

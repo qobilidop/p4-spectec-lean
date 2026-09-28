@@ -76,6 +76,13 @@ def closeConstructorClash : TacticM Bool := do
       unless subgoals.isEmpty do throwError "not refuted"
       replaceMainGoal []
     if closed then return true
+    -- unification does not refute distinct string literals (`Keyword "BOOL"` against
+    -- `Keyword "MATCH_KIND"`); injectivity and literal simprocs do
+    let closed ← tryTac do
+      let name ← (← getMainGoal).withContext do pure (← f.getDecl).userName
+      evalTactic (← `(tactic| simp at $(mkIdent name):ident))
+      unless (← getGoals).isEmpty do throwError "not refuted"
+    if closed then return true
   return false
 
 /-- Close a branch whose natural or integer inequalities are contradictory, as when one side

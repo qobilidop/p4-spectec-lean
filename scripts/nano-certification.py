@@ -178,6 +178,12 @@ IDENTITY_CHECKS = ["source pins and export digest", "generated library freshness
 
 MONOMORPHIC_DOMAIN = (("sourceEntry", "sourceInputsToTwoWay"),
                       ("producer", "sourceInputsToSourceOutput"))
+# The runtime profile's grammar contains the source grammar and adds only the configured
+# runtime-only raw extern (decisions, "Runtime-inclusive evaluation domain"); complete
+# runtime evidence therefore covers the source domain as well as actual runtime values.
+RUNTIME_DOMAIN = (("sourceEntry", "runtimeInputsToTwoWay"),
+                  ("producer", "runtimeInputsToRuntimeOutput"))
+RUNTIME_CALL_DIRECTIONS = frozenset({"runtimeCallArgumentCarriers"})
 
 
 def domain_evidence(tag, definition, entry, claim):
@@ -185,22 +191,31 @@ def domain_evidence(tag, definition, entry, claim):
 
     A polymorphic or leaf callable has one combined source-domain contract. A monomorphic
     bodied callable needs source entry and producer claims, and call admission when it has
-    call sites (the bounded N2 criteria, applied to every callable). The returned name is the
-    entry claim; every required claim is still checked as compiled by check-coverage.
+    call sites (the bounded N2 criteria, applied to every callable), all in the source profile
+    or all in the runtime profile. The returned name is the entry claim; every required claim
+    is still checked as compiled by check-coverage.
     """
     combined = claim(entry, "sourceDomain", "sourceInputsAndOutput")
+    # An extern relation's inputs are covered by its runtime entry; its results are those of
+    # the abstract extern contract that entry assumes, discharged by the target.
+    if tag == "ExternRelD":
+        return claim(entry, "sourceEntry", "runtimeInputsToTwoWay")
     polymorphic = (tag == "FuncDecD" and len(definition["it"]) > 2
                    and bool(definition["it"][2]))
     if tag not in ("FuncDecD", "RelD", "TableDecD") or polymorphic:
         return combined
     if not entry["dependencies"] and combined:
         return combined
-    names = [claim(entry, kind, direction) for kind, direction in MONOMORPHIC_DOMAIN]
-    if entry["dependencies"]:
-        admitted = [c["name"] for c in entry["claims"] if c["kind"] == "callAdmission"
-                    and c["direction"] in N2_CALL_DIRECTIONS]
-        names.append(admitted[0] if admitted else None)
-    return names[0] if all(names) else None
+    for profile, calls in ((MONOMORPHIC_DOMAIN, N2_CALL_DIRECTIONS),
+                           (RUNTIME_DOMAIN, RUNTIME_CALL_DIRECTIONS)):
+        names = [claim(entry, kind, direction) for kind, direction in profile]
+        if entry["dependencies"]:
+            admitted = [c["name"] for c in entry["claims"] if c["kind"] == "callAdmission"
+                        and c["direction"] in calls]
+            names.append(admitted[0] if admitted else None)
+        if all(names):
+            return names[0]
+    return None
 
 
 def build_manifest(source, coverage, corpus_ids, identity):

@@ -14,9 +14,9 @@ def call (name : String) : Lang.Il.exp := Q.e (.CallE (Q.i name) [] []) .BoolT
 def func (name : String) (body : Lang.Il.exp) : Lang.Al.def :=
   Q.d (.FuncDecD (Q.i name) [] [] (Q.t .BoolT) [Q.cl [] body []] none [])
 
--- Membership is executable, but outside the forward proof fragment.
+-- Indexing outside a list is executable, but outside the forward proof fragment.
 def blocked : Lang.Il.exp :=
-  Q.e (.MemE bool (Q.e (.ListE [bool]) (.IterT (Q.t .BoolT) .List))) .BoolT
+  Q.e (.IdxE bool bool) .BoolT
 
 def fixture : Lang.Al.spec :=
   [func "leaf" bool, func "caller" (call "leaf"), func "blocked" blocked,
@@ -37,12 +37,12 @@ def entry (name : String) : Except String Codegen.Coverage.Entry := do
 #guard (entry "leaf").toOption.any (·.hasReverseRefinement)
 #guard (entry "caller").toOption.any (·.hasReverseRefinement)
 #guard (entry "blocked").toOption.any fun e => !e.hasForwardRefinement &&
-  e.exclusions.any (·.reason == "membership")
+  e.exclusions.any (·.reason == "indexing")
 #guard (entry "dependent").toOption.any fun e => !e.hasForwardRefinement &&
   e.exclusions.any (·.dependency == some "blocked")
 #guard (entry "cycleA").toOption.any fun e => e.recursive && !e.hasForwardRefinement &&
   e.group == ["cycleA", "cycleB"] &&
-  e.exclusions.any fun r => r.definition == "cycleB" && r.reason == "membership"
+  e.exclusions.any fun r => r.definition == "cycleB" && r.reason == "indexing"
 #guard (report >>= fun r => Codegen.Coverage.closure r "cycleA").toOption.any (·.length == 2)
 #guard (report >>= fun r => Codegen.Coverage.closure r "dependent").toOption.any fun es =>
   es.map (·.id) == ["dependent", "blocked"]
@@ -61,18 +61,15 @@ def reverseOnly : Codegen.Coverage.Entry := {
 
 def coveredCycle : Lang.Al.spec := [func "a" (call "b"), func "b" (call "a")]
 
+-- A mutual recursive group is certified in both directions, and so are its callers.
 #guard (Emit.coverage "Fixture" "test.json" coveredCycle).toOption.any fun r =>
-  r.definitions.length == 2 && r.definitions.all fun e => e.recursive && e.hasForwardRefinement &&
-    (e.claims.filter (·.kind == "refinement")).all (·.direction == "referenceToGenerated")
+  r.definitions.length == 2 && r.definitions.all fun e => e.recursive &&
+    e.hasForwardRefinement && e.hasReverseRefinement
 
--- A forward-certified recursive SCC cannot lend a missing reverse theorem to callers.
-def reverseBlockedCaller : Lang.Al.spec := coveredCycle ++ [func "caller" (call "a")]
+def cycleCaller : Lang.Al.spec := coveredCycle ++ [func "caller" (call "a")]
 
-#guard (Emit.coverage "Fixture" "test.json" reverseBlockedCaller).toOption.any fun r =>
-  r.definitions.all (·.hasForwardRefinement) &&
-  r.definitions.any fun e => e.id == "caller" && !e.hasReverseRefinement &&
-    e.exclusions.any fun reason =>
-      reason.kind == "realization" && reason.dependency == some "a"
+#guard (Emit.coverage "Fixture" "test.json" cycleCaller).toOption.any fun r =>
+  r.definitions.all fun e => e.hasForwardRefinement && e.hasReverseRefinement
 
 def builtinFixture : Lang.Al.spec :=
   [Q.d (.BuiltinDecD (Q.i "print_") [] [Q.pm (.ExpP (Q.t .TextT))] (Q.t .TextT) []),

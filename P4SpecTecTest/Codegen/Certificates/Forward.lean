@@ -183,18 +183,13 @@ private def supportedRecursive : List String :=
    "find_var_t", "find_var_e"]
 
 #guard supportedRecursive.all fun name => recursiveReason name == some none
-#guard ["update_var_e", "add_vars_t"].all fun name => recursiveReason name ==
-  some (some "recursive function registration-freshness proof is not implemented")
-#guard recursiveReason "expression_is_lvalue" ==
-  some (some "unused downcast binding composition is not implemented")
-#guard Validate.unusedDowncastBinding NanoP4Spec.«$is_object_typeIR».al
-#guard (Validate.unsupported env [] NanoP4Spec.«$is_object_typeIR».al).isSome
+-- registration freshness and unused downcast bindings no longer exclude a definition
+#guard ["update_var_e", "add_vars_t", "expression_is_lvalue"].all fun name =>
+  recursiveReason name == some none
 -- Numeric casts compose like other expressions; only an uncertified `bitstr_to_int` blocks.
 #guard (Validate.unsupported env [] NanoP4Spec.«$un_op».al ["pow2", "int_to_bitstr"]) ==
   some "calls a builtin"
 #guard (Validate.unsupported env [] NanoP4Spec.«$un_op».al builtins).isNone
-#guard !Validate.unusedDowncastBinding NanoP4Spec.«$typeIR_of_typeDefIR».al
-#guard !Validate.unusedDowncastBinding NanoP4Spec.Type_ok.al
 
 private def changedOutput (d : Lang.Al.def) : Lang.Al.def :=
   match d.it with
@@ -328,9 +323,10 @@ private def iteration (kind : Lang.Il.iter) (bound bind : List Lang.Il.var) : La
 #guard !Props.reachesPrintHints env NanoP4Spec.Type_ok.al
 #guard !Props.reachesPrintHints env NanoP4Spec.«$find_map».al
 
--- Pure polymorphic clauses: no premises and no calls; shadowing a global type is rejected.
+-- Pure polymorphic clauses: no calls, and only conditions over closed types; shadowing a
+-- global type is rejected.
 #guard Validate.polymorphicPure env NanoP4Spec.«$empty_map».al
-#guard !Validate.polymorphicPure env NanoP4Spec.«$ite».al
+#guard Validate.polymorphicPure env NanoP4Spec.«$ite».al
 #guard !Validate.polymorphicPure env NanoP4Spec.«$add_map».al
 #guard !Validate.polymorphicPure env NanoP4Spec.«$empty_frame».al
 

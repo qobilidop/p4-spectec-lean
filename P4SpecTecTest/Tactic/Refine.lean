@@ -40,7 +40,7 @@ example (p : Prop) (rf_c : p) : p := by
   exact rf_c
 
 -- Tracing identifies the hypothesis location and the fixed rule actually used.
-/-- info: Try this: simp only [Nat.zero_add] at h -/
+/-- info: Try this: simp (maxSteps✝ := 1000000) only [Nat.zero_add] at h -/
 #guard_msgs in
 set_option tactic.simp.trace true in
 example (n m : Nat) (h : 0 + n = m) : n = m := by

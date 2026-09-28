@@ -13,49 +13,51 @@ passing full local gates; details in the
 
 ## Work in progress on `n3-core`
 
-WIP commits (each message states what it holds and lacks): `2018bf5`, `97754b5`,
-`608a0a3`, `9f28d30`; later tactic fixes are uncommitted in the main worktree.
+Every commit on the branch is WIP (its message states what it holds and lacks); the
+branch merges `n3-runtime` (`be20c38`, `c2a5f04`, delegated to a subagent). The history
+must be squashed into coherent commits before `main`.
 
-- Fragment gate: every one of the 153 bodied definitions is admitted and emitted with
+- Refinement: every one of the 153 bodied definitions is admitted and emitted with
   forward and reverse theorems (extern-dependent ones under the abstract
-  `externsContract`); relation rule paths are flattened like `invoke_defined_rel`;
-  group budgets scale with rule paths (draft decisions in the session scratch, to be
-  recorded in `decisions.md`).
-- Last full build (`lake build NanoP4Spec` at `9f28d30` plus fixes): only
-  `TableEntry_ok`, `TableActions_ok` and `ParserStateList_ok` failed. The first and
-  last now pass by replay with the current tactics; `TableActions_ok` (overlapping
-  singleton and cons paths over a list) is being fixed. Modules downstream of these
-  three (the rest of the typing chain to `Program_ok`, `NanoSwitch_init`) have not
-  been checked yet. The whole evaluation group, `Call_eval`'s six-member group
-  included, builds.
-- Domain evidence (the 64 N3-owned `domain` obligations): the evaluation side needs
-  the runtime-inclusive profile (draft decision "Runtime-inclusive evaluation
-  domain"). Done: `Source.Valid` takes a `Domain` with a runtime alternative
-  (source profile unchanged), `SourceRuntime.lean` (monotonicity, checked closure
-  certificate, codec lifting). In progress on branch `n3-runtime` (worktree
-  `../p4-spectec-lean-runtime`, delegated): generated runtime codecs for the
-  `value`/`evalContext` closure. Remaining: runtime entry/producer/call-admission
-  claims, producers for multi-output and multi-group relations, the five
-  "argument note differs" call admissions, the extern relation's domain binding, and
-  the completion manifest.
+  `externsContract`). The last full `lake test` (2026-09-28, local, not the gate)
+  built every refinement certificate and the whole test library; its only failures
+  were eight runtime producers of extern-dependent relations missing the `Externs`
+  binder, fixed in the generator since.
+- Domain evidence: the evaluation side uses the runtime-inclusive profile (decisions,
+  "Runtime-inclusive evaluation domain"). The manifest accepts complete evidence from
+  one profile. After regenerating with the current generator, the N3-owned inventory
+  (`--require-owned N3`, unchecked mode) lists only `domain` for `ite`, `repeat_`,
+  `empty_set`, `empty_map`, plus `sourceIdentity`, which the completion CLI checks
+  itself. The latest generated claims are **not compiled yet**: runtime producers
+  with the `Externs` binder, per-output producers for multi-output relations, call
+  admission with deep alias resolution (`find_var_t/e`, `write_value_*`), and the
+  extern relation's runtime entry.
+- Parked: constant/selection polymorphic domains for `empty_set`, `empty_map` and
+  `ite`. Hand prototypes prove the outputs (`simp only [f] at run` then
+  `simp [set.admitted]`; `cases p0 <;> simp [f, Eval.check] at run <;> subst run;
+  assumption`), but routing them through `SourcePolymorphic.field` made the generator
+  run the uncached recursive `RepresentationCertificates.plan` for 20+ minutes; the
+  change was reverted. Resolve their fields from the catalog instead. `repeat_` (a
+  recursive list builder) needs a `partial_correctness` proof shape.
 
 ## Resume point
 
-1. Finish `TableActions_ok`, then run a full `lake build NanoP4Spec` and fix the
-   downstream typing-chain certificates.
-2. Integrate `n3-runtime`, then emit the runtime-profile domain claims and teach
-   `scripts/nano-certification.py` to accept them for runtime-closure callables.
-3. Record the draft decisions, update the Nano plan and `docs/certification.md`,
-   regenerate `completion.json`, run `--require-owned N3` and the full gate, get an
-   independent review, then squash the WIP history into coherent commits.
+1. `nix develop -c lake test`; fix the new domain modules it reports.
+2. The four polymorphic domains above; then run
+   `nix develop -c python3 scripts/nano-certification.py --update` and
+   `--require-owned N3`.
+3. Update the Nano plan's N3 section and `docs/certification.md` to the delivered
+   claims, run `nix develop -c scripts/check.sh`, get an independent review, squash
+   the WIP history into coherent commits, then integrate into `main`.
 
 Iteration: `scripts/replay-cert.py` in the main tree with `--no-build` after
 `lake build P4SpecTec` (never while a full build runs there); it is faithful only for
-tactic-only changes.
+tactic-only changes. Generation takes seconds; minutes mean a generator regression.
 
 ## Maintenance and repository state
 
-Worktrees: main (`n3-core`), `../p4-spectec-lean-replay` (scratch replays, detached),
-`../p4-spectec-lean-runtime` (`n3-runtime`). Older local branches `n3-decl-load` and
-`n3-expr-eval` are superseded by `n3-core`. The expected upstream exporter patch
+Worktrees: main (`n3-core`) and `../p4-spectec-lean-replay` (scratch replays,
+detached, disposable). Local branch `n3-runtime` is merged into `n3-core`; delete it
+with the other feature refs after integration. Older local branches `n3-decl-load`
+and `n3-expr-eval` are superseded by `n3-core`. The expected upstream exporter patch
 remains applied. No source pins changed.
