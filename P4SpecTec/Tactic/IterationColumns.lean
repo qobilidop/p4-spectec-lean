@@ -18,7 +18,9 @@ partial def columnTraversalInputs (prove : TacticM Unit) (raw typed : Expr) :
     let some right ← columnTraversalInputs prove (raw.getArg! 3) (typed.getArg! 3) | return none
     return some (← mkAppM ``forall₂Zip #[left, right])
   if let some observed ← traversalInputs prove raw typed then return some observed
-  if typed.isAppOfArity ``List.map 4 then
+  -- a mapped or sliced generated list: relate the whole lists canonically
+  if typed.isAppOfArity ``List.map 4 || typed.isAppOfArity ``List.take 3 ||
+      typed.isAppOfArity ``List.drop 3 then
     let saved ← saveState
     try
       let rawSyntax ← Term.exprToSyntax raw

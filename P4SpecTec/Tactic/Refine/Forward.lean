@@ -27,6 +27,8 @@ def closeBoolConflict : TacticM Bool := do
   goal.withContext do
     let mut trues : Array (Expr × FVarId) := #[]
     let mut falses : Array (Expr × FVarId) := #[]
+    -- refuted equations `¬ e = b`, with `b`
+    let mut negated : Array (Expr × Bool × FVarId) := #[]
     for decl in ← getLCtx do
       if decl.isImplementationDetail then continue
       let ty := (← instantiateMVars decl.type).consumeMData
@@ -34,6 +36,17 @@ def closeBoolConflict : TacticM Bool := do
         if rhs.consumeMData.isConstOf ``Bool.true then trues := trues.push (lhs, decl.fvarId)
         else if rhs.consumeMData.isConstOf ``Bool.false then
           falses := falses.push (lhs, decl.fvarId)
+      else if ty.isAppOfArity ``Not 1 then
+        if let some (_, lhs, rhs) := (ty.getArg! 0).consumeMData.eq? then
+          if rhs.consumeMData.isConstOf ``Bool.true then negated := negated.push (lhs, true, decl.fvarId)
+          else if rhs.consumeMData.isConstOf ``Bool.false then
+            negated := negated.push (lhs, false, decl.fvarId)
+    for (e, outcome, n) in negated do
+      for (e', f) in (if outcome then trues else falses) do
+        if e == e' then
+          goal.assign (← mkAbsurd (← goal.getType) (.fvar f) (.fvar n))
+          replaceMainGoal []
+          return true
     for (e, t) in trues do
       for (e', f) in falses do
         if e == e' then
@@ -74,16 +87,32 @@ def closeArithmetic : TacticM Bool := do
       if decl.isImplementationDetail then return false
       let ty := (← instantiateMVars decl.type).consumeMData
       let ty := if ty.isAppOfArity ``Not 1 then (ty.getArg! 0).consumeMData else ty
-      unless ty.isAppOfArity ``LT.lt 4 || ty.isAppOfArity ``LE.le 4 do return false
+      unless ty.isAppOfArity ``LT.lt 4 || ty.isAppOfArity ``LE.le 4 ||
+          ty.isAppOfArity ``Eq 3 do return false
       let carrier := (ty.getArg! 0).consumeMData
       return carrier.isConstOf ``Nat || carrier.isConstOf ``Int
   unless arithmetic do return false
   -- decided Boolean checks (`decide p || decide q = true`) become propositions `omega` reads;
   -- the attempt is atomic, so a failed one leaves the context unchanged
   tryTac do
+    -- related lists have equal lengths
+    let related ← withMainContext do
+      let mut out : Array Name := #[]
+      for decl in ← getLCtx do
+        if decl.isImplementationDetail then continue
+        let some (_, lhs, rhs) := (← instantiateMVars decl.type).consumeMData.eq? | continue
+        if lhs.isAppOfArity ``canons 1 && rhs.isAppOfArity ``canons 1 then
+          out := out.push decl.userName
+      pure out
+    for h in related do
+      let lengths ← freshName "rf_c_lengths"
+      evalTactic (← `(tactic|
+        have $(mkIdent lengths):ident := congrArg List.length $(mkIdent h):ident))
     let _ ← tryTac (evalTactic (← `(tactic|
       simp only [Bool.or_eq_true, Bool.and_eq_true, decide_eq_true_eq, Bool.not_eq_true',
-        decide_eq_false_iff_not] at *)))
+        canons_length, List.length_map,
+        decide_eq_false_iff_not, List.length_take, List.length_drop, List.length_nil,
+        List.length_cons] at *)))
     evalTactic (← `(tactic| omega))
 
 /-! ## The callee step -/
@@ -244,6 +273,24 @@ partial def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
       unless (← getGoals).isEmpty do
         unless ← tryTac (evalTactic (← `(tactic| rfl))) do throwError "payload equality open"
     then return
+  -- slices of related lists: rewrite with the lists' canonical facts
+  if ← tryTac do
+      let facts ← withMainContext do
+        let mut out : Array (TSyntax ``Lean.Parser.Tactic.simpLemma) := #[]
+        for decl in ← getLCtx do
+          if decl.isImplementationDetail then continue
+          let ty := (← instantiateMVars decl.type).consumeMData
+          let some (_, lhs, rhs) := ty.eq? | continue
+          if lhs.isAppOfArity ``canons 1 && (lhs.getArg! 0).consumeMData.isFVar &&
+              rhs.isAppOfArity ``canons 1 then
+            out := out.push (← `(Lean.Parser.Tactic.simpLemma| $(mkIdent decl.userName):ident))
+        pure out
+      if facts.isEmpty then throwError "no canonical list facts"
+      let _ ← tryTac (evalTactic (← `(tactic| simp only [canons_take, canons_drop,
+        List.map_take, List.map_drop, List.drop_zero])))
+      evalTactic (← `(tactic| simp only [$facts,*]))
+      unless (← getGoals).isEmpty do evalTactic (← `(tactic| rfl))
+    then return
   throwError "refine_al: values not related:{Lean.MessageData.ofGoal (← getMainGoal)}\
     \n(from{Lean.MessageData.ofGoal goal})"
 
@@ -269,6 +316,17 @@ partial def valueEqs (e : Expr) : List Expr :=
     | .mdata _ e => valueEqs e
     | .proj _ _ e => valueEqs e
     | _ => [])
+
+/-- The reference memberships `raws.any (Value.eq v)` and generated memberships
+`List.elem x xs` occurring in `e`. -/
+partial def memberships (e : Expr) : List Expr × List Expr :=
+  let e := e.consumeMData
+  let here : List Expr × List Expr :=
+    if e.isAppOfArity ``List.any 3 &&
+        (e.getArg! 2).consumeMData.isAppOfArity ``P4SpecTec.Runtime.Value.eq 1 then ([e], [])
+    else if e.isAppOfArity ``List.elem 4 then ([], [e]) else ([], [])
+  let below := e.getAppArgs.toList.map memberships
+  (here.1 ++ below.flatMap (·.1), here.2 ++ below.flatMap (·.2))
 
 /-- Close the main goal when a decided reference membership `raws.any (Value.eq v) = c`
 and a decided generated membership `List.elem x xs = c'` disagree although `v` represents
@@ -330,6 +388,59 @@ def closeMembershipConflict (s : SimpSet) : TacticM Bool := do
         saved.restore
         pure false
       if closed then return true
+  -- memberships inside compound decided tests (`!m₁ && !m₂`): rewrite each reference
+  -- membership into its generated counterpart, then compare the tests
+  let saved ← saveState
+  let facts ← goal.withContext do
+    let mut out : Array (Name × Expr) := #[]
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail || !decl.userName.toString.startsWith "rf_c" then continue
+      out := out.push (decl.userName, ← instantiateMVars decl.type)
+    pure out
+  let all := facts.toList.map fun (_, ty) => memberships ty
+  let references := (all.flatMap (·.1)).eraseDups
+  let generated := (all.flatMap (·.2)).eraseDups
+  let mut rewrote := false
+  for reference in references do
+    for member in generated do
+      let attempt ← saveState
+      let proven ← try
+        let equation ← (← getMainGoal).withContext do
+          let raws := reference.getArg! 1
+          let v := (reference.getArg! 2).consumeMData.getArg! 0
+          let x := member.getArg! 2
+          let xs := member.getArg! 3
+          let hx ← mkFreshExprSyntheticOpaqueMVar (← mkAppM ``P4SpecTec.Refine.Rel #[v, x])
+          let hs ← mkFreshExprSyntheticOpaqueMVar (← mkEq
+            (← mkAppM ``P4SpecTec.Refine.canons #[raws])
+            (← mkAppM ``P4SpecTec.Refine.canons #[← mkAppM ``List.map
+              #[← withLocalDeclD `y (← inferType x) fun y => do
+                  mkLambdaFVars #[y] (← mkAppM ``P4SpecTec.Prelude.toValue #[y]), xs]]))
+          let proof ← mkAppM ``Representation.ValueBEq.elemOfRel #[hx, hs]
+          pure (proof, [hx.mvarId!, hs.mvarId!])
+        let main ← getMainGoal
+        for hole in equation.2 do
+          setGoals [hole]
+          proveValue s
+          unless (← getGoals).isEmpty do throwError "membership premise remains"
+        setGoals [main]
+        let name ← freshName "rf_member"
+        let proof ← Term.exprToSyntax (← instantiateMVars equation.1)
+        evalTactic (← `(tactic| have $(mkIdent name):ident := $proof))
+        withMainContext do
+          for (fact, _) in facts do
+            let _ ← tryTac (evalTactic (← `(tactic|
+              rw [$(mkIdent name):ident] at $(mkIdent fact):ident)))
+        pure true
+      catch _ =>
+        attempt.restore
+        pure false
+      if proven then
+        rewrote := true
+        break
+  if rewrote then
+    if ← closeBoolConflict then return true
+  saved.restore
   return false
 
 /-- Close the main goal when a decided test `Value.eq a b = false` holds of canonically
@@ -666,7 +777,8 @@ def mapMGoals (s : SimpSet) (relation : Expr) (m n : Expr) : TacticM Bool := wit
   unless mh.isAppOf ``List.mapM && nh.isAppOf ``List.mapM && (chainTail m).isSome do
     return false
   let some inputs ← columnTraversalInputs (proveValue s) mh.getAppArgs.back! nh.getAppArgs.back!
-    | return false
+    | traceStep m!"traversal inputs not related: {mh.getAppArgs.back!} / {nh.getAppArgs.back!}"
+      return false
   -- a generated traversal that ends the computation continues with `pure`
   if (chainTail n).isNone then
     evalTactic (← `(tactic| refine refines_of_bind_pure ?_))
@@ -915,6 +1027,13 @@ def generatedDiscriminant (n : Expr) : TacticM (Option FVarId) := withMainContex
         match (e.getArg! 2).consumeMData with
         | .fvar f => if ← isGeneratedVar lib f then pure (some f) else pure none
         | _ => pure none
+      -- a one-element prefix ending in a generated tail (`x :: xs` against `[y]`); one split
+      -- decides a singleton pattern, and a longer prefix would split its tail forever
+      else if e.isAppOfArity ``List.cons 3 then Id.run do
+        let tail := (e.getArg! 2).consumeMData
+        match tail with
+        | .fvar f => return (do if ← isGeneratedVar lib f then pure (some f) else pure none)
+        | _ => return pure none
       else pure none
   if let some f := direct[0]? then
     pure (some f)
@@ -1137,6 +1256,9 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
           return some (← Term.elabTerm
             (← `(@P4SpecTec.Refine.Rel $element _)) none)
       return none
+  if head.isAppOf ``List.mapM then
+    traceStep m!"traversal relation: {relation} for {head.getAppArgs.toList.take 4} / \
+      {(chainHead n).getAppArgs.toList.take 4}"
   if let some relation := relation then
     if ← mapMGoals s relation m n then
       let goals ← getGoals
@@ -1344,6 +1466,12 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
         if (← getGoals).isEmpty then continue
         step s iteration subtypes
       return
+  -- a branch whose decided tests conflict is impossible, whatever remains to be executed
+  if ← closeArithmetic then return
+  if ← closeBoolConflict then return
+  if ← closeConstructorClash then return
+  if ← closeValueEqConflict s then return
+  if ← splitFactList s (step s iteration subtypes) then return
   goal.withContext do
     throwError "refine_al: stuck at the interpreter step{indentExpr head}\nagainst the generated\
       {indentExpr (chainHead n)}\nin{Lean.MessageData.ofGoal goal}"

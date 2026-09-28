@@ -119,7 +119,7 @@ def calcLemmas : List Name := [
   ``List.zip_cons_cons, ``List.zip_nil_right, ``List.zip_nil_left, ``List.foldlM_cons,
   ``List.foldlM_nil, ``List.mapM_cons, ``List.mapM_nil, ``List.cons_append, ``List.nil_append,
   ``List.append_nil, ``List.zipIdx, ``List.filterMap_cons, ``List.filterMap_nil,
-  ``List.contains, ``elem_cons_or, ``List.elem_nil, ``List.find?_cons, ``List.find?_nil,
+  ``List.contains, ``elem_cons_or, ``ofOption_ite, ``List.elem_nil, ``List.find?_cons, ``List.find?_nil,
   -- hint indices of a relation premise's input/output split compare `Int.ofNat` positions
   ``Int.ofNat_eq_natCast, ``Int.cast_ofNat_Int,
   ``List.lookup, ``List.isEmpty, ``List.reverse_cons, ``List.reverse_nil, ``List.range_zero,

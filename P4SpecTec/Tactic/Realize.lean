@@ -87,7 +87,10 @@ def splitData (e : Expr) : TacticM Bool := do
   if let some v ← stuckOn e then
     let name ← withMainContext do pure (← v.getDecl).userName
     traceStep m!"reverse cases {name}: {← withMainContext do v.getType}"
-    return ← tryTac (evalTactic (← `(tactic| cases $(mkIdent name):ident)))
+    -- by `FVarId`: a hygienic user name can resolve to another variable of that name
+    return ← tryTac do
+      let goals ← (← getMainGoal).cases v
+      replaceMainGoal (goals.map (·.mvarId)).toList
   return false
 
 /-- Prove an equality fact separately, retaining the exact reverse goal and its context. -/

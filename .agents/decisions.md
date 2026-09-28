@@ -156,6 +156,57 @@ forms, or a new carrier needs a different runtime extension. N2 supplies all 162
 source codecs and the selected closure's call invariants; broader core coverage
 remains N3 and complete target composition remains N4.
 
+## Runtime-inclusive evaluation domain (2026-09-28)
+
+`Source.Valid` takes a domain with two parts: the opaque external-type domain and the
+runtime-only alternatives of declared types. The source profile (`externDomain`) has
+none, so its grammar, codecs and statements are unchanged. The runtime profile
+(`runtimeDomain ["value"]`, from `--runtime-extern value`) admits exactly a raw
+`ExternV` at `value`, the shape extract writes into a receiver. Evaluation-side domain
+claims (entry, producer, call admission) are stated over the runtime profile for
+callables whose domain involves the `value` closure. Reason: after an extern callback
+the actual contexts hold raw extern values, so source-domain preservation is false for
+the evaluation relations; a runtime profile states the actual domain without assuming
+the target avoids raw values, which NanoSwitch does not. Types whose declared closure
+avoids `value` have the same values in both profiles (`Valid.runtimeIff`, from one
+checked closure certificate), so their source codecs lift. Alternatives rejected: a
+carrier-image domain (vacuous), a separate `RuntimeValid` inductive (duplicates every
+grammar lemma), owning the obligation in N4 (the core call closure does not depend on
+the target). Confidence medium-high; revisit if a pin changes the callback result
+shape or another carrier needs a runtime alternative.
+
+## N3 certificate shape (2026-09-28)
+
+Generated relations try complete rule-path attempts in the reference's flattened order:
+each attempt repeats its group's input match and shared premises, as
+`invoke_defined_rel` flattens the paths of all groups into one sequence. The earlier
+shared-prefix form was observationally equal but needed distribution through
+destructuring matches in every proof. Reason: correct by construction; alternatives pair
+one to one. Cost: shared premises run once per attempted path, as upstream does.
+Revisit only with a proved distribution lemma for every prefix form.
+
+Certificates of definitions whose callable closure reaches an extern relation quantify
+the generated `Externs` instance and assume `externsContract cfg`: on related inputs,
+every configured callback outcome has a related generated outcome and conversely, with
+failure kinds preserved. The extern relation's invocation certificates follow from it,
+and the completion manifest binds the `extern` obligation to their combined claim. The
+concrete NanoSwitch target discharges the contract in N4. Reason: design section 9.2
+allows extern-dependent results under explicit contracts; one contract keeps every
+caller's assumption identical. Revisit when the target exposes output invariants a
+caller needs.
+
+A certificate module keeps the 4M heartbeat default; a group theorem adds 1M per source
+rule path or clause of its members. Symbolic execution cost grows with the paths
+explored; a fixed budget either fails large definitions (`bin_op`, 26 clauses) or leaves
+small ones loose. The budget is a resource limit, not a weakened statement. Revisit
+with measurements or if a budget masks a runaway tactic.
+
+`scripts/nano-certification.py --require-owned N3` requires every core-stage obligation
+owned by N0–N3. Core replay of the typing corpus is owned by N4 and printing
+observations are target-stage; they stay reported, not waived. Source identity is
+discharged by the completion CLI's own checks (pins, export digest, generated freshness,
+`check-quotes`, `check-coverage`), recorded as `checkedBy`, never as a compiled claim.
+
 ## Knowledge ownership (2026-09-26)
 
 README is the short introduction/status; Design describes the intended system;

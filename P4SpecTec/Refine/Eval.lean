@@ -83,6 +83,11 @@ theorem orElse_unmatch {α : Type} {a : Eval α} : Eval.orElse a (throw .unmatch
 /-- A check that fails. -/
 @[simp] theorem check_false : Eval.check false = throw .unmatch := rfl
 
+/-- A guarded optional result is a guarded computation, whose test the drivers decide. -/
+theorem ofOption_ite {α : Type} (f : Fail) (c : Prop) [Decidable c] (x : α) :
+    Eval.ofOption f (if c then some x else none) = if c then pure x else throw f := by
+  by_cases h : c <;> simp [h, Eval.ofOption]
+
 /-- Generated membership as a disjunction, the form the reference's `List.any` takes;
 core's `List.elem_cons` leaves a Boolean `match` that never meets it. -/
 theorem elem_cons_or {α : Type} [BEq α] (a b : α) (bs : List α) :

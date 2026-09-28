@@ -81,7 +81,25 @@ changing any existing claim statement (checked by claim-by-claim diff):
   via generated `canon_toValue` injection bridges and the `subtype_canon` tactic.
   Recursive functions that register type parameters stay excluded.
 
-Neither entry point is closed yet. Remaining direct blockers:
+### N3 core coverage (branch `n3-core`, 2026-09-28, in progress)
+
+The blocker table below is historical: on `n3-core` every bodied definition is
+admitted (the fragment gate lists no exclusion) and the forward/reverse theorems of
+all but three typing certificates build, including `Decl_load`, `bin_op`, `Expr_ok`,
+`Expr_eval` and the six-member `Call_eval` group. Remaining before the N3 exit:
+`TableActions_ok` and the typing chain downstream of the three late failures, the
+runtime-profile domain evidence (runtime codecs on branch `n3-runtime`, then entry,
+producer and call-admission claims for the evaluation side), producers for
+multi-output and multi-group relations, the completion manifest, docs, the full gate
+and independent review. Shapes added to the drivers, each exercised by a named
+certificate: guarded cast unfolding (`Expr_ok`, `Decl_load`), relation pattern
+iteration presets (`Expr_ok`), membership conflicts through `ValueBEq.elemOfRel`
+(`ParserTransition_ok`, `ParserStateList_ok`), bare generated traversals
+(`ArgumentList_ok`), no-output column batches, canonical callee premises and
+encoder-form subtype bridges (`Call_eval`), lists and lengths decided in facts and
+sliced traversal inputs (`TableEntry_ok`).
+
+Historical first-checkpoint blockers:
 
 | Closure | Blocker | State |
 |---|---|---|

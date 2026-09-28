@@ -78,6 +78,19 @@ def eqnsOf (n : Name) : MetaM (List Name) := do
 /-- The local hypotheses to rewrite with: equations whose left side is a
 projection of a variable or a `canon` of a variable, and the guard. -/
 def factHyps (lookups : Bool := true) : TacticM (List Name) := do
+  -- a decided fact with a closed left side (`1 = xs.length`) would rewrite that constant
+  -- everywhere; it is used in the other direction
+  let flips ← (← getMainGoal).withContext do
+    let mut flips : List Name := []
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail || !decl.userName.toString.startsWith "rf_c" then continue
+      if let some (_, lhs, rhs) := (← instantiateMVars decl.type).consumeMData.eq? then
+        if !lhs.hasFVar && rhs.hasFVar then flips := decl.userName :: flips
+    pure flips
+  for name in flips do
+    let saved ← saveState
+    try evalTactic (← `(tactic| replace $(mkIdent name):ident := Eq.symm $(mkIdent name)))
+    catch _ => saved.restore
   (← getMainGoal).withContext do
     let mut out := []
     let environment ← getEnv
