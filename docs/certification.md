@@ -97,7 +97,7 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 381 compiled claim bindings; 507 remain
+The current 888 obligations have 439 compiled claim bindings; 449 remain
 unresolved. The bounded N2 check additionally requires the selected 30-definition
 closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
 primitive codecs and table initialization. It checks input coverage, output

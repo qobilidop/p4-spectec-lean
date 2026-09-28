@@ -51,45 +51,54 @@ unless stated otherwise. Historical Git paths are recovery pointers, not links.
   [CI 36340498357](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36340498357)
   passed. The committed record does not identify an independent reviewer for
   that compaction; do not infer one from its passing checks. The independent
-  GPT-6 Astra review in the current pass subsequently checked the compaction
+  GPT-6 Astra review in the later Codex pass (`aa5865f`) checked the compaction
   and found no lost obligations; this does not supply review at publication.
 
-## Current Codex tend-repo pass
+- Shared skill source gate (`aa5865f`, Codex tend-repo pass): the layout gate
+  now requires `.claude/skills` to be a symlink resolving to `.agents/skills/`
+  (`-L` and `-ef`), beyond the skill existing. Six focused link scenarios and
+  full gate session 47002 returned actual exit 0; an independent GPT-6 Astra
+  read-only review found no blockers (reviewed `scripts/check.sh` SHA-256
+  `2f1ca940dc670d514a152069d5226cf87e222fe253b771fb97dc23e104f34eae`; it did not
+  rerun the cases or gate).
+  [CI 36341571853](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36341571853)
+  passed. Full record at `aa5865f:.agents/notes/repository-stewardship.md`.
 
-Requested scope: exercise the shared maintenance procedure and refine agent
-infrastructure where evidence supports it. Base: `777977f`; its exact-revision
-CI above was checked before editing. The hidden working-state inventory and
-resume documents remain compact and preserve the paused work, so no files
-were moved or removed. This run found no demonstrated weakness in the skill;
-its instructions remain unchanged.
+## Current Claude Code tend-repo pass
 
-The layout gate checked only that the Claude-discovered skill existed, which
-also admitted a copied skills directory or a symlink to a divergent copy.
-The existing AGENTS rule requires a symlink to the shared `.agents/skills/`.
-Enforce both link type and destination identity (`-L` and `-ef`), retaining the
-existing skill-existence check. This adopts the earlier deferred review
-suggestion in the requested infrastructure pass, without claiming a copy had
-appeared in the repository. No new policy or semantic behavior is introduced.
+Requested scope: general maintenance to hand off N3 to a new session. Base
+`b6f1576`, whose exact-revision CI 36357022016 passed (checked before editing).
+Changes, documentation and working state only:
 
-Focused validation returned actual exit 0: `bash -n scripts/check.sh` and
-six temporary-directory scenarios executing the exact added gate block.
-Relative and absolute links to the shared directory passed; missing links,
-copied directories, links to another directory and broken links failed as
-expected. Full `nix develop -c scripts/check.sh` returned actual exit 0
-(session 47002), with no skip setting. Text hygiene and `git diff --check`
-also passed after the evidence edits.
-Independent read-only review: a separate GPT-6 Astra context reviewed the
-uncommitted diff against `777977f` and found no blockers. It confirmed the
-`-L`/`-ef` check, working-note accuracy, unchanged-skill rationale and preserved
-worktree, documentation branch and upstream patch. Reviewed `scripts/check.sh`
-SHA-256: `2f1ca940dc670d514a152069d5226cf87e222fe253b771fb97dc23e104f34eae`.
-The reviewer did not rerun the six cases, full gate, discovery probes or
-semantic tests; validation above belongs to the implementation agent. Its
-request to retain the focused harness reproducibly is addressed below.
-These are AI-agent reviews, not human review. Publication remains pending.
+- Compacted the Nano plan: N3 progress now states delivered support, the
+  remaining 85 definitions by file, the blocker table and review outcomes; the
+  finished N2 plan text is condensed to its binding constraints (full text at
+  `d85e82c:.agents/notes/nano-certification.md`); N2 counts are labelled
+  historical; the N3 estimate is reassessed.
+- Rewrote status as a resume point for completing N3.
+- Corrected stale public counts: completion bindings (381 → 439) in
+  Certification, and a volatile "18 of 153" in Related Work.
+- Rebased the local WIP branches `n3-decl-load` (`6996172` → `82fbe2e`) and
+  `n3-expr-eval` (`b451d9e` → `8ed31d3`) onto `b6f1576` as hand-written changes
+  only; both still compile the generator (and `n3-decl-load` the tactic
+  library). The superseded commits are local and unreferenced.
 
-Reproduce the six focused cases from the repository's Nix shell; the temporary
-fixtures are outside the checkout, and the tested block comes from the gate:
+No skill change: this run found no demonstrated weakness in the procedure.
+Validation: executable inputs are unchanged from `b6f1576`, so this pass reuses
+its full local gate (actual exit 0, 45 stages, no skips) and exact-revision CI
+36357022016; fresh text hygiene, `git diff --check` and a relative-link scan of
+`.agents/`, `docs/`, README and AGENTS returned exit 0 with no broken links.
+Independent read-only review of the uncommitted diff: a Claude Opus subagent (same
+model family as the author; independent context, not vendor), without building.
+It verified the counts, the per-file breakdown, branch bases, recovery paths and
+CI runs, and found no blockers; resolved: an unsupported review claim, the estimate
+arithmetic, this missing evidence record, two condensed constraints, an ambiguous
+branch description and a lesson that restated AGENTS. Not checked by the reviewer:
+the local gate, WIP compilation, and blocker semantics beyond commit messages.
+
+The shared-skill layout cases can be reproduced from the repository's Nix shell;
+the temporary fixtures are outside the checkout, and the tested block comes
+from the gate:
 
 ```bash
 set -euo pipefail
@@ -124,5 +133,7 @@ printf 'All six cases passed; fixtures remain at %s\n' "$root"
   concrete fixture fix, not a new global rule.
 - A Claude Code skill is discovered only under `.claude/skills/`; Codex reads
   `.agents/skills/`. Recorded in AGENTS and gated.
-- Skill discovery and shared-source identity are distinct checks: the
-  current pass strengthens the existing layout gate to cover both.
+- Skill discovery and shared-source identity are distinct checks; the layout
+  gate covers both (`aa5865f`).
+- N3 iteration was dominated by rebuild latency after tactic changes; the fix
+  is tooling (`scripts/replay-cert.py`) and a Lean pitfall entry, not policy.

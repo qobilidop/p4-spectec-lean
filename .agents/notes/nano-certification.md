@@ -1,10 +1,8 @@
 # Nano-P4 certification implementation plan
 
-Durable completion evidence and remaining plan, updated 2026-09-27.
-N0/N1/N2 are closed. N2 implementation is validated at `76bed84`; closure is
-recorded at `d85e82c`, with independent review and passing full local/remote gates.
-N3 is in progress (first checkpoint below); N4–N6 remain planned.
-The user authorized N3; full-P4 M3 remains paused.
+Active plan and durable evidence, updated 2026-09-27. N0/N1/N2 are closed (N2
+closure `d85e82c`). The user authorized N3, which is in progress; N4–N6 remain
+planned and full-P4 M3 remains paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
 and [status](../status.md) owns the next immediate action.
@@ -21,14 +19,14 @@ runtime raw-extern representation on actual callback paths. N2 supplies the
 reusable source-domain and call contracts below. Full core and target
 composition remain separate acceptance stages.
 
-## Current N2 evidence
+## N2 evidence (closed; constraints still bind)
 
 - All 162 declarations have generated full-source codecs: encoding validity,
   decoder soundness at arbitrary fuel, and stable sufficient decoding for each
   source value. Recursive/nested families use source derivations and actual
   carrier induction; parameter codecs and dictionaries remain explicit.
 - At N2 closure both correspondence directions covered 39 of 153 bodied declarations
-  (68 after the N3 work below). The strict
+  (68 now; see N3 progress). The strict
   N2 exit requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and
   Var_init, with their complete 30-definition dependency/SCC closure. It also
   requires source input coverage, successful source outputs and every actual
@@ -64,73 +62,57 @@ membership supplies source validity. The declared objectState extern domain
 admits arbitrary JSON; the additional value.runtimeExtern carrier constructor
 is excluded from the source value grammar. General target composition remains N4.
 
-## N3 first checkpoint (in progress)
+## N3 progress (in progress)
 
-Authorized 2026-09-27. Three commits (`8ae7998`, `42c3fd3`, `63a95cd`) raise
-paired forward/reverse coverage from 39 to 67 of 153 bodied definitions without
-changing any existing claim statement (checked by claim-by-claim diff):
+Delivered on `main` through `b6f1576` (passing CI 36357022016): paired
+forward/reverse coverage 39 → 68 of 153 bodied definitions, with no existing
+claim statement changed (checked claim by claim at each step). Relation
+run-soundness covers all 77 relations. Completion inventory: 888 obligations,
+439 bound, 449 unresolved. New reusable support:
 
-- Print callers: a definition whose actual callable closure reaches `print_`
-  states `cfg.printHints = []` in forward, reverse and source-entry statements.
-- Relation premises binding outputs (`Parameter_ok`/`Parameters_ok`): the
-  interpreter's Int-indexed input/output split, generated `xs.beq []` tests,
-  and branches whose decided tests conflict.
-- Pure polymorphic clauses (`empty_map`, `empty_set`) and the context builders
-  above them, including `make_loadContext`, `make_evalContext`, `NanoSwitch_setup`.
-- Recursive functions with subtype checks (`flatten_argumentList`, `find_var_e`),
-  via generated `canon_toValue` injection bridges and the `subtype_canon` tactic.
-  Recursive functions that register type parameters stay excluded.
+- Print callers state `cfg.printHints = []` when their actual callable closure
+  reaches `print_` (forward, reverse and source-entry statements).
+- Relation premises binding outputs; generated emptiness tests split the list;
+  impossible branches close by conflicting decided tests.
+- Pure polymorphic clauses (`empty_map`, `empty_set`) and the context builders.
+- Recursive functions with subtype checks, via generated `canon_toValue`
+  injection bridges (`subtype_canon`); those registering type parameters stay out.
+- Numeric coercions (`un_op`): the old exclusion was stale.
+- `scripts/replay-cert.py` for fast tactic iteration (not evidence), and
+  resource-limit goal reporting under `refine_al.trace`.
 
-Neither entry point is closed yet. Remaining direct blockers:
+Remaining: 85 bodied definitions, by source file: typing 5.01 (21), 5.06 (4),
+5.09 (3), 5.11 (3), 5.08 (3), 5.10 (2), 5.00/5.04/5.07/5.13 (1 each); evaluation
+8.01 (17), 8.09 (6), 8.11 (3), 8.10 (2), 8.14 (2), 8.00 (1); 9-nano-switch (4);
+3.2-bits (3); 7.1-load (3); 0-stdlib (2); 3.1-operations (2). Neither first
+checkpoint entry point is closed:
 
 | Closure | Blocker | State |
 |---|---|---|
-| Program_load | `Decl_load`: literal list indexing (`argument*[0]`) | Admitting `IdxE` on a list with a numeric literal emits exactly `Decl_load`, `Decls_load`, `Program_load`; `Decl_load.refines` then exceeds 4M heartbeats (seven rule paths over `declaration`). Profile before retrying; semantics agree (out of range is `Fail.err` on both sides). |
-| Expr_eval | `bin_eq` (hence `bin_op`): two-column extraction premises and iterated recursive calls over zipped columns | Local WIP branch `n3-expr-eval` (`b451d9e`) admits the shape; both extraction premises prove, then the forward proof stalls where a fuel split inside the iterated calls leaves `List.mapM (fun _ => diverge) (zip …)` against the generated traversal. Needs ordered-traversal pairing over zipped extracted columns with the recursion hypothesis. |
+| Program_load | `Decl_load`: literal list indexing (`argument*[0]`) | Local WIP branch `n3-decl-load` (`82fbe2e`, based on `b6f1576`, generated files omitted). Admitting `IdxE` on a list at a literal emits exactly `Decl_load`, `Decls_load`, `Program_load`. `Decl_load.refines` reaches the `find_callableDef_l` call at 8M heartbeats (~5 min per replay), where the reference `PARSER` option is exposed as `none` but the generated `p0.PARSER` is not split. Semantics agree (out of range is `Fail.err` on both sides). Seven rule paths over very large reference values make the proof slow; address cost first. |
+| Expr_eval | `bin_eq` (hence `bin_op`): two-column extraction premises and iterated recursive calls over zipped columns | Local WIP branch `n3-expr-eval` (`8ed31d3`, based on `b6f1576`, generated files omitted) admits the shape. Both extraction premises prove; the forward proof then stalls where a fuel split inside the iterated calls leaves `List.mapM (fun _ => diverge) (zip …)` against the generated traversal. Needs ordered-traversal pairing over zipped extracted columns with the recursion hypothesis. |
 | Expr_eval | `Expr_eval`: the same extraction premise, then an iterated pair into `assoc_` | Waits on `bin_op`; untested. |
+| — | `write_value_from_bits'` group | Slicing. |
 
-`un_op` is certified: the numeric-coercion exclusion was stale, and the current
-tactics prove both directions (68 of 153). Removing it exposed slicing as the
-actual blocker of the `write_value_from_bits'` group.
+Reviews (read-only Claude Opus subagents, not human review; no build by the
+reviewer; resolutions verified by the full gate): `aa5865f..63a95cd` found no
+soundness blocker (resolved: an empty-goal `getLast!` path, overbroad list split,
+an overstated docstring, missing predicate tests); the replay tooling (resolved:
+tracing-only goal formatting that rethrows the original exception, full-name
+`--only` keeping referenced helpers, anchored options, stated faithfulness
+limits); the uncommitted `un_op` diff that became `b6f1576` found only nits (resolved:
+a test-comment callee name, a stale count, the WIP-branch rebase note). No
+unresolved findings. Kept by choice:
+`Builtin.requiresPrintHints` beside `reachesPrintHints`; the 50-character subject
+of `8ae7998` (published).
 
-Reassessment: the 4–8-hour checkpoint budget was consumed reaching 67/153 with
-both entry points still open, so N3's 16–32-hour range is optimistic; treat
-24–40 hours as the working N3 range until the iteration and heartbeat costs
-below are reduced. Most elapsed time went to rebuilds: any tactic change
-rebuilds every certificate (about 5 minutes for `NanoP4Spec`), and single
-certificate retries cost 30 seconds to 5 minutes.
-
-Independent review of `aa5865f..63a95cd`: a read-only Claude Opus subagent
-(not human review), without building; it spot-checked generated modules. It
-found no soundness blocker. Resolved before publication: a possible empty-goal
-`getLast!` after a conflict closed inside a non-tail callee step; the list split
-now accepts only `xs.beq []`/`xs == []`/`xs.isEmpty`, cases the `FVarId` directly,
-and is shared by both drivers; `polymorphicPure`'s docstring no longer claims a
-check it does not make; unit tests now cover `reachesPrintHints`, `polymorphicPure`,
-`requiresStructureRulesOf`, `aliasEncoders` and the recursive admission reasons;
-`subtype_canon` proves each helper once; docstring, ordering and wrap nits.
-Kept: `Builtin.requiresPrintHints` remains beside `reachesPrintHints` (a test uses
-it), and the first commit subject is exactly 50 characters (published as is).
-The first full gate also caught generated lines over 100 columns and two unit
-tests predating the widened fragment; both were fixed.
-
-Iteration tooling (`scripts/replay-cert.py`, limit reporting in normalization) was
-reviewed read-only by a Claude Opus subagent (not human review) at `fbb5123`, without
-building. Resolved before publication: the goal is formatted only when tracing, with a
-fresh heartbeat budget, and the original exception is always rethrown (also in
-`normalizeAt`); `--only` matches full names and keeps theorems that kept chunks use
-(builtin `dispatch` helpers), with a test over every committed refinement module;
-options are anchored to the preamble; the docstring states that replay is faithful
-only for tactic-only changes (imported certificates keep earlier proofs, and object
-files may predate regenerated statements or rebuilt non-tactic modules).
-
-## Verification and independent review
+## N2 closure verification (historical)
 
 The corrected full local `nix develop -c scripts/check.sh` returned actual exit 0
 (session 47761), all 44 stages with no skips. It includes exact compiled theorem
 types/axioms, strict N2, quotation/generation freshness, both replay legs and
 field-update mutations. Source checks cover 342 ordinary declarations and eight
-typed variables; compiled coverage checks 806 claims. The manifest retains
+typed variables; compiled coverage checked 806 claims. The manifest then had
 888 obligations, 381 bindings and 507 unresolved, independently of the strict
 30-definition N2 closure.
 
@@ -168,41 +150,19 @@ Observed proof cost: the first expanded remote library/certificate build took
 uncontrolled observations, not comparable benchmarks or additive wall times.
 Profile the remaining proof costs before expanding expensive recursive groups.
 
-## N2. Build reusable representation and primitive contracts
+## Standing constraints (from N2, still binding)
 
-Implement the interfaces selected in N1, with independently stated source
-domains, representation coverage, admitted generated-input validity and
-decoder sufficiency. Handle recursive/nested syntax and value families,
-polymorphic instantiations, subtype injection/projection and membership.
-Prove the invariants at initialization and preserve them at every call;
-do not add hypotheses that no actual caller can establish.
-
-Complete builtin contracts by family: lists/maps/sets and byte text;
-numeric/bit operations; hint-sensitive printing. Cover all 26 builtin
-declarations, including those unused by the selected execution examples.
-Include operation-specific rejection/error behavior and legal parameter
-instances. Generate and audit the wrappers' connections to reference dispatch.
-
-Extend both proof directions together for type arguments, casts, indexing,
-slicing, updates, membership and iteration as demanded by the inventory.
-Implement ordered relation attempts, negative premises and recursive groups
-without requiring every logical relation to have an exact converse. Preserve
-the existing run-soundness layer and prove determinism only where a chosen
-proof or client actually needs it.
-
-Exit: generated two-way certificates for the original 18 functions on their
-full declared domains, the N1 recursive relation group, and the `Var_init`
-closure (`default`, `add_var_e`, `dom_map`, `in_set`, builtin `add_map`).
-Use `Type_ok` as an intermediate builtin/lookup integration check: its closure
-is `Type_ok`, `typeIR_of_typeDefIR`, `find_typeDef_t`, and builtin `find_map`.
-These are integration checks, not a reason to omit other N2 obligations.
-Reusable support stays outside `ExampleProofs`; no generated files are patched
-by hand. Record remaining inventory blockers and current proof costs.
-
-Primary surfaces: `Codegen/Types.lean`, `Codegen/Funcs.lean`,
-`Codegen/Certificates/Forward.lean`, `Codegen/Emit.lean`, `Refine/`, `Tactic/`, and
-`P4SpecTecTest/`. Reachable legacy matching/substitution fallbacks must be
-replaced or proved unreachable on the admitted domains before certifying them.
+Prove invariants at initialization and preserve them at every call; do not add
+hypotheses that no actual caller can establish. Extend both proof directions
+together; implement ordered relation attempts, negative premises and recursive
+groups without requiring every logical relation to have an exact converse; preserve
+the run-soundness layer, and prove determinism only where a proof or client needs it. Reachable legacy
+matching/substitution fallbacks must be replaced or proved unreachable on the
+admitted domains before certifying them. Reusable support stays outside
+`ExampleProofs`; generated files are never patched by hand. The N2 plan text is
+recoverable at `d85e82c:.agents/notes/nano-certification.md`. Primary surfaces:
+`Codegen/Types.lean`, `Codegen/Funcs.lean`, `Codegen/Certificates/Forward.lean`,
+`Codegen/Emit.lean`, `Refine/`, `Tactic/` and `P4SpecTecTest/`.
 
 ## N3. Close core semantics in dependency order
 
@@ -289,9 +249,8 @@ or axiom audits. Update the certification guide and README only to the claims
 actually delivered. Independent review, the full local gate and exact-revision
 remote CI must pass before declaring the milestone complete.
 
-## Execution after N2
+## Execution constraints
 
-N3 is in progress; its first checkpoint is recorded above.
 Preserve all 78 typing programs and 39 STF sessions. Only three STF sessions have
 stored observations; missing observations are not successful replay.
 Full-P4 M3 stays paused. The dynamic NanoSwitch port and shared verify ABI limits
@@ -315,14 +274,18 @@ builds and validation, not summed subagent-hours or a calendar commitment.
 
 | Milestone | Working estimate | Main uncertainty |
 |---|---:|---|
-| N3: complete core semantics | 16–32 hours | Remaining iteration/polymorphism, recursive groups and call/context invariants |
+| N3: complete core semantics | 16–32 hours; revised 30–45 | Remaining iteration/polymorphism, recursive groups and call/context invariants |
 | N4: target composition | 12–24 hours | Typed callbacks, intermediate state, initialization and full packet observations |
 | N5: whole-program theorem | 4–8 hours | Usability of completed N3/N4 contracts |
 | N6: release evidence | 4–8 hours | Scope audit, mutations, performance and final validation |
 
 The base total is 36–72 hours; budget 45–90 with contingency, about 60 as a
 working estimate. Definition/obligation counts are not effort percentages.
-The first proposed N3 checkpoint is Program_load/Expr_eval in 4–8 hours,
-included above; reassess the estimate against actual reusable proof coverage
-then. N4 has the highest semantic uncertainty. Some N3/N4 work can overlap,
+Reassessment (2026-09-27, low confidence): about 10 N3 hours went into 39 → 68
+without closing the first checkpoint; most time was rebuild latency, now reduced
+by the replay tool. Remaining N3 is estimated at 20–35 hours (30–45 in total,
+raising the base total to about 50–85 hours; N4–N6 unchanged): the untouched
+typing and evaluation relations may still expose new tactic gaps. Sample one or
+two typing relations and one evaluation rule early to calibrate. N4 has the
+highest semantic uncertainty. Some N3/N4 work can overlap,
 but the budget assumes no large parallelism discount before interfaces settle.

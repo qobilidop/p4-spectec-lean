@@ -273,9 +273,9 @@ equivalence between that relation and the reference. Consumers should use
 the proved direction, domain and environment, not infer a stronger contract
 from the word “certificate”. See the [verification contract](design.md#5-verification-and-validation).
 
-**Evaluate complete uses, not just generated coverage.** At this baseline,
-[generated AL refinement](../NanoP4Spec/Refinement.lean) covers 18 of 153 Nano
-definitions in one direction. The handwritten
+**Evaluate complete uses, not just generated coverage.** The
+[generated AL refinement](../NanoP4Spec/Refinement.lean) covers only part of the 153
+Nano definitions; [Certification](certification.md) records the current count. The handwritten
 [field-update certificate](../ExampleProofs/NanoP4FieldUpdate/Certificate.lean)
 additionally establishes representation coverage, initialization and two-way
 terminating correspondence on its scalar domain. The

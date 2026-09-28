@@ -1,56 +1,42 @@
 # Status
 
-Session handoff, updated 2026-09-27. N3 is authorized and in progress; its first
-checkpoint (Program_load/Expr_eval) is partly done. N4–N6 have not started and
-full-P4 M3 remains paused.
+Session handoff, updated 2026-09-27. N3 (complete core semantics) is authorized
+and in progress. The user plans to request completing N3 fully in a new session.
+N4–N6 have not started; full-P4 M3 remains paused.
 
 ## Verified checkpoint
 
-N0/N1/N2 are complete (closure `d85e82c`, CI 36316496027). The first N3 checkpoint
-adds four commits on `main`: `8ae7998`, `42c3fd3`, `63a95cd` and the review/working-state
-follow-up, then `un_op`. Paired forward/reverse correspondence now covers 68 of 153
-bodied definitions (39 at N2), with no existing claim statement changed. Details, the
-blocker table and the review record are in the
-[Nano plan](notes/nano-certification.md#n3-first-checkpoint-in-progress).
-
-Local evidence: full `nix develop -c scripts/check.sh` on the final tree returned
-actual exit 0, all 44 stages, no skips (an earlier run failed only text hygiene on
-one line, fixed). Remote CI for the pushed revision was pending at handoff; check
-it before unrelated work.
+`main` at `b6f1576` passed remote
+[CI 36357022016](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36357022016)
+(the two preceding pushes' runs were cancelled as superseded; `b6f1576` contains
+them). The full local `nix develop -c scripts/check.sh` returned actual exit 0,
+45 stages, no skips, on that tree. Paired forward/reverse correspondence covers 68 of
+153 bodied definitions (39 at N2); all 77 relations have run-soundness; the
+completion inventory has 888 obligations, 439 bound. The
+[Nano plan](notes/nano-certification.md#n3-progress-in-progress) holds the delivered
+support, the remaining inventory by file, the blocker table and the reviews.
 
 ## Resume point
 
-Neither N3 entry point is closed. Next, in order:
+N3 exit: both directions for all 153 bodied definitions, with representation and
+initialization evidence, and the core completion check passing. Next, in order:
 
-1. `Decl_load` (Program_load): continue from local branch `n3-decl-load`
-   (`6996172`, WIP, unvalidated; its commit message lists what it holds and
-   lacks). It admits literal list indexing and gets `Decl_load.refines` as far as
-   the `find_callableDef_l` call at 8M heartbeats (~5 minutes per replay): the
-   reference `PARSER` option is exposed as `none` while the generated `p0.PARSER`
-   is not split to match. Address proof performance (seven paths over very large
-   reference values) before the remaining gaps.
-2. Expr_eval: `un_op` is done. `bin_eq` (hence `bin_op`) continues from local
-   branch `n3-expr-eval` (`b451d9e`, WIP): extraction premises prove; the
-   iterated recursive calls over zipped columns need ordered-traversal pairing
-   (see the plan's blocker table). `Expr_eval` itself waits on `bin_op`.
-3. Reassess the N3 estimate (now 24–40 hours working range) at the close of
-   both entry points.
+1. Calibrate: attempt one or two typing relations (`5.01`) and one evaluation
+   rule (`8.01`) with `scripts/replay-cert.py` to see which tactic gaps recur.
+2. Expr_eval: continue local branch `n3-expr-eval` (`8ed31d3`): ordered-traversal
+   pairing over zipped extracted columns with the recursion hypothesis
+   (`bin_eq` → `bin_op` → `Expr_eval`).
+3. Program_load: continue local branch `n3-decl-load` (`82fbe2e`): reduce
+   `Decl_load`'s proof cost, then split the generated `PARSER` option.
+4. Proceed through `Program_ok`, `NanoSwitch_init`, `NanoSwitch_drive` and the
+   remaining sweep per the plan's N3 section.
 
-Tactic iteration: use `scripts/replay-cert.py` (added after `3b74f2e`) instead of
-`lake build` for single certificates; it re-elaborates scratch copies against
-existing generated object files (for example 28 seconds for
-`Parameters_ok --only realizes`) and `refine_al.trace` now names the goal on which
-a resource limit ran out. It is faithful only for tactic-only changes and is not
-evidence; the full gate remains the verdict. Its commit passed the full local gate
-(actual exit 0, 45 stages, no skips) after independent review fixes; CI for `3b74f2e`
-was still running at that point and the tooling push follows it.
+Both WIP branches are local only, rebased onto `b6f1576` as hand-written changes;
+regenerate `NanoP4Spec/` after checking one out. Iterate on tactics with
+`scripts/replay-cert.py` (faithful only for tactic-only changes; never evidence).
 
 ## Maintenance and repository state
 
-One worktree on `main`; local branches `n3-decl-load` and `n3-expr-eval` hold
-the WIP above. Both need a rebase onto `main` before reuse: `n3-decl-load` sits on
-an earlier copy of the replay-tooling commit, and `n3-expr-eval` already contains
-the `un_op` change now on `main`. The
-older `docs/repository-review` branch and local
-archive backup are preserved. The expected upstream exporter patch remains
-applied. No source pins changed.
+One worktree on `main`. Local branches: `n3-decl-load`, `n3-expr-eval` (WIP above)
+and the older `docs/repository-review`; the local archive backup is preserved.
+The expected upstream exporter patch remains applied. No source pins changed.
