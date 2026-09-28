@@ -43,7 +43,8 @@ theorem Valid.mono {spec : Lang.Al.spec} {d e : Domain} (le : Domain.Le d e) {ty
   | external name v declared payload => exact .external name v declared (le.1 _ _ payload)
   | runtime name arguments v payload => exact .runtime name arguments v (le.2 _ _ payload)
   | nil => exact .nil
-  | cons type v types values head tail ihHead ihTail => exact .cons type v types values ihHead ihTail
+  | cons type v types values head tail ihHead ihTail =>
+    exact .cons type v types values ihHead ihTail
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.mono' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -58,6 +59,28 @@ theorem externDomainLe (types : List String) : Domain.Le externDomain (runtimeDo
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms externDomainLe
 #audit_axioms externDomainLe
+
+/-- A raw extern at a runtime type is a runtime-only alternative of its profile. -/
+theorem runtimeDomainExtern {types : List String} {name : String} (member : name ∈ types)
+    {v : value} {j : Lean.Json} (shape : v.it = .ExternV j) :
+    (runtimeDomain types).runtime name v :=
+  ⟨member, j, shape⟩
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.runtimeDomainExtern' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms runtimeDomainExtern
+#audit_axioms runtimeDomainExtern
+
+/-- A runtime-only alternative of a runtime profile is a raw extern at a runtime type. -/
+theorem runtimeDomainPayload {types : List String} {name : String} {v : value}
+    (payload : (runtimeDomain types).runtime name v) :
+    name ∈ types ∧ ∃ j, v.it = .ExternV j :=
+  payload
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.runtimeDomainPayload' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms runtimeDomainPayload
+#audit_axioms runtimeDomainPayload
 
 /-- Every declared type name in a type phrase is in `names`; function types are excluded. -/
 inductive NamesIn (names : List String) : typ' → Prop where
@@ -373,6 +396,10 @@ def closedCheck (spec : Lang.Al.spec) (types names : List String) : Bool :=
       (bodyFieldsCheck definition).all fun field =>
         namesInCheck (names ++ parameters.map (·.it)) field.it
     | none => true
+
+/-- Decide a closure check (`namesInCheck`, `closedCheck`) by kernel evaluation. A single
+token, so that generated proofs survive line wrapping. -/
+macro "closure_check" : tactic => `(tactic| decide +kernel)
 
 /-- The evaluated closure check is sound. -/
 theorem closedCheckSound {spec : Lang.Al.spec} {types names : List String}

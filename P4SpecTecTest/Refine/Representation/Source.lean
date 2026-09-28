@@ -1,4 +1,5 @@
 import P4SpecTec.Refine.Representation.SourceRecord
+import P4SpecTec.Refine.Representation.SourceRuntime
 import NanoP4Spec.«1-syntax»
 
 /-! Distinguishing source grammar checks for namespaces, tags and parameter lookup. -/
@@ -18,16 +19,28 @@ example : Representation.Source.Substitutes
     [("T", Lang.Il.typ'.TextT), ("T", .BoolT)].reverse
     (.VarT (Q.i "T") []) .BoolT := .bound _ _ rfl
 
-example : ¬ Representation.Source.Valid [] (fun _ _ => False) (.NumT .NatT)
+example : ¬ Representation.Source.Valid [] ⟨fun _ _ => False, fun _ _ => False⟩ (.NumT .NatT)
     (Runtime.Value.Make.int 0) := by
   intro valid
   cases valid with
   | nat _ _ shape => simp [Runtime.Value.Make.int, Runtime.Value.Make.mk] at shape
 
-example : ¬ Representation.Source.Valid [] (fun _ _ => False) (.IterT (Q.t .TextT) .Opt)
+example : ¬ Representation.Source.Valid [] ⟨fun _ _ => False, fun _ _ => False⟩
+    (.IterT (Q.t .TextT) .Opt)
     (Runtime.Value.Make.list .TextT []) := by
   intro valid
   cases valid <;> contradiction
+
+-- A raw extern is a runtime-only alternative of a configured runtime type.
+example : Representation.Source.Valid [] (Representation.Source.runtimeDomain ["value"])
+    (Q.varT "value" []) (Runtime.Value.Make.mk (Q.varT "value" []) (.ExternV .null)) :=
+  .runtime (Q.i "value") [] _ (Representation.Source.runtimeDomainExtern (by decide) rfl)
+
+-- The same raw extern at an unconfigured type is not a runtime alternative.
+example : ¬ (Representation.Source.runtimeDomain ["value"]).runtime "fieldValue"
+    (Runtime.Value.Make.mk (Q.varT "fieldValue" []) (.ExternV .null)) := by
+  intro payload
+  simpa using (Representation.Source.runtimeDomainPayload payload).1
 
 private def recordFields : List typfield :=
   [(Q.a (.Keyword "number"), Q.t (.NumT .NatT)), (Q.a (.Keyword "text"), Q.t .TextT)]
@@ -39,7 +52,7 @@ private def recordType := Q.varT "exampleRecord" []
 private def bytes := ByteText.ofString "bytes"
 private def recordValue (fields : List (String × value)) := Runtime.Value.Make.str recordType fields
 private def recordSource (v : value) :=
-  Representation.Source.Valid [recordDeclaration] (fun _ _ => False) recordType v
+  Representation.Source.Valid [recordDeclaration] ⟨fun _ _ => False, fun _ _ => False⟩ recordType v
 
 example : recordSource (recordValue
     [("number", Runtime.Value.Make.nat 1), ("text", Runtime.Value.Make.text bytes)]) := by
