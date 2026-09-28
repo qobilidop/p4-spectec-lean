@@ -85,27 +85,27 @@ private def proofTemplate : String :=
   "\n" ++
   "#audit_axioms NAME.sourcePayload\n\n" ++
   "/-- Every legal parameter codec yields the exact declared composite alias codec. -/\n" ++
-  "theorem NAME.codec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n" ++
+  "theorem NAME.PART_CODEC {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n" ++
   "    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n" ++
   "    (leftCodec : Representation.Codec (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain" ++
+  "DOMAIN" ++
   " leftType.it) left)\n" ++
   "    (rightCodec : Representation.Codec\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain rightType.it) right) :\n" ++
+  "DOMAIN rightType.it) right) :\n" ++
   "    @Representation.Codec (QUALIFIED α β) ⟨QUALIFIED.toValue⟩\n" ++
   "      ⟨QUALIFIED.ofValue⟩\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID [leftType, " ++
+  "DOMAIN (Q.varT SOURCE_ID [leftType, " ++
   "rightType]))\n" ++
   "      (LIST_QUALIFIED.admitted (PAIR_QUALIFIED.admitted left right)) := by\n" ++
   "  letI : OfValue (LIST_QUALIFIED (PAIR_QUALIFIED α β)) :=\n" ++
   "    ⟨LIST_QUALIFIED.ofValue⟩\n" ++
   "  have innerCodec (a b : Lang.Il.typ) (ha : a.it = leftType.it) (hb : b.it = rightType.it) " ++
   ":=\n" ++
-  "    LIST_QUALIFIED.codec (Q.t (Q.varT PAIR_ID [a,b]))\n" ++
+  "    LIST_QUALIFIED.PART_CODEC (Q.t (Q.varT PAIR_ID [a,b]))\n" ++
   "      (PAIR_QUALIFIED.admitted left right)\n" ++
-  "      (PAIR_QUALIFIED.codec a b left right (by simpa only [ha] using leftCodec)\n" ++
+  "      (PAIR_QUALIFIED.PART_CODEC a b left right (by simpa only [ha] using leftCodec)\n" ++
   "        (by simpa only [hb] using rightCodec))\n" ++
   "  refine @Representation.Codec.mk _ ⟨QUALIFIED.toValue⟩\n" ++
   "    ⟨QUALIFIED.ofValue⟩ _ _ ?_ ?_\n" ++
@@ -130,21 +130,21 @@ private def proofTemplate : String :=
   "      cases fuel with\n" ++
   "      | zero => omega\n" ++
   "      | succ fuel => exact result fuel (by omega)\n" ++
-  "#audit_axioms QUALIFIED.codec\n"
+  "#audit_axioms QUALIFIED.PART_CODEC\n"
 
 private def contractTemplate : String :=
   "∀ {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n" ++
   "    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n" ++
   "    (leftCodec : Representation.Codec (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain" ++
+  "DOMAIN" ++
   " leftType.it) left)\n" ++
   "    (rightCodec : Representation.Codec\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain rightType.it) right),\n" ++
+  "DOMAIN rightType.it) right),\n" ++
   "    @Representation.Codec (QUALIFIED α β) ⟨QUALIFIED.toValue⟩\n" ++
   "      ⟨QUALIFIED.ofValue⟩\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID [leftType, " ++
+  "DOMAIN (Q.varT SOURCE_ID [leftType, " ++
   "rightType]))\n" ++
   "      (LIST_QUALIFIED.admitted (PAIR_QUALIFIED.admitted left right))"
 
@@ -156,6 +156,8 @@ private def instantiate (env : Env) (d : Lang.Al.def) (template : String) :
   let some (.VariantT cases) := info.deftyp | throw "source map outer type is not a variant"
   let some constructor := (Types.ctorNames cases).head? | throw "source map outer type is empty"
   return template
+    |>.replace "PART_CODEC" (env.part "codec")
+    |>.replace "DOMAIN" env.domainTerm
     |>.replace "LIST_CTOR" constructor
     |>.replace "PAIR_QUALIFIED" (env.q (Names.typeName inner.it))
     |>.replace "LIST_QUALIFIED" (env.q (Names.typeName outer.it))
@@ -181,11 +183,11 @@ private def encodingTemplate : String := "
 /-- Encoded map validity is exactly independent validity of its encoded keys and values. -/
 theorem NAME.encodingSourceIff {α β : Type} [ToValue α] [ToValue β]
     (leftType rightType : Lang.Il.typ) (x : QUALIFIED α β) :
-    Valid LIB.spec Representation.Source.externDomain
+    Valid LIB.spec DOMAIN
       (Q.varT SOURCE_ID [leftType, rightType]) (QUALIFIED.toValue x) ↔
     LIST_QUALIFIED.admitted (PAIR_QUALIFIED.admitted
-      (fun a => Valid LIB.spec Representation.Source.externDomain leftType.it (ToValue.toValue a))
-      (fun b => Valid LIB.spec Representation.Source.externDomain
+      (fun a => Valid LIB.spec DOMAIN leftType.it (ToValue.toValue a))
+      (fun b => Valid LIB.spec DOMAIN
         rightType.it (ToValue.toValue b))) x := by
   cases x with
   | LIST_CTOR entries =>
@@ -205,10 +207,12 @@ theorem NAME.encodingSourceIff {α β : Type} [ToValue α] [ToValue β]
 #audit_axioms NAME.encodingSourceIff
 "
 
-/-- Emit the declared alias proof and preserve its actual decoder's extra fuel layer. -/
+/-- Emit the declared alias proof and preserve its actual decoder's extra fuel layer.
+The runtime profile emits only the codec, over the source profile's admission. -/
 def declarations (env : Env) (d : Lang.Al.def) : Except String Format := do
-  let proof ← instantiate env d
-    (proofTemplate.trimAsciiEnd.toString ++ "\n\n" ++ encodingTemplate.trimAscii.toString)
+  let proof ← instantiate env d (if env.runtimeProfile then
+      proofTemplate.trimAsciiEnd.toString else
+      proofTemplate.trimAsciiEnd.toString ++ "\n\n" ++ encodingTemplate.trimAscii.toString)
   return Format.text (boundedLines ("open Lang.Il Domain Representation.Source\n\n" ++ proof))
 
 end P4SpecTec.Codegen.RepresentationMaps

@@ -207,6 +207,16 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let representations := RepresentationCertificates.catalog env
   let knownRepresentation := fun name => do
     (← (← representations[name]?).toOption).nominal
+  -- Runtime-profile codecs of the runtime closure, in their own modules beside the source ones.
+  let runtimeRepresentations := RepresentationCertificates.runtimeCatalog env representations
+  let runtimeClosure := RepresentationCertificates.runtimeClosure env
+  let runtimeModule := fun id => "Representation.Runtime." ++ groupModuleName id
+  let runtimeDependency := fun id => match runtimeRepresentations[id]? with
+    | some (.ok _) => runtimeModule id
+    | _ => "Representation." ++ groupModuleName id
+  let runtimeSupport := RepresentationCertificates.supportImports ++
+    ["P4SpecTec.Refine.Representation.SourceRuntime"]
+  let mut runtimeClosedEmitted := false
   if !printEnv.isEmpty then
     units := [{ id := "H:print", file := 0, decls := ← PrintHints.tableDecl printEnv }]
   let mut unitOfType : Std.HashMap String Nat := {}   -- type id → unit index
@@ -272,6 +282,38 @@ def plan (env : Env) (spec : Lang.Al.spec) :
           let some nominal := representation.nominal | throw "total admission lacks nominal codec"
           claims := claims ++ [{
             name := theoremName, kind := "admission", direction := "wholeCarrier"
+            expectedType := s!"∀ x : {env.q (Names.typeName id)}, ({nominal.admitted}) x" }]
+      match runtimeRepresentations[id]? with
+      | none => pure ()
+      | some (.error reason) =>
+        exclusions := exclusions ++ [{ kind := "runtimeRepresentation", definition := id, reason }]
+      | some (.ok representation) =>
+        if !runtimeClosedEmitted then
+          if refGroups.any (·.name == "Representation.Runtime") then
+            throw "representation module name collision: Runtime"
+          refGroups := refGroups ++ [{
+            name := "Representation.Runtime"
+            decls := RepresentationCertificates.runtimeClosedDeclarations env
+            deps := [], supportImports := some runtimeSupport }]
+          runtimeClosedEmitted := true
+        let name := runtimeModule id
+        if refGroups.any (·.name == name) then
+          throw s!"representation module name collision: runtime {id}"
+        let owner := if runtimeClosure.contains id then []
+          else ["Representation." ++ groupModuleName id]
+        refGroups := refGroups ++ [{
+          name, decls := representation.declarations
+          deps := ["Representation.Runtime"] ++ owner ++
+            representation.dependencies.map runtimeDependency
+          supportImports := some runtimeSupport }]
+        claims := claims ++ [{
+          name := env.q (Names.typeName id) ++ ".runtimeCodec"
+          kind := "representation", direction := "runtimeCodec"
+          expectedType := render representation.type }]
+        if let some theoremName := representation.total then
+          let some nominal := representation.nominal | throw "total admission lacks nominal codec"
+          claims := claims ++ [{
+            name := theoremName, kind := "admission", direction := "runtimeWholeCarrier"
             expectedType := s!"∀ x : {env.q (Names.typeName id)}, ({nominal.admitted}) x" }]
       representationEntries := representationEntries ++ [{
         id, kind := match d.it with | .ExternTypD .. => "externType" | _ => "type"

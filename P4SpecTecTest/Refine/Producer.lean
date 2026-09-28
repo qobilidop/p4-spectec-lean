@@ -18,7 +18,7 @@ example : ¬Produces (fun n : Nat => n = 0)
 
 -- Standard list encoding preserves an independently chosen source domain elementwise.
 example {α : Type} [ToValue α] (spec : Lang.Al.spec)
-    (externalDomain : String → Lang.Il.value → Prop) (element : Lang.Il.typ) (xs : List α)
+    (externalDomain : Representation.Source.Domain) (element : Lang.Il.typ) (xs : List α)
     (valid : ∀ x ∈ xs,
       Representation.Source.Valid spec externalDomain element.it (toValue x)) :
     Representation.Source.Valid spec externalDomain (.IterT element .List) (toValue xs) :=

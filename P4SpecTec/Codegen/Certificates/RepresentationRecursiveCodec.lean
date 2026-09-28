@@ -15,13 +15,14 @@ open P4SpecTec.Lang.Il P4SpecTec.Codegen.Types
 
 /-- The independent actual source domain of one monomorphic recursive member. -/
 def memberSource (env : Env) (name : String) : String :=
-  s!"Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain " ++
+  s!"Representation.Source.Valid {env.lib}.spec {env.domainTerm} " ++
     "(Q.varT " ++ (Reify.str name).fmt.pretty 1000000 ++ " [])"
 
 /-- Exact public codec claim for a recursive member, using its own named dictionaries. -/
 def memberCodecType (env : Env) (name : String) (admissionName : String := "") : Std.Format :=
   let qualified := env.q (Names.typeName name)
-  let predicate := if admissionName.isEmpty then qualified ++ ".admitted" else admissionName
+  let predicate := if admissionName.isEmpty then qualified ++ "." ++ env.part "admitted"
+    else admissionName
   Std.Format.text (boundedLines (
     s!"@Representation.Codec {qualified} ⟨{qualified}.toValue⟩ ⟨{qualified}.ofValue⟩\n" ++
     "    (" ++ memberSource env name ++ ") " ++ predicate))
@@ -39,18 +40,24 @@ def memberDeclarations (env : Env) (plan : Plan) (namespaceName : String) :
     if identifier.it != name then throw "recursive member source name differs from its root"
     let localName := Names.typeName name
     let qualified := env.q localName
-    let admission := "/-- Recursive admission excludes runtime-only constructors. -/\n" ++
-      s!"def {localName}.admitted (x : {qualified}) : Prop :=\n" ++
+    let admitted := localName ++ "." ++ env.part "admitted"
+    let codec := localName ++ "." ++ env.part "codec"
+    let admission := (if env.runtimeProfile then
+        "/-- Recursive admission, including the runtime-only raw-extern alternatives. -/\n"
+      else "/-- Recursive admission excludes runtime-only constructors. -/\n") ++
+      s!"def {admitted} (x : {qualified}) : Prop :=\n" ++
       s!"  {namespaceName}.admitted .f{index} x"
-    let proof := "/-- Exact recursive codec for the complete quoted source grammar. -/\n" ++
-      s!"theorem {localName}.codec : " ++
-      (memberCodecType env name (localName ++ ".admitted")).pretty 1000000 ++ " := by\n" ++
+    let proof := (if env.runtimeProfile then
+        "/-- Exact recursive codec for the complete runtime-profile grammar. -/\n"
+      else "/-- Exact recursive codec for the complete quoted source grammar. -/\n") ++
+      s!"theorem {codec} : " ++
+      (memberCodecType env name admitted).pretty 1000000 ++ " := by\n" ++
       s!"  letI : ToValue {qualified} := ⟨{qualified}.toValue⟩\n" ++
       s!"  letI : OfValue {qualified} := ⟨{qualified}.ofValue⟩\n" ++
       "  constructor\n  · intro x accepted\n" ++
       s!"    exact {namespaceName}.encodingValid .f{index} x accepted\n" ++
       s!"  · exact {namespaceName}.decoderCorrect .f{index}\n\n" ++
-      s!"#audit_axioms {localName}.codec"
+      s!"#audit_axioms {codec}"
     declarations := declarations ++ [admission, proof]
   pure (Std.Format.text (boundedLines ("\n\n".intercalate declarations)))
 

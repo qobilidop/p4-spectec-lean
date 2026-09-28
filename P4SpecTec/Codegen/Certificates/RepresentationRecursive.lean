@@ -51,6 +51,10 @@ structure Plan where
   /-- Actual encoder helper names recovered using the compiler's helper planner. -/
   encoderHelpers : List String
 
+/-- The generated raw-extern constructor of a runtime-extended carrier. -/
+def runtimeExternValue (env : Env) (name : String) : String :=
+  env.q (Names.typeName name) ++ "." ++ Representation.rawExternCtor
+
 private def declaration (env : Env) (name : String) : Except String Lang.Al.def := do
   let declarations := env.defs.filter fun d => match d.it with
     | .TypD actual .. | .ExternTypD actual .. => actual.it == name

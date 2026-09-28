@@ -55,7 +55,7 @@ partial def fieldProof (env : Env) (known : String → Option TotalContract)
     let proof ← fieldProof env known child
     pure s!"(fun xs x _ => ({proof}) x)"
   | .VarT name [] =>
-    if env.representation.hasRawExtern name.it then
+    if !env.runtimeProfile && env.representation.hasRawExtern name.it then
       throw "total admission rejects runtime extern alternatives"
     let d ← declaration env name.it
     if let .ExternTypD .. := d.it then
@@ -63,7 +63,7 @@ partial def fieldProof (env : Env) (known : String → Option TotalContract)
     let some total := known name.it | throw s!"unproved child total admission {name.it}"
     pure total.proof
   | .VarT name args =>
-    if env.representation.hasRawExtern name.it then
+    if !env.runtimeProfile && env.representation.hasRawExtern name.it then
       throw "total admission rejects runtime extern alternatives"
     let d ← declaration env name.it
     let children ← args.mapM (fieldProof env known)
@@ -129,7 +129,10 @@ def declarations (env : Env) (d : Lang.Al.def) (admitted : String)
   acyclic env d
   let nominal := fun name => (known name).map (·.nominal)
   let text ← match d.it with
-    | .TypD _ (_ :: _) .. => conditional env d
+    | .TypD _ (_ :: _) .. =>
+      if env.runtimeProfile then
+        throw "runtime container codecs reuse the source profile's admission and totality"
+      conditional env d
     | .ExternTypD .. =>
       if admitted != "fun _ => True" then throw "external admission must be the exact True plan"
       pure (s!"theorem {name}.admittedAll : ∀ x : {qualified}, ({admitted}) x := by\n" ++
@@ -168,11 +171,11 @@ def declarations (env : Env) (d : Lang.Al.def) (admitted : String)
                 indent (if proofs.isEmpty then "trivial" else
                   "exact " ++ conjunction proofs) ++ "\n"
             pure body
-      pure (s!"theorem {name}.admittedAll : ∀ x : {qualified}, ({admitted}) x := by\n" ++
-        indent body)
+      pure (s!"theorem {name}.{env.part "admittedAll"} : " ++
+        s!"∀ x : {qualified}, ({admitted}) x := by\n" ++ indent body)
     | _ => throw "total admission needs a supported source type declaration"
   pure (Format.text (boundedLines
     ("/-- Every carrier value is admitted under the stated child totals. -/\n" ++
-      text ++ s!"\n\n#audit_axioms {qualified}.admittedAll")))
+      text ++ s!"\n\n#audit_axioms {qualified}.{env.part "admittedAll"}")))
 
 end P4SpecTec.Codegen.RepresentationTotals

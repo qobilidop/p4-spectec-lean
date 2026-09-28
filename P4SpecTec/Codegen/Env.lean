@@ -102,6 +102,20 @@ def part (env : Env) (base : String) : String :=
 def bundle (env : Env) (leader : String) : String :=
   leader ++ (if env.runtimeProfile then "RuntimeCodec" else "SourceCodec")
 
+/-- The declaration name of the checked certificate that the runtime profile adds no
+alternative outside its runtime types' declared closure. -/
+def runtimeClosedName (env : Env) : String := env.lib ++ ".runtimeClosed"
+
+/-- Lift a source-profile codec term, with its exact carrier and dictionaries, of a type whose
+declared closure avoids the runtime types to the runtime profile; the identity in the source
+profile. The dictionaries are explicit, so no instance of a reducible carrier is synthesized. -/
+def liftRuntime (env : Env) (carrier encoder decoder codec : String) : String :=
+  if env.runtimeProfile then
+    s!"(@Representation.Source.Codec.toRuntime ({carrier}) ⟨{encoder}⟩ ⟨{decoder}⟩ _ _ _ " ++
+      env.runtimeClosedName ++
+      " _ (Representation.Source.namesInCheckSound _ _ (by closure_check)) _ (" ++ codec ++ "))"
+  else codec
+
 /-- The file a definition comes from. -/
 def fileOf (d : Lang.Al.def) : String := d.«at».left.file
 

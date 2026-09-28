@@ -2,7 +2,8 @@ import P4SpecTec.Codegen.Certificates.RepresentationRecursiveCodec
 import P4SpecTec.Codegen.Certificates.RepresentationTotal
 
 /-!
-Complete native-carrier admission for recursive source groups without runtime extensions.
+Complete native-carrier admission for recursive source groups; runtime extensions are admitted
+only in the runtime profile.
 The actual native recursor supplies recursive induction, including nested containers;
 independent leaf totality proofs supply every nonrecursive carrier. No codec success,
 encoder range, or source derivation is used to establish native admission.
@@ -31,7 +32,7 @@ private def finish (indices : List Nat) : String :=
 Reachable runtime-only constructors and unsupported carrier shapes fail closed. -/
 def totalityDeclarations (env : Env) (plan : Plan) (namespaceName : String)
     (known : String → Option RepresentationTotals.TotalContract) : Except String Std.Format := do
-  if plan.families.any (·.runtimeExtended) then
+  if !env.runtimeProfile && plan.families.any (·.runtimeExtended) then
     throw "recursive totality rejects reachable runtime-only constructors"
   let mut commands := []
   let mut completed := []
@@ -70,9 +71,9 @@ def totalityDeclarations (env : Env) (plan : Plan) (namespaceName : String)
   let wrappers := plan.roots.map fun (name, index) =>
     let localName := Names.typeName name
     "/-- All native values of this complete source carrier are admitted. -/\n" ++
-      s!"theorem {localName}.admittedAll (x : {env.q localName}) : " ++
-      s!"{localName}.admitted x := {namespaceName}.total{index} x\n\n" ++
-      s!"#audit_axioms {localName}.admittedAll"
+      s!"theorem {localName}.{env.part "admittedAll"} (x : {env.q localName}) : " ++
+      s!"{localName}.{env.part "admitted"} x := {namespaceName}.total{index} x\n\n" ++
+      s!"#audit_axioms {localName}.{env.part "admittedAll"}"
   pure (Std.Format.text (boundedLines (helper ++ "\n\n" ++ "\n\n".intercalate wrappers)))
 
 end P4SpecTec.Codegen.RepresentationRecursive

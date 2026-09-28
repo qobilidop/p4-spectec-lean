@@ -63,7 +63,7 @@ def codecType (env : Env) (d : Lang.Al.def)
   let _ ← checkSupport env d known
   let name := env.q (Names.typeName d.it.id.it)
   return Format.text (s!"@Refine.Representation.Codec {name} ⟨{name}.toValue⟩ " ++
-    s!"⟨{name}.ofValue⟩ {name}.source {name}.admitted")
+    s!"⟨{name}.ofValue⟩ {name}.{env.part "source"} {name}.{env.part "admitted"}")
 
 private def sourceTerm (c : typcase) : String :=
   let (origin, arguments) := match c.typorigin.it with | .mk origin arguments => (origin, arguments)
@@ -155,6 +155,9 @@ def declarations (env : Env) (d : Lang.Al.def)
   let constructors ← checkSupport env d known
   let name := Names.typeName d.it.id.it
   let qualified := env.q name
+  let source := env.part "source"
+  let admitted := env.part "admitted"
+  let codec := env.part "codec"
   let id := "(Q.i " ++ (Reify.str d.it.id.it).fmt.pretty 1000000 ++ ")"
   let sourceId := (Reify.str d.it.id.it).fmt.pretty 1000000
   let cases := listText (constructors.map (sourceTerm ·.source))
@@ -186,29 +189,29 @@ def declarations (env : Env) (d : Lang.Al.def)
     let mut faithful := ""
     let mut stable := ""
     for ((t, field), i) in c.fields.zipIdx do
-      let source := RepresentationFields.source env t
+      let fieldSource := RepresentationFields.source env t
       let proof := fieldProofName name index i
       let substitution := substitutionName name index i
       fieldProofs := fieldProofs ++
         "/-- The exact positional field codec on its independent source grammar. -/\n" ++
-        s!"private theorem {proof} : {field.type source} :=\n" ++ indent field.codec ++
+        s!"private theorem {proof} : {field.type fieldSource} :=\n" ++ indent field.codec ++
         s!"\n\n#audit_axioms {qualified}.fieldCodec{index}_{i}\n\n" ++
         "/-- Empty substitution preserves the complete independent field domain. -/\n" ++
         s!"private theorem {substitution} : ∀ actual,\n" ++
         s!"    Representation.Source.Substitutes [] ({(Reify.typ t).fmt.pretty 1000000}).it " ++
         "actual → ∀ v,\n" ++
         s!"    Representation.Source.Valid {env.lib}.spec " ++
-        s!"Representation.Source.externDomain actual v → ({source}) v :=\n" ++
+        s!"{env.domainTerm} actual v → ({fieldSource}) v :=\n" ++
         indent (← normalizeSubstitution t) ++
         s!"\n\n#audit_axioms {qualified}.fieldSubstitution{index}_{i}\n\n"
       identities := identities ++ [← identitySubstitution t]
       fieldEncodings := fieldEncodings ++ [s!".cons _ _ _ _ " ++
-        s!"(({field.encodingProof source proof}) x{i} admitted{i})"]
+        s!"(({field.encodingProof fieldSource proof}) x{i} admitted{i})"]
       faithful := faithful ++ s!"obtain ⟨admitted{i}, related{i}⟩ :=\n" ++
-        indent (s!"({field.soundProof source proof}) fuel v{i} x{i} p{i} d{i}") ++ "\n" ++
+        indent (s!"({field.soundProof fieldSource proof}) fuel v{i} x{i} p{i} d{i}") ++ "\n" ++
         s!"have canonical{i} : canon v{i} = canon (({field.encoder}) x{i}) := related{i}\n"
       stable := stable ++ s!"obtain ⟨x{i}, b{i}, h{i}⟩ :=\n" ++
-        indent (s!"({field.sufficientProof source proof}) v{i} p{i}") ++ "\n"
+        indent (s!"({field.sufficientProof fieldSource proof}) v{i} p{i}") ++ "\n"
       enough := enough ++ s!"have enough{i} : b{i} ≤ fuel := by omega\n"
     payload := payload ++ "  ·\n" ++ indent (indent (payloadBranch name index c)) ++ "\n"
     let decoder ← RepresentationConstructors.declaration s!"{name}.decode{index}" {
@@ -221,7 +224,7 @@ def declarations (env : Env) (d : Lang.Al.def)
       children := c.fields.zipIdx.map fun ((_, field), i) => s!"({field.decoder}) fuel v{i}" }
     decoders := decoders ++ decoder
     let encodedFields := fieldEncodings.foldr (fun head tail => s!"{head} ({tail})") ".nil"
-    let encode := s!"dsimp only [{qualified}.admitted] at hx\n" ++
+    let encode := s!"dsimp only [{qualified}.{admitted}] at hx\n" ++
       (if c.fields.isEmpty then "" else
         "obtain " ++ tupleText (admitNames ++ ["_"]) ++ " := hx\n") ++
       s!"apply Representation.Source.ConstructorDomain.valid {id} [] [] " ++
@@ -267,14 +270,14 @@ def declarations (env : Env) (d : Lang.Al.def)
     "List.not_mem_nil, or_false] at member\n" ++ splitCases
   let text := s!"private def {name}.sourceCases : List Lang.Il.typcase := {cases}\n\n" ++
     "/-- The complete independent grammar of the actual quoted variant. -/\n" ++
-    s!"def {name}.source (v : Lang.Il.value) : Prop :=\n" ++
-    s!"  Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain " ++
+    s!"def {name}.{source} (v : Lang.Il.value) : Prop :=\n" ++
+    s!"  Representation.Source.Valid {env.lib}.spec {env.domainTerm} " ++
     s!"(Q.varT {sourceId} []) v\n\n" ++
     "/-- Every constructor inherits exactly its positional fields' admission. -/\n" ++
-    s!"def {name}.admitted : {qualified} → Prop\n" ++ admissions ++ "\n" ++ fieldProofs ++
-    s!"private theorem {name}.sourceCasesValid (v : Lang.Il.value) (hv : {name}.source v) :\n" ++
+    s!"def {name}.{admitted} : {qualified} → Prop\n" ++ admissions ++ "\n" ++ fieldProofs ++
+    s!"private theorem {name}.sourceCasesValid (v : Lang.Il.value) (hv : {name}.{source} v) :\n" ++
     s!"    ∃ c ∈ {name}.sourceCases, Representation.Source.ConstructorDomain " ++
-    s!"{env.lib}.spec Representation.Source.externDomain c " ++
+    s!"{env.lib}.spec {env.domainTerm} c " ++
     "(Domain.Mixfix.args c.nottyp.it) v := by\n" ++
     "  obtain ⟨c, member, fields, sub, tree, shape, matching, valid⟩ :=\n" ++
     s!"    hv.variantPayload {id} [] [] {name}.sourceCases v (by rfl)\n" ++
@@ -283,7 +286,7 @@ def declarations (env : Env) (d : Lang.Al.def)
     s!"\n#audit_axioms {qualified}.sourceCasesValid\n\n" ++
     decoders ++ "/-- The full codec fixes the actual named encoder " ++
     "and decoder dictionaries. -/\n" ++
-    s!"theorem {name}.codec : " ++ (← codecType env d known).pretty 1000000 ++ " := by\n" ++
+    s!"theorem {name}.{codec} : " ++ (← codecType env d known).pretty 1000000 ++ " := by\n" ++
     s!"  letI : ToValue {qualified} := ⟨{qualified}.toValue⟩\n" ++
     s!"  letI : OfValue {qualified} := ⟨{qualified}.ofValue⟩\n" ++
     "  refine { encodingValid := ?_, decoder := { sound := ?_, sufficient := ?_ } }\n" ++
@@ -296,7 +299,7 @@ def declarations (env : Env) (d : Lang.Al.def)
       membership ++ sound))) ++ "\n" ++
     "  · intro v hv\n" ++ indent (indent (
       s!"obtain ⟨c, member, tree, shape, matching, valid⟩ := {name}.sourceCasesValid v hv\n" ++
-      membership ++ sufficient)) ++ s!"\n#audit_axioms {qualified}.codec\n"
+      membership ++ sufficient)) ++ s!"\n#audit_axioms {qualified}.{codec}\n"
   return Format.text (boundedLines (text.replace "Mixfix." "Domain.Mixfix." |>.replace
     "Domain.Domain.Mixfix." "Domain.Mixfix."))
 

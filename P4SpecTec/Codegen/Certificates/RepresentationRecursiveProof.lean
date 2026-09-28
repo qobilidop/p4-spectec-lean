@@ -97,7 +97,7 @@ def variantSourceDeclarations (env : Env) (plan : Plan) (namespaceName : String)
   let leafCases := plan.families.toList.zipIdx.map fun (family, index) =>
     s!"  | .f{index} => {if family.leaf.isSome then "true" else "false"}"
   let spec := env.lib ++ ".spec"
-  let domain := "Representation.Source.externDomain"
+  let domain := env.domainTerm
   let faithful := "/-- Actual decoder fidelity with independently structural admission. -/\n" ++
     s!"def {goal} (input : typ') (v : value) : Prop :=\n" ++
     "  ∀ family, Matches input family → " ++
@@ -188,7 +188,7 @@ def leafCorrectDeclarations (env : Env) (plan : Plan) (namespaceName : String)
     s!"private theorem {theoremName} (input : typ') (v : value) (family : Family)\n" ++
     "    (leaf : isLeaf family = true) (matching : Matches input family)\n" ++
     s!"    (valid : Representation.Source.Valid {env.lib}.spec\n" ++
-    "      Representation.Source.externDomain input v)" ++
+    s!"      {env.domainTerm} input v)" ++
     (if sufficient then " : ∃ x, Representation.Decodes (decode family) v x := by\n" else
       "\n    (fuel : Nat) (x : Carrier family) (decoded : decode family fuel v = some x) :\n" ++
       "    admitted family x ∧ Rel v (encode family x) := by\n") ++
@@ -240,7 +240,7 @@ def aliasSourceDeclarations (env : Env) (plan : Plan) (namespaceName : String)
     "      some (parameters, .PlainT definition))\n" ++
     "    (fields : Representation.Source.instantiatedFields parameters arguments\n" ++
     s!"      [definition] [instantiated]) (ih : {goal} instantiated.it v)\n" ++
-    s!"    (whole : Representation.Source.Valid {spec} Representation.Source.externDomain\n" ++
+    s!"    (whole : Representation.Source.Valid {spec} {env.domainTerm}\n" ++
     s!"      (.VarT name arguments) v) : {goal} (.VarT name arguments) v := by\n" ++
     proof ++ s!"\n#audit_axioms {theoremName}"
   pure (Std.Format.text (boundedLines (s!"namespace {namespaceName}\n\n" ++ text ++
@@ -299,6 +299,44 @@ private def impossibleNominal (env : Env) (family : Family) : Except String Stri
   pure (s!"      have actual : Representation.Source.body {env.lib}.spec name.it =\n" ++
     "          " ++ sourceBody parameters definition ++ " := by\n        rw [nameEq]; rfl\n")
 
+/-- The runtime-only alternative of the domain. The source profile has none; the runtime
+profile's raw extern is the carrier's raw-extern constructor, and every other family of the
+closure refutes it by its declared name. -/
+private def runtimeMinor (env : Env) (plan : Plan) (sufficient : Bool) :
+    Except String String := do
+  if !env.runtimeProfile then
+    return "  · intro name arguments v payload\n" ++
+      "    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)\n"
+  let mut branches := []
+  for (family, index) in plan.families.toList.zipIdx do
+    let .VarT sourceName arguments := family.source.it | continue
+    let header := "    " ++ (matchingCase index arguments).trimAscii.toString ++ "\n"
+    if !family.runtimeExtended then
+      branches := branches ++ [header ++ "      rw [nameEq] at member\n      simp at member\n"]
+      continue
+    if family.leaf.isSome || !arguments.isEmpty then
+      throw "runtime-extended recursive family must be a local monomorphic declaration"
+    let constructor := runtimeExternValue env sourceName.it
+    let decoder := env.q (ofValueName sourceName.it)
+    let body := if sufficient then
+        s!"      refine ⟨{constructor} ⟨j⟩, 1, ?_⟩\n" ++
+        "      intro fuel large\n      cases fuel with\n      | zero => omega\n" ++
+        "      | succ fuel =>\n" ++
+        "        obtain ⟨rawIt, rawNote, rawAt⟩ := v\n        cases raw\n" ++
+        s!"        simp only [decode, {decoder}]\n"
+      else
+        "      intro fuel x decoded\n      cases fuel with\n" ++
+        s!"      | zero => simp [decode, {decoder}] at decoded\n" ++
+        "      | succ fuel =>\n" ++
+        "        obtain ⟨rawIt, rawNote, rawAt⟩ := v\n        cases raw\n" ++
+        s!"        simp only [decode, {decoder}, Option.some.injEq] at decoded\n" ++
+        "        subst decoded\n" ++
+        s!"        exact ⟨AdmittedF{index}.{Representation.rawExternCtor} _, rfl⟩\n"
+    branches := branches ++ [header ++ body]
+  return "  · intro name arguments v payload family matching\n" ++
+    "    obtain ⟨member, j, raw⟩ := Representation.Source.runtimeDomainPayload payload\n" ++
+    "    cases matching with\n" ++ String.join branches
+
 /-- Emit the full mutual source-derivation fidelity proof for a finite recursive family.
 Every leaf is discharged by its actual codec; local cases use only source grammar induction. -/
 def sourceFidelityDeclarations (env : Env) (plan : Plan) (namespaceName : String)
@@ -308,7 +346,7 @@ def sourceFidelityDeclarations (env : Env) (plan : Plan) (namespaceName : String
   let suffix := if sufficient then "Witness" else "Faithful"
   let listChildrenName := if sufficient then "listChildrenWitness" else "listChildren"
   let spec := env.lib ++ ".spec"
-  let domain := "Representation.Source.externDomain"
+  let domain := env.domainTerm
   let listChildren := "/-- Homogeneous source induction supplies every child fidelity fact. -/\n" ++
     s!"private theorem {listChildrenName} (element : typ) (raws : List value)\n" ++
     s!"    (ih : List.Forall₂ (fun type raw => {goal} type.it raw)\n" ++
@@ -388,9 +426,7 @@ def sourceFidelityDeclarations (env : Env) (plan : Plan) (namespaceName : String
     "      instantiated v tree declared member shape mixop fields ih\n" ++
     "      (.variant name arguments parameters cases constructor instantiated v tree\n" ++
     "        declared member shape mixop fields payload)\n" ++
-    s!"  · exact externalSource{suffix}\n" ++
-    "  · intro name arguments v payload\n" ++
-    "    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)\n" ++
+    s!"  · exact externalSource{suffix}\n" ++ (← runtimeMinor env plan sufficient) ++
     "  · exact .nil\n" ++
     "  · intro type v types values head tail ihHead ihTail; exact .cons ihHead ihTail\n"
   let main := "/-- Complete actual decoder facts by independent source derivation. -/\n" ++
@@ -477,7 +513,7 @@ def decoderDeclarations (env : Env) (namespaceName : String) : Std.Format :=
     "/-- Actual recursive decoders cover the independently quoted source grammar. -/\n" ++
     "private theorem decoderCorrect (family : Family) :\n" ++
     "    @Representation.DecoderCorrect (Carrier family) ⟨encode family⟩\n" ++
-    s!"      (Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain\n" ++
+    s!"      (Representation.Source.Valid {env.lib}.spec {env.domainTerm}\n" ++
     "        (source family)) (admitted family) (decode family) := by\n" ++
     "  letI : ToValue (Carrier family) := ⟨encode family⟩\n" ++
     "  constructor\n" ++

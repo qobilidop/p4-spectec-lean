@@ -116,7 +116,7 @@ def fieldCodecType (env : Env) (known : String → Option RepresentationFields.N
   let _ ← fieldSupport env known d
   let name := env.q (Names.typeName d.it.id.it)
   pure (Format.text (s!"@Refine.Representation.Codec {name} ⟨{name}.toValue⟩ " ++
-    s!"⟨{name}.ofValue⟩ {name}.source {name}.admitted"))
+    s!"⟨{name}.ofValue⟩ {name}.{env.part "source"} {name}.{env.part "admitted"}"))
 
 /-- Emit full alias-domain transport and the actual named decoder's extra fuel layer. -/
 def fieldDeclarations (env : Env) (known : String → Option RepresentationFields.NominalContract)
@@ -129,26 +129,30 @@ def fieldDeclarations (env : Env) (known : String → Option RepresentationField
   let fieldSource := RepresentationFields.source env target
   let normalize ← RepresentationFields.normalizeSubstitution target
   let identity ← RepresentationFields.identitySubstitution target
+  let source := env.part "source"
+  let admitted := env.part "admitted"
+  let codec := env.part "codec"
+  let encodingSourceIff := env.part "encodingSourceIff"
   let text := "/-- The complete independent source alias grammar. -/\n" ++
-    s!"def {name}.source (v : Lang.Il.value) : Prop :=\n" ++
-    s!"  Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain " ++
+    s!"def {name}.{source} (v : Lang.Il.value) : Prop :=\n" ++
+    s!"  Representation.Source.Valid {env.lib}.spec {env.domainTerm} " ++
     s!"(Q.varT {sourceId} []) v\n\n" ++
     "/-- Alias admission is the independently stated body admission. -/\n" ++
-    s!"def {name}.admitted : {qualified} → Prop := {contract.admitted}\n\n" ++
+    s!"def {name}.{admitted} : {qualified} → Prop := {contract.admitted}\n\n" ++
     s!"private theorem {name}.bodyCodec : {contract.type fieldSource} :=\n" ++
     s!"  {contract.codec}\n\n#audit_axioms {qualified}.bodyCodec\n\n" ++
     s!"private theorem {name}.sourceIff (v : Lang.Il.value) :\n" ++
-    s!"    {qualified}.source v ↔ ({fieldSource}) v := by\n" ++
+    s!"    {qualified}.{source} v ↔ ({fieldSource}) v := by\n" ++
     s!"  exact Representation.Source.plainAliasDomainIff (Q.i {sourceId}) {targetType}\n" ++
     s!"    (by rfl) {normalize} ({identity}) v\n\n" ++
     s!"#audit_axioms {qualified}.sourceIff\n\n" ++
     "/-- The alias encoder has exactly its declared body's independent source domain. -/\n" ++
-    s!"theorem {name}.encodingSourceIff (x : {qualified}) :\n" ++
-    s!"    {qualified}.source ({qualified}.toValue x) ↔ " ++
+    s!"theorem {name}.{encodingSourceIff} (x : {qualified}) :\n" ++
+    s!"    {qualified}.{source} ({qualified}.toValue x) ↔ " ++
     s!"({fieldSource}) (({contract.encoder}) x) :=\n" ++
-    s!"  {qualified}.sourceIff _\n\n#audit_axioms {qualified}.encodingSourceIff\n\n" ++
+    s!"  {qualified}.sourceIff _\n\n#audit_axioms {qualified}.{encodingSourceIff}\n\n" ++
     "/-- Complete alias codec, with the declared alias fuel frame retained. -/\n" ++
-    s!"theorem {name}.codec : " ++ (← fieldCodecType env known d).pretty ++ " := by\n" ++
+    s!"theorem {name}.{codec} : " ++ (← fieldCodecType env known d).pretty ++ " := by\n" ++
     s!"  refine @Representation.Codec.mk {qualified} ⟨{qualified}.toValue⟩\n" ++
     s!"    ⟨{qualified}.ofValue⟩ _ _ ?_ ?_\n" ++
     "  · intro x hx\n" ++
@@ -170,7 +174,7 @@ def fieldDeclarations (env : Env) (known : String → Option RepresentationField
     "      cases fuel with\n" ++
     "      | zero => omega\n" ++
     "      | succ fuel => exact result fuel (by omega)\n\n" ++
-    s!"#audit_axioms {qualified}.codec"
+    s!"#audit_axioms {qualified}.{codec}"
   pure (Format.text (boundedLines text))
 
 end P4SpecTec.Codegen.RepresentationAliases
