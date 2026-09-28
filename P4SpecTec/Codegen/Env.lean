@@ -80,8 +80,27 @@ structure Env where
   rels : Std.HashMap String RelInfo := {}
   /-- Definitions in spec order. -/
   defs : List Lang.Al.def := []
+  /-- Representation certificates state the runtime profile, which also admits the raw-extern
+  alternatives of `representation`, instead of the source grammar. -/
+  runtimeProfile : Bool := false
 
 namespace Env
+
+/-- The value domain representation certificates are stated over, as a Lean term. -/
+def domainTerm (env : Env) : String :=
+  if env.runtimeProfile then
+    "(Representation.Source.runtimeDomain [" ++
+      ", ".intercalate (env.representation.rawExternTypes.map fun t => t.quote) ++ "])"
+  else "Representation.Source.externDomain"
+
+/-- The declaration name of a certificate part (`codec`, `admitted`, `source`, ...) in the
+selected profile: the runtime profile's parts are `runtimeCodec`, `runtimeAdmitted`, .... -/
+def part (env : Env) (base : String) : String :=
+  if env.runtimeProfile then "runtime" ++ base.capitalize else base
+
+/-- The namespace of a recursive group's codec bundle in the selected profile. -/
+def bundle (env : Env) (leader : String) : String :=
+  leader ++ (if env.runtimeProfile then "RuntimeCodec" else "SourceCodec")
 
 /-- The file a definition comes from. -/
 def fileOf (d : Lang.Al.def) : String := d.«at».left.file

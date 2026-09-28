@@ -2287,7 +2287,8 @@ private theorem recordSourceFaithful (name : P4SpecTec.Lang.Il.id) (arguments : 
 private theorem externalSourceFaithful (name : P4SpecTec.Lang.Il.id) (v :
   P4SpecTec.Lang.Il.value)
     (declared : Representation.Source.external NanoP4Spec.spec name.it = true)
-    (payload : Representation.Source.externDomain name.it v) : Faithful (.VarT name []) v := by
+    (payload : Representation.Source.externDomain.external name.it v) : Faithful (.VarT name [])
+      v := by
   intro family matching
   cases matching with
     | f0 name nameEq =>
@@ -2385,6 +2386,8 @@ private theorem sourceFaithful {input : P4SpecTec.Lang.Il.typ'} {v : P4SpecTec.L
       (.variant name arguments parameters cases constructor instantiated v tree
         declared member shape mixop fields payload)
   · exact externalSourceFaithful
+  · intro name arguments v payload
+    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)
   · exact .nil
   · intro type v types values head tail ihHead ihTail; exact .cons ihHead ihTail
 
@@ -2980,7 +2983,8 @@ private theorem recordSourceWitness (name : P4SpecTec.Lang.Il.id) (arguments : L
 private theorem externalSourceWitness (name : P4SpecTec.Lang.Il.id) (v :
   P4SpecTec.Lang.Il.value)
     (declared : Representation.Source.external NanoP4Spec.spec name.it = true)
-    (payload : Representation.Source.externDomain name.it v) : Witness (.VarT name []) v := by
+    (payload : Representation.Source.externDomain.external name.it v) : Witness (.VarT name [])
+      v := by
   intro family matching
   cases matching with
     | f0 name nameEq =>
@@ -3078,6 +3082,8 @@ private theorem sourceWitness {input : P4SpecTec.Lang.Il.typ'} {v : P4SpecTec.La
       (.variant name arguments parameters cases constructor instantiated v tree
         declared member shape mixop fields payload)
   · exact externalSourceWitness
+  · intro name arguments v payload
+    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)
   · exact .nil
   · intro type v types values head tail ihHead ihTail; exact .cons ihHead ihTail
 

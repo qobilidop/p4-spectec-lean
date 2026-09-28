@@ -314,6 +314,7 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
         if ← closeBoolConflict then return
         if ← closeConstructorClash then return
         if ← closeValueEqConflict s then return
+        if ← splitFactList s (step s (remaining - 1) relations iterRel) then return
       if generated.isAppOfArity ``letFun 4 then
         evalTactic (← `(tactic| apply Realizes.have))
       else if source.isAppOfArity ``Eval.orElse 3 then
@@ -384,6 +385,7 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
         else if ← closeBoolConflict then return
         else if ← closeConstructorClash then return
         else if ← closeValueEqConflict s then return
+        else if ← splitFactList s (step s (remaining - 1) relations iterRel) then return
         else
           throwError "realize_al: stuck at {head} against {genHead}\
             {Lean.MessageData.ofGoal (← getMainGoal)}"

@@ -16,10 +16,12 @@ def traversalGoals (s : SimpSet) (relation : Expr) (source generated : Expr) :
   let rawHead := chainHead source
   let typedHead := chainHead generated
   unless rawHead.isAppOf ``List.mapM && typedHead.isAppOf ``List.mapM &&
-      (chainTail source).isSome && (chainTail generated).isSome do return false
+      (chainTail source).isSome do return false
   let some inputs ← columnTraversalInputs (proveValue s)
       rawHead.getAppArgs.back! typedHead.getAppArgs.back!
     | return false
+  -- a generated traversal that ends the computation continues with `pure`
+  if (chainTail generated).isNone then evalTactic (← `(tactic| apply Realizes.ofBindPure))
   let q ← Term.exprToSyntax relation
   let h ← Term.exprToSyntax inputs
   if (← columnTraversalRelation source generated).isSome then

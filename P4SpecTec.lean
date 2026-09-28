@@ -139,6 +139,7 @@ import P4SpecTec.Refine.Representation.SourceMixfix
 import P4SpecTec.Refine.Representation.SourceObservation
 import P4SpecTec.Refine.Representation.SourcePrimitive
 import P4SpecTec.Refine.Representation.SourceRecord
+import P4SpecTec.Refine.Representation.SourceRuntime
 import P4SpecTec.Refine.Representation.SourceSubst
 import P4SpecTec.Refine.Representation.SourceTuple
 import P4SpecTec.Refine.Representation.SourceVariant

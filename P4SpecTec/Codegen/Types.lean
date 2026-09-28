@@ -730,13 +730,24 @@ The theorem belongs in the refinement sidecar; the subtype preset rewrites with 
 Each case closes by reduction, or else by `subtype_canon`, which unfolds the encoders. -/
 def subtypeCanonTheorem (env : Env) (s t : typ') : Format :=
   let name := upName s t ++ ".canon_toValue"
+  -- the same fact with the nominal encoders, the form an unfolded constructor encoder
+  -- exposes; simp does not see an instance projection through to its function
+  let encoder (u : typ') := env.q (Names.typeName (typeHead u)) ++ ".toValue"
+  let proof := Format.nest 2 (Term.hardLine ++ Format.text "cases x <;> first" ++
+      Format.nest 2 (Term.hardLine ++ "| rfl" ++ Term.hardLine ++
+        Format.text s!"| subtype_canon {env.lib} [{env.q (upName s t)}]"))
+  let encoderName := upName s t ++ ".canon_encoder"
+  let encoderForm := Format.group (Format.nest 4 (Format.text s!"theorem {encoderName}" ++
+    Format.line ++ Format.text "(x : " ++ (typTerm env [] s).fmt ++ ") :" ++ Format.line ++
+    Format.text s!"Refine.canon ({encoder t} ({env.q (upName s t)} x)) =" ++
+      Format.line ++ s!"Refine.canon ({encoder s} x)" ++ " := by")) ++ proof ++
+    Term.hardLine ++ Term.hardLine ++ Format.text s!"#audit_axioms {env.q encoderName}"
   Format.group (Format.nest 4 (Format.text s!"theorem {name}" ++ Format.line ++
     Format.text "(x : " ++ (typTerm env [] s).fmt ++ ") :" ++ Format.line ++
     Format.text s!"Refine.canon (ToValue.toValue ({env.q (upName s t)} x)) =" ++
       Format.line ++ "Refine.canon (ToValue.toValue x)" ++
-    " := by")) ++ Format.nest 2 (Term.hardLine ++ Format.text "cases x <;> first" ++
-      Format.nest 2 (Term.hardLine ++ "| rfl" ++ Term.hardLine ++
-        Format.text s!"| subtype_canon {env.lib} [{env.q (upName s t)}]")) ++
-    Term.hardLine ++ Term.hardLine ++ Format.text s!"#audit_axioms {env.q name}"
+    " := by")) ++ proof ++
+    Term.hardLine ++ Term.hardLine ++ Format.text s!"#audit_axioms {env.q name}" ++
+    Term.hardLine ++ Term.hardLine ++ encoderForm
 
 end P4SpecTec.Codegen.Types

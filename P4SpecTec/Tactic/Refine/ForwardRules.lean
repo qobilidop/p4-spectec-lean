@@ -237,7 +237,7 @@ def subtypeSimpSet : TacticM SimpSet := do
     -- generated subtype injections preserve canonical encodings; they rewrite before
     -- (`↓`) the inner encoder is unfolded, which would hide the injection's pattern
     if lib.isPrefixOf name && !name.isInternal && info.isTheorem &&
-        name.getString! == "canon_toValue" then
+        (name.getString! == "canon_toValue" || name.getString! == "canon_encoder") then
       bridges := bridges.push name
   let lemmas := rules.lemmas.filter fun n =>
     !(``Interp.checked_type).isPrefixOf n &&

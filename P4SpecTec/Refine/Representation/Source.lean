@@ -66,12 +66,40 @@ def instantiatedFields (parameters : List tparam) (arguments : List typ)
         (((parameters.map (·.it)).zip (arguments.map (·.it))).reverse) a.it b.it)
       fields instantiated
 
+/-- The independently specified parts of a value domain beyond the declared grammar: the
+values of opaque external types, and the configured runtime-only alternatives of declared
+types. The source profile has no runtime alternative. -/
+structure Domain where
+  /-- The values of a declared opaque external type. -/
+  external : String → value → Prop
+  /-- The runtime-only values admitted at a declared type besides its source constructors. -/
+  runtime : String → value → Prop
+
+/-- The domain adds no runtime-only alternative at the declared type `name`. -/
+def Domain.SourceOnly (domain : Domain) (name : String) : Prop := ∀ v, ¬ domain.runtime name v
+
+/-- The domain of a profile whose declared types `types` also admit a raw `ExternV`.
+Opaque extern types have the independently specified domain: pinned upstream
+`runtime/value/match.ml` accepts exactly `ExternV` for `Extern`, and the target interprets
+the JSON payload without further core-language restrictions. -/
+def runtimeDomain (types : List String) : Domain :=
+  ⟨fun _ => Shape.extern, fun name v => name ∈ types ∧ Shape.extern v⟩
+
+/-- The source domain: opaque extern types, and no runtime-only alternatives. -/
+def externDomain : Domain := runtimeDomain []
+
+/-- Discharge `Domain.SourceOnly` for the source domain, or for a runtime profile at a
+declared type outside its runtime list. -/
+macro "source_only" : tactic => `(tactic|
+  (intro v admitted
+   simp [Domain.SourceOnly, externDomain, runtimeDomain] at admitted))
+
 mutual
 
-/-- A finite derivation of a source value from its actual declared grammar.
-Opaque external source domains are supplied independently; runtime extensions
-are not implicit alternatives of this predicate. -/
-inductive Valid (spec : Lang.Al.spec) (externalDomain : String → value → Prop) :
+/-- A finite derivation of a value from its actual declared grammar.
+Opaque external domains and runtime-only alternatives are supplied independently by the
+domain; runtime extensions are not implicit alternatives of this predicate. -/
+inductive Valid (spec : Lang.Al.spec) (externalDomain : Domain) :
     typ' → value → Prop where
   /-- Strict source Boolean constructor. -/
   | bool (v : value) (b : Bool) (shape : v.it = .BoolV b) : Valid spec externalDomain .BoolT v
@@ -131,10 +159,14 @@ inductive Valid (spec : Lang.Al.spec) (externalDomain : String → value → Pro
   /-- External declarations require their independently specified source domain. -/
   | external (name : id) (v : value)
       (declared : external spec name.it = true)
-      (payload : externalDomain name.it v) : Valid spec externalDomain (.VarT name []) v
+      (payload : externalDomain.external name.it v) : Valid spec externalDomain (.VarT name []) v
+  /-- A runtime-only alternative the domain explicitly admits at a declared type. -/
+  | runtime (name : id) (arguments : List typ) (v : value)
+      (payload : externalDomain.runtime name.it v) :
+      Valid spec externalDomain (.VarT name arguments) v
 
 /-- Positional source validity for a finite field list of arbitrary length. -/
-inductive Values (spec : Lang.Al.spec) (externalDomain : String → value → Prop) :
+inductive Values (spec : Lang.Al.spec) (externalDomain : Domain) :
     List typ → List value → Prop where
   /-- No fields require no values. -/
   | nil : Values spec externalDomain [] []
@@ -147,7 +179,7 @@ inductive Values (spec : Lang.Al.spec) (externalDomain : String → value → Pr
 end
 
 /-- Positional source validity retains exact arity. -/
-theorem Values.length {spec : Lang.Al.spec} {externalDomain : String → value → Prop}
+theorem Values.length {spec : Lang.Al.spec} {externalDomain : Domain}
     {types : List typ} {values : List value} (valid : Values spec externalDomain types values) :
     types.length = values.length := by
   induction values generalizing types with

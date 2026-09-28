@@ -16,7 +16,8 @@ theorem atomicIff {spec externalDomain annotations} (d : Lang.Al.def) (name : id
     (declarationShape : d.it = .TypD name [] definition annotations)
     (bodyShape : definition.it = .VariantT cases)
     (declared : body spec name.it = some ([], .VariantT cases))
-    (atomic : ∀ c ∈ cases, ∃ a, c.nottyp.it = .Atom a) (v : value) :
+    (atomic : ∀ c ∈ cases, ∃ a, c.nottyp.it = .Atom a) (v : value)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     Valid spec externalDomain (.VarT name []) v ↔ atomVariant d v := by
   have kinds : atomKinds d = cases.filterMap (fun c => match c.nottyp.it with
       | .Atom a => some a.it | _ => none) := by
@@ -47,6 +48,7 @@ theorem atomicIff {spec externalDomain annotations} (d : Lang.Al.def) (name : id
         simp [Mixfix.eq_mixop, Mixfix.eq] at mixop
     | external name v found payload =>
       simp [externalFalseOfBody declared] at found
+    | runtime name args v payload => exact absurd payload (sourceOnly v)
   · rintro ⟨a, shape, member⟩
     rw [kinds] at member
     obtain ⟨constructor, hc, hfilter⟩ := List.mem_filterMap.mp member

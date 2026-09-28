@@ -1,5 +1,6 @@
 import P4SpecTec.Tactic.Refine.Context
 import P4SpecTec.Refine.Iteration
+import P4SpecTec.Refine.IterationColumns
 import P4SpecTec.Refine.RealizeIteration
 
 /-! Direction-independent positional observations for actual interpreter traversals. -/
@@ -52,6 +53,17 @@ partial def traversalInputs (prove : TacticM Unit) (raw typed : Expr) :
 
 /-- Rewrite completed batches whose actual output relation proves every row is empty. -/
 def emptyTraversalResult (source : Expr) : TacticM Bool := withMainContext do
+  -- a batch without outputs: every row is empty
+  if source.isAppOfArity ``collectColumns 2 then
+    let some 0 ← getNatValue? (source.getArg! 0) | return false
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail then continue
+      let ty := (← instantiateMVars decl.type).consumeMData
+      unless ty.isAppOfArity ``List.Forall₂ 5 do continue
+      unless ← isDefEq (ty.getArg! 3) (source.getArg! 1) do continue
+      if ← tryTac (evalTactic (← `(tactic|
+          rw [collectColumnsNoOutputs $(mkIdent decl.userName):ident]))) then return true
+    return false
   unless source.isAppOfArity ``P4SpecTec.Interp_al.Ctx.transpose 1 do return false
   let mut rows := source.getArg! 0
   let mut count := 0

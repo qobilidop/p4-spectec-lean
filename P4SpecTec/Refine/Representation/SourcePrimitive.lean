@@ -12,7 +12,7 @@ open P4SpecTec.Lang.Il P4SpecTec.Prelude
 
 /-- Existing primitive codecs and constructors for every explicitly legal child codec.
 The profile fixes contextual tuple dictionaries and never assumes arbitrary instance laws. -/
-structure PrimitiveProfile (spec : Lang.Al.spec) (externalDomain : String → value → Prop) :
+structure PrimitiveProfile (spec : Lang.Al.spec) (externalDomain : Domain) :
     Prop where
   /-- Strict source Boolean representation. -/
   booleans : Codec (Valid spec externalDomain .BoolT) (fun _ : Bool => True)

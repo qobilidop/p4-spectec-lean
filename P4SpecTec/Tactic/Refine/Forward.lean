@@ -180,7 +180,7 @@ def rewriteEqsByPayload : TacticM Bool := withMainContext do
 /-- Prove that an interpreter value is related to a generated value, or
 that two canonical lists agree, by computing `canon` on both sides with
 the facts. -/
-def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
+partial def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
   let goal ← getMainGoal
   let ty ← goal.withContext do instantiateMVars (← goal.getType)
   if ty.isAppOf ``PairLookupRel then
@@ -202,6 +202,29 @@ def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
   if ← tryTac (evalTactic (← `(tactic| assumption))) then return
   if ← tryTac (evalTactic (← `(tactic|
       exact Representation.ValueBEq.elemOfRel (by assumption) (by assumption)))) then return
+  -- membership of a represented element in a represented list, each shown separately
+  if ← tryTac do
+      evalTactic (← `(tactic| refine Representation.ValueBEq.elemOfRel ?_ ?_))
+      let [element, list] ← getGoals | throwError "membership premises"
+      setGoals [element]
+      proveValue s
+      unless (← getGoals).isEmpty do throwError "membership element remains"
+      setGoals [list]
+      unless ← tryTac (evalTactic (← `(tactic| assumption))) do
+        evalTactic (← `(tactic| refine Eq.trans (by assumption) ?_))
+        proveValue s
+      unless (← getGoals).isEmpty do throwError "membership list remains"
+    then return
+  -- two equality tests of canonically related operands
+  if ← tryTac do
+      evalTactic (← `(tactic| refine eq_of_canon ?_ ?_))
+      for g in ← getGoals do
+        setGoals [g]
+        unless ← tryTac (evalTactic (← `(tactic| first | assumption | rfl))) do
+          let _ ← normalize s
+          unless (← getGoals).isEmpty do evalTactic (← `(tactic| first | assumption | rfl))
+      unless (← getGoals).isEmpty do throwError "related equality operands remain"
+    then return
   if ← tryTac do
       encodingShapes
       if !(← getGoals).isEmpty then
@@ -246,6 +269,68 @@ partial def valueEqs (e : Expr) : List Expr :=
     | .mdata _ e => valueEqs e
     | .proj _ _ e => valueEqs e
     | _ => [])
+
+/-- Close the main goal when a decided reference membership `raws.any (Value.eq v) = c`
+and a decided generated membership `List.elem x xs = c'` disagree although `v` represents
+`x` and `raws` represents `xs` (`ValueBEq.elemOfRel`, both premises by the value prover). -/
+def closeMembershipConflict (s : SimpSet) : TacticM Bool := do
+  let goal ← getMainGoal
+  let (references, generated) ← goal.withContext do
+    -- each decided membership with a proof of `test = outcome`; `¬ test = b` decides `!b`
+    let mut references : Array (Expr × Expr × Bool) := #[]
+    let mut generated : Array (Expr × Expr × Bool) := #[]
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail then continue
+      let ty := (← instantiateMVars decl.type).consumeMData
+      let (ty, negated) := if ty.isAppOfArity ``Not 1 then (ty.getArg! 0, true) else (ty, false)
+      let some (_, lhs, rhs) := ty.consumeMData.eq? | continue
+      let lhs := lhs.consumeMData
+      let outcome := if rhs.consumeMData.isConstOf ``Bool.true then some true
+        else if rhs.consumeMData.isConstOf ``Bool.false then some false else none
+      let some outcome := outcome | continue
+      let flip := if outcome then ``eq_false_of_ne_true else ``eq_true_of_ne_false
+      let proof ← if negated then mkAppM flip #[decl.toExpr] else pure decl.toExpr
+      let outcome := if negated then !outcome else outcome
+      if lhs.isAppOfArity ``List.any 3 &&
+          (lhs.getArg! 2).consumeMData.isAppOfArity ``P4SpecTec.Runtime.Value.eq 1 then
+        references := references.push (proof, lhs, outcome)
+      else if lhs.isAppOfArity ``List.elem 4 then
+        generated := generated.push (proof, lhs, outcome)
+    pure (references, generated)
+  for (r, reference, outcome) in references do
+    for (g, member, outcome') in generated do
+      if outcome == outcome' then continue
+      let saved ← saveState
+      let closed ← try
+        let (hx, hs) ← goal.withContext do
+          let raws := reference.getArg! 1
+          let v := (reference.getArg! 2).consumeMData.getArg! 0
+          let x := member.getArg! 2
+          let xs := member.getArg! 3
+          let hx ← mkFreshExprSyntheticOpaqueMVar
+            (← mkAppM ``P4SpecTec.Refine.Rel #[v, x])
+          let hs ← mkFreshExprSyntheticOpaqueMVar (← mkEq
+            (← mkAppM ``P4SpecTec.Refine.canons #[raws])
+            (← mkAppM ``P4SpecTec.Refine.canons #[← mkAppM ``List.map
+              #[← withLocalDeclD `y (← inferType x) fun y => do
+                  mkLambdaFVars #[y] (← mkAppM ``P4SpecTec.Prelude.toValue #[y]), xs]]))
+          let same ← mkAppM ``Representation.ValueBEq.elemOfRel #[hx, hs]
+          -- `c = raws.any … = xs.elem x = c'` with `c ≠ c'`
+          let conflict ← mkEqTrans (← mkEqSymm r) (← mkEqTrans same g)
+          let refuted ← mkDecideProof (mkNot (← inferType conflict))
+          goal.assign (← mkAbsurd (← goal.getType) conflict refuted)
+          pure (hx.mvarId!, hs.mvarId!)
+        for hole in [hx, hs] do
+          setGoals [hole]
+          proveValue s
+          unless (← getGoals).isEmpty do throwError "membership premise remains"
+        pure true
+      catch e =>
+        traceStep m!"membership conflict not shown: {e.toMessageData}"
+        saved.restore
+        pure false
+      if closed then return true
+  return false
 
 /-- Close the main goal when a decided test `Value.eq a b = false` holds of canonically
 equal values (shown by the value prover), or `Value.eq a b = true` of canonically
@@ -296,7 +381,7 @@ def closeValueEqConflict (s : SimpSet) : TacticM Bool := do
       saved.restore
       pure false
     if closed then return true
-  return false
+  closeMembershipConflict s
 
 /-- The list variable of a generated emptiness test, `xs.beq []`, `xs == []` or
 `xs.isEmpty`, at the head of `e`'s condition; other conditions are not list tests. -/
@@ -362,6 +447,57 @@ def splitGeneratedList (s : SimpSet) (n : Expr) (k : TacticM Unit) : TacticM Boo
     if ← closeValueEqConflict s then continue
     k
   return true
+
+/-- The lists a Boolean fact tests for emptiness (`[].beq xs`, `xs.beq []`, `xs.isEmpty`,
+also under `&&`), when the list is not yet a constructor. -/
+partial def emptinessTests (e : Expr) : List Expr :=
+  let e := e.consumeMData
+  let open_ (x : Expr) : List Expr :=
+    let x := x.consumeMData
+    if x.isAppOf ``List.nil || x.isAppOf ``List.cons then [] else [x]
+  if e.isAppOfArity ``List.beq 4 || e.isAppOfArity ``BEq.beq 4 then
+    let (a, b) := (e.getArg! 2, e.getArg! 3)
+    if a.consumeMData.isAppOfArity ``List.nil 1 then open_ b
+    else if b.consumeMData.isAppOfArity ``List.nil 1 then open_ a else []
+  else if e.isAppOfArity ``List.isEmpty 2 then open_ (e.getArg! 1)
+  else if e.isAppOfArity ``and 2 || e.isAppOfArity ``Eq 3 || e.isAppOfArity ``Not 1 then
+    e.getAppArgs.toList.flatMap emptinessTests
+  else []
+
+/-- A decided fact tests a generated list for emptiness while the list is still symbolic:
+split the list, so the fact and the related reference values decide on constructors. -/
+def splitFactList (s : SimpSet) (k : TacticM Unit) : TacticM Bool := do
+  let goal ← getMainGoal
+  let lists ← goal.withContext do
+    let mut out : Array Expr := #[]
+    for decl in ← getLCtx do
+      if decl.isImplementationDetail || !decl.userName.toString.startsWith "rf_c" then continue
+      out := out ++ (emptinessTests (← instantiateMVars decl.type)).toArray
+    pure out
+  for list in lists do
+    let saved ← saveState
+    let split ← try
+      let listSyntax ← goal.withContext (Term.exprToSyntax list)
+      let h ← freshName "rf_c_split"
+      evalTactic (← `(tactic| cases $(mkIdent h):ident : $listSyntax:term))
+      pure (some h)
+    catch _ =>
+      saved.restore
+      pure none
+    let some h := split | continue
+    traceStep m!"cases {list} (list tested in a fact)"
+    for g in ← getGoals do
+      setGoals [g]
+      let _ ← tryTac (evalTactic (← `(tactic| simp only [$(mkIdent h):ident] at *)))
+      if (← getGoals).isEmpty then continue
+      normalizeFacts s
+      if (← getGoals).isEmpty then continue
+      if ← closeBoolConflict then continue
+      if ← closeConstructorClash then continue
+      if ← closeValueEqConflict s then continue
+      k
+    return true
+  return false
 
 /-- Pair the interpreter's invocation at the head of `m` with the generated
 call at the head of `n`: the callee's refinement theorem, or the induction
@@ -442,7 +578,12 @@ def calleeStep (s : SimpSet) (m n : Expr) : TacticM Unit := timed "callee" do
     if ← g.isAssigned then continue
     setGoals [g]
     let ty ← g.withContext do instantiateMVars (← g.getType)
-    if ty.consumeMData.isAppOfArity ``Rel 4 then
+    -- a value relation, also unfolded (an induction hypothesis states `canon v = canon x`)
+    let canonical := match ty.consumeMData.eq? with
+      | some (_, lhs, rhs) =>
+        lhs.isAppOfArity ``P4SpecTec.Refine.canon 1 && rhs.isAppOfArity ``P4SpecTec.Refine.canon 1
+      | none => false
+    if ty.consumeMData.isAppOfArity ``Rel 4 || canonical then
       valueGoals := valueGoals ++ [g]
     else
       let fromSpec ← declarationFromSpec
@@ -522,10 +663,13 @@ def alignEqualities (s : SimpSet) (c : Expr) : TacticM Expr := do
 def mapMGoals (s : SimpSet) (relation : Expr) (m n : Expr) : TacticM Bool := withMainContext do
   let mh := chainHead m
   let nh := chainHead n
-  unless mh.isAppOf ``List.mapM && nh.isAppOf ``List.mapM &&
-      (chainTail m).isSome && (chainTail n).isSome do return false
+  unless mh.isAppOf ``List.mapM && nh.isAppOf ``List.mapM && (chainTail m).isSome do
+    return false
   let some inputs ← columnTraversalInputs (proveValue s) mh.getAppArgs.back! nh.getAppArgs.back!
     | return false
+  -- a generated traversal that ends the computation continues with `pure`
+  if (chainTail n).isNone then
+    evalTactic (← `(tactic| refine refines_of_bind_pure ?_))
   let q ← Term.exprToSyntax relation
   let h ← Term.exprToSyntax inputs
   if (← columnTraversalRelation m n).isSome then
@@ -1037,6 +1181,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
       if ← splitGeneratedList s n (step s iteration subtypes) then return
       if ← splitGeneratedDiscriminant s n (step s iteration subtypes) then return
       if ← splitGeneratedCondition s n (step s iteration subtypes) then return
+      if ← splitFactList s (step s iteration subtypes) then return
       throwError "refine_al: the interpreter succeeds but the generated code does not:\
         {Lean.MessageData.ofGoal goal}"
     noteAction "pure"
@@ -1071,6 +1216,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
     if ← splitGeneratedList s n (step s iteration subtypes) then return
     if ← splitGeneratedDiscriminant s n (step s iteration subtypes) then return
     if ← splitGeneratedCondition s n (step s iteration subtypes) then return
+    if ← splitFactList s (step s iteration subtypes) then return
     throwError "refine_al: the interpreter fails but the generated code does not fail alike:\
       {Lean.MessageData.ofGoal goal}"
   -- an invocation

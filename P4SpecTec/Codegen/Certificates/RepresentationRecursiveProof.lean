@@ -358,7 +358,7 @@ def sourceFidelityDeclarations (env : Env) (plan : Plan) (namespaceName : String
   let extern := "/-- Source external declarations use independent checked leaf codecs. -/\n" ++
     s!"private theorem externalSource{suffix} (name : id) (v : value)\n" ++
     s!"    (declared : Representation.Source.external {spec} name.it = true)\n" ++
-    s!"    (payload : {domain} name.it v) : {goal} (.VarT name []) v := by\n" ++
+    s!"    (payload : {domain}.external name.it v) : {goal} (.VarT name []) v := by\n" ++
     "  intro family matching\n  cases matching with\n" ++
     String.join externCases ++ s!"\n#audit_axioms externalSource{suffix}"
   let proof := primitiveMinor plan .BoolT "v b shape"
@@ -388,7 +388,10 @@ def sourceFidelityDeclarations (env : Env) (plan : Plan) (namespaceName : String
     "      instantiated v tree declared member shape mixop fields ih\n" ++
     "      (.variant name arguments parameters cases constructor instantiated v tree\n" ++
     "        declared member shape mixop fields payload)\n" ++
-    s!"  · exact externalSource{suffix}\n  · exact .nil\n" ++
+    s!"  · exact externalSource{suffix}\n" ++
+    "  · intro name arguments v payload\n" ++
+    "    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)\n" ++
+    "  · exact .nil\n" ++
     "  · intro type v types values head tail ihHead ihTail; exact .cons ihHead ihTail\n"
   let main := "/-- Complete actual decoder facts by independent source derivation. -/\n" ++
     s!"private theorem source{suffix}" ++ " {input : typ'} {v : value}\n" ++

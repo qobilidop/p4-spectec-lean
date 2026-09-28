@@ -58,11 +58,13 @@ private theorem map.sourcePayload {spec externalDomain} (keyType valueType : Lan
     (declared : body spec "map" = some ([Q.i "K", Q.i "V"], .PlainT
       (Q.t (Q.varT "set" [Q.t (Q.varT "pair"
         [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])])]))))
-    (valid : Valid spec externalDomain (Q.varT "map" [keyType, valueType]) v) :
+    (valid : Valid spec externalDomain (Q.varT "map" [keyType, valueType]) v)
+    (sourceOnly : Representation.Source.Domain.SourceOnly externalDomain "map" := by
+      source_only) :
     ∃ keyType' valueType' : typ, keyType'.it = keyType.it ∧ valueType'.it = valueType.it ∧
       Valid spec externalDomain
         (Q.varT "set" [Q.t (Q.varT "pair" [keyType', valueType'])]) v := by
-  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared
+  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared sourceOnly
   obtain ⟨_, fields⟩ := fields
   cases fields with
   | cons sub rest =>

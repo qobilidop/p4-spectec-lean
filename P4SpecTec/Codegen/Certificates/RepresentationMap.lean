@@ -53,11 +53,13 @@ private def proofTemplate : String :=
   "    (declared : body spec SOURCE_ID = some ([Q.i LEFT_ID, Q.i RIGHT_ID], .PlainT\n" ++
   "      (Q.t (Q.varT LIST_ID [Q.t (Q.varT PAIR_ID\n" ++
   "        [Q.t (Q.varT LEFT_ID []), Q.t (Q.varT RIGHT_ID [])])]))))\n" ++
-  "    (valid : Valid spec externalDomain (Q.varT SOURCE_ID [keyType, valueType]) v) :\n" ++
+  "    (valid : Valid spec externalDomain (Q.varT SOURCE_ID [keyType, valueType]) v)\n" ++
+  "    (sourceOnly : Representation.Source.Domain.SourceOnly externalDomain SOURCE_ID := by\n" ++
+  "      source_only) :\n" ++
   "    ∃ keyType' valueType' : typ, keyType'.it = keyType.it ∧ valueType'.it = valueType.it ∧\n" ++
   "      Valid spec externalDomain\n" ++
   "        (Q.varT LIST_ID [Q.t (Q.varT PAIR_ID [keyType', valueType'])]) v := by\n" ++
-  "  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared\n" ++
+  "  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared sourceOnly\n" ++
   "  obtain ⟨_, fields⟩ := fields\n" ++
   "  cases fields with\n" ++
   "  | cons sub rest =>\n" ++

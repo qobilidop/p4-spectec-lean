@@ -1,3 +1,4 @@
+import P4SpecTec.Refine.Call
 import P4SpecTec.Refine.Iteration
 import P4SpecTec.Interp.InterpAl.Ctx
 
@@ -63,6 +64,26 @@ def collectColumns (arity : Nat) (rows : List (List value)) : Eval (List (List v
   match rows with
   | [] => pure (List.replicate arity [])
   | _ :: _ => Ctx.transpose rows
+
+/-- A batch of premises without outputs has only empty rows, and collects no columns. -/
+theorem collectColumnsNoOutputs {α : Type} {rows : List (List value)} {xs : List α}
+    (h : List.Forall₂ (fun row (_ : α) => row = []) rows xs) : collectColumns 0 rows = pure [] := by
+  have empty : ∀ r ∈ rows, r = [] := by
+    induction h with
+    | nil => intro r member; cases member
+    | cons head _ ih =>
+      intro r member
+      rcases List.mem_cons.mp member with rfl | member
+      · exact head
+      · exact ih r member
+  cases rows with
+  | nil => rfl
+  | cons row rows => exact transposeEmptyRows (row :: rows) empty
+
+/-- info: 'P4SpecTec.Refine.collectColumnsNoOutputs' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms collectColumnsNoOutputs
+#audit_axioms collectColumnsNoOutputs
 
 /-- Canonically related rectangular rows collect into actual ordered source columns.
 Each column has its own explicit encoder, so a scalar product carrier is never flattened

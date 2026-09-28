@@ -30,7 +30,8 @@ theorem externalFalseOfBody {spec name parameters definition}
 theorem plainAliasIff {spec externalDomain} (name : id) (definition : typ)
     (declared : body spec name.it = some ([], .PlainT definition))
     (stable : ∀ result, Substitutes [] definition.it result → result = definition.it)
-    (identity : Substitutes [] definition.it definition.it) (v : value) :
+    (identity : Substitutes [] definition.it definition.it) (v : value)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     Valid spec externalDomain (.VarT name []) v ↔ Valid spec externalDomain definition.it v := by
   constructor
   · intro h
@@ -50,6 +51,7 @@ theorem plainAliasIff {spec externalDomain} (name : id) (definition : typ)
       simp [declared] at found
     | external name v found payload =>
       simp [externalFalseOfBody declared] at found
+    | runtime name arguments v payload => exact absurd payload (sourceOnly v)
   · intro h
     exact .alias name [] [] definition definition v declared
       ⟨rfl, .cons identity .nil⟩ h
@@ -62,11 +64,12 @@ theorem plainAliasIff {spec externalDomain} (name : id) (definition : typ)
 /-- A text alias admits precisely the source byte-text tag, including arbitrary metadata. -/
 theorem textAliasIff {spec externalDomain} (name : id) (definition : typ)
     (declared : body spec name.it = some ([], .PlainT definition))
-    (text : definition.it = .TextT) (v : value) :
+    (text : definition.it = .TextT) (v : value)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     Valid spec externalDomain (.VarT name []) v ↔ Shape.text v := by
   have plain := plainAliasIff (externalDomain := externalDomain) name definition declared
     (by intro result h; rw [text] at h; simpa only [text] using h.textResult)
-    (by rw [text]; exact .text) v
+    (by rw [text]; exact .text) v sourceOnly
   rw [plain, text]
   constructor
   · intro h
@@ -108,6 +111,7 @@ theorem Valid.arguments {spec externalDomain} {name : id} {args args' : List typ
     have empty : args' = [] := by cases args' <;> simp_all
     subst args'
     exact .external name v declared payload
+  | runtime name args v payload => exact .runtime name args' v payload
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.arguments' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -117,7 +121,8 @@ theorem Valid.arguments {spec externalDomain} {name : id} {args args' : List typ
 /-- A plain source alias exposes its precise finite substitution and valid payload. -/
 theorem Valid.plainPayload {spec externalDomain} {name : id} {args parameters} {definition : typ}
     {v : value} (declared : body spec name.it = Option.some (parameters, .PlainT definition))
-    (valid : Valid spec externalDomain (.VarT name args) v) :
+    (valid : Valid spec externalDomain (.VarT name args) v)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     ∃ instantiated : typ, instantiatedFields parameters args [definition] [instantiated] ∧
       Valid spec externalDomain instantiated.it v := by
   cases valid with
@@ -131,6 +136,7 @@ theorem Valid.plainPayload {spec externalDomain} {name : id} {args parameters} {
     simp [declared] at found
   | external name v found payload =>
     simp [externalFalseOfBody declared] at found
+  | runtime name args v payload => exact absurd payload (sourceOnly v)
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.plainPayload' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -191,6 +197,7 @@ theorem Valid.nominalName {spec externalDomain} {name name' : id} {args : List t
       (same ▸ declared) member shape mixop fields payload
   | external name v declared payload =>
     exact .external name' v (same ▸ declared) (same ▸ payload)
+  | runtime name args v payload => exact .runtime name' args v (same ▸ payload)
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.nominalName' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -203,11 +210,12 @@ theorem plainAliasDomainIff {spec externalDomain} (name : id) (definition : typ)
     (declared : body spec name.it = some ([], .PlainT definition))
     (normalize : ∀ actual : typ, Substitutes [] definition.it actual.it →
       ∀ v, Valid spec externalDomain actual.it v → Valid spec externalDomain definition.it v)
-    (identity : Substitutes [] definition.it definition.it) (v : value) :
+    (identity : Substitutes [] definition.it definition.it) (v : value)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     Valid spec externalDomain (.VarT name []) v ↔ Valid spec externalDomain definition.it v := by
   constructor
   · intro h
-    obtain ⟨actual, fields, payload⟩ := h.plainPayload declared
+    obtain ⟨actual, fields, payload⟩ := h.plainPayload declared sourceOnly
     obtain ⟨_, substitutions⟩ := fields
     cases substitutions with
     | cons substitution rest =>
