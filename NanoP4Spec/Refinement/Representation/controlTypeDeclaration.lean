@@ -55,8 +55,6 @@ private theorem controlTypeDeclaration.fieldCodec0_0 : @Representation.Codec (Na
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
 
-#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem controlTypeDeclaration.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "name" [])).it actual → ∀ v,
@@ -68,8 +66,6 @@ private theorem controlTypeDeclaration.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "name")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem controlTypeDeclaration.fieldCodec0_1 : @Representation.Codec
   (NanoP4Spec.parameterList) ⟨NanoP4Spec.parameterList.toValue⟩
@@ -77,8 +73,6 @@ private theorem controlTypeDeclaration.fieldCodec0_1 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "parameterList" [])).it)
   (NanoP4Spec.parameterList.admitted) :=
   NanoP4Spec.parameterList.codec
-
-#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem controlTypeDeclaration.fieldSubstitution0_1 : ∀ actual,
@@ -90,8 +84,6 @@ private theorem controlTypeDeclaration.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "parameterList")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldSubstitution0_1
 
 private theorem controlTypeDeclaration.sourceCasesValid (v : Lang.Il.value) (hv :
   controlTypeDeclaration.source v) :
@@ -125,8 +117,6 @@ private theorem controlTypeDeclaration.sourceCasesValid (v : Lang.Il.value) (hv 
         exact .cons (controlTypeDeclaration.fieldSubstitution0_0 _ sub0) (.cons
           (controlTypeDeclaration.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.controlTypeDeclaration.sourceCasesValid
-
 private theorem controlTypeDeclaration.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -150,8 +140,6 @@ private theorem controlTypeDeclaration.decode0 (fuel : Nat) (v : Lang.Il.value) 
     x1)))
   cases ((NanoP4Spec.name.ofValue) fuel v0) <;> cases ((NanoP4Spec.parameterList.ofValue) fuel
     v1) <;> rfl
-
-#audit_axioms controlTypeDeclaration.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem controlTypeDeclaration.codec : @Refine.Representation.Codec
@@ -321,7 +309,6 @@ theorem controlTypeDeclaration.codec : @Refine.Representation.Codec
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.controlTypeDeclaration.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -336,6 +323,13 @@ theorem controlTypeDeclaration.admittedAll : ∀ x : NanoP4Spec.controlTypeDecla
       trivial⟩
 
 
+#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldCodec0_0
+#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldCodec0_1
+#audit_axioms NanoP4Spec.controlTypeDeclaration.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.controlTypeDeclaration.sourceCasesValid
+#audit_axioms controlTypeDeclaration.decode0
+#audit_axioms NanoP4Spec.controlTypeDeclaration.codec
 #audit_axioms NanoP4Spec.controlTypeDeclaration.admittedAll
 
 end NanoP4Spec

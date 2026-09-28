@@ -40,6 +40,18 @@ must be squashed into coherent commits before `main`.
   change was reverted. Resolve their fields from the catalog instead. `repeat_` (a
   recursive list builder) needs a `partial_correctness` proof shape.
 
+## Proof-build performance on `n3-perf`
+
+Branch `n3-perf` (local, not pushed) holds a WIP commit on top of `n3-core` that
+roughly halves certificate rebuild latency: critical path 20.5 → 10.9 min, and
+`bin_op` 540 → 173s. See
+[the performance note](notes/proof-build-performance.md). The certificate build
+passes. The full gate still fails in "Certificate replay contracts" and
+"Field-update mutation runner contracts", because both scripts assume an audit next to its
+theorem. Two later stages and the WIP's own failures are also still open. Next step: update
+`scripts/replay-cert.py` and the mutation runner for hoisted audits, rerun the gate,
+then merge `n3-perf` into `n3-core`.
+
 ## Resume point
 
 1. `nix develop -c lake test`; fix the new domain modules it reports.
@@ -56,7 +68,7 @@ tactic-only changes. Generation takes seconds; minutes mean a generator regressi
 
 ## Maintenance and repository state
 
-Worktrees: main (`n3-core`) and `../p4-spectec-lean-replay` (scratch replays,
+Worktrees: main (`n3-perf`) and `../p4-spectec-lean-replay` (scratch replays,
 detached, disposable). Local branch `n3-runtime` is merged into `n3-core`; delete it
 with the other feature refs after integration. Older local branches `n3-decl-load`
 and `n3-expr-eval` are superseded by `n3-core`. The expected upstream exporter patch

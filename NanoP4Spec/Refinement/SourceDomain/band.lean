@@ -71,7 +71,7 @@ theorem «$band».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 : (Representatio
       Representation.Source.externDomain) result
     trivial
 
-#audit_axioms «$band».sourceDomain
 
+#audit_axioms «$band».sourceDomain
 
 end NanoP4Spec

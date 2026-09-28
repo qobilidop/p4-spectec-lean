@@ -60,8 +60,6 @@ private theorem typingContext.fieldCodec0 : @Representation.Codec (NanoP4Spec.gl
   "globalTypingLayer" [])).it) (NanoP4Spec.globalTypingLayer.admitted) :=
   NanoP4Spec.globalTypingLayer.codec
 
-#audit_axioms typingContext.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem typingContext.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "globalTypingLayer" [])).it actual → ∀ v,
@@ -73,16 +71,12 @@ private theorem typingContext.fieldSubstitution0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "globalTypingLayer")] at valid
     exact valid)
 
-#audit_axioms typingContext.fieldSubstitution0
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem typingContext.fieldCodec1 : @Representation.Codec (NanoP4Spec.blockTypingLayer)
   ⟨NanoP4Spec.blockTypingLayer.toValue⟩ ⟨NanoP4Spec.blockTypingLayer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "blockTypingLayer" [])).it) (NanoP4Spec.blockTypingLayer.admitted) :=
   NanoP4Spec.blockTypingLayer.codec
-
-#audit_axioms typingContext.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem typingContext.fieldSubstitution1 : ∀ actual,
@@ -95,16 +89,12 @@ private theorem typingContext.fieldSubstitution1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "blockTypingLayer")] at valid
     exact valid)
 
-#audit_axioms typingContext.fieldSubstitution1
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem typingContext.fieldCodec2 : @Representation.Codec (NanoP4Spec.localTypingLayer)
   ⟨NanoP4Spec.localTypingLayer.toValue⟩ ⟨NanoP4Spec.localTypingLayer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "localTypingLayer" [])).it) (NanoP4Spec.localTypingLayer.admitted) :=
   NanoP4Spec.localTypingLayer.codec
-
-#audit_axioms typingContext.fieldCodec2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem typingContext.fieldSubstitution2 : ∀ actual,
@@ -116,8 +106,6 @@ private theorem typingContext.fieldSubstitution2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "localTypingLayer")] at valid
     exact valid)
-
-#audit_axioms typingContext.fieldSubstitution2
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem typingContext.payload (v : Lang.Il.value) (hv : NanoP4Spec.typingContext.source
@@ -144,8 +132,6 @@ private theorem typingContext.payload (v : Lang.Il.value) (hv : NanoP4Spec.typin
             (typingContext.fieldSubstitution1 _ sub1) (.cons (typingContext.fieldSubstitution2 _
             sub2) (.nil)))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.typingContext.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem typingContext.codec : @Refine.Representation.Codec NanoP4Spec.typingContext
@@ -355,8 +341,6 @@ theorem typingContext.codec : @Refine.Representation.Codec NanoP4Spec.typingCont
                     rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
                     rfl
 
-#audit_axioms NanoP4Spec.typingContext.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem typingContext.encodingSourceIff (x : NanoP4Spec.typingContext) :
     NanoP4Spec.typingContext.source (NanoP4Spec.typingContext.toValue x) ↔
@@ -397,8 +381,6 @@ theorem typingContext.encodingSourceIff (x : NanoP4Spec.typingContext) :
     exact ⟨_, rfl, .cons (rfl) (.cons (rfl) (.cons (rfl) (.nil))), .cons _ _ _ _ p0 (.cons _ _ _
       _ p1 (.cons _ _ _ _ p2 (.nil)))⟩
 
-#audit_axioms NanoP4Spec.typingContext.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem typingContext.admittedAll : ∀ x : NanoP4Spec.typingContext,
   (NanoP4Spec.typingContext.admitted) x := by
@@ -410,6 +392,15 @@ theorem typingContext.admittedAll : ∀ x : NanoP4Spec.typingContext,
     (NanoP4Spec.localTypingLayer), (NanoP4Spec.localTypingLayer.admitted) x from
     NanoP4Spec.localTypingLayer.admittedAll)) (x.LOCAL), trivial⟩
 
+#audit_axioms typingContext.fieldCodec0
+#audit_axioms typingContext.fieldSubstitution0
+#audit_axioms typingContext.fieldCodec1
+#audit_axioms typingContext.fieldSubstitution1
+#audit_axioms typingContext.fieldCodec2
+#audit_axioms typingContext.fieldSubstitution2
+#audit_axioms NanoP4Spec.typingContext.payload
+#audit_axioms NanoP4Spec.typingContext.codec
+#audit_axioms NanoP4Spec.typingContext.encodingSourceIff
 #audit_axioms NanoP4Spec.typingContext.admittedAll
 
 end NanoP4Spec

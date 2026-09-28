@@ -83,7 +83,7 @@ theorem «$union_set».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α
     cases Except.ok.inj (Option.some.inj run)
     exact SourceBuiltin.unionPreserves A0 xs ys hp0 hp1
 
-#audit_axioms «$union_set».sourceDomain
 
+#audit_axioms «$union_set».sourceDomain
 
 end NanoP4Spec

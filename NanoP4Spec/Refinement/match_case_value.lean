@@ -50,8 +50,6 @@ theorem «$match_case_value».refines_group :
           (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.1)
           (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.2))
 
-#audit_axioms NanoP4Spec.«$match_case_value».refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem «$match_case_value».refines
     (fuel : Nat)
@@ -79,8 +77,6 @@ theorem «$match_case_value».refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.«$match_case_value».refines
 
 private def «$match_case_value».realizesMotive
     (p0 : NanoP4Spec.value)
@@ -125,6 +121,8 @@ theorem «$match_case_value».realizes
           (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.2)) hq)
     p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.«$match_case_value».refines_group
+#audit_axioms NanoP4Spec.«$match_case_value».refines
 #audit_axioms NanoP4Spec.«$match_case_value».realizes
 
 end NanoP4Spec

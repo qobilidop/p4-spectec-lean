@@ -26,967 +26,645 @@ instance set.valueBEq {τK : Type} [ToValue τK] :
     Refine.Representation.ValueBEq (NanoP4Spec.set τK) :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms set.valueBEq
-
 instance pair.valueBEq {τK τV : Type} [ToValue τK] [ToValue τV] :
     Refine.Representation.ValueBEq (NanoP4Spec.pair τK τV) :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms pair.valueBEq
 
 instance map.valueBEq {τK τV : Type} [ToValue τK] [ToValue τV] :
     Refine.Representation.ValueBEq (NanoP4Spec.map τK τV) :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms map.valueBEq
-
 instance booleanLiteral.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.booleanLiteral :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms booleanLiteral.valueBEq
 
 instance integerLiteral.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.integerLiteral :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms integerLiteral.valueBEq
-
 instance identifier.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.identifier :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms identifier.valueBEq
 
 instance typeIdentifier.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeIdentifier :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms typeIdentifier.valueBEq
-
 instance nonTypeName.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.nonTypeName :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms nonTypeName.valueBEq
 
 instance typeName.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeName :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms typeName.valueBEq
-
 instance name.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.name :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms name.valueBEq
 
 instance nameList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.nameList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms nameList.valueBEq
-
 instance member.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.member :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms member.valueBEq
 
 instance direction.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.direction :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms direction.valueBEq
-
 instance integerType.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.integerType :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms integerType.valueBEq
 
 instance baseType.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.baseType :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms baseType.valueBEq
-
 instance namedType.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.namedType :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms namedType.valueBEq
 
 instance type.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.type :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms type.valueBEq
-
 instance parameter.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parameter :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parameter.valueBEq
 
 instance nonEmptyParameterList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.nonEmptyParameterList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms nonEmptyParameterList.valueBEq
-
 instance parameterList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parameterList :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parameterList.valueBEq
 
 instance literalExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.literalExpression :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms literalExpression.valueBEq
-
 instance referenceExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.referenceExpression :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms referenceExpression.valueBEq
 
 instance unop.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.unop :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms unop.valueBEq
-
 instance unaryExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.unaryExpression :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms unaryExpression.valueBEq
 
 instance binop.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.binop :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms binop.valueBEq
-
 instance binaryExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.binaryExpression :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms binaryExpression.valueBEq
 
 instance memberAccessExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.memberAccessExpression :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms memberAccessExpression.valueBEq
-
 instance callExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callExpression :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms callExpression.valueBEq
 
 instance parenthesizedExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parenthesizedExpression :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms parenthesizedExpression.valueBEq
-
 instance expression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.expression :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms expression.valueBEq
 
 instance memberAccessBase.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.memberAccessBase :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms memberAccessBase.valueBEq
-
 instance callTarget.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callTarget :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms callTarget.valueBEq
 
 instance argument.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.argument :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms argument.valueBEq
-
 instance argumentListNonEmpty.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.argumentListNonEmpty :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms argumentListNonEmpty.valueBEq
 
 instance argumentList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.argumentList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms argumentList.valueBEq
-
 instance lvalue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.lvalue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms lvalue.valueBEq
 
 instance emptyStatement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.emptyStatement :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms emptyStatement.valueBEq
-
 instance assignmentStatement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.assignmentStatement :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms assignmentStatement.valueBEq
 
 instance callStatement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callStatement :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms callStatement.valueBEq
-
 instance blockStatement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.blockStatement :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms blockStatement.valueBEq
 
 instance conditionalStatement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.conditionalStatement :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms conditionalStatement.valueBEq
-
 instance initializer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.initializer :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms initializer.valueBEq
 
 instance variableDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.variableDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms variableDeclaration.valueBEq
-
 instance statement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.statement :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms statement.valueBEq
 
 instance statementList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.statementList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms statementList.valueBEq
-
 instance functionPrototype.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.functionPrototype :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms functionPrototype.valueBEq
 
 instance actionDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.actionDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms actionDeclaration.valueBEq
-
 instance instantiation.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.instantiation :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms instantiation.valueBEq
 
 instance matchKindDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.matchKindDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms matchKindDeclaration.valueBEq
-
 instance typeField.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeField :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms typeField.valueBEq
 
 instance typeFieldList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeFieldList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms typeFieldList.valueBEq
-
 instance structTypeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.structTypeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms structTypeDeclaration.valueBEq
 
 instance headerTypeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.headerTypeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms headerTypeDeclaration.valueBEq
-
 instance derivedTypeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.derivedTypeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms derivedTypeDeclaration.valueBEq
 
 instance externMethodPrototype.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externMethodPrototype :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms externMethodPrototype.valueBEq
-
 instance externMethodPrototypeList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externMethodPrototypeList :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms externMethodPrototypeList.valueBEq
 
 instance externObjectDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externObjectDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms externObjectDeclaration.valueBEq
-
 instance externDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms externDeclaration.valueBEq
 
 instance selectCase.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.selectCase :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms selectCase.valueBEq
-
 instance selectCaseList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.selectCaseList :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms selectCaseList.valueBEq
 
 instance selectExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.selectExpression :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms selectExpression.valueBEq
-
 instance stateExpression.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.stateExpression :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms stateExpression.valueBEq
 
 instance transitionStatement.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.transitionStatement :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms transitionStatement.valueBEq
-
 instance parserTypeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserTypeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parserTypeDeclaration.valueBEq
 
 instance parserState.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserState :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms parserState.valueBEq
-
 instance parserStateList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserStateList :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parserStateList.valueBEq
 
 instance parserLocalDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserLocalDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms parserLocalDeclaration.valueBEq
-
 instance parserLocalDeclarationList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserLocalDeclarationList :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parserLocalDeclarationList.valueBEq
 
 instance parserDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms parserDeclaration.valueBEq
-
 instance tableKey.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableKey :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms tableKey.valueBEq
 
 instance tableActionReference.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableActionReference :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableActionReference.valueBEq
-
 instance tableAction.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableAction :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms tableAction.valueBEq
 
 instance tableActionList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableActionList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableActionList.valueBEq
-
 instance tableEntry.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableEntry :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms tableEntry.valueBEq
 
 instance tableEntryList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableEntryList :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableEntryList.valueBEq
-
 instance tableKeyProperty.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableKeyProperty :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms tableKeyProperty.valueBEq
 
 instance tableActionsProperty.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableActionsProperty :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableActionsProperty.valueBEq
-
 instance tableEntriesProperty.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableEntriesProperty :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms tableEntriesProperty.valueBEq
 
 instance tableProperties.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableProperties :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableProperties.valueBEq
-
 instance tableDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms tableDeclaration.valueBEq
 
 instance controlTypeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlTypeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms controlTypeDeclaration.valueBEq
-
 instance controlBody.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlBody :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms controlBody.valueBEq
 
 instance controlLocalDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlLocalDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms controlLocalDeclaration.valueBEq
-
 instance controlLocalDeclarationList.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlLocalDeclarationList :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms controlLocalDeclarationList.valueBEq
 
 instance controlDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms controlDeclaration.valueBEq
-
 instance packageTypeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.packageTypeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms packageTypeDeclaration.valueBEq
 
 instance typeDeclaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeDeclaration :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms typeDeclaration.valueBEq
-
 instance declaration.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.declaration :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms declaration.valueBEq
 
 instance program.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.program :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms program.valueBEq
-
 instance id.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.id :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms id.valueBEq
 
 instance callableId.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callableId :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms callableId.valueBEq
-
 instance nameIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.nameIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms nameIR.valueBEq
 
 instance scope.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.scope :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms scope.valueBEq
-
 instance typeId.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeId :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms typeId.valueBEq
 
 instance integerTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.integerTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms integerTypeIR.valueBEq
-
 instance baseTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.baseTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms baseTypeIR.valueBEq
 
 instance argumentIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.argumentIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms argumentIR.valueBEq
-
 instance parameterIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parameterIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parameterIR.valueBEq
 
 instance fieldTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.fieldTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms fieldTypeIR.valueBEq
-
 instance structTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.structTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms structTypeIR.valueBEq
 
 instance headerTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.headerTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms headerTypeIR.valueBEq
-
 instance dataTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.dataTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms dataTypeIR.valueBEq
 
 instance externMethodTypeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externMethodTypeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms externMethodTypeDefIR.valueBEq
-
 instance externMethodTypeDefEnv.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externMethodTypeDefEnv :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms externMethodTypeDefEnv.valueBEq
 
 instance externObjectTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externObjectTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms externObjectTypeIR.valueBEq
-
 instance parserObjectTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserObjectTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parserObjectTypeIR.valueBEq
 
 instance controlObjectTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlObjectTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms controlObjectTypeIR.valueBEq
-
 instance packageObjectTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.packageObjectTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms packageObjectTypeIR.valueBEq
 
 instance tableObjectTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableObjectTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableObjectTypeIR.valueBEq
-
 instance objectTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.objectTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms objectTypeIR.valueBEq
 
 instance externTypeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externTypeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms externTypeDefIR.valueBEq
-
 instance parserTypeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserTypeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms parserTypeDefIR.valueBEq
 
 instance controlTypeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlTypeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms controlTypeDefIR.valueBEq
-
 instance packageTypeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.packageTypeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms packageTypeDefIR.valueBEq
 
 instance objectTypeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.objectTypeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms objectTypeDefIR.valueBEq
-
 instance typeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms typeIR.valueBEq
 
 instance typeDefIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeDefIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms typeDefIR.valueBEq
-
 instance integerValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.integerValue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms integerValue.valueBEq
 
 instance boolValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.boolValue :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms boolValue.valueBEq
-
 instance matchKindValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.matchKindValue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms matchKindValue.valueBEq
 
 instance baseValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.baseValue :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms baseValue.valueBEq
-
 instance fieldValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.fieldValue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms fieldValue.valueBEq
 
 instance structValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.structValue :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms structValue.valueBEq
-
 instance headerValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.headerValue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms headerValue.valueBEq
 
 instance dataValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.dataValue :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms dataValue.valueBEq
-
 instance packetValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.packetValue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms packetValue.valueBEq
 
 instance tableValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableValue :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableValue.valueBEq
-
 instance objectValue.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.objectValue :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms objectValue.valueBEq
 
 instance value.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.value :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms value.valueBEq
-
 instance bit.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.bit :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms bit.valueBEq
 
 instance bits.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.bits :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms bits.valueBEq
-
 instance typeDefEnv.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeDefEnv :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms typeDefEnv.valueBEq
 
 instance callableTypeDef.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callableTypeDef :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms callableTypeDef.valueBEq
-
 instance callableTypeDefEnv.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callableTypeDefEnv :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms callableTypeDefEnv.valueBEq
 
 instance varTypeIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.varTypeIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms varTypeIR.valueBEq
-
 instance typeFrame.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typeFrame :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms typeFrame.valueBEq
 
 instance globalTypingLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.globalTypingLayer :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms globalTypingLayer.valueBEq
-
 instance blockTypingLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.blockTypingLayer :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms blockTypingLayer.valueBEq
 
 instance localTypingLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.localTypingLayer :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms localTypingLayer.valueBEq
-
 instance typingContext.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.typingContext :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms typingContext.valueBEq
 
 instance matchKey.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.matchKey :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms matchKey.valueBEq
-
 instance matchAction.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.matchAction :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms matchAction.valueBEq
 
 instance tableContext.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableContext :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableContext.valueBEq
-
 instance actionDeclarationIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.actionDeclarationIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms actionDeclarationIR.valueBEq
 
 instance parserDeclarationIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.parserDeclarationIR :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms parserDeclarationIR.valueBEq
-
 instance controlDeclarationIR.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.controlDeclarationIR :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms controlDeclarationIR.valueBEq
 
 instance callableDef.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callableDef :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms callableDef.valueBEq
-
 instance callableDefEnv.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callableDefEnv :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms callableDefEnv.valueBEq
 
 instance globalLoadLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.globalLoadLayer :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms globalLoadLayer.valueBEq
-
 instance loadContext.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.loadContext :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms loadContext.valueBEq
 
 instance frame.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.frame :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms frame.valueBEq
-
 instance globalEvalLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.globalEvalLayer :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms globalEvalLayer.valueBEq
 
 instance blockEvalLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.blockEvalLayer :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms blockEvalLayer.valueBEq
-
 instance localEvalLayer.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.localEvalLayer :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms localEvalLayer.valueBEq
 
 instance evalContext.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.evalContext :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms evalContext.valueBEq
-
 instance transitionResult.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.transitionResult :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms transitionResult.valueBEq
 
 instance actionCallee.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.actionCallee :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms actionCallee.valueBEq
-
 instance externMethodCallee.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.externMethodCallee :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms externMethodCallee.valueBEq
 
 instance tableApplyMethodCallee.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.tableApplyMethodCallee :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms tableApplyMethodCallee.valueBEq
-
 instance callee.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.callee :=
     Refine.Representation.ValueBEq.ofValueEq
 
-#audit_axioms callee.valueBEq
-
 instance forwardingDecision.valueBEq :
     Refine.Representation.ValueBEq NanoP4Spec.forwardingDecision :=
     Refine.Representation.ValueBEq.ofValueEq
-
-#audit_axioms forwardingDecision.valueBEq
 
 theorem nonTypeName.to_nameList.canon_toValue
     (x : NanoP4Spec.nonTypeName) :
@@ -996,8 +674,6 @@ theorem nonTypeName.to_nameList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_nameList]
 
-#audit_axioms NanoP4Spec.nonTypeName.to_nameList.canon_toValue
-
 theorem nonTypeName.to_nameList.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
     Refine.canon (NanoP4Spec.nameList.toValue (NanoP4Spec.nonTypeName.to_nameList x)) =
@@ -1005,8 +681,6 @@ theorem nonTypeName.to_nameList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_nameList]
-
-#audit_axioms NanoP4Spec.nonTypeName.to_nameList.canon_encoder
 
 theorem parameter.to_parameterList.canon_toValue
     (x : NanoP4Spec.parameter) :
@@ -1016,8 +690,6 @@ theorem parameter.to_parameterList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parameter.to_parameterList]
 
-#audit_axioms NanoP4Spec.parameter.to_parameterList.canon_toValue
-
 theorem parameter.to_parameterList.canon_encoder
     (x : NanoP4Spec.parameter) :
     Refine.canon (NanoP4Spec.parameterList.toValue (NanoP4Spec.parameter.to_parameterList x)) =
@@ -1025,8 +697,6 @@ theorem parameter.to_parameterList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parameter.to_parameterList]
-
-#audit_axioms NanoP4Spec.parameter.to_parameterList.canon_encoder
 
 theorem nonEmptyParameterList.to_parameterList.canon_toValue
     (x : NanoP4Spec.nonEmptyParameterList) :
@@ -1036,8 +706,6 @@ theorem nonEmptyParameterList.to_parameterList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonEmptyParameterList.to_parameterList]
 
-#audit_axioms NanoP4Spec.nonEmptyParameterList.to_parameterList.canon_toValue
-
 theorem nonEmptyParameterList.to_parameterList.canon_encoder
     (x : NanoP4Spec.nonEmptyParameterList) :
     Refine.canon (NanoP4Spec.parameterList.toValue (NanoP4Spec.nonEmptyParameterList.to_parameterList x)) =
@@ -1045,8 +713,6 @@ theorem nonEmptyParameterList.to_parameterList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonEmptyParameterList.to_parameterList]
-
-#audit_axioms NanoP4Spec.nonEmptyParameterList.to_parameterList.canon_encoder
 
 theorem expression.to_argumentList.canon_toValue
     (x : NanoP4Spec.expression) :
@@ -1056,8 +722,6 @@ theorem expression.to_argumentList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.expression.to_argumentList]
 
-#audit_axioms NanoP4Spec.expression.to_argumentList.canon_toValue
-
 theorem expression.to_argumentList.canon_encoder
     (x : NanoP4Spec.expression) :
     Refine.canon (NanoP4Spec.argumentList.toValue (NanoP4Spec.expression.to_argumentList x)) =
@@ -1065,8 +729,6 @@ theorem expression.to_argumentList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.expression.to_argumentList]
-
-#audit_axioms NanoP4Spec.expression.to_argumentList.canon_encoder
 
 theorem argumentListNonEmpty.to_argumentList.canon_toValue
     (x : NanoP4Spec.argumentListNonEmpty) :
@@ -1076,8 +738,6 @@ theorem argumentListNonEmpty.to_argumentList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.argumentListNonEmpty.to_argumentList]
 
-#audit_axioms NanoP4Spec.argumentListNonEmpty.to_argumentList.canon_toValue
-
 theorem argumentListNonEmpty.to_argumentList.canon_encoder
     (x : NanoP4Spec.argumentListNonEmpty) :
     Refine.canon (NanoP4Spec.argumentList.toValue (NanoP4Spec.argumentListNonEmpty.to_argumentList x)) =
@@ -1085,8 +745,6 @@ theorem argumentListNonEmpty.to_argumentList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.argumentListNonEmpty.to_argumentList]
-
-#audit_axioms NanoP4Spec.argumentListNonEmpty.to_argumentList.canon_encoder
 
 theorem parserState.to_parserStateList.canon_toValue
     (x : NanoP4Spec.parserState) :
@@ -1096,8 +754,6 @@ theorem parserState.to_parserStateList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserState.to_parserStateList]
 
-#audit_axioms NanoP4Spec.parserState.to_parserStateList.canon_toValue
-
 theorem parserState.to_parserStateList.canon_encoder
     (x : NanoP4Spec.parserState) :
     Refine.canon (NanoP4Spec.parserStateList.toValue (NanoP4Spec.parserState.to_parserStateList x)) =
@@ -1105,8 +761,6 @@ theorem parserState.to_parserStateList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserState.to_parserStateList]
-
-#audit_axioms NanoP4Spec.parserState.to_parserStateList.canon_encoder
 
 theorem tableAction.to_tableActionList.canon_toValue
     (x : NanoP4Spec.tableAction) :
@@ -1116,8 +770,6 @@ theorem tableAction.to_tableActionList.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableAction.to_tableActionList]
 
-#audit_axioms NanoP4Spec.tableAction.to_tableActionList.canon_toValue
-
 theorem tableAction.to_tableActionList.canon_encoder
     (x : NanoP4Spec.tableAction) :
     Refine.canon (NanoP4Spec.tableActionList.toValue (NanoP4Spec.tableAction.to_tableActionList x)) =
@@ -1125,8 +777,6 @@ theorem tableAction.to_tableActionList.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableAction.to_tableActionList]
-
-#audit_axioms NanoP4Spec.tableAction.to_tableActionList.canon_encoder
 
 theorem integerLiteral.to_value.canon_toValue
     (x : NanoP4Spec.integerLiteral) :
@@ -1136,8 +786,6 @@ theorem integerLiteral.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerLiteral.to_value]
 
-#audit_axioms NanoP4Spec.integerLiteral.to_value.canon_toValue
-
 theorem integerLiteral.to_value.canon_encoder
     (x : NanoP4Spec.integerLiteral) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.integerLiteral.to_value x)) =
@@ -1145,8 +793,6 @@ theorem integerLiteral.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerLiteral.to_value]
-
-#audit_axioms NanoP4Spec.integerLiteral.to_value.canon_encoder
 
 theorem integerTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.integerTypeIR) :
@@ -1156,8 +802,6 @@ theorem integerTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.integerTypeIR.to_typeIR.canon_toValue
-
 theorem integerTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.integerTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.integerTypeIR.to_typeIR x)) =
@@ -1165,8 +809,6 @@ theorem integerTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.integerTypeIR.to_typeIR.canon_encoder
 
 theorem boolValue.to_value.canon_toValue
     (x : NanoP4Spec.boolValue) :
@@ -1176,8 +818,6 @@ theorem boolValue.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.boolValue.to_value]
 
-#audit_axioms NanoP4Spec.boolValue.to_value.canon_toValue
-
 theorem boolValue.to_value.canon_encoder
     (x : NanoP4Spec.boolValue) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.boolValue.to_value x)) =
@@ -1185,8 +825,6 @@ theorem boolValue.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.boolValue.to_value]
-
-#audit_axioms NanoP4Spec.boolValue.to_value.canon_encoder
 
 theorem baseTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.baseTypeIR) :
@@ -1196,8 +834,6 @@ theorem baseTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.baseTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.baseTypeIR.to_typeIR.canon_toValue
-
 theorem baseTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.baseTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.baseTypeIR.to_typeIR x)) =
@@ -1205,8 +841,6 @@ theorem baseTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.baseTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.baseTypeIR.to_typeIR.canon_encoder
 
 theorem structValue.to_value.canon_toValue
     (x : NanoP4Spec.structValue) :
@@ -1216,8 +850,6 @@ theorem structValue.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structValue.to_value]
 
-#audit_axioms NanoP4Spec.structValue.to_value.canon_toValue
-
 theorem structValue.to_value.canon_encoder
     (x : NanoP4Spec.structValue) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.structValue.to_value x)) =
@@ -1225,8 +857,6 @@ theorem structValue.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structValue.to_value]
-
-#audit_axioms NanoP4Spec.structValue.to_value.canon_encoder
 
 theorem structTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.structTypeIR) :
@@ -1236,8 +866,6 @@ theorem structTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.structTypeIR.to_typeIR.canon_toValue
-
 theorem structTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.structTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.structTypeIR.to_typeIR x)) =
@@ -1245,8 +873,6 @@ theorem structTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.structTypeIR.to_typeIR.canon_encoder
 
 theorem headerValue.to_value.canon_toValue
     (x : NanoP4Spec.headerValue) :
@@ -1256,8 +882,6 @@ theorem headerValue.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerValue.to_value]
 
-#audit_axioms NanoP4Spec.headerValue.to_value.canon_toValue
-
 theorem headerValue.to_value.canon_encoder
     (x : NanoP4Spec.headerValue) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.headerValue.to_value x)) =
@@ -1265,8 +889,6 @@ theorem headerValue.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerValue.to_value]
-
-#audit_axioms NanoP4Spec.headerValue.to_value.canon_encoder
 
 theorem headerTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.headerTypeIR) :
@@ -1276,8 +898,6 @@ theorem headerTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.headerTypeIR.to_typeIR.canon_toValue
-
 theorem headerTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.headerTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.headerTypeIR.to_typeIR x)) =
@@ -1285,8 +905,6 @@ theorem headerTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.headerTypeIR.to_typeIR.canon_encoder
 
 theorem matchKindValue.to_value.canon_toValue
     (x : NanoP4Spec.matchKindValue) :
@@ -1296,8 +914,6 @@ theorem matchKindValue.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.matchKindValue.to_value]
 
-#audit_axioms NanoP4Spec.matchKindValue.to_value.canon_toValue
-
 theorem matchKindValue.to_value.canon_encoder
     (x : NanoP4Spec.matchKindValue) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.matchKindValue.to_value x)) =
@@ -1305,8 +921,6 @@ theorem matchKindValue.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.matchKindValue.to_value]
-
-#audit_axioms NanoP4Spec.matchKindValue.to_value.canon_encoder
 
 theorem dataTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.dataTypeIR) :
@@ -1316,8 +930,6 @@ theorem dataTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.dataTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.dataTypeIR.to_typeIR.canon_toValue
-
 theorem dataTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.dataTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.dataTypeIR.to_typeIR x)) =
@@ -1325,8 +937,6 @@ theorem dataTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.dataTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.dataTypeIR.to_typeIR.canon_encoder
 
 theorem dataTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.dataTypeIR) :
@@ -1336,8 +946,6 @@ theorem dataTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.dataTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.dataTypeIR.to_typeDefIR.canon_toValue
-
 theorem dataTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.dataTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.dataTypeIR.to_typeDefIR x)) =
@@ -1345,8 +953,6 @@ theorem dataTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.dataTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.dataTypeIR.to_typeDefIR.canon_encoder
 
 theorem objectTypeDefIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.objectTypeDefIR) :
@@ -1356,8 +962,6 @@ theorem objectTypeDefIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.objectTypeDefIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeIR.canon_toValue
-
 theorem objectTypeDefIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.objectTypeDefIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.objectTypeDefIR.to_typeIR x)) =
@@ -1365,8 +969,6 @@ theorem objectTypeDefIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.objectTypeDefIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeIR.canon_encoder
 
 theorem objectTypeDefIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.objectTypeDefIR) :
@@ -1376,8 +978,6 @@ theorem objectTypeDefIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.objectTypeDefIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeDefIR.canon_toValue
-
 theorem objectTypeDefIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.objectTypeDefIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.objectTypeDefIR.to_typeDefIR x)) =
@@ -1385,8 +985,6 @@ theorem objectTypeDefIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.objectTypeDefIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeDefIR.canon_encoder
 
 theorem integerType.to_type.canon_toValue
     (x : NanoP4Spec.integerType) :
@@ -1396,8 +994,6 @@ theorem integerType.to_type.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerType.to_type]
 
-#audit_axioms NanoP4Spec.integerType.to_type.canon_toValue
-
 theorem integerType.to_type.canon_encoder
     (x : NanoP4Spec.integerType) :
     Refine.canon (NanoP4Spec.type.toValue (NanoP4Spec.integerType.to_type x)) =
@@ -1405,8 +1001,6 @@ theorem integerType.to_type.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerType.to_type]
-
-#audit_axioms NanoP4Spec.integerType.to_type.canon_encoder
 
 theorem baseType.to_type.canon_toValue
     (x : NanoP4Spec.baseType) :
@@ -1416,8 +1010,6 @@ theorem baseType.to_type.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.baseType.to_type]
 
-#audit_axioms NanoP4Spec.baseType.to_type.canon_toValue
-
 theorem baseType.to_type.canon_encoder
     (x : NanoP4Spec.baseType) :
     Refine.canon (NanoP4Spec.type.toValue (NanoP4Spec.baseType.to_type x)) =
@@ -1425,8 +1017,6 @@ theorem baseType.to_type.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.baseType.to_type]
-
-#audit_axioms NanoP4Spec.baseType.to_type.canon_encoder
 
 theorem typeIdentifier.to_type.canon_toValue
     (x : NanoP4Spec.typeIdentifier) :
@@ -1436,8 +1026,6 @@ theorem typeIdentifier.to_type.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.typeIdentifier.to_type]
 
-#audit_axioms NanoP4Spec.typeIdentifier.to_type.canon_toValue
-
 theorem typeIdentifier.to_type.canon_encoder
     (x : NanoP4Spec.typeIdentifier) :
     Refine.canon (NanoP4Spec.type.toValue (NanoP4Spec.typeIdentifier.to_type x)) =
@@ -1445,8 +1033,6 @@ theorem typeIdentifier.to_type.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.typeIdentifier.to_type]
-
-#audit_axioms NanoP4Spec.typeIdentifier.to_type.canon_encoder
 
 theorem externObjectTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.externObjectTypeIR) :
@@ -1456,8 +1042,6 @@ theorem externObjectTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externObjectTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeIR.canon_toValue
-
 theorem externObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.externObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.externObjectTypeIR.to_typeIR x)) =
@@ -1465,8 +1049,6 @@ theorem externObjectTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externObjectTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeIR.canon_encoder
 
 theorem parserObjectTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.parserObjectTypeIR) :
@@ -1476,8 +1058,6 @@ theorem parserObjectTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserObjectTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeIR.canon_toValue
-
 theorem parserObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.parserObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.parserObjectTypeIR.to_typeIR x)) =
@@ -1485,8 +1065,6 @@ theorem parserObjectTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserObjectTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeIR.canon_encoder
 
 theorem controlObjectTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.controlObjectTypeIR) :
@@ -1496,8 +1074,6 @@ theorem controlObjectTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlObjectTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeIR.canon_toValue
-
 theorem controlObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.controlObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.controlObjectTypeIR.to_typeIR x)) =
@@ -1505,8 +1081,6 @@ theorem controlObjectTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlObjectTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeIR.canon_encoder
 
 theorem packageObjectTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.packageObjectTypeIR) :
@@ -1516,8 +1090,6 @@ theorem packageObjectTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packageObjectTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeIR.canon_toValue
-
 theorem packageObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.packageObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.packageObjectTypeIR.to_typeIR x)) =
@@ -1525,8 +1097,6 @@ theorem packageObjectTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packageObjectTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeIR.canon_encoder
 
 theorem tableObjectTypeIR.to_typeIR.canon_toValue
     (x : NanoP4Spec.tableObjectTypeIR) :
@@ -1536,8 +1106,6 @@ theorem tableObjectTypeIR.to_typeIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableObjectTypeIR.to_typeIR]
 
-#audit_axioms NanoP4Spec.tableObjectTypeIR.to_typeIR.canon_toValue
-
 theorem tableObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.tableObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.tableObjectTypeIR.to_typeIR x)) =
@@ -1545,8 +1113,6 @@ theorem tableObjectTypeIR.to_typeIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableObjectTypeIR.to_typeIR]
-
-#audit_axioms NanoP4Spec.tableObjectTypeIR.to_typeIR.canon_encoder
 
 theorem booleanLiteral.to_expression.canon_toValue
     (x : NanoP4Spec.booleanLiteral) :
@@ -1556,8 +1122,6 @@ theorem booleanLiteral.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.booleanLiteral.to_expression]
 
-#audit_axioms NanoP4Spec.booleanLiteral.to_expression.canon_toValue
-
 theorem booleanLiteral.to_expression.canon_encoder
     (x : NanoP4Spec.booleanLiteral) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.booleanLiteral.to_expression x)) =
@@ -1565,8 +1129,6 @@ theorem booleanLiteral.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.booleanLiteral.to_expression]
-
-#audit_axioms NanoP4Spec.booleanLiteral.to_expression.canon_encoder
 
 theorem integerLiteral.to_expression.canon_toValue
     (x : NanoP4Spec.integerLiteral) :
@@ -1576,8 +1138,6 @@ theorem integerLiteral.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerLiteral.to_expression]
 
-#audit_axioms NanoP4Spec.integerLiteral.to_expression.canon_toValue
-
 theorem integerLiteral.to_expression.canon_encoder
     (x : NanoP4Spec.integerLiteral) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.integerLiteral.to_expression x)) =
@@ -1585,8 +1145,6 @@ theorem integerLiteral.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.integerLiteral.to_expression]
-
-#audit_axioms NanoP4Spec.integerLiteral.to_expression.canon_encoder
 
 theorem nonTypeName.to_expression.canon_toValue
     (x : NanoP4Spec.nonTypeName) :
@@ -1596,8 +1154,6 @@ theorem nonTypeName.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_expression]
 
-#audit_axioms NanoP4Spec.nonTypeName.to_expression.canon_toValue
-
 theorem nonTypeName.to_expression.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.nonTypeName.to_expression x)) =
@@ -1605,8 +1161,6 @@ theorem nonTypeName.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_expression]
-
-#audit_axioms NanoP4Spec.nonTypeName.to_expression.canon_encoder
 
 theorem unaryExpression.to_expression.canon_toValue
     (x : NanoP4Spec.unaryExpression) :
@@ -1616,8 +1170,6 @@ theorem unaryExpression.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.unaryExpression.to_expression]
 
-#audit_axioms NanoP4Spec.unaryExpression.to_expression.canon_toValue
-
 theorem unaryExpression.to_expression.canon_encoder
     (x : NanoP4Spec.unaryExpression) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.unaryExpression.to_expression x)) =
@@ -1625,8 +1177,6 @@ theorem unaryExpression.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.unaryExpression.to_expression]
-
-#audit_axioms NanoP4Spec.unaryExpression.to_expression.canon_encoder
 
 theorem binaryExpression.to_expression.canon_toValue
     (x : NanoP4Spec.binaryExpression) :
@@ -1636,8 +1186,6 @@ theorem binaryExpression.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.binaryExpression.to_expression]
 
-#audit_axioms NanoP4Spec.binaryExpression.to_expression.canon_toValue
-
 theorem binaryExpression.to_expression.canon_encoder
     (x : NanoP4Spec.binaryExpression) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.binaryExpression.to_expression x)) =
@@ -1645,8 +1193,6 @@ theorem binaryExpression.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.binaryExpression.to_expression]
-
-#audit_axioms NanoP4Spec.binaryExpression.to_expression.canon_encoder
 
 theorem memberAccessExpression.to_expression.canon_toValue
     (x : NanoP4Spec.memberAccessExpression) :
@@ -1656,8 +1202,6 @@ theorem memberAccessExpression.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.memberAccessExpression.to_expression]
 
-#audit_axioms NanoP4Spec.memberAccessExpression.to_expression.canon_toValue
-
 theorem memberAccessExpression.to_expression.canon_encoder
     (x : NanoP4Spec.memberAccessExpression) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.memberAccessExpression.to_expression x)) =
@@ -1665,8 +1209,6 @@ theorem memberAccessExpression.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.memberAccessExpression.to_expression]
-
-#audit_axioms NanoP4Spec.memberAccessExpression.to_expression.canon_encoder
 
 theorem callExpression.to_expression.canon_toValue
     (x : NanoP4Spec.callExpression) :
@@ -1676,8 +1218,6 @@ theorem callExpression.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.callExpression.to_expression]
 
-#audit_axioms NanoP4Spec.callExpression.to_expression.canon_toValue
-
 theorem callExpression.to_expression.canon_encoder
     (x : NanoP4Spec.callExpression) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.callExpression.to_expression x)) =
@@ -1685,8 +1225,6 @@ theorem callExpression.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.callExpression.to_expression]
-
-#audit_axioms NanoP4Spec.callExpression.to_expression.canon_encoder
 
 theorem parenthesizedExpression.to_expression.canon_toValue
     (x : NanoP4Spec.parenthesizedExpression) :
@@ -1696,8 +1234,6 @@ theorem parenthesizedExpression.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parenthesizedExpression.to_expression]
 
-#audit_axioms NanoP4Spec.parenthesizedExpression.to_expression.canon_toValue
-
 theorem parenthesizedExpression.to_expression.canon_encoder
     (x : NanoP4Spec.parenthesizedExpression) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.parenthesizedExpression.to_expression x)) =
@@ -1705,8 +1241,6 @@ theorem parenthesizedExpression.to_expression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parenthesizedExpression.to_expression]
-
-#audit_axioms NanoP4Spec.parenthesizedExpression.to_expression.canon_encoder
 
 theorem nonTypeName.to_lvalue.canon_toValue
     (x : NanoP4Spec.nonTypeName) :
@@ -1716,8 +1250,6 @@ theorem nonTypeName.to_lvalue.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_lvalue]
 
-#audit_axioms NanoP4Spec.nonTypeName.to_lvalue.canon_toValue
-
 theorem nonTypeName.to_lvalue.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
     Refine.canon (NanoP4Spec.lvalue.toValue (NanoP4Spec.nonTypeName.to_lvalue x)) =
@@ -1725,8 +1257,6 @@ theorem nonTypeName.to_lvalue.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_lvalue]
-
-#audit_axioms NanoP4Spec.nonTypeName.to_lvalue.canon_encoder
 
 theorem emptyStatement.to_statement.canon_toValue
     (x : NanoP4Spec.emptyStatement) :
@@ -1736,8 +1266,6 @@ theorem emptyStatement.to_statement.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.emptyStatement.to_statement]
 
-#audit_axioms NanoP4Spec.emptyStatement.to_statement.canon_toValue
-
 theorem emptyStatement.to_statement.canon_encoder
     (x : NanoP4Spec.emptyStatement) :
     Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.emptyStatement.to_statement x)) =
@@ -1745,8 +1273,6 @@ theorem emptyStatement.to_statement.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.emptyStatement.to_statement]
-
-#audit_axioms NanoP4Spec.emptyStatement.to_statement.canon_encoder
 
 theorem variableDeclaration.to_statement.canon_toValue
     (x : NanoP4Spec.variableDeclaration) :
@@ -1756,8 +1282,6 @@ theorem variableDeclaration.to_statement.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.variableDeclaration.to_statement]
 
-#audit_axioms NanoP4Spec.variableDeclaration.to_statement.canon_toValue
-
 theorem variableDeclaration.to_statement.canon_encoder
     (x : NanoP4Spec.variableDeclaration) :
     Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.variableDeclaration.to_statement x)) =
@@ -1765,8 +1289,6 @@ theorem variableDeclaration.to_statement.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.variableDeclaration.to_statement]
-
-#audit_axioms NanoP4Spec.variableDeclaration.to_statement.canon_encoder
 
 theorem assignmentStatement.to_statement.canon_toValue
     (x : NanoP4Spec.assignmentStatement) :
@@ -1776,8 +1298,6 @@ theorem assignmentStatement.to_statement.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.assignmentStatement.to_statement]
 
-#audit_axioms NanoP4Spec.assignmentStatement.to_statement.canon_toValue
-
 theorem assignmentStatement.to_statement.canon_encoder
     (x : NanoP4Spec.assignmentStatement) :
     Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.assignmentStatement.to_statement x)) =
@@ -1785,8 +1305,6 @@ theorem assignmentStatement.to_statement.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.assignmentStatement.to_statement]
-
-#audit_axioms NanoP4Spec.assignmentStatement.to_statement.canon_encoder
 
 theorem callStatement.to_statement.canon_toValue
     (x : NanoP4Spec.callStatement) :
@@ -1796,8 +1314,6 @@ theorem callStatement.to_statement.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.callStatement.to_statement]
 
-#audit_axioms NanoP4Spec.callStatement.to_statement.canon_toValue
-
 theorem callStatement.to_statement.canon_encoder
     (x : NanoP4Spec.callStatement) :
     Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.callStatement.to_statement x)) =
@@ -1805,8 +1321,6 @@ theorem callStatement.to_statement.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.callStatement.to_statement]
-
-#audit_axioms NanoP4Spec.callStatement.to_statement.canon_encoder
 
 theorem blockStatement.to_statement.canon_toValue
     (x : NanoP4Spec.blockStatement) :
@@ -1816,8 +1330,6 @@ theorem blockStatement.to_statement.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.blockStatement.to_statement]
 
-#audit_axioms NanoP4Spec.blockStatement.to_statement.canon_toValue
-
 theorem blockStatement.to_statement.canon_encoder
     (x : NanoP4Spec.blockStatement) :
     Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.blockStatement.to_statement x)) =
@@ -1825,8 +1337,6 @@ theorem blockStatement.to_statement.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.blockStatement.to_statement]
-
-#audit_axioms NanoP4Spec.blockStatement.to_statement.canon_encoder
 
 theorem conditionalStatement.to_statement.canon_toValue
     (x : NanoP4Spec.conditionalStatement) :
@@ -1836,8 +1346,6 @@ theorem conditionalStatement.to_statement.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.conditionalStatement.to_statement]
 
-#audit_axioms NanoP4Spec.conditionalStatement.to_statement.canon_toValue
-
 theorem conditionalStatement.to_statement.canon_encoder
     (x : NanoP4Spec.conditionalStatement) :
     Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.conditionalStatement.to_statement x)) =
@@ -1845,8 +1353,6 @@ theorem conditionalStatement.to_statement.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.conditionalStatement.to_statement]
-
-#audit_axioms NanoP4Spec.conditionalStatement.to_statement.canon_encoder
 
 theorem selectExpression.to_stateExpression.canon_toValue
     (x : NanoP4Spec.selectExpression) :
@@ -1856,8 +1362,6 @@ theorem selectExpression.to_stateExpression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.selectExpression.to_stateExpression]
 
-#audit_axioms NanoP4Spec.selectExpression.to_stateExpression.canon_toValue
-
 theorem selectExpression.to_stateExpression.canon_encoder
     (x : NanoP4Spec.selectExpression) :
     Refine.canon (NanoP4Spec.stateExpression.toValue (NanoP4Spec.selectExpression.to_stateExpression x)) =
@@ -1865,8 +1369,6 @@ theorem selectExpression.to_stateExpression.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.selectExpression.to_stateExpression]
-
-#audit_axioms NanoP4Spec.selectExpression.to_stateExpression.canon_encoder
 
 theorem instantiation.to_declaration.canon_toValue
     (x : NanoP4Spec.instantiation) :
@@ -1876,8 +1378,6 @@ theorem instantiation.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.instantiation.to_declaration]
 
-#audit_axioms NanoP4Spec.instantiation.to_declaration.canon_toValue
-
 theorem instantiation.to_declaration.canon_encoder
     (x : NanoP4Spec.instantiation) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.instantiation.to_declaration x)) =
@@ -1885,8 +1385,6 @@ theorem instantiation.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.instantiation.to_declaration]
-
-#audit_axioms NanoP4Spec.instantiation.to_declaration.canon_encoder
 
 theorem packageObjectTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.packageObjectTypeIR) :
@@ -1896,8 +1394,6 @@ theorem packageObjectTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packageObjectTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeDefIR.canon_toValue
-
 theorem packageObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.packageObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.packageObjectTypeIR.to_typeDefIR x)) =
@@ -1905,8 +1401,6 @@ theorem packageObjectTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packageObjectTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeDefIR.canon_encoder
 
 theorem actionDeclaration.to_declaration.canon_toValue
     (x : NanoP4Spec.actionDeclaration) :
@@ -1916,8 +1410,6 @@ theorem actionDeclaration.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.actionDeclaration.to_declaration]
 
-#audit_axioms NanoP4Spec.actionDeclaration.to_declaration.canon_toValue
-
 theorem actionDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.actionDeclaration) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.actionDeclaration.to_declaration x)) =
@@ -1925,8 +1417,6 @@ theorem actionDeclaration.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.actionDeclaration.to_declaration]
-
-#audit_axioms NanoP4Spec.actionDeclaration.to_declaration.canon_encoder
 
 theorem matchKindDeclaration.to_declaration.canon_toValue
     (x : NanoP4Spec.matchKindDeclaration) :
@@ -1936,8 +1426,6 @@ theorem matchKindDeclaration.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.matchKindDeclaration.to_declaration]
 
-#audit_axioms NanoP4Spec.matchKindDeclaration.to_declaration.canon_toValue
-
 theorem matchKindDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.matchKindDeclaration) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.matchKindDeclaration.to_declaration x)) =
@@ -1945,8 +1433,6 @@ theorem matchKindDeclaration.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.matchKindDeclaration.to_declaration]
-
-#audit_axioms NanoP4Spec.matchKindDeclaration.to_declaration.canon_encoder
 
 theorem externObjectDeclaration.to_declaration.canon_toValue
     (x : NanoP4Spec.externObjectDeclaration) :
@@ -1956,8 +1442,6 @@ theorem externObjectDeclaration.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externObjectDeclaration.to_declaration]
 
-#audit_axioms NanoP4Spec.externObjectDeclaration.to_declaration.canon_toValue
-
 theorem externObjectDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.externObjectDeclaration) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.externObjectDeclaration.to_declaration x)) =
@@ -1965,8 +1449,6 @@ theorem externObjectDeclaration.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externObjectDeclaration.to_declaration]
-
-#audit_axioms NanoP4Spec.externObjectDeclaration.to_declaration.canon_encoder
 
 theorem parserDeclaration.to_declaration.canon_toValue
     (x : NanoP4Spec.parserDeclaration) :
@@ -1976,8 +1458,6 @@ theorem parserDeclaration.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserDeclaration.to_declaration]
 
-#audit_axioms NanoP4Spec.parserDeclaration.to_declaration.canon_toValue
-
 theorem parserDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.parserDeclaration) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.parserDeclaration.to_declaration x)) =
@@ -1985,8 +1465,6 @@ theorem parserDeclaration.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserDeclaration.to_declaration]
-
-#audit_axioms NanoP4Spec.parserDeclaration.to_declaration.canon_encoder
 
 theorem controlDeclaration.to_declaration.canon_toValue
     (x : NanoP4Spec.controlDeclaration) :
@@ -1996,8 +1474,6 @@ theorem controlDeclaration.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlDeclaration.to_declaration]
 
-#audit_axioms NanoP4Spec.controlDeclaration.to_declaration.canon_toValue
-
 theorem controlDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.controlDeclaration) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.controlDeclaration.to_declaration x)) =
@@ -2005,8 +1481,6 @@ theorem controlDeclaration.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlDeclaration.to_declaration]
-
-#audit_axioms NanoP4Spec.controlDeclaration.to_declaration.canon_encoder
 
 theorem typeDeclaration.to_declaration.canon_toValue
     (x : NanoP4Spec.typeDeclaration) :
@@ -2016,8 +1490,6 @@ theorem typeDeclaration.to_declaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.typeDeclaration.to_declaration]
 
-#audit_axioms NanoP4Spec.typeDeclaration.to_declaration.canon_toValue
-
 theorem typeDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.typeDeclaration) :
     Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.typeDeclaration.to_declaration x)) =
@@ -2025,8 +1497,6 @@ theorem typeDeclaration.to_declaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.typeDeclaration.to_declaration]
-
-#audit_axioms NanoP4Spec.typeDeclaration.to_declaration.canon_encoder
 
 theorem externObjectTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.externObjectTypeIR) :
@@ -2036,8 +1506,6 @@ theorem externObjectTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externObjectTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeDefIR.canon_toValue
-
 theorem externObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.externObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.externObjectTypeIR.to_typeDefIR x)) =
@@ -2045,8 +1513,6 @@ theorem externObjectTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externObjectTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeDefIR.canon_encoder
 
 theorem structTypeDeclaration.to_typeDeclaration.canon_toValue
     (x : NanoP4Spec.structTypeDeclaration) :
@@ -2056,8 +1522,6 @@ theorem structTypeDeclaration.to_typeDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structTypeDeclaration.to_typeDeclaration]
 
-#audit_axioms NanoP4Spec.structTypeDeclaration.to_typeDeclaration.canon_toValue
-
 theorem structTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.structTypeDeclaration) :
     Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.structTypeDeclaration.to_typeDeclaration x)) =
@@ -2065,8 +1529,6 @@ theorem structTypeDeclaration.to_typeDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structTypeDeclaration.to_typeDeclaration]
-
-#audit_axioms NanoP4Spec.structTypeDeclaration.to_typeDeclaration.canon_encoder
 
 theorem structTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.structTypeIR) :
@@ -2076,8 +1538,6 @@ theorem structTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.structTypeIR.to_typeDefIR.canon_toValue
-
 theorem structTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.structTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.structTypeIR.to_typeDefIR x)) =
@@ -2085,8 +1545,6 @@ theorem structTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.structTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.structTypeIR.to_typeDefIR.canon_encoder
 
 theorem headerTypeDeclaration.to_typeDeclaration.canon_toValue
     (x : NanoP4Spec.headerTypeDeclaration) :
@@ -2096,8 +1554,6 @@ theorem headerTypeDeclaration.to_typeDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerTypeDeclaration.to_typeDeclaration]
 
-#audit_axioms NanoP4Spec.headerTypeDeclaration.to_typeDeclaration.canon_toValue
-
 theorem headerTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.headerTypeDeclaration) :
     Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.headerTypeDeclaration.to_typeDeclaration x)) =
@@ -2105,8 +1561,6 @@ theorem headerTypeDeclaration.to_typeDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerTypeDeclaration.to_typeDeclaration]
-
-#audit_axioms NanoP4Spec.headerTypeDeclaration.to_typeDeclaration.canon_encoder
 
 theorem headerTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.headerTypeIR) :
@@ -2116,8 +1570,6 @@ theorem headerTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.headerTypeIR.to_typeDefIR.canon_toValue
-
 theorem headerTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.headerTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.headerTypeIR.to_typeDefIR x)) =
@@ -2125,8 +1577,6 @@ theorem headerTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.headerTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.headerTypeIR.to_typeDefIR.canon_encoder
 
 theorem parserTypeDeclaration.to_typeDeclaration.canon_toValue
     (x : NanoP4Spec.parserTypeDeclaration) :
@@ -2136,8 +1586,6 @@ theorem parserTypeDeclaration.to_typeDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserTypeDeclaration.to_typeDeclaration]
 
-#audit_axioms NanoP4Spec.parserTypeDeclaration.to_typeDeclaration.canon_toValue
-
 theorem parserTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.parserTypeDeclaration) :
     Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.parserTypeDeclaration.to_typeDeclaration x)) =
@@ -2145,8 +1593,6 @@ theorem parserTypeDeclaration.to_typeDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserTypeDeclaration.to_typeDeclaration]
-
-#audit_axioms NanoP4Spec.parserTypeDeclaration.to_typeDeclaration.canon_encoder
 
 theorem parserObjectTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.parserObjectTypeIR) :
@@ -2156,8 +1602,6 @@ theorem parserObjectTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserObjectTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeDefIR.canon_toValue
-
 theorem parserObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.parserObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.parserObjectTypeIR.to_typeDefIR x)) =
@@ -2165,8 +1609,6 @@ theorem parserObjectTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserObjectTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeDefIR.canon_encoder
 
 theorem controlTypeDeclaration.to_typeDeclaration.canon_toValue
     (x : NanoP4Spec.controlTypeDeclaration) :
@@ -2176,8 +1618,6 @@ theorem controlTypeDeclaration.to_typeDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlTypeDeclaration.to_typeDeclaration]
 
-#audit_axioms NanoP4Spec.controlTypeDeclaration.to_typeDeclaration.canon_toValue
-
 theorem controlTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.controlTypeDeclaration) :
     Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.controlTypeDeclaration.to_typeDeclaration x)) =
@@ -2185,8 +1625,6 @@ theorem controlTypeDeclaration.to_typeDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlTypeDeclaration.to_typeDeclaration]
-
-#audit_axioms NanoP4Spec.controlTypeDeclaration.to_typeDeclaration.canon_encoder
 
 theorem controlObjectTypeIR.to_typeDefIR.canon_toValue
     (x : NanoP4Spec.controlObjectTypeIR) :
@@ -2196,8 +1634,6 @@ theorem controlObjectTypeIR.to_typeDefIR.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlObjectTypeIR.to_typeDefIR]
 
-#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeDefIR.canon_toValue
-
 theorem controlObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.controlObjectTypeIR) :
     Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.controlObjectTypeIR.to_typeDefIR x)) =
@@ -2205,8 +1641,6 @@ theorem controlObjectTypeIR.to_typeDefIR.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlObjectTypeIR.to_typeDefIR]
-
-#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeDefIR.canon_encoder
 
 theorem packageTypeDeclaration.to_typeDeclaration.canon_toValue
     (x : NanoP4Spec.packageTypeDeclaration) :
@@ -2216,8 +1650,6 @@ theorem packageTypeDeclaration.to_typeDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packageTypeDeclaration.to_typeDeclaration]
 
-#audit_axioms NanoP4Spec.packageTypeDeclaration.to_typeDeclaration.canon_toValue
-
 theorem packageTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.packageTypeDeclaration) :
     Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.packageTypeDeclaration.to_typeDeclaration x)) =
@@ -2225,8 +1657,6 @@ theorem packageTypeDeclaration.to_typeDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packageTypeDeclaration.to_typeDeclaration]
-
-#audit_axioms NanoP4Spec.packageTypeDeclaration.to_typeDeclaration.canon_encoder
 
 theorem variableDeclaration.to_controlLocalDeclaration.canon_toValue
     (x : NanoP4Spec.variableDeclaration) :
@@ -2236,8 +1666,6 @@ theorem variableDeclaration.to_controlLocalDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.variableDeclaration.to_controlLocalDeclaration]
 
-#audit_axioms NanoP4Spec.variableDeclaration.to_controlLocalDeclaration.canon_toValue
-
 theorem variableDeclaration.to_controlLocalDeclaration.canon_encoder
     (x : NanoP4Spec.variableDeclaration) :
     Refine.canon (NanoP4Spec.controlLocalDeclaration.toValue (NanoP4Spec.variableDeclaration.to_controlLocalDeclaration x)) =
@@ -2245,8 +1673,6 @@ theorem variableDeclaration.to_controlLocalDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.variableDeclaration.to_controlLocalDeclaration]
-
-#audit_axioms NanoP4Spec.variableDeclaration.to_controlLocalDeclaration.canon_encoder
 
 theorem tableDeclaration.to_controlLocalDeclaration.canon_toValue
     (x : NanoP4Spec.tableDeclaration) :
@@ -2256,8 +1682,6 @@ theorem tableDeclaration.to_controlLocalDeclaration.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableDeclaration.to_controlLocalDeclaration]
 
-#audit_axioms NanoP4Spec.tableDeclaration.to_controlLocalDeclaration.canon_toValue
-
 theorem tableDeclaration.to_controlLocalDeclaration.canon_encoder
     (x : NanoP4Spec.tableDeclaration) :
     Refine.canon (NanoP4Spec.controlLocalDeclaration.toValue (NanoP4Spec.tableDeclaration.to_controlLocalDeclaration x)) =
@@ -2265,8 +1689,6 @@ theorem tableDeclaration.to_controlLocalDeclaration.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableDeclaration.to_controlLocalDeclaration]
-
-#audit_axioms NanoP4Spec.tableDeclaration.to_controlLocalDeclaration.canon_encoder
 
 theorem nonTypeName.to_tableActionReference.canon_toValue
     (x : NanoP4Spec.nonTypeName) :
@@ -2276,8 +1698,6 @@ theorem nonTypeName.to_tableActionReference.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_tableActionReference]
 
-#audit_axioms NanoP4Spec.nonTypeName.to_tableActionReference.canon_toValue
-
 theorem nonTypeName.to_tableActionReference.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
     Refine.canon (NanoP4Spec.tableActionReference.toValue (NanoP4Spec.nonTypeName.to_tableActionReference x)) =
@@ -2285,8 +1705,6 @@ theorem nonTypeName.to_tableActionReference.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.nonTypeName.to_tableActionReference]
-
-#audit_axioms NanoP4Spec.nonTypeName.to_tableActionReference.canon_encoder
 
 theorem parserDeclarationIR.to_callableDef.canon_toValue
     (x : NanoP4Spec.parserDeclarationIR) :
@@ -2296,8 +1714,6 @@ theorem parserDeclarationIR.to_callableDef.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserDeclarationIR.to_callableDef]
 
-#audit_axioms NanoP4Spec.parserDeclarationIR.to_callableDef.canon_toValue
-
 theorem parserDeclarationIR.to_callableDef.canon_encoder
     (x : NanoP4Spec.parserDeclarationIR) :
     Refine.canon (NanoP4Spec.callableDef.toValue (NanoP4Spec.parserDeclarationIR.to_callableDef x)) =
@@ -2305,8 +1721,6 @@ theorem parserDeclarationIR.to_callableDef.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.parserDeclarationIR.to_callableDef]
-
-#audit_axioms NanoP4Spec.parserDeclarationIR.to_callableDef.canon_encoder
 
 theorem controlDeclarationIR.to_callableDef.canon_toValue
     (x : NanoP4Spec.controlDeclarationIR) :
@@ -2316,8 +1730,6 @@ theorem controlDeclarationIR.to_callableDef.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlDeclarationIR.to_callableDef]
 
-#audit_axioms NanoP4Spec.controlDeclarationIR.to_callableDef.canon_toValue
-
 theorem controlDeclarationIR.to_callableDef.canon_encoder
     (x : NanoP4Spec.controlDeclarationIR) :
     Refine.canon (NanoP4Spec.callableDef.toValue (NanoP4Spec.controlDeclarationIR.to_callableDef x)) =
@@ -2325,8 +1737,6 @@ theorem controlDeclarationIR.to_callableDef.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.controlDeclarationIR.to_callableDef]
-
-#audit_axioms NanoP4Spec.controlDeclarationIR.to_callableDef.canon_encoder
 
 theorem actionDeclarationIR.to_callableDef.canon_toValue
     (x : NanoP4Spec.actionDeclarationIR) :
@@ -2336,8 +1746,6 @@ theorem actionDeclarationIR.to_callableDef.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.actionDeclarationIR.to_callableDef]
 
-#audit_axioms NanoP4Spec.actionDeclarationIR.to_callableDef.canon_toValue
-
 theorem actionDeclarationIR.to_callableDef.canon_encoder
     (x : NanoP4Spec.actionDeclarationIR) :
     Refine.canon (NanoP4Spec.callableDef.toValue (NanoP4Spec.actionDeclarationIR.to_callableDef x)) =
@@ -2345,8 +1753,6 @@ theorem actionDeclarationIR.to_callableDef.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.actionDeclarationIR.to_callableDef]
-
-#audit_axioms NanoP4Spec.actionDeclarationIR.to_callableDef.canon_encoder
 
 theorem actionCallee.to_callee.canon_toValue
     (x : NanoP4Spec.actionCallee) :
@@ -2356,8 +1762,6 @@ theorem actionCallee.to_callee.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.actionCallee.to_callee]
 
-#audit_axioms NanoP4Spec.actionCallee.to_callee.canon_toValue
-
 theorem actionCallee.to_callee.canon_encoder
     (x : NanoP4Spec.actionCallee) :
     Refine.canon (NanoP4Spec.callee.toValue (NanoP4Spec.actionCallee.to_callee x)) =
@@ -2365,8 +1769,6 @@ theorem actionCallee.to_callee.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.actionCallee.to_callee]
-
-#audit_axioms NanoP4Spec.actionCallee.to_callee.canon_encoder
 
 theorem packetValue.to_value.canon_toValue
     (x : NanoP4Spec.packetValue) :
@@ -2376,8 +1778,6 @@ theorem packetValue.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packetValue.to_value]
 
-#audit_axioms NanoP4Spec.packetValue.to_value.canon_toValue
-
 theorem packetValue.to_value.canon_encoder
     (x : NanoP4Spec.packetValue) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.packetValue.to_value x)) =
@@ -2385,8 +1785,6 @@ theorem packetValue.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.packetValue.to_value]
-
-#audit_axioms NanoP4Spec.packetValue.to_value.canon_encoder
 
 theorem externMethodCallee.to_callee.canon_toValue
     (x : NanoP4Spec.externMethodCallee) :
@@ -2396,8 +1794,6 @@ theorem externMethodCallee.to_callee.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externMethodCallee.to_callee]
 
-#audit_axioms NanoP4Spec.externMethodCallee.to_callee.canon_toValue
-
 theorem externMethodCallee.to_callee.canon_encoder
     (x : NanoP4Spec.externMethodCallee) :
     Refine.canon (NanoP4Spec.callee.toValue (NanoP4Spec.externMethodCallee.to_callee x)) =
@@ -2405,8 +1801,6 @@ theorem externMethodCallee.to_callee.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.externMethodCallee.to_callee]
-
-#audit_axioms NanoP4Spec.externMethodCallee.to_callee.canon_encoder
 
 theorem tableValue.to_value.canon_toValue
     (x : NanoP4Spec.tableValue) :
@@ -2416,8 +1810,6 @@ theorem tableValue.to_value.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableValue.to_value]
 
-#audit_axioms NanoP4Spec.tableValue.to_value.canon_toValue
-
 theorem tableValue.to_value.canon_encoder
     (x : NanoP4Spec.tableValue) :
     Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.tableValue.to_value x)) =
@@ -2425,8 +1817,6 @@ theorem tableValue.to_value.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableValue.to_value]
-
-#audit_axioms NanoP4Spec.tableValue.to_value.canon_encoder
 
 theorem tableApplyMethodCallee.to_callee.canon_toValue
     (x : NanoP4Spec.tableApplyMethodCallee) :
@@ -2436,8 +1826,6 @@ theorem tableApplyMethodCallee.to_callee.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableApplyMethodCallee.to_callee]
 
-#audit_axioms NanoP4Spec.tableApplyMethodCallee.to_callee.canon_toValue
-
 theorem tableApplyMethodCallee.to_callee.canon_encoder
     (x : NanoP4Spec.tableApplyMethodCallee) :
     Refine.canon (NanoP4Spec.callee.toValue (NanoP4Spec.tableApplyMethodCallee.to_callee x)) =
@@ -2445,8 +1833,6 @@ theorem tableApplyMethodCallee.to_callee.canon_encoder
   cases x <;> first
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.tableApplyMethodCallee.to_callee]
-
-#audit_axioms NanoP4Spec.tableApplyMethodCallee.to_callee.canon_encoder
 
 theorem identifier.to_expression.canon_toValue
     (x : NanoP4Spec.identifier) :
@@ -2456,8 +1842,6 @@ theorem identifier.to_expression.canon_toValue
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.identifier.to_expression]
 
-#audit_axioms NanoP4Spec.identifier.to_expression.canon_toValue
-
 theorem identifier.to_expression.canon_encoder
     (x : NanoP4Spec.identifier) :
     Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.identifier.to_expression x)) =
@@ -2466,6 +1850,314 @@ theorem identifier.to_expression.canon_encoder
     | rfl
     | subtype_canon NanoP4Spec [NanoP4Spec.identifier.to_expression]
 
+#audit_axioms set.valueBEq
+#audit_axioms pair.valueBEq
+#audit_axioms map.valueBEq
+#audit_axioms booleanLiteral.valueBEq
+#audit_axioms integerLiteral.valueBEq
+#audit_axioms identifier.valueBEq
+#audit_axioms typeIdentifier.valueBEq
+#audit_axioms nonTypeName.valueBEq
+#audit_axioms typeName.valueBEq
+#audit_axioms name.valueBEq
+#audit_axioms nameList.valueBEq
+#audit_axioms member.valueBEq
+#audit_axioms direction.valueBEq
+#audit_axioms integerType.valueBEq
+#audit_axioms baseType.valueBEq
+#audit_axioms namedType.valueBEq
+#audit_axioms type.valueBEq
+#audit_axioms parameter.valueBEq
+#audit_axioms nonEmptyParameterList.valueBEq
+#audit_axioms parameterList.valueBEq
+#audit_axioms literalExpression.valueBEq
+#audit_axioms referenceExpression.valueBEq
+#audit_axioms unop.valueBEq
+#audit_axioms unaryExpression.valueBEq
+#audit_axioms binop.valueBEq
+#audit_axioms binaryExpression.valueBEq
+#audit_axioms memberAccessExpression.valueBEq
+#audit_axioms callExpression.valueBEq
+#audit_axioms parenthesizedExpression.valueBEq
+#audit_axioms expression.valueBEq
+#audit_axioms memberAccessBase.valueBEq
+#audit_axioms callTarget.valueBEq
+#audit_axioms argument.valueBEq
+#audit_axioms argumentListNonEmpty.valueBEq
+#audit_axioms argumentList.valueBEq
+#audit_axioms lvalue.valueBEq
+#audit_axioms emptyStatement.valueBEq
+#audit_axioms assignmentStatement.valueBEq
+#audit_axioms callStatement.valueBEq
+#audit_axioms blockStatement.valueBEq
+#audit_axioms conditionalStatement.valueBEq
+#audit_axioms initializer.valueBEq
+#audit_axioms variableDeclaration.valueBEq
+#audit_axioms statement.valueBEq
+#audit_axioms statementList.valueBEq
+#audit_axioms functionPrototype.valueBEq
+#audit_axioms actionDeclaration.valueBEq
+#audit_axioms instantiation.valueBEq
+#audit_axioms matchKindDeclaration.valueBEq
+#audit_axioms typeField.valueBEq
+#audit_axioms typeFieldList.valueBEq
+#audit_axioms structTypeDeclaration.valueBEq
+#audit_axioms headerTypeDeclaration.valueBEq
+#audit_axioms derivedTypeDeclaration.valueBEq
+#audit_axioms externMethodPrototype.valueBEq
+#audit_axioms externMethodPrototypeList.valueBEq
+#audit_axioms externObjectDeclaration.valueBEq
+#audit_axioms externDeclaration.valueBEq
+#audit_axioms selectCase.valueBEq
+#audit_axioms selectCaseList.valueBEq
+#audit_axioms selectExpression.valueBEq
+#audit_axioms stateExpression.valueBEq
+#audit_axioms transitionStatement.valueBEq
+#audit_axioms parserTypeDeclaration.valueBEq
+#audit_axioms parserState.valueBEq
+#audit_axioms parserStateList.valueBEq
+#audit_axioms parserLocalDeclaration.valueBEq
+#audit_axioms parserLocalDeclarationList.valueBEq
+#audit_axioms parserDeclaration.valueBEq
+#audit_axioms tableKey.valueBEq
+#audit_axioms tableActionReference.valueBEq
+#audit_axioms tableAction.valueBEq
+#audit_axioms tableActionList.valueBEq
+#audit_axioms tableEntry.valueBEq
+#audit_axioms tableEntryList.valueBEq
+#audit_axioms tableKeyProperty.valueBEq
+#audit_axioms tableActionsProperty.valueBEq
+#audit_axioms tableEntriesProperty.valueBEq
+#audit_axioms tableProperties.valueBEq
+#audit_axioms tableDeclaration.valueBEq
+#audit_axioms controlTypeDeclaration.valueBEq
+#audit_axioms controlBody.valueBEq
+#audit_axioms controlLocalDeclaration.valueBEq
+#audit_axioms controlLocalDeclarationList.valueBEq
+#audit_axioms controlDeclaration.valueBEq
+#audit_axioms packageTypeDeclaration.valueBEq
+#audit_axioms typeDeclaration.valueBEq
+#audit_axioms declaration.valueBEq
+#audit_axioms program.valueBEq
+#audit_axioms id.valueBEq
+#audit_axioms callableId.valueBEq
+#audit_axioms nameIR.valueBEq
+#audit_axioms scope.valueBEq
+#audit_axioms typeId.valueBEq
+#audit_axioms integerTypeIR.valueBEq
+#audit_axioms baseTypeIR.valueBEq
+#audit_axioms argumentIR.valueBEq
+#audit_axioms parameterIR.valueBEq
+#audit_axioms fieldTypeIR.valueBEq
+#audit_axioms structTypeIR.valueBEq
+#audit_axioms headerTypeIR.valueBEq
+#audit_axioms dataTypeIR.valueBEq
+#audit_axioms externMethodTypeDefIR.valueBEq
+#audit_axioms externMethodTypeDefEnv.valueBEq
+#audit_axioms externObjectTypeIR.valueBEq
+#audit_axioms parserObjectTypeIR.valueBEq
+#audit_axioms controlObjectTypeIR.valueBEq
+#audit_axioms packageObjectTypeIR.valueBEq
+#audit_axioms tableObjectTypeIR.valueBEq
+#audit_axioms objectTypeIR.valueBEq
+#audit_axioms externTypeDefIR.valueBEq
+#audit_axioms parserTypeDefIR.valueBEq
+#audit_axioms controlTypeDefIR.valueBEq
+#audit_axioms packageTypeDefIR.valueBEq
+#audit_axioms objectTypeDefIR.valueBEq
+#audit_axioms typeIR.valueBEq
+#audit_axioms typeDefIR.valueBEq
+#audit_axioms integerValue.valueBEq
+#audit_axioms boolValue.valueBEq
+#audit_axioms matchKindValue.valueBEq
+#audit_axioms baseValue.valueBEq
+#audit_axioms fieldValue.valueBEq
+#audit_axioms structValue.valueBEq
+#audit_axioms headerValue.valueBEq
+#audit_axioms dataValue.valueBEq
+#audit_axioms packetValue.valueBEq
+#audit_axioms tableValue.valueBEq
+#audit_axioms objectValue.valueBEq
+#audit_axioms value.valueBEq
+#audit_axioms bit.valueBEq
+#audit_axioms bits.valueBEq
+#audit_axioms typeDefEnv.valueBEq
+#audit_axioms callableTypeDef.valueBEq
+#audit_axioms callableTypeDefEnv.valueBEq
+#audit_axioms varTypeIR.valueBEq
+#audit_axioms typeFrame.valueBEq
+#audit_axioms globalTypingLayer.valueBEq
+#audit_axioms blockTypingLayer.valueBEq
+#audit_axioms localTypingLayer.valueBEq
+#audit_axioms typingContext.valueBEq
+#audit_axioms matchKey.valueBEq
+#audit_axioms matchAction.valueBEq
+#audit_axioms tableContext.valueBEq
+#audit_axioms actionDeclarationIR.valueBEq
+#audit_axioms parserDeclarationIR.valueBEq
+#audit_axioms controlDeclarationIR.valueBEq
+#audit_axioms callableDef.valueBEq
+#audit_axioms callableDefEnv.valueBEq
+#audit_axioms globalLoadLayer.valueBEq
+#audit_axioms loadContext.valueBEq
+#audit_axioms frame.valueBEq
+#audit_axioms globalEvalLayer.valueBEq
+#audit_axioms blockEvalLayer.valueBEq
+#audit_axioms localEvalLayer.valueBEq
+#audit_axioms evalContext.valueBEq
+#audit_axioms transitionResult.valueBEq
+#audit_axioms actionCallee.valueBEq
+#audit_axioms externMethodCallee.valueBEq
+#audit_axioms tableApplyMethodCallee.valueBEq
+#audit_axioms callee.valueBEq
+#audit_axioms forwardingDecision.valueBEq
+#audit_axioms NanoP4Spec.nonTypeName.to_nameList.canon_toValue
+#audit_axioms NanoP4Spec.nonTypeName.to_nameList.canon_encoder
+#audit_axioms NanoP4Spec.parameter.to_parameterList.canon_toValue
+#audit_axioms NanoP4Spec.parameter.to_parameterList.canon_encoder
+#audit_axioms NanoP4Spec.nonEmptyParameterList.to_parameterList.canon_toValue
+#audit_axioms NanoP4Spec.nonEmptyParameterList.to_parameterList.canon_encoder
+#audit_axioms NanoP4Spec.expression.to_argumentList.canon_toValue
+#audit_axioms NanoP4Spec.expression.to_argumentList.canon_encoder
+#audit_axioms NanoP4Spec.argumentListNonEmpty.to_argumentList.canon_toValue
+#audit_axioms NanoP4Spec.argumentListNonEmpty.to_argumentList.canon_encoder
+#audit_axioms NanoP4Spec.parserState.to_parserStateList.canon_toValue
+#audit_axioms NanoP4Spec.parserState.to_parserStateList.canon_encoder
+#audit_axioms NanoP4Spec.tableAction.to_tableActionList.canon_toValue
+#audit_axioms NanoP4Spec.tableAction.to_tableActionList.canon_encoder
+#audit_axioms NanoP4Spec.integerLiteral.to_value.canon_toValue
+#audit_axioms NanoP4Spec.integerLiteral.to_value.canon_encoder
+#audit_axioms NanoP4Spec.integerTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.integerTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.boolValue.to_value.canon_toValue
+#audit_axioms NanoP4Spec.boolValue.to_value.canon_encoder
+#audit_axioms NanoP4Spec.baseTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.baseTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.structValue.to_value.canon_toValue
+#audit_axioms NanoP4Spec.structValue.to_value.canon_encoder
+#audit_axioms NanoP4Spec.structTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.structTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.headerValue.to_value.canon_toValue
+#audit_axioms NanoP4Spec.headerValue.to_value.canon_encoder
+#audit_axioms NanoP4Spec.headerTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.headerTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.matchKindValue.to_value.canon_toValue
+#audit_axioms NanoP4Spec.matchKindValue.to_value.canon_encoder
+#audit_axioms NanoP4Spec.dataTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.dataTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.dataTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.dataTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.objectTypeDefIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.integerType.to_type.canon_toValue
+#audit_axioms NanoP4Spec.integerType.to_type.canon_encoder
+#audit_axioms NanoP4Spec.baseType.to_type.canon_toValue
+#audit_axioms NanoP4Spec.baseType.to_type.canon_encoder
+#audit_axioms NanoP4Spec.typeIdentifier.to_type.canon_toValue
+#audit_axioms NanoP4Spec.typeIdentifier.to_type.canon_encoder
+#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.tableObjectTypeIR.to_typeIR.canon_toValue
+#audit_axioms NanoP4Spec.tableObjectTypeIR.to_typeIR.canon_encoder
+#audit_axioms NanoP4Spec.booleanLiteral.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.booleanLiteral.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.integerLiteral.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.integerLiteral.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.nonTypeName.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.nonTypeName.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.unaryExpression.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.unaryExpression.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.binaryExpression.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.binaryExpression.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.memberAccessExpression.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.memberAccessExpression.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.callExpression.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.callExpression.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.parenthesizedExpression.to_expression.canon_toValue
+#audit_axioms NanoP4Spec.parenthesizedExpression.to_expression.canon_encoder
+#audit_axioms NanoP4Spec.nonTypeName.to_lvalue.canon_toValue
+#audit_axioms NanoP4Spec.nonTypeName.to_lvalue.canon_encoder
+#audit_axioms NanoP4Spec.emptyStatement.to_statement.canon_toValue
+#audit_axioms NanoP4Spec.emptyStatement.to_statement.canon_encoder
+#audit_axioms NanoP4Spec.variableDeclaration.to_statement.canon_toValue
+#audit_axioms NanoP4Spec.variableDeclaration.to_statement.canon_encoder
+#audit_axioms NanoP4Spec.assignmentStatement.to_statement.canon_toValue
+#audit_axioms NanoP4Spec.assignmentStatement.to_statement.canon_encoder
+#audit_axioms NanoP4Spec.callStatement.to_statement.canon_toValue
+#audit_axioms NanoP4Spec.callStatement.to_statement.canon_encoder
+#audit_axioms NanoP4Spec.blockStatement.to_statement.canon_toValue
+#audit_axioms NanoP4Spec.blockStatement.to_statement.canon_encoder
+#audit_axioms NanoP4Spec.conditionalStatement.to_statement.canon_toValue
+#audit_axioms NanoP4Spec.conditionalStatement.to_statement.canon_encoder
+#audit_axioms NanoP4Spec.selectExpression.to_stateExpression.canon_toValue
+#audit_axioms NanoP4Spec.selectExpression.to_stateExpression.canon_encoder
+#audit_axioms NanoP4Spec.instantiation.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.instantiation.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.packageObjectTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.actionDeclaration.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.actionDeclaration.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.matchKindDeclaration.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.matchKindDeclaration.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.externObjectDeclaration.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.externObjectDeclaration.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.parserDeclaration.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.parserDeclaration.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.controlDeclaration.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.controlDeclaration.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.typeDeclaration.to_declaration.canon_toValue
+#audit_axioms NanoP4Spec.typeDeclaration.to_declaration.canon_encoder
+#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.externObjectTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.structTypeDeclaration.to_typeDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.structTypeDeclaration.to_typeDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.structTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.structTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.headerTypeDeclaration.to_typeDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.headerTypeDeclaration.to_typeDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.headerTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.headerTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.parserTypeDeclaration.to_typeDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.parserTypeDeclaration.to_typeDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.parserObjectTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.controlTypeDeclaration.to_typeDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.controlTypeDeclaration.to_typeDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeDefIR.canon_toValue
+#audit_axioms NanoP4Spec.controlObjectTypeIR.to_typeDefIR.canon_encoder
+#audit_axioms NanoP4Spec.packageTypeDeclaration.to_typeDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.packageTypeDeclaration.to_typeDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.variableDeclaration.to_controlLocalDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.variableDeclaration.to_controlLocalDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.tableDeclaration.to_controlLocalDeclaration.canon_toValue
+#audit_axioms NanoP4Spec.tableDeclaration.to_controlLocalDeclaration.canon_encoder
+#audit_axioms NanoP4Spec.nonTypeName.to_tableActionReference.canon_toValue
+#audit_axioms NanoP4Spec.nonTypeName.to_tableActionReference.canon_encoder
+#audit_axioms NanoP4Spec.parserDeclarationIR.to_callableDef.canon_toValue
+#audit_axioms NanoP4Spec.parserDeclarationIR.to_callableDef.canon_encoder
+#audit_axioms NanoP4Spec.controlDeclarationIR.to_callableDef.canon_toValue
+#audit_axioms NanoP4Spec.controlDeclarationIR.to_callableDef.canon_encoder
+#audit_axioms NanoP4Spec.actionDeclarationIR.to_callableDef.canon_toValue
+#audit_axioms NanoP4Spec.actionDeclarationIR.to_callableDef.canon_encoder
+#audit_axioms NanoP4Spec.actionCallee.to_callee.canon_toValue
+#audit_axioms NanoP4Spec.actionCallee.to_callee.canon_encoder
+#audit_axioms NanoP4Spec.packetValue.to_value.canon_toValue
+#audit_axioms NanoP4Spec.packetValue.to_value.canon_encoder
+#audit_axioms NanoP4Spec.externMethodCallee.to_callee.canon_toValue
+#audit_axioms NanoP4Spec.externMethodCallee.to_callee.canon_encoder
+#audit_axioms NanoP4Spec.tableValue.to_value.canon_toValue
+#audit_axioms NanoP4Spec.tableValue.to_value.canon_encoder
+#audit_axioms NanoP4Spec.tableApplyMethodCallee.to_callee.canon_toValue
+#audit_axioms NanoP4Spec.tableApplyMethodCallee.to_callee.canon_encoder
+#audit_axioms NanoP4Spec.identifier.to_expression.canon_toValue
 #audit_axioms NanoP4Spec.identifier.to_expression.canon_encoder
 
 end NanoP4Spec

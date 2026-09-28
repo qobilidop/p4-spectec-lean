@@ -48,8 +48,6 @@ theorem «$ite».refines
       (ExceptT.mk (NanoP4Spec.«$ite» (τX := τX) p0 p1 p2)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$ite».refines
-
 set_option maxHeartbeats 6000000 in
 theorem «$ite».realizes
     {τX : Type}
@@ -74,6 +72,7 @@ theorem «$ite».realizes
       (ExceptT.mk (NanoP4Spec.«$ite» (τX := τX) p0 p1 p2)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$ite».refines
 #audit_axioms NanoP4Spec.«$ite».realizes
 
 end NanoP4Spec

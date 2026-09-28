@@ -50,8 +50,6 @@ theorem Lvalue_ok.refines_group :
   | ind fuel ih =>
       refine_al (columns)
 
-#audit_axioms NanoP4Spec.Lvalue_ok.refines_group
-
 set_option maxHeartbeats 11000000 in
 theorem Lvalue_ok.refines
     (fuel : Nat)
@@ -85,8 +83,6 @@ theorem Lvalue_ok.refines
     h0
     h1
     h2
-
-#audit_axioms NanoP4Spec.Lvalue_ok.refines
 
 private def Lvalue_ok.realizesMotive
     (p0 : NanoP4Spec.scope)
@@ -129,6 +125,8 @@ theorem Lvalue_ok.realizes
       realize_step (columns) hq)
     p0 p1 p2 q hq cfg ctx internal hguard hhints _hfenv hspec v0 v1 v2 h0 h1 h2
 
+#audit_axioms NanoP4Spec.Lvalue_ok.refines_group
+#audit_axioms NanoP4Spec.Lvalue_ok.refines
 #audit_axioms NanoP4Spec.Lvalue_ok.realizes
 
 end NanoP4Spec

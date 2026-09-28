@@ -76,8 +76,6 @@ private theorem initializer.sourceFields (v : Lang.Il.value) (hv : initializer.s
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.initializer.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def initializer.admitted : NanoP4Spec.initializer → Prop
@@ -189,8 +187,6 @@ theorem initializer.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.initializer.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem initializer.admittedAll : ∀ x : NanoP4Spec.initializer,
@@ -201,6 +197,8 @@ theorem initializer.admittedAll : ∀ x : NanoP4Spec.initializer,
     exact ((show ∀ x : (NanoP4Spec.expression), (NanoP4Spec.expression.admitted) x from
       NanoP4Spec.expression.admittedAll)) a
 
+#audit_axioms NanoP4Spec.initializer.sourceFields
+#audit_axioms NanoP4Spec.initializer.codec
 #audit_axioms NanoP4Spec.initializer.admittedAll
 
 end NanoP4Spec

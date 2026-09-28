@@ -35,7 +35,8 @@ namespace NanoP4Spec
 theorem «$make_loadContext».callArgumentsSource :
     True :=
   trivial
-#audit_axioms «$make_loadContext».callArgumentsSource
 
+
+#audit_axioms «$make_loadContext».callArgumentsSource
 
 end NanoP4Spec

@@ -55,7 +55,8 @@ theorem «$nanoswitch_forwarding».runtimeProducesSource :
     _ (NanoP4Spec.forwardingDecision.sourceCodec)))) result (((show ∀ x :
     (NanoP4Spec.forwardingDecision), (fun _ => True) x from
     NanoP4Spec.forwardingDecision.admittedAll)) result)
-#audit_axioms «$nanoswitch_forwarding».runtimeProducesSource
 
+
+#audit_axioms «$nanoswitch_forwarding».runtimeProducesSource
 
 end NanoP4Spec

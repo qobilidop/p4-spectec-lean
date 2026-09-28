@@ -44,8 +44,6 @@ theorem «$no_object_params».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$no_object_params».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$no_object_params».refines
     (fuel : Nat)
@@ -59,8 +57,6 @@ theorem «$no_object_params».refines
       (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "no_object_params") [] [v0])
       (ExceptT.mk (NanoP4Spec.«$no_object_params» p0)) :=
   (NanoP4Spec.«$no_object_params».refines_group fuel) cfg ctx internal hguard hfenv hspec v0 p0 h0
-
-#audit_axioms NanoP4Spec.«$no_object_params».refines
 
 private def «$no_object_params».realizesMotive
     (p0 : List NanoP4Spec.parameterIR)
@@ -97,6 +93,8 @@ theorem «$no_object_params».realizes
       realize_step hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$no_object_params».refines_group
+#audit_axioms NanoP4Spec.«$no_object_params».refines
 #audit_axioms NanoP4Spec.«$no_object_params».realizes
 
 end NanoP4Spec

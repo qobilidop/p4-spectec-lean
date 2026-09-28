@@ -81,7 +81,8 @@ theorem TableEntries_ok.callArgumentsSource :
     ∈ xs, (NanoP4Spec.tableEntry.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.tableEntry), (NanoP4Spec.tableEntry.admitted) x from
     NanoP4Spec.tableEntry.admittedAll)) x))) x)), trivial⟩
-#audit_axioms TableEntries_ok.callArgumentsSource
 
+
+#audit_axioms TableEntries_ok.callArgumentsSource
 
 end NanoP4Spec

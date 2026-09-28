@@ -45,8 +45,6 @@ theorem «$make_evalContext».refines
       (ExceptT.mk (NanoP4Spec.«$make_evalContext» p0 p1)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$make_evalContext».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$make_evalContext».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -67,6 +65,7 @@ theorem «$make_evalContext».realizes
       (ExceptT.mk (NanoP4Spec.«$make_evalContext» p0 p1)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.«$make_evalContext».refines
 #audit_axioms NanoP4Spec.«$make_evalContext».realizes
 
 end NanoP4Spec

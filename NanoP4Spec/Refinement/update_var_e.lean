@@ -57,8 +57,6 @@ theorem «$update_var_e».refines_group :
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$update_var_e».refines_group
-
 set_option maxHeartbeats 10000000 in
 theorem «$update_var_e».refines
     (fuel : Nat)
@@ -100,8 +98,6 @@ theorem «$update_var_e».refines
     h1
     h2
     h3
-
-#audit_axioms NanoP4Spec.«$update_var_e».refines
 
 private def «$update_var_e».realizesMotive
     (p0 : NanoP4Spec.scope)
@@ -155,6 +151,8 @@ theorem «$update_var_e».realizes
       realize_step (relations) hq)
     p0 p1 p2 p3 q hq cfg ctx internal hguard hfenv hspec ht0 ht1 v0 v1 v2 v3 h0 h1 h2 h3
 
+#audit_axioms NanoP4Spec.«$update_var_e».refines_group
+#audit_axioms NanoP4Spec.«$update_var_e».refines
 #audit_axioms NanoP4Spec.«$update_var_e».realizes
 
 end NanoP4Spec

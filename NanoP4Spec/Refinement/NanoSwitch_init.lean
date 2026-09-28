@@ -46,8 +46,6 @@ theorem NanoSwitch_init.refines
       (ExceptT.mk (NanoP4Spec.NanoSwitch_init.run p0)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.NanoSwitch_init.refines
-
 set_option maxHeartbeats 6000000 in
 theorem NanoSwitch_init.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -64,6 +62,7 @@ theorem NanoSwitch_init.realizes
       (ExceptT.mk (NanoP4Spec.NanoSwitch_init.run p0)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.NanoSwitch_init.refines
 #audit_axioms NanoP4Spec.NanoSwitch_init.realizes
 
 end NanoP4Spec

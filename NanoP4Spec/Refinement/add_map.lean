@@ -67,8 +67,6 @@ theorem «$add_map».dispatch {τK τV : Type} [ToValue τK] [BEq τK] [ToValue 
     using
     congrArg (fun v => some (Except.ok (ε := Fail) v)) (rel.trans (outputImage _))
 
-#audit_axioms NanoP4Spec.«$add_map».dispatch
-
 theorem «$add_map».refines (fuel : Nat) {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq
   τV]
       (p0 : NanoP4Spec.map τK τV)
@@ -84,8 +82,6 @@ theorem «$add_map».refines (fuel : Nat) {τK τV : Type} [ToValue τK] [BEq τ
     [t0, t1] [v0, v1, v2] hfenv hdecl (NanoP4Spec.«$add_map».dispatch p0 p1 p2 t0 t1 v0 v1 v2 h0
     h1 h2 cfg)
 
-#audit_axioms NanoP4Spec.«$add_map».refines
-
 theorem «$add_map».realizes {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
       (p0 : NanoP4Spec.map τK τV)
       (p1 : τK)
@@ -100,6 +96,8 @@ theorem «$add_map».realizes {τK τV : Type} [ToValue τK] [BEq τK] [ToValue 
     [v0, v1, v2] hfenv hdecl (NanoP4Spec.«$add_map».dispatch p0 p1 p2 t0 t1 v0 v1 v2 h0 h1 h2
     cfg)
 
+#audit_axioms NanoP4Spec.«$add_map».dispatch
+#audit_axioms NanoP4Spec.«$add_map».refines
 #audit_axioms NanoP4Spec.«$add_map».realizes
 
 end NanoP4Spec

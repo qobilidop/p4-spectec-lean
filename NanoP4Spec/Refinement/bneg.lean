@@ -33,8 +33,6 @@ theorem «$bneg».dispatch (p0 : Int)
   funext result
   cases result <;> rfl
 
-#audit_axioms NanoP4Spec.«$bneg».dispatch
-
 theorem «$bneg».refines (fuel : Nat) (p0 : Int)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
      (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = []) (hdecl : Holds
@@ -43,8 +41,6 @@ theorem «$bneg».refines (fuel : Nat) (p0 : Int)
     (ExceptT.mk (NanoP4Spec.«$bneg» p0)) := by
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "bneg" _ _ _ []
     [v0] hfenv hdecl (NanoP4Spec.«$bneg».dispatch p0 v0 h0 cfg)
-
-#audit_axioms NanoP4Spec.«$bneg».refines
 
 theorem «$bneg».realizes (p0 : Int)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
@@ -55,6 +51,8 @@ theorem «$bneg».realizes (p0 : Int)
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "bneg" _ _ _ [] [v0] hfenv
     hdecl (NanoP4Spec.«$bneg».dispatch p0 v0 h0 cfg)
 
+#audit_axioms NanoP4Spec.«$bneg».dispatch
+#audit_axioms NanoP4Spec.«$bneg».refines
 #audit_axioms NanoP4Spec.«$bneg».realizes
 
 end NanoP4Spec

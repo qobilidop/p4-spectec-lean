@@ -34,8 +34,6 @@ theorem «$print_».dispatch {τX : Type} [ToValue τX] [BEq τX] (p0 : τX)
   funext result
   cases result <;> rfl
 
-#audit_axioms NanoP4Spec.«$print_».dispatch
-
 theorem «$print_».refines (fuel : Nat) {τX : Type} [ToValue τX] [BEq τX] (p0 : τX)
    (t0 : Lang.Il.typ) (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config)
      (hhints : cfg.printHints = []) (ctx : Interp_al.Ctx.t) (internal : Bool) (hguard :
@@ -45,8 +43,6 @@ theorem «$print_».refines (fuel : Nat) {τX : Type} [ToValue τX] [BEq τX] (p
     (ExceptT.mk (NanoP4Spec.«$print_» p0)) := by
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "print_" _ _ _
     [t0] [v0] hfenv hdecl (NanoP4Spec.«$print_».dispatch p0 t0 v0 h0 cfg hhints)
-
-#audit_axioms NanoP4Spec.«$print_».refines
 
 theorem «$print_».realizes {τX : Type} [ToValue τX] [BEq τX] (p0 : τX)
    (t0 : Lang.Il.typ) (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config)
@@ -58,6 +54,8 @@ theorem «$print_».realizes {τX : Type} [ToValue τX] [BEq τX] (p0 : τX)
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "print_" _ _ _ [t0] [v0]
     hfenv hdecl (NanoP4Spec.«$print_».dispatch p0 t0 v0 h0 cfg hhints)
 
+#audit_axioms NanoP4Spec.«$print_».dispatch
+#audit_axioms NanoP4Spec.«$print_».refines
 #audit_axioms NanoP4Spec.«$print_».realizes
 
 end NanoP4Spec

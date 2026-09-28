@@ -70,7 +70,8 @@ theorem ParserState_trans.runtimeProducesSource :
     (NanoP4Spec.evalContext.runtimeCodec)) result.2 (((show ∀ x : (NanoP4Spec.evalContext),
     (NanoP4Spec.evalContext.runtimeAdmitted) x from NanoP4Spec.evalContext.runtimeAdmittedAll))
     result.2)⟩
-#audit_axioms ParserState_trans.runtimeProducesSource
 
+
+#audit_axioms ParserState_trans.runtimeProducesSource
 
 end NanoP4Spec

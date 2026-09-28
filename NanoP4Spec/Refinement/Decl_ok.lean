@@ -63,8 +63,6 @@ theorem Decl_ok.refines
       (ExceptT.mk (NanoP4Spec.Decl_ok.run p0 p1)) :=
   by refine_al (columns)
 
-#audit_axioms NanoP4Spec.Decl_ok.refines
-
 set_option maxHeartbeats 18000000 in
 theorem Decl_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -83,6 +81,7 @@ theorem Decl_ok.realizes
       (ExceptT.mk (NanoP4Spec.Decl_ok.run p0 p1)) := by
   realize_al (columns)
 
+#audit_axioms NanoP4Spec.Decl_ok.refines
 #audit_axioms NanoP4Spec.Decl_ok.realizes
 
 end NanoP4Spec

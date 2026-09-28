@@ -50,8 +50,6 @@ theorem «$codom_map».refines
       (fun x : τK × τV => toValue x.1)
       (fun x : τK × τV => toValue x.2))
 
-#audit_axioms NanoP4Spec.«$codom_map».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$codom_map».realizes
     {τK τV : Type}
@@ -78,6 +76,7 @@ theorem «$codom_map».realizes
       (fun x : τK × τV => toValue x.1)
       (fun x : τK × τV => toValue x.2))
 
+#audit_axioms NanoP4Spec.«$codom_map».refines
 #audit_axioms NanoP4Spec.«$codom_map».realizes
 
 end NanoP4Spec

@@ -52,8 +52,6 @@ private theorem bits.bodyCodec : @Representation.Codec (List (NanoP4Spec.bit)) �
     (NanoP4Spec.bit) ⟨NanoP4Spec.bit.toValue⟩ ⟨NanoP4Spec.bit.ofValue⟩ (Q.t (Q.varT "bit" []))
     (NanoP4Spec.bit.admitted) (NanoP4Spec.bit.codec)
 
-#audit_axioms NanoP4Spec.bits.bodyCodec
-
 private theorem bits.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.bits.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (.IterT (Q.t (Q.varT "bit" [])) .List)).it) v :=
@@ -70,8 +68,6 @@ private theorem bits.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.iter (Q.t (Q.varT "bit" [])) (Q.t (Q.varT
     "bit" [])) .List (Representation.Source.Substitutes.named (Q.i "bit") [] [] rfl (.nil))) v
 
-#audit_axioms NanoP4Spec.bits.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem bits.encodingSourceIff (x : NanoP4Spec.bits) :
     NanoP4Spec.bits.source (NanoP4Spec.bits.toValue x) ↔ (Representation.Source.Valid
@@ -79,8 +75,6 @@ theorem bits.encodingSourceIff (x : NanoP4Spec.bits) :
       .List)).it) ((@ToValue.toValue (List (NanoP4Spec.bit)) (@P4SpecTec.Prelude.instToValueList
       (NanoP4Spec.bit) ⟨NanoP4Spec.bit.toValue⟩)) x) :=
   NanoP4Spec.bits.sourceIff _
-
-#audit_axioms NanoP4Spec.bits.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem bits.codec : @Refine.Representation.Codec NanoP4Spec.bits ⟨NanoP4Spec.bits.toValue⟩
@@ -138,8 +132,6 @@ theorem bits.codec : @Refine.Representation.Codec NanoP4Spec.bits ⟨NanoP4Spec.
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.bits.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem bits.admittedAll : ∀ x : NanoP4Spec.bits, (NanoP4Spec.bits.admitted) x := by
   intro x
@@ -147,6 +139,10 @@ theorem bits.admittedAll : ∀ x : NanoP4Spec.bits, (NanoP4Spec.bits.admitted) x
     (NanoP4Spec.bit.admitted) x) x from (fun xs x _ => ((show ∀ x : (NanoP4Spec.bit),
     (NanoP4Spec.bit.admitted) x from NanoP4Spec.bit.admittedAll)) x))) x
 
+#audit_axioms NanoP4Spec.bits.bodyCodec
+#audit_axioms NanoP4Spec.bits.sourceIff
+#audit_axioms NanoP4Spec.bits.encodingSourceIff
+#audit_axioms NanoP4Spec.bits.codec
 #audit_axioms NanoP4Spec.bits.admittedAll
 
 end NanoP4Spec

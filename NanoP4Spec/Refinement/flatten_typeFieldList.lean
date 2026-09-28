@@ -46,8 +46,6 @@ theorem «$flatten_typeFieldList».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$flatten_typeFieldList».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$flatten_typeFieldList».refines
     (fuel : Nat)
@@ -70,8 +68,6 @@ theorem «$flatten_typeFieldList».refines
     v0
     p0
     h0
-
-#audit_axioms NanoP4Spec.«$flatten_typeFieldList».refines
 
 private def «$flatten_typeFieldList».realizesMotive
     (p0 : NanoP4Spec.typeFieldList)
@@ -108,6 +104,8 @@ theorem «$flatten_typeFieldList».realizes
       realize_step hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$flatten_typeFieldList».refines_group
+#audit_axioms NanoP4Spec.«$flatten_typeFieldList».refines
 #audit_axioms NanoP4Spec.«$flatten_typeFieldList».realizes
 
 end NanoP4Spec

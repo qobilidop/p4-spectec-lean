@@ -45,8 +45,6 @@ theorem ParserLocalDecl_ok.refines
       (ExceptT.mk (NanoP4Spec.ParserLocalDecl_ok.run p0 p1)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.ParserLocalDecl_ok.refines
-
 set_option maxHeartbeats 6000000 in
 theorem ParserLocalDecl_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -66,6 +64,7 @@ theorem ParserLocalDecl_ok.realizes
       (ExceptT.mk (NanoP4Spec.ParserLocalDecl_ok.run p0 p1)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.ParserLocalDecl_ok.refines
 #audit_axioms NanoP4Spec.ParserLocalDecl_ok.realizes
 
 end NanoP4Spec

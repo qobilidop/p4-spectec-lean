@@ -144,7 +144,8 @@ theorem «$find_action».producesSource :
        (NanoP4Spec.argumentIR.admitted) x) x from (fun xs x _ => ((show ∀ x :
        (NanoP4Spec.argumentIR), (NanoP4Spec.argumentIR.admitted) x from
        NanoP4Spec.argumentIR.admittedAll)) x))) p.2⟩))) x))) result)
-#audit_axioms «$find_action».producesSource
 
+
+#audit_axioms «$find_action».producesSource
 
 end NanoP4Spec

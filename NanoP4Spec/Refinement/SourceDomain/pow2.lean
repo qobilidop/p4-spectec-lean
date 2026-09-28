@@ -61,7 +61,7 @@ theorem «$pow2».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 : (Representatio
       Representation.Source.externDomain) result
     trivial
 
-#audit_axioms «$pow2».sourceDomain
 
+#audit_axioms «$pow2».sourceDomain
 
 end NanoP4Spec

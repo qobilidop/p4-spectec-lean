@@ -52,8 +52,6 @@ private theorem unaryExpression.fieldCodec0_0 : @Representation.Codec (NanoP4Spe
   True) :=
   NanoP4Spec.unop.sourceCodec
 
-#audit_axioms NanoP4Spec.unaryExpression.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem unaryExpression.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "unop" [])).it actual → ∀ v,
@@ -65,16 +63,12 @@ private theorem unaryExpression.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "unop")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.unaryExpression.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem unaryExpression.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.expression)
   ⟨NanoP4Spec.expression.toValue⟩ ⟨NanoP4Spec.expression.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "expression" [])).it)
   (NanoP4Spec.expression.admitted) :=
   NanoP4Spec.expression.codec
-
-#audit_axioms NanoP4Spec.unaryExpression.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem unaryExpression.fieldSubstitution0_1 : ∀ actual,
@@ -86,8 +80,6 @@ private theorem unaryExpression.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "expression")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.unaryExpression.fieldSubstitution0_1
 
 private theorem unaryExpression.sourceCasesValid (v : Lang.Il.value) (hv :
   unaryExpression.source v) :
@@ -118,8 +110,6 @@ private theorem unaryExpression.sourceCasesValid (v : Lang.Il.value) (hv :
         exact .cons (unaryExpression.fieldSubstitution0_0 _ sub0) (.cons
           (unaryExpression.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.unaryExpression.sourceCasesValid
-
 private theorem unaryExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -138,8 +128,6 @@ private theorem unaryExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
     v1).bind (fun x1 => some (NanoP4Spec.unaryExpression.mk x0 x1)))
   cases ((NanoP4Spec.unop.ofValue) fuel v0) <;> cases ((NanoP4Spec.expression.ofValue) fuel v1)
     <;> rfl
-
-#audit_axioms unaryExpression.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem unaryExpression.codec : @Refine.Representation.Codec NanoP4Spec.unaryExpression
@@ -295,7 +283,6 @@ theorem unaryExpression.codec : @Refine.Representation.Codec NanoP4Spec.unaryExp
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.unaryExpression.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -309,6 +296,13 @@ theorem unaryExpression.admittedAll : ∀ x : NanoP4Spec.unaryExpression,
       NanoP4Spec.expression.admittedAll)) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.unaryExpression.fieldCodec0_0
+#audit_axioms NanoP4Spec.unaryExpression.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.unaryExpression.fieldCodec0_1
+#audit_axioms NanoP4Spec.unaryExpression.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.unaryExpression.sourceCasesValid
+#audit_axioms unaryExpression.decode0
+#audit_axioms NanoP4Spec.unaryExpression.codec
 #audit_axioms NanoP4Spec.unaryExpression.admittedAll
 
 end NanoP4Spec

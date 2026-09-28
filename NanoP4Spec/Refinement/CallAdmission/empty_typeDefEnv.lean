@@ -35,7 +35,8 @@ namespace NanoP4Spec
 theorem «$empty_typeDefEnv».callArgumentsSource :
     True :=
   trivial
-#audit_axioms «$empty_typeDefEnv».callArgumentsSource
 
+
+#audit_axioms «$empty_typeDefEnv».callArgumentsSource
 
 end NanoP4Spec

@@ -79,8 +79,6 @@ theorem emptyStatement.codec : @Refine.Representation.Codec NanoP4Spec.emptyStat
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.emptyStatement.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem emptyStatement.sourceCodec : @Representation.Codec NanoP4Spec.emptyStatement
   ⟨NanoP4Spec.emptyStatement.toValue⟩ ⟨NanoP4Spec.emptyStatement.ofValue⟩
@@ -97,12 +95,12 @@ theorem emptyStatement.sourceCodec : @Representation.Codec NanoP4Spec.emptyState
       rcases member with rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.emptyStatement.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem emptyStatement.admittedAll : ∀ x : NanoP4Spec.emptyStatement, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.emptyStatement.codec
+#audit_axioms NanoP4Spec.emptyStatement.sourceCodec
 #audit_axioms NanoP4Spec.emptyStatement.admittedAll
 
 end NanoP4Spec

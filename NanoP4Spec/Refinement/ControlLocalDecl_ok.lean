@@ -46,8 +46,6 @@ theorem ControlLocalDecl_ok.refines
       (ExceptT.mk (NanoP4Spec.ControlLocalDecl_ok.run p0 p1)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.ControlLocalDecl_ok.refines
-
 set_option maxHeartbeats 7000000 in
 theorem ControlLocalDecl_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -67,6 +65,7 @@ theorem ControlLocalDecl_ok.realizes
       (ExceptT.mk (NanoP4Spec.ControlLocalDecl_ok.run p0 p1)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.ControlLocalDecl_ok.refines
 #audit_axioms NanoP4Spec.ControlLocalDecl_ok.realizes
 
 end NanoP4Spec

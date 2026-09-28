@@ -52,7 +52,6 @@ private theorem Var_init.producerConstant1_0 :
   · simpa [Domain.Mixfix.args] using (Representation.Source.Values.nil
       (spec := NanoP4Spec.spec)
       (externalDomain := Representation.Source.externDomain))
-#audit_axioms Var_init.producerConstant1_0
 
 /-- Actual call composition preserves the independently stated source output domain. -/
 theorem Var_init.producesSource :
@@ -75,7 +74,6 @@ theorem Var_init.producesSource :
     have accepted1 := NanoP4Spec.«$add_var_e».producesSource NanoP4Spec.scope.GLOBAL p0 p2
       value0 Var_init.producerConstant1_0 h0 h2 accepted0 result run1
     exact accepted1
-#audit_axioms Var_init.producesSource
 
 
 /-- Successful earlier calls establish every source input of the next actual call. -/
@@ -102,7 +100,10 @@ theorem Var_init.callArgumentsSource : ∀ (p0 : NanoP4Spec.evalContext) (p1 : N
   · intro value0 run0
     have accepted0 := NanoP4Spec.«$default».producesSource p1 h1 value0 run0
     exact ⟨Var_init.producerConstant1_0, h0, h2, accepted0⟩
-#audit_axioms Var_init.callArgumentsSource
 
+
+#audit_axioms Var_init.producerConstant1_0
+#audit_axioms Var_init.producesSource
+#audit_axioms Var_init.callArgumentsSource
 
 end NanoP4Spec

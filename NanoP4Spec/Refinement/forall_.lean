@@ -43,8 +43,6 @@ theorem «$forall_».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$forall_».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$forall_».refines
     (fuel : Nat)
@@ -58,8 +56,6 @@ theorem «$forall_».refines
       (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "forall_") [] [v0])
       (ExceptT.mk (NanoP4Spec.«$forall_» p0)) :=
   (NanoP4Spec.«$forall_».refines_group fuel) cfg ctx internal hguard hfenv hspec v0 p0 h0
-
-#audit_axioms NanoP4Spec.«$forall_».refines
 
 private def «$forall_».realizesMotive (p0 : List Bool) (q : Except Fail Bool) : Prop :=
   ∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
@@ -91,6 +87,8 @@ theorem «$forall_».realizes
       realize_step hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$forall_».refines_group
+#audit_axioms NanoP4Spec.«$forall_».refines
 #audit_axioms NanoP4Spec.«$forall_».realizes
 
 end NanoP4Spec

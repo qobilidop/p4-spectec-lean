@@ -74,7 +74,8 @@ theorem «$find_callableTypeDef_l».callArgumentsSource :
     Representation.Source.externDomain (Q.t (Q.varT "callableId" [])).it) (fun _ => True)
     (NanoP4Spec.callableId.codec)) x (((show ∀ x : (NanoP4Spec.callableId), (fun _ => True) x
     from NanoP4Spec.callableId.admittedAll)) x)), trivial⟩
-#audit_axioms «$find_callableTypeDef_l».callArgumentsSource
 
+
+#audit_axioms «$find_callableTypeDef_l».callArgumentsSource
 
 end NanoP4Spec

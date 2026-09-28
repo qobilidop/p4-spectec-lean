@@ -68,7 +68,7 @@ theorem «$distinct_».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α
       result
     trivial
 
-#audit_axioms «$distinct_».sourceDomain
 
+#audit_axioms «$distinct_».sourceDomain
 
 end NanoP4Spec

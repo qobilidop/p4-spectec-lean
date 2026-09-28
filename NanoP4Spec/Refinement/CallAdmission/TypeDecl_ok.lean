@@ -144,7 +144,8 @@ theorem TypeDecl_ok.callArgumentsSource :
     (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
     "scope" [])).it) (fun _ => True) (NanoP4Spec.scope.sourceCodec)) x (((show ∀ x :
     (NanoP4Spec.scope), (fun _ => True) x from NanoP4Spec.scope.admittedAll)) x)), trivial⟩
-#audit_axioms TypeDecl_ok.callArgumentsSource
 
+
+#audit_axioms TypeDecl_ok.callArgumentsSource
 
 end NanoP4Spec

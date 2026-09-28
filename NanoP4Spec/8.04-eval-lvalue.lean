@@ -459,8 +459,6 @@ theorem Lvalue_write.run_sound_group :
          NanoP4Spec.Lvalue_write p0 p1 p2 p3 o) := by
   run_sound_group NanoP4Spec.Lvalue_write.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Lvalue_write.run_sound_group
-
 theorem Lvalue_write.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -470,8 +468,6 @@ theorem Lvalue_write.run_sound
     NanoP4Spec.Lvalue_write.run p0 p1 p2 p3 = some (.ok o) →
         NanoP4Spec.Lvalue_write p0 p1 p2 p3 o :=
   fun h => NanoP4Spec.Lvalue_write.run_sound_group p0 p1 p2 p3 _ h o rfl
-
-#audit_axioms NanoP4Spec.Lvalue_write.run_sound
 
 def Lvalue_write.al : Lang.Al.def :=
   Q.d
@@ -897,5 +893,8 @@ def Lvalue_write.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Lvalue_write.run_sound_group
+#audit_axioms NanoP4Spec.Lvalue_write.run_sound
 
 end NanoP4Spec

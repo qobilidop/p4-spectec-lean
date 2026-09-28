@@ -55,7 +55,8 @@ theorem «$bin_op».runtimeCallArgumentsSource :
     (NanoP4Spec.value.runtimeAdmitted) (NanoP4Spec.value.runtimeCodec)) x (((show ∀ x :
     (NanoP4Spec.value), (NanoP4Spec.value.runtimeAdmitted) x from
     NanoP4Spec.value.runtimeAdmittedAll)) x)), trivial⟩
-#audit_axioms «$bin_op».runtimeCallArgumentsSource
 
+
+#audit_axioms «$bin_op».runtimeCallArgumentsSource
 
 end NanoP4Spec

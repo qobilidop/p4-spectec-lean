@@ -149,6 +149,12 @@ structure PreparedSimpRules where
   procs : Array Name
   /-- Lean's elaborated simplifier context and procedures. -/
   result : MkSimpContextResult
+  /-- Normalization inputs already known to make no progress with these rules, by hash:
+  the simplified statement, then the statements of the facts it rewrites with. -/
+  noProgress : IO.Ref (Std.HashMap UInt64 (Array (Array Expr)))
+  /-- Simplification results for closed terms, shared by the normalizations of one
+  invocation (`seededSimp`), by the local statements that can affect them (`closedInputs`). -/
+  closed : IO.Ref (Std.HashMap (Array Expr) (Std.HashMap Expr Simp.Result))
 
 /-- The names of the whole simp set, once per tactic call. -/
 structure SimpSet where
@@ -174,17 +180,185 @@ def simpSyntax (lemmas procs : Array Name) (hyp? : Option Name := none) :
 /-- Elaborate the fixed global rules once, before the tactic changes its local context.
 The cached names are checked at each use, so extending a prepared set cannot omit rules. -/
 def prepareSimpSet (s : SimpSet) : TacticM SimpSet := withMainContext do
-  let result ← mkSimpContext (← simpSyntax s.lemmas s.procs) (eraseLocal := false)
-  for (_, arg) in result.simpArgs do
-    if let .addLetToUnfold _ := arg then
-      throwError "refine_al: prepared rules must not contain local declarations"
-    for thm in arg.simpTheorems do
-      if thm.proof.hasFVar || thm.proof.hasMVar then
-        throwError "refine_al: prepared rules must not contain local declarations"
-  pure { s with prepared? := some { lemmas := s.lemmas, procs := s.procs, result } }
+  -- the rules are added by constant, as `simp` adds an argument naming one: elaborating their
+  -- names would resolve each under the current namespace first, and a candidate such as
+  -- `….match_rule.eq_1` reads the matcher extension, which waits for every earlier proof of
+  -- the module to be checked
+  let base ← mkSimpContext (← simpSyntax #[] #[]) (eraseLocal := false)
+  let mut thmsArray := base.ctx.simpTheorems
+  let mut thms := thmsArray[0]!
+  let mut simprocs := base.simprocs
+  -- every rule is a global constant (`getConstVal` fails otherwise), never a local declaration
+  let add (thms : SimpTheorems) (n : Name) (post : Bool) : MetaM SimpTheorems := do
+    let entries ← if ← isProp (← getConstVal n).type then
+        pure ((← mkSimpTheoremFromConst n (post := post)).map SimpEntry.thm)
+      else mkSimpEntryOfDeclToUnfold n
+    let mut thms := thms
+    for entry in entries do
+      thms := (thms.uneraseSimpEntry entry).addSimpEntry entry
+    pure thms
+  for n in s.lemmas do
+    if (← Simp.isSimproc n) || (← Simp.isBuiltinSimproc n) then simprocs ← simprocs.add n true
+    else thms ← add thms n true
+  for n in s.procs do
+    if (← Simp.isSimproc n) || (← Simp.isBuiltinSimproc n) then
+      simprocs ← simprocs.add n false
+    else thms ← add thms n false
+  let result := { base with ctx := base.ctx.setSimpTheorems (thmsArray.set! 0 thms), simprocs }
+  let noProgress ← IO.mkRef {}
+  let closed ← IO.mkRef {}
+  let prepared : PreparedSimpRules :=
+    { lemmas := s.lemmas, procs := s.procs, result, noProgress, closed }
+  pure { s with prepared? := some prepared }
 
-/-- Normalize with fixed global rules and freshly elaborated facts for this goal.
-Only rule preparation is reused: simplification results and local assumptions are not cached. -/
+/-- The local hypotheses the default discharger may assume: those shaped like an equation
+theorem's hypothesis (`Simp.isEqnThmHypothesis`), which `dischargeUsingAssumption?` looks up in
+the whole local context. -/
+def dischargeAssumptions : TacticM (Array Expr) := withMainContext do
+  let mut out := #[]
+  for decl in ← getLCtx do
+    if decl.isImplementationDetail then continue
+    let ty ← instantiateMVars decl.type
+    if Simp.isEqnThmHypothesis ty then out := out.push ty
+  pure out
+
+/-- The left sides a hypothesis rewrites with as a simp rule, under its binders: `a` for
+`a = b` or `a ↔ b`, `p` for `¬ p`, each conjunct's for a conjunction, the proposition itself
+otherwise. -/
+partial def ruleSides (ty : Expr) : List Expr :=
+  match ty.consumeMData with
+  | .forallE _ _ body _ => ruleSides body
+  | ty =>
+    if ty.isAppOfArity ``And 2 then ruleSides (ty.getArg! 0) ++ ruleSides (ty.getArg! 1)
+    else if let some (_, lhs, _) := ty.eq? then [lhs]
+    else if let some (lhs, _) := ty.iff? then [lhs]
+    else if ty.isAppOfArity ``Not 1 then [ty.getArg! 0]
+    else [ty]
+
+/-- The local statements that can change how a closed term simplifies: facts with a rule side
+free of local variables (`∀ xs, enc xs = List.map f xs` rewrites closed lists), and closed
+hypotheses the discharger may assume. Closed results are shared only between normalizations
+with the same such statements. -/
+def closedInputs (facts : List Name) : TacticM (Array Expr) := withMainContext do
+  let mut out := #[]
+  for n in facts do
+    let some decl := (← getLCtx).findFromUserName? n | throwError "refine_al: no hypothesis {n}"
+    let ty ← instantiateMVars decl.type
+    if (ruleSides ty).any (!·.hasFVar) then out := out.push ty
+  for ty in ← dischargeAssumptions do
+    if !ty.hasFVar then out := out.push ty
+  pure out
+
+/-- The inputs that determine a normalization with prepared rules: the statement it
+simplifies (the goal, or hypothesis `hyp?`), the statements of its rewriting facts and the
+hypotheses its discharger may assume. The prepared rules and simprocs are fixed and do not read
+the local context otherwise, so equal inputs make equal progress. `none` without prepared
+rules. -/
+def normalizationKey (s : SimpSet) (facts : List Name) (hyp? : Option Name) :
+    TacticM (Option (Array Expr)) := withMainContext do
+  let some prepared := s.prepared? | return none
+  unless prepared.lemmas == s.lemmas && prepared.procs == s.procs do return none
+  let statement (n : Name) : TacticM Expr := do
+    let some decl := (← getLCtx).findFromUserName? n
+      | throwError "refine_al: no hypothesis {n}"
+    instantiateMVars decl.type
+  let subject ← match hyp? with
+    | none => do instantiateMVars (← getMainTarget)
+    | some h => do pure (mkApp (mkConst `hyp) (← statement h))
+  pure (#[subject] ++ (← facts.toArray.mapM statement) ++ #[mkConst `assumed] ++
+    (← dischargeAssumptions))
+
+/-- The hash of a normalization key. -/
+def keyHash (key : Array Expr) : UInt64 :=
+  key.foldl (fun h e => mixHash h e.hash) 7
+
+/-- Whether normalization of `key` is already known to make no progress. -/
+def knownNoProgress (s : SimpSet) (key? : Option (Array Expr)) : IO Bool := do
+  let (some prepared, some key) := (s.prepared?, key?) | return false
+  return ((← prepared.noProgress.get).getD (keyHash key) #[]).contains key
+
+/-- Record that normalization of `key` made no progress. -/
+def recordNoProgress (s : SimpSet) (key? : Option (Array Expr)) : IO Unit := do
+  let (some prepared, some key) := (s.prepared?, key?) | return
+  prepared.noProgress.modify fun m => m.insert (keyHash key) ((m.getD (keyHash key) #[]).push key)
+
+/-- Simplify `e` as `Lean.Meta.simp` does, with the memo table seeded from `closed`. A
+result whose term, normal form and proof are all closed holds in every local context, and it
+is what simp computes again wherever the rules that can apply to closed terms are the same:
+the fixed global rules and `inputs` (`closedInputs`). The new such results are added to
+`closed` under `inputs`. Terms with free variables are simplified afresh. -/
+def seededSimp (closed : IO.Ref (Std.HashMap (Array Expr) (Std.HashMap Expr Simp.Result)))
+    (inputs : Array Expr) (e : Expr) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray)
+    (discharge? : Option Simp.Discharge) (stats : Simp.Stats) :
+    MetaM (Simp.Result × Simp.Stats) := do
+  let known := (← closed.get).getD inputs {}
+  let seed : Simp.Cache := { stage₁ := false, map₁ := known, map₂ := {} }
+  let (r, state) ← simpCore e ctx simprocs discharge? { stats with cache := seed }
+  -- only imported constants: a backtracked attempt rolls back constants realized meanwhile
+  let env ← getEnv
+  let isClosed (x : Expr) := !x.hasFVar && !x.hasMVar && !x.hasLooseBVars &&
+    x.getUsedConstants.all env.isImportedConst
+  let fresh := state.cache.map₂.foldl (init := #[]) fun acc k v =>
+    if !known.contains k && isClosed k && isClosed v.expr && v.proof?.all isClosed then
+      acc.push (k, v)
+    else acc
+  unless fresh.isEmpty do
+    closed.modify fun m => m.insert inputs (fresh.foldl (fun m (k, v) => m.insert k v) known)
+  return (r, { usedTheorems := state.usedTheorems, diag := state.diag })
+
+/-- `simpLocation` at the goal (`hyp? = none`) or at one hypothesis, through `seededSimp`;
+otherwise `Lean.Meta.simpGoal`'s steps, including its failure without progress. -/
+def seededSimpLocation (prepared : PreparedSimpRules) (ctx : Simp.Context)
+    (simprocs : Simp.SimprocsArray) (discharge? : Option Simp.Discharge) (facts : List Name)
+    (hyp? : Option Name) : TacticM Simp.Stats := withMainContext do
+  let closed := prepared.closed
+  let inputs ← closedInputs facts
+  let mvarId ← getMainGoal
+  mvarId.checkNotAssigned `simp
+  match hyp? with
+  | none =>
+    let target ← instantiateMVars (← mvarId.getType)
+    let (r, stats) ← seededSimp closed inputs target ctx simprocs discharge? {}
+    if r.expr.isTrue then
+      match r.proof? with
+      | some proof => mvarId.assign (← mkOfEqTrue proof)
+      | none => mvarId.assign (mkConst ``True.intro)
+      replaceMainGoal []
+      return stats
+    let mvarIdNew ← applySimpResultToTarget mvarId target r
+    if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
+      throwError "`simp` made no progress"
+    replaceMainGoal [mvarIdNew]
+    return stats
+  | some h =>
+    let fvarId ← getFVarId (mkIdent h)
+    let localDecl ← fvarId.getDecl
+    let type ← instantiateMVars localDecl.type
+    let ctx := ctx.setSimpTheorems <| ctx.simpTheorems.eraseTheorem (.fvar fvarId)
+    let (r, stats) ← seededSimp closed inputs type ctx simprocs discharge? {}
+    let mut mvarIdNew := mvarId
+    match r.proof? with
+    | some _ =>
+      match ← applySimpResult mvarId (mkFVar fvarId) type r with
+      | none => replaceMainGoal []; return stats
+      | some (value, type') =>
+        let (_, m) ← mvarIdNew.assertHypotheses
+          #[{ userName := localDecl.userName, type := type', value := value }]
+        mvarIdNew ← m.tryClearMany #[fvarId]
+    | none =>
+      if r.expr.isFalse then
+        mvarId.assign (← mkFalseElim (← mvarId.getType) (mkFVar fvarId))
+        replaceMainGoal []
+        return stats
+      mvarIdNew ← mvarIdNew.replaceLocalDeclDefEq fvarId r.expr
+    if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
+      throwError "`simp` made no progress"
+    replaceMainGoal [mvarIdNew]
+    return stats
+
+/-- Normalize with fixed global rules and freshly elaborated facts for this goal. Besides rule
+preparation, only closed-term results are reused (`seededSimp`); local facts are elaborated
+afresh. -/
 def runNormalization (s : SimpSet) (facts : List Name) (hyp? : Option Name := none) :
     TacticM Unit := withMainContext do
   if let some prepared := s.prepared? then
@@ -195,12 +369,10 @@ def runNormalization (s : SimpSet) (facts : List Name) (hyp? : Option Name := no
       let r : MkSimpContextResult := { base with
         ctx := localRules.ctx, simprocs := localRules.simprocs
         simpArgs := base.simpArgs ++ localRules.simpArgs }
-      let loc := match hyp? with
-        | none => Location.targets #[] true
-        | some h => Location.targets #[mkIdent h] false
       withSimpDiagnostics do
         let stats ← r.dischargeWrapper.with fun discharge? =>
-          withLoopChecking r (simpLocation r.ctx r.simprocs discharge? loc)
+          withLoopChecking r
+            (seededSimpLocation prepared r.ctx r.simprocs discharge? facts hyp?)
         if tactic.simp.trace.get (← getOptions) then
           let traceStx ← simpSyntax (s.lemmas ++ facts.toArray) s.procs hyp?
           traceSimpCall traceStx stats.usedTheorems
@@ -231,6 +403,8 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
   let target ← instantiateMVars (← (← getMainGoal).getType)
   let lookups := (target.find? fun e => e.isConstOf ``Std.HashMap.get?).isSome
   let facts ← factHyps lookups
+  let key ← normalizationKey s facts none
+  if ← knownNoProgress s key then return false
   let saved ← saveState
   try
     let t0 ← IO.monoMsNow
@@ -240,6 +414,9 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
     pure true
   catch e =>
     saved.restore
+    recordNoProgress s key
+    -- formatting a failure is costly; only the trace reads it
+    unless refine_al.trace.get (← getOptions) do return false
     let msg := e.toMessageData
     let text ← msg.toString
     unless text.startsWith "simp made no progress" do
@@ -253,6 +430,8 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
 def normalizeAt (s : SimpSet) (h : Name) : TacticM Bool := timed "normalizeAt" do
   if (← getGoals).isEmpty then return false
   let facts := (← factHyps false).filter (· != h)
+  let key ← normalizationKey s facts h
+  if ← knownNoProgress s key then return false
   let saved ← saveState
   try
     let t0 ← IO.monoMsNow
@@ -262,6 +441,8 @@ def normalizeAt (s : SimpSet) (h : Name) : TacticM Bool := timed "normalizeAt" d
     pure true
   catch e =>
     saved.restore
+    recordNoProgress s key
+    unless refine_al.trace.get (← getOptions) do return false
     let msg := e.toMessageData
     unless (← msg.toString).startsWith "simp made no progress" do
       traceStep m!"normalize at {h} failed: {msg}"

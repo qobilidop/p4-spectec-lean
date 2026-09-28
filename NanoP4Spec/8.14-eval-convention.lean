@@ -178,8 +178,6 @@ theorem Copy_in_arg.run_sound
         NanoP4Spec.Copy_in_arg p0 p1 p2 p3 p4 p5 o.1 o.2 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Copy_in_arg.run_sound
-
 -- no determinism theorem: Copy_in_arg
 --   3 rule paths
 
@@ -533,8 +531,6 @@ theorem Copy_in.run_sound_group :
          NanoP4Spec.Copy_in p0 p1 p2 p3 p4 p5 o.1 o.2) := by
   run_sound_group NanoP4Spec.Copy_in.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Copy_in.run_sound_group
-
 theorem Copy_in.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -546,8 +542,6 @@ theorem Copy_in.run_sound
     NanoP4Spec.Copy_in.run p0 p1 p2 p3 p4 p5 = some (.ok o) →
         NanoP4Spec.Copy_in p0 p1 p2 p3 p4 p5 o.1 o.2 :=
   fun h => NanoP4Spec.Copy_in.run_sound_group p0 p1 p2 p3 p4 p5 _ h o rfl
-
-#audit_axioms NanoP4Spec.Copy_in.run_sound
 
 def Copy_in.al : Lang.Al.def :=
   Q.d
@@ -933,8 +927,6 @@ theorem Copy_out_arg.run_sound
         NanoP4Spec.Copy_out_arg p0 p1 p2 p3 p4 p5 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Copy_out_arg.run_sound
-
 -- no determinism theorem: Copy_out_arg
 --   2 rule paths
 
@@ -1280,8 +1272,6 @@ theorem Copy_out.run_sound_group :
          NanoP4Spec.Copy_out p0 p1 p2 p3 p4 p5 o) := by
   run_sound_group NanoP4Spec.Copy_out.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Copy_out.run_sound_group
-
 theorem Copy_out.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -1293,8 +1283,6 @@ theorem Copy_out.run_sound
     NanoP4Spec.Copy_out.run p0 p1 p2 p3 p4 p5 = some (.ok o) →
         NanoP4Spec.Copy_out p0 p1 p2 p3 p4 p5 o :=
   fun h => NanoP4Spec.Copy_out.run_sound_group p0 p1 p2 p3 p4 p5 _ h o rfl
-
-#audit_axioms NanoP4Spec.Copy_out.run_sound
 
 def Copy_out.al : Lang.Al.def :=
   Q.d
@@ -1615,6 +1603,13 @@ def Copy_out.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "EC_caller_2")) (Q.varT "evalContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Copy_in_arg.run_sound
+#audit_axioms NanoP4Spec.Copy_in.run_sound_group
+#audit_axioms NanoP4Spec.Copy_in.run_sound
+#audit_axioms NanoP4Spec.Copy_out_arg.run_sound
+#audit_axioms NanoP4Spec.Copy_out.run_sound_group
+#audit_axioms NanoP4Spec.Copy_out.run_sound
 
 mutual
 
@@ -2519,8 +2514,6 @@ theorem Call_eval.run_sound_group [Externs] :
          NanoP4Spec.TableMatch_eval p0 p1 p2 o) := by
   run_sound_group NanoP4Spec.Call_eval.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Call_eval.run_sound_group
-
 theorem Call_eval.run_sound [Externs]
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -2530,16 +2523,12 @@ theorem Call_eval.run_sound [Externs]
     NanoP4Spec.Call_eval.run p0 p1 p2 p3 = some (.ok o) → NanoP4Spec.Call_eval p0 p1 p2 p3 o :=
   fun h => NanoP4Spec.Call_eval.run_sound_group.1 p0 p1 p2 p3 _ h o rfl
 
-#audit_axioms NanoP4Spec.Call_eval.run_sound
-
 theorem Table_eval.run_sound [Externs]
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.tableProperties)
     (o : NanoP4Spec.evalContext) :
     NanoP4Spec.Table_eval.run p0 p1 = some (.ok o) → NanoP4Spec.Table_eval p0 p1 o :=
   fun h => NanoP4Spec.Call_eval.run_sound_group.2.1 p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.Table_eval.run_sound
 
 theorem Statement_eval.run_sound [Externs]
     (p0 : NanoP4Spec.scope)
@@ -2548,8 +2537,6 @@ theorem Statement_eval.run_sound [Externs]
     (o : NanoP4Spec.evalContext) :
     NanoP4Spec.Statement_eval.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Statement_eval p0 p1 p2 o :=
   fun h => NanoP4Spec.Call_eval.run_sound_group.2.2.1 p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.Statement_eval.run_sound
 
 theorem Statements_eval.run_sound [Externs]
     (p0 : NanoP4Spec.scope)
@@ -2560,16 +2547,12 @@ theorem Statements_eval.run_sound [Externs]
         NanoP4Spec.Statements_eval p0 p1 p2 o :=
   fun h => NanoP4Spec.Call_eval.run_sound_group.2.2.2.1 p0 p1 p2 _ h o rfl
 
-#audit_axioms NanoP4Spec.Statements_eval.run_sound
-
 theorem Block_eval.run_sound [Externs]
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.blockStatement)
     (o : NanoP4Spec.evalContext) :
     NanoP4Spec.Block_eval.run p0 p1 = some (.ok o) → NanoP4Spec.Block_eval p0 p1 o :=
   fun h => NanoP4Spec.Call_eval.run_sound_group.2.2.2.2.1 p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.Block_eval.run_sound
 
 theorem TableMatch_eval.run_sound [Externs]
     (p0 : NanoP4Spec.evalContext)
@@ -2579,8 +2562,6 @@ theorem TableMatch_eval.run_sound [Externs]
     NanoP4Spec.TableMatch_eval.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.TableMatch_eval p0 p1 p2 o :=
   fun h => NanoP4Spec.Call_eval.run_sound_group.2.2.2.2.2 p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.TableMatch_eval.run_sound
 
 def Call_eval.al : Lang.Al.def :=
   Q.d
@@ -4579,8 +4560,6 @@ theorem ParserState_eval.run_sound [Externs]
         NanoP4Spec.ParserState_eval p0 p1 o.1 o.2 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ParserState_eval.run_sound
-
 -- no determinism theorem: ParserState_eval
 --   calls Statements_eval, which has no determinism theorem
 
@@ -4819,8 +4798,6 @@ theorem ParserState_trans.run_sound_group [Externs] :
          NanoP4Spec.ParserState_trans p0 p1 p2 o.1 o.2) := by
   run_sound_group NanoP4Spec.ParserState_trans.run.partial_correctness
 
-#audit_axioms NanoP4Spec.ParserState_trans.run_sound_group
-
 theorem ParserState_trans.run_sound [Externs]
     (p0 : NanoP4Spec.evalContext)
     (p1 : List NanoP4Spec.parserState)
@@ -4829,8 +4806,6 @@ theorem ParserState_trans.run_sound [Externs]
     NanoP4Spec.ParserState_trans.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.ParserState_trans p0 p1 p2 o.1 o.2 :=
   fun h => NanoP4Spec.ParserState_trans.run_sound_group p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.ParserState_trans.run_sound
 
 def ParserState_trans.al : Lang.Al.def :=
   Q.d
@@ -5260,8 +5235,6 @@ theorem Parser_apply.run_sound [Externs]
         NanoP4Spec.Parser_apply p0 p1 p2 o.1 o.2 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Parser_apply.run_sound
-
 -- no determinism theorem: Parser_apply
 --   calls Copy_in, which has no determinism theorem
 
@@ -5575,8 +5548,6 @@ theorem Control_apply.run_sound [Externs]
     NanoP4Spec.Control_apply.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Control_apply p0 p1 p2 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Control_apply.run_sound
-
 -- no determinism theorem: Control_apply
 --   calls Copy_in, which has no determinism theorem
 
@@ -5752,5 +5723,18 @@ def Control_apply.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Call_eval.run_sound_group
+#audit_axioms NanoP4Spec.Call_eval.run_sound
+#audit_axioms NanoP4Spec.Table_eval.run_sound
+#audit_axioms NanoP4Spec.Statement_eval.run_sound
+#audit_axioms NanoP4Spec.Statements_eval.run_sound
+#audit_axioms NanoP4Spec.Block_eval.run_sound
+#audit_axioms NanoP4Spec.TableMatch_eval.run_sound
+#audit_axioms NanoP4Spec.ParserState_eval.run_sound
+#audit_axioms NanoP4Spec.ParserState_trans.run_sound_group
+#audit_axioms NanoP4Spec.ParserState_trans.run_sound
+#audit_axioms NanoP4Spec.Parser_apply.run_sound
+#audit_axioms NanoP4Spec.Control_apply.run_sound
 
 end NanoP4Spec

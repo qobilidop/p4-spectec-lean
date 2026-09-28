@@ -426,8 +426,6 @@ theorem ExternDecl_ok.run_sound
     NanoP4Spec.ExternDecl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.ExternDecl_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ExternDecl_ok.run_sound
-
 -- no determinism theorem: ExternDecl_ok
 --   iterated premise
 
@@ -1027,8 +1025,6 @@ theorem TypeDecl_ok.run_sound
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.TypeDecl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.TypeDecl_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TypeDecl_ok.run_sound
 
 -- no determinism theorem: TypeDecl_ok
 --   5 rule paths
@@ -1801,5 +1797,8 @@ def TypeDecl_ok.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.ExternDecl_ok.run_sound
+#audit_axioms NanoP4Spec.TypeDecl_ok.run_sound
 
 end NanoP4Spec

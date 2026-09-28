@@ -46,8 +46,6 @@ theorem Lvalue_eval.refines
       (ExceptT.mk (NanoP4Spec.Lvalue_eval.run p0 p1 p2)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.Lvalue_eval.refines
-
 set_option maxHeartbeats 6000000 in
 theorem Lvalue_eval.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -67,6 +65,7 @@ theorem Lvalue_eval.realizes
       (ExceptT.mk (NanoP4Spec.Lvalue_eval.run p0 p1 p2)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.Lvalue_eval.refines
 #audit_axioms NanoP4Spec.Lvalue_eval.realizes
 
 end NanoP4Spec

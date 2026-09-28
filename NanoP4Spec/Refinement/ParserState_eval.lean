@@ -50,8 +50,6 @@ theorem ParserState_eval.refines
       (ExceptT.mk (NanoP4Spec.ParserState_eval.run p0 p1)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.ParserState_eval.refines
-
 set_option maxHeartbeats 6000000 in
 theorem ParserState_eval.realizes
     [NanoP4Spec.Externs]
@@ -74,6 +72,7 @@ theorem ParserState_eval.realizes
       (ExceptT.mk (NanoP4Spec.ParserState_eval.run p0 p1)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.ParserState_eval.refines
 #audit_axioms NanoP4Spec.ParserState_eval.realizes
 
 end NanoP4Spec

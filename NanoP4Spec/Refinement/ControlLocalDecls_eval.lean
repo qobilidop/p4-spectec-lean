@@ -50,8 +50,6 @@ theorem ControlLocalDecls_eval.refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.ControlLocalDecls_eval.refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem ControlLocalDecls_eval.refines
     (fuel : Nat)
@@ -84,8 +82,6 @@ theorem ControlLocalDecls_eval.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.ControlLocalDecls_eval.refines
 
 private def ControlLocalDecls_eval.realizesMotive
     (p0 : NanoP4Spec.evalContext)
@@ -128,6 +124,8 @@ theorem ControlLocalDecls_eval.realizes
       realize_step (relations) hq)
     p0 p1 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.ControlLocalDecls_eval.refines_group
+#audit_axioms NanoP4Spec.ControlLocalDecls_eval.refines
 #audit_axioms NanoP4Spec.ControlLocalDecls_eval.realizes
 
 end NanoP4Spec

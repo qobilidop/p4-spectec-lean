@@ -60,7 +60,8 @@ theorem «$flatten_selectCaseList».producesSource :
     => ∀ x ∈ xs, (NanoP4Spec.selectCase.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.selectCase), (NanoP4Spec.selectCase.admitted) x from
     NanoP4Spec.selectCase.admittedAll)) x))) result)
-#audit_axioms «$flatten_selectCaseList».producesSource
 
+
+#audit_axioms «$flatten_selectCaseList».producesSource
 
 end NanoP4Spec

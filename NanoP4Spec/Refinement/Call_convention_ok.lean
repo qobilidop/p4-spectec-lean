@@ -46,8 +46,6 @@ theorem Call_convention_ok.refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.Call_convention_ok.refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem Call_convention_ok.refines
     (fuel : Nat)
@@ -75,8 +73,6 @@ theorem Call_convention_ok.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Call_convention_ok.refines
 
 private def Call_convention_ok.realizesMotive
     (p0 : List NanoP4Spec.parameterIR)
@@ -115,6 +111,8 @@ theorem Call_convention_ok.realizes
       realize_step (relations) hq)
     p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.Call_convention_ok.refines_group
+#audit_axioms NanoP4Spec.Call_convention_ok.refines
 #audit_axioms NanoP4Spec.Call_convention_ok.realizes
 
 end NanoP4Spec

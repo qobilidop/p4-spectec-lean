@@ -54,8 +54,6 @@ private theorem callExpression.fieldCodec0_0 : @Representation.Codec (NanoP4Spec
   (NanoP4Spec.callTarget.admitted) :=
   NanoP4Spec.callTarget.codec
 
-#audit_axioms NanoP4Spec.callExpression.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callExpression.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "callTarget" [])).it actual → ∀ v,
@@ -67,16 +65,12 @@ private theorem callExpression.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "callTarget")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callExpression.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callExpression.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.argumentList)
   ⟨NanoP4Spec.argumentList.toValue⟩ ⟨NanoP4Spec.argumentList.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "argumentList" [])).it) (NanoP4Spec.argumentList.admitted) :=
   NanoP4Spec.argumentList.codec
-
-#audit_axioms NanoP4Spec.callExpression.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callExpression.fieldSubstitution0_1 : ∀ actual,
@@ -88,8 +82,6 @@ private theorem callExpression.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "argumentList")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.callExpression.fieldSubstitution0_1
 
 private theorem callExpression.sourceCasesValid (v : Lang.Il.value) (hv : callExpression.source
   v) :
@@ -120,8 +112,6 @@ private theorem callExpression.sourceCasesValid (v : Lang.Il.value) (hv : callEx
         exact .cons (callExpression.fieldSubstitution0_0 _ sub0) (.cons
           (callExpression.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.callExpression.sourceCasesValid
-
 private theorem callExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -142,8 +132,6 @@ private theorem callExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : 
     (NanoP4Spec.callExpression.lparen_rparen x0 x1)))
   cases ((NanoP4Spec.callTarget.ofValue) fuel v0) <;> cases ((NanoP4Spec.argumentList.ofValue)
     fuel v1) <;> rfl
-
-#audit_axioms callExpression.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem callExpression.codec : @Refine.Representation.Codec NanoP4Spec.callExpression
@@ -308,7 +296,6 @@ theorem callExpression.codec : @Refine.Representation.Codec NanoP4Spec.callExpre
               tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.callExpression.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -323,6 +310,13 @@ theorem callExpression.admittedAll : ∀ x : NanoP4Spec.callExpression,
       trivial⟩
 
 
+#audit_axioms NanoP4Spec.callExpression.fieldCodec0_0
+#audit_axioms NanoP4Spec.callExpression.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.callExpression.fieldCodec0_1
+#audit_axioms NanoP4Spec.callExpression.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.callExpression.sourceCasesValid
+#audit_axioms callExpression.decode0
+#audit_axioms NanoP4Spec.callExpression.codec
 #audit_axioms NanoP4Spec.callExpression.admittedAll
 
 end NanoP4Spec

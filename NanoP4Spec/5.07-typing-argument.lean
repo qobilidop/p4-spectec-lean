@@ -59,8 +59,6 @@ theorem Argument_ok.run_sound
     NanoP4Spec.Argument_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Argument_ok p0 p1 p2 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Argument_ok.run_sound
-
 -- no determinism theorem: Argument_ok
 --   calls Expr_ok, which has no determinism theorem
 
@@ -167,8 +165,6 @@ theorem ArgumentList_ok.run_sound
         NanoP4Spec.ArgumentList_ok p0 p1 p2 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ArgumentList_ok.run_sound
-
 -- no determinism theorem: ArgumentList_ok
 --   iterated premise
 
@@ -236,5 +232,8 @@ def ArgumentList_ok.al : Lang.Al.def :=
                 (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Argument_ok.run_sound
+#audit_axioms NanoP4Spec.ArgumentList_ok.run_sound
 
 end NanoP4Spec

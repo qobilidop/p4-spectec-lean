@@ -63,7 +63,8 @@ theorem Copy_out_arg.runtimeProducesSource :
     (NanoP4Spec.evalContext.runtimeCodec)) result (((show ∀ x : (NanoP4Spec.evalContext),
     (NanoP4Spec.evalContext.runtimeAdmitted) x from NanoP4Spec.evalContext.runtimeAdmittedAll))
     result)
-#audit_axioms Copy_out_arg.runtimeProducesSource
 
+
+#audit_axioms Copy_out_arg.runtimeProducesSource
 
 end NanoP4Spec

@@ -62,8 +62,6 @@ private theorem tableActionReference.fieldCodec0_0 : @Representation.Codec (Byte
   Representation.Source.externDomain (Q.t .TextT).it) (fun _ : ByteText => True) :=
   @Representation.Source.textCodec NanoP4Spec.spec Representation.Source.externDomain
 
-#audit_axioms NanoP4Spec.tableActionReference.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableActionReference.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t .TextT).it actual → ∀ v,
@@ -74,16 +72,12 @@ private theorem tableActionReference.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     simpa only [substitution.textResult] using valid)
 
-#audit_axioms NanoP4Spec.tableActionReference.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem tableActionReference.fieldCodec5_0 : @Representation.Codec (NanoP4Spec.name)
   ⟨NanoP4Spec.name.toValue⟩ ⟨NanoP4Spec.name.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "name" [])).it)
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
-
-#audit_axioms NanoP4Spec.tableActionReference.fieldCodec5_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableActionReference.fieldSubstitution5_0 : ∀ actual,
@@ -96,16 +90,12 @@ private theorem tableActionReference.fieldSubstitution5_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "name")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.tableActionReference.fieldSubstitution5_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem tableActionReference.fieldCodec5_1 : @Representation.Codec
   (NanoP4Spec.argumentList) ⟨NanoP4Spec.argumentList.toValue⟩ ⟨NanoP4Spec.argumentList.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "argumentList" [])).it) (NanoP4Spec.argumentList.admitted) :=
   NanoP4Spec.argumentList.codec
-
-#audit_axioms NanoP4Spec.tableActionReference.fieldCodec5_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableActionReference.fieldSubstitution5_1 : ∀ actual,
@@ -117,8 +107,6 @@ private theorem tableActionReference.fieldSubstitution5_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "argumentList")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.tableActionReference.fieldSubstitution5_1
 
 private theorem tableActionReference.sourceCasesValid (v : Lang.Il.value) (hv :
   tableActionReference.source v) :
@@ -219,8 +207,6 @@ private theorem tableActionReference.sourceCasesValid (v : Lang.Il.value) (hv :
         exact .cons (tableActionReference.fieldSubstitution5_0 _ sub0) (.cons
           (tableActionReference.fieldSubstitution5_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.tableActionReference.sourceCasesValid
-
 private theorem tableActionReference.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -264,8 +250,6 @@ private theorem tableActionReference.decode0 (fuel : Nat) (v : Lang.Il.value) (t
     (fun x0 => some (NanoP4Spec.tableActionReference._ID x0))
   cases ((@OfValue.ofValue ByteText P4SpecTec.Prelude.instOfValueByteText) fuel v0) <;> rfl
 
-#audit_axioms tableActionReference.decode0
-
 private theorem tableActionReference.decode1 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -302,8 +286,6 @@ private theorem tableActionReference.decode1 (fuel : Nat) (v : Lang.Il.value) (t
     other4, other5]
   rfl
 
-#audit_axioms tableActionReference.decode1
-
 private theorem tableActionReference.decode2 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -338,8 +320,6 @@ private theorem tableActionReference.decode2 (fuel : Nat) (v : Lang.Il.value) (t
   simp only [NanoP4Spec.tableActionReference.ofValue, shape, selected, other0, other1, other3,
     other4, other5]
   rfl
-
-#audit_axioms tableActionReference.decode2
 
 private theorem tableActionReference.decode3 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value)
@@ -377,8 +357,6 @@ private theorem tableActionReference.decode3 (fuel : Nat) (v : Lang.Il.value) (t
     other4, other5]
   rfl
 
-#audit_axioms tableActionReference.decode3
-
 private theorem tableActionReference.decode4 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -414,8 +392,6 @@ private theorem tableActionReference.decode4 (fuel : Nat) (v : Lang.Il.value) (t
   simp only [NanoP4Spec.tableActionReference.ofValue, shape, selected, other0, other1, other2,
     other3, other5]
   rfl
-
-#audit_axioms tableActionReference.decode4
 
 private theorem tableActionReference.decode5 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
@@ -463,8 +439,6 @@ private theorem tableActionReference.decode5 (fuel : Nat) (v : Lang.Il.value) (t
     (NanoP4Spec.tableActionReference.lparen_rparen x0 x1)))
   cases ((NanoP4Spec.name.ofValue) fuel v0) <;> cases ((NanoP4Spec.argumentList.ofValue) fuel
     v1) <;> rfl
-
-#audit_axioms tableActionReference.decode5
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem tableActionReference.codec : @Refine.Representation.Codec
@@ -960,7 +934,6 @@ theorem tableActionReference.codec : @Refine.Representation.Codec
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.tableActionReference.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -986,6 +959,20 @@ theorem tableActionReference.admittedAll : ∀ x : NanoP4Spec.tableActionReferen
       trivial⟩
 
 
+#audit_axioms NanoP4Spec.tableActionReference.fieldCodec0_0
+#audit_axioms NanoP4Spec.tableActionReference.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.tableActionReference.fieldCodec5_0
+#audit_axioms NanoP4Spec.tableActionReference.fieldSubstitution5_0
+#audit_axioms NanoP4Spec.tableActionReference.fieldCodec5_1
+#audit_axioms NanoP4Spec.tableActionReference.fieldSubstitution5_1
+#audit_axioms NanoP4Spec.tableActionReference.sourceCasesValid
+#audit_axioms tableActionReference.decode0
+#audit_axioms tableActionReference.decode1
+#audit_axioms tableActionReference.decode2
+#audit_axioms tableActionReference.decode3
+#audit_axioms tableActionReference.decode4
+#audit_axioms tableActionReference.decode5
+#audit_axioms NanoP4Spec.tableActionReference.codec
 #audit_axioms NanoP4Spec.tableActionReference.admittedAll
 
 end NanoP4Spec

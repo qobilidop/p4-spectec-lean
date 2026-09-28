@@ -63,8 +63,6 @@ private theorem frame.bodyCodec : @Representation.Codec (NanoP4Spec.map (NanoP4S
     NanoP4Spec.runtimeClosed _ (Representation.Source.namesInCheckSound _ _ (by closure_check))
     _ (NanoP4Spec.nameIR.codec))) (NanoP4Spec.value.runtimeCodec)
 
-#audit_axioms NanoP4Spec.frame.bodyCodec
-
 private theorem frame.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.frame.runtimeSource v ↔ (Representation.Source.Valid NanoP4Spec.spec
       (Representation.Source.runtimeDomain ["value"]) (Q.t (Q.varT "map" [Q.t (Q.varT "nameIR"
@@ -89,8 +87,6 @@ private theorem frame.sourceIff (v : Lang.Il.value) :
         "nameIR") [] [] rfl (.nil)) (.cons (Representation.Source.Substitutes.named (Q.i
         "value") [] [] rfl (.nil)) (.nil)))) v
 
-#audit_axioms NanoP4Spec.frame.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem frame.runtimeEncodingSourceIff (x : NanoP4Spec.frame) :
     NanoP4Spec.frame.runtimeSource (NanoP4Spec.frame.toValue x) ↔ (Representation.Source.Valid
@@ -99,8 +95,6 @@ theorem frame.runtimeEncodingSourceIff (x : NanoP4Spec.frame) :
       (NanoP4Spec.nameIR) (NanoP4Spec.value) ⟨NanoP4Spec.nameIR.toValue⟩
       ⟨NanoP4Spec.value.toValue⟩) x) :=
   NanoP4Spec.frame.sourceIff _
-
-#audit_axioms NanoP4Spec.frame.runtimeEncodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem frame.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.frame
@@ -172,8 +166,6 @@ theorem frame.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.frame
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.frame.runtimeCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem frame.runtimeAdmittedAll : ∀ x : NanoP4Spec.frame, (NanoP4Spec.frame.runtimeAdmitted) x
   := by
@@ -186,6 +178,10 @@ theorem frame.runtimeAdmittedAll : ∀ x : NanoP4Spec.frame, (NanoP4Spec.frame.r
     x from NanoP4Spec.nameIR.admittedAll)) a, ((show ∀ x : (NanoP4Spec.value),
     (NanoP4Spec.value.runtimeAdmitted) x from NanoP4Spec.value.runtimeAdmittedAll)) b⟩))))) x
 
+#audit_axioms NanoP4Spec.frame.bodyCodec
+#audit_axioms NanoP4Spec.frame.sourceIff
+#audit_axioms NanoP4Spec.frame.runtimeEncodingSourceIff
+#audit_axioms NanoP4Spec.frame.runtimeCodec
 #audit_axioms NanoP4Spec.frame.runtimeAdmittedAll
 
 end NanoP4Spec

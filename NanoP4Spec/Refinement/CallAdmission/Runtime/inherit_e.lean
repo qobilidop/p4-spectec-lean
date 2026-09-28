@@ -37,7 +37,8 @@ namespace NanoP4Spec
 theorem «$inherit_e».runtimeCallArgumentsSource :
     True :=
   trivial
-#audit_axioms «$inherit_e».runtimeCallArgumentsSource
 
+
+#audit_axioms «$inherit_e».runtimeCallArgumentsSource
 
 end NanoP4Spec

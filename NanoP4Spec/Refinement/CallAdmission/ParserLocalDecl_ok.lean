@@ -63,7 +63,8 @@ theorem ParserLocalDecl_ok.callArgumentsSource :
     (NanoP4Spec.variableDeclaration.admitted) (NanoP4Spec.variableDeclaration.codec)) x (((show
     ∀ x : (NanoP4Spec.variableDeclaration), (NanoP4Spec.variableDeclaration.admitted) x from
     NanoP4Spec.variableDeclaration.admittedAll)) x)), trivial⟩
-#audit_axioms ParserLocalDecl_ok.callArgumentsSource
 
+
+#audit_axioms ParserLocalDecl_ok.callArgumentsSource
 
 end NanoP4Spec

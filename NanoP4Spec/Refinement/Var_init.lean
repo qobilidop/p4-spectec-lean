@@ -48,8 +48,6 @@ theorem Var_init.refines
       (ExceptT.mk (NanoP4Spec.Var_init.run p0 p1 p2)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.Var_init.refines
-
 set_option maxHeartbeats 6000000 in
 theorem Var_init.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -71,6 +69,7 @@ theorem Var_init.realizes
       (ExceptT.mk (NanoP4Spec.Var_init.run p0 p1 p2)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.Var_init.refines
 #audit_axioms NanoP4Spec.Var_init.realizes
 
 end NanoP4Spec

@@ -42,8 +42,6 @@ theorem «$empty_typingContext».refines
       (ExceptT.mk NanoP4Spec.«$empty_typingContext») :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$empty_typingContext».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$empty_typingContext».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -59,6 +57,7 @@ theorem «$empty_typingContext».realizes
       (ExceptT.mk NanoP4Spec.«$empty_typingContext») := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$empty_typingContext».refines
 #audit_axioms NanoP4Spec.«$empty_typingContext».realizes
 
 end NanoP4Spec

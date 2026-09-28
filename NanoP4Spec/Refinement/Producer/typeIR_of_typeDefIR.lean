@@ -50,7 +50,8 @@ theorem «$typeIR_of_typeDefIR».producesSource :
     (NanoP4Spec.typeIR.admitted) (NanoP4Spec.typeIR.codec)) result (((show ∀ x :
     (NanoP4Spec.typeIR), (NanoP4Spec.typeIR.admitted) x from NanoP4Spec.typeIR.admittedAll))
     result)
-#audit_axioms «$typeIR_of_typeDefIR».producesSource
 
+
+#audit_axioms «$typeIR_of_typeDefIR».producesSource
 
 end NanoP4Spec

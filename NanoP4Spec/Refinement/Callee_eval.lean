@@ -49,8 +49,6 @@ theorem Callee_eval.refines
       (ExceptT.mk (NanoP4Spec.Callee_eval.run p0 p1 p2)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.Callee_eval.refines
-
 set_option maxHeartbeats 10000000 in
 theorem Callee_eval.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -70,6 +68,7 @@ theorem Callee_eval.realizes
       (ExceptT.mk (NanoP4Spec.Callee_eval.run p0 p1 p2)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.Callee_eval.refines
 #audit_axioms NanoP4Spec.Callee_eval.realizes
 
 end NanoP4Spec

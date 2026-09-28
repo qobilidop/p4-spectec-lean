@@ -83,7 +83,7 @@ theorem «$diff_set».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α0
     cases Except.ok.inj (Option.some.inj run)
     exact SourceBuiltin.diffPreserves A0 xs ys hp0
 
-#audit_axioms «$diff_set».sourceDomain
 
+#audit_axioms «$diff_set».sourceDomain
 
 end NanoP4Spec

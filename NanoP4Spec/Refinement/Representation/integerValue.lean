@@ -46,8 +46,6 @@ private theorem integerValue.bodyCodec : @Representation.Codec (NanoP4Spec.integ
   "integerLiteral" [])).it) (NanoP4Spec.integerLiteral.admitted) :=
   NanoP4Spec.integerLiteral.codec
 
-#audit_axioms NanoP4Spec.integerValue.bodyCodec
-
 private theorem integerValue.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.integerValue.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "integerLiteral" [])).it) v := by
@@ -59,16 +57,12 @@ private theorem integerValue.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "integerLiteral") [] [] rfl (.nil))
     v
 
-#audit_axioms NanoP4Spec.integerValue.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem integerValue.encodingSourceIff (x : NanoP4Spec.integerValue) :
     NanoP4Spec.integerValue.source (NanoP4Spec.integerValue.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "integerLiteral" [])).it) ((NanoP4Spec.integerLiteral.toValue) x) :=
   NanoP4Spec.integerValue.sourceIff _
-
-#audit_axioms NanoP4Spec.integerValue.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem integerValue.codec : @Refine.Representation.Codec NanoP4Spec.integerValue
@@ -115,8 +109,6 @@ theorem integerValue.codec : @Refine.Representation.Codec NanoP4Spec.integerValu
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.integerValue.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem integerValue.admittedAll : ∀ x : NanoP4Spec.integerValue,
   (NanoP4Spec.integerValue.admitted) x := by
@@ -124,6 +116,10 @@ theorem integerValue.admittedAll : ∀ x : NanoP4Spec.integerValue,
   exact ((show ∀ x : (NanoP4Spec.integerLiteral), (NanoP4Spec.integerLiteral.admitted) x from
     NanoP4Spec.integerLiteral.admittedAll)) x
 
+#audit_axioms NanoP4Spec.integerValue.bodyCodec
+#audit_axioms NanoP4Spec.integerValue.sourceIff
+#audit_axioms NanoP4Spec.integerValue.encodingSourceIff
+#audit_axioms NanoP4Spec.integerValue.codec
 #audit_axioms NanoP4Spec.integerValue.admittedAll
 
 end NanoP4Spec

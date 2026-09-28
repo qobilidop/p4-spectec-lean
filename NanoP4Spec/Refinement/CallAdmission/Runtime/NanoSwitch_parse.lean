@@ -84,7 +84,8 @@ theorem NanoSwitch_parse.runtimeCallArgumentsSource :
     (NanoP4Spec.parserDeclarationIR.codec)))) x (((show ∀ x : (NanoP4Spec.parserDeclarationIR),
     (NanoP4Spec.parserDeclarationIR.admitted) x from
     NanoP4Spec.parserDeclarationIR.admittedAll)) x)), trivial⟩
-#audit_axioms NanoSwitch_parse.runtimeCallArgumentsSource
 
+
+#audit_axioms NanoSwitch_parse.runtimeCallArgumentsSource
 
 end NanoP4Spec

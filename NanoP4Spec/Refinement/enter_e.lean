@@ -43,8 +43,6 @@ theorem «$enter_e».refines
       (ExceptT.mk (NanoP4Spec.«$enter_e» p0)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$enter_e».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$enter_e».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -60,6 +58,7 @@ theorem «$enter_e».realizes
       (ExceptT.mk (NanoP4Spec.«$enter_e» p0)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$enter_e».refines
 #audit_axioms NanoP4Spec.«$enter_e».realizes
 
 end NanoP4Spec

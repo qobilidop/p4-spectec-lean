@@ -63,8 +63,6 @@ private theorem evalContext.fieldCodec0 : @Representation.Codec (NanoP4Spec.glob
   (Q.t (Q.varT "globalEvalLayer" [])).it) (NanoP4Spec.globalEvalLayer.runtimeAdmitted) :=
   NanoP4Spec.globalEvalLayer.runtimeCodec
 
-#audit_axioms evalContext.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem evalContext.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "globalEvalLayer" [])).it actual → ∀ v,
@@ -77,16 +75,12 @@ private theorem evalContext.fieldSubstitution0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "globalEvalLayer")] at valid
     exact valid)
 
-#audit_axioms evalContext.fieldSubstitution0
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem evalContext.fieldCodec1 : @Representation.Codec (NanoP4Spec.blockEvalLayer)
   ⟨NanoP4Spec.blockEvalLayer.toValue⟩ ⟨NanoP4Spec.blockEvalLayer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain ["value"])
   (Q.t (Q.varT "blockEvalLayer" [])).it) (NanoP4Spec.blockEvalLayer.runtimeAdmitted) :=
   NanoP4Spec.blockEvalLayer.runtimeCodec
-
-#audit_axioms evalContext.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem evalContext.fieldSubstitution1 : ∀ actual,
@@ -100,16 +94,12 @@ private theorem evalContext.fieldSubstitution1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "blockEvalLayer")] at valid
     exact valid)
 
-#audit_axioms evalContext.fieldSubstitution1
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem evalContext.fieldCodec2 : @Representation.Codec (NanoP4Spec.localEvalLayer)
   ⟨NanoP4Spec.localEvalLayer.toValue⟩ ⟨NanoP4Spec.localEvalLayer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain ["value"])
   (Q.t (Q.varT "localEvalLayer" [])).it) (NanoP4Spec.localEvalLayer.runtimeAdmitted) :=
   NanoP4Spec.localEvalLayer.runtimeCodec
-
-#audit_axioms evalContext.fieldCodec2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem evalContext.fieldSubstitution2 : ∀ actual,
@@ -122,8 +112,6 @@ private theorem evalContext.fieldSubstitution2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "localEvalLayer")] at valid
     exact valid)
-
-#audit_axioms evalContext.fieldSubstitution2
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem evalContext.payload (v : Lang.Il.value) (hv :
@@ -152,8 +140,6 @@ private theorem evalContext.payload (v : Lang.Il.value) (hv :
             (evalContext.fieldSubstitution1 _ sub1) (.cons (evalContext.fieldSubstitution2 _
             sub2) (.nil)))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.evalContext.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem evalContext.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.evalContext
@@ -370,8 +356,6 @@ theorem evalContext.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.evalC
                     rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
                     rfl
 
-#audit_axioms NanoP4Spec.evalContext.runtimeCodec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem evalContext.runtimeEncodingSourceIff (x : NanoP4Spec.evalContext) :
     NanoP4Spec.evalContext.runtimeSource (NanoP4Spec.evalContext.toValue x) ↔
@@ -411,8 +395,6 @@ theorem evalContext.runtimeEncodingSourceIff (x : NanoP4Spec.evalContext) :
     exact ⟨_, rfl, .cons (rfl) (.cons (rfl) (.cons (rfl) (.nil))), .cons _ _ _ _ p0 (.cons _ _ _
       _ p1 (.cons _ _ _ _ p2 (.nil)))⟩
 
-#audit_axioms NanoP4Spec.evalContext.runtimeEncodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem evalContext.runtimeAdmittedAll : ∀ x : NanoP4Spec.evalContext,
   (NanoP4Spec.evalContext.runtimeAdmitted) x := by
@@ -424,6 +406,15 @@ theorem evalContext.runtimeAdmittedAll : ∀ x : NanoP4Spec.evalContext,
     (NanoP4Spec.localEvalLayer), (NanoP4Spec.localEvalLayer.runtimeAdmitted) x from
     NanoP4Spec.localEvalLayer.runtimeAdmittedAll)) (x.LOCAL), trivial⟩
 
+#audit_axioms evalContext.fieldCodec0
+#audit_axioms evalContext.fieldSubstitution0
+#audit_axioms evalContext.fieldCodec1
+#audit_axioms evalContext.fieldSubstitution1
+#audit_axioms evalContext.fieldCodec2
+#audit_axioms evalContext.fieldSubstitution2
+#audit_axioms NanoP4Spec.evalContext.payload
+#audit_axioms NanoP4Spec.evalContext.runtimeCodec
+#audit_axioms NanoP4Spec.evalContext.runtimeEncodingSourceIff
 #audit_axioms NanoP4Spec.evalContext.runtimeAdmittedAll
 
 end NanoP4Spec

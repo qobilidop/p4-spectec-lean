@@ -46,8 +46,6 @@ theorem «$flatten_controlLocalDeclarationList».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$flatten_controlLocalDeclarationList».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$flatten_controlLocalDeclarationList».refines
     (fuel : Nat)
@@ -73,8 +71,6 @@ theorem «$flatten_controlLocalDeclarationList».refines
     v0
     p0
     h0
-
-#audit_axioms NanoP4Spec.«$flatten_controlLocalDeclarationList».refines
 
 private def «$flatten_controlLocalDeclarationList».realizesMotive
     (p0 : NanoP4Spec.controlLocalDeclarationList)
@@ -111,6 +107,8 @@ theorem «$flatten_controlLocalDeclarationList».realizes
       realize_step hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$flatten_controlLocalDeclarationList».refines_group
+#audit_axioms NanoP4Spec.«$flatten_controlLocalDeclarationList».refines
 #audit_axioms NanoP4Spec.«$flatten_controlLocalDeclarationList».realizes
 
 end NanoP4Spec

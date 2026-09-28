@@ -83,7 +83,7 @@ theorem «$intersect_set».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValu
     cases Except.ok.inj (Option.some.inj run)
     exact SourceBuiltin.intersectPreserves A0 xs ys hp0
 
-#audit_axioms «$intersect_set».sourceDomain
 
+#audit_axioms «$intersect_set».sourceDomain
 
 end NanoP4Spec

@@ -53,8 +53,6 @@ private theorem externObjectTypeIR.fieldCodec0_0 : @Representation.Codec (NanoP4
   True) :=
   NanoP4Spec.typeId.codec
 
-#audit_axioms NanoP4Spec.externObjectTypeIR.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem externObjectTypeIR.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeId" [])).it actual → ∀ v,
@@ -66,8 +64,6 @@ private theorem externObjectTypeIR.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.externObjectTypeIR.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem externObjectTypeIR.fieldCodec0_1 : @Representation.Codec
   (NanoP4Spec.externMethodTypeDefEnv) ⟨NanoP4Spec.externMethodTypeDefEnv.toValue⟩
@@ -75,8 +71,6 @@ private theorem externObjectTypeIR.fieldCodec0_1 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "externMethodTypeDefEnv" [])).it)
   (NanoP4Spec.externMethodTypeDefEnv.admitted) :=
   NanoP4Spec.externMethodTypeDefEnv.codec
-
-#audit_axioms NanoP4Spec.externObjectTypeIR.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem externObjectTypeIR.fieldSubstitution0_1 : ∀ actual,
@@ -89,8 +83,6 @@ private theorem externObjectTypeIR.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "externMethodTypeDefEnv")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.externObjectTypeIR.fieldSubstitution0_1
 
 private theorem externObjectTypeIR.sourceCasesValid (v : Lang.Il.value) (hv :
   externObjectTypeIR.source v) :
@@ -123,8 +115,6 @@ private theorem externObjectTypeIR.sourceCasesValid (v : Lang.Il.value) (hv :
         exact .cons (externObjectTypeIR.fieldSubstitution0_0 _ sub0) (.cons
           (externObjectTypeIR.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.externObjectTypeIR.sourceCasesValid
-
 private theorem externObjectTypeIR.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -145,8 +135,6 @@ private theorem externObjectTypeIR.decode0 (fuel : Nat) (v : Lang.Il.value) (tre
     some (NanoP4Spec.externObjectTypeIR.EXTERN x0 x1)))
   cases ((NanoP4Spec.typeId.ofValue) fuel v0) <;> cases
     ((NanoP4Spec.externMethodTypeDefEnv.ofValue) fuel v1) <;> rfl
-
-#audit_axioms externObjectTypeIR.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem externObjectTypeIR.codec : @Refine.Representation.Codec NanoP4Spec.externObjectTypeIR
@@ -311,7 +299,6 @@ theorem externObjectTypeIR.codec : @Refine.Representation.Codec NanoP4Spec.exter
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.externObjectTypeIR.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -326,6 +313,13 @@ theorem externObjectTypeIR.admittedAll : ∀ x : NanoP4Spec.externObjectTypeIR,
       NanoP4Spec.externMethodTypeDefEnv.admittedAll)) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.externObjectTypeIR.fieldCodec0_0
+#audit_axioms NanoP4Spec.externObjectTypeIR.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.externObjectTypeIR.fieldCodec0_1
+#audit_axioms NanoP4Spec.externObjectTypeIR.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.externObjectTypeIR.sourceCasesValid
+#audit_axioms externObjectTypeIR.decode0
+#audit_axioms NanoP4Spec.externObjectTypeIR.codec
 #audit_axioms NanoP4Spec.externObjectTypeIR.admittedAll
 
 end NanoP4Spec

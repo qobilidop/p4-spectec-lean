@@ -107,8 +107,6 @@ theorem ControlLocalDecl_eval.run_sound
         NanoP4Spec.ControlLocalDecl_eval p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ControlLocalDecl_eval.run_sound
-
 -- no determinism theorem: ControlLocalDecl_eval
 --   2 rule paths
 
@@ -339,8 +337,6 @@ theorem ControlLocalDecls_eval.run_sound_group :
          NanoP4Spec.ControlLocalDecls_eval p0 p1 o) := by
   run_sound_group NanoP4Spec.ControlLocalDecls_eval.run.partial_correctness
 
-#audit_axioms NanoP4Spec.ControlLocalDecls_eval.run_sound_group
-
 theorem ControlLocalDecls_eval.run_sound
     (p0 : NanoP4Spec.evalContext)
     (p1 : List NanoP4Spec.controlLocalDeclaration)
@@ -348,8 +344,6 @@ theorem ControlLocalDecls_eval.run_sound
     NanoP4Spec.ControlLocalDecls_eval.run p0 p1 = some (.ok o) →
         NanoP4Spec.ControlLocalDecls_eval p0 p1 o :=
   fun h => NanoP4Spec.ControlLocalDecls_eval.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.ControlLocalDecls_eval.run_sound
 
 def ControlLocalDecls_eval.al : Lang.Al.def :=
   Q.d
@@ -580,8 +574,6 @@ theorem ControlLocalDeclList_eval.run_sound
         NanoP4Spec.ControlLocalDeclList_eval p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ControlLocalDeclList_eval.run_sound
-
 -- no determinism theorem: ControlLocalDeclList_eval
 --   calls ControlLocalDecls_eval, which has no determinism theorem
 
@@ -661,5 +653,10 @@ def ControlLocalDeclList_eval.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.ControlLocalDecl_eval.run_sound
+#audit_axioms NanoP4Spec.ControlLocalDecls_eval.run_sound_group
+#audit_axioms NanoP4Spec.ControlLocalDecls_eval.run_sound
+#audit_axioms NanoP4Spec.ControlLocalDeclList_eval.run_sound
 
 end NanoP4Spec

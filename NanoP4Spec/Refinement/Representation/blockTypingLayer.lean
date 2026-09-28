@@ -55,8 +55,6 @@ private theorem blockTypingLayer.fieldCodec0 : @Representation.Codec (NanoP4Spec
   (NanoP4Spec.typeFrame.admitted) :=
   NanoP4Spec.typeFrame.codec
 
-#audit_axioms blockTypingLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem blockTypingLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeFrame" [])).it actual → ∀ v,
@@ -67,8 +65,6 @@ private theorem blockTypingLayer.fieldSubstitution0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeFrame")] at valid
     exact valid)
-
-#audit_axioms blockTypingLayer.fieldSubstitution0
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem blockTypingLayer.payload (v : Lang.Il.value) (hv :
@@ -89,8 +85,6 @@ private theorem blockTypingLayer.payload (v : Lang.Il.value) (hv :
       cases tail
       exact .cons (blockTypingLayer.fieldSubstitution0 _ sub0) (.nil)
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.blockTypingLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem blockTypingLayer.codec : @Refine.Representation.Codec NanoP4Spec.blockTypingLayer
@@ -191,8 +185,6 @@ theorem blockTypingLayer.codec : @Refine.Representation.Codec NanoP4Spec.blockTy
             rw [h0 fuel enough0]
             rfl
 
-#audit_axioms NanoP4Spec.blockTypingLayer.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem blockTypingLayer.encodingSourceIff (x : NanoP4Spec.blockTypingLayer) :
     NanoP4Spec.blockTypingLayer.source (NanoP4Spec.blockTypingLayer.toValue x) ↔
@@ -219,8 +211,6 @@ theorem blockTypingLayer.encodingSourceIff (x : NanoP4Spec.blockTypingLayer) :
         (.nil)⟩
     exact ⟨_, rfl, .cons (rfl) (.nil), .cons _ _ _ _ p0 (.nil)⟩
 
-#audit_axioms NanoP4Spec.blockTypingLayer.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem blockTypingLayer.admittedAll : ∀ x : NanoP4Spec.blockTypingLayer,
   (NanoP4Spec.blockTypingLayer.admitted) x := by
@@ -228,6 +218,11 @@ theorem blockTypingLayer.admittedAll : ∀ x : NanoP4Spec.blockTypingLayer,
   exact ⟨((show ∀ x : (NanoP4Spec.typeFrame), (NanoP4Spec.typeFrame.admitted) x from
     NanoP4Spec.typeFrame.admittedAll)) (x.FRAME), trivial⟩
 
+#audit_axioms blockTypingLayer.fieldCodec0
+#audit_axioms blockTypingLayer.fieldSubstitution0
+#audit_axioms NanoP4Spec.blockTypingLayer.payload
+#audit_axioms NanoP4Spec.blockTypingLayer.codec
+#audit_axioms NanoP4Spec.blockTypingLayer.encodingSourceIff
 #audit_axioms NanoP4Spec.blockTypingLayer.admittedAll
 
 end NanoP4Spec

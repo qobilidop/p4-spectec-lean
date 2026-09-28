@@ -55,8 +55,6 @@ theorem Lvalue_write.refines_group :
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.Lvalue_write.refines_group
-
 set_option maxHeartbeats 11000000 in
 theorem Lvalue_write.refines
     (fuel : Nat)
@@ -99,8 +97,6 @@ theorem Lvalue_write.refines
     h1
     h2
     h3
-
-#audit_axioms NanoP4Spec.Lvalue_write.refines
 
 private def Lvalue_write.realizesMotive
     (p0 : NanoP4Spec.scope)
@@ -152,6 +148,8 @@ theorem Lvalue_write.realizes
       realize_step (relations) hq)
     p0 p1 p2 p3 q hq cfg ctx internal hguard hhints _hfenv hspec ht0 ht1 v0 v1 v2 v3 h0 h1 h2 h3
 
+#audit_axioms NanoP4Spec.Lvalue_write.refines_group
+#audit_axioms NanoP4Spec.Lvalue_write.refines
 #audit_axioms NanoP4Spec.Lvalue_write.realizes
 
 end NanoP4Spec

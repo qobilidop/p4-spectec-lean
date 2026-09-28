@@ -57,8 +57,6 @@ theorem Type_eq.refines_group :
       exact ⟨by refine_al (subtypes),
         by refine_al⟩
 
-#audit_axioms NanoP4Spec.Type_eq.refines_group
-
 set_option maxHeartbeats 17000000 in
 theorem Type_eq.refines
     (fuel : Nat)
@@ -75,8 +73,6 @@ theorem Type_eq.refines
       (ExceptT.mk (NanoP4Spec.Type_eq.run p0 p1)) :=
   (NanoP4Spec.Type_eq.refines_group fuel).1 cfg ctx internal hguard _hfenv hspec v0 v1 p0 p1 h0 h1
 
-#audit_axioms NanoP4Spec.Type_eq.refines
-
 set_option maxHeartbeats 17000000 in
 theorem ParameterType_eq.refines
     (fuel : Nat)
@@ -92,8 +88,6 @@ theorem ParameterType_eq.refines
       (Interp_al.Interp.invoke_rel fuel cfg internal ctx (Q.i "ParameterType_eq") [v0, v1])
       (ExceptT.mk (NanoP4Spec.ParameterType_eq.run p0 p1)) :=
   (NanoP4Spec.Type_eq.refines_group fuel).2 cfg ctx internal hguard hfenv hspec v0 v1 p0 p1 h0 h1
-
-#audit_axioms NanoP4Spec.ParameterType_eq.refines
 
 set_option maxHeartbeats 17000000 in
 theorem Type_eq.realizes_group :
@@ -129,8 +123,6 @@ theorem Type_eq.realizes_group :
        ResRel (fun vs (_ : Unit) => Outs vs []) r q) := by
   realize_group NanoP4Spec.Type_eq.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Type_eq.realizes_group
-
 set_option maxHeartbeats 17000000 in
 theorem Type_eq.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -160,8 +152,6 @@ theorem Type_eq.realizes
     v1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Type_eq.realizes
 
 set_option maxHeartbeats 17000000 in
 theorem ParameterType_eq.realizes
@@ -195,6 +185,11 @@ theorem ParameterType_eq.realizes
     h0
     h1
 
+#audit_axioms NanoP4Spec.Type_eq.refines_group
+#audit_axioms NanoP4Spec.Type_eq.refines
+#audit_axioms NanoP4Spec.ParameterType_eq.refines
+#audit_axioms NanoP4Spec.Type_eq.realizes_group
+#audit_axioms NanoP4Spec.Type_eq.realizes
 #audit_axioms NanoP4Spec.ParameterType_eq.realizes
 
 end NanoP4Spec

@@ -46,8 +46,6 @@ theorem Program_ok.refines
       (ExceptT.mk (NanoP4Spec.Program_ok.run p0)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.Program_ok.refines
-
 set_option maxHeartbeats 6000000 in
 theorem Program_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -64,6 +62,7 @@ theorem Program_ok.realizes
       (ExceptT.mk (NanoP4Spec.Program_ok.run p0)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.Program_ok.refines
 #audit_axioms NanoP4Spec.Program_ok.realizes
 
 end NanoP4Spec

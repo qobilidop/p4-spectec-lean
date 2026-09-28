@@ -81,7 +81,8 @@ theorem Copy_in_arg.runtimeProducesSource :
     : Option (NanoP4Spec.lvalue) => ∀ x ∈ xs, (NanoP4Spec.lvalue.admitted) x) x from (fun xs x _
     => ((show ∀ x : (NanoP4Spec.lvalue), (NanoP4Spec.lvalue.admitted) x from
     NanoP4Spec.lvalue.admittedAll)) x))) result.2)⟩
-#audit_axioms Copy_in_arg.runtimeProducesSource
 
+
+#audit_axioms Copy_in_arg.runtimeProducesSource
 
 end NanoP4Spec

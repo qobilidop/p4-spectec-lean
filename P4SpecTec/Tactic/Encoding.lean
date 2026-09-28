@@ -1,3 +1,4 @@
+import P4SpecTec.Tactic.Constants
 import P4SpecTec.Tactic.Refine.Normalize
 import P4SpecTec.Tactic.RunSound
 
@@ -33,9 +34,8 @@ def listEncoder? (name : Name) : MetaM (Option Expr) := do
 
 /-- Establish list-map equations by induction; every proposed encoder equation is checked. -/
 def encodingFacts (lib : Name) : TacticM Unit := withMainContext do
-  let candidates := (← getEnv).constants.map₂.toList ++ (← getEnv).constants.map₁.toList
-  for (name, info) in candidates do
-    unless lib.isPrefixOf name && !name.isInternal && info.isDefinition &&
+  for (name, kind) in ← constantsUnder lib do
+    unless !name.isInternal && kind == .defn &&
         name.getString!.startsWith "toValue_" do continue
     let some encoder ← listEncoder? name | continue
     let fact ← freshName "rf_c_encoding"
@@ -154,7 +154,8 @@ partial def encodingCoherence (depth : Nat := 4) : TacticM Unit := do
       | _ => return none
     | none => return none
   let some value := value? |
-    throwError "encoding coherence: no encoded variable to split{Lean.MessageData.ofGoal (← getMainGoal)}"
+    throwError
+      "encoding coherence: no encoded variable to split{Lean.MessageData.ofGoal (← getMainGoal)}"
   -- by its id: a variable left by an earlier split has an inaccessible name
   let subgoals ← (← getMainGoal).cases value
   for g in subgoals.map (·.mvarId) do

@@ -43,8 +43,6 @@ theorem TableKey_eval.refines
       (ExceptT.mk (NanoP4Spec.TableKey_eval.run p0 p1)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.TableKey_eval.refines
-
 set_option maxHeartbeats 6000000 in
 theorem TableKey_eval.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -62,6 +60,7 @@ theorem TableKey_eval.realizes
       (ExceptT.mk (NanoP4Spec.TableKey_eval.run p0 p1)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.TableKey_eval.refines
 #audit_axioms NanoP4Spec.TableKey_eval.realizes
 
 end NanoP4Spec

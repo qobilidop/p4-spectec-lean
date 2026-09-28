@@ -72,8 +72,6 @@ private theorem globalEvalLayer.fieldCodec0 : @Representation.Codec (NanoP4Spec.
     NanoP4Spec.runtimeClosed _ (Representation.Source.namesInCheckSound _ _ (by closure_check))
     _ (NanoP4Spec.typeDefEnv.codec))
 
-#audit_axioms globalEvalLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalEvalLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeDefEnv" [])).it actual → ∀ v,
@@ -86,8 +84,6 @@ private theorem globalEvalLayer.fieldSubstitution0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "typeDefEnv")] at valid
     exact valid)
 
-#audit_axioms globalEvalLayer.fieldSubstitution0
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalEvalLayer.fieldCodec1 : @Representation.Codec (NanoP4Spec.callableDefEnv)
   ⟨NanoP4Spec.callableDefEnv.toValue⟩ ⟨NanoP4Spec.callableDefEnv.ofValue⟩
@@ -97,8 +93,6 @@ private theorem globalEvalLayer.fieldCodec1 : @Representation.Codec (NanoP4Spec.
     ⟨NanoP4Spec.callableDefEnv.toValue⟩ ⟨NanoP4Spec.callableDefEnv.ofValue⟩ _ _ _
     NanoP4Spec.runtimeClosed _ (Representation.Source.namesInCheckSound _ _ (by closure_check))
     _ (NanoP4Spec.callableDefEnv.codec))
-
-#audit_axioms globalEvalLayer.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalEvalLayer.fieldSubstitution1 : ∀ actual,
@@ -112,16 +106,12 @@ private theorem globalEvalLayer.fieldSubstitution1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "callableDefEnv")] at valid
     exact valid)
 
-#audit_axioms globalEvalLayer.fieldSubstitution1
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalEvalLayer.fieldCodec2 : @Representation.Codec (NanoP4Spec.frame)
   ⟨NanoP4Spec.frame.toValue⟩ ⟨NanoP4Spec.frame.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec (Representation.Source.runtimeDomain ["value"]) (Q.t (Q.varT "frame" [])).it)
   (NanoP4Spec.frame.runtimeAdmitted) :=
   NanoP4Spec.frame.runtimeCodec
-
-#audit_axioms globalEvalLayer.fieldCodec2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalEvalLayer.fieldSubstitution2 : ∀ actual,
@@ -135,8 +125,6 @@ private theorem globalEvalLayer.fieldSubstitution2 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "frame")] at valid
     exact valid)
 
-#audit_axioms globalEvalLayer.fieldSubstitution2
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalEvalLayer.fieldCodec3 : @Representation.Codec
   (NanoP4Spec.parserDeclarationIR) ⟨NanoP4Spec.parserDeclarationIR.toValue⟩
@@ -147,8 +135,6 @@ private theorem globalEvalLayer.fieldCodec3 : @Representation.Codec
     ⟨NanoP4Spec.parserDeclarationIR.toValue⟩ ⟨NanoP4Spec.parserDeclarationIR.ofValue⟩ _ _ _
     NanoP4Spec.runtimeClosed _ (Representation.Source.namesInCheckSound _ _ (by closure_check))
     _ (NanoP4Spec.parserDeclarationIR.codec))
-
-#audit_axioms globalEvalLayer.fieldCodec3
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalEvalLayer.fieldSubstitution3 : ∀ actual,
@@ -163,8 +149,6 @@ private theorem globalEvalLayer.fieldSubstitution3 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parserDeclarationIR")] at valid
     exact valid)
 
-#audit_axioms globalEvalLayer.fieldSubstitution3
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalEvalLayer.fieldCodec4 : @Representation.Codec
   (NanoP4Spec.controlDeclarationIR) ⟨NanoP4Spec.controlDeclarationIR.toValue⟩
@@ -175,8 +159,6 @@ private theorem globalEvalLayer.fieldCodec4 : @Representation.Codec
     ⟨NanoP4Spec.controlDeclarationIR.toValue⟩ ⟨NanoP4Spec.controlDeclarationIR.ofValue⟩ _ _ _
     NanoP4Spec.runtimeClosed _ (Representation.Source.namesInCheckSound _ _ (by closure_check))
     _ (NanoP4Spec.controlDeclarationIR.codec))
-
-#audit_axioms globalEvalLayer.fieldCodec4
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalEvalLayer.fieldSubstitution4 : ∀ actual,
@@ -190,8 +172,6 @@ private theorem globalEvalLayer.fieldSubstitution4 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "controlDeclarationIR")] at valid
     exact valid)
-
-#audit_axioms globalEvalLayer.fieldSubstitution4
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem globalEvalLayer.payload (v : Lang.Il.value) (hv :
@@ -226,8 +206,6 @@ private theorem globalEvalLayer.payload (v : Lang.Il.value) (hv :
                 (globalEvalLayer.fieldSubstitution3 _ sub3) (.cons
                 (globalEvalLayer.fieldSubstitution4 _ sub4) (.nil)))))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.globalEvalLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem globalEvalLayer.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.globalEvalLayer
@@ -594,8 +572,6 @@ theorem globalEvalLayer.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.g
                               enough3, h4 fuel enough4]
                             rfl
 
-#audit_axioms NanoP4Spec.globalEvalLayer.runtimeCodec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem globalEvalLayer.runtimeEncodingSourceIff (x : NanoP4Spec.globalEvalLayer) :
     NanoP4Spec.globalEvalLayer.runtimeSource (NanoP4Spec.globalEvalLayer.toValue x) ↔
@@ -650,8 +626,6 @@ theorem globalEvalLayer.runtimeEncodingSourceIff (x : NanoP4Spec.globalEvalLayer
       .cons _ _ _ _ p0 (.cons _ _ _ _ p1 (.cons _ _ _ _ p2 (.cons _ _ _ _ p3 (.cons _ _ _ _ p4
       (.nil)))))⟩
 
-#audit_axioms NanoP4Spec.globalEvalLayer.runtimeEncodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem globalEvalLayer.runtimeAdmittedAll : ∀ x : NanoP4Spec.globalEvalLayer,
   (NanoP4Spec.globalEvalLayer.runtimeAdmitted) x := by
@@ -666,6 +640,19 @@ theorem globalEvalLayer.runtimeAdmittedAll : ∀ x : NanoP4Spec.globalEvalLayer,
     (NanoP4Spec.controlDeclarationIR), (NanoP4Spec.controlDeclarationIR.admitted) x from
     NanoP4Spec.controlDeclarationIR.admittedAll)) (x.CONTROL), trivial⟩
 
+#audit_axioms globalEvalLayer.fieldCodec0
+#audit_axioms globalEvalLayer.fieldSubstitution0
+#audit_axioms globalEvalLayer.fieldCodec1
+#audit_axioms globalEvalLayer.fieldSubstitution1
+#audit_axioms globalEvalLayer.fieldCodec2
+#audit_axioms globalEvalLayer.fieldSubstitution2
+#audit_axioms globalEvalLayer.fieldCodec3
+#audit_axioms globalEvalLayer.fieldSubstitution3
+#audit_axioms globalEvalLayer.fieldCodec4
+#audit_axioms globalEvalLayer.fieldSubstitution4
+#audit_axioms NanoP4Spec.globalEvalLayer.payload
+#audit_axioms NanoP4Spec.globalEvalLayer.runtimeCodec
+#audit_axioms NanoP4Spec.globalEvalLayer.runtimeEncodingSourceIff
 #audit_axioms NanoP4Spec.globalEvalLayer.runtimeAdmittedAll
 
 end NanoP4Spec

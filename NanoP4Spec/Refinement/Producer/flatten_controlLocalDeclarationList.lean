@@ -67,7 +67,8 @@ theorem «$flatten_controlLocalDeclarationList».producesSource :
     => ∀ x ∈ xs, (NanoP4Spec.controlLocalDeclaration.admitted) x) x from (fun xs x _ => ((show ∀
     x : (NanoP4Spec.controlLocalDeclaration), (NanoP4Spec.controlLocalDeclaration.admitted) x
     from NanoP4Spec.controlLocalDeclaration.admittedAll)) x))) result)
-#audit_axioms «$flatten_controlLocalDeclarationList».producesSource
 
+
+#audit_axioms «$flatten_controlLocalDeclarationList».producesSource
 
 end NanoP4Spec

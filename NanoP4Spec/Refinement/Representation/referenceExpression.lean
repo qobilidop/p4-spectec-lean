@@ -47,8 +47,6 @@ private theorem referenceExpression.bodyCodec : @Representation.Codec (NanoP4Spe
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
 
-#audit_axioms NanoP4Spec.referenceExpression.bodyCodec
-
 private theorem referenceExpression.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.referenceExpression.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "name" [])).it) v := by
@@ -59,16 +57,12 @@ private theorem referenceExpression.sourceIff (v : Lang.Il.value) :
   rw [substitution.emptyNamedResult (Q.i "name")] at valid
   exact valid) (Representation.Source.Substitutes.named (Q.i "name") [] [] rfl (.nil)) v
 
-#audit_axioms NanoP4Spec.referenceExpression.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem referenceExpression.encodingSourceIff (x : NanoP4Spec.referenceExpression) :
     NanoP4Spec.referenceExpression.source (NanoP4Spec.referenceExpression.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "name" [])).it) ((NanoP4Spec.name.toValue) x) :=
   NanoP4Spec.referenceExpression.sourceIff _
-
-#audit_axioms NanoP4Spec.referenceExpression.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem referenceExpression.codec : @Refine.Representation.Codec NanoP4Spec.referenceExpression
@@ -112,8 +106,6 @@ theorem referenceExpression.codec : @Refine.Representation.Codec NanoP4Spec.refe
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.referenceExpression.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem referenceExpression.admittedAll : ∀ x : NanoP4Spec.referenceExpression,
   (NanoP4Spec.referenceExpression.admitted) x := by
@@ -121,6 +113,10 @@ theorem referenceExpression.admittedAll : ∀ x : NanoP4Spec.referenceExpression
   exact ((show ∀ x : (NanoP4Spec.name), (NanoP4Spec.name.admitted) x from
     NanoP4Spec.name.admittedAll)) x
 
+#audit_axioms NanoP4Spec.referenceExpression.bodyCodec
+#audit_axioms NanoP4Spec.referenceExpression.sourceIff
+#audit_axioms NanoP4Spec.referenceExpression.encodingSourceIff
+#audit_axioms NanoP4Spec.referenceExpression.codec
 #audit_axioms NanoP4Spec.referenceExpression.admittedAll
 
 end NanoP4Spec

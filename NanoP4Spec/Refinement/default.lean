@@ -43,8 +43,6 @@ theorem «$default».refines_group :
   | ind fuel ih =>
       refine_al (columns)
 
-#audit_axioms NanoP4Spec.«$default».refines_group
-
 set_option maxHeartbeats 9000000 in
 theorem «$default».refines
     (fuel : Nat)
@@ -58,8 +56,6 @@ theorem «$default».refines
       (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "default") [] [v0])
       (ExceptT.mk (NanoP4Spec.«$default» p0)) :=
   (NanoP4Spec.«$default».refines_group fuel) cfg ctx internal hguard hfenv hspec v0 p0 h0
-
-#audit_axioms NanoP4Spec.«$default».refines
 
 private def «$default».realizesMotive
     (p0 : NanoP4Spec.typeIR)
@@ -93,6 +89,8 @@ theorem «$default».realizes
       realize_step (columns) hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$default».refines_group
+#audit_axioms NanoP4Spec.«$default».refines
 #audit_axioms NanoP4Spec.«$default».realizes
 
 end NanoP4Spec

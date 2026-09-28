@@ -63,8 +63,6 @@ private theorem exitValid (valid : NanoP4Spec.frame → Prop) (other) (ctx :
     exact ⟨accepted.1, fun frame member =>
       accepted.2 frame (List.mem_cons_of_mem _ member)⟩
 
-#audit_axioms exitValid
-
 /-- Source admission of the selected list elements. -/
 private def elementDomain (x : NanoP4Spec.frame) :=
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
@@ -89,6 +87,7 @@ private theorem sourceIff (ctx : NanoP4Spec.evalContext) :
   simp only [NanoP4Spec.evalContext.encodingSourceIff, localIff,
     Representation.Source.encodedListIff, true_and, and_assoc, and_left_comm, and_comm]
 
+#audit_axioms exitValid
 #audit_axioms sourceIff
 
 end exit_eContextProducer

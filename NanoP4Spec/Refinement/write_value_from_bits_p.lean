@@ -66,8 +66,6 @@ theorem «$write_value_from_bits'».refines_group :
       exact ⟨by refine_al (subtypes),
         by refine_al⟩
 
-#audit_axioms NanoP4Spec.«$write_value_from_bits'».refines_group
-
 set_option maxHeartbeats 11000000 in
 theorem «$write_value_from_bits'».refines
     (fuel : Nat)
@@ -99,8 +97,6 @@ theorem «$write_value_from_bits'».refines
     h0
     h1
 
-#audit_axioms NanoP4Spec.«$write_value_from_bits'».refines
-
 set_option maxHeartbeats 11000000 in
 theorem «$write_value_fields_from_bits'».refines
     (fuel : Nat)
@@ -131,8 +127,6 @@ theorem «$write_value_fields_from_bits'».refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.«$write_value_fields_from_bits'».refines
 
 set_option maxHeartbeats 11000000 in
 theorem «$write_value_from_bits'».realizes_group :
@@ -170,8 +164,6 @@ theorem «$write_value_from_bits'».realizes_group :
        ResRel Rel r q) := by
   realize_group NanoP4Spec.«$write_value_from_bits'».mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.«$write_value_from_bits'».realizes_group
-
 set_option maxHeartbeats 11000000 in
 theorem «$write_value_from_bits'».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -204,8 +196,6 @@ theorem «$write_value_from_bits'».realizes
     v1
     h0
     h1
-
-#audit_axioms NanoP4Spec.«$write_value_from_bits'».realizes
 
 set_option maxHeartbeats 11000000 in
 theorem «$write_value_fields_from_bits'».realizes
@@ -240,6 +230,11 @@ theorem «$write_value_fields_from_bits'».realizes
     h0
     h1
 
+#audit_axioms NanoP4Spec.«$write_value_from_bits'».refines_group
+#audit_axioms NanoP4Spec.«$write_value_from_bits'».refines
+#audit_axioms NanoP4Spec.«$write_value_fields_from_bits'».refines
+#audit_axioms NanoP4Spec.«$write_value_from_bits'».realizes_group
+#audit_axioms NanoP4Spec.«$write_value_from_bits'».realizes
 #audit_axioms NanoP4Spec.«$write_value_fields_from_bits'».realizes
 
 end NanoP4Spec

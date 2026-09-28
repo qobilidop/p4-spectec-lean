@@ -149,8 +149,6 @@ theorem Call_eval.refines_group [NanoP4Spec.Externs] :
         by refine_al,
         by refine_al (columns)⟩
 
-#audit_axioms NanoP4Spec.Call_eval.refines_group
-
 set_option maxHeartbeats 36000000 in
 theorem Call_eval.refines
     (fuel : Nat)
@@ -197,8 +195,6 @@ theorem Call_eval.refines
     h2
     h3
 
-#audit_axioms NanoP4Spec.Call_eval.refines
-
 set_option maxHeartbeats 36000000 in
 theorem Table_eval.refines
     (fuel : Nat)
@@ -234,8 +230,6 @@ theorem Table_eval.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Table_eval.refines
 
 set_option maxHeartbeats 36000000 in
 theorem Statement_eval.refines
@@ -278,8 +272,6 @@ theorem Statement_eval.refines
     h1
     h2
 
-#audit_axioms NanoP4Spec.Statement_eval.refines
-
 set_option maxHeartbeats 36000000 in
 theorem Statements_eval.refines
     (fuel : Nat)
@@ -321,8 +313,6 @@ theorem Statements_eval.refines
     h1
     h2
 
-#audit_axioms NanoP4Spec.Statements_eval.refines
-
 set_option maxHeartbeats 36000000 in
 theorem Block_eval.refines
     (fuel : Nat)
@@ -358,8 +348,6 @@ theorem Block_eval.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Block_eval.refines
 
 set_option maxHeartbeats 36000000 in
 theorem TableMatch_eval.refines
@@ -401,8 +389,6 @@ theorem TableMatch_eval.refines
     h0
     h1
     h2
-
-#audit_axioms NanoP4Spec.TableMatch_eval.refines
 
 set_option maxHeartbeats 36000000 in
 theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
@@ -526,8 +512,6 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        ResRel (fun vs (o : NanoP4Spec.evalContext) => Outs vs [toValue o]) r q) := by
   realize_group (columns) NanoP4Spec.Call_eval.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Call_eval.realizes_group
-
 set_option maxHeartbeats 36000000 in
 theorem Call_eval.realizes
     [NanoP4Spec.Externs]
@@ -578,8 +562,6 @@ theorem Call_eval.realizes
     h2
     h3
 
-#audit_axioms NanoP4Spec.Call_eval.realizes
-
 set_option maxHeartbeats 36000000 in
 theorem Table_eval.realizes
     [NanoP4Spec.Externs]
@@ -617,8 +599,6 @@ theorem Table_eval.realizes
     v1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Table_eval.realizes
 
 set_option maxHeartbeats 36000000 in
 theorem Statement_eval.realizes
@@ -665,8 +645,6 @@ theorem Statement_eval.realizes
     h1
     h2
 
-#audit_axioms NanoP4Spec.Statement_eval.realizes
-
 set_option maxHeartbeats 36000000 in
 theorem Statements_eval.realizes
     [NanoP4Spec.Externs]
@@ -712,8 +690,6 @@ theorem Statements_eval.realizes
     h1
     h2
 
-#audit_axioms NanoP4Spec.Statements_eval.realizes
-
 set_option maxHeartbeats 36000000 in
 theorem Block_eval.realizes
     [NanoP4Spec.Externs]
@@ -751,8 +727,6 @@ theorem Block_eval.realizes
     v1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Block_eval.realizes
 
 set_option maxHeartbeats 36000000 in
 theorem TableMatch_eval.realizes
@@ -799,6 +773,19 @@ theorem TableMatch_eval.realizes
     h1
     h2
 
+#audit_axioms NanoP4Spec.Call_eval.refines_group
+#audit_axioms NanoP4Spec.Call_eval.refines
+#audit_axioms NanoP4Spec.Table_eval.refines
+#audit_axioms NanoP4Spec.Statement_eval.refines
+#audit_axioms NanoP4Spec.Statements_eval.refines
+#audit_axioms NanoP4Spec.Block_eval.refines
+#audit_axioms NanoP4Spec.TableMatch_eval.refines
+#audit_axioms NanoP4Spec.Call_eval.realizes_group
+#audit_axioms NanoP4Spec.Call_eval.realizes
+#audit_axioms NanoP4Spec.Table_eval.realizes
+#audit_axioms NanoP4Spec.Statement_eval.realizes
+#audit_axioms NanoP4Spec.Statements_eval.realizes
+#audit_axioms NanoP4Spec.Block_eval.realizes
 #audit_axioms NanoP4Spec.TableMatch_eval.realizes
 
 end NanoP4Spec

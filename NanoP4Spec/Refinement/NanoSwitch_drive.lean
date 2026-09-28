@@ -51,8 +51,6 @@ theorem NanoSwitch_drive.refines
       (ExceptT.mk (NanoP4Spec.NanoSwitch_drive.run p0 p1)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.NanoSwitch_drive.refines
-
 set_option maxHeartbeats 7000000 in
 theorem NanoSwitch_drive.realizes
     [NanoP4Spec.Externs]
@@ -75,6 +73,7 @@ theorem NanoSwitch_drive.realizes
       (ExceptT.mk (NanoP4Spec.NanoSwitch_drive.run p0 p1)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.NanoSwitch_drive.refines
 #audit_axioms NanoP4Spec.NanoSwitch_drive.realizes
 
 end NanoP4Spec

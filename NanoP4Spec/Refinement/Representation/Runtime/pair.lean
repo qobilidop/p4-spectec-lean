@@ -45,8 +45,6 @@ private theorem pair.sourceArgs : Mixfix.args pair.sourceConstructor.nottyp.it =
     [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])] := by
   simp [pair.sourceConstructor, typcase.nottyp, Q.tc, Q.nt, Mixfix.args]
 
-#audit_axioms pair.sourceArgs
-
 private theorem pair.sourceFields (leftType rightType : Lang.Il.typ) (v : Lang.Il.value)
     (valid : Valid NanoP4Spec.spec (Representation.Source.runtimeDomain ["value"])
       (Q.varT "pair" [leftType, rightType]) v) :
@@ -80,8 +78,6 @@ private theorem pair.sourceFields (leftType rightType : Lang.Il.typ) (v : Lang.I
     | cons type b types values hb tail =>
       cases tail
       exact ⟨tree, a, b, shape, mixopTrans _ _ _ matching rfl, hargs, ha, hb⟩
-
-#audit_axioms pair.sourceFields
 
 /-- Complete source codec for every legal pair of parameter codecs. -/
 theorem pair.runtimeCodec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]
@@ -166,6 +162,9 @@ theorem pair.runtimeCodec {α β : Type} [ToValue α] [OfValue α] [ToValue β] 
         simp only [OfValue.ofValue, NanoP4Spec.pair.ofValue, shape, args]
         rw [da', db']
         rfl
+
+#audit_axioms pair.sourceArgs
+#audit_axioms pair.sourceFields
 #audit_axioms NanoP4Spec.pair.runtimeCodec
 
 end NanoP4Spec

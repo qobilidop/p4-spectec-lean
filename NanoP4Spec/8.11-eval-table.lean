@@ -55,8 +55,6 @@ theorem TableKey_eval.run_sound
     NanoP4Spec.TableKey_eval.run p0 p1 = some (.ok o) → NanoP4Spec.TableKey_eval p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.TableKey_eval.run_sound
-
 -- no determinism theorem: TableKey_eval
 --   calls Expr_eval, which has no determinism theorem
 
@@ -537,5 +535,7 @@ def «$match_entry_value».al : Lang.Al.def :=
                    .BoolT))]]
        none
        [])
+
+#audit_axioms NanoP4Spec.TableKey_eval.run_sound
 
 end NanoP4Spec

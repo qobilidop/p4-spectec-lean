@@ -77,8 +77,6 @@ private theorem tableKeyProperty.sourceFields (v : Lang.Il.value) (hv : tableKey
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.tableKeyProperty.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def tableKeyProperty.admitted : NanoP4Spec.tableKeyProperty → Prop
@@ -194,8 +192,6 @@ theorem tableKeyProperty.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.tableKeyProperty.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem tableKeyProperty.admittedAll : ∀ x : NanoP4Spec.tableKeyProperty,
@@ -206,6 +202,8 @@ theorem tableKeyProperty.admittedAll : ∀ x : NanoP4Spec.tableKeyProperty,
     exact ((show ∀ x : (NanoP4Spec.tableKey), (NanoP4Spec.tableKey.admitted) x from
       NanoP4Spec.tableKey.admittedAll)) a
 
+#audit_axioms NanoP4Spec.tableKeyProperty.sourceFields
+#audit_axioms NanoP4Spec.tableKeyProperty.codec
 #audit_axioms NanoP4Spec.tableKeyProperty.admittedAll
 
 end NanoP4Spec

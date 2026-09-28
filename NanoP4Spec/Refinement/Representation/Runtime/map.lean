@@ -54,8 +54,6 @@ private theorem map.sourceValid {spec externalDomain} (keyType valueType : Lang.
   · exact .bound (Q.i "K") keyType.it rfl
   · exact .bound (Q.i "V") valueType.it rfl
 
-#audit_axioms map.sourceValid
-
 private theorem map.sourcePayload {spec externalDomain} (keyType valueType : Lang.Il.typ) (v :
   Lang.Il.value)
     (declared : body spec "map" = some ([Q.i "K", Q.i "V"], .PlainT
@@ -90,8 +88,6 @@ private theorem map.sourcePayload {spec externalDomain} (keyType valueType : Lan
           apply payload.arguments
           simpa only [List.map_cons, List.map_nil, Q.t, Util.Source.mkPhrase] using
             congrArg (fun t : typ' => [t]) pairResult
-
-#audit_axioms map.sourcePayload
 
 /-- Every legal parameter codec yields the exact declared composite alias codec. -/
 theorem map.runtimeCodec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]
@@ -136,6 +132,9 @@ theorem map.runtimeCodec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [
       cases fuel with
       | zero => omega
       | succ fuel => exact result fuel (by omega)
+
+#audit_axioms map.sourceValid
+#audit_axioms map.sourcePayload
 #audit_axioms NanoP4Spec.map.runtimeCodec
 
 end NanoP4Spec

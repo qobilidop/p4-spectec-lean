@@ -48,8 +48,6 @@ theorem «$repeat_».refines_group {τX : Type}
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$repeat_».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$repeat_».refines
     (fuel : Nat)
@@ -83,8 +81,6 @@ theorem «$repeat_».refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.«$repeat_».refines
 
 private def «$repeat_».realizesMotive
     {τX : Type}
@@ -133,6 +129,8 @@ theorem «$repeat_».realizes
       realize_step (relations) hq)
     p0 p1 q hq cfg ctx internal hguard hfenv hspec t0 ht0 v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.«$repeat_».refines_group
+#audit_axioms NanoP4Spec.«$repeat_».refines
 #audit_axioms NanoP4Spec.«$repeat_».realizes
 
 end NanoP4Spec

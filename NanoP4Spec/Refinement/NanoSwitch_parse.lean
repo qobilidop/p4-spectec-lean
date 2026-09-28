@@ -48,8 +48,6 @@ theorem NanoSwitch_parse.refines
       (ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run p0 p1)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.NanoSwitch_parse.refines
-
 set_option maxHeartbeats 6000000 in
 theorem NanoSwitch_parse.realizes
     [NanoP4Spec.Externs]
@@ -72,6 +70,7 @@ theorem NanoSwitch_parse.realizes
       (ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run p0 p1)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.NanoSwitch_parse.refines
 #audit_axioms NanoP4Spec.NanoSwitch_parse.realizes
 
 end NanoP4Spec

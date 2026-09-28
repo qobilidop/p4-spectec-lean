@@ -53,8 +53,6 @@ theorem ParserLocalDecl_eval.run_sound
         NanoP4Spec.ParserLocalDecl_eval p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ParserLocalDecl_eval.run_sound
-
 -- no determinism theorem: ParserLocalDecl_eval
 --   calls VarDecl_eval, which has no determinism theorem
 
@@ -163,8 +161,6 @@ theorem ParserLocalDecls_eval.run_sound_group :
          NanoP4Spec.ParserLocalDecls_eval p0 p1 o) := by
   run_sound_group NanoP4Spec.ParserLocalDecls_eval.run.partial_correctness
 
-#audit_axioms NanoP4Spec.ParserLocalDecls_eval.run_sound_group
-
 theorem ParserLocalDecls_eval.run_sound
     (p0 : NanoP4Spec.evalContext)
     (p1 : List NanoP4Spec.parserLocalDeclaration)
@@ -172,8 +168,6 @@ theorem ParserLocalDecls_eval.run_sound
     NanoP4Spec.ParserLocalDecls_eval.run p0 p1 = some (.ok o) →
         NanoP4Spec.ParserLocalDecls_eval p0 p1 o :=
   fun h => NanoP4Spec.ParserLocalDecls_eval.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.ParserLocalDecls_eval.run_sound
 
 def ParserLocalDecls_eval.al : Lang.Al.def :=
   Q.d
@@ -401,8 +395,6 @@ theorem ParserLocalDeclList_eval.run_sound
     NanoP4Spec.ParserLocalDeclList_eval.run p0 p1 = some (.ok o) →
         NanoP4Spec.ParserLocalDeclList_eval p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ParserLocalDeclList_eval.run_sound
 
 -- no determinism theorem: ParserLocalDeclList_eval
 --   calls ParserLocalDecls_eval, which has no determinism theorem
@@ -1047,6 +1039,11 @@ def «$match_case_value».al : Lang.Al.def :=
        none
        [])
 
+#audit_axioms NanoP4Spec.ParserLocalDecl_eval.run_sound
+#audit_axioms NanoP4Spec.ParserLocalDecls_eval.run_sound_group
+#audit_axioms NanoP4Spec.ParserLocalDecls_eval.run_sound
+#audit_axioms NanoP4Spec.ParserLocalDeclList_eval.run_sound
+
 mutual
 
 def ParserTransition_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.transitionStatement)
@@ -1334,8 +1331,6 @@ theorem ParserTransition_eval.run_sound_group :
          NanoP4Spec.ParserSelect_eval p0 p1 o) := by
   run_sound_group NanoP4Spec.ParserTransition_eval.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.ParserTransition_eval.run_sound_group
-
 theorem ParserTransition_eval.run_sound
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.transitionStatement)
@@ -1344,16 +1339,12 @@ theorem ParserTransition_eval.run_sound
         NanoP4Spec.ParserTransition_eval p0 p1 o :=
   fun h => NanoP4Spec.ParserTransition_eval.run_sound_group.1 p0 p1 _ h o rfl
 
-#audit_axioms NanoP4Spec.ParserTransition_eval.run_sound
-
 theorem ParserSelect_eval.run_sound
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.selectExpression)
     (o : NanoP4Spec.transitionResult) :
     NanoP4Spec.ParserSelect_eval.run p0 p1 = some (.ok o) → NanoP4Spec.ParserSelect_eval p0 p1 o :=
   fun h => NanoP4Spec.ParserTransition_eval.run_sound_group.2 p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.ParserSelect_eval.run_sound
 
 def ParserTransition_eval.al : Lang.Al.def :=
   Q.d
@@ -1873,5 +1864,9 @@ def ParserSelect_eval.al : Lang.Al.def :=
              [Q.e (.CaseE (.Atom (Q.a (.Keyword "REJECT")))) (Q.varT "transitionResult" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.ParserTransition_eval.run_sound_group
+#audit_axioms NanoP4Spec.ParserTransition_eval.run_sound
+#audit_axioms NanoP4Spec.ParserSelect_eval.run_sound
 
 end NanoP4Spec

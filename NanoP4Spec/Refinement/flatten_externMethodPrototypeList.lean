@@ -46,8 +46,6 @@ theorem «$flatten_externMethodPrototypeList».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$flatten_externMethodPrototypeList».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$flatten_externMethodPrototypeList».refines
     (fuel : Nat)
@@ -73,8 +71,6 @@ theorem «$flatten_externMethodPrototypeList».refines
     v0
     p0
     h0
-
-#audit_axioms NanoP4Spec.«$flatten_externMethodPrototypeList».refines
 
 private def «$flatten_externMethodPrototypeList».realizesMotive
     (p0 : NanoP4Spec.externMethodPrototypeList)
@@ -111,6 +107,8 @@ theorem «$flatten_externMethodPrototypeList».realizes
       realize_step hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$flatten_externMethodPrototypeList».refines_group
+#audit_axioms NanoP4Spec.«$flatten_externMethodPrototypeList».refines
 #audit_axioms NanoP4Spec.«$flatten_externMethodPrototypeList».realizes
 
 end NanoP4Spec

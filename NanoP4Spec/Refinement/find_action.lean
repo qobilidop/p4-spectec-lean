@@ -43,8 +43,6 @@ theorem «$find_action».refines
       (ExceptT.mk (NanoP4Spec.«$find_action» p0 p1)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$find_action».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$find_action».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -63,6 +61,7 @@ theorem «$find_action».realizes
       (ExceptT.mk (NanoP4Spec.«$find_action» p0 p1)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$find_action».refines
 #audit_axioms NanoP4Spec.«$find_action».realizes
 
 end NanoP4Spec

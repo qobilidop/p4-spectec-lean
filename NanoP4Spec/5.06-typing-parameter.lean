@@ -78,8 +78,6 @@ theorem Parameter_ok.run_sound
         NanoP4Spec.Parameter_ok p0 p1 p2 o.1 o.2 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Parameter_ok.run_sound
-
 -- no determinism theorem: Parameter_ok
 --   calls Type_ok, which has no determinism theorem
 
@@ -248,8 +246,6 @@ theorem Parameters_ok.run_sound_group :
          NanoP4Spec.Parameters_ok p0 p1 p2 o.1 o.2) := by
   run_sound_group NanoP4Spec.Parameters_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Parameters_ok.run_sound_group
-
 theorem Parameters_ok.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.typingContext)
@@ -258,8 +254,6 @@ theorem Parameters_ok.run_sound
     NanoP4Spec.Parameters_ok.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.Parameters_ok p0 p1 p2 o.1 o.2 :=
   fun h => NanoP4Spec.Parameters_ok.run_sound_group p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.Parameters_ok.run_sound
 
 def Parameters_ok.al : Lang.Al.def :=
   Q.d
@@ -543,8 +537,6 @@ theorem ParameterList_ok.run_sound
         NanoP4Spec.ParameterList_ok p0 p1 p2 o.1 o.2 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ParameterList_ok.run_sound
-
 -- no determinism theorem: ParameterList_ok
 --   calls Parameters_ok, which has no determinism theorem
 
@@ -685,8 +677,6 @@ theorem ExternMethod_ok.run_sound
     (o : NanoP4Spec.externMethodTypeDefIR) :
     NanoP4Spec.ExternMethod_ok.run p0 p1 = some (.ok o) → NanoP4Spec.ExternMethod_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ExternMethod_ok.run_sound
 
 -- no determinism theorem: ExternMethod_ok
 --   calls ParameterList_ok, which has no determinism theorem
@@ -1026,5 +1016,11 @@ def «$no_object_params».al : Lang.Al.def :=
                    .BoolT))]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Parameter_ok.run_sound
+#audit_axioms NanoP4Spec.Parameters_ok.run_sound_group
+#audit_axioms NanoP4Spec.Parameters_ok.run_sound
+#audit_axioms NanoP4Spec.ParameterList_ok.run_sound
+#audit_axioms NanoP4Spec.ExternMethod_ok.run_sound
 
 end NanoP4Spec

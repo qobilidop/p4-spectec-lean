@@ -48,8 +48,6 @@ private theorem parserTypeDefIR.bodyCodec : @Representation.Codec
   (NanoP4Spec.parserObjectTypeIR.admitted) :=
   NanoP4Spec.parserObjectTypeIR.codec
 
-#audit_axioms NanoP4Spec.parserTypeDefIR.bodyCodec
-
 private theorem parserTypeDefIR.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.parserTypeDefIR.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "parserObjectTypeIR" [])).it) v := by
@@ -61,16 +59,12 @@ private theorem parserTypeDefIR.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "parserObjectTypeIR") [] [] rfl
     (.nil)) v
 
-#audit_axioms NanoP4Spec.parserTypeDefIR.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem parserTypeDefIR.encodingSourceIff (x : NanoP4Spec.parserTypeDefIR) :
     NanoP4Spec.parserTypeDefIR.source (NanoP4Spec.parserTypeDefIR.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "parserObjectTypeIR" [])).it) ((NanoP4Spec.parserObjectTypeIR.toValue) x) :=
   NanoP4Spec.parserTypeDefIR.sourceIff _
-
-#audit_axioms NanoP4Spec.parserTypeDefIR.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem parserTypeDefIR.codec : @Refine.Representation.Codec NanoP4Spec.parserTypeDefIR
@@ -118,8 +112,6 @@ theorem parserTypeDefIR.codec : @Refine.Representation.Codec NanoP4Spec.parserTy
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.parserTypeDefIR.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem parserTypeDefIR.admittedAll : ∀ x : NanoP4Spec.parserTypeDefIR,
   (NanoP4Spec.parserTypeDefIR.admitted) x := by
@@ -127,6 +119,10 @@ theorem parserTypeDefIR.admittedAll : ∀ x : NanoP4Spec.parserTypeDefIR,
   exact ((show ∀ x : (NanoP4Spec.parserObjectTypeIR), (NanoP4Spec.parserObjectTypeIR.admitted) x
     from NanoP4Spec.parserObjectTypeIR.admittedAll)) x
 
+#audit_axioms NanoP4Spec.parserTypeDefIR.bodyCodec
+#audit_axioms NanoP4Spec.parserTypeDefIR.sourceIff
+#audit_axioms NanoP4Spec.parserTypeDefIR.encodingSourceIff
+#audit_axioms NanoP4Spec.parserTypeDefIR.codec
 #audit_axioms NanoP4Spec.parserTypeDefIR.admittedAll
 
 end NanoP4Spec

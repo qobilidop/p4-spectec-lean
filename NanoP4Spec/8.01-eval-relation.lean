@@ -859,8 +859,6 @@ theorem Expr_eval.run_sound_group :
          NanoP4Spec.Expr_eval p0 p1 p2 o) := by
   run_sound_group NanoP4Spec.Expr_eval.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Expr_eval.run_sound_group
-
 theorem Expr_eval.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -868,8 +866,6 @@ theorem Expr_eval.run_sound
     (o : NanoP4Spec.value) :
     NanoP4Spec.Expr_eval.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Expr_eval p0 p1 p2 o :=
   fun h => NanoP4Spec.Expr_eval.run_sound_group p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.Expr_eval.run_sound
 
 def Expr_eval.al : Lang.Al.def :=
   Q.d
@@ -1595,8 +1591,6 @@ theorem Lvalue_eval.run_sound
     NanoP4Spec.Lvalue_eval.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Lvalue_eval p0 p1 p2 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Lvalue_eval.run_sound
-
 -- no determinism theorem: Lvalue_eval
 --   calls Expr_eval, which has no determinism theorem
 
@@ -1699,8 +1693,6 @@ theorem VarDecl_eval.run_sound
     (o : NanoP4Spec.evalContext) :
     NanoP4Spec.VarDecl_eval.run p0 p1 p2 = some (.ok o) → NanoP4Spec.VarDecl_eval p0 p1 p2 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.VarDecl_eval.run_sound
 
 -- no determinism theorem: VarDecl_eval
 --   calls Expr_eval, which has no determinism theorem
@@ -1995,8 +1987,6 @@ theorem Callee_eval.run_sound
     (o : NanoP4Spec.callee) :
     NanoP4Spec.Callee_eval.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Callee_eval p0 p1 p2 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.Callee_eval.run_sound
 
 -- no determinism theorem: Callee_eval
 --   3 rule paths
@@ -2471,5 +2461,11 @@ def Callee_eval.al : Lang.Al.def :=
                 (Q.varT "callee" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Expr_eval.run_sound_group
+#audit_axioms NanoP4Spec.Expr_eval.run_sound
+#audit_axioms NanoP4Spec.Lvalue_eval.run_sound
+#audit_axioms NanoP4Spec.VarDecl_eval.run_sound
+#audit_axioms NanoP4Spec.Callee_eval.run_sound
 
 end NanoP4Spec

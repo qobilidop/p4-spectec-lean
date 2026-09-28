@@ -50,8 +50,6 @@ theorem «$update_fieldValue».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$update_fieldValue».refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem «$update_fieldValue».refines
     (fuel : Nat)
@@ -84,8 +82,6 @@ theorem «$update_fieldValue».refines
     h0
     h1
     h2
-
-#audit_axioms NanoP4Spec.«$update_fieldValue».refines
 
 private def «$update_fieldValue».realizesMotive
     (p0 : List NanoP4Spec.fieldValue)
@@ -130,6 +126,8 @@ theorem «$update_fieldValue».realizes
       realize_step hq)
     p0 p1 p2 q hq cfg ctx internal hguard hfenv hspec v0 v1 v2 h0 h1 h2
 
+#audit_axioms NanoP4Spec.«$update_fieldValue».refines_group
+#audit_axioms NanoP4Spec.«$update_fieldValue».refines
 #audit_axioms NanoP4Spec.«$update_fieldValue».realizes
 
 end NanoP4Spec

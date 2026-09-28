@@ -46,8 +46,6 @@ private theorem member.bodyCodec : @Representation.Codec (NanoP4Spec.name)
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
 
-#audit_axioms NanoP4Spec.member.bodyCodec
-
 private theorem member.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.member.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "name" [])).it) v := by
@@ -57,16 +55,12 @@ private theorem member.sourceIff (v : Lang.Il.value) :
   rw [substitution.emptyNamedResult (Q.i "name")] at valid
   exact valid) (Representation.Source.Substitutes.named (Q.i "name") [] [] rfl (.nil)) v
 
-#audit_axioms NanoP4Spec.member.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem member.encodingSourceIff (x : NanoP4Spec.member) :
     NanoP4Spec.member.source (NanoP4Spec.member.toValue x) ↔ (Representation.Source.Valid
       NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "name" [])).it)
       ((NanoP4Spec.name.toValue) x) :=
   NanoP4Spec.member.sourceIff _
-
-#audit_axioms NanoP4Spec.member.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem member.codec : @Refine.Representation.Codec NanoP4Spec.member
@@ -108,14 +102,16 @@ theorem member.codec : @Refine.Representation.Codec NanoP4Spec.member
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.member.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem member.admittedAll : ∀ x : NanoP4Spec.member, (NanoP4Spec.member.admitted) x := by
   intro x
   exact ((show ∀ x : (NanoP4Spec.name), (NanoP4Spec.name.admitted) x from
     NanoP4Spec.name.admittedAll)) x
 
+#audit_axioms NanoP4Spec.member.bodyCodec
+#audit_axioms NanoP4Spec.member.sourceIff
+#audit_axioms NanoP4Spec.member.encodingSourceIff
+#audit_axioms NanoP4Spec.member.codec
 #audit_axioms NanoP4Spec.member.admittedAll
 
 end NanoP4Spec

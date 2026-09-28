@@ -37,7 +37,8 @@ namespace NanoP4Spec
 theorem «$enter_e».runtimeCallArgumentsSource :
     True :=
   trivial
-#audit_axioms «$enter_e».runtimeCallArgumentsSource
 
+
+#audit_axioms «$enter_e».runtimeCallArgumentsSource
 
 end NanoP4Spec

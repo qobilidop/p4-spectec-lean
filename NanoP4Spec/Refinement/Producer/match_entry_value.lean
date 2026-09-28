@@ -71,7 +71,8 @@ theorem «$match_entry_value».producesSource :
     x from (fun xs x _ => ((show ∀ x : (NanoP4Spec.tableActionReference),
     (NanoP4Spec.tableActionReference.admitted) x from
     NanoP4Spec.tableActionReference.admittedAll)) x))) result)
-#audit_axioms «$match_entry_value».producesSource
 
+
+#audit_axioms «$match_entry_value».producesSource
 
 end NanoP4Spec

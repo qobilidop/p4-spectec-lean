@@ -60,7 +60,8 @@ theorem «$directionless_trailing».callArgumentsSource :
     : (List (NanoP4Spec.direction)), (fun xs : List (NanoP4Spec.direction) => ∀ x ∈ xs, (fun _
     => True) x) x from (fun xs x _ => ((show ∀ x : (NanoP4Spec.direction), (fun _ => True) x
     from NanoP4Spec.direction.admittedAll)) x))) x)), trivial⟩
-#audit_axioms «$directionless_trailing».callArgumentsSource
 
+
+#audit_axioms «$directionless_trailing».callArgumentsSource
 
 end NanoP4Spec

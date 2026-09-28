@@ -57,8 +57,6 @@ private theorem blockEvalLayer.fieldCodec0 : @Representation.Codec (NanoP4Spec.f
   (NanoP4Spec.frame.runtimeAdmitted) :=
   NanoP4Spec.frame.runtimeCodec
 
-#audit_axioms blockEvalLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem blockEvalLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "frame" [])).it actual → ∀ v,
@@ -70,8 +68,6 @@ private theorem blockEvalLayer.fieldSubstitution0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "frame")] at valid
     exact valid)
-
-#audit_axioms blockEvalLayer.fieldSubstitution0
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem blockEvalLayer.payload (v : Lang.Il.value) (hv :
@@ -94,8 +90,6 @@ private theorem blockEvalLayer.payload (v : Lang.Il.value) (hv :
       cases tail
       exact .cons (blockEvalLayer.fieldSubstitution0 _ sub0) (.nil)
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.blockEvalLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem blockEvalLayer.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.blockEvalLayer
@@ -194,8 +188,6 @@ theorem blockEvalLayer.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.bl
             rw [h0 fuel enough0]
             rfl
 
-#audit_axioms NanoP4Spec.blockEvalLayer.runtimeCodec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem blockEvalLayer.runtimeEncodingSourceIff (x : NanoP4Spec.blockEvalLayer) :
     NanoP4Spec.blockEvalLayer.runtimeSource (NanoP4Spec.blockEvalLayer.toValue x) ↔
@@ -223,8 +215,6 @@ theorem blockEvalLayer.runtimeEncodingSourceIff (x : NanoP4Spec.blockEvalLayer) 
         (.nil)⟩
     exact ⟨_, rfl, .cons (rfl) (.nil), .cons _ _ _ _ p0 (.nil)⟩
 
-#audit_axioms NanoP4Spec.blockEvalLayer.runtimeEncodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem blockEvalLayer.runtimeAdmittedAll : ∀ x : NanoP4Spec.blockEvalLayer,
   (NanoP4Spec.blockEvalLayer.runtimeAdmitted) x := by
@@ -232,6 +222,11 @@ theorem blockEvalLayer.runtimeAdmittedAll : ∀ x : NanoP4Spec.blockEvalLayer,
   exact ⟨((show ∀ x : (NanoP4Spec.frame), (NanoP4Spec.frame.runtimeAdmitted) x from
     NanoP4Spec.frame.runtimeAdmittedAll)) (x.FRAME), trivial⟩
 
+#audit_axioms blockEvalLayer.fieldCodec0
+#audit_axioms blockEvalLayer.fieldSubstitution0
+#audit_axioms NanoP4Spec.blockEvalLayer.payload
+#audit_axioms NanoP4Spec.blockEvalLayer.runtimeCodec
+#audit_axioms NanoP4Spec.blockEvalLayer.runtimeEncodingSourceIff
 #audit_axioms NanoP4Spec.blockEvalLayer.runtimeAdmittedAll
 
 end NanoP4Spec

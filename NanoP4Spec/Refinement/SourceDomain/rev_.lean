@@ -73,7 +73,7 @@ theorem «$rev_».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α0] [B
     cases Except.ok.inj (Option.some.inj run)
     exact SourceBuiltin.reversePreserves A0 p0 hp0
 
-#audit_axioms «$rev_».sourceDomain
 
+#audit_axioms «$rev_».sourceDomain
 
 end NanoP4Spec

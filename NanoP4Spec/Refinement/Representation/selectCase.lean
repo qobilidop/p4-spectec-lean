@@ -54,8 +54,6 @@ private theorem selectCase.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.exp
   (NanoP4Spec.expression.admitted) :=
   NanoP4Spec.expression.codec
 
-#audit_axioms NanoP4Spec.selectCase.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem selectCase.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "expression" [])).it actual → ∀ v,
@@ -67,16 +65,12 @@ private theorem selectCase.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "expression")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.selectCase.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem selectCase.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.name)
   ⟨NanoP4Spec.name.toValue⟩ ⟨NanoP4Spec.name.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "name" [])).it)
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
-
-#audit_axioms NanoP4Spec.selectCase.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem selectCase.fieldSubstitution0_1 : ∀ actual,
@@ -88,8 +82,6 @@ private theorem selectCase.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "name")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.selectCase.fieldSubstitution0_1
 
 private theorem selectCase.sourceCasesValid (v : Lang.Il.value) (hv : selectCase.source v) :
     ∃ c ∈ selectCase.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -119,8 +111,6 @@ private theorem selectCase.sourceCasesValid (v : Lang.Il.value) (hv : selectCase
         exact .cons (selectCase.fieldSubstitution0_0 _ sub0) (.cons
           (selectCase.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.selectCase.sourceCasesValid
-
 private theorem selectCase.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -141,8 +131,6 @@ private theorem selectCase.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Doma
     v1).bind (fun x1 => some (NanoP4Spec.selectCase.colon_semi x0 x1)))
   cases ((NanoP4Spec.expression.ofValue) fuel v0) <;> cases ((NanoP4Spec.name.ofValue) fuel v1)
     <;> rfl
-
-#audit_axioms selectCase.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem selectCase.codec : @Refine.Representation.Codec NanoP4Spec.selectCase
@@ -300,7 +288,6 @@ theorem selectCase.codec : @Refine.Representation.Codec NanoP4Spec.selectCase
               tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.selectCase.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -314,6 +301,13 @@ theorem selectCase.admittedAll : ∀ x : NanoP4Spec.selectCase, (NanoP4Spec.sele
       (NanoP4Spec.name.admitted) x from NanoP4Spec.name.admittedAll)) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.selectCase.fieldCodec0_0
+#audit_axioms NanoP4Spec.selectCase.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.selectCase.fieldCodec0_1
+#audit_axioms NanoP4Spec.selectCase.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.selectCase.sourceCasesValid
+#audit_axioms selectCase.decode0
+#audit_axioms NanoP4Spec.selectCase.codec
 #audit_axioms NanoP4Spec.selectCase.admittedAll
 
 end NanoP4Spec

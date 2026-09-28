@@ -43,8 +43,6 @@ theorem «$flatten_nameList».refines_group :
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$flatten_nameList».refines_group
-
 set_option maxHeartbeats 6000000 in
 theorem «$flatten_nameList».refines
     (fuel : Nat)
@@ -58,8 +56,6 @@ theorem «$flatten_nameList».refines
       (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "flatten_nameList") [] [v0])
       (ExceptT.mk (NanoP4Spec.«$flatten_nameList» p0)) :=
   (NanoP4Spec.«$flatten_nameList».refines_group fuel) cfg ctx internal hguard hfenv hspec v0 p0 h0
-
-#audit_axioms NanoP4Spec.«$flatten_nameList».refines
 
 private def «$flatten_nameList».realizesMotive
     (p0 : NanoP4Spec.nameList)
@@ -96,6 +92,8 @@ theorem «$flatten_nameList».realizes
       realize_step (relations) hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$flatten_nameList».refines_group
+#audit_axioms NanoP4Spec.«$flatten_nameList».refines
 #audit_axioms NanoP4Spec.«$flatten_nameList».realizes
 
 end NanoP4Spec

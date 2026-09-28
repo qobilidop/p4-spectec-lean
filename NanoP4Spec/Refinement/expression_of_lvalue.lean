@@ -43,8 +43,6 @@ theorem «$expression_of_lvalue».refines_group :
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$expression_of_lvalue».refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem «$expression_of_lvalue».refines
     (fuel : Nat)
@@ -67,8 +65,6 @@ theorem «$expression_of_lvalue».refines
     v0
     p0
     h0
-
-#audit_axioms NanoP4Spec.«$expression_of_lvalue».refines
 
 private def «$expression_of_lvalue».realizesMotive
     (p0 : NanoP4Spec.lvalue)
@@ -105,6 +101,8 @@ theorem «$expression_of_lvalue».realizes
       realize_step (relations) hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$expression_of_lvalue».refines_group
+#audit_axioms NanoP4Spec.«$expression_of_lvalue».refines
 #audit_axioms NanoP4Spec.«$expression_of_lvalue».realizes
 
 end NanoP4Spec

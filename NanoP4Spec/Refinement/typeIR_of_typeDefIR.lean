@@ -40,8 +40,6 @@ theorem «$typeIR_of_typeDefIR».refines
       (ExceptT.mk (NanoP4Spec.«$typeIR_of_typeDefIR» p0)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$typeIR_of_typeDefIR».refines
-
 set_option maxHeartbeats 6000000 in
 theorem «$typeIR_of_typeDefIR».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -58,6 +56,7 @@ theorem «$typeIR_of_typeDefIR».realizes
       (ExceptT.mk (NanoP4Spec.«$typeIR_of_typeDefIR» p0)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.«$typeIR_of_typeDefIR».refines
 #audit_axioms NanoP4Spec.«$typeIR_of_typeDefIR».realizes
 
 end NanoP4Spec

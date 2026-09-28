@@ -50,7 +50,8 @@ theorem «$bin_eq».runtimeProducesSource :
     (Q.t .BoolT).it) (fun _ : Bool => True) (@Representation.Source.boolCodec NanoP4Spec.spec
     (Representation.Source.runtimeDomain ["value"]))) result (((show ∀ x : (Bool), (fun _ : Bool
     => True) x from (fun _ => True.intro))) result)
-#audit_axioms «$bin_eq».runtimeProducesSource
 
+
+#audit_axioms «$bin_eq».runtimeProducesSource
 
 end NanoP4Spec

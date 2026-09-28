@@ -78,8 +78,6 @@ private theorem parenthesizedExpression.sourceFields (v : Lang.Il.value) (hv :
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.parenthesizedExpression.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def parenthesizedExpression.admitted : NanoP4Spec.parenthesizedExpression → Prop
@@ -199,8 +197,6 @@ theorem parenthesizedExpression.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.parenthesizedExpression.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem parenthesizedExpression.admittedAll : ∀ x : NanoP4Spec.parenthesizedExpression,
@@ -211,6 +207,8 @@ theorem parenthesizedExpression.admittedAll : ∀ x : NanoP4Spec.parenthesizedEx
     exact ((show ∀ x : (NanoP4Spec.expression), (NanoP4Spec.expression.admitted) x from
       NanoP4Spec.expression.admittedAll)) a
 
+#audit_axioms NanoP4Spec.parenthesizedExpression.sourceFields
+#audit_axioms NanoP4Spec.parenthesizedExpression.codec
 #audit_axioms NanoP4Spec.parenthesizedExpression.admittedAll
 
 end NanoP4Spec

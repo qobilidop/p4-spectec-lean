@@ -48,8 +48,6 @@ theorem Decls_load.refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.Decls_load.refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem Decls_load.refines
     (fuel : Nat)
@@ -82,8 +80,6 @@ theorem Decls_load.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Decls_load.refines
 
 private def Decls_load.realizesMotive
     (p0 : NanoP4Spec.loadContext)
@@ -124,6 +120,8 @@ theorem Decls_load.realizes
       realize_step (relations) hq)
     p0 p1 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.Decls_load.refines_group
+#audit_axioms NanoP4Spec.Decls_load.refines
 #audit_axioms NanoP4Spec.Decls_load.realizes
 
 end NanoP4Spec

@@ -59,8 +59,6 @@ private theorem tableContext.fieldCodec0 : @Representation.Codec (NanoP4Spec.mat
   (NanoP4Spec.matchKey.admitted) :=
   NanoP4Spec.matchKey.codec
 
-#audit_axioms tableContext.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableContext.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "matchKey" [])).it actual → ∀ v,
@@ -71,8 +69,6 @@ private theorem tableContext.fieldSubstitution0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "matchKey")] at valid
     exact valid)
-
-#audit_axioms tableContext.fieldSubstitution0
 
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem tableContext.fieldCodec1 : @Representation.Codec (List (NanoP4Spec.matchAction))
@@ -86,8 +82,6 @@ private theorem tableContext.fieldCodec1 : @Representation.Codec (List (NanoP4Sp
     (NanoP4Spec.matchAction) ⟨NanoP4Spec.matchAction.toValue⟩ ⟨NanoP4Spec.matchAction.ofValue⟩
     (Q.t (Q.varT "matchAction" [])) (NanoP4Spec.matchAction.admitted)
     (NanoP4Spec.matchAction.codec)
-
-#audit_axioms tableContext.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableContext.fieldSubstitution1 : ∀ actual,
@@ -105,8 +99,6 @@ private theorem tableContext.fieldSubstitution1 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "matchAction")] at valid
     exact valid)
-
-#audit_axioms tableContext.fieldSubstitution1
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem tableContext.payload (v : Lang.Il.value) (hv : NanoP4Spec.tableContext.source v)
@@ -130,8 +122,6 @@ private theorem tableContext.payload (v : Lang.Il.value) (hv : NanoP4Spec.tableC
         exact .cons (tableContext.fieldSubstitution0 _ sub0) (.cons
           (tableContext.fieldSubstitution1 _ sub1) (.nil))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.tableContext.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem tableContext.codec : @Refine.Representation.Codec NanoP4Spec.tableContext
@@ -311,8 +301,6 @@ theorem tableContext.codec : @Refine.Representation.Codec NanoP4Spec.tableContex
                 rw [h0 fuel enough0, h1 fuel enough1]
                 rfl
 
-#audit_axioms NanoP4Spec.tableContext.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem tableContext.encodingSourceIff (x : NanoP4Spec.tableContext) :
     NanoP4Spec.tableContext.source (NanoP4Spec.tableContext.toValue x) ↔
@@ -349,8 +337,6 @@ theorem tableContext.encodingSourceIff (x : NanoP4Spec.tableContext) :
         "matchAction") [] [] rfl (.nil))) (.nil))⟩
     exact ⟨_, rfl, .cons (rfl) (.cons (rfl) (.nil)), .cons _ _ _ _ p0 (.cons _ _ _ _ p1 (.nil))⟩
 
-#audit_axioms NanoP4Spec.tableContext.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem tableContext.admittedAll : ∀ x : NanoP4Spec.tableContext,
   (NanoP4Spec.tableContext.admitted) x := by
@@ -361,6 +347,13 @@ theorem tableContext.admittedAll : ∀ x : NanoP4Spec.tableContext,
     from (fun xs x _ => ((show ∀ x : (NanoP4Spec.matchAction), (NanoP4Spec.matchAction.admitted)
     x from NanoP4Spec.matchAction.admittedAll)) x))) (x.ACTIONS), trivial⟩
 
+#audit_axioms tableContext.fieldCodec0
+#audit_axioms tableContext.fieldSubstitution0
+#audit_axioms tableContext.fieldCodec1
+#audit_axioms tableContext.fieldSubstitution1
+#audit_axioms NanoP4Spec.tableContext.payload
+#audit_axioms NanoP4Spec.tableContext.codec
+#audit_axioms NanoP4Spec.tableContext.encodingSourceIff
 #audit_axioms NanoP4Spec.tableContext.admittedAll
 
 end NanoP4Spec

@@ -46,8 +46,6 @@ theorem «$split_dataplane_parameters».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$split_dataplane_parameters».refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem «$split_dataplane_parameters».refines
     (fuel : Nat)
@@ -73,8 +71,6 @@ theorem «$split_dataplane_parameters».refines
     v0
     p0
     h0
-
-#audit_axioms NanoP4Spec.«$split_dataplane_parameters».refines
 
 private def «$split_dataplane_parameters».realizesMotive
     (p0 : List NanoP4Spec.parameterIR)
@@ -111,6 +107,8 @@ theorem «$split_dataplane_parameters».realizes
       realize_step hq)
     p0 q hq cfg ctx internal hguard hfenv hspec v0 h0
 
+#audit_axioms NanoP4Spec.«$split_dataplane_parameters».refines_group
+#audit_axioms NanoP4Spec.«$split_dataplane_parameters».refines
 #audit_axioms NanoP4Spec.«$split_dataplane_parameters».realizes
 
 end NanoP4Spec

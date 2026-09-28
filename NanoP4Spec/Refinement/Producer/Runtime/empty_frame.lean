@@ -47,7 +47,8 @@ theorem «$empty_frame».runtimeProducesSource :
     (NanoP4Spec.frame.runtimeAdmitted) (NanoP4Spec.frame.runtimeCodec)) result (((show ∀ x :
     (NanoP4Spec.frame), (NanoP4Spec.frame.runtimeAdmitted) x from
     NanoP4Spec.frame.runtimeAdmittedAll)) result)
-#audit_axioms «$empty_frame».runtimeProducesSource
 
+
+#audit_axioms «$empty_frame».runtimeProducesSource
 
 end NanoP4Spec

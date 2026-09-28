@@ -347,23 +347,17 @@ theorem Type_eq.run_sound_group :
          NanoP4Spec.ParameterType_eq p0 p1) := by
   run_sound_group NanoP4Spec.Type_eq.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Type_eq.run_sound_group
-
 theorem Type_eq.run_sound
     (p0 : NanoP4Spec.typeIR)
     (p1 : NanoP4Spec.typeIR) :
     NanoP4Spec.Type_eq.run p0 p1 = some (.ok ()) → NanoP4Spec.Type_eq p0 p1 :=
   fun h => NanoP4Spec.Type_eq.run_sound_group.1 p0 p1 _ h () rfl
 
-#audit_axioms NanoP4Spec.Type_eq.run_sound
-
 theorem ParameterType_eq.run_sound
     (p0 : NanoP4Spec.parameterIR)
     (p1 : NanoP4Spec.parameterIR) :
     NanoP4Spec.ParameterType_eq.run p0 p1 = some (.ok ()) → NanoP4Spec.ParameterType_eq p0 p1 :=
   fun h => NanoP4Spec.Type_eq.run_sound_group.2 p0 p1 _ h () rfl
-
-#audit_axioms NanoP4Spec.ParameterType_eq.run_sound
 
 def Type_eq.al : Lang.Al.def :=
   Q.d
@@ -1294,8 +1288,6 @@ theorem VarDecl_ok.run_sound
     NanoP4Spec.VarDecl_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.VarDecl_ok p0 p1 p2 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.VarDecl_ok.run_sound
-
 -- no determinism theorem: VarDecl_ok
 --   calls Type_ok, which has no determinism theorem
 
@@ -1568,8 +1560,6 @@ theorem ParserTransition_ok.run_sound
     NanoP4Spec.ParserTransition_ok.run p0 p1 p2 = some (.ok ()) →
         NanoP4Spec.ParserTransition_ok p0 p1 p2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ParserTransition_ok.run_sound
 
 -- no determinism theorem: ParserTransition_ok
 --   2 rule paths
@@ -1856,5 +1846,11 @@ def ParserTransition_ok.al : Lang.Al.def :=
              []]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Type_eq.run_sound_group
+#audit_axioms NanoP4Spec.Type_eq.run_sound
+#audit_axioms NanoP4Spec.ParameterType_eq.run_sound
+#audit_axioms NanoP4Spec.VarDecl_ok.run_sound
+#audit_axioms NanoP4Spec.ParserTransition_ok.run_sound
 
 end NanoP4Spec

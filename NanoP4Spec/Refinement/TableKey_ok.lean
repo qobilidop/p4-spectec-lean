@@ -47,8 +47,6 @@ theorem TableKey_ok.refines
       (ExceptT.mk (NanoP4Spec.TableKey_ok.run p0 p1)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.TableKey_ok.refines
-
 set_option maxHeartbeats 6000000 in
 theorem TableKey_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -64,6 +62,7 @@ theorem TableKey_ok.realizes
       (ExceptT.mk (NanoP4Spec.TableKey_ok.run p0 p1)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.TableKey_ok.refines
 #audit_axioms NanoP4Spec.TableKey_ok.realizes
 
 end NanoP4Spec

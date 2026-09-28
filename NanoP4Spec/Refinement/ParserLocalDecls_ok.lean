@@ -48,8 +48,6 @@ theorem ParserLocalDecls_ok.refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.ParserLocalDecls_ok.refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem ParserLocalDecls_ok.refines
     (fuel : Nat)
@@ -82,8 +80,6 @@ theorem ParserLocalDecls_ok.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.ParserLocalDecls_ok.refines
 
 private def ParserLocalDecls_ok.realizesMotive
     (p0 : NanoP4Spec.typingContext)
@@ -126,6 +122,8 @@ theorem ParserLocalDecls_ok.realizes
       realize_step (relations) hq)
     p0 p1 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.ParserLocalDecls_ok.refines_group
+#audit_axioms NanoP4Spec.ParserLocalDecls_ok.refines
 #audit_axioms NanoP4Spec.ParserLocalDecls_ok.realizes
 
 end NanoP4Spec

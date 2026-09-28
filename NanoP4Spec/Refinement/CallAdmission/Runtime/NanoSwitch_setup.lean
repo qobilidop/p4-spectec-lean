@@ -115,7 +115,8 @@ theorem NanoSwitch_setup.runtimeCallArgumentsSource :
     (Representation.Source.namesInCheckSound _ _ (by closure_check)) _
     (NanoP4Spec.typeIR.codec)))) x (((show ∀ x : (NanoP4Spec.typeIR),
     (NanoP4Spec.typeIR.admitted) x from NanoP4Spec.typeIR.admittedAll)) x)), trivial⟩
-#audit_axioms NanoSwitch_setup.runtimeCallArgumentsSource
 
+
+#audit_axioms NanoSwitch_setup.runtimeCallArgumentsSource
 
 end NanoP4Spec

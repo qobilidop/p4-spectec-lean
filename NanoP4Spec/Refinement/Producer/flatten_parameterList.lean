@@ -59,7 +59,8 @@ theorem «$flatten_parameterList».producesSource :
     List (NanoP4Spec.parameter) => ∀ x ∈ xs, (NanoP4Spec.parameter.admitted) x) x from (fun xs x
     _ => ((show ∀ x : (NanoP4Spec.parameter), (NanoP4Spec.parameter.admitted) x from
     NanoP4Spec.parameter.admittedAll)) x))) result)
-#audit_axioms «$flatten_parameterList».producesSource
 
+
+#audit_axioms «$flatten_parameterList».producesSource
 
 end NanoP4Spec

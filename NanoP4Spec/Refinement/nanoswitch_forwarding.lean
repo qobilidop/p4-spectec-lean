@@ -41,8 +41,6 @@ theorem «$nanoswitch_forwarding».refines
       (ExceptT.mk (NanoP4Spec.«$nanoswitch_forwarding» p0)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$nanoswitch_forwarding».refines
-
 set_option maxHeartbeats 6000000 in
 theorem «$nanoswitch_forwarding».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -59,6 +57,7 @@ theorem «$nanoswitch_forwarding».realizes
       (ExceptT.mk (NanoP4Spec.«$nanoswitch_forwarding» p0)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.«$nanoswitch_forwarding».refines
 #audit_axioms NanoP4Spec.«$nanoswitch_forwarding».realizes
 
 end NanoP4Spec

@@ -74,8 +74,6 @@ theorem Externs.ExternMethodCall_eval.refines
   have hrel : Holds ctx.global NanoP4Spec.ExternMethodCall_eval.al := by holds_from_spec
   exact externRelRefines hguard internal hrel (hextern v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3).1 fuel
 
-#audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.refines
-
 theorem Externs.ExternMethodCall_eval.realizes
     [NanoP4Spec.Externs]
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -99,8 +97,6 @@ theorem Externs.ExternMethodCall_eval.realizes
       (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3)) := by
   have hrel : Holds ctx.global NanoP4Spec.ExternMethodCall_eval.al := by holds_from_spec
   exact externRelRealizes hguard internal hrel (hextern v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3).2
-
-#audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.realizes
 
 theorem Externs.ExternMethodCall_eval.invocations
     [NanoP4Spec.Externs]
@@ -133,6 +129,8 @@ theorem Externs.ExternMethodCall_eval.invocations
     hspec v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3 , Externs.ExternMethodCall_eval.realizes cfg ctx
     internal hguard hextern hfenv hspec v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3 ⟩
 
+#audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.refines
+#audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.realizes
 #audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.invocations
 
 end NanoP4Spec

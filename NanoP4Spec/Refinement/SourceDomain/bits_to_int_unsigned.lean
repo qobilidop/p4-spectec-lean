@@ -61,7 +61,7 @@ theorem «$bits_to_int_unsigned».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 
       Representation.Source.externDomain) result
     trivial
 
-#audit_axioms «$bits_to_int_unsigned».sourceDomain
 
+#audit_axioms «$bits_to_int_unsigned».sourceDomain
 
 end NanoP4Spec

@@ -52,7 +52,8 @@ theorem TableProperties_ok.producesSource :
     "tableContext" [])).it) (NanoP4Spec.tableContext.admitted) (NanoP4Spec.tableContext.codec))
     result (((show ∀ x : (NanoP4Spec.tableContext), (NanoP4Spec.tableContext.admitted) x from
     NanoP4Spec.tableContext.admittedAll)) result)
-#audit_axioms TableProperties_ok.producesSource
 
+
+#audit_axioms TableProperties_ok.producesSource
 
 end NanoP4Spec

@@ -47,8 +47,6 @@ theorem NanoSwitch_filter.refines
       (ExceptT.mk (NanoP4Spec.NanoSwitch_filter.run p0 p1)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.NanoSwitch_filter.refines
-
 set_option maxHeartbeats 6000000 in
 theorem NanoSwitch_filter.realizes
     [NanoP4Spec.Externs]
@@ -70,6 +68,7 @@ theorem NanoSwitch_filter.realizes
       (ExceptT.mk (NanoP4Spec.NanoSwitch_filter.run p0 p1)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.NanoSwitch_filter.refines
 #audit_axioms NanoP4Spec.NanoSwitch_filter.realizes
 
 end NanoP4Spec

@@ -72,7 +72,8 @@ theorem Decls_load.callArgumentsSource :
     List (NanoP4Spec.declaration) => ∀ x ∈ xs, (NanoP4Spec.declaration.admitted) x) x from (fun
     xs x _ => ((show ∀ x : (NanoP4Spec.declaration), (NanoP4Spec.declaration.admitted) x from
     NanoP4Spec.declaration.admittedAll)) x))) x)), trivial⟩
-#audit_axioms Decls_load.callArgumentsSource
 
+
+#audit_axioms Decls_load.callArgumentsSource
 
 end NanoP4Spec

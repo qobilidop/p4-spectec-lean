@@ -74,7 +74,7 @@ theorem «$in_set».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α0] 
       result
     trivial
 
-#audit_axioms «$in_set».sourceDomain
 
+#audit_axioms «$in_set».sourceDomain
 
 end NanoP4Spec

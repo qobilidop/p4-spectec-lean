@@ -46,8 +46,6 @@ theorem «$find_parserState».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$find_parserState».refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem «$find_parserState».refines
     (fuel : Nat)
@@ -76,8 +74,6 @@ theorem «$find_parserState».refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.«$find_parserState».refines
 
 private def «$find_parserState».realizesMotive
     (p0 : List NanoP4Spec.parserState)
@@ -118,6 +114,8 @@ theorem «$find_parserState».realizes
       realize_step hq)
     p0 p1 q hq cfg ctx internal hguard hhints hfenv hspec v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.«$find_parserState».refines_group
+#audit_axioms NanoP4Spec.«$find_parserState».refines
 #audit_axioms NanoP4Spec.«$find_parserState».realizes
 
 end NanoP4Spec

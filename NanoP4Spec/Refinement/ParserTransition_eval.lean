@@ -63,8 +63,6 @@ theorem ParserTransition_eval.refines_group :
       exact ⟨by refine_al (subtypes),
         by refine_al (columns)⟩
 
-#audit_axioms NanoP4Spec.ParserTransition_eval.refines_group
-
 set_option maxHeartbeats 12000000 in
 theorem ParserTransition_eval.refines
     (fuel : Nat)
@@ -94,8 +92,6 @@ theorem ParserTransition_eval.refines
     h0
     h1
 
-#audit_axioms NanoP4Spec.ParserTransition_eval.refines
-
 set_option maxHeartbeats 12000000 in
 theorem ParserSelect_eval.refines
     (fuel : Nat)
@@ -124,8 +120,6 @@ theorem ParserSelect_eval.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.ParserSelect_eval.refines
 
 set_option maxHeartbeats 12000000 in
 theorem ParserTransition_eval.realizes_group :
@@ -161,8 +155,6 @@ theorem ParserTransition_eval.realizes_group :
        ResRel (fun vs (o : NanoP4Spec.transitionResult) => Outs vs [toValue o]) r q) := by
   realize_group (columns) NanoP4Spec.ParserTransition_eval.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.ParserTransition_eval.realizes_group
-
 set_option maxHeartbeats 12000000 in
 theorem ParserTransition_eval.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -195,8 +187,6 @@ theorem ParserTransition_eval.realizes
     v1
     h0
     h1
-
-#audit_axioms NanoP4Spec.ParserTransition_eval.realizes
 
 set_option maxHeartbeats 12000000 in
 theorem ParserSelect_eval.realizes
@@ -231,6 +221,11 @@ theorem ParserSelect_eval.realizes
     h0
     h1
 
+#audit_axioms NanoP4Spec.ParserTransition_eval.refines_group
+#audit_axioms NanoP4Spec.ParserTransition_eval.refines
+#audit_axioms NanoP4Spec.ParserSelect_eval.refines
+#audit_axioms NanoP4Spec.ParserTransition_eval.realizes_group
+#audit_axioms NanoP4Spec.ParserTransition_eval.realizes
 #audit_axioms NanoP4Spec.ParserSelect_eval.realizes
 
 end NanoP4Spec

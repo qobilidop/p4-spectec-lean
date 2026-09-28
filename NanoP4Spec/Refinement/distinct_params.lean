@@ -41,8 +41,6 @@ theorem «$distinct_params».refines
       (ExceptT.mk (NanoP4Spec.«$distinct_params» p0)) :=
   by refine_al (columns)
 
-#audit_axioms NanoP4Spec.«$distinct_params».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$distinct_params».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -59,6 +57,7 @@ theorem «$distinct_params».realizes
       (ExceptT.mk (NanoP4Spec.«$distinct_params» p0)) := by
   realize_al (columns)
 
+#audit_axioms NanoP4Spec.«$distinct_params».refines
 #audit_axioms NanoP4Spec.«$distinct_params».realizes
 
 end NanoP4Spec

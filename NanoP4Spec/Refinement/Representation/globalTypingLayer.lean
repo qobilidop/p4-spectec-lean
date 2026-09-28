@@ -60,8 +60,6 @@ private theorem globalTypingLayer.fieldCodec0 : @Representation.Codec (NanoP4Spe
   (NanoP4Spec.typeDefEnv.admitted) :=
   NanoP4Spec.typeDefEnv.codec
 
-#audit_axioms globalTypingLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalTypingLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeDefEnv" [])).it actual → ∀ v,
@@ -73,8 +71,6 @@ private theorem globalTypingLayer.fieldSubstitution0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "typeDefEnv")] at valid
     exact valid)
 
-#audit_axioms globalTypingLayer.fieldSubstitution0
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalTypingLayer.fieldCodec1 : @Representation.Codec
   (NanoP4Spec.callableTypeDefEnv) ⟨NanoP4Spec.callableTypeDefEnv.toValue⟩
@@ -82,8 +78,6 @@ private theorem globalTypingLayer.fieldCodec1 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "callableTypeDefEnv" [])).it)
   (NanoP4Spec.callableTypeDefEnv.admitted) :=
   NanoP4Spec.callableTypeDefEnv.codec
-
-#audit_axioms globalTypingLayer.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalTypingLayer.fieldSubstitution1 : ∀ actual,
@@ -96,16 +90,12 @@ private theorem globalTypingLayer.fieldSubstitution1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "callableTypeDefEnv")] at valid
     exact valid)
 
-#audit_axioms globalTypingLayer.fieldSubstitution1
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalTypingLayer.fieldCodec2 : @Representation.Codec (NanoP4Spec.typeFrame)
   ⟨NanoP4Spec.typeFrame.toValue⟩ ⟨NanoP4Spec.typeFrame.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "typeFrame" [])).it)
   (NanoP4Spec.typeFrame.admitted) :=
   NanoP4Spec.typeFrame.codec
-
-#audit_axioms globalTypingLayer.fieldCodec2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalTypingLayer.fieldSubstitution2 : ∀ actual,
@@ -117,8 +107,6 @@ private theorem globalTypingLayer.fieldSubstitution2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeFrame")] at valid
     exact valid)
-
-#audit_axioms globalTypingLayer.fieldSubstitution2
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem globalTypingLayer.payload (v : Lang.Il.value) (hv :
@@ -145,8 +133,6 @@ private theorem globalTypingLayer.payload (v : Lang.Il.value) (hv :
             (globalTypingLayer.fieldSubstitution1 _ sub1) (.cons
             (globalTypingLayer.fieldSubstitution2 _ sub2) (.nil)))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.globalTypingLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem globalTypingLayer.codec : @Refine.Representation.Codec NanoP4Spec.globalTypingLayer
@@ -354,8 +340,6 @@ theorem globalTypingLayer.codec : @Refine.Representation.Codec NanoP4Spec.global
                     rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
                     rfl
 
-#audit_axioms NanoP4Spec.globalTypingLayer.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem globalTypingLayer.encodingSourceIff (x : NanoP4Spec.globalTypingLayer) :
     NanoP4Spec.globalTypingLayer.source (NanoP4Spec.globalTypingLayer.toValue x) ↔
@@ -395,8 +379,6 @@ theorem globalTypingLayer.encodingSourceIff (x : NanoP4Spec.globalTypingLayer) :
     exact ⟨_, rfl, .cons (rfl) (.cons (rfl) (.cons (rfl) (.nil))), .cons _ _ _ _ p0 (.cons _ _ _
       _ p1 (.cons _ _ _ _ p2 (.nil)))⟩
 
-#audit_axioms NanoP4Spec.globalTypingLayer.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem globalTypingLayer.admittedAll : ∀ x : NanoP4Spec.globalTypingLayer,
   (NanoP4Spec.globalTypingLayer.admitted) x := by
@@ -407,6 +389,15 @@ theorem globalTypingLayer.admittedAll : ∀ x : NanoP4Spec.globalTypingLayer,
     (x.CALLABLE), ((show ∀ x : (NanoP4Spec.typeFrame), (NanoP4Spec.typeFrame.admitted) x from
     NanoP4Spec.typeFrame.admittedAll)) (x.FRAME), trivial⟩
 
+#audit_axioms globalTypingLayer.fieldCodec0
+#audit_axioms globalTypingLayer.fieldSubstitution0
+#audit_axioms globalTypingLayer.fieldCodec1
+#audit_axioms globalTypingLayer.fieldSubstitution1
+#audit_axioms globalTypingLayer.fieldCodec2
+#audit_axioms globalTypingLayer.fieldSubstitution2
+#audit_axioms NanoP4Spec.globalTypingLayer.payload
+#audit_axioms NanoP4Spec.globalTypingLayer.codec
+#audit_axioms NanoP4Spec.globalTypingLayer.encodingSourceIff
 #audit_axioms NanoP4Spec.globalTypingLayer.admittedAll
 
 end NanoP4Spec

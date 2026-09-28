@@ -84,7 +84,8 @@ theorem NanoSwitch_filter.runtimeCallArgumentsSource :
     (NanoP4Spec.controlDeclarationIR.codec)))) x (((show ∀ x :
     (NanoP4Spec.controlDeclarationIR), (NanoP4Spec.controlDeclarationIR.admitted) x from
     NanoP4Spec.controlDeclarationIR.admittedAll)) x)), trivial⟩
-#audit_axioms NanoSwitch_filter.runtimeCallArgumentsSource
 
+
+#audit_axioms NanoSwitch_filter.runtimeCallArgumentsSource
 
 end NanoP4Spec

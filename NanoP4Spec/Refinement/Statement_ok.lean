@@ -90,8 +90,6 @@ theorem Statement_ok.refines_group :
         by refine_al,
         by refine_al⟩
 
-#audit_axioms NanoP4Spec.Statement_ok.refines_group
-
 set_option maxHeartbeats 23000000 in
 theorem Statement_ok.refines
     (fuel : Nat)
@@ -130,8 +128,6 @@ theorem Statement_ok.refines
     h1
     h2
 
-#audit_axioms NanoP4Spec.Statement_ok.refines
-
 set_option maxHeartbeats 23000000 in
 theorem Statements_ok.refines
     (fuel : Nat)
@@ -165,8 +161,6 @@ theorem Statements_ok.refines
     h0
     h1
 
-#audit_axioms NanoP4Spec.Statements_ok.refines
-
 set_option maxHeartbeats 23000000 in
 theorem Block_ok.refines
     (fuel : Nat)
@@ -199,8 +193,6 @@ theorem Block_ok.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.Block_ok.refines
 
 set_option maxHeartbeats 23000000 in
 theorem Statement_ok.realizes_group :
@@ -259,8 +251,6 @@ theorem Statement_ok.realizes_group :
        ResRel (fun vs (_ : Unit) => Outs vs []) r q) := by
   realize_group NanoP4Spec.Statement_ok.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Statement_ok.realizes_group
-
 set_option maxHeartbeats 23000000 in
 theorem Statement_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -303,8 +293,6 @@ theorem Statement_ok.realizes
     h1
     h2
 
-#audit_axioms NanoP4Spec.Statement_ok.realizes
-
 set_option maxHeartbeats 23000000 in
 theorem Statements_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -342,8 +330,6 @@ theorem Statements_ok.realizes
     h0
     h1
 
-#audit_axioms NanoP4Spec.Statements_ok.realizes
-
 set_option maxHeartbeats 23000000 in
 theorem Block_ok.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -379,6 +365,13 @@ theorem Block_ok.realizes
     h0
     h1
 
+#audit_axioms NanoP4Spec.Statement_ok.refines_group
+#audit_axioms NanoP4Spec.Statement_ok.refines
+#audit_axioms NanoP4Spec.Statements_ok.refines
+#audit_axioms NanoP4Spec.Block_ok.refines
+#audit_axioms NanoP4Spec.Statement_ok.realizes_group
+#audit_axioms NanoP4Spec.Statement_ok.realizes
+#audit_axioms NanoP4Spec.Statements_ok.realizes
 #audit_axioms NanoP4Spec.Block_ok.realizes
 
 end NanoP4Spec

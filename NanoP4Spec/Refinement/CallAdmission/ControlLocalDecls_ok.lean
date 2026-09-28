@@ -78,7 +78,8 @@ theorem ControlLocalDecls_ok.callArgumentsSource :
     => ∀ x ∈ xs, (NanoP4Spec.controlLocalDeclaration.admitted) x) x from (fun xs x _ => ((show ∀
     x : (NanoP4Spec.controlLocalDeclaration), (NanoP4Spec.controlLocalDeclaration.admitted) x
     from NanoP4Spec.controlLocalDeclaration.admittedAll)) x))) x)), trivial⟩
-#audit_axioms ControlLocalDecls_ok.callArgumentsSource
 
+
+#audit_axioms ControlLocalDecls_ok.callArgumentsSource
 
 end NanoP4Spec

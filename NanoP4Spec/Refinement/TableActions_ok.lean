@@ -46,8 +46,6 @@ theorem TableActions_ok.refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.TableActions_ok.refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem TableActions_ok.refines
     (fuel : Nat)
@@ -76,8 +74,6 @@ theorem TableActions_ok.refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.TableActions_ok.refines
 
 private def TableActions_ok.realizesMotive
     (p0 : NanoP4Spec.typingContext)
@@ -116,6 +112,8 @@ theorem TableActions_ok.realizes
       realize_step (relations) hq)
     p0 p1 q hq cfg ctx internal hguard hhints hfenv hspec v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.TableActions_ok.refines_group
+#audit_axioms NanoP4Spec.TableActions_ok.refines
 #audit_axioms NanoP4Spec.TableActions_ok.realizes
 
 end NanoP4Spec

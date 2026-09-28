@@ -45,8 +45,6 @@ theorem «$inherit_e».refines
       (ExceptT.mk (NanoP4Spec.«$inherit_e» p0 p1)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$inherit_e».refines
-
 set_option maxHeartbeats 7000000 in
 theorem «$inherit_e».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -67,6 +65,7 @@ theorem «$inherit_e».realizes
       (ExceptT.mk (NanoP4Spec.«$inherit_e» p0 p1)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.«$inherit_e».refines
 #audit_axioms NanoP4Spec.«$inherit_e».realizes
 
 end NanoP4Spec

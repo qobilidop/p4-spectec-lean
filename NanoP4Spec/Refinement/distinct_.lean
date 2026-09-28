@@ -31,8 +31,6 @@ theorem «$distinct_».dispatch {τK : Type} [ToValue τK] [BEq τK] (p0 : List 
   rw [Refine.Builtin.List.distinctRunOfRel h0 cfg.printHints [t0]]
   rfl
 
-#audit_axioms NanoP4Spec.«$distinct_».dispatch
-
 theorem «$distinct_».refines (fuel : Nat) {τK : Type} [ToValue τK] [BEq τK] (p0 : List τK)
    (t0 : Lang.Il.typ) (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx
      : Interp_al.Ctx.t) (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv =
@@ -41,8 +39,6 @@ theorem «$distinct_».refines (fuel : Nat) {τK : Type} [ToValue τK] [BEq τK]
     (ExceptT.mk (NanoP4Spec.«$distinct_» p0)) := by
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "distinct_" _ _
     _ [t0] [v0] hfenv hdecl (NanoP4Spec.«$distinct_».dispatch p0 t0 v0 h0 cfg)
-
-#audit_axioms NanoP4Spec.«$distinct_».refines
 
 theorem «$distinct_».realizes {τK : Type} [ToValue τK] [BEq τK] (p0 : List τK)
    (t0 : Lang.Il.typ) (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx
@@ -53,6 +49,8 @@ theorem «$distinct_».realizes {τK : Type} [ToValue τK] [BEq τK] (p0 : List 
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "distinct_" _ _ _ [t0]
     [v0] hfenv hdecl (NanoP4Spec.«$distinct_».dispatch p0 t0 v0 h0 cfg)
 
+#audit_axioms NanoP4Spec.«$distinct_».dispatch
+#audit_axioms NanoP4Spec.«$distinct_».refines
 #audit_axioms NanoP4Spec.«$distinct_».realizes
 
 end NanoP4Spec

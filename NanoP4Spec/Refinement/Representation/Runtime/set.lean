@@ -43,8 +43,6 @@ private theorem set.sourceArgs : Mixfix.args set.sourceConstructor.nottyp.it =
     [Q.t (.IterT (Q.t (Q.varT "K" [])) .List)] := by
   simp [set.sourceConstructor, typcase.nottyp, Q.tc, Q.nt, Mixfix.args]
 
-#audit_axioms set.sourceArgs
-
 private theorem set.sourceFields (element : Lang.Il.typ) (v : Lang.Il.value)
     (valid : Valid NanoP4Spec.spec (Representation.Source.runtimeDomain ["value"]) (Q.varT "set"
       [element]) v) :
@@ -75,8 +73,6 @@ private theorem set.sourceFields (element : Lang.Il.typ) (v : Lang.Il.value)
   | cons type a types values ha tail =>
     cases tail
     exact ⟨tree, a, shape, mixopTrans _ _ _ matching rfl, hargs, ha⟩
-
-#audit_axioms set.sourceFields
 
 /-- Complete source codec for every legal element codec. -/
 theorem set.runtimeCodec {α : Type} [ToValue α] [OfValue α]
@@ -152,6 +148,9 @@ theorem set.runtimeCodec {α : Type} [ToValue α] [OfValue α]
                    pure (NanoP4Spec.set.lbrace_rbrace a')) = _
         rw [da']
         rfl
+
+#audit_axioms set.sourceArgs
+#audit_axioms set.sourceFields
 #audit_axioms NanoP4Spec.set.runtimeCodec
 
 end NanoP4Spec

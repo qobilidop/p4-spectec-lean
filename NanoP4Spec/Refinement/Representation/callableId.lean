@@ -42,8 +42,6 @@ theorem callableId.sourceIff (v : Lang.Il.value) :
   unfold NanoP4Spec.callableId.source
   exact Representation.Source.textAliasIff (Q.i "callableId") (Q.t .TextT) (by rfl) rfl v
 
-#audit_axioms NanoP4Spec.callableId.sourceIff
-
 /-- Admitted encodings are valid and the named decoder is sound and sufficient. -/
 theorem callableId.codec : @Refine.Representation.Codec NanoP4Spec.callableId
   ⟨NanoP4Spec.callableId.toValue⟩ ⟨NanoP4Spec.callableId.ofValue⟩ NanoP4Spec.callableId.source
@@ -63,13 +61,13 @@ theorem callableId.codec : @Refine.Representation.Codec NanoP4Spec.callableId
           Representation.Shape.text (fun _ => True) Representation.textCodec
       | apply Representation.DecoderCorrect.delay
 
-#audit_axioms NanoP4Spec.callableId.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem callableId.admittedAll : ∀ x : NanoP4Spec.callableId, (fun _ => True) x := by
   intro x
   exact ((show ∀ x : (ByteText), (fun _ : ByteText => True) x from (fun _ => True.intro))) x
 
+#audit_axioms NanoP4Spec.callableId.sourceIff
+#audit_axioms NanoP4Spec.callableId.codec
 #audit_axioms NanoP4Spec.callableId.admittedAll
 
 end NanoP4Spec

@@ -46,8 +46,6 @@ theorem typeId.sourceIff (v : Lang.Il.value) :
     (Representation.Source.Substitutes.named (Q.i "id") [] [] rfl .nil)]
   exact Representation.Source.textAliasIff (Q.i "id") (Q.t .TextT) (by rfl) rfl v
 
-#audit_axioms NanoP4Spec.typeId.sourceIff
-
 /-- Admitted encodings are valid and the named decoder is sound and sufficient. -/
 theorem typeId.codec : @Refine.Representation.Codec NanoP4Spec.typeId
   ⟨NanoP4Spec.typeId.toValue⟩ ⟨NanoP4Spec.typeId.ofValue⟩ NanoP4Spec.typeId.source (fun _ :
@@ -67,13 +65,13 @@ theorem typeId.codec : @Refine.Representation.Codec NanoP4Spec.typeId
           Representation.Shape.text (fun _ => True) Representation.textCodec
       | apply Representation.DecoderCorrect.delay
 
-#audit_axioms NanoP4Spec.typeId.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem typeId.admittedAll : ∀ x : NanoP4Spec.typeId, (fun _ => True) x := by
   intro x
   exact ((show ∀ x : (NanoP4Spec.id), (fun _ => True) x from NanoP4Spec.id.admittedAll)) x
 
+#audit_axioms NanoP4Spec.typeId.sourceIff
+#audit_axioms NanoP4Spec.typeId.codec
 #audit_axioms NanoP4Spec.typeId.admittedAll
 
 end NanoP4Spec

@@ -99,7 +99,8 @@ theorem Copy_in.runtimeProducesSource :
     ((show ∀ x : (Option (NanoP4Spec.lvalue)), (fun xs : Option (NanoP4Spec.lvalue) => ∀ x ∈ xs,
     (NanoP4Spec.lvalue.admitted) x) x from (fun xs x _ => ((show ∀ x : (NanoP4Spec.lvalue),
     (NanoP4Spec.lvalue.admitted) x from NanoP4Spec.lvalue.admittedAll)) x))) x))) result.2)⟩
-#audit_axioms Copy_in.runtimeProducesSource
 
+
+#audit_axioms Copy_in.runtimeProducesSource
 
 end NanoP4Spec

@@ -46,8 +46,6 @@ theorem «$bin_eq».refines_group :
   | ind fuel ih =>
       refine_al (columns)
 
-#audit_axioms NanoP4Spec.«$bin_eq».refines_group
-
 set_option maxHeartbeats 10000000 in
 theorem «$bin_eq».refines
     (fuel : Nat)
@@ -63,8 +61,6 @@ theorem «$bin_eq».refines
       (Interp_al.Interp.invoke_func fuel cfg internal ctx (Q.i "bin_eq") [] [v0, v1])
       (ExceptT.mk (NanoP4Spec.«$bin_eq» p0 p1)) :=
   (NanoP4Spec.«$bin_eq».refines_group fuel) cfg ctx internal hguard hfenv hspec v0 v1 p0 p1 h0 h1
-
-#audit_axioms NanoP4Spec.«$bin_eq».refines
 
 private def «$bin_eq».realizesMotive
     (p0 : NanoP4Spec.value)
@@ -102,6 +98,8 @@ theorem «$bin_eq».realizes
       realize_step (columns) hq)
     p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.«$bin_eq».refines_group
+#audit_axioms NanoP4Spec.«$bin_eq».refines
 #audit_axioms NanoP4Spec.«$bin_eq».realizes
 
 end NanoP4Spec

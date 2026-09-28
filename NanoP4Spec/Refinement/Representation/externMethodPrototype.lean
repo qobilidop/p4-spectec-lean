@@ -78,8 +78,6 @@ private theorem externMethodPrototype.sourceFields (v : Lang.Il.value) (hv :
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.externMethodPrototype.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def externMethodPrototype.admitted : NanoP4Spec.externMethodPrototype → Prop
@@ -195,8 +193,6 @@ theorem externMethodPrototype.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.externMethodPrototype.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem externMethodPrototype.admittedAll : ∀ x : NanoP4Spec.externMethodPrototype,
@@ -207,6 +203,8 @@ theorem externMethodPrototype.admittedAll : ∀ x : NanoP4Spec.externMethodProto
     exact ((show ∀ x : (NanoP4Spec.functionPrototype), (NanoP4Spec.functionPrototype.admitted) x
       from NanoP4Spec.functionPrototype.admittedAll)) a
 
+#audit_axioms NanoP4Spec.externMethodPrototype.sourceFields
+#audit_axioms NanoP4Spec.externMethodPrototype.codec
 #audit_axioms NanoP4Spec.externMethodPrototype.admittedAll
 
 end NanoP4Spec

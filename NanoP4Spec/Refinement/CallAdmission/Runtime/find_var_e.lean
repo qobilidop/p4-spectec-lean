@@ -146,7 +146,8 @@ theorem «$find_var_e».runtimeCallArgumentsSource :
     True) x from NanoP4Spec.nameIR.admittedAll)) a, ((show ∀ x : (NanoP4Spec.value),
     (NanoP4Spec.value.runtimeAdmitted) x from NanoP4Spec.value.runtimeAdmittedAll)) b⟩))))) x)))
     x)), trivial⟩
-#audit_axioms «$find_var_e».runtimeCallArgumentsSource
 
+
+#audit_axioms «$find_var_e».runtimeCallArgumentsSource
 
 end NanoP4Spec

@@ -55,8 +55,6 @@ private theorem variableDeclaration.fieldCodec0_0 : @Representation.Codec (NanoP
   (NanoP4Spec.type.admitted) :=
   NanoP4Spec.type.codec
 
-#audit_axioms NanoP4Spec.variableDeclaration.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem variableDeclaration.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "type" [])).it actual → ∀ v,
@@ -68,16 +66,12 @@ private theorem variableDeclaration.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "type")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.variableDeclaration.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem variableDeclaration.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.name)
   ⟨NanoP4Spec.name.toValue⟩ ⟨NanoP4Spec.name.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "name" [])).it)
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
-
-#audit_axioms NanoP4Spec.variableDeclaration.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem variableDeclaration.fieldSubstitution0_1 : ∀ actual,
@@ -90,16 +84,12 @@ private theorem variableDeclaration.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "name")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.variableDeclaration.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem variableDeclaration.fieldCodec0_2 : @Representation.Codec
   (NanoP4Spec.initializer) ⟨NanoP4Spec.initializer.toValue⟩ ⟨NanoP4Spec.initializer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "initializer" [])).it) (NanoP4Spec.initializer.admitted) :=
   NanoP4Spec.initializer.codec
-
-#audit_axioms NanoP4Spec.variableDeclaration.fieldCodec0_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem variableDeclaration.fieldSubstitution0_2 : ∀ actual,
@@ -111,8 +101,6 @@ private theorem variableDeclaration.fieldSubstitution0_2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "initializer")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.variableDeclaration.fieldSubstitution0_2
 
 private theorem variableDeclaration.sourceCasesValid (v : Lang.Il.value) (hv :
   variableDeclaration.source v) :
@@ -149,8 +137,6 @@ private theorem variableDeclaration.sourceCasesValid (v : Lang.Il.value) (hv :
             (variableDeclaration.fieldSubstitution0_1 _ sub1) (.cons
             (variableDeclaration.fieldSubstitution0_2 _ sub2) (.nil)))
 
-#audit_axioms NanoP4Spec.variableDeclaration.sourceCasesValid
-
 private theorem variableDeclaration.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -173,8 +159,6 @@ private theorem variableDeclaration.decode0 (fuel : Nat) (v : Lang.Il.value) (tr
     (NanoP4Spec.variableDeclaration.semi x0 x1 x2))))
   cases ((NanoP4Spec.type.ofValue) fuel v0) <;> cases ((NanoP4Spec.name.ofValue) fuel v1) <;>
     cases ((NanoP4Spec.initializer.ofValue) fuel v2) <;> rfl
-
-#audit_axioms variableDeclaration.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem variableDeclaration.codec : @Refine.Representation.Codec NanoP4Spec.variableDeclaration
@@ -376,7 +360,6 @@ theorem variableDeclaration.codec : @Refine.Representation.Codec NanoP4Spec.vari
                 (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
               rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
               all_goals rfl
-#audit_axioms NanoP4Spec.variableDeclaration.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -392,6 +375,15 @@ theorem variableDeclaration.admittedAll : ∀ x : NanoP4Spec.variableDeclaration
       NanoP4Spec.initializer.admittedAll)) x2, trivial⟩
 
 
+#audit_axioms NanoP4Spec.variableDeclaration.fieldCodec0_0
+#audit_axioms NanoP4Spec.variableDeclaration.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.variableDeclaration.fieldCodec0_1
+#audit_axioms NanoP4Spec.variableDeclaration.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.variableDeclaration.fieldCodec0_2
+#audit_axioms NanoP4Spec.variableDeclaration.fieldSubstitution0_2
+#audit_axioms NanoP4Spec.variableDeclaration.sourceCasesValid
+#audit_axioms variableDeclaration.decode0
+#audit_axioms NanoP4Spec.variableDeclaration.codec
 #audit_axioms NanoP4Spec.variableDeclaration.admittedAll
 
 end NanoP4Spec

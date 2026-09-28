@@ -60,7 +60,8 @@ theorem «$params_of_callableTypeDef».producesSource :
     xs : List (NanoP4Spec.parameterIR) => ∀ x ∈ xs, (NanoP4Spec.parameterIR.admitted) x) x from
     (fun xs x _ => ((show ∀ x : (NanoP4Spec.parameterIR), (NanoP4Spec.parameterIR.admitted) x
     from NanoP4Spec.parameterIR.admittedAll)) x))) result)
-#audit_axioms «$params_of_callableTypeDef».producesSource
 
+
+#audit_axioms «$params_of_callableTypeDef».producesSource
 
 end NanoP4Spec

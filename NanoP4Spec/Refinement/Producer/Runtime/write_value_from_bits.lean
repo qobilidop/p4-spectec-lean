@@ -52,7 +52,8 @@ theorem «$write_value_from_bits».runtimeProducesSource :
     (NanoP4Spec.value.runtimeAdmitted) (NanoP4Spec.value.runtimeCodec)) result (((show ∀ x :
     (NanoP4Spec.value), (NanoP4Spec.value.runtimeAdmitted) x from
     NanoP4Spec.value.runtimeAdmittedAll)) result)
-#audit_axioms «$write_value_from_bits».runtimeProducesSource
 
+
+#audit_axioms «$write_value_from_bits».runtimeProducesSource
 
 end NanoP4Spec

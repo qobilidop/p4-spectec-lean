@@ -63,8 +63,6 @@ private theorem dataValue.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.type
     (Representation.Source.namesInCheckSound _ _ (by closure_check)) _
     (NanoP4Spec.typeId.codec))
 
-#audit_axioms NanoP4Spec.dataValue.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataValue.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeId" [])).it actual → ∀ v,
@@ -75,8 +73,6 @@ private theorem dataValue.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.dataValue.fieldSubstitution0_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem dataValue.fieldCodec0_1 : @Representation.Codec (List (NanoP4Spec.fieldValue))
@@ -91,8 +87,6 @@ private theorem dataValue.fieldCodec0_1 : @Representation.Codec (List (NanoP4Spe
     ["value"]) (NanoP4Spec.fieldValue) ⟨NanoP4Spec.fieldValue.toValue⟩
     ⟨NanoP4Spec.fieldValue.ofValue⟩ (Q.t (Q.varT "fieldValue" []))
     (NanoP4Spec.fieldValue.runtimeAdmitted) (NanoP4Spec.fieldValue.runtimeCodec)
-
-#audit_axioms NanoP4Spec.dataValue.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataValue.fieldSubstitution0_1 : ∀ actual,
@@ -112,8 +106,6 @@ private theorem dataValue.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "fieldValue")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.dataValue.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem dataValue.fieldCodec1_0 : @Representation.Codec (NanoP4Spec.typeId)
   ⟨NanoP4Spec.typeId.toValue⟩ ⟨NanoP4Spec.typeId.ofValue⟩ (Representation.Source.Valid
@@ -123,8 +115,6 @@ private theorem dataValue.fieldCodec1_0 : @Representation.Codec (NanoP4Spec.type
     ⟨NanoP4Spec.typeId.ofValue⟩ _ _ _ NanoP4Spec.runtimeClosed _
     (Representation.Source.namesInCheckSound _ _ (by closure_check)) _
     (NanoP4Spec.typeId.codec))
-
-#audit_axioms NanoP4Spec.dataValue.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataValue.fieldSubstitution1_0 : ∀ actual,
@@ -136,8 +126,6 @@ private theorem dataValue.fieldSubstitution1_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.dataValue.fieldSubstitution1_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem dataValue.fieldCodec1_1 : @Representation.Codec (List (NanoP4Spec.fieldValue))
@@ -152,8 +140,6 @@ private theorem dataValue.fieldCodec1_1 : @Representation.Codec (List (NanoP4Spe
     ["value"]) (NanoP4Spec.fieldValue) ⟨NanoP4Spec.fieldValue.toValue⟩
     ⟨NanoP4Spec.fieldValue.ofValue⟩ (Q.t (Q.varT "fieldValue" []))
     (NanoP4Spec.fieldValue.runtimeAdmitted) (NanoP4Spec.fieldValue.runtimeCodec)
-
-#audit_axioms NanoP4Spec.dataValue.fieldCodec1_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataValue.fieldSubstitution1_1 : ∀ actual,
@@ -172,8 +158,6 @@ private theorem dataValue.fieldSubstitution1_1 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "fieldValue")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.dataValue.fieldSubstitution1_1
 
 private theorem dataValue.sourceCasesValid (v : Lang.Il.value) (hv : dataValue.runtimeSource v)
   :
@@ -222,8 +206,6 @@ private theorem dataValue.sourceCasesValid (v : Lang.Il.value) (hv : dataValue.r
         exact .cons (dataValue.fieldSubstitution1_0 _ sub0) (.cons
           (dataValue.fieldSubstitution1_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.dataValue.sourceCasesValid
-
 private theorem dataValue.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -260,8 +242,6 @@ private theorem dataValue.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domai
     (NanoP4Spec.fieldValue)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.fieldValue)
     ⟨NanoP4Spec.fieldValue.ofValue⟩)) fuel v1) <;> rfl
 
-#audit_axioms dataValue.decode0
-
 private theorem dataValue.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -297,8 +277,6 @@ private theorem dataValue.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domai
   cases ((NanoP4Spec.typeId.ofValue) fuel v0) <;> cases ((@OfValue.ofValue (List
     (NanoP4Spec.fieldValue)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.fieldValue)
     ⟨NanoP4Spec.fieldValue.ofValue⟩)) fuel v1) <;> rfl
-
-#audit_axioms dataValue.decode1
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem dataValue.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.dataValue
@@ -659,7 +637,6 @@ theorem dataValue.runtimeCodec : @Refine.Representation.Codec NanoP4Spec.dataVal
               _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.dataValue.runtimeCodec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -683,6 +660,18 @@ theorem dataValue.runtimeAdmittedAll : ∀ x : NanoP4Spec.dataValue,
       x))) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.dataValue.fieldCodec0_0
+#audit_axioms NanoP4Spec.dataValue.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.dataValue.fieldCodec0_1
+#audit_axioms NanoP4Spec.dataValue.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.dataValue.fieldCodec1_0
+#audit_axioms NanoP4Spec.dataValue.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.dataValue.fieldCodec1_1
+#audit_axioms NanoP4Spec.dataValue.fieldSubstitution1_1
+#audit_axioms NanoP4Spec.dataValue.sourceCasesValid
+#audit_axioms dataValue.decode0
+#audit_axioms dataValue.decode1
+#audit_axioms NanoP4Spec.dataValue.runtimeCodec
 #audit_axioms NanoP4Spec.dataValue.runtimeAdmittedAll
 
 end NanoP4Spec

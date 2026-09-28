@@ -1,3 +1,4 @@
+import P4SpecTec.Tactic.Constants
 import P4SpecTec.Tactic.Refine.Normalize
 import P4SpecTec.Tactic.Encoding
 import P4SpecTec.Prelude
@@ -119,7 +120,8 @@ def calcLemmas : List Name := [
   ``List.zip_cons_cons, ``List.zip_nil_right, ``List.zip_nil_left, ``List.foldlM_cons,
   ``List.foldlM_nil, ``List.mapM_cons, ``List.mapM_nil, ``List.cons_append, ``List.nil_append,
   ``List.append_nil, ``List.zipIdx, ``List.filterMap_cons, ``List.filterMap_nil,
-  ``List.contains, ``elem_cons_or, ``ofOption_ite, ``List.elem_nil, ``List.find?_cons, ``List.find?_nil,
+  ``List.contains, ``elem_cons_or, ``ofOption_ite, ``List.elem_nil, ``List.find?_cons,
+  ``List.find?_nil,
   -- hint indices of a relation premise's input/output split compare `Int.ofNat` positions
   ``Int.ofNat_eq_natCast, ``Int.cast_ofNat_Int,
   ``List.lookup, ``List.isEmpty, ``List.reverse_cons, ``List.reverse_nil, ``List.range_zero,
@@ -145,7 +147,8 @@ def calcLemmas : List Name := [
   ``ge_iff_le, ``Nat.zero_lt_succ, ``Nat.lt_add_one, ``Nat.lt_irrefl, ``Nat.not_lt_zero,
   ``Nat.le_refl, ``Nat.zero_le, ``Nat.add_one_ne_zero, ``Nat.lt_succ_self, ``List.isEmpty_cons,
   ``List.isEmpty_nil, ``Bool.not_not, ``decide_eq_true_eq, ``Bool.decide_eq_true,
-  ``instBEqOfDecidableEq, ``beq_iff_eq, ``iter_beq, ``iter_beq_unfolded, ``List.beq, ``P4SpecTec.Lang.Il.var.id,
+  ``instBEqOfDecidableEq, ``beq_iff_eq, ``iter_beq, ``iter_beq_unfolded, ``List.beq,
+  ``P4SpecTec.Lang.Il.var.id,
   ``P4SpecTec.Lang.Il.var.typ, ``P4SpecTec.Lang.Il.var.iters, ``P4SpecTec.Lang.Il.iterexp.iter,
   ``P4SpecTec.Lang.Il.iterexp.vars, ``P4SpecTec.Lang.Il.iterprem.iter,
   ``P4SpecTec.Lang.Il.iterprem.vars_bound, ``P4SpecTec.Lang.Il.iterprem.vars_bind,
@@ -162,18 +165,32 @@ def simprocs : List Name := [
   ``Nat.reduceDiv, ``Nat.reduceMod, ``Nat.reducePow, ``Char.reduceEq, ``Int.reduceBEq,
   ``Int.reduceBNe, ``Int.reduceNatCast, ``Nat.reduceBneDiff, ``Int.reduceToNat]
 
+/- Realize the equation lemmas of the fixed rules here, once. A lemma first realized while a
+generated module elaborates is kernel-checked in that module's chain, and `simp` reading it
+there waits for every earlier proof of the module, which serializes the module's theorems. -/
+run_meta do
+  for f in blockFunctions ++ helperFunctions ++
+      [``canon', ``canonFields, ``canons, ``canonMixfix, ``canonMixfixes,
+        ``Ctx.find_defined_typdef, ``Ctx.find_typdef, ``Ctx.find_typdef_opt,
+        ``P4SpecTec.Runtime.Type.Subst.of_lists_checked, ``P4SpecTec.Prelude.Num.toNat?] do
+    discard <| getUnfoldEqnFor? f (nonRec := true)
+    for e in ← eqnsOf f do
+      for c in (← getConstInfo e).type.getUsedConstants do
+        if ← isMatcher c then discard <| Match.getEquationsFor c
+
 /-- The constants of the library and the prelude whose names say they are
 `ToValue` or `BEq` instances, or `toValue` functions: what relating an
 interpreter value to a generated value must unfold. Recursive encoder unfolding
 equations are excluded: their constructor equations fire only on known constructors. -/
 def valueConstants (lib : Name) : MetaM (List Name) := do
-  let env ← getEnv
   let mut out : List Name := []
-  for (n, _) in env.constants.map₂.toList ++ env.constants.map₁.toList do
+  let mut seen : Std.HashSet Name := {}
+  for (n, _) in (← constantsUnder lib) ++ (← constantsUnder `P4SpecTec.Prelude) do
+    if seen.contains n then continue
+    seen := seen.insert n
     let s := n.toString
     let inLib := lib.isPrefixOf n
-    let inPrelude := (`P4SpecTec.Prelude).isPrefixOf n
-    if (inLib || inPrelude) && !n.isInternal then
+    if !n.isInternal then
       if (s.splitOn ".instToValue").length > 1 then out := n :: out
       else if (s.splitOn ".instBEq").length > 1 then out := n :: out
       else if inLib && (s.splitOn ".toValue").length > 1 && n.getString! != "eq_def" then
@@ -229,14 +246,14 @@ def subtypeSimpSet : TacticM SimpSet := do
   for f in [``Ctx.find_defined_typdef, ``Ctx.find_typdef, ``Ctx.find_typdef_opt,
       ``P4SpecTec.Runtime.Type.Subst.of_lists_checked, ``P4SpecTec.Prelude.Num.toNat?] do
     subtypeRules := subtypeRules ++ (← eqnsOf f).toArray
-  for (name, info) in (← getEnv).constants.map₂.toList ++ (← getEnv).constants.map₁.toList do
-    if lib.isPrefixOf name && !name.isInternal && info.isDefinition then
+  for (name, kind) in ← constantsUnder lib do
+    if !name.isInternal && kind == .defn then
       let short := name.getString!
       if short.startsWith "of_" || short.startsWith "is_" || short.startsWith "to_" then
         subtypeRules := subtypeRules ++ (← eqnsOf name).toArray
     -- generated subtype injections preserve canonical encodings; they rewrite before
     -- (`↓`) the inner encoder is unfolded, which would hide the injection's pattern
-    if lib.isPrefixOf name && !name.isInternal && info.isTheorem &&
+    if !name.isInternal && kind == .thm &&
         (name.getString! == "canon_toValue" || name.getString! == "canon_encoder") then
       bridges := bridges.push name
   let lemmas := rules.lemmas.filter fun n =>

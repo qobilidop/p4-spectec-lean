@@ -43,8 +43,6 @@ theorem «$write_value_from_bits».refines
       (ExceptT.mk (NanoP4Spec.«$write_value_from_bits» p0 p1)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$write_value_from_bits».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$write_value_from_bits».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -63,6 +61,7 @@ theorem «$write_value_from_bits».realizes
       (ExceptT.mk (NanoP4Spec.«$write_value_from_bits» p0 p1)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$write_value_from_bits».refines
 #audit_axioms NanoP4Spec.«$write_value_from_bits».realizes
 
 end NanoP4Spec

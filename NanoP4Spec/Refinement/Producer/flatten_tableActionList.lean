@@ -60,7 +60,8 @@ theorem «$flatten_tableActionList».producesSource :
     xs : List (NanoP4Spec.tableAction) => ∀ x ∈ xs, (NanoP4Spec.tableAction.admitted) x) x from
     (fun xs x _ => ((show ∀ x : (NanoP4Spec.tableAction), (NanoP4Spec.tableAction.admitted) x
     from NanoP4Spec.tableAction.admittedAll)) x))) result)
-#audit_axioms «$flatten_tableActionList».producesSource
 
+
+#audit_axioms «$flatten_tableActionList».producesSource
 
 end NanoP4Spec

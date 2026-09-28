@@ -91,7 +91,8 @@ theorem Copy_out_arg.runtimeCallArgumentsSource :
     (NanoP4Spec.value.runtimeAdmitted) (NanoP4Spec.value.runtimeCodec)) x (((show ∀ x :
     (NanoP4Spec.value), (NanoP4Spec.value.runtimeAdmitted) x from
     NanoP4Spec.value.runtimeAdmittedAll)) x)), trivial⟩
-#audit_axioms Copy_out_arg.runtimeCallArgumentsSource
 
+
+#audit_axioms Copy_out_arg.runtimeCallArgumentsSource
 
 end NanoP4Spec

@@ -46,8 +46,6 @@ private theorem name.bodyCodec : @Representation.Codec (NanoP4Spec.nonTypeName)
   (NanoP4Spec.nonTypeName.admitted) :=
   NanoP4Spec.nonTypeName.codec
 
-#audit_axioms NanoP4Spec.name.bodyCodec
-
 private theorem name.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.name.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "nonTypeName" [])).it) v := by
@@ -57,16 +55,12 @@ private theorem name.sourceIff (v : Lang.Il.value) :
   rw [substitution.emptyNamedResult (Q.i "nonTypeName")] at valid
   exact valid) (Representation.Source.Substitutes.named (Q.i "nonTypeName") [] [] rfl (.nil)) v
 
-#audit_axioms NanoP4Spec.name.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem name.encodingSourceIff (x : NanoP4Spec.name) :
     NanoP4Spec.name.source (NanoP4Spec.name.toValue x) ↔ (Representation.Source.Valid
       NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "nonTypeName" [])).it)
       ((NanoP4Spec.nonTypeName.toValue) x) :=
   NanoP4Spec.name.sourceIff _
-
-#audit_axioms NanoP4Spec.name.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem name.codec : @Refine.Representation.Codec NanoP4Spec.name ⟨NanoP4Spec.name.toValue⟩
@@ -111,14 +105,16 @@ theorem name.codec : @Refine.Representation.Codec NanoP4Spec.name ⟨NanoP4Spec.
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.name.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem name.admittedAll : ∀ x : NanoP4Spec.name, (NanoP4Spec.name.admitted) x := by
   intro x
   exact ((show ∀ x : (NanoP4Spec.nonTypeName), (NanoP4Spec.nonTypeName.admitted) x from
     NanoP4Spec.nonTypeName.admittedAll)) x
 
+#audit_axioms NanoP4Spec.name.bodyCodec
+#audit_axioms NanoP4Spec.name.sourceIff
+#audit_axioms NanoP4Spec.name.encodingSourceIff
+#audit_axioms NanoP4Spec.name.codec
 #audit_axioms NanoP4Spec.name.admittedAll
 
 end NanoP4Spec

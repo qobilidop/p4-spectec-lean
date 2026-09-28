@@ -55,8 +55,6 @@ theorem Expr_ok.refines_group :
           (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.1)
           (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.2))
 
-#audit_axioms NanoP4Spec.Expr_ok.refines_group
-
 set_option maxHeartbeats 27000000 in
 theorem Expr_ok.refines
     (fuel : Nat)
@@ -90,8 +88,6 @@ theorem Expr_ok.refines
     h0
     h1
     h2
-
-#audit_axioms NanoP4Spec.Expr_ok.refines
 
 private def Expr_ok.realizesMotive
     (p0 : NanoP4Spec.scope)
@@ -136,6 +132,8 @@ theorem Expr_ok.realizes
           (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.2)) hq)
     p0 p1 p2 q hq cfg ctx internal hguard hhints _hfenv hspec v0 v1 v2 h0 h1 h2
 
+#audit_axioms NanoP4Spec.Expr_ok.refines_group
+#audit_axioms NanoP4Spec.Expr_ok.refines
 #audit_axioms NanoP4Spec.Expr_ok.realizes
 
 end NanoP4Spec

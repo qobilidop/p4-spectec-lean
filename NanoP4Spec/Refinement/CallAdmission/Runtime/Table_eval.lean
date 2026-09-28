@@ -105,7 +105,8 @@ theorem Table_eval.runtimeCallArgumentsSource :
     (NanoP4Spec.tableEntry.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.tableEntry), (NanoP4Spec.tableEntry.admitted) x from
     NanoP4Spec.tableEntry.admittedAll)) x))) x)), trivial⟩
-#audit_axioms Table_eval.runtimeCallArgumentsSource
 
+
+#audit_axioms Table_eval.runtimeCallArgumentsSource
 
 end NanoP4Spec

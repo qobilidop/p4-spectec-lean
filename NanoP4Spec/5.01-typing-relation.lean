@@ -159,8 +159,6 @@ theorem Type_ok.run_sound
     NanoP4Spec.Type_ok.run p0 p1 = some (.ok o) → NanoP4Spec.Type_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Type_ok.run_sound
-
 -- no determinism theorem: Type_ok
 --   5 rule paths
 
@@ -1243,8 +1241,6 @@ theorem Expr_ok.run_sound_group :
          NanoP4Spec.Expr_ok p0 p1 p2 o) := by
   run_sound_group NanoP4Spec.Expr_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Expr_ok.run_sound_group
-
 theorem Expr_ok.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.typingContext)
@@ -1252,8 +1248,6 @@ theorem Expr_ok.run_sound
     (o : NanoP4Spec.typeIR) :
     NanoP4Spec.Expr_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Expr_ok p0 p1 p2 o :=
   fun h => NanoP4Spec.Expr_ok.run_sound_group p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.Expr_ok.run_sound
 
 def Expr_ok.al : Lang.Al.def :=
   Q.d
@@ -2857,8 +2851,6 @@ theorem Lvalue_ok.run_sound_group :
          NanoP4Spec.Lvalue_ok p0 p1 p2 o) := by
   run_sound_group NanoP4Spec.Lvalue_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Lvalue_ok.run_sound_group
-
 theorem Lvalue_ok.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.typingContext)
@@ -2866,8 +2858,6 @@ theorem Lvalue_ok.run_sound
     (o : NanoP4Spec.typeIR) :
     NanoP4Spec.Lvalue_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Lvalue_ok p0 p1 p2 o :=
   fun h => NanoP4Spec.Lvalue_ok.run_sound_group p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.Lvalue_ok.run_sound
 
 def Lvalue_ok.al : Lang.Al.def :=
   Q.d
@@ -3379,8 +3369,6 @@ theorem TableKey_ok.run_sound
     NanoP4Spec.TableKey_ok.run p0 p1 = some (.ok o) → NanoP4Spec.TableKey_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.TableKey_ok.run_sound
-
 -- no determinism theorem: TableKey_ok
 --   calls Expr_ok, which has no determinism theorem
 
@@ -3516,5 +3504,12 @@ def TableKey_ok.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "matchKey")) (Q.varT "matchKey" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Type_ok.run_sound
+#audit_axioms NanoP4Spec.Expr_ok.run_sound_group
+#audit_axioms NanoP4Spec.Expr_ok.run_sound
+#audit_axioms NanoP4Spec.Lvalue_ok.run_sound_group
+#audit_axioms NanoP4Spec.Lvalue_ok.run_sound
+#audit_axioms NanoP4Spec.TableKey_ok.run_sound
 
 end NanoP4Spec

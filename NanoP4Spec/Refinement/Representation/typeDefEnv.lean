@@ -58,8 +58,6 @@ private theorem typeDefEnv.bodyCodec : @Representation.Codec (NanoP4Spec.map (Na
     (Q.t (Q.varT "typeId" [])) (Q.t (Q.varT "typeDefIR" [])) (fun _ => True)
     (NanoP4Spec.typeDefIR.admitted) (NanoP4Spec.typeId.codec) (NanoP4Spec.typeDefIR.codec)
 
-#audit_axioms NanoP4Spec.typeDefEnv.bodyCodec
-
 private theorem typeDefEnv.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.typeDefEnv.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "map" [Q.t (Q.varT "typeId" []), Q.t
@@ -84,8 +82,6 @@ private theorem typeDefEnv.sourceIff (v : Lang.Il.value) :
         (.cons (Representation.Source.Substitutes.named (Q.i "typeId") [] [] rfl (.nil)) (.cons
         (Representation.Source.Substitutes.named (Q.i "typeDefIR") [] [] rfl (.nil)) (.nil)))) v
 
-#audit_axioms NanoP4Spec.typeDefEnv.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem typeDefEnv.encodingSourceIff (x : NanoP4Spec.typeDefEnv) :
     NanoP4Spec.typeDefEnv.source (NanoP4Spec.typeDefEnv.toValue x) ↔
@@ -94,8 +90,6 @@ theorem typeDefEnv.encodingSourceIff (x : NanoP4Spec.typeDefEnv) :
       ((@NanoP4Spec.map.toValue (NanoP4Spec.typeId) (NanoP4Spec.typeDefIR)
       ⟨NanoP4Spec.typeId.toValue⟩ ⟨NanoP4Spec.typeDefIR.toValue⟩) x) :=
   NanoP4Spec.typeDefEnv.sourceIff _
-
-#audit_axioms NanoP4Spec.typeDefEnv.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem typeDefEnv.codec : @Refine.Representation.Codec NanoP4Spec.typeDefEnv
@@ -167,8 +161,6 @@ theorem typeDefEnv.codec : @Refine.Representation.Codec NanoP4Spec.typeDefEnv
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.typeDefEnv.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem typeDefEnv.admittedAll : ∀ x : NanoP4Spec.typeDefEnv, (NanoP4Spec.typeDefEnv.admitted) x
   := by
@@ -181,6 +173,10 @@ theorem typeDefEnv.admittedAll : ∀ x : NanoP4Spec.typeDefEnv, (NanoP4Spec.type
     from NanoP4Spec.typeId.admittedAll)) a, ((show ∀ x : (NanoP4Spec.typeDefIR),
     (NanoP4Spec.typeDefIR.admitted) x from NanoP4Spec.typeDefIR.admittedAll)) b⟩))))) x
 
+#audit_axioms NanoP4Spec.typeDefEnv.bodyCodec
+#audit_axioms NanoP4Spec.typeDefEnv.sourceIff
+#audit_axioms NanoP4Spec.typeDefEnv.encodingSourceIff
+#audit_axioms NanoP4Spec.typeDefEnv.codec
 #audit_axioms NanoP4Spec.typeDefEnv.admittedAll
 
 end NanoP4Spec

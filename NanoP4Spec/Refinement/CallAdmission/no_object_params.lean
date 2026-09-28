@@ -63,7 +63,8 @@ theorem «$no_object_params».callArgumentsSource :
     Representation.Source.externDomain (Q.t (Q.varT "typeIR" [])).it)
     (NanoP4Spec.typeIR.admitted) (NanoP4Spec.typeIR.codec)) x (((show ∀ x : (NanoP4Spec.typeIR),
     (NanoP4Spec.typeIR.admitted) x from NanoP4Spec.typeIR.admittedAll)) x)), trivial⟩
-#audit_axioms «$no_object_params».callArgumentsSource
 
+
+#audit_axioms «$no_object_params».callArgumentsSource
 
 end NanoP4Spec

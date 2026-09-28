@@ -62,8 +62,6 @@ private theorem localTypingLayer.fieldCodec0 : @Representation.Codec (List
     (NanoP4Spec.typeFrame) ⟨NanoP4Spec.typeFrame.toValue⟩ ⟨NanoP4Spec.typeFrame.ofValue⟩ (Q.t
     (Q.varT "typeFrame" [])) (NanoP4Spec.typeFrame.admitted) (NanoP4Spec.typeFrame.codec)
 
-#audit_axioms localTypingLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem localTypingLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (.IterT (Q.t (Q.varT "typeFrame" [])) .List)).it
@@ -80,8 +78,6 @@ private theorem localTypingLayer.fieldSubstitution0 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "typeFrame")] at valid
     exact valid)
-
-#audit_axioms localTypingLayer.fieldSubstitution0
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem localTypingLayer.payload (v : Lang.Il.value) (hv :
@@ -102,8 +98,6 @@ private theorem localTypingLayer.payload (v : Lang.Il.value) (hv :
       cases tail
       exact .cons (localTypingLayer.fieldSubstitution0 _ sub0) (.nil)
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.localTypingLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem localTypingLayer.codec : @Refine.Representation.Codec NanoP4Spec.localTypingLayer
@@ -232,8 +226,6 @@ theorem localTypingLayer.codec : @Refine.Representation.Codec NanoP4Spec.localTy
             rw [h0 fuel enough0]
             rfl
 
-#audit_axioms NanoP4Spec.localTypingLayer.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem localTypingLayer.encodingSourceIff (x : NanoP4Spec.localTypingLayer) :
     NanoP4Spec.localTypingLayer.source (NanoP4Spec.localTypingLayer.toValue x) ↔
@@ -264,8 +256,6 @@ theorem localTypingLayer.encodingSourceIff (x : NanoP4Spec.localTypingLayer) :
         "typeFrame") [] [] rfl (.nil))) (.nil)⟩
     exact ⟨_, rfl, .cons (rfl) (.nil), .cons _ _ _ _ p0 (.nil)⟩
 
-#audit_axioms NanoP4Spec.localTypingLayer.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem localTypingLayer.admittedAll : ∀ x : NanoP4Spec.localTypingLayer,
   (NanoP4Spec.localTypingLayer.admitted) x := by
@@ -275,6 +265,11 @@ theorem localTypingLayer.admittedAll : ∀ x : NanoP4Spec.localTypingLayer,
     (NanoP4Spec.typeFrame), (NanoP4Spec.typeFrame.admitted) x from
     NanoP4Spec.typeFrame.admittedAll)) x))) (x.FRAMES), trivial⟩
 
+#audit_axioms localTypingLayer.fieldCodec0
+#audit_axioms localTypingLayer.fieldSubstitution0
+#audit_axioms NanoP4Spec.localTypingLayer.payload
+#audit_axioms NanoP4Spec.localTypingLayer.codec
+#audit_axioms NanoP4Spec.localTypingLayer.encodingSourceIff
 #audit_axioms NanoP4Spec.localTypingLayer.admittedAll
 
 end NanoP4Spec

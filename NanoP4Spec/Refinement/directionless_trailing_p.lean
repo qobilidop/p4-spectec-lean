@@ -48,8 +48,6 @@ theorem «$directionless_trailing'».refines_group :
   | ind fuel ih =>
       refine_al
 
-#audit_axioms NanoP4Spec.«$directionless_trailing'».refines_group
-
 set_option maxHeartbeats 8000000 in
 theorem «$directionless_trailing'».refines
     (fuel : Nat)
@@ -80,8 +78,6 @@ theorem «$directionless_trailing'».refines
     p1
     h0
     h1
-
-#audit_axioms NanoP4Spec.«$directionless_trailing'».refines
 
 private def «$directionless_trailing'».realizesMotive
     (p0 : Bool)
@@ -122,6 +118,8 @@ theorem «$directionless_trailing'».realizes
       realize_step hq)
     p0 p1 q hq cfg ctx internal hguard hfenv hspec v0 v1 h0 h1
 
+#audit_axioms NanoP4Spec.«$directionless_trailing'».refines_group
+#audit_axioms NanoP4Spec.«$directionless_trailing'».refines
 #audit_axioms NanoP4Spec.«$directionless_trailing'».realizes
 
 end NanoP4Spec

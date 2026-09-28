@@ -43,8 +43,6 @@ theorem «$empty_map».refines
       (ExceptT.mk (NanoP4Spec.«$empty_map» (τK := τK) (τV := τV))) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$empty_map».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$empty_map».realizes
     {τK τV : Type}
@@ -64,6 +62,7 @@ theorem «$empty_map».realizes
       (ExceptT.mk (NanoP4Spec.«$empty_map» (τK := τK) (τV := τV))) := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$empty_map».refines
 #audit_axioms NanoP4Spec.«$empty_map».realizes
 
 end NanoP4Spec

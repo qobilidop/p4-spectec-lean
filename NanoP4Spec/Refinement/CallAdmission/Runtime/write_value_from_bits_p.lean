@@ -79,7 +79,8 @@ theorem «$write_value_from_bits'».runtimeCallArgumentsSource :
     ∈ xs, (NanoP4Spec.fieldValue.runtimeAdmitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.fieldValue), (NanoP4Spec.fieldValue.runtimeAdmitted) x from
     NanoP4Spec.fieldValue.runtimeAdmittedAll)) x))) x)), trivial⟩
-#audit_axioms «$write_value_from_bits'».runtimeCallArgumentsSource
 
+
+#audit_axioms «$write_value_from_bits'».runtimeCallArgumentsSource
 
 end NanoP4Spec

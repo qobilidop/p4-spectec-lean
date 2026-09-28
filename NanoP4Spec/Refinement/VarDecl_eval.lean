@@ -49,8 +49,6 @@ theorem VarDecl_eval.refines
       (ExceptT.mk (NanoP4Spec.VarDecl_eval.run p0 p1 p2)) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.VarDecl_eval.refines
-
 set_option maxHeartbeats 6000000 in
 theorem VarDecl_eval.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -72,6 +70,7 @@ theorem VarDecl_eval.realizes
       (ExceptT.mk (NanoP4Spec.VarDecl_eval.run p0 p1 p2)) := by
   realize_al
 
+#audit_axioms NanoP4Spec.VarDecl_eval.refines
 #audit_axioms NanoP4Spec.VarDecl_eval.realizes
 
 end NanoP4Spec

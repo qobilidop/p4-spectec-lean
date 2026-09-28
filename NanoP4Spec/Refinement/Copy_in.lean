@@ -59,8 +59,6 @@ theorem Copy_in.refines_group :
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.Copy_in.refines_group
-
 set_option maxHeartbeats 7000000 in
 theorem Copy_in.refines
     (fuel : Nat)
@@ -114,8 +112,6 @@ theorem Copy_in.refines
     h3
     h4
     h5
-
-#audit_axioms NanoP4Spec.Copy_in.refines
 
 private def Copy_in.realizesMotive
     (p0 : NanoP4Spec.scope)
@@ -178,6 +174,8 @@ theorem Copy_in.realizes
     p0 p1 p2 p3 p4 p5 q hq cfg ctx internal hguard hhints hfenv hspec ht0 ht1 v0 v1 v2 v3 v4 v5 h0
         h1 h2 h3 h4 h5
 
+#audit_axioms NanoP4Spec.Copy_in.refines_group
+#audit_axioms NanoP4Spec.Copy_in.refines
 #audit_axioms NanoP4Spec.Copy_in.realizes
 
 end NanoP4Spec

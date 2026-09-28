@@ -105,7 +105,7 @@ theorem «$find_maps».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α
       obtain ⟨entry, originalInner, rfl⟩ := List.mem_map.mp inner
       cases entry with | colon k v => exact (hp0 _ originalOuter _ originalInner).2
 
-#audit_axioms «$find_maps».sourceDomain
 
+#audit_axioms «$find_maps».sourceDomain
 
 end NanoP4Spec

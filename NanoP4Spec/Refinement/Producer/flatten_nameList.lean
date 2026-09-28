@@ -59,7 +59,8 @@ theorem «$flatten_nameList».producesSource :
     (NanoP4Spec.name) => ∀ x ∈ xs, (NanoP4Spec.name.admitted) x) x from (fun xs x _ => ((show ∀
     x : (NanoP4Spec.name), (NanoP4Spec.name.admitted) x from NanoP4Spec.name.admittedAll)) x)))
     result)
-#audit_axioms «$flatten_nameList».producesSource
 
+
+#audit_axioms «$flatten_nameList».producesSource
 
 end NanoP4Spec

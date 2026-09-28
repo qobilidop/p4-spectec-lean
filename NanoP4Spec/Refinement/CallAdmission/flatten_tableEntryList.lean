@@ -45,7 +45,8 @@ theorem «$flatten_tableEntryList».callArgumentsSource :
     (NanoP4Spec.tableEntryList.codec)) x (((show ∀ x : (NanoP4Spec.tableEntryList),
     (NanoP4Spec.tableEntryList.admitted) x from NanoP4Spec.tableEntryList.admittedAll)) x)),
     trivial⟩
-#audit_axioms «$flatten_tableEntryList».callArgumentsSource
 
+
+#audit_axioms «$flatten_tableEntryList».callArgumentsSource
 
 end NanoP4Spec

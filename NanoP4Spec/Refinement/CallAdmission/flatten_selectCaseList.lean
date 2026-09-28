@@ -45,7 +45,8 @@ theorem «$flatten_selectCaseList».callArgumentsSource :
     (NanoP4Spec.selectCaseList.codec)) x (((show ∀ x : (NanoP4Spec.selectCaseList),
     (NanoP4Spec.selectCaseList.admitted) x from NanoP4Spec.selectCaseList.admittedAll)) x)),
     trivial⟩
-#audit_axioms «$flatten_selectCaseList».callArgumentsSource
 
+
+#audit_axioms «$flatten_selectCaseList».callArgumentsSource
 
 end NanoP4Spec

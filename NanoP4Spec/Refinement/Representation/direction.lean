@@ -102,8 +102,6 @@ theorem direction.codec : @Refine.Representation.Codec NanoP4Spec.direction
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, Domain.Atom.tag, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.direction.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem direction.sourceCodec : @Representation.Codec NanoP4Spec.direction
   ⟨NanoP4Spec.direction.toValue⟩ ⟨NanoP4Spec.direction.ofValue⟩
@@ -128,12 +126,12 @@ theorem direction.sourceCodec : @Representation.Codec NanoP4Spec.direction
       rcases member with rfl | rfl | rfl | rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.direction.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem direction.admittedAll : ∀ x : NanoP4Spec.direction, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.direction.codec
+#audit_axioms NanoP4Spec.direction.sourceCodec
 #audit_axioms NanoP4Spec.direction.admittedAll
 
 end NanoP4Spec

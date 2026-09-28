@@ -41,8 +41,6 @@ theorem «$empty_set».refines
       (ExceptT.mk (NanoP4Spec.«$empty_set» (τK := τK))) :=
   by refine_al
 
-#audit_axioms NanoP4Spec.«$empty_set».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$empty_set».realizes
     {τK : Type}
@@ -57,6 +55,7 @@ theorem «$empty_set».realizes
       (ExceptT.mk (NanoP4Spec.«$empty_set» (τK := τK))) := by
   realize_al
 
+#audit_axioms NanoP4Spec.«$empty_set».refines
 #audit_axioms NanoP4Spec.«$empty_set».realizes
 
 end NanoP4Spec

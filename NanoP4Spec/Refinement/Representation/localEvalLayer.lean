@@ -61,8 +61,6 @@ private theorem localEvalLayer.fieldCodec0 : @Representation.Codec (List (NanoP4
     (NanoP4Spec.frame) ⟨NanoP4Spec.frame.toValue⟩ ⟨NanoP4Spec.frame.ofValue⟩ (Q.t (Q.varT
     "frame" [])) (NanoP4Spec.frame.admitted) (NanoP4Spec.frame.codec)
 
-#audit_axioms localEvalLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem localEvalLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (.IterT (Q.t (Q.varT "frame" [])) .List)).it
@@ -79,8 +77,6 @@ private theorem localEvalLayer.fieldSubstitution0 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "frame")] at valid
     exact valid)
-
-#audit_axioms localEvalLayer.fieldSubstitution0
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem localEvalLayer.payload (v : Lang.Il.value) (hv :
@@ -101,8 +97,6 @@ private theorem localEvalLayer.payload (v : Lang.Il.value) (hv :
       cases tail
       exact .cons (localEvalLayer.fieldSubstitution0 _ sub0) (.nil)
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.localEvalLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem localEvalLayer.codec : @Refine.Representation.Codec NanoP4Spec.localEvalLayer
@@ -227,8 +221,6 @@ theorem localEvalLayer.codec : @Refine.Representation.Codec NanoP4Spec.localEval
             rw [h0 fuel enough0]
             rfl
 
-#audit_axioms NanoP4Spec.localEvalLayer.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem localEvalLayer.encodingSourceIff (x : NanoP4Spec.localEvalLayer) :
     NanoP4Spec.localEvalLayer.source (NanoP4Spec.localEvalLayer.toValue x) ↔
@@ -259,6 +251,10 @@ theorem localEvalLayer.encodingSourceIff (x : NanoP4Spec.localEvalLayer) :
         (.nil))) (.nil)⟩
     exact ⟨_, rfl, .cons (rfl) (.nil), .cons _ _ _ _ p0 (.nil)⟩
 
+#audit_axioms localEvalLayer.fieldCodec0
+#audit_axioms localEvalLayer.fieldSubstitution0
+#audit_axioms NanoP4Spec.localEvalLayer.payload
+#audit_axioms NanoP4Spec.localEvalLayer.codec
 #audit_axioms NanoP4Spec.localEvalLayer.encodingSourceIff
 
 end NanoP4Spec

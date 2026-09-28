@@ -55,8 +55,6 @@ private theorem instantiation.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.
   (NanoP4Spec.type.admitted) :=
   NanoP4Spec.type.codec
 
-#audit_axioms NanoP4Spec.instantiation.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem instantiation.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "type" [])).it actual → ∀ v,
@@ -68,16 +66,12 @@ private theorem instantiation.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "type")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.instantiation.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem instantiation.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.argumentList)
   ⟨NanoP4Spec.argumentList.toValue⟩ ⟨NanoP4Spec.argumentList.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "argumentList" [])).it) (NanoP4Spec.argumentList.admitted) :=
   NanoP4Spec.argumentList.codec
-
-#audit_axioms NanoP4Spec.instantiation.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem instantiation.fieldSubstitution0_1 : ∀ actual,
@@ -90,16 +84,12 @@ private theorem instantiation.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "argumentList")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.instantiation.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem instantiation.fieldCodec0_2 : @Representation.Codec (NanoP4Spec.name)
   ⟨NanoP4Spec.name.toValue⟩ ⟨NanoP4Spec.name.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "name" [])).it)
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
-
-#audit_axioms NanoP4Spec.instantiation.fieldCodec0_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem instantiation.fieldSubstitution0_2 : ∀ actual,
@@ -111,8 +101,6 @@ private theorem instantiation.fieldSubstitution0_2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "name")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.instantiation.fieldSubstitution0_2
 
 private theorem instantiation.sourceCasesValid (v : Lang.Il.value) (hv : instantiation.source v)
   :
@@ -146,8 +134,6 @@ private theorem instantiation.sourceCasesValid (v : Lang.Il.value) (hv : instant
             (instantiation.fieldSubstitution0_1 _ sub1) (.cons
             (instantiation.fieldSubstitution0_2 _ sub2) (.nil)))
 
-#audit_axioms NanoP4Spec.instantiation.sourceCasesValid
-
 private theorem instantiation.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -171,8 +157,6 @@ private theorem instantiation.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : D
     (NanoP4Spec.instantiation.lparen_rparen_semi x0 x1 x2))))
   cases ((NanoP4Spec.type.ofValue) fuel v0) <;> cases ((NanoP4Spec.argumentList.ofValue) fuel
     v1) <;> cases ((NanoP4Spec.name.ofValue) fuel v2) <;> rfl
-
-#audit_axioms instantiation.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem instantiation.codec : @Refine.Representation.Codec NanoP4Spec.instantiation
@@ -372,7 +356,6 @@ theorem instantiation.codec : @Refine.Representation.Codec NanoP4Spec.instantiat
                 (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
               rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
               all_goals rfl
-#audit_axioms NanoP4Spec.instantiation.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -388,6 +371,15 @@ theorem instantiation.admittedAll : ∀ x : NanoP4Spec.instantiation,
       x2, trivial⟩
 
 
+#audit_axioms NanoP4Spec.instantiation.fieldCodec0_0
+#audit_axioms NanoP4Spec.instantiation.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.instantiation.fieldCodec0_1
+#audit_axioms NanoP4Spec.instantiation.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.instantiation.fieldCodec0_2
+#audit_axioms NanoP4Spec.instantiation.fieldSubstitution0_2
+#audit_axioms NanoP4Spec.instantiation.sourceCasesValid
+#audit_axioms instantiation.decode0
+#audit_axioms NanoP4Spec.instantiation.codec
 #audit_axioms NanoP4Spec.instantiation.admittedAll
 
 end NanoP4Spec

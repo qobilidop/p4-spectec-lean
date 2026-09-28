@@ -74,7 +74,8 @@ theorem ControlLocalDecl_ok.callArgumentsSource :
     (NanoP4Spec.tableDeclaration.codec)) x (((show ∀ x : (NanoP4Spec.tableDeclaration),
     (NanoP4Spec.tableDeclaration.admitted) x from NanoP4Spec.tableDeclaration.admittedAll)) x)),
     trivial⟩
-#audit_axioms ControlLocalDecl_ok.callArgumentsSource
 
+
+#audit_axioms ControlLocalDecl_ok.callArgumentsSource
 
 end NanoP4Spec

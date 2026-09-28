@@ -371,8 +371,6 @@ theorem Decl_load.run_sound
     NanoP4Spec.Decl_load.run p0 p1 = some (.ok o) → NanoP4Spec.Decl_load p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Decl_load.run_sound
-
 -- no determinism theorem: Decl_load
 --   7 rule paths
 
@@ -1330,16 +1328,12 @@ theorem Decls_load.run_sound_group :
          NanoP4Spec.Decls_load p0 p1 o) := by
   run_sound_group NanoP4Spec.Decls_load.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Decls_load.run_sound_group
-
 theorem Decls_load.run_sound
     (p0 : NanoP4Spec.loadContext)
     (p1 : List NanoP4Spec.declaration)
     (o : NanoP4Spec.loadContext) :
     NanoP4Spec.Decls_load.run p0 p1 = some (.ok o) → NanoP4Spec.Decls_load p0 p1 o :=
   fun h => NanoP4Spec.Decls_load.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.Decls_load.run_sound
 
 def Decls_load.al : Lang.Al.def :=
   Q.d
@@ -1509,8 +1503,6 @@ theorem Program_load.run_sound
     NanoP4Spec.Program_load.run p0 p1 = some (.ok o) → NanoP4Spec.Program_load p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Program_load.run_sound
-
 -- no determinism theorem: Program_load
 --   calls Decls_load, which has no determinism theorem
 
@@ -1577,5 +1569,10 @@ def Program_load.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "LC'")) (Q.varT "loadContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Decl_load.run_sound
+#audit_axioms NanoP4Spec.Decls_load.run_sound_group
+#audit_axioms NanoP4Spec.Decls_load.run_sound
+#audit_axioms NanoP4Spec.Program_load.run_sound
 
 end NanoP4Spec

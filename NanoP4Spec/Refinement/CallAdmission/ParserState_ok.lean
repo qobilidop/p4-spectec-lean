@@ -99,7 +99,8 @@ theorem ParserState_ok.callArgumentsSource :
     (NanoP4Spec.transitionStatement.admitted) (NanoP4Spec.transitionStatement.codec)) x (((show
     ∀ x : (NanoP4Spec.transitionStatement), (NanoP4Spec.transitionStatement.admitted) x from
     NanoP4Spec.transitionStatement.admittedAll)) x)), trivial⟩
-#audit_axioms ParserState_ok.callArgumentsSource
 
+
+#audit_axioms ParserState_ok.callArgumentsSource
 
 end NanoP4Spec

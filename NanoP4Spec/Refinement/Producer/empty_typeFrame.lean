@@ -66,7 +66,8 @@ theorem «$empty_typeFrame».producesSource :
     (NanoP4Spec.id), (fun _ => True) x from NanoP4Spec.id.admittedAll)) a, ((show ∀ x :
     (NanoP4Spec.varTypeIR), (NanoP4Spec.varTypeIR.admitted) x from
     NanoP4Spec.varTypeIR.admittedAll)) b⟩))))) result)
-#audit_axioms «$empty_typeFrame».producesSource
 
+
+#audit_axioms «$empty_typeFrame».producesSource
 
 end NanoP4Spec

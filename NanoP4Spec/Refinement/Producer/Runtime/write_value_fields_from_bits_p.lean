@@ -90,7 +90,8 @@ theorem «$write_value_fields_from_bits'».runtimeProducesSource :
     (NanoP4Spec.fieldValue), (NanoP4Spec.fieldValue.runtimeAdmitted) x from
     NanoP4Spec.fieldValue.runtimeAdmittedAll)) x))) p.1, ((show ∀ x : (NanoP4Spec.bits),
     (NanoP4Spec.bits.admitted) x from NanoP4Spec.bits.admittedAll)) p.2⟩))) result)
-#audit_axioms «$write_value_fields_from_bits'».runtimeProducesSource
 
+
+#audit_axioms «$write_value_fields_from_bits'».runtimeProducesSource
 
 end NanoP4Spec

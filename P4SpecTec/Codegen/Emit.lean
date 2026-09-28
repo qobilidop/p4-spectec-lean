@@ -116,6 +116,37 @@ def headerLine (lib exportPath file : String) : String :=
     if sourceLine.length ≤ 100 then sourceLine
     else s!"-- source: {exportPath}\n-- artifact: {file}"
 
+/-- Move each top-level `#audit_axioms` command to the end of its namespace or section, before
+the next scope command or `mutual` block. An audit waits for its theorem's proof; directly
+after the theorem it keeps Lean from elaborating the module's later proofs in parallel with
+that one. -/
+def hoistAudits (text : String) : String := Id.run do
+  let mut out : Array String := #[]
+  let mut pending : Array String := #[]
+  let mut removed := false
+  for line in text.splitOn "\n" do
+    if line.startsWith "#audit_axioms " then
+      pending := pending.push line
+      removed := true
+      continue
+    -- the audit's blank separator goes with it
+    if removed && line.isEmpty && out.back? == some "" then
+      removed := false
+      continue
+    removed := false
+    -- a `mutual` block admits no commands, so audits also go ahead of one
+    let scope := line == "end" || line.startsWith "end " || line.startsWith "namespace " ||
+      line == "section" || line.startsWith "section " || line == "mutual"
+    if scope && !pending.isEmpty then
+      if out.back? != some "" then out := out.push ""
+      out := out ++ pending ++ #[""]
+      pending := #[]
+    out := out.push line
+  unless pending.isEmpty do
+    if out.back? == some "" then out := out.pop
+    out := out ++ #[""] ++ pending ++ #[""]
+  return "\n".intercalate out.toList
+
 /-- The preamble after the imports. -/
 def preamble (lib module file : String) : String :=
   String.join [
@@ -939,6 +970,7 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
       representations := refinement.representations, profiles := profileClaims lib spec }
   outs := outs ++ [{ path := s!"{lib}.lean", text := root },
     { path := s!"{lib}/coverage.json", text := report.render }]
-  pure outs
+  pure (outs.map fun o =>
+    if o.path.endsWith ".lean" then { o with text := hoistAudits o.text } else o)
 
 end P4SpecTec.Codegen.Emit

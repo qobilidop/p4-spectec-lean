@@ -59,7 +59,8 @@ theorem «$write_value_from_bits».runtimeCallArgumentsSource :
     (Representation.Source.namesInCheckSound _ _ (by closure_check)) _
     (NanoP4Spec.bits.codec)))) x (((show ∀ x : (NanoP4Spec.bits), (NanoP4Spec.bits.admitted) x
     from NanoP4Spec.bits.admittedAll)) x)), trivial⟩
-#audit_axioms «$write_value_from_bits».runtimeCallArgumentsSource
 
+
+#audit_axioms «$write_value_from_bits».runtimeCallArgumentsSource
 
 end NanoP4Spec

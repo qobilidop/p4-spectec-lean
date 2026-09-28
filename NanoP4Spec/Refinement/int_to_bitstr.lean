@@ -34,8 +34,6 @@ theorem «$int_to_bitstr».dispatch (p0 : Int) (p1 : Int)
   funext result
   cases result <;> rfl
 
-#audit_axioms NanoP4Spec.«$int_to_bitstr».dispatch
-
 theorem «$int_to_bitstr».refines (fuel : Nat) (p0 : Int) (p1 : Int)
    (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg : Interp_al.Interp.Config)
      (ctx : Interp_al.Ctx.t) (internal : Bool) (hguard : cfg.guard = false) (hfenv :
@@ -44,8 +42,6 @@ theorem «$int_to_bitstr».refines (fuel : Nat) (p0 : Int) (p1 : Int)
     v1]) (ExceptT.mk (NanoP4Spec.«$int_to_bitstr» p0 p1)) := by
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "int_to_bitstr"
     _ _ _ [] [v0, v1] hfenv hdecl (NanoP4Spec.«$int_to_bitstr».dispatch p0 p1 v0 v1 h0 h1 cfg)
-
-#audit_axioms NanoP4Spec.«$int_to_bitstr».refines
 
 theorem «$int_to_bitstr».realizes (p0 : Int) (p1 : Int)
    (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg : Interp_al.Interp.Config)
@@ -56,6 +52,8 @@ theorem «$int_to_bitstr».realizes (p0 : Int) (p1 : Int)
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "int_to_bitstr" _ _ _ []
     [v0, v1] hfenv hdecl (NanoP4Spec.«$int_to_bitstr».dispatch p0 p1 v0 v1 h0 h1 cfg)
 
+#audit_axioms NanoP4Spec.«$int_to_bitstr».dispatch
+#audit_axioms NanoP4Spec.«$int_to_bitstr».refines
 #audit_axioms NanoP4Spec.«$int_to_bitstr».realizes
 
 end NanoP4Spec

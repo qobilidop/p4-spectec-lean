@@ -55,8 +55,6 @@ theorem ParserState_trans.refines_group [NanoP4Spec.Externs] :
   | ind fuel ih =>
       refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.ParserState_trans.refines_group
-
 set_option maxHeartbeats 8000000 in
 theorem ParserState_trans.refines
     (fuel : Nat)
@@ -98,8 +96,6 @@ theorem ParserState_trans.refines
     h0
     h1
     h2
-
-#audit_axioms NanoP4Spec.ParserState_trans.refines
 
 private def ParserState_trans.realizesMotive [NanoP4Spec.Externs]
     (p0 : NanoP4Spec.evalContext)
@@ -152,6 +148,8 @@ theorem ParserState_trans.realizes
       realize_step (relations) hq)
     p0 p1 p2 q hq cfg ctx internal hguard hhints hextern hfenv hspec ht0 ht1 v0 v1 v2 h0 h1 h2
 
+#audit_axioms NanoP4Spec.ParserState_trans.refines_group
+#audit_axioms NanoP4Spec.ParserState_trans.refines
 #audit_axioms NanoP4Spec.ParserState_trans.realizes
 
 end NanoP4Spec

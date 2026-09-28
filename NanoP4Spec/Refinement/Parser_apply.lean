@@ -55,8 +55,6 @@ theorem Parser_apply.refines
       (ExceptT.mk (NanoP4Spec.Parser_apply.run p0 p1 p2)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.Parser_apply.refines
-
 set_option maxHeartbeats 6000000 in
 theorem Parser_apply.realizes
     [NanoP4Spec.Externs]
@@ -81,6 +79,7 @@ theorem Parser_apply.realizes
       (ExceptT.mk (NanoP4Spec.Parser_apply.run p0 p1 p2)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.Parser_apply.refines
 #audit_axioms NanoP4Spec.Parser_apply.realizes
 
 end NanoP4Spec

@@ -54,7 +54,8 @@ theorem «$find_var_t».producesSource :
     (NanoP4Spec.varTypeIR.admitted) (NanoP4Spec.varTypeIR.codec)) result (((show ∀ x :
     (NanoP4Spec.varTypeIR), (NanoP4Spec.varTypeIR.admitted) x from
     NanoP4Spec.varTypeIR.admittedAll)) result)
-#audit_axioms «$find_var_t».producesSource
 
+
+#audit_axioms «$find_var_t».producesSource
 
 end NanoP4Spec

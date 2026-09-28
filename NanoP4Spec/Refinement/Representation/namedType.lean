@@ -46,8 +46,6 @@ private theorem namedType.bodyCodec : @Representation.Codec (NanoP4Spec.typeName
   (NanoP4Spec.typeName.admitted) :=
   NanoP4Spec.typeName.codec
 
-#audit_axioms NanoP4Spec.namedType.bodyCodec
-
 private theorem namedType.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.namedType.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "typeName" [])).it) v := by
@@ -57,16 +55,12 @@ private theorem namedType.sourceIff (v : Lang.Il.value) :
   rw [substitution.emptyNamedResult (Q.i "typeName")] at valid
   exact valid) (Representation.Source.Substitutes.named (Q.i "typeName") [] [] rfl (.nil)) v
 
-#audit_axioms NanoP4Spec.namedType.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem namedType.encodingSourceIff (x : NanoP4Spec.namedType) :
     NanoP4Spec.namedType.source (NanoP4Spec.namedType.toValue x) ↔ (Representation.Source.Valid
       NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "typeName" [])).it)
       ((NanoP4Spec.typeName.toValue) x) :=
   NanoP4Spec.namedType.sourceIff _
-
-#audit_axioms NanoP4Spec.namedType.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem namedType.codec : @Refine.Representation.Codec NanoP4Spec.namedType
@@ -110,8 +104,6 @@ theorem namedType.codec : @Refine.Representation.Codec NanoP4Spec.namedType
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.namedType.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem namedType.admittedAll : ∀ x : NanoP4Spec.namedType, (NanoP4Spec.namedType.admitted) x :=
   by
@@ -119,6 +111,10 @@ theorem namedType.admittedAll : ∀ x : NanoP4Spec.namedType, (NanoP4Spec.namedT
   exact ((show ∀ x : (NanoP4Spec.typeName), (NanoP4Spec.typeName.admitted) x from
     NanoP4Spec.typeName.admittedAll)) x
 
+#audit_axioms NanoP4Spec.namedType.bodyCodec
+#audit_axioms NanoP4Spec.namedType.sourceIff
+#audit_axioms NanoP4Spec.namedType.encodingSourceIff
+#audit_axioms NanoP4Spec.namedType.codec
 #audit_axioms NanoP4Spec.namedType.admittedAll
 
 end NanoP4Spec

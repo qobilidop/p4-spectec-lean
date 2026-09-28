@@ -56,8 +56,6 @@ theorem Copy_out_arg.refines
       (ExceptT.mk (NanoP4Spec.Copy_out_arg.run p0 p1 p2 p3 p4 p5)) :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.Copy_out_arg.refines
-
 set_option maxHeartbeats 7000000 in
 theorem Copy_out_arg.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -85,6 +83,7 @@ theorem Copy_out_arg.realizes
       (ExceptT.mk (NanoP4Spec.Copy_out_arg.run p0 p1 p2 p3 p4 p5)) := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.Copy_out_arg.refines
 #audit_axioms NanoP4Spec.Copy_out_arg.realizes
 
 end NanoP4Spec

@@ -40,8 +40,6 @@ theorem «$empty_callableTypeDefEnv».refines
       (ExceptT.mk NanoP4Spec.«$empty_callableTypeDefEnv») :=
   by refine_al (subtypes)
 
-#audit_axioms NanoP4Spec.«$empty_callableTypeDefEnv».refines
-
 set_option maxHeartbeats 5000000 in
 theorem «$empty_callableTypeDefEnv».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -57,6 +55,7 @@ theorem «$empty_callableTypeDefEnv».realizes
       (ExceptT.mk NanoP4Spec.«$empty_callableTypeDefEnv») := by
   realize_al (subtypes)
 
+#audit_axioms NanoP4Spec.«$empty_callableTypeDefEnv».refines
 #audit_axioms NanoP4Spec.«$empty_callableTypeDefEnv».realizes
 
 end NanoP4Spec

@@ -111,8 +111,6 @@ theorem Call_convention_arg_ok.run_sound
         NanoP4Spec.Call_convention_arg_ok p0 p1 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Call_convention_arg_ok.run_sound
-
 -- no determinism theorem: Call_convention_arg_ok
 --   3 rule paths
 
@@ -329,15 +327,11 @@ theorem Call_convention_ok.run_sound_group :
          NanoP4Spec.Call_convention_ok p0 p1) := by
   run_sound_group NanoP4Spec.Call_convention_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Call_convention_ok.run_sound_group
-
 theorem Call_convention_ok.run_sound
     (p0 : List NanoP4Spec.parameterIR)
     (p1 : List NanoP4Spec.argumentIR) :
     NanoP4Spec.Call_convention_ok.run p0 p1 = some (.ok ()) → NanoP4Spec.Call_convention_ok p0 p1 :=
   fun h => NanoP4Spec.Call_convention_ok.run_sound_group p0 p1 _ h () rfl
-
-#audit_axioms NanoP4Spec.Call_convention_ok.run_sound
 
 def Call_convention_ok.al : Lang.Al.def :=
   Q.d
@@ -540,6 +534,10 @@ def Call_convention_ok.al : Lang.Al.def :=
              []]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Call_convention_arg_ok.run_sound
+#audit_axioms NanoP4Spec.Call_convention_ok.run_sound_group
+#audit_axioms NanoP4Spec.Call_convention_ok.run_sound
 
 mutual
 
@@ -969,8 +967,6 @@ theorem Statement_ok.run_sound_group :
          NanoP4Spec.Block_ok p0 p1) := by
   run_sound_group NanoP4Spec.Statement_ok.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Statement_ok.run_sound_group
-
 theorem Statement_ok.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.typingContext)
@@ -979,8 +975,6 @@ theorem Statement_ok.run_sound
     NanoP4Spec.Statement_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Statement_ok p0 p1 p2 o :=
   fun h => NanoP4Spec.Statement_ok.run_sound_group.1 p0 p1 p2 _ h o rfl
 
-#audit_axioms NanoP4Spec.Statement_ok.run_sound
-
 theorem Statements_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : List NanoP4Spec.statement)
@@ -988,15 +982,11 @@ theorem Statements_ok.run_sound
     NanoP4Spec.Statements_ok.run p0 p1 = some (.ok o) → NanoP4Spec.Statements_ok p0 p1 o :=
   fun h => NanoP4Spec.Statement_ok.run_sound_group.2.1 p0 p1 _ h o rfl
 
-#audit_axioms NanoP4Spec.Statements_ok.run_sound
-
 theorem Block_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : NanoP4Spec.blockStatement) :
     NanoP4Spec.Block_ok.run p0 p1 = some (.ok ()) → NanoP4Spec.Block_ok p0 p1 :=
   fun h => NanoP4Spec.Statement_ok.run_sound_group.2.2 p0 p1 _ h () rfl
-
-#audit_axioms NanoP4Spec.Block_ok.run_sound
 
 def Statement_ok.al : Lang.Al.def :=
   Q.d
@@ -2052,8 +2042,6 @@ theorem ParserState_ok.run_sound
     NanoP4Spec.ParserState_ok.run p0 p1 p2 = some (.ok ()) → NanoP4Spec.ParserState_ok p0 p1 p2 :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ParserState_ok.run_sound
-
 -- no determinism theorem: ParserState_ok
 --   calls Statements_ok, which has no determinism theorem
 
@@ -2270,8 +2258,6 @@ theorem ParserStateList_ok.run_sound
     (p1 : NanoP4Spec.parserStateList) :
     NanoP4Spec.ParserStateList_ok.run p0 p1 = some (.ok ()) → NanoP4Spec.ParserStateList_ok p0 p1 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ParserStateList_ok.run_sound
 
 -- no determinism theorem: ParserStateList_ok
 --   iterated premise
@@ -2614,8 +2600,6 @@ theorem TableAction_ok.run_sound
     (o : NanoP4Spec.matchAction) :
     NanoP4Spec.TableAction_ok.run p0 p1 = some (.ok o) → NanoP4Spec.TableAction_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TableAction_ok.run_sound
 
 -- no determinism theorem: TableAction_ok
 --   2 rule paths
@@ -3041,16 +3025,12 @@ theorem TableActions_ok.run_sound_group :
          NanoP4Spec.TableActions_ok p0 p1 o) := by
   run_sound_group NanoP4Spec.TableActions_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.TableActions_ok.run_sound_group
-
 theorem TableActions_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : List NanoP4Spec.tableAction)
     (o : List NanoP4Spec.matchAction) :
     NanoP4Spec.TableActions_ok.run p0 p1 = some (.ok o) → NanoP4Spec.TableActions_ok p0 p1 o :=
   fun h => NanoP4Spec.TableActions_ok.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.TableActions_ok.run_sound
 
 def TableActions_ok.al : Lang.Al.def :=
   Q.d
@@ -3299,8 +3279,6 @@ theorem TableActionList_ok.run_sound
     NanoP4Spec.TableActionList_ok.run p0 p1 = some (.ok o) →
         NanoP4Spec.TableActionList_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TableActionList_ok.run_sound
 
 -- no determinism theorem: TableActionList_ok
 --   iterated premise
@@ -3595,8 +3573,6 @@ theorem TableEntry_ok.run_sound
     (p2 : NanoP4Spec.tableEntry) :
     NanoP4Spec.TableEntry_ok.run p0 p1 p2 = some (.ok ()) → NanoP4Spec.TableEntry_ok p0 p1 p2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TableEntry_ok.run_sound
 
 -- no determinism theorem: TableEntry_ok
 --   2 rule paths
@@ -4196,16 +4172,12 @@ theorem TableEntries_ok.run_sound_group :
          NanoP4Spec.TableEntries_ok p0 p1 p2) := by
   run_sound_group NanoP4Spec.TableEntries_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.TableEntries_ok.run_sound_group
-
 theorem TableEntries_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : NanoP4Spec.tableContext)
     (p2 : List NanoP4Spec.tableEntry) :
     NanoP4Spec.TableEntries_ok.run p0 p1 p2 = some (.ok ()) → NanoP4Spec.TableEntries_ok p0 p1 p2 :=
   fun h => NanoP4Spec.TableEntries_ok.run_sound_group p0 p1 p2 _ h () rfl
-
-#audit_axioms NanoP4Spec.TableEntries_ok.run_sound
 
 def TableEntries_ok.al : Lang.Al.def :=
   Q.d
@@ -4448,8 +4420,6 @@ theorem TableProperties_ok.run_sound
     NanoP4Spec.TableProperties_ok.run p0 p1 = some (.ok o) →
         NanoP4Spec.TableProperties_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TableProperties_ok.run_sound
 
 -- no determinism theorem: TableProperties_ok
 --   2 rule paths
@@ -4744,8 +4714,6 @@ theorem TableDecl_ok.run_sound
     NanoP4Spec.TableDecl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.TableDecl_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.TableDecl_ok.run_sound
-
 -- no determinism theorem: TableDecl_ok
 --   calls TableProperties_ok, which has no determinism theorem
 
@@ -4921,8 +4889,6 @@ theorem ControlLocalDecl_ok.run_sound
     NanoP4Spec.ControlLocalDecl_ok.run p0 p1 = some (.ok o) →
         NanoP4Spec.ControlLocalDecl_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ControlLocalDecl_ok.run_sound
 
 -- no determinism theorem: ControlLocalDecl_ok
 --   2 rule paths
@@ -5107,8 +5073,6 @@ theorem ControlLocalDecls_ok.run_sound_group :
          NanoP4Spec.ControlLocalDecls_ok p0 p1 o) := by
   run_sound_group NanoP4Spec.ControlLocalDecls_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.ControlLocalDecls_ok.run_sound_group
-
 theorem ControlLocalDecls_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : List NanoP4Spec.controlLocalDeclaration)
@@ -5116,8 +5080,6 @@ theorem ControlLocalDecls_ok.run_sound
     NanoP4Spec.ControlLocalDecls_ok.run p0 p1 = some (.ok o) →
         NanoP4Spec.ControlLocalDecls_ok p0 p1 o :=
   fun h => NanoP4Spec.ControlLocalDecls_ok.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.ControlLocalDecls_ok.run_sound
 
 def ControlLocalDecls_ok.al : Lang.Al.def :=
   Q.d
@@ -5347,8 +5309,6 @@ theorem ControlLocalDeclList_ok.run_sound
         NanoP4Spec.ControlLocalDeclList_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ControlLocalDeclList_ok.run_sound
-
 -- no determinism theorem: ControlLocalDeclList_ok
 --   calls ControlLocalDecls_ok, which has no determinism theorem
 
@@ -5503,8 +5463,6 @@ theorem ActionDecl_ok.run_sound
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.ActionDecl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.ActionDecl_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ActionDecl_ok.run_sound
 
 -- no determinism theorem: ActionDecl_ok
 --   iterated premise
@@ -5996,8 +5954,6 @@ theorem Decl_ok.run_sound
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.Decl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.Decl_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.Decl_ok.run_sound
 
 -- no determinism theorem: Decl_ok
 --   7 rule paths
@@ -6898,16 +6854,12 @@ theorem Decls_ok.run_sound_group :
          NanoP4Spec.Decls_ok p0 p1 o) := by
   run_sound_group NanoP4Spec.Decls_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Decls_ok.run_sound_group
-
 theorem Decls_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : List NanoP4Spec.declaration)
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.Decls_ok.run p0 p1 = some (.ok o) → NanoP4Spec.Decls_ok p0 p1 o :=
   fun h => NanoP4Spec.Decls_ok.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.Decls_ok.run_sound
 
 def Decls_ok.al : Lang.Al.def :=
   Q.d
@@ -7070,8 +7022,6 @@ theorem Program_ok.run_sound
     NanoP4Spec.Program_ok.run p0 = some (.ok o) → NanoP4Spec.Program_ok p0 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Program_ok.run_sound
-
 -- no determinism theorem: Program_ok
 --   calls Decls_ok, which has no determinism theorem
 
@@ -7131,5 +7081,30 @@ def Program_ok.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "TC'")) (Q.varT "typingContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Statement_ok.run_sound_group
+#audit_axioms NanoP4Spec.Statement_ok.run_sound
+#audit_axioms NanoP4Spec.Statements_ok.run_sound
+#audit_axioms NanoP4Spec.Block_ok.run_sound
+#audit_axioms NanoP4Spec.ParserState_ok.run_sound
+#audit_axioms NanoP4Spec.ParserStateList_ok.run_sound
+#audit_axioms NanoP4Spec.TableAction_ok.run_sound
+#audit_axioms NanoP4Spec.TableActions_ok.run_sound_group
+#audit_axioms NanoP4Spec.TableActions_ok.run_sound
+#audit_axioms NanoP4Spec.TableActionList_ok.run_sound
+#audit_axioms NanoP4Spec.TableEntry_ok.run_sound
+#audit_axioms NanoP4Spec.TableEntries_ok.run_sound_group
+#audit_axioms NanoP4Spec.TableEntries_ok.run_sound
+#audit_axioms NanoP4Spec.TableProperties_ok.run_sound
+#audit_axioms NanoP4Spec.TableDecl_ok.run_sound
+#audit_axioms NanoP4Spec.ControlLocalDecl_ok.run_sound
+#audit_axioms NanoP4Spec.ControlLocalDecls_ok.run_sound_group
+#audit_axioms NanoP4Spec.ControlLocalDecls_ok.run_sound
+#audit_axioms NanoP4Spec.ControlLocalDeclList_ok.run_sound
+#audit_axioms NanoP4Spec.ActionDecl_ok.run_sound
+#audit_axioms NanoP4Spec.Decl_ok.run_sound
+#audit_axioms NanoP4Spec.Decls_ok.run_sound_group
+#audit_axioms NanoP4Spec.Decls_ok.run_sound
+#audit_axioms NanoP4Spec.Program_ok.run_sound
 
 end NanoP4Spec

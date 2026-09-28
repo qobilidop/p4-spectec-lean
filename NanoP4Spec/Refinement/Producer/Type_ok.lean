@@ -52,7 +52,8 @@ theorem Type_ok.producesSource :
     (NanoP4Spec.typeIR.admitted) (NanoP4Spec.typeIR.codec)) result (((show ∀ x :
     (NanoP4Spec.typeIR), (NanoP4Spec.typeIR.admitted) x from NanoP4Spec.typeIR.admittedAll))
     result)
-#audit_axioms Type_ok.producesSource
 
+
+#audit_axioms Type_ok.producesSource
 
 end NanoP4Spec

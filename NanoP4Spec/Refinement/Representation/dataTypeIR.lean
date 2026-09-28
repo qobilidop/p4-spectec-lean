@@ -58,8 +58,6 @@ private theorem dataTypeIR.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.typ
   True) :=
   NanoP4Spec.typeId.codec
 
-#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataTypeIR.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeId" [])).it actual → ∀ v,
@@ -70,8 +68,6 @@ private theorem dataTypeIR.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution0_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem dataTypeIR.fieldCodec0_1 : @Representation.Codec (List (NanoP4Spec.fieldTypeIR))
@@ -85,8 +81,6 @@ private theorem dataTypeIR.fieldCodec0_1 : @Representation.Codec (List (NanoP4Sp
     (NanoP4Spec.fieldTypeIR) ⟨NanoP4Spec.fieldTypeIR.toValue⟩ ⟨NanoP4Spec.fieldTypeIR.ofValue⟩
     (Q.t (Q.varT "fieldTypeIR" [])) (NanoP4Spec.fieldTypeIR.admitted)
     (NanoP4Spec.fieldTypeIR.codec)
-
-#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataTypeIR.fieldSubstitution0_1 : ∀ actual,
@@ -105,16 +99,12 @@ private theorem dataTypeIR.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "fieldTypeIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem dataTypeIR.fieldCodec1_0 : @Representation.Codec (NanoP4Spec.typeId)
   ⟨NanoP4Spec.typeId.toValue⟩ ⟨NanoP4Spec.typeId.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "typeId" [])).it) (fun _ =>
   True) :=
   NanoP4Spec.typeId.codec
-
-#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataTypeIR.fieldSubstitution1_0 : ∀ actual,
@@ -126,8 +116,6 @@ private theorem dataTypeIR.fieldSubstitution1_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution1_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem dataTypeIR.fieldCodec1_1 : @Representation.Codec (List (NanoP4Spec.fieldTypeIR))
@@ -141,8 +129,6 @@ private theorem dataTypeIR.fieldCodec1_1 : @Representation.Codec (List (NanoP4Sp
     (NanoP4Spec.fieldTypeIR) ⟨NanoP4Spec.fieldTypeIR.toValue⟩ ⟨NanoP4Spec.fieldTypeIR.ofValue⟩
     (Q.t (Q.varT "fieldTypeIR" [])) (NanoP4Spec.fieldTypeIR.admitted)
     (NanoP4Spec.fieldTypeIR.codec)
-
-#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec1_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem dataTypeIR.fieldSubstitution1_1 : ∀ actual,
@@ -160,8 +146,6 @@ private theorem dataTypeIR.fieldSubstitution1_1 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "fieldTypeIR")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution1_1
 
 private theorem dataTypeIR.sourceCasesValid (v : Lang.Il.value) (hv : dataTypeIR.source v) :
     ∃ c ∈ dataTypeIR.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -209,8 +193,6 @@ private theorem dataTypeIR.sourceCasesValid (v : Lang.Il.value) (hv : dataTypeIR
         exact .cons (dataTypeIR.fieldSubstitution1_0 _ sub0) (.cons
           (dataTypeIR.fieldSubstitution1_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.dataTypeIR.sourceCasesValid
-
 private theorem dataTypeIR.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -247,8 +229,6 @@ private theorem dataTypeIR.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Doma
     (NanoP4Spec.fieldTypeIR)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.fieldTypeIR)
     ⟨NanoP4Spec.fieldTypeIR.ofValue⟩)) fuel v1) <;> rfl
 
-#audit_axioms dataTypeIR.decode0
-
 private theorem dataTypeIR.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -284,8 +264,6 @@ private theorem dataTypeIR.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Doma
   cases ((NanoP4Spec.typeId.ofValue) fuel v0) <;> cases ((@OfValue.ofValue (List
     (NanoP4Spec.fieldTypeIR)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.fieldTypeIR)
     ⟨NanoP4Spec.fieldTypeIR.ofValue⟩)) fuel v1) <;> rfl
-
-#audit_axioms dataTypeIR.decode1
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem dataTypeIR.codec : @Refine.Representation.Codec NanoP4Spec.dataTypeIR
@@ -640,7 +618,6 @@ theorem dataTypeIR.codec : @Refine.Representation.Codec NanoP4Spec.dataTypeIR
               tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.dataTypeIR.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -662,6 +639,18 @@ theorem dataTypeIR.admittedAll : ∀ x : NanoP4Spec.dataTypeIR, (NanoP4Spec.data
       from NanoP4Spec.fieldTypeIR.admittedAll)) x))) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec0_0
+#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec0_1
+#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec1_0
+#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.dataTypeIR.fieldCodec1_1
+#audit_axioms NanoP4Spec.dataTypeIR.fieldSubstitution1_1
+#audit_axioms NanoP4Spec.dataTypeIR.sourceCasesValid
+#audit_axioms dataTypeIR.decode0
+#audit_axioms dataTypeIR.decode1
+#audit_axioms NanoP4Spec.dataTypeIR.codec
 #audit_axioms NanoP4Spec.dataTypeIR.admittedAll
 
 end NanoP4Spec

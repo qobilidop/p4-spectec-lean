@@ -61,8 +61,6 @@ private theorem tableProperties.fieldCodec0_0 : @Representation.Codec
   (NanoP4Spec.tableKeyProperty.admitted) :=
   NanoP4Spec.tableKeyProperty.codec
 
-#audit_axioms NanoP4Spec.tableProperties.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableProperties.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "tableKeyProperty" [])).it actual → ∀ v,
@@ -74,8 +72,6 @@ private theorem tableProperties.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "tableKeyProperty")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem tableProperties.fieldCodec0_1 : @Representation.Codec
   (NanoP4Spec.tableActionsProperty) ⟨NanoP4Spec.tableActionsProperty.toValue⟩
@@ -83,8 +79,6 @@ private theorem tableProperties.fieldCodec0_1 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "tableActionsProperty" [])).it)
   (NanoP4Spec.tableActionsProperty.admitted) :=
   NanoP4Spec.tableActionsProperty.codec
-
-#audit_axioms NanoP4Spec.tableProperties.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableProperties.fieldSubstitution0_1 : ∀ actual,
@@ -98,8 +92,6 @@ private theorem tableProperties.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "tableActionsProperty")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem tableProperties.fieldCodec1_0 : @Representation.Codec
   (NanoP4Spec.tableKeyProperty) ⟨NanoP4Spec.tableKeyProperty.toValue⟩
@@ -107,8 +99,6 @@ private theorem tableProperties.fieldCodec1_0 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "tableKeyProperty" [])).it)
   (NanoP4Spec.tableKeyProperty.admitted) :=
   NanoP4Spec.tableKeyProperty.codec
-
-#audit_axioms NanoP4Spec.tableProperties.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableProperties.fieldSubstitution1_0 : ∀ actual,
@@ -121,8 +111,6 @@ private theorem tableProperties.fieldSubstitution1_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "tableKeyProperty")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution1_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem tableProperties.fieldCodec1_1 : @Representation.Codec
   (NanoP4Spec.tableActionsProperty) ⟨NanoP4Spec.tableActionsProperty.toValue⟩
@@ -130,8 +118,6 @@ private theorem tableProperties.fieldCodec1_1 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "tableActionsProperty" [])).it)
   (NanoP4Spec.tableActionsProperty.admitted) :=
   NanoP4Spec.tableActionsProperty.codec
-
-#audit_axioms NanoP4Spec.tableProperties.fieldCodec1_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableProperties.fieldSubstitution1_1 : ∀ actual,
@@ -145,8 +131,6 @@ private theorem tableProperties.fieldSubstitution1_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "tableActionsProperty")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution1_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem tableProperties.fieldCodec1_2 : @Representation.Codec
   (NanoP4Spec.tableEntriesProperty) ⟨NanoP4Spec.tableEntriesProperty.toValue⟩
@@ -154,8 +138,6 @@ private theorem tableProperties.fieldCodec1_2 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "tableEntriesProperty" [])).it)
   (NanoP4Spec.tableEntriesProperty.admitted) :=
   NanoP4Spec.tableEntriesProperty.codec
-
-#audit_axioms NanoP4Spec.tableProperties.fieldCodec1_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem tableProperties.fieldSubstitution1_2 : ∀ actual,
@@ -168,8 +150,6 @@ private theorem tableProperties.fieldSubstitution1_2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "tableEntriesProperty")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution1_2
 
 private theorem tableProperties.sourceCasesValid (v : Lang.Il.value) (hv :
   tableProperties.source v) :
@@ -221,8 +201,6 @@ private theorem tableProperties.sourceCasesValid (v : Lang.Il.value) (hv :
             (tableProperties.fieldSubstitution1_1 _ sub1) (.cons
             (tableProperties.fieldSubstitution1_2 _ sub2) (.nil)))
 
-#audit_axioms NanoP4Spec.tableProperties.sourceCasesValid
-
 private theorem tableProperties.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -245,8 +223,6 @@ private theorem tableProperties.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
     some (NanoP4Spec.tableProperties.mk x0 x1)))
   cases ((NanoP4Spec.tableKeyProperty.ofValue) fuel v0) <;> cases
     ((NanoP4Spec.tableActionsProperty.ofValue) fuel v1) <;> rfl
-
-#audit_axioms tableProperties.decode0
 
 private theorem tableProperties.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
@@ -274,8 +250,6 @@ private theorem tableProperties.decode1 (fuel : Nat) (v : Lang.Il.value) (tree :
   cases ((NanoP4Spec.tableKeyProperty.ofValue) fuel v0) <;> cases
     ((NanoP4Spec.tableActionsProperty.ofValue) fuel v1) <;> cases
     ((NanoP4Spec.tableEntriesProperty.ofValue) fuel v2) <;> rfl
-
-#audit_axioms tableProperties.decode1
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem tableProperties.codec : @Refine.Representation.Codec NanoP4Spec.tableProperties
@@ -627,7 +601,6 @@ theorem tableProperties.codec : @Refine.Representation.Codec NanoP4Spec.tablePro
                 (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
               rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
               all_goals rfl
-#audit_axioms NanoP4Spec.tableProperties.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -649,6 +622,20 @@ theorem tableProperties.admittedAll : ∀ x : NanoP4Spec.tableProperties,
       NanoP4Spec.tableEntriesProperty.admittedAll)) x2, trivial⟩
 
 
+#audit_axioms NanoP4Spec.tableProperties.fieldCodec0_0
+#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.tableProperties.fieldCodec0_1
+#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.tableProperties.fieldCodec1_0
+#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.tableProperties.fieldCodec1_1
+#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution1_1
+#audit_axioms NanoP4Spec.tableProperties.fieldCodec1_2
+#audit_axioms NanoP4Spec.tableProperties.fieldSubstitution1_2
+#audit_axioms NanoP4Spec.tableProperties.sourceCasesValid
+#audit_axioms tableProperties.decode0
+#audit_axioms tableProperties.decode1
+#audit_axioms NanoP4Spec.tableProperties.codec
 #audit_axioms NanoP4Spec.tableProperties.admittedAll
 
 end NanoP4Spec

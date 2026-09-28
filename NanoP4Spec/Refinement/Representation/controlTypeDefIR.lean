@@ -48,8 +48,6 @@ private theorem controlTypeDefIR.bodyCodec : @Representation.Codec
   (NanoP4Spec.controlObjectTypeIR.admitted) :=
   NanoP4Spec.controlObjectTypeIR.codec
 
-#audit_axioms NanoP4Spec.controlTypeDefIR.bodyCodec
-
 private theorem controlTypeDefIR.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.controlTypeDefIR.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "controlObjectTypeIR" [])).it) v := by
@@ -61,16 +59,12 @@ private theorem controlTypeDefIR.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "controlObjectTypeIR") [] [] rfl
     (.nil)) v
 
-#audit_axioms NanoP4Spec.controlTypeDefIR.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem controlTypeDefIR.encodingSourceIff (x : NanoP4Spec.controlTypeDefIR) :
     NanoP4Spec.controlTypeDefIR.source (NanoP4Spec.controlTypeDefIR.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "controlObjectTypeIR" [])).it) ((NanoP4Spec.controlObjectTypeIR.toValue) x) :=
   NanoP4Spec.controlTypeDefIR.sourceIff _
-
-#audit_axioms NanoP4Spec.controlTypeDefIR.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem controlTypeDefIR.codec : @Refine.Representation.Codec NanoP4Spec.controlTypeDefIR
@@ -118,8 +112,6 @@ theorem controlTypeDefIR.codec : @Refine.Representation.Codec NanoP4Spec.control
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.controlTypeDefIR.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem controlTypeDefIR.admittedAll : ∀ x : NanoP4Spec.controlTypeDefIR,
   (NanoP4Spec.controlTypeDefIR.admitted) x := by
@@ -127,6 +119,10 @@ theorem controlTypeDefIR.admittedAll : ∀ x : NanoP4Spec.controlTypeDefIR,
   exact ((show ∀ x : (NanoP4Spec.controlObjectTypeIR), (NanoP4Spec.controlObjectTypeIR.admitted)
     x from NanoP4Spec.controlObjectTypeIR.admittedAll)) x
 
+#audit_axioms NanoP4Spec.controlTypeDefIR.bodyCodec
+#audit_axioms NanoP4Spec.controlTypeDefIR.sourceIff
+#audit_axioms NanoP4Spec.controlTypeDefIR.encodingSourceIff
+#audit_axioms NanoP4Spec.controlTypeDefIR.codec
 #audit_axioms NanoP4Spec.controlTypeDefIR.admittedAll
 
 end NanoP4Spec

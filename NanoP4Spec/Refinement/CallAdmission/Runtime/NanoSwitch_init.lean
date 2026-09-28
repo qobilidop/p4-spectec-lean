@@ -74,7 +74,8 @@ theorem NanoSwitch_init.runtimeCallArgumentsSource :
     (Representation.Source.namesInCheckSound _ _ (by closure_check)) _
     (NanoP4Spec.program.codec)))) x (((show ∀ x : (NanoP4Spec.program),
     (NanoP4Spec.program.admitted) x from NanoP4Spec.program.admittedAll)) x)), trivial⟩
-#audit_axioms NanoSwitch_init.runtimeCallArgumentsSource
 
+
+#audit_axioms NanoSwitch_init.runtimeCallArgumentsSource
 
 end NanoP4Spec

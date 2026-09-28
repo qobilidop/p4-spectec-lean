@@ -126,7 +126,8 @@ theorem Copy_in.runtimeCallArgumentsSource :
     List (NanoP4Spec.argument) => ∀ x ∈ xs, (NanoP4Spec.argument.admitted) x) x from (fun xs x _
     => ((show ∀ x : (NanoP4Spec.argument), (NanoP4Spec.argument.admitted) x from
     NanoP4Spec.argument.admittedAll)) x))) x)), trivial⟩
-#audit_axioms Copy_in.runtimeCallArgumentsSource
 
+
+#audit_axioms Copy_in.runtimeCallArgumentsSource
 
 end NanoP4Spec

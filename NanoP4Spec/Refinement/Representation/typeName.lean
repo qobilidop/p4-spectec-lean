@@ -46,8 +46,6 @@ private theorem typeName.bodyCodec : @Representation.Codec (NanoP4Spec.typeIdent
   "typeIdentifier" [])).it) (NanoP4Spec.typeIdentifier.admitted) :=
   NanoP4Spec.typeIdentifier.codec
 
-#audit_axioms NanoP4Spec.typeName.bodyCodec
-
 private theorem typeName.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.typeName.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "typeIdentifier" [])).it) v := by
@@ -59,16 +57,12 @@ private theorem typeName.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "typeIdentifier") [] [] rfl (.nil))
     v
 
-#audit_axioms NanoP4Spec.typeName.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem typeName.encodingSourceIff (x : NanoP4Spec.typeName) :
     NanoP4Spec.typeName.source (NanoP4Spec.typeName.toValue x) ↔ (Representation.Source.Valid
       NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "typeIdentifier" [])).it)
       ((NanoP4Spec.typeIdentifier.toValue) x) :=
   NanoP4Spec.typeName.sourceIff _
-
-#audit_axioms NanoP4Spec.typeName.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem typeName.codec : @Refine.Representation.Codec NanoP4Spec.typeName
@@ -115,14 +109,16 @@ theorem typeName.codec : @Refine.Representation.Codec NanoP4Spec.typeName
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.typeName.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem typeName.admittedAll : ∀ x : NanoP4Spec.typeName, (NanoP4Spec.typeName.admitted) x := by
   intro x
   exact ((show ∀ x : (NanoP4Spec.typeIdentifier), (NanoP4Spec.typeIdentifier.admitted) x from
     NanoP4Spec.typeIdentifier.admittedAll)) x
 
+#audit_axioms NanoP4Spec.typeName.bodyCodec
+#audit_axioms NanoP4Spec.typeName.sourceIff
+#audit_axioms NanoP4Spec.typeName.encodingSourceIff
+#audit_axioms NanoP4Spec.typeName.codec
 #audit_axioms NanoP4Spec.typeName.admittedAll
 
 end NanoP4Spec

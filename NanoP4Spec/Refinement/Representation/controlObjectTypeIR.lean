@@ -54,8 +54,6 @@ private theorem controlObjectTypeIR.fieldCodec0_0 : @Representation.Codec (NanoP
   True) :=
   NanoP4Spec.typeId.codec
 
-#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem controlObjectTypeIR.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeId" [])).it actual → ∀ v,
@@ -66,8 +64,6 @@ private theorem controlObjectTypeIR.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldSubstitution0_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem controlObjectTypeIR.fieldCodec0_1 : @Representation.Codec (List
@@ -82,8 +78,6 @@ private theorem controlObjectTypeIR.fieldCodec0_1 : @Representation.Codec (List
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem controlObjectTypeIR.fieldSubstitution0_1 : ∀ actual,
@@ -101,8 +95,6 @@ private theorem controlObjectTypeIR.fieldSubstitution0_1 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldSubstitution0_1
 
 private theorem controlObjectTypeIR.sourceCasesValid (v : Lang.Il.value) (hv :
   controlObjectTypeIR.source v) :
@@ -136,8 +128,6 @@ private theorem controlObjectTypeIR.sourceCasesValid (v : Lang.Il.value) (hv :
         exact .cons (controlObjectTypeIR.fieldSubstitution0_0 _ sub0) (.cons
           (controlObjectTypeIR.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.controlObjectTypeIR.sourceCasesValid
-
 private theorem controlObjectTypeIR.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -165,8 +155,6 @@ private theorem controlObjectTypeIR.decode0 (fuel : Nat) (v : Lang.Il.value) (tr
   cases ((NanoP4Spec.typeId.ofValue) fuel v0) <;> cases ((@OfValue.ofValue (List
     (NanoP4Spec.parameterIR)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.parameterIR)
     ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v1) <;> rfl
-
-#audit_axioms controlObjectTypeIR.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem controlObjectTypeIR.codec : @Refine.Representation.Codec NanoP4Spec.controlObjectTypeIR
@@ -361,7 +349,6 @@ theorem controlObjectTypeIR.codec : @Refine.Representation.Codec NanoP4Spec.cont
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.controlObjectTypeIR.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -377,6 +364,13 @@ theorem controlObjectTypeIR.admittedAll : ∀ x : NanoP4Spec.controlObjectTypeIR
       from NanoP4Spec.parameterIR.admittedAll)) x))) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldCodec0_0
+#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldCodec0_1
+#audit_axioms NanoP4Spec.controlObjectTypeIR.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.controlObjectTypeIR.sourceCasesValid
+#audit_axioms controlObjectTypeIR.decode0
+#audit_axioms NanoP4Spec.controlObjectTypeIR.codec
 #audit_axioms NanoP4Spec.controlObjectTypeIR.admittedAll
 
 end NanoP4Spec

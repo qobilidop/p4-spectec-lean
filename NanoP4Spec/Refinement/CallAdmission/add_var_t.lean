@@ -90,7 +90,8 @@ theorem «$add_var_t».callArgumentsSource :
     (NanoP4Spec.varTypeIR.admitted) (NanoP4Spec.varTypeIR.codec)) x (((show ∀ x :
     (NanoP4Spec.varTypeIR), (NanoP4Spec.varTypeIR.admitted) x from
     NanoP4Spec.varTypeIR.admittedAll)) x)), trivial⟩
-#audit_axioms «$add_var_t».callArgumentsSource
 
+
+#audit_axioms «$add_var_t».callArgumentsSource
 
 end NanoP4Spec

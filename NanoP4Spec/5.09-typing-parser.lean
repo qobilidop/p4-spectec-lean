@@ -53,8 +53,6 @@ theorem ParserLocalDecl_ok.run_sound
         NanoP4Spec.ParserLocalDecl_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ParserLocalDecl_ok.run_sound
-
 -- no determinism theorem: ParserLocalDecl_ok
 --   calls VarDecl_ok, which has no determinism theorem
 
@@ -160,8 +158,6 @@ theorem ParserLocalDecls_ok.run_sound_group :
          NanoP4Spec.ParserLocalDecls_ok p0 p1 o) := by
   run_sound_group NanoP4Spec.ParserLocalDecls_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.ParserLocalDecls_ok.run_sound_group
-
 theorem ParserLocalDecls_ok.run_sound
     (p0 : NanoP4Spec.typingContext)
     (p1 : List NanoP4Spec.parserLocalDeclaration)
@@ -169,8 +165,6 @@ theorem ParserLocalDecls_ok.run_sound
     NanoP4Spec.ParserLocalDecls_ok.run p0 p1 = some (.ok o) →
         NanoP4Spec.ParserLocalDecls_ok p0 p1 o :=
   fun h => NanoP4Spec.ParserLocalDecls_ok.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.ParserLocalDecls_ok.run_sound
 
 def ParserLocalDecls_ok.al : Lang.Al.def :=
   Q.d
@@ -391,8 +385,6 @@ theorem ParserLocalDeclList_ok.run_sound
         NanoP4Spec.ParserLocalDeclList_ok p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.ParserLocalDeclList_ok.run_sound
-
 -- no determinism theorem: ParserLocalDeclList_ok
 --   calls ParserLocalDecls_ok, which has no determinism theorem
 
@@ -469,5 +461,10 @@ def ParserLocalDeclList_ok.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.ParserLocalDecl_ok.run_sound
+#audit_axioms NanoP4Spec.ParserLocalDecls_ok.run_sound_group
+#audit_axioms NanoP4Spec.ParserLocalDecls_ok.run_sound
+#audit_axioms NanoP4Spec.ParserLocalDeclList_ok.run_sound
 
 end NanoP4Spec
