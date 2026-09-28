@@ -44,7 +44,7 @@ theorem externRelRefines {β : Type} {P : List value → β → Prop} {cfg : Int
     simp only [Interp.invoke_rel, traced_eq, Ctx.find_rel, Ctx.find_rel_opt, Q.i,
       Util.Source.mkPhrase, hrel, check_rel_inputs_off hguard]
     cases internal <;>
-      simp only [Interp.invoke_extern_rel, pure_bind] <;>
+      simp only [Interp.invoke_extern_rel] <;>
       exact refines_diverge
   | fuel + 2 => rw [invokeExternRel fuel hguard ctx internal hrel vs]; exact h
 

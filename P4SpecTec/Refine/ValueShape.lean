@@ -232,6 +232,12 @@ theorem canons_take (n : Nat) (vs : List value) : canons (vs.take n) = (canons v
 theorem canons_drop (n : Nat) (vs : List value) : canons (vs.drop n) = (canons vs).drop n := by
   rw [canons_eq_map, canons_eq_map, List.map_drop]
 
+/-- Two encodings of the same list agree canonically when they agree on every element. -/
+theorem canons_map_congr {α : Type} {f g : α → value} {xs : List α}
+    (h : ∀ x ∈ xs, canon (f x) = canon (g x)) : canons (xs.map f) = canons (xs.map g) := by
+  rw [canons_eq_map, canons_eq_map, List.map_map, List.map_map]
+  exact List.map_congr_left h
+
 /-- The length of a canonical list. -/
 @[simp] theorem canons_length (vs : List value) : (canons vs).length = vs.length := by
   rw [canons_eq_map, List.length_map]

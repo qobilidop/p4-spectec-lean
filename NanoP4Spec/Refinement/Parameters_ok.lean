@@ -48,7 +48,8 @@ theorem Parameters_ok.refines_group :
            (ExceptT.mk (NanoP4Spec.Parameters_ok.run p0 p1 p2))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al
+  | ind fuel ih =>
+      refine_al
 
 #audit_axioms NanoP4Spec.Parameters_ok.refines_group
 

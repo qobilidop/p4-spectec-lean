@@ -45,7 +45,8 @@ theorem ParserLocalDecls_ok.refines_group :
            (ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run p0 p1))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al
+  | ind fuel ih =>
+      refine_al
 
 #audit_axioms NanoP4Spec.ParserLocalDecls_ok.refines_group
 

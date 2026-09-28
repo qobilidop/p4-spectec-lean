@@ -56,7 +56,8 @@ theorem Copy_in.refines_group :
            (ExceptT.mk (NanoP4Spec.Copy_in.run p0 p1 p2 p3 p4 p5))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al (subtypes)
+  | ind fuel ih =>
+      refine_al (subtypes)
 
 #audit_axioms NanoP4Spec.Copy_in.refines_group
 

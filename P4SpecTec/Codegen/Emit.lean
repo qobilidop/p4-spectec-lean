@@ -528,7 +528,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
           let candidate ← (← representations[name]?).toOption
           pure { nominal := ← candidate.nominal, proof := ← candidate.total :
             RepresentationTotals.TotalContract }
-        match CallAdmission.plan env d totality with
+        match (if (calls m.id).isEmpty then .error "call admission needs a call site"
+            else CallAdmission.plan env d totality) with
         | .error reason =>
           exclusions := exclusions ++ [{ kind := "callAdmission", definition := m.id, reason }]
         | .ok admission =>

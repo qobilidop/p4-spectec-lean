@@ -40,7 +40,8 @@ theorem «$flatten_program».refines_group :
            (ExceptT.mk (NanoP4Spec.«$flatten_program» p0))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al
+  | ind fuel ih =>
+      refine_al
 
 #audit_axioms NanoP4Spec.«$flatten_program».refines_group
 

@@ -119,7 +119,7 @@ def calcLemmas : List Name := [
   ``List.zip_cons_cons, ``List.zip_nil_right, ``List.zip_nil_left, ``List.foldlM_cons,
   ``List.foldlM_nil, ``List.mapM_cons, ``List.mapM_nil, ``List.cons_append, ``List.nil_append,
   ``List.append_nil, ``List.zipIdx, ``List.filterMap_cons, ``List.filterMap_nil,
-  ``List.contains, ``List.elem_cons, ``List.elem_nil, ``List.find?_cons, ``List.find?_nil,
+  ``List.contains, ``elem_cons_or, ``List.elem_nil, ``List.find?_cons, ``List.find?_nil,
   -- hint indices of a relation premise's input/output split compare `Int.ofNat` positions
   ``Int.ofNat_eq_natCast, ``Int.cast_ofNat_Int,
   ``List.lookup, ``List.isEmpty, ``List.reverse_cons, ``List.reverse_nil, ``List.range_zero,
@@ -145,7 +145,7 @@ def calcLemmas : List Name := [
   ``ge_iff_le, ``Nat.zero_lt_succ, ``Nat.lt_add_one, ``Nat.lt_irrefl, ``Nat.not_lt_zero,
   ``Nat.le_refl, ``Nat.zero_le, ``Nat.add_one_ne_zero, ``Nat.lt_succ_self, ``List.isEmpty_cons,
   ``List.isEmpty_nil, ``Bool.not_not, ``decide_eq_true_eq, ``Bool.decide_eq_true,
-  ``instBEqOfDecidableEq, ``beq_iff_eq, ``iter_beq, ``List.beq, ``P4SpecTec.Lang.Il.var.id,
+  ``instBEqOfDecidableEq, ``beq_iff_eq, ``iter_beq, ``iter_beq_unfolded, ``List.beq, ``P4SpecTec.Lang.Il.var.id,
   ``P4SpecTec.Lang.Il.var.typ, ``P4SpecTec.Lang.Il.var.iters, ``P4SpecTec.Lang.Il.iterexp.iter,
   ``P4SpecTec.Lang.Il.iterexp.vars, ``P4SpecTec.Lang.Il.iterprem.iter,
   ``P4SpecTec.Lang.Il.iterprem.vars_bound, ``P4SpecTec.Lang.Il.iterprem.vars_bind,
@@ -188,6 +188,10 @@ def simpSet : TacticM SimpSet := do
   for f in blockFunctions do
     if f == ``Interp.assign_exp then lemmas := lemmas.push ``Interp.assign_exp.eq_1
     else lemmas := lemmas ++ (← eqnsOf f).toArray
+  -- casts unfold at a successor fuel only for a concrete type (`downcastConcrete`, …)
+  lemmas := lemmas.filter fun n =>
+    n != ``Interp.downcast.eq_2 && n != ``Interp.upcast.eq_2 &&
+    n != ``Interp.downcast && n != ``Interp.upcast
   for f in helperFunctions do lemmas := lemmas ++ (← eqnsOf f).toArray
   lemmas := lemmas ++ calcLemmas.toArray
   -- a generated encoder rewrites by its constructor equations, never by unfolding to a
@@ -200,7 +204,9 @@ def simpSet : TacticM SimpSet := do
   -- the runtime's `canon` family, by equations
   for f in [``canon', ``canonFields, ``canons, ``canonMixfix, ``canonMixfixes] do
     lemmas := lemmas ++ (← eqnsOf f).toArray
-  pure { lemmas, procs := simprocs.toArray.push ``assignExpConcrete }
+  pure { lemmas := lemmas ++ #[``Interp.downcast.eq_1, ``Interp.upcast.eq_1]
+         procs := simprocs.toArray ++ #[``assignExpConcrete, ``downcastConcrete,
+           ``upcastConcrete] }
 
 /-- Extend the forward preset with exact outer subtype checks and generated bridges.
 The ordinary function preset remains unchanged; recursive encoders are not simp rewrites. -/

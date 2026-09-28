@@ -53,7 +53,8 @@ theorem Type_eq.refines_group :
            (ExceptT.mk (NanoP4Spec.ParameterType_eq.run p0 p1))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => exact ⟨by refine_al (subtypes),
+  | ind fuel ih =>
+      exact ⟨by refine_al (subtypes),
         by refine_al⟩
 
 #audit_axioms NanoP4Spec.Type_eq.refines_group

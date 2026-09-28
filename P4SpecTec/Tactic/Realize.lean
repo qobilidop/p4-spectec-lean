@@ -235,7 +235,7 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
     if (← getGoals) != beforeExpose then return ← step s (remaining - 1) relations iterRel
     if ← tryTac (evalTactic (← `(tactic| contradiction))) then return
     if ← closeArithmetic then return
-    let ty ← withMainContext do instantiateMVars (← (← getMainGoal).getType)
+    let ty ← withMainContext do whnfR (← instantiateMVars (← (← getMainGoal).getType))
     if ty.isForall then
       introOne s relations
       return ← step s (remaining - 1) relations iterRel
@@ -253,6 +253,9 @@ partial def step (s : SimpSet) (remaining : Nat := 300)
         if head.isAppOfArity ``Ctx.transpose 1 then
           if ← normalize s then return ← step s (remaining - 1) relations iterRel
       traceStep m!"reverse {remaining}: {head.getAppFn} / {genHead.getAppFn}"
+      -- checked local lookups over pattern-assigned contexts, whatever the pairing relation
+      if ← lookupTraversalAt s source then
+        return ← step s (remaining - 1) relations iterRel
       let traversalRelation ← match iterRel with
         -- with relation presets, the source-derived relation observes pattern traversals
         -- (contexts); other traversals keep their own element relations below

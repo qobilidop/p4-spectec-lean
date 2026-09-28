@@ -209,6 +209,12 @@ def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
         pure ()
       unless (← getGoals).isEmpty do throwError "canonical shape proof remains open"
     then return
+  -- two library encoders of the same generated value (a recursive group's nested helper and
+  -- the generic instance encoder)
+  if ← tryTac do
+      encodingCoherence
+      unless (← getGoals).isEmpty do throwError "encodings differ"
+    then return
   if ← tryTac do
       unless ← rewriteEqsByPayload do throwError "no payload-decided equality"
       let _ ← normalize s
@@ -758,7 +764,14 @@ def generatedDiscriminant (n : Expr) : TacticM (Option FVarId) := withMainContex
   let direct ← (discrs ++ inner).filterMapM fun d => do
     match d.consumeMData with
     | .fvar f => if ← isGeneratedVar lib f then pure (some f) else pure none
-    | _ => pure none
+    -- a component of a generated pair: destructure the pair first
+    | .proj ``Prod _ (.fvar f) => if ← isGeneratedVar lib f then pure (some f) else pure none
+    | e =>
+      if e.isAppOfArity ``Prod.fst 3 || e.isAppOfArity ``Prod.snd 3 then
+        match (e.getArg! 2).consumeMData with
+        | .fvar f => if ← isGeneratedVar lib f then pure (some f) else pure none
+        | _ => pure none
+      else pure none
   if let some f := direct[0]? then
     pure (some f)
   else

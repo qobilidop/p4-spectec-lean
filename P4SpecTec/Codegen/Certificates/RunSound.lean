@@ -428,8 +428,8 @@ private def memberCore (ctx : Ctx) (d : Lang.Al.def) : Except String Member := d
       else if iterated then some "iterated premise"
       else none
     pure (Member.mk i.it true (env.q (Names.relName i.it ++ ".run")) (Names.relName i.it ++ ".run")
-      inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason [] false none
-      (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
+      inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason [] false
+      (iterationRelationOf env d) (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
       (reachesPrintHints env d) false false)
   | .FuncDecD i tparams params ret _ _ _ | .BuiltinDecD i tparams params ret _ =>
     let valueEquality := (expsOfDef d).any fun e => match e.it with

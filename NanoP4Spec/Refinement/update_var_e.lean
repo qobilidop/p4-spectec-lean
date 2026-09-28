@@ -54,7 +54,8 @@ theorem «$update_var_e».refines_group :
            (ExceptT.mk (NanoP4Spec.«$update_var_e» p0 p1 p2 p3))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al (subtypes)
+  | ind fuel ih =>
+      refine_al (subtypes)
 
 #audit_axioms NanoP4Spec.«$update_var_e».refines_group
 

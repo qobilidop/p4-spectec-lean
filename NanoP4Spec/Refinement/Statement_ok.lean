@@ -85,7 +85,8 @@ theorem Statement_ok.refines_group :
            (ExceptT.mk (NanoP4Spec.Block_ok.run p0 p1))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => exact ⟨by refine_al (subtypes),
+  | ind fuel ih =>
+      exact ⟨by refine_al (subtypes),
         by refine_al,
         by refine_al⟩
 

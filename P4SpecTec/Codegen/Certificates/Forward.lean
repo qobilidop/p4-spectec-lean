@@ -431,29 +431,6 @@ def functionListColumns (env : Env) (d : Lang.Al.def) : Bool :=
       clauses.all clauseSupported
   | _ => false
 
-/-- Find a source variable use recursively, independent of its printed generated name. -/
-partial def usesVariable (name : String) (e : exp) : Bool :=
-  (match e.it with | .VarE identifier => identifier.it == name | _ => false) ||
-    (pairsOfExp.children e).any (usesVariable name)
-
-/-- A checked downcast whose binding is unused needs separate constant-branch composition. -/
-def unusedDowncastBinding (d : Lang.Al.def) : Bool :=
-  let clauseUnsupported (clause : Lang.Il.clause) : Bool := Id.run do
-    let (_, output, premises) := clause.it
-    for (premise, index) in premises.zipIdx do
-      match premise.it with
-      | .LetPr binding value =>
-        if let .VarE name := binding.it then
-          if let .DownCastE .. := value.it then
-            let later := [output] ++ ((premises.drop (index + 1)).flatMap expsOfPrem)
-            if !later.any (usesVariable name.it) then return true
-      | _ => pure ()
-    return false
-  match d.it with
-  | .FuncDecD _ _ _ _ clauses alternative _ =>
-    clauses.any clauseUnsupported || alternative.any clauseUnsupported
-  | _ => false
-
 /-- The pattern sides of a premise's bindings, including inside iterations. -/
 partial def patternExps (p : prem) : List exp :=
   match p.it with
@@ -707,9 +684,12 @@ def groupTheorems (lib : String) (recursive : Bool) (members : List Member)
   let first := members.head!
   let groupName := first.localName.replace ".run" "" ++ ".refines_group"
   let stmts := members.map (groupStatement lib)
-  let proofs := if members.length == 1 then (forwardProof first).pretty 100
-    else "exact ⟨" ++
-      ",\n      ".intercalate (members.map fun m => "by " ++ (forwardProof m).pretty 100) ++ "⟩"
+  -- each proof starts on its own line, so that a multi-line tactic argument continues to
+  -- the right of the tactic's column
+  let proofs : Format := if members.length == 1 then forwardProof first
+    else Format.text "exact ⟨" ++ Format.nest 2 (Format.joinSep
+      (members.map fun m => Format.text "by " ++ Format.nest 3 (forwardProof m))
+      (Format.text "," ++ Term.hardLine)) ++ "⟩"
   let instanceBinder := if first.externs then " " ++ externInstance lib first else ""
   let dictionaries := if first.tparams.isEmpty then Format.nil
     else Format.text " " ++ typeBinders first
@@ -720,7 +700,7 @@ def groupTheorems (lib : String) (recursive : Bool) (members : List Member)
       " := by")) ++
     Format.nest 2 (Format.line ++ Format.text "intro fuel" ++ Format.line ++
       Format.text "induction fuel using Nat.strongRecOn with" ++ Format.line ++
-      Format.text s!"| ind fuel ih => {proofs}")
+      Format.text "| ind fuel ih =>" ++ Format.nest 4 (Term.hardLine ++ proofs))
   let mut out := [groupThm, audit (lib ++ "." ++ groupName)]
   let n := members.length
   for (m, k) in members.zip (List.range n) do

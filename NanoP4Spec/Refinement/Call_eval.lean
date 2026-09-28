@@ -141,7 +141,8 @@ theorem Call_eval.refines_group [NanoP4Spec.Externs] :
            (ExceptT.mk (NanoP4Spec.TableMatch_eval.run p0 p1 p2))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => exact ⟨by refine_al (columns),
+  | ind fuel ih =>
+      exact ⟨by refine_al (columns),
         by refine_al,
         by refine_al (subtypes),
         by refine_al,

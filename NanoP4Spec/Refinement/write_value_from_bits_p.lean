@@ -62,7 +62,8 @@ theorem «$write_value_from_bits'».refines_group :
            (ExceptT.mk (NanoP4Spec.«$write_value_fields_from_bits'» p0 p1))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => exact ⟨by refine_al (subtypes),
+  | ind fuel ih =>
+      exact ⟨by refine_al (subtypes),
         by refine_al⟩
 
 #audit_axioms NanoP4Spec.«$write_value_from_bits'».refines_group

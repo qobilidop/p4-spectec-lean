@@ -82,12 +82,12 @@ structure Plan where
   /-- Codec and totality sidecars required by its proof. -/
   dependencies : List String
 
-/-- Emit universal argument admission only from independently proved carrier totals. -/
+/-- Emit universal argument admission only from independently proved carrier totals. Calls
+without arguments admit the empty conjunction, `True`. -/
 def plan (env : Env) (d : Lang.Al.def)
     (known : String → Option RepresentationTotals.TotalContract) : Except String Plan := do
   unless env.mode == .pure do throw "call admission needs the pure profile"
   let types ← argumentTypes env d
-  unless !types.isEmpty do throw "call admission has no call argument obligations"
   let fields ← types.mapM
     (RepresentationFields.resolve env (fun n => (known n).map (·.nominal)))
   let totals ← types.mapM (RepresentationTotals.fieldProof env known)
@@ -104,7 +104,8 @@ def plan (env : Env) (d : Lang.Al.def)
   let declarations :=
     "/-- All values of the actual call argument carriers are source-valid. -/\n" ++
     s!"theorem {owner}.callArgumentsSource :\n    " ++ type.replace "\n" "\n    " ++
-    " :=\n  ⟨" ++ ", ".intercalate (proofs ++ ["trivial"]) ++ "⟩\n" ++
+    " :=\n  " ++ (if proofs.isEmpty then "trivial" else
+      "⟨" ++ ", ".intercalate (proofs ++ ["trivial"]) ++ "⟩") ++ "\n" ++
     s!"#audit_axioms {owner}.callArgumentsSource\n"
   pure { type, declarations := boundedLines declarations
          dependencies := (fields.flatMap (·.dependencies)).eraseDups }

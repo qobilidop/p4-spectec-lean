@@ -43,11 +43,12 @@ theorem «$match_case_value».refines_group :
            (ExceptT.mk (NanoP4Spec.«$match_case_value» p0 p1))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al (subtypes) (iteration :=
-    PairLookupRel
-      (Q.i "name_case_t", []) (Q.i "value_case_t", [])
-      (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.1)
-      (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.2))
+  | ind fuel ih =>
+      refine_al (subtypes) (iteration :=
+        PairLookupRel
+          (Q.i "name_case_t", []) (Q.i "value_case_t", [])
+          (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.1)
+          (fun x : NanoP4Spec.name × NanoP4Spec.value => toValue x.2))
 
 #audit_axioms NanoP4Spec.«$match_case_value».refines_group
 

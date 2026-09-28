@@ -48,7 +48,12 @@ theorem Expr_ok.refines_group :
            (ExceptT.mk (NanoP4Spec.Expr_ok.run p0 p1 p2))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => refine_al (subtypes)
+  | ind fuel ih =>
+      refine_al (subtypes) (iteration :=
+        PairLookupRel
+          (Q.i "id_field", []) (Q.i "typeIR_field", [])
+          (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.1)
+          (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.2))
 
 #audit_axioms NanoP4Spec.Expr_ok.refines_group
 
@@ -124,7 +129,11 @@ theorem Expr_ok.realizes
   exact NanoP4Spec.Expr_ok.run.partial_correctness
     (motive := Expr_ok.realizesMotive) (by
       intro rec ih p0 p1 p2 q hq cfg ctx internal hguard hhints _hfenv hspec v0 v1 v2 h0 h1 h2
-      realize_step (relations) hq)
+      realize_step (relations) (iteration :=
+        PairLookupRel
+          (Q.i "id_field", []) (Q.i "typeIR_field", [])
+          (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.1)
+          (fun x : NanoP4Spec.id × NanoP4Spec.typeIR => toValue x.2)) hq)
     p0 p1 p2 q hq cfg ctx internal hguard hhints _hfenv hspec v0 v1 v2 h0 h1 h2
 
 #audit_axioms NanoP4Spec.Expr_ok.realizes

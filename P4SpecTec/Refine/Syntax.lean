@@ -96,6 +96,10 @@ instance : DecidableEq iter := fun a b =>
 @[simp] theorem iter_beq (a b : iter) : (a == b) = decide (a = b) := by
   cases a <;> cases b <;> rfl
 
+/-- The same test once `BEq.beq` has been unfolded to the derived instance's field. -/
+@[simp] theorem iter_beq_unfolded (a b : iter) : instBEqIter.beq a b = decide (a = b) := by
+  cases a <;> cases b <;> rfl
+
 /-- Equality of variables is equality of the name and the dimensions. -/
 @[simp] theorem Var.eq_eq (a b : Var.t) : Var.eq a b = decide (a.1.it = b.1.it ∧ a.2 = b.2) := by
   unfold Var.eq Var.compare
