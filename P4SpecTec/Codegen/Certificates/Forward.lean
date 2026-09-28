@@ -147,7 +147,7 @@ def scalarTypeChecks (env : Env) (d : Lang.Al.def) : Bool :=
 /-- The first expression form outside the fragment, in `e`, if any. -/
 partial def unsupportedExp (e : exp) (membership : Bool := false)
     (pairProjection : Bool := false) (typedCalls : Bool := false)
-    (scalarChecks : Bool := false) : Option String :=
+    (scalarChecks : Bool := false) (columnElements : Bool := false) : Option String :=
   let here : Option String := match e.it with
     | .UpCastE .. => if scalarChecks then none else some "upcast"
     | .DownCastE .. => if scalarChecks then none else some "downcast"
@@ -156,7 +156,7 @@ partial def unsupportedExp (e : exp) (membership : Bool := false)
     | .IdxE .. => some "indexing"
     | .SliceE .. => some "slicing"
     | .UpdE _ p _ => if (dotPath p).isSome then none else some "path update with indexing"
-    | .IterE .. => if (iterVar? e).isSome ||
+    | .IterE .. => if (iterVar? e).isSome || columnElements ||
         (pairProjection && (pairIterationVars? e).isSome) then none
       else some "iterated expression"
     | .CallE _ targs _ => if targs.isEmpty || typedCalls then none
@@ -165,7 +165,7 @@ partial def unsupportedExp (e : exp) (membership : Bool := false)
   match here with
   | some r => some r
   | none => (pairsOfExp.children e).findSome? (fun e =>
-      unsupportedExp e membership pairProjection typedCalls scalarChecks)
+      unsupportedExp e membership pairProjection typedCalls scalarChecks columnElements)
 
 /-- A defined relation whose source arguments are all inputs has no output bindings. -/
 def zeroOutputRelation (env : Env) (name : String) : Bool :=
@@ -315,6 +315,61 @@ def singletonRecursiveFunction (env : Env) (d : Lang.Al.def) : Bool :=
   recursiveFunction env d && calls.contains name &&
     !calls.any (fun callee => callee != name && (Graph.reachable edges callee).contains name)
 
+/-- An expression and all its subexpressions, outermost first. -/
+private partial def subExps (e : exp) : List exp :=
+  e :: (pairsOfExp.children e).flatMap subExps
+
+/-- An element-wise expression over extracted columns: a call of a defined monomorphic
+function, or a comparison, on column variables, iterated over one or two zipped columns. -/
+private def columnElementExp (env : Env) (columns : List String) (e : exp) : Bool :=
+  let columnVar (a : exp) : Bool := match a.it with
+    | .VarE name => columns.contains name.it
+    | _ => false
+  match e.it with
+  | .IterE body (.mk .List vars) =>
+    (vars.length == 1 || vars.length == 2) &&
+      vars.all (fun v => columns.contains v.id.it && v.iters.isEmpty) &&
+      match body.it with
+      | .CallE callee [] arguments => (env.funcs.get? callee.it).any (fun info =>
+          info.kind == .defined && info.tparams.isEmpty) &&
+        arguments.all fun a => match a.it with | .ExpA a => columnVar a | _ => false
+      | .CmpE _ _ a b => columnVar a && columnVar b
+      | _ => false
+  | _ => true
+
+/-- Functions whose list premises only extract two columns from a list variable, and whose
+other iterations are element-wise calls or comparisons over those columns (`bin_eq`).
+A recursive call may occur only inside such an element-wise call (self-recursion). -/
+def functionExtractionColumns (env : Env) (d : Lang.Al.def) : Bool :=
+  match d.it with
+  | .FuncDecD _ [] params _ clauses none _ =>
+    let clauseSupported (clause : Lang.Il.clause) : Bool := Id.run do
+      let (arguments, output, premises) := clause.it
+      let mut columns : List String := []
+      for p in premises do
+        match p.it with
+        | .IterPr extract (.mk .List [input] outputs) =>
+          let .LetPr pattern value := extract.it | return false
+          if outputs.length != 2 || !distinctColumns env [input] ||
+              !distinctColumns env outputs || !columnVariable value input ||
+              !typEq pattern.note input.typ.it || !flatColumnCase pattern outputs then
+            return false
+          columns := columns ++ outputs.map (·.id.it)
+        | .IterPr .. => return false
+        | _ => pure ()
+      let iterated := (output :: premises.flatMap expsOfPrem).flatMap fun e =>
+        (subExps e).filter fun e => match e.it with
+          | .IterE _ _ => (iterVar? e).isNone
+          | _ => false
+      return arguments.length == params.length &&
+        iterated.all (columnElementExp env columns)
+    (recursiveFunction env d → singletonRecursiveFunction env d) &&
+      params.all (fun p => match p.it with | .ExpP _ => true | _ => false) &&
+      clauses.any (fun clause => let (_, _, ps) := clause.it
+        ps.any fun p => match p.it with | .IterPr .. => true | _ => false) &&
+      clauses.all clauseSupported
+  | _ => false
+
 /-- Singleton recursive monomorphic functions may use the checked list-column pipeline.
 Every iterated clause has exactly one contiguous pipeline, and scalar clauses are retained.
 Other list traversals need their own composition evidence before entering this fragment. -/
@@ -370,7 +425,7 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
   let typedCalls := closedTypedCalls env d
   let scalarChecks := scalarTypeChecks env d
   let relationIteration := relationListIteration env d
-  let columns := functionListColumns env d
+  let columns := functionListColumns env d || functionExtractionColumns env d
   if recursiveFunction env d && !(registrationNames env d).isEmpty then
     return some "recursive function registration-freshness proof is not implemented"
   if unusedDowncastBinding d then
@@ -412,8 +467,11 @@ def unsupported (env : Env) (externs : List String) (d : Lang.Al.def)
   if let some r := prems.findSome? (fun p =>
       unsupportedPrem p membership pairProjection typedCalls scalarChecks
         (relationIteration || columns)) then return some r
+  -- the extraction predicate has already checked every iterated element expression
+  let columnElements := functionExtractionColumns env d
   if let some r := (expsOfDef d).findSome? (fun e =>
-      unsupportedExp e membership pairProjection typedCalls scalarChecks) then return some r
+      unsupportedExp e membership pairProjection typedCalls scalarChecks columnElements) then
+    return some r
   none
 
 /-! ## Statements -/
