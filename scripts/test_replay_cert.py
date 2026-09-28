@@ -76,6 +76,18 @@ class ReplayTest(unittest.TestCase):
         self.assertEqual(lines[lines.index("set_option maxHeartbeats 4000000") + 1],
                          "set_option pp.all true")
 
+    def test_budgeted_theorem_is_selected_and_its_budget_overridden(self):
+        budgeted = MODULE.replace("theorem R.realizes",
+                                  "set_option maxHeartbeats 30000000 in\ntheorem R.realizes")
+        kept = replay.select(budgeted, ["refines"])
+        self.assertNotIn("R.realizes", kept.replace("R.realizesMotive", ""))
+        self.assertIn("set_option maxHeartbeats 30000000 in",
+                      replay.select(budgeted, ["realizes"]))
+        overridden = replay.instrument(budgeted, replay.options(1000, False, False))
+        self.assertNotIn("30000000", overridden)
+        self.assertIn("theorem R.realizes", overridden)
+        self.assertIn("30000000", replay.instrument(budgeted, ["set_option pp.all true"]))
+
     def test_generated_modules_keep_what_kept_theorems_use(self):
         # Every theorem named in a kept chunk and defined in the module is kept too.
         for path in sorted((ROOT / "NanoP4Spec/Refinement").glob("*.lean")):

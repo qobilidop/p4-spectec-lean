@@ -33,11 +33,10 @@ def Argument_ok.run
        have scope := p0
        have TC := p1
        have expression := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_ok.run scope TC expression)
-          have typeIR := tmp_0
-          have argumentIR := NanoP4Spec.argumentIR.hash expression typeIR
-          pure argumentIR))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_ok.run scope TC expression)
+       have typeIR := tmp_0
+       have argumentIR := NanoP4Spec.argumentIR.hash expression typeIR
+       pure argumentIR)
 
 inductive Argument_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →
@@ -126,19 +125,18 @@ def ArgumentList_ok.run
        have scope := p0
        have TC := p1
        have argumentList := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
-          have «argument*» := tmp_0
-          let tmp_2 ←
-              List.mapM
-                (fun (argument : NanoP4Spec.argument) =>
-                   (do
-                      let tmp_1 ← ExceptT.mk (NanoP4Spec.Argument_ok.run scope TC argument)
-                      have argumentIR := tmp_1
-                      pure argumentIR))
-                «argument*»
-          have «argumentIR*» := tmp_2
-          pure «argumentIR*»))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
+       have «argument*» := tmp_0
+       let tmp_2 ←
+           List.mapM
+             (fun (argument : NanoP4Spec.argument) =>
+                (do
+                   let tmp_1 ← ExceptT.mk (NanoP4Spec.Argument_ok.run scope TC argument)
+                   have argumentIR := tmp_1
+                   pure argumentIR))
+             «argument*»
+       have «argumentIR*» := tmp_2
+       pure «argumentIR*»)
 
 inductive ArgumentList_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →

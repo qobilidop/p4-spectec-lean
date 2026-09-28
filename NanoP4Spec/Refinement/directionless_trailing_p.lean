@@ -26,6 +26,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
+set_option maxHeartbeats 8000000 in
 theorem «$directionless_trailing'».refines_group :
     ∀ (fuel : Nat),
       (∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
@@ -48,6 +49,7 @@ theorem «$directionless_trailing'».refines_group :
 
 #audit_axioms NanoP4Spec.«$directionless_trailing'».refines_group
 
+set_option maxHeartbeats 8000000 in
 theorem «$directionless_trailing'».refines
     (fuel : Nat)
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -96,6 +98,7 @@ private def «$directionless_trailing'».realizesMotive
         [v0, v1])) r ∧
     ResRel Rel r q
 
+set_option maxHeartbeats 8000000 in
 theorem «$directionless_trailing'».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
     (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])

@@ -26,6 +26,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
+set_option maxHeartbeats 5000000 in
 theorem «$empty_map».refines
     (fuel : Nat)
     {τK τV : Type}
@@ -44,6 +45,7 @@ theorem «$empty_map».refines
 
 #audit_axioms NanoP4Spec.«$empty_map».refines
 
+set_option maxHeartbeats 5000000 in
 theorem «$empty_map».realizes
     {τK τV : Type}
     [ToValue τK] [BEq τK]

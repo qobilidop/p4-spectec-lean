@@ -66,6 +66,52 @@ class CompletionTests(unittest.TestCase):
         self.assertEqual(obligations["soundness:R"]["coverageClaim"], "NanoP4Spec.R.run_sound")
         self.assertIn("contract:extern", obligations["reverse:R"]["dependencies"])
 
+    def test_extern_initialization_and_identity_bindings(self):
+        obligations = {o["id"]: o for o in self.manifest["obligations"]}
+        self.assertIsNone(obligations["contract:extern"]["coverageClaim"])
+        self.assertIsNone(obligations["profile:initialization"]["coverageClaim"])
+        identity = obligations["profile:sourceIdentity"]
+        self.assertIsNone(identity["coverageClaim"])
+        self.assertIn("check-quotes", identity["checkedBy"])
+        self.assertIn(identity, completion.outstanding(self.manifest, "core"))
+        self.assertNotIn(identity, completion.outstanding(self.manifest, "core", checked=True))
+        self.coverage["definitions"][3]["claims"] = [{
+            "name": "NanoP4Spec.Externs.extern.invocations", "kind": "externContract",
+            "direction": "abstractTwoWay", "expectedType": "True"}]
+        self.coverage["profiles"] = [{
+            "name": "NanoP4Spec.Environment.initialized", "kind": "initialization",
+            "direction": "certificateEnvironment", "expectedType": "True"}]
+        manifest = completion.build_manifest(self.source, self.coverage, [], {})
+        obligations = {o["id"]: o for o in manifest["obligations"]}
+        self.assertEqual(obligations["contract:extern"]["coverageClaim"],
+                         "NanoP4Spec.Externs.extern.invocations")
+        self.assertEqual(obligations["profile:initialization"]["coverageClaim"],
+                         "NanoP4Spec.Environment.initialized")
+
+    def test_domain_needs_every_component_for_callables_with_calls(self):
+        claims = [("sourceEntry", "sourceInputsToTwoWay"),
+                  ("producer", "sourceInputsToSourceOutput"),
+                  ("callAdmission", "allCallArgumentCarriers")]
+        relation = self.coverage["definitions"][1]
+        for count in range(len(claims) + 1):
+            relation["claims"] = [{"name": f"NanoP4Spec.R.{kind}", "kind": kind,
+                                   "direction": direction, "expectedType": "True"}
+                                  for kind, direction in claims[:count]]
+            manifest = completion.build_manifest(self.source, self.coverage, [], {})
+            domain = next(o for o in manifest["obligations"] if o["id"] == "domain:R")
+            expected = "NanoP4Spec.R.sourceEntry" if count == len(claims) else None
+            self.assertEqual(domain["coverageClaim"], expected)
+
+    def test_owned_scope_excludes_later_owners_and_other_stages(self):
+        owned = completion.outstanding(self.manifest, "core", checked=True, owned="N3")
+        owners = {self.manifest["requirements"][o["requirement"]]["owner"] for o in owned}
+        self.assertTrue(owners <= {"N0", "N1", "N2", "N3"})
+        self.assertTrue(all(o["stage"] == "core" for o in owned))
+        replay = [o for o in self.manifest["obligations"] if o["requirement"] == "replay"]
+        self.assertTrue(replay)
+        self.assertFalse(any(o in owned for o in replay))
+        self.assertTrue(any(o["requirement"] == "forward" for o in owned))
+
     def test_typed_variable_omission_retains_type_domains(self):
         self.coverage["profiles"] = [{
             "name": "NanoP4Spec.SourceProfile.variablesIgnored", "kind": "sourceVariables",
@@ -344,7 +390,7 @@ class N2Tests(unittest.TestCase):
                 patch.object(completion, "read_json", side_effect=[self.source, self.coverage]), \
                 patch.object(completion, "check_stored"), \
                 patch.object(Path, "read_text", return_value=""), \
-                patch.object(completion, "run", side_effect=["", completion.CertificationError(
+                patch.object(completion, "run", side_effect=["", "", completion.CertificationError(
                     "quotation input type changed")]) as checked, \
                 patch.object(completion, "n2_missing") as inspected:
             self.assertEqual(completion.main(["--require-n2"]), 1)
@@ -364,7 +410,9 @@ class N2Tests(unittest.TestCase):
                     "compiled check failed")) as checked, \
                 patch.object(completion, "n2_missing") as inspected:
             self.assertEqual(completion.main(["--require-n2"]), 1)
-            checked.assert_called_once_with(completion.ROOT, ["lake", "exe", "check-coverage"])
+            checked.assert_called_once_with(completion.ROOT, [
+                "lake", "exe", "p4spectec-gen", "exports/nano-p4.al.json", "--lib", "NanoP4Spec",
+                "--runtime-extern", "value", "--check"])
             inspected.assert_not_called()
 
 

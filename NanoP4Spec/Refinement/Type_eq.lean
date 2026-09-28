@@ -26,6 +26,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
+set_option maxHeartbeats 17000000 in
 theorem Type_eq.refines_group :
     ∀ (fuel : Nat),
       (∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
@@ -52,10 +53,12 @@ theorem Type_eq.refines_group :
            (ExceptT.mk (NanoP4Spec.ParameterType_eq.run p0 p1))) := by
   intro fuel
   induction fuel using Nat.strongRecOn with
-  | ind fuel ih => exact ⟨by refine_al (subtypes), by refine_al⟩
+  | ind fuel ih => exact ⟨by refine_al (subtypes),
+        by refine_al⟩
 
 #audit_axioms NanoP4Spec.Type_eq.refines_group
 
+set_option maxHeartbeats 17000000 in
 theorem Type_eq.refines
     (fuel : Nat)
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -73,6 +76,7 @@ theorem Type_eq.refines
 
 #audit_axioms NanoP4Spec.Type_eq.refines
 
+set_option maxHeartbeats 17000000 in
 theorem ParameterType_eq.refines
     (fuel : Nat)
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -90,6 +94,7 @@ theorem ParameterType_eq.refines
 
 #audit_axioms NanoP4Spec.ParameterType_eq.refines
 
+set_option maxHeartbeats 17000000 in
 theorem Type_eq.realizes_group :
   (∀
      (p0 : NanoP4Spec.typeIR)
@@ -125,6 +130,7 @@ theorem Type_eq.realizes_group :
 
 #audit_axioms NanoP4Spec.Type_eq.realizes_group
 
+set_option maxHeartbeats 17000000 in
 theorem Type_eq.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
     (hguard : cfg.guard = false) (_hfenv : ctx.local.fenv = [])
@@ -156,6 +162,7 @@ theorem Type_eq.realizes
 
 #audit_axioms NanoP4Spec.Type_eq.realizes
 
+set_option maxHeartbeats 17000000 in
 theorem ParameterType_eq.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
     (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])

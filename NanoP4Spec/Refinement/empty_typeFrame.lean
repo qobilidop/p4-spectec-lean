@@ -27,6 +27,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
+set_option maxHeartbeats 5000000 in
 theorem «$empty_typeFrame».refines
     (fuel : Nat)
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -41,6 +42,7 @@ theorem «$empty_typeFrame».refines
 
 #audit_axioms NanoP4Spec.«$empty_typeFrame».refines
 
+set_option maxHeartbeats 5000000 in
 theorem «$empty_typeFrame».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
     (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = [])

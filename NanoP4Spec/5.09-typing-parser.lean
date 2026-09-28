@@ -29,11 +29,10 @@ def ParserLocalDecl_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.pars
     (do
        have TC_0 := p0
        have variableDeclaration := p1
-       (do
-          let tmp_0 ←
-              ExceptT.mk (NanoP4Spec.VarDecl_ok.run NanoP4Spec.scope.BLOCK TC_0 variableDeclaration)
-          have TC_1 := tmp_0
-          pure TC_1))
+       let tmp_0 ←
+           ExceptT.mk (NanoP4Spec.VarDecl_ok.run NanoP4Spec.scope.BLOCK TC_0 variableDeclaration)
+       have TC_1 := tmp_0
+       pure TC_1)
 
 inductive ParserLocalDecl_ok : NanoP4Spec.typingContext →
   NanoP4Spec.parserLocalDeclaration →
@@ -106,24 +105,24 @@ def ParserLocalDecls_ok.run
         (p1 : List NanoP4Spec.parserLocalDeclaration)
     : Option (Except Fail NanoP4Spec.typingContext) :=
   ExceptT.run
-    (do
-       have TC_0 := p0
-       have «parserLocalDeclaration*» := p1
-       (do
-          let _ ← Eval.check («parserLocalDeclaration*» ==
-           ([] : List NanoP4Spec.parserLocalDeclaration))
-          pure TC_0) <|>
-       (do
-          have «parserLocalDeclaration'*» := «parserLocalDeclaration*»
-          let _ ← Eval.check (!(List.isEmpty «parserLocalDeclaration'*»))
-          let parserLocalDeclaration_h :: «parserLocalDeclaration_t*» :=
-              «parserLocalDeclaration'*» | throw Fail.err
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.ParserLocalDecl_ok.run TC_0 parserLocalDeclaration_h)
-          have TC_1 := tmp_0
-          let tmp_1 ←
-              ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run TC_1 «parserLocalDeclaration_t*»)
-          have TC_2 := tmp_1
-          pure TC_2))
+    ((do
+        have TC_0 := p0
+        have «parserLocalDeclaration*» := p1
+        let _ ← Eval.check («parserLocalDeclaration*» ==
+         ([] : List NanoP4Spec.parserLocalDeclaration))
+        pure TC_0) <|>
+     (do
+        have TC_0 := p0
+        have «parserLocalDeclaration*» := p1
+        have «parserLocalDeclaration'*» := «parserLocalDeclaration*»
+        let _ ← Eval.check (!(List.isEmpty «parserLocalDeclaration'*»))
+        let parserLocalDeclaration_h :: «parserLocalDeclaration_t*» :=
+            «parserLocalDeclaration'*» | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.ParserLocalDecl_ok.run TC_0 parserLocalDeclaration_h)
+        have TC_1 := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run TC_1 «parserLocalDeclaration_t*»)
+        have TC_2 := tmp_1
+        pure TC_2))
   partial_fixpoint
 
 inductive ParserLocalDecls_ok : NanoP4Spec.typingContext →
@@ -363,14 +362,12 @@ def ParserLocalDeclList_ok.run
     (do
        have TC_0 := p0
        have parserLocalDeclarationList := p1
-       (do
-          let tmp_0 ←
-              ExceptT.mk
-                (NanoP4Spec.«$flatten_parserLocalDeclarationList» parserLocalDeclarationList)
-          have «parserLocalDeclaration*» := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run TC_0 «parserLocalDeclaration*»)
-          have TC_1 := tmp_1
-          pure TC_1))
+       let tmp_0 ←
+           ExceptT.mk (NanoP4Spec.«$flatten_parserLocalDeclarationList» parserLocalDeclarationList)
+       have «parserLocalDeclaration*» := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.ParserLocalDecls_ok.run TC_0 «parserLocalDeclaration*»)
+       have TC_1 := tmp_1
+       pure TC_1)
 
 inductive ParserLocalDeclList_ok : NanoP4Spec.typingContext →
   NanoP4Spec.parserLocalDeclarationList →

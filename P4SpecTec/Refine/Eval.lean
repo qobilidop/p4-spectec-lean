@@ -118,6 +118,11 @@ theorem refines_of_none {α β : Type} {P : α → β → Prop} {m : Eval α} {n
     (h : m.run = none) : Refines P m n := by
   intro r hr; rw [h] at hr; cases hr
 
+/-- A first step with no defined result, before its continuation, refines anything. -/
+theorem refines_bind_of_none {α γ β : Type} {P : γ → β → Prop} {m : Eval α}
+    {k : α → Eval γ} {n : Eval β} (h : m.run = none) : Refines P (m >>= k) n := by
+  intro r hr; rw [run_bind, h] at hr; cases hr
+
 /-- Related values. -/
 theorem refines_pure {α β : Type} {P : α → β → Prop} {a : α} {b : β} (h : P a b) :
     Refines P (pure a) (pure b) := by

@@ -3,6 +3,7 @@ import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Certificates.Builtin
 import P4SpecTec.Codegen.Certificates.Equality
+import P4SpecTec.Codegen.Certificates.Extern
 import P4SpecTec.Codegen.Certificates.Forward
 import P4SpecTec.Codegen.Certificates.Initialization
 import P4SpecTec.Codegen.Certificates.Producer
@@ -44,6 +45,9 @@ in modules after the spec files".
 -/
 
 namespace P4SpecTec.Codegen.Emit
+
+/-- The default heartbeat budget of a certificate module; larger groups add to it per path. -/
+def certificateHeartbeats : Nat := 4000000
 
 open Std (Format)
 open P4SpecTec.Util.Source
@@ -306,15 +310,36 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let funGroups := Graph.sccs funIds funDeps
   let mut unitFile : Std.HashMap String Nat := {}
   let mut needsExt : Std.HashMap String Bool := {}
+  -- Extern relations have invocation certificates under the abstract extern contract;
+  -- extern functions have no contract yet.
+  let externMembers := externDefs.filterMap (ExternCertificates.member env)
+  let externFunctionNames := externDefs.filterMap fun d => match d.it with
+    | .ExternDecD i .. => some i.it
+    | _ => none
   let mut coverageEntries : List Coverage.Entry := externDefs.map fun d =>
-    { id := d.it.id.it
-      kind := match d.it with | .ExternRelD .. => "externRelation" | _ => "externFunction"
-      source := Env.fileOf d
-      group := [d.it.id.it]
-      recursive := false
-      dependencies := []
-      claims := []
-      exclusions := [{ definition := d.it.id.it, reason := "extern" }] }
+    let base : Coverage.Entry :=
+      { id := d.it.id.it
+        kind := match d.it with | .ExternRelD .. => "externRelation" | _ => "externFunction"
+        source := Env.fileOf d
+        group := [d.it.id.it]
+        recursive := false
+        dependencies := []
+        claims := []
+        exclusions := [{ definition := d.it.id.it, reason := "extern" }] }
+    match externMembers.find? (·.id == d.it.id.it) with
+    | none => base
+    | some m => { base with
+        exclusions := []
+        claims := [
+          { name := m.defName ++ ".refines", kind := "refinement"
+            direction := "referenceToGenerated"
+            expectedType := render (Validate.refinementType env.lib m) },
+          { name := m.defName ++ ".realizes", kind := "refinement"
+            direction := "generatedToReference"
+            expectedType := render (Reverse.realizationType env.lib m) },
+          { name := m.defName ++ ".invocations", kind := "externContract"
+            direction := "abstractTwoWay"
+            expectedType := render (ExternCertificates.invocationType env.lib m) }] }
   -- Only checked builtin contracts enter the caller frontier. The print contract's
   -- empty-hint condition is stated by every caller whose closure reaches it.
   let certifiedBuiltins := spec.filterMap fun d =>
@@ -324,6 +349,17 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let mut reverseCoveredIds : List String := []
   let mut detIds : List String := []
   let mut producerIds : List String := []
+  if !externMembers.isEmpty then
+    refGroups := refGroups ++ [{
+      name := "Externs", decls := joinDecls (ExternCertificates.theorems env.lib externMembers)
+      deps := []
+      supportImports := some ["P4SpecTec.Prelude", "P4SpecTec.Tactic.Audit",
+        "P4SpecTec.Refine.Quote", "P4SpecTec.Refine.Calc", "P4SpecTec.Refine.Extern",
+        "P4SpecTec.Tactic.Refine", "P4SpecTec.Tactic.Realize"] }]
+    for m in externMembers do
+      groupModule := groupModule.insert m.id "Externs"
+      coveredIds := coveredIds ++ [m.id]
+      reverseCoveredIds := reverseCoveredIds ++ [m.id]
   let ctxBase : Ctx := { env, externs := externNames }
   for group in funGroups do
     let recursive := Graph.isRecursive group funDeps
@@ -360,7 +396,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       if let .RelD i nottyp inputs groups eg _ := d.it then
         props := props ++
           [← Props.relInductive ctx ext i.it nottyp (inputs.map (·.toNat)) groups eg]
-      members := members ++ [← Props.memberOf ctx d]
+      members := members ++ [{ ← Props.memberOf ctx d with externs := ext }]
     -- determinism is closed under callees: a relation premise on a
     -- relation without its own determinism theorem leaves outputs open
     members := members.map fun m =>
@@ -392,7 +428,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     -- when every member is in the fragment and every callee outside the
     -- group is covered
     let reasons : List Coverage.Exclusion := group.filterMap fun id => match defById.get? id with
-      | some d => (Validate.unsupported env externNames d certifiedBuiltins).map fun r =>
+      | some d => (Validate.unsupported env externFunctionNames d certifiedBuiltins).map fun r =>
         { definition := id, reason := r }
       | none => none
     let uncoveredCallees : List Coverage.Exclusion := group.flatMap fun id =>
@@ -402,27 +438,28 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     let bodied := members.filter fun m => match env.funcs.get? m.id with
       | some info => info.kind != .builtin
       | none => true
-    let reasons := if bodied.isEmpty then []
-      else if ext then group.map fun id => { definition := id, reason := "extern" }
-      else reasons ++ uncoveredCallees
-    let checkedMutualRelations := bodied.all (fun m =>
-      m.isRel && m.nOuts == 0 && (defById.get? m.id).any (fun d => match d.it with
-        | .RelD .. => true | _ => false)) &&
-      bodied.any (fun m => (defById.get? m.id).any (Validate.relationListIteration env))
+    let reasons := if bodied.isEmpty then [] else reasons ++ uncoveredCallees
+    -- mutual groups use joint outcome induction over the generated fixed point
     let reverseBlockers : List Coverage.Exclusion :=
-      if bodied.length > 1 && !checkedMutualRelations then bodied.map fun m =>
-        { kind := "realization", definition := m.id
-          reason := "mutual group is outside the checked relation fragment" }
-      else group.flatMap fun id =>
+      group.flatMap fun id =>
         ((calls id).filter fun c => !group.contains c && !reverseCoveredIds.contains c &&
           funIds.contains c).map fun c =>
             { kind := "realization", definition := id
               reason := s!"calls {c}, which has no reverse theorem", dependency := some c }
     let reverseReasons := reasons ++ reverseBlockers
-    let thms := Validate.groupTheorems env.lib recursive bodied
+    -- symbolic execution explores every clause or rule path: the budget of each
+    -- certificate grows with the source paths of its group, from the module default
+    let paths := bodied.foldl (fun total m =>
+      total + ((defById.get? m.id).map (Validate.premiseSequences · |>.length)).getD 1) 0
+    let budget := certificateHeartbeats + 1000000 * paths
+    let withBudget (declaration : Format) : Format :=
+      if budget > certificateHeartbeats && (render declaration).startsWith "theorem" then
+        Format.text s!"set_option maxHeartbeats {budget} in" ++ Term.hardLine ++ declaration
+      else declaration
+    let thms := (Validate.groupTheorems env.lib recursive bodied
       (reasons.map fun r => (r.definition, r.reason)) ++
       Reverse.groupTheorems env.lib recursive bodied
-        (reverseReasons.map fun r => (r.definition, r.reason))
+        (reverseReasons.map fun r => (r.definition, r.reason))).map withBudget
     if reasons.isEmpty && !bodied.isEmpty then
       let base := groupModuleName bodied.head!.id
       let taken := refGroups.map (·.name)
@@ -633,7 +670,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     { spec := specDecl, summary := Format.text (Coverage.summary coverageEntries)
       groups := refGroups, coverage := coverageEntries, representations := representationEntries })
 
-private def profileClaims (lib : String) : List Coverage.Claim :=
+private def profileClaims (lib : String) (spec : Lang.Al.spec) : List Coverage.Claim :=
   [{ name := lib ++ ".SourceProfile.variablesIgnored"
      kind := "sourceVariables", direction := "typedOmissionPreservesInitialization"
      expectedType := SourceProfiles.variablesIgnoredType lib },
@@ -648,7 +685,10 @@ private def profileClaims (lib : String) : List Coverage.Claim :=
      expectedType := s!"Refine.HoldsSpec {lib}.spec {lib}.Environment.global" },
    { name := lib ++ ".Environment.localFenvEmpty"
      kind := "tableInitialization", direction := "noLocalOverrides"
-     expectedType := s!"{lib}.Environment.ctx.local.fenv = []" }]
+     expectedType := s!"{lib}.Environment.ctx.local.fenv = []" },
+   { name := lib ++ ".Environment.initialized"
+     kind := "initialization", direction := "certificateEnvironment"
+     expectedType := Initialization.initializedType lib spec }]
 
 /-- Recompute coverage through the production planner, without claiming compilation. -/
 def coverage (lib exportPath : String) (spec : Lang.Al.spec)
@@ -657,7 +697,7 @@ def coverage (lib exportPath : String) (spec : Lang.Al.spec)
   let (_, _, refinement) ← plan env spec
   pure {
     library := lib, input := exportPath, definitions := refinement.coverage
-    representations := refinement.representations, profiles := profileClaims lib }
+    representations := refinement.representations, profiles := profileClaims lib spec }
 
 
 /-- Generate every output file of a library. -/
@@ -698,7 +738,8 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     "P4SpecTec.Refine.Calc", "P4SpecTec.Tactic.Refine", "P4SpecTec.Tactic.Realize"]
   let refOptions := String.join [
     "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
-    "set_option autoImplicit false\nset_option maxHeartbeats 4000000\n",
+    "set_option autoImplicit false\n",
+    s!"set_option maxHeartbeats {certificateHeartbeats}\n",
     "-- the quoted spec is one deep `::` chain\nset_option maxRecDepth 8192\n\n",
     "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
     s!"namespace {lib}\n\n"]
@@ -758,7 +799,7 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     "one module\nper spec file, generated by `lake exe p4spectec-gen`. Never hand-edited.\n-/\n"
   let report : Coverage.Report :=
     { library := lib, input := exportPath, definitions := refinement.coverage
-      representations := refinement.representations, profiles := profileClaims lib }
+      representations := refinement.representations, profiles := profileClaims lib spec }
   outs := outs ++ [{ path := s!"{lib}.lean", text := root },
     { path := s!"{lib}/coverage.json", text := report.render }]
   pure outs

@@ -32,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / ".artifacts/replay"
 DECLARATION = re.compile(r"^(?:private )?(?:theorem|def|instance) ([^\s:({\[]+)")
 AUDIT = re.compile(r"^#audit_axioms (\S+)")
+BUDGET = re.compile(r"^set_option maxHeartbeats \d+ in$")
 
 
 def module_path(target):
@@ -60,6 +61,8 @@ def chunk_kind(chunk):
     Names are as written (`«$add_map».dispatch`, `NanoP4Spec.R.refines` for an audit)."""
     for line in chunk.splitlines():
         if line.startswith("/--") or line.startswith("  ") or not line.strip():
+            continue
+        if BUDGET.match(line):
             continue
         declared = DECLARATION.match(line)
         if declared and line.removeprefix("private ").startswith("theorem"):
@@ -115,10 +118,13 @@ def options(heartbeats, trace, full_terms):
 
 def instrument(text, extra):
     """Insert the options after the last preamble `set_option` (before the first `open`
-    or `namespace`), which they override; a later scoped option is left alone."""
+    or `namespace`), which they override. A per-theorem heartbeat budget is dropped when
+    the heartbeat limit is overridden; other scoped options are left alone."""
     if not extra:
         return text
     lines = text.splitlines(keepends=True)
+    if any(line.startswith("set_option maxHeartbeats ") for line in extra):
+        lines = [line for line in lines if not BUDGET.match(line.rstrip("\n"))]
     body = next((i for i, line in enumerate(lines)
                  if line.startswith("open ") or line.startswith("namespace ")), len(lines))
     last = max((i for i, line in enumerate(lines[:body]) if line.startswith("set_option ")),

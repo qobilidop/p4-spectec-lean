@@ -27,6 +27,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
+set_option maxHeartbeats 7000000 in
 theorem «$find_parserState».refines_group :
     ∀ (fuel : Nat),
       (∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool),
@@ -46,6 +47,7 @@ theorem «$find_parserState».refines_group :
 
 #audit_axioms NanoP4Spec.«$find_parserState».refines_group
 
+set_option maxHeartbeats 7000000 in
 theorem «$find_parserState».refines
     (fuel : Nat)
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -92,6 +94,7 @@ private def «$find_parserState».realizesMotive
         [v0, v1])) r ∧
     ResRel Rel r q
 
+set_option maxHeartbeats 7000000 in
 theorem «$find_parserState».realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
     (hguard : cfg.guard = false) (hhints : cfg.printHints = []) (hfenv : ctx.local.fenv = [])

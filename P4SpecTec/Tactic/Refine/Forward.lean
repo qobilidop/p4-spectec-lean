@@ -65,6 +65,27 @@ def closeConstructorClash : TacticM Bool := do
     if closed then return true
   return false
 
+/-- Close a branch whose natural or integer inequalities are contradictory, as when one side
+checks a slice bound in integers and the other in naturals. `omega` runs only when the context
+has such an inequality. -/
+def closeArithmetic : TacticM Bool := do
+  let arithmetic ← withMainContext do
+    (← getLCtx).anyM fun decl => do
+      if decl.isImplementationDetail then return false
+      let ty := (← instantiateMVars decl.type).consumeMData
+      let ty := if ty.isAppOfArity ``Not 1 then (ty.getArg! 0).consumeMData else ty
+      unless ty.isAppOfArity ``LT.lt 4 || ty.isAppOfArity ``LE.le 4 do return false
+      let carrier := (ty.getArg! 0).consumeMData
+      return carrier.isConstOf ``Nat || carrier.isConstOf ``Int
+  unless arithmetic do return false
+  -- decided Boolean checks (`decide p || decide q = true`) become propositions `omega` reads;
+  -- the attempt is atomic, so a failed one leaves the context unchanged
+  tryTac do
+    let _ ← tryTac (evalTactic (← `(tactic|
+      simp only [Bool.or_eq_true, Bool.and_eq_true, decide_eq_true_eq, Bool.not_eq_true',
+        decide_eq_false_iff_not] at *)))
+    evalTactic (← `(tactic| omega))
+
 /-! ## The callee step -/
 
 /-- The name of the definition a generated call refers to, and whether it
@@ -120,6 +141,42 @@ def declarationFromSpec : TacticM Bool := tryTac do
 
 /-! ## The value prover -/
 
+/-- The value whose payload a fact `v.it = p` fixes, if `e` is such a fact's left side. -/
+def payloadOf? (e : Expr) : Option Expr :=
+  match e.consumeMData with
+  | .proj ``P4SpecTec.Util.Source.info 0 v => some v
+  | e => if e.isAppOfArity ``P4SpecTec.Util.Source.info.it 4 then some (e.getArg! 3) else none
+
+/-- The `Value.eq` tests inside `e`, in order. -/
+partial def valueEqTests (e : Expr) : List Expr :=
+  let e := e.consumeMData
+  let here := if e.isAppOfArity ``P4SpecTec.Runtime.Value.eq 2 then [e] else []
+  here ++ (match e with
+    | .app f a => valueEqTests f ++ valueEqTests a
+    | .lam _ t b _ | .forallE _ t b _ => valueEqTests t ++ valueEqTests b
+    | .mdata _ e => valueEqTests e
+    | _ => [])
+
+/-- Decide equality tests on values whose payloads the context fixes (`a.it = p`), through
+`eq_of_its` and the literal equalities; opaque projections such as `x.fst` need this. -/
+def rewriteEqsByPayload : TacticM Bool := withMainContext do
+  let mut facts : Array (Expr × FVarId) := #[]
+  for decl in ← getLCtx do
+    if decl.isImplementationDetail then continue
+    let ty := (← instantiateMVars decl.type).consumeMData
+    if let some (_, lhs, _) := ty.eq? then
+      if let some v := payloadOf? lhs then facts := facts.push (v, decl.fvarId)
+  if facts.isEmpty then return false
+  let ty ← instantiateMVars (← (← getMainGoal).getType)
+  let mut changed := false
+  for test in valueEqTests ty do
+    let some (_, fa) := facts.find? (·.1 == test.getArg! 0) | continue
+    let some (_, fb) := facts.find? (·.1 == test.getArg! 1) | continue
+    let proof ← mkAppM ``eq_of_its #[.fvar fa, .fvar fb]
+    let proofSyntax ← Term.exprToSyntax proof
+    if ← tryTac (evalTactic (← `(tactic| rw [$proofSyntax:term]))) then changed := true
+  return changed
+
 /-- Prove that an interpreter value is related to a generated value, or
 that two canonical lists agree, by computing `canon` on both sides with
 the facts. -/
@@ -137,7 +194,7 @@ def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
         unless ← tryTac (evalTactic (← `(tactic| assumption))) do
           evalTactic (← `(tactic| rfl))
     return
-  let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs])))
+  let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs, ColumnRows])))
   if (← getGoals).isEmpty then return
   let _ ← normalize s
   if (← getGoals).isEmpty then return
@@ -151,6 +208,12 @@ def proveValue (s : SimpSet) : TacticM Unit := timed "proveValue" do
         let _ ← normalize s
         pure ()
       unless (← getGoals).isEmpty do throwError "canonical shape proof remains open"
+    then return
+  if ← tryTac do
+      unless ← rewriteEqsByPayload do throwError "no payload-decided equality"
+      let _ ← normalize s
+      unless (← getGoals).isEmpty do
+        unless ← tryTac (evalTactic (← `(tactic| rfl))) do throwError "payload equality open"
     then return
   throwError "refine_al: values not related:{Lean.MessageData.ofGoal (← getMainGoal)}\
     \n(from{Lean.MessageData.ofGoal goal})"
@@ -240,13 +303,39 @@ def generatedListTest? (e : Expr) : MetaM (Option FVarId) := do
     if other.consumeMData.isAppOfArity ``List.nil 1 then
       match list.consumeMData with | .fvar f => some f | _ => none
     else none
-  if test.isAppOfArity ``List.beq 4 then
-    return emptyTest (test.getArg! 2) (test.getArg! 3)
-  if test.isAppOfArity ``BEq.beq 4 then
-    return emptyTest (test.getArg! 2) (test.getArg! 3)
+  -- the empty list may be on either side of the test
+  if test.isAppOfArity ``List.beq 4 || test.isAppOfArity ``BEq.beq 4 then
+    return (emptyTest (test.getArg! 2) (test.getArg! 3)).orElse
+      fun _ => emptyTest (test.getArg! 3) (test.getArg! 2)
   if test.isAppOfArity ``List.isEmpty 2 then
     return match (test.getArg! 1).consumeMData with | .fvar f => some f | _ => none
   return none
+
+/-- A generated list variable at the head of the generated side whose length or literal
+position is inspected (`List.length xs`, `Iter.idx xs k`, or `xs[k]?` after unfolding),
+as in the bound check and access of a literal index. Splitting it exposes the related
+reference list, so both sides decide their checks on constructors. -/
+def generatedIndexedList : TacticM (Option FVarId) := withMainContext do
+  let some (_, _, n) ← refinesGoal | return none
+  let n ← instantiateMVars n
+  let head := chainHead n
+  let indexed (e : Expr) : Option Expr :=
+    let e := e.consumeMData
+    if e.isAppOfArity ``P4SpecTec.Prelude.Iter.idx 3 then some (e.getArg! 1)
+    else if e.isAppOfArity ``GetElem?.getElem? 8 then some (e.getArg! 6)
+    else none
+  let inspected (e : Expr) : Option Expr :=
+    let e := e.consumeMData
+    if e.isAppOfArity ``List.length 2 then some (e.getArg! 1) else indexed e
+  -- only a list the generated code actually accesses at a position is split
+  let some access := head.find? fun e => (inspected e).any fun list =>
+      list.consumeMData.isFVar &&
+        (n.find? fun a => (indexed a).any (·.consumeMData == list.consumeMData)).isSome
+    | return none
+  let some list := inspected access | return none
+  let list := list.consumeMData
+  unless (← whnfR (← inferType list)).isAppOfArity ``List 1 do return none
+  return some list.fvarId!
 
 /-- A generated emptiness test the interpreter already decided on the related value:
 split the generated list, so that each branch's related value decides the same test,
@@ -444,6 +533,73 @@ def mapMGoals (s : SimpSet) (relation : Expr) (m n : Expr) : TacticM Bool := wit
       apply refines_bind (P := List.Forall₂ $q) (Refines.mapM $h ?_)))
   return true
 
+/-- The closed `List.map` applications inside `e`, outermost first. -/
+partial def closedMaps (e : Expr) : List Expr :=
+  let e := e.consumeMData
+  let here := if e.isAppOfArity ``List.map 4 && !e.hasLooseBVars then [e] else []
+  here ++ (match e with
+    | .app f a => closedMaps f ++ closedMaps a
+    | .lam _ t b _ | .forallE _ t b _ => closedMaps t ++ closedMaps b
+    | .letE _ t v b _ => closedMaps t ++ closedMaps v ++ closedMaps b
+    | .mdata _ e => closedMaps e
+    | .proj _ _ e => closedMaps e
+    | _ => [])
+
+/-- Pair a reference traversal producing values (an iterated expression) with a pure
+generated `List.map` inside the generated head, when their input lists are positionally
+related. The generated side takes no step; the continuation receives the related results. -/
+def pureMapTraversal (s : SimpSet) (m n : Expr) : TacticM Bool := withMainContext do
+  let mh := chainHead m
+  unless mh.isAppOfArity ``List.mapM 6 && (chainTail m).isSome do return false
+  unless ← isDefEq (mh.getArg! 3) (mkConst ``P4SpecTec.Lang.Il.value) do return false
+  let nh := chainHead n
+  if nh.isAppOf ``List.mapM then return false
+  -- the map may already be bound by a generated `have` whose defining fact is in context
+  let bound ← (← getLCtx).foldlM (init := #[]) fun found decl => do
+    if decl.isImplementationDetail then return found
+    return found ++ (closedMaps (← instantiateMVars decl.type)).toArray
+  for candidate in closedMaps nh ++ closedMaps n ++ bound.toList do
+    let saved ← saveState
+    try
+      let some inputs ← columnTraversalInputs (proveValue s) mh.getAppArgs.back!
+          (candidate.getArg! 3) | throwError "unrelated inputs"
+      let h ← Term.exprToSyntax inputs
+      let c ← Term.exprToSyntax candidate
+      let element ← Term.exprToSyntax (candidate.getArg! 1)
+      traceStep m!"pure generated map {candidate}"
+      evalTactic (← `(tactic|
+        apply refines_bind_pure (c := $c)
+          (P := List.Forall₂ (@P4SpecTec.Refine.Rel $element _)) (refines_mapM_pureMap $h ?_)))
+      return true
+    catch _ => saved.restore
+  return false
+
+/-- Element-wise traversal results `List.Forall₂ Rel vs xs`: add the canonical list
+equality `canons vs = canons (xs.map toValue)` that the value prover uses. -/
+def elementResults (n : Name) : TacticM Unit := do
+  let pointwise ← withMainContext do
+    let some declaration := (← getLCtx).findFromUserName? n | return false
+    let type := (← instantiateMVars declaration.type).consumeMData
+    return type.isAppOfArity ``List.Forall₂ 5 &&
+      (type.getArg! 2).consumeMData.isAppOfArity ``P4SpecTec.Refine.Rel 2
+  if pointwise then
+    let fact ← freshName "rf_c_elements"
+    let added ← tryTac (evalTactic (← `(tactic|
+      have $(mkIdent fact):ident := canonsOfForall₂ P4SpecTec.Prelude.toValue $(mkIdent n))))
+    traceStep m!"element results {n}: {if added then "canonical list" else "not converted"}"
+
+/-- Whether hypothesis `n` is a batch's positional column relation (possibly with its length
+fact), `canons row = canons (encoders.map (· x))`: column collection reads its encoders. -/
+def columnRelationHyp (n : Name) : TacticM Bool := withMainContext do
+  let some declaration := (← getLCtx).findFromUserName? n | return false
+  let type ← whnfR (← instantiateMVars declaration.type)
+  let relation := if type.isAppOfArity ``And 2 then (type.getArg! 0).consumeMData else type
+  unless relation.isAppOfArity ``List.Forall₂ 5 do return false
+  lambdaTelescope (relation.getArg! 2) fun _ body => do
+    let some (_, lhs, rhs) := body.consumeMData.eq? | return false
+    return lhs.isAppOfArity ``canons 1 && rhs.isAppOfArity ``canons 1 &&
+      (rhs.getArg! 0).isAppOfArity ``List.map 4
+
 /-- Execute a concrete reference traversal of checked local lookups.
 This entry point is shared by the forward and reverse drivers. -/
 def lookupTraversalAt (s : SimpSet) (m : Expr) : TacticM Bool := do
@@ -511,6 +667,157 @@ def relatedOption : TacticM (Option FVarId) := withMainContext do
         return variables[0]?
   return none
 
+/-- Decide a generated test and the reference test of the same step together. When the
+generated head is `Eval.check t` over one generated variable `p`, and the reference head
+branches on a Boolean `b`, prove `b = t` in a small side goal by cases on `p` (each case
+computes from the related facts), rewrite, and split on `t` alone. The constructor split then
+happens on the side goal's small terms instead of on the whole refinement goal. -/
+def alignTest (s : SimpSet) (m n : Expr) : TacticM Bool := withMainContext do
+  let gh := chainHead n
+  -- `Eval.check t`, or its unfolding `if t = true then pure () else throw .unmatch`
+  let t? ← if gh.isAppOfArity ``P4SpecTec.Prelude.Eval.check 1 then pure (some (gh.getArg! 0))
+    else if gh.isAppOfArity ``ite 5 then
+      match (← instantiateMVars (gh.getArg! 1)).consumeMData.eq? with
+      | some (_, t, r) => pure (if r.consumeMData.isConstOf ``Bool.true then some t else none)
+      | none => pure none
+    else pure none
+  let some t := t? | return false
+  let t := (← instantiateMVars t).consumeMData
+  if t.isConstOf ``Bool.true || t.isConstOf ``Bool.false || t.hasLooseBVars then return false
+  let lib ← libOf
+  let ((), st) ← t.collectFVars.run {}
+  let gens ← st.fvarIds.filterM fun f => (isGeneratedVar lib f : MetaM Bool)
+  unless gens.size == 1 do return false
+  let p := gens[0]!
+  let h := chainHead m
+  unless h.isAppOfArity ``ite 5 do return false
+  let some (_, b, r) := (← instantiateMVars (h.getArg! 1)).consumeMData.eq? | return false
+  unless r.consumeMData.isConstOf ``Bool.true do return false
+  if b.hasLooseBVars then return false
+  let saved ← saveState
+  try
+    let goal ← getMainGoal
+    let pName ← p.getUserName
+    let prop ← mkEq b t
+    let side ← mkFreshExprSyntheticOpaqueMVar prop
+    setGoals [side.mvarId!]
+    evalTactic (← `(tactic| cases $(mkIdent pName):ident))
+    for g in ← getGoals do
+      setGoals [g]
+      normalizeFacts s
+      if (← getGoals).isEmpty then continue
+      expose
+      if (← getGoals).isEmpty then continue
+      let _ ← normalize s
+      if (← getGoals).isEmpty then continue
+      unless ← tryTac (evalTactic (← `(tactic| rfl))) do
+        throwError "tests differ:{Lean.MessageData.ofGoal (← getMainGoal)}"
+    setGoals [goal]
+    let hb ← freshName "rf_test"
+    let proof ← instantiateMVars side
+    let goal ← goal.assert hb prop proof
+    let (_, goal) ← goal.intro1P
+    setGoals [goal]
+    evalTactic (← `(tactic| simp only [$(mkIdent hb):ident]))
+    let hc ← freshName "rf_c"
+    let ts ← withMainContext do Term.exprToSyntax t
+    evalTactic (← `(tactic| cases $(mkIdent hc):ident : $ts:term))
+    traceStep m!"aligned the reference test with the generated test on {pName}"
+    return true
+  catch e =>
+    traceStep m!"test alignment not shown: {e.toMessageData}"
+    saved.restore
+    return false
+
+/-- The generated variable to split at the generated head: the discriminant of a `match` or
+`if` in the head, or of a structure of the library whose projection the head inspects. -/
+def generatedDiscriminant (n : Expr) : TacticM (Option FVarId) := withMainContext do
+  let gh := chainHead n
+  let discrs ← if let some app ← matchMatcherApp? gh then pure app.discrs
+    else if gh.isAppOfArity ``ite 5 then pure #[gh.getArg! 1]
+    else pure #[]
+  -- every match inside the head, outermost first
+  let mut inner : Array Expr := #[]
+  let mut todo : List Expr := [gh]
+  let mut fuel := 10000
+  while fuel > 0 do
+    fuel := fuel - 1
+    match todo with
+    | [] => break
+    | e :: rest =>
+      todo := rest
+      let e := e.consumeMData
+      if let some app ← matchMatcherApp? e then inner := inner ++ app.discrs
+      match e with
+      | .app f a => todo := f :: a :: todo
+      | .lam _ _ b _ | .forallE _ _ b _ => todo := b :: todo
+      | .letE _ _ v b _ => todo := v :: b :: todo
+      | .proj _ _ x => todo := x :: todo
+      | _ => pure ()
+  let lib ← libOf
+  let direct ← (discrs ++ inner).filterMapM fun d => do
+    match d.consumeMData with
+    | .fvar f => if ← isGeneratedVar lib f then pure (some f) else pure none
+    | _ => pure none
+  if let some f := direct[0]? then
+    pure (some f)
+  else
+    let lib ← libOf
+    let mut found : Option FVarId := none
+    for d in discrs do
+      let ((), st) ← ((← instantiateMVars d).collectFVars).run {}
+      for f in st.fvarIds do
+        if found.isSome then break
+        if ← isGeneratedVar lib f then
+          -- a structure of the library: one constructor, no branching
+          let ty ← whnfR (← f.getType)
+          if let .const c _ := ty.getAppFn then
+            if lib.isPrefixOf c then
+              if let some (.inductInfo info) := (← getEnv).find? c then
+                if info.ctors.length == 1 then found := some f
+    pure found
+
+/-- A generated head still inspecting a generated variable after the reference side reached its
+outcome: split that variable, so each branch computes; continue with `k`. -/
+def splitGeneratedDiscriminant (s : SimpSet) (n : Expr) (k : TacticM Unit) : TacticM Bool := do
+  let some d ← generatedDiscriminant n | return false
+  let dn ← withMainContext do pure (← d.getDecl).userName
+  traceStep m!"cases {dn} (generated, after the reference outcome)"
+  evalTactic (← `(tactic| cases $(mkIdent dn):ident))
+  let goals ← getGoals
+  for g in goals do
+    setGoals [g]
+    normalizeFacts s
+    expose
+    k
+  return true
+
+/-- A generated condition left after the reference side reached its outcome (such as a slice
+bound check stated in naturals against the reference's integer check): split on it; the
+branch contradicting the reference's decided facts closes by `omega`. -/
+def splitGeneratedCondition (s : SimpSet) (n : Expr) (k : TacticM Unit) : TacticM Bool := do
+  let gh ← instantiateMVars (chainHead n)
+  -- the head's first closed condition, such as a bound check inside `Eval.ofOption`
+  let some branch := gh.find? fun e =>
+      e.isAppOfArity ``ite 5 && !(e.getArg! 1).hasLooseBVars
+    | return false
+  let condition := branch.getArg! 1
+  let hc ← freshName "rf_c"
+  let conditionSyntax ← withMainContext do Term.exprToSyntax condition
+  unless ← tryTac (evalTactic (← `(tactic|
+      by_cases $(mkIdent hc):ident : $conditionSyntax:term))) do
+    return false
+  traceStep m!"split on the generated condition {condition}"
+  for g in ← getGoals do
+    setGoals [g]
+    let _ ← tryTac (evalTactic (← `(tactic| simp only [$(mkIdent hc):ident])))
+    if (← getGoals).isEmpty then continue
+    if ← closeArithmetic then continue
+    let _ ← normalize s
+    if (← getGoals).isEmpty then continue
+    k
+  return true
+
 /-! ## The driver -/
 
 mutual
@@ -535,6 +842,13 @@ partial def step (s : SimpSet) (iteration : Option Expr := none)
     evalTactic (← `(tactic| cases $(mkIdent name):ident))
     let goals ← getGoals
     for g in goals do
+      setGoals [g]
+      step s iteration subtypes
+    return
+  if let some f ← generatedIndexedList then
+    traceStep m!"cases {← withMainContext do pure (← f.getDecl).userName} (generated index)"
+    let subgoals ← (← getMainGoal).cases f
+    for g in subgoals.map (·.mvarId) do
       setGoals [g]
       step s iteration subtypes
     return
@@ -564,9 +878,15 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
     let n ← if (← goal.withContext do pure ((← getLCtx).findFromUserName? n).isSome)
       then freshName n.toString else pure n
     evalTactic (← `(tactic| intro $(mkIdent n):ident))
-    let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs] at $(mkIdent n):ident)))
+    if subtypes then elementResults n
+    -- a batch's positional column relation keeps its encoders for column collection;
+    -- normalizing it would compute a list column's canonical form in place of its encoder
+    let columnRelation ← columnRelationHyp n
     let _ ← tryTac (evalTactic (← `(tactic| dsimp only at $(mkIdent n):ident)))
-    let _ ← normalizeAt s n
+    unless columnRelation do
+      let _ ← tryTac (evalTactic (← `(tactic| simp only [Rel, Outs] at $(mkIdent n):ident)))
+      let _ ← tryTac (evalTactic (← `(tactic| dsimp only at $(mkIdent n):ident)))
+      let _ ← normalizeAt s n
     if subtypes && !(← getGoals).isEmpty then
       let conjunction ← withMainContext do
         let some declaration := (← getLCtx).findFromUserName? n | return false
@@ -629,7 +949,20 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
   -- ordered list traversals retain the actual reference contexts
   if ← lookupTraversal s then return ← step s iteration subtypes
   let relation ← match iteration with
-    | some relation => pure (some relation)
+    -- the source-derived relation observes the contexts a pattern traversal produces; with
+    -- the subtype preset, other traversals keep their own element relations
+    | some relation => withMainContext do
+      if !subtypes then return some relation
+      if head.isAppOfArity ``List.mapM 6 &&
+          (← isDefEq (head.getArg! 3) (mkConst ``P4SpecTec.Interp_al.Ctx.t)) then
+        return some relation
+      if let some relation ← columnTraversalRelation m n then return some relation
+      let generated := chainHead n
+      if head.isAppOfArity ``List.mapM 6 && generated.isAppOfArity ``List.mapM 6 then
+        if ← isDefEq (head.getArg! 3) (mkConst ``P4SpecTec.Lang.Il.value) then
+          let element ← Term.exprToSyntax (generated.getArg! 3)
+          return some (← Term.elabTerm (← `(@P4SpecTec.Refine.Rel $element _)) none)
+      return none
     | none => withMainContext do
       if subtypes then
         if let some relation ← columnTraversalRelation m n then return some relation
@@ -641,9 +974,21 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
             (← isDefEq (generated.getArg! 3) (mkConst ``Unit)) then
           return some (← Term.elabTerm
             (← `(fun (row : List P4SpecTec.Lang.Il.value) (_ : Unit) => row = [])) none)
+        -- an iterated expression: each reference element value represents its generated one
+        if ← isDefEq (head.getArg! 3) (mkConst ``P4SpecTec.Lang.Il.value) then
+          let element ← Term.exprToSyntax (generated.getArg! 3)
+          return some (← Term.elabTerm
+            (← `(@P4SpecTec.Refine.Rel $element _)) none)
       return none
   if let some relation := relation then
     if ← mapMGoals s relation m n then
+      let goals ← getGoals
+      for g in goals do
+        setGoals [g]
+        step s iteration subtypes
+      return
+  if subtypes then
+    if ← pureMapTraversal s m n then
       let goals ← getGoals
       for g in goals do
         setGoals [g]
@@ -662,8 +1007,12 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
     let goals ← getGoals
     for g in goals do
       setGoals [g]
-      let _ ← normalize s
-      if (← getGoals).isEmpty then continue
+      -- the reference step at zero fuel has no result by its defining equation; closing
+      -- it directly avoids normalizing the whole goal to discover the divergence
+      if ← tryTac (evalTactic (← `(tactic|
+          first | exact refines_bind_of_none rfl | exact refines_of_none rfl))) then
+        continue
+      -- `step` normalizes first
       step s iteration subtypes
     return
   -- a pure result
@@ -673,6 +1022,8 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
       if ← closeConstructorClash then return
       if ← closeValueEqConflict s then return
       if ← splitGeneratedList s n (step s iteration subtypes) then return
+      if ← splitGeneratedDiscriminant s n (step s iteration subtypes) then return
+      if ← splitGeneratedCondition s n (step s iteration subtypes) then return
       throwError "refine_al: the interpreter succeeds but the generated code does not:\
         {Lean.MessageData.ofGoal goal}"
     noteAction "pure"
@@ -705,10 +1056,17 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
     if ← closeConstructorClash then return
     if ← closeValueEqConflict s then return
     if ← splitGeneratedList s n (step s iteration subtypes) then return
+    if ← splitGeneratedDiscriminant s n (step s iteration subtypes) then return
+    if ← splitGeneratedCondition s n (step s iteration subtypes) then return
     throwError "refine_al: the interpreter fails but the generated code does not fail alike:\
       {Lean.MessageData.ofGoal goal}"
   -- an invocation
   if invocations.any (head.isAppOf ·) then
+    -- the generated side may still project a value the reference side already used
+    if !(chainHead n).isAppOfArity ``ExceptT.mk 4 then
+      if ← splitGeneratedDiscriminant s n (step s iteration subtypes) then return
+      if ← splitGeneratedList s n (step s iteration subtypes) then return
+      if ← splitGeneratedCondition s n (step s iteration subtypes) then return
     noteAction "callee"
     let tail := (chainTail m).isNone
     calleeStep s m n
@@ -725,55 +1083,23 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
       return
     setGoals [goals.getLast!]
     return ← step s iteration subtypes
+  -- a generated test and the reference test of the same step, decided together
+  if ← alignTest s m n then
+    let goals ← getGoals
+    for g in goals do
+      setGoals [g]
+      let hc ← withMainContext do
+        let decls := (← getLCtx).decls.toList.filterMap id
+        pure (decls.filter (·.userName.toString.startsWith "rf_c")).getLast?
+      if let some hc := hc then
+        let _ ← tryTac (evalTactic (← `(tactic| simp only [$(mkIdent hc.userName):ident])))
+      if (← getGoals).isEmpty then continue
+      step s iteration subtypes
+    return
   -- the generated side: a match or `if` on a variable, or on a projection
   -- of a variable of a generated structure (destructured first, so that
   -- the projection computes)
-  if let some d ← goal.withContext do
-      (do
-        let gh := chainHead n
-        let discrs ← if let some app ← matchMatcherApp? gh then pure app.discrs
-          else if gh.isAppOfArity ``ite 5 then pure #[gh.getArg! 1]
-          else pure #[]
-        -- every match inside the head, outermost first
-        let mut inner : Array Expr := #[]
-        let mut todo : List Expr := [gh]
-        let mut fuel := 10000
-        while fuel > 0 do
-          fuel := fuel - 1
-          match todo with
-          | [] => break
-          | e :: rest =>
-            todo := rest
-            let e := e.consumeMData
-            if let some app ← matchMatcherApp? e then inner := inner ++ app.discrs
-            match e with
-            | .app f a => todo := f :: a :: todo
-            | .lam _ _ b _ | .forallE _ _ b _ => todo := b :: todo
-            | .letE _ _ v b _ => todo := v :: b :: todo
-            | .proj _ _ x => todo := x :: todo
-            | _ => pure ()
-        let lib ← libOf
-        let direct ← (discrs ++ inner).filterMapM fun d => do
-          match d.consumeMData with
-          | .fvar f => if ← isGeneratedVar lib f then pure (some f) else pure none
-          | _ => pure none
-        if let some f := direct[0]? then
-          pure (some f)
-        else
-          let lib ← libOf
-          let mut found : Option FVarId := none
-          for d in discrs do
-            let ((), st) ← ((← instantiateMVars d).collectFVars).run {}
-            for f in st.fvarIds do
-              if found.isSome then break
-              if ← isGeneratedVar lib f then
-                -- a structure of the library: one constructor, no branching
-                let ty ← whnfR (← f.getType)
-                if let .const c _ := ty.getAppFn then
-                  if lib.isPrefixOf c then
-                    if let some (.inductInfo info) := (← getEnv).find? c then
-                      if info.ctors.length == 1 then found := some f
-          pure found) then
+  if let some d ← generatedDiscriminant n then
     let dn ← goal.withContext do pure (← d.getDecl).userName
     noteAction "cases generated"
     traceStep m!"cases {dn} (generated)"
@@ -785,9 +1111,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
       normalizeFacts s
       noteAction "cases generated: expose"
       expose
-      noteAction "cases generated: normalize"
-      let _ ← normalize s
-      if (← getGoals).isEmpty then continue
+      -- `step` normalizes the goal first, now with the exposed facts
       noteAction "cases generated: step"
       step s iteration subtypes
     return
@@ -802,8 +1126,7 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
       setGoals [g]
       normalizeFacts s
       expose
-      let _ ← normalize s
-      if (← getGoals).isEmpty then continue
+      -- `step` normalizes the goal first
       step s iteration subtypes
     return
   -- an `if` on a boolean term on either side
@@ -843,8 +1166,8 @@ partial def stepCore (s : SimpSet) (goal : MVarId)
       -- the split's hypothesis decides the condition wherever it occurs
       let _ ← tryTac (evalTactic (← `(tactic| simp only [$(mkIdent hc):ident])))
       if (← getGoals).isEmpty then continue
-      let _ ← normalize s
-      if (← getGoals).isEmpty then continue
+      if ← closeArithmetic then continue
+      -- `step` normalizes the goal first
       step s iteration subtypes
     return
   -- a generated match on a compound discriminant
@@ -911,6 +1234,11 @@ def refineAl (s : SimpSet) (iteration : Option Expr := none)
   finally traceStep m!"phase times (ms): {← phaseTimes.get}"
   unless (← getGoals).isEmpty do throwError "refine_al: goals left open"
 
+/-- Close `Holds g d` for a quoted declaration `d` of the specification hypothesis. -/
+elab "holds_from_spec" : tactic => do
+  unless ← declarationFromSpec do
+    throwError "holds_from_spec: the goal is not a quoted declaration of the specification"
+
 /-- The tactic: see the module docstring. -/
 elab "refine_al" : tactic => do
   let s ← simpSet
@@ -932,10 +1260,24 @@ elab "refine_al" "(" "subtypes" ")" : tactic => do
   let rules ← subtypeSimpSet
   let s := { rules with
     lemmas := rules.lemmas.filter (fun name => !(``Ctx.transpose).isPrefixOf name) ++
-      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse,
+      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse, ``bindOrElse, ``haveOrElse,
         ``transposeEmptyRows, ``List.mapM_map]
     procs := rules.procs.push ``iterPremListNoOutputs }
   try withoutRecover do refineAl (← prepareSimpSet s) none true
+  catch e => throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
+
+/-- Forward execution with the subtype preset and a checked, syntax-derived relation for
+pattern traversals; other traversals keep the subtype preset's element relations. -/
+elab "refine_al" "(" "subtypes" ")" "(" "iteration" ":=" relation:term ")" : tactic => do
+  introNamed
+  let q ← Term.elabTerm relation none
+  let rules ← subtypeSimpSet
+  let s := { rules with
+    lemmas := rules.lemmas.filter (fun name => !(``Ctx.transpose).isPrefixOf name) ++
+      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse, ``bindOrElse, ``haveOrElse,
+        ``transposeEmptyRows, ``List.mapM_map]
+    procs := rules.procs.push ``iterPremListNoOutputs }
+  try withoutRecover do refineAl (← prepareSimpSet s) (some q) true
   catch e => throwError "{e.toMessageData}\n(last action: {← phaseNow.get})"
 
 /-- Forward list premises with separately encoded output columns at each traversal. -/
@@ -943,7 +1285,7 @@ elab "refine_al" "(" "columns" ")" : tactic => do
   let rules ← subtypeSimpSet
   let s := { rules with
     lemmas := rules.lemmas.filter (fun name => !(``Ctx.transpose).isPrefixOf name) ++
-      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse,
+      #[``orElseAssoc, ``unmatchOrElse, ``pureOrElse, ``errorOrElse, ``bindOrElse, ``haveOrElse,
         ``transposeEmptyRows, ``List.mapM_map]
     procs := rules.procs.push ``iterPremListColumns }
   try withoutRecover do refineAl (← prepareSimpSet s) none true

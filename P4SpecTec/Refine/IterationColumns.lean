@@ -53,6 +53,11 @@ private theorem relatedRowWidth {α : Type} (encoders : List (α → value))
       simpa only [canons_length, List.length_map] using length
     · exact ih next member
 
+/-- A batch row observes a generated element through explicit column encoders. Proof
+automation keeps this relation folded, so collecting the rows reads the encoders back. -/
+def ColumnRows {α : Type} (encoders : List (α → value)) (row : List value) (x : α) : Prop :=
+  canons row = canons (encoders.map fun f => f x)
+
 /-- Collect actual rows, retaining the declared output arity when the batch is empty. -/
 def collectColumns (arity : Nat) (rows : List (List value)) : Eval (List (List value)) :=
   match rows with

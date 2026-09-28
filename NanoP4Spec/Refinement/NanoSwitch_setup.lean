@@ -31,6 +31,7 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 
 namespace NanoP4Spec
 
+set_option maxHeartbeats 6000000 in
 theorem NanoSwitch_setup.refines
     (fuel : Nat)
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
@@ -50,6 +51,7 @@ theorem NanoSwitch_setup.refines
 
 #audit_axioms NanoP4Spec.NanoSwitch_setup.refines
 
+set_option maxHeartbeats 6000000 in
 theorem NanoSwitch_setup.realizes
     (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)
     (hguard : cfg.guard = false) (_hfenv : ctx.local.fenv = [])

@@ -77,7 +77,7 @@ def eqnsOf (n : Name) : MetaM (List Name) := do
 
 /-- The local hypotheses to rewrite with: equations whose left side is a
 projection of a variable or a `canon` of a variable, and the guard. -/
-def factHyps : TacticM (List Name) := do
+def factHyps (lookups : Bool := true) : TacticM (List Name) := do
   (← getMainGoal).withContext do
     let mut out := []
     let environment ← getEnv
@@ -95,6 +95,8 @@ def factHyps : TacticM (List Name) := do
       if decl.userName.toString.startsWith "rf_c" then
         out := decl.userName :: out
         continue
+      -- a table fact's right side is a whole quoted definition; it rewrites only lookups
+      if !lookups && decl.userName.toString.startsWith "rf_tbl_" then continue
       if let some (_, lhs, rhs) := ty.eq? then
         let lhs := lhs.consumeMData
         let isFact :=
@@ -150,9 +152,11 @@ def simpSyntax (lemmas procs : Array Name) (hyp? : Option Name := none) :
   let args ← lemmas.mapM fun n => `(Lean.Parser.Tactic.simpLemma| $(mkIdent n):ident)
   let procs ← procs.mapM fun n => `(Lean.Parser.Tactic.simpLemma| ↓ $(mkIdent n):ident)
   let all : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems (args ++ procs)
+  -- Reference contexts carry large values; the default step budget (100000) is exhausted
+  -- by ordinary reductions over them, not only by loops.
   match hyp? with
-  | none => `(tactic| simp only [$all,*])
-  | some h => `(tactic| simp only [$all,*] at $(mkIdent h):ident)
+  | none => `(tactic| simp (maxSteps := 1000000) only [$all,*])
+  | some h => `(tactic| simp (maxSteps := 1000000) only [$all,*] at $(mkIdent h):ident)
 
 /-- Elaborate the fixed global rules once, before the tactic changes its local context.
 The cached names are checked at each use, so extending a prepared set cannot omit rules. -/
@@ -211,10 +215,15 @@ def reportingLimits (what : String) (act : TacticM Unit) : TacticM Unit := do
 nothing changed. -/
 def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
   if (← getGoals).isEmpty then return false
-  let facts ← factHyps
+  let target ← instantiateMVars (← (← getMainGoal).getType)
+  let lookups := (target.find? fun e => e.isConstOf ``Std.HashMap.get?).isSome
+  let facts ← factHyps lookups
   let saved ← saveState
   try
+    let t0 ← IO.monoMsNow
     reportingLimits "normalize" (runNormalization s facts)
+    let t1 ← IO.monoMsNow
+    if t1 - t0 > 300 then traceStep m!"slow normalize: {t1 - t0} ms"
     pure true
   catch e =>
     saved.restore
@@ -226,10 +235,13 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
 /-- Run the simp set at a hypothesis. -/
 def normalizeAt (s : SimpSet) (h : Name) : TacticM Bool := timed "normalizeAt" do
   if (← getGoals).isEmpty then return false
-  let facts := (← factHyps).filter (· != h)
+  let facts := (← factHyps false).filter (· != h)
   let saved ← saveState
   try
+    let t0 ← IO.monoMsNow
     reportingLimits s!"normalize at {h}" (runNormalization s facts h)
+    let t1 ← IO.monoMsNow
+    if t1 - t0 > 300 then traceStep m!"slow normalize at {h}: {t1 - t0} ms"
     pure true
   catch e =>
     saved.restore
@@ -243,9 +255,17 @@ own statement: after a case split, `toValue` of a constructor computes
 to a literal, which exposure needs. -/
 def normalizeFacts (s : SimpSet) : TacticM Unit := do
   if (← getGoals).isEmpty then return
-  for h in ← factHyps do
+  -- decided case-split facts first: a branch whose test conflicts closes before the
+  -- larger facts are traversed
+  let facts ← factHyps
+  let (decided, others) := facts.partition (·.toString.startsWith "rf_c")
+  for h in decided ++ others do
     -- a fact may become `False` and close the goal
     if (← getGoals).isEmpty then return
+    -- a table fact is normalized when it is derived (`tableFacts`); its right side is a
+    -- closed quoted definition that no later case split changes, and re-simplifying it
+    -- would traverse the whole definition at every step
+    if h.toString.startsWith "rf_tbl_" then continue
     let _ ← normalizeAt s h
 
 end P4SpecTec.Tactic

@@ -37,8 +37,12 @@ def motive (lib : String) (m : Member) : Format := Id.run do
     Format.text "∀ (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)," ++
     Format.line ++ "cfg.guard = false → " ++
     (if m.printHints then Format.text "cfg.printHints = [] → " else Format.nil) ++
+    (if m.externs then Format.line ++ Format.text s!"{lib}.externsContract cfg → "
+      else Format.nil) ++
     "ctx.local.fenv = [] →" ++
     Format.line ++ Format.text s!"HoldsSpec {lib}.spec ctx.global →" ++
+    (if m.tparams.isEmpty then Format.nil else Format.line ++ Format.text
+      ("∀ (" ++ " ".intercalate (Validate.typeArgumentNames m) ++ " : Lang.Il.typ),")) ++
     Format.join (m.typeFreshness.map fun name =>
       Format.line ++ Format.text s!"ctx.global.tdtbl.get? {name.quote} = none →") ++
     raw ++ relations ++
@@ -59,16 +63,25 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
   let vs := (List.range m.params.length).map fun i => s!"v{i}"
   let hs := (List.range m.params.length).map fun i => s!"h{i}"
   let fresh := (List.range m.typeFreshness.length).map fun i => s!"ht{i}"
-  let args := Validate.configArguments m ++ fresh ++ vs ++ hs
+  let args := Validate.configArguments m ++ Validate.typeArgumentNames m ++ fresh ++ vs ++ hs
   let motiveDef := Format.group (Format.nest 4 (
-    Format.text ("private def " ++ motiveName) ++ paramBinders m.params ++
+    Format.text ("private def " ++ motiveName) ++
+    (if m.externs then Format.text (" " ++ Validate.externInstance lib m) else Format.nil) ++
+    (if m.tparams.isEmpty then Format.nil
+      else Format.line ++ Validate.typeBinders m) ++
+    paramBinders m.params ++
     Format.line ++ "(q : Except Fail " ++ m.ret.arg ++ ") : Prop :=")) ++
     Format.nest 2 (Format.line ++ motive lib m)
   let header := Format.group (Format.nest 4 (Format.text ("theorem " ++ owner ++ ".realizes") ++
     Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++ " := by"))
   let introArgs := ["rec", "ih"] ++ ps ++ ["q", "hq"] ++ args
   let finalArgs := ps ++ ["q", "hq"] ++ args
-  let step := if m.requiresColumns then "realize_step (columns) hq)"
+  let step : Format := if m.requiresColumns then "realize_step (columns) hq)"
+    else if let some relation := m.iterationRelation then
+      if m.isRel || m.requiresTypeRules then
+        Format.group (Format.nest 2 (Format.text "realize_step (relations) (iteration :=" ++
+          Format.line ++ relation ++ ") hq)"))
+      else "realize_step hq)"
     else if m.isRel || m.requiresTypeRules || m.requiresStructureRules then
       "realize_step (relations) hq)"
     else "realize_step hq)"
@@ -76,7 +89,7 @@ def recursiveTheorems (lib : String) (m : Member) : List Format := Id.run do
     Format.text ("exact " ++ m.defName ++ ".partial_correctness") ++
     Format.nest 2 (Format.line ++ Format.text ("(motive := " ++ motiveName ++ ") (by") ++
       Format.nest 2 (Format.line ++ words "intro" introArgs ++
-        Format.line ++ Format.text step) ++
+        Format.line ++ step) ++
       Format.line ++ words "" finalArgs))
   return [motiveDef, header ++ proof, Validate.audit (qualified ++ ".realizes")]
 
@@ -96,10 +109,12 @@ def mutualTheorems (lib : String) (members : List Member) : List Format := Id.ru
   let groupName := qualified ++ ".realizes_group"
   let statement := Format.joinSep (members.map fun m => Format.paren (groupStatement lib m))
     (Format.text " ∧" ++ Format.line)
-  let declaration := Format.text ("theorem " ++ owner ++ ".realizes_group :") ++
+  let instanceBinder := if first.externs then " " ++ Validate.externInstance lib first else ""
+  let declaration := Format.text ("theorem " ++ owner ++ ".realizes_group" ++ instanceBinder ++ " :") ++
     Format.nest 2 (Format.line ++ statement) ++ " := by" ++
     Format.nest 2 (Format.line ++ Format.text
-      ("realize_group " ++ first.defName ++ ".mutual_partial_correctness"))
+      ((if members.any (·.requiresColumns) then "realize_group (columns) " else "realize_group ")
+        ++ first.defName ++ ".mutual_partial_correctness"))
   let mut result := [declaration, Validate.audit groupName]
   for (m, i) in members.zipIdx do
     let name := m.localName.replace ".run" "" ++ ".realizes"
@@ -109,7 +124,8 @@ def mutualTheorems (lib : String) (members : List Member) : List Format := Id.ru
     let vs := (List.range m.params.length).map fun i => s!"v{i}"
     let hs := (List.range m.params.length).map fun i => s!"h{i}"
     let fresh := (List.range m.typeFreshness.length).map fun i => s!"ht{i}"
-    let args := ps ++ ["q", "hq"] ++ Validate.configArguments m ++ fresh ++ vs ++ hs
+    let args := ps ++ ["q", "hq"] ++ Validate.configArguments m ++
+      Validate.typeArgumentNames m ++ fresh ++ vs ++ hs
     result := result ++ [
       Format.group (Format.nest 4 (Format.text ("theorem " ++ name) ++
         Format.line ++ Validate.binders lib m ++ " :" ++ Format.line ++ conclusion m ++
@@ -126,7 +142,9 @@ def bodyTactic (m : Member) : Format :=
   | none => if m.requiresTypeRules || m.requiresStructureRules then "realize_al (subtypes)"
     else "realize_al"
   | some relation => Format.group (Format.nest 2 (
-      Format.text "realize_al (iteration :=" ++ Format.line ++ relation ++ ")"))
+      Format.text (if m.requiresTypeRules
+        then "realize_al (subtypes) (iteration :=" else "realize_al (iteration :=") ++
+      Format.line ++ relation ++ ")"))
 
 /-- Emit reverse contracts for supported definitions, using joint induction for mutual groups. -/
 def groupTheorems (lib : String) (recursive : Bool) (members : List Member)

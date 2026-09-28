@@ -29,10 +29,9 @@ def TableKey_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.tableKey)
     (do
        have EC := p0
        let .lbrace_colon_semi_rbrace expression name := p1
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
-          have value := tmp_0
-          pure value))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
+       have value := tmp_0
+       pure value)
 
 inductive TableKey_eval : NanoP4Spec.evalContext →
   NanoP4Spec.tableKey →

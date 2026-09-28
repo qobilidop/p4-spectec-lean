@@ -64,6 +64,9 @@ structure Member where
   printHints : Bool := false
   /-- Chained updates or optional unwrapping need the subtype preset's structural rules. -/
   requiresStructureRules : Bool := false
+  /-- The group's callable closure reaches an extern relation: certificates quantify the
+  generated `Externs` instance and state the abstract extern contract for `cfg`. -/
+  externs : Bool := false
   deriving Inhabited
 
 /-- The binders `(p0 : T0) (p1 : T1)` of the parameters, each after a
@@ -193,11 +196,15 @@ def groupTheorems (externs recursive : Bool) (members : List Member) : List Form
     out := out ++ [corollary externs m (some proj), audit (m.defName ++ "_sound")]
   pure out
 
-/-- A list pattern iteration binding two distinct, uniterated variables in order. -/
+/-- A list pattern iteration binding two distinct, uniterated variables in order, through a
+two-argument constructor or a pair. -/
 def pairIterationVars? (e : exp) : Option (Lang.Il.var × Lang.Il.var) := do
   let .IterE inner (.mk .List [left, right]) := e.it | none
-  let .CaseE mixop := inner.it | none
-  let [a, b] := Mixfix.args mixop | none
+  let components ← match inner.it with
+    | .CaseE mixop => some (Mixfix.args mixop)
+    | .TupleE components => some components
+    | _ => none
+  let [a, b] := components | none
   let .VarE aid := a.it | none
   let .VarE bid := b.it | none
   let sameOrder := aid.it == left.id.it && bid.it == right.id.it
@@ -224,6 +231,51 @@ def iterationRelationOf (env : Env) (d : Lang.Al.def) : Option Format :=
   | first :: rest => if rest.all (fun r => r.pretty == first.pretty) then some first else none
   | [] => none
 
+/-- An expression and all its subexpressions, outermost first. -/
+partial def subExps (e : exp) : List exp :=
+  e :: (pairsOfExp.children e).flatMap subExps
+
+/-- The expressions a premise evaluates, excluding the patterns its bindings assign. -/
+partial def valueExpsOfPrem (p : prem) : List exp :=
+  match p.it with
+  | .LetPr _ value => [value]
+  | .IterPr inner _ => valueExpsOfPrem inner
+  | _ => expsOfPrem p
+
+/-- The expressions a definition evaluates: results, conditions, call arguments and bound
+values, excluding input and binding patterns, which assign rather than evaluate. -/
+def valueExpsOfDef (d : Lang.Al.def) : List exp :=
+  match d.it with
+  | .RelD _ _ _ groups alternative _ =>
+    let ofPaths (common : List prem) (paths : List (List prem × List exp)) : List exp :=
+      common.flatMap valueExpsOfPrem ++
+        paths.flatMap fun (premises, outputs) => premises.flatMap valueExpsOfPrem ++ outputs
+    groups.flatMap (fun group =>
+      let (_, (_, _, common), paths) := group.it
+      ofPaths common (paths.map fun (_, premises, outputs) => (premises, outputs))) ++
+      alternative.toList.flatMap (fun group =>
+        let (_, (_, _, common), (_, premises, outputs)) := group.it
+        ofPaths common [(premises, outputs)])
+  | .FuncDecD _ _ _ _ clauses alternative _ =>
+    (clauses ++ alternative.toList).flatMap fun clause =>
+      let (_, output, premises) := clause.it
+      output :: premises.flatMap valueExpsOfPrem
+  | _ => expsOfDef d
+
+/-- An iterated expression over one or two uniterated list variables, other than a plain
+iterated variable: the reference traverses the sub-contexts and the generated code maps or
+traverses the zipped columns. Iterated patterns are selected separately. -/
+def elementIteration (e : exp) : Bool :=
+  match e.it with
+  | .IterE _ (.mk .List vars) =>
+    (iterVar? e).isNone &&
+      (vars.length == 1 || vars.length == 2) && vars.all (fun v => v.iters.isEmpty)
+  | _ => false
+
+/-- Some expression of `d` is an element-wise iteration (`elementIteration`). -/
+def hasElementIteration (d : Lang.Al.def) : Bool :=
+  (valueExpsOfDef d).any fun e => (subExps e).any elementIteration
+
 /-- Detect nested casts, subtype guards and explicitly instantiated calls. -/
 partial def requiresTypeRulesExp (e : exp) : Bool :=
   let direct := match e.it with
@@ -242,9 +294,19 @@ partial def requiresStructureRulesExp (e : exp) : Bool :=
     | _ => false
   direct || (pairsOfExp.children e).any requiresStructureRulesExp
 
+/-- A constructor value built with a list argument: its generated list encoder is related to
+the element encoder by the preset's proved list-map equations. Patterns only assign. -/
+partial def constructsWithList (e : exp) : Bool :=
+  let direct := match e.it with
+    | .CaseE mixop => (Mixfix.args mixop).any fun a => match a.it with
+      | .IterE _ (.mk .List _) => true
+      | _ => false
+    | _ => false
+  direct || (pairsOfExp.children e).any constructsWithList
+
 /-- Select the normalization preset for structural reductions from source syntax. -/
 def requiresStructureRulesOf (d : Lang.Al.def) : Bool :=
-  (expsOfDef d).any requiresStructureRulesExp
+  (expsOfDef d).any requiresStructureRulesExp || (valueExpsOfDef d).any constructsWithList
 
 /-- Relation premise traversal requires the exact source iteration normalization preset. -/
 def relationHasIteration (d : Lang.Al.def) : Bool :=
@@ -260,12 +322,13 @@ def relationHasIteration (d : Lang.Al.def) : Bool :=
         iterated common || iterated premises)
   | _ => false
 
-/-- Select precise type/encoder and relation-iteration normalization from source syntax. -/
+/-- Select precise type/encoder and relation-iteration normalization from source syntax.
+Element-wise iterated expressions use that preset's traversal pairing. -/
 def requiresTypeRulesOf (d : Lang.Al.def) : Bool :=
-  (expsOfDef d).any requiresTypeRulesExp || relationHasIteration d
+  (expsOfDef d).any requiresTypeRulesExp || relationHasIteration d || hasElementIteration d
 
-/-- Detect function output-column iteration syntax for the opt-in checked column driver.
-The complete supported fragment is separately selected by `Validate.functionListColumns`. -/
+/-- Detect output-column iteration syntax for the opt-in checked column driver, in functions
+and relations. The supported fragment is separately selected by `Validate.unsupported`. -/
 def requiresColumnsOf (d : Lang.Al.def) : Bool :=
   let iterated (ps : List prem) := ps.any fun p => match p.it with
     | .IterPr _ (.mk _ _ outputs) => !outputs.isEmpty
@@ -274,6 +337,13 @@ def requiresColumnsOf (d : Lang.Al.def) : Bool :=
   | .FuncDecD _ _ _ _ clauses alternative _ =>
     clauses.any (fun clause => let (_, _, ps) := clause.it; iterated ps) ||
       alternative.any (fun clause => let (_, _, ps) := clause.it; iterated ps)
+  | .RelD _ _ _ groups alternative _ =>
+    groups.any (fun group =>
+      let (_, (_, _, common), paths) := group.it
+      iterated common || paths.any (fun (_, premises, _) => iterated premises)) ||
+      alternative.any (fun group =>
+        let (_, (_, _, common), (_, premises, _)) := group.it
+        iterated common || iterated premises)
   | _ => false
 
 /-- Conservatively collect registration names through the actual callable closure.
@@ -360,7 +430,7 @@ private def memberCore (ctx : Ctx) (d : Lang.Al.def) : Except String Member := d
     pure (Member.mk i.it true (env.q (Names.relName i.it ++ ".run")) (Names.relName i.it ++ ".run")
       inTypes (typTerm.prod outTypes) n concl conclNamed outTypes detReason [] false none
       (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
-      (reachesPrintHints env d) false)
+      (reachesPrintHints env d) false false)
   | .FuncDecD i tparams params ret _ _ _ | .BuiltinDecD i tparams params ret _ =>
     let valueEquality := (expsOfDef d).any fun e => match e.it with
       | .MemE .. => true
@@ -369,13 +439,13 @@ private def memberCore (ctx : Ctx) (d : Lang.Al.def) : Except String Member := d
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
       Format.nil Format.nil [] (some "not a relation") (tparams.map (·.it)) valueEquality
       (iterationRelationOf env d) (registrationNames env d)
-      (requiresTypeRulesOf d) (requiresColumnsOf d) (reachesPrintHints env d) false)
+      (requiresTypeRulesOf d) (requiresColumnsOf d) (reachesPrintHints env d) false false)
   | .TableDecD i params ret _ _ =>
     pure (Member.mk i.it false (env.q (Names.funcName i.it)) (Names.funcName i.it)
       ((paramTypes (params.map (·.it))).map (typTerm env [])) (typTerm env [] ret.it) 0
       Format.nil Format.nil [] (some "not a relation") [] false (iterationRelationOf env d)
       (registrationNames env d) (requiresTypeRulesOf d) (requiresColumnsOf d)
-      (reachesPrintHints env d) false)
+      (reachesPrintHints env d) false false)
   | _ => throw s!"not a function or relation: {d.it.id.it}"
 
 /-- A member from a definition. -/

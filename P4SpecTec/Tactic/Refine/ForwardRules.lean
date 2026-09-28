@@ -159,7 +159,7 @@ def simprocs : List Name := [
   ``Int.reduceAdd, ``Int.reduceSub, ``Int.reduceMul, ``Int.reduceLT, ``Int.reduceLE,
   ``Int.reduceGT, ``Int.reduceGE, ``String.reduceAppend, ``String.reduceBEq, ``String.reduceLT,
   ``Nat.reduceDiv, ``Nat.reduceMod, ``Nat.reducePow, ``Char.reduceEq, ``Int.reduceBEq,
-  ``Int.reduceBNe, ``Int.reduceNatCast, ``Nat.reduceBneDiff]
+  ``Int.reduceBNe, ``Int.reduceNatCast, ``Nat.reduceBneDiff, ``Int.reduceToNat]
 
 /-- The constants of the library and the prelude whose names say they are
 `ToValue` or `BEq` instances, or `toValue` functions: what relating an
@@ -186,7 +186,13 @@ def simpSet : TacticM SimpSet := do
   for f in blockFunctions do lemmas := lemmas ++ (← eqnsOf f).toArray
   for f in helperFunctions do lemmas := lemmas ++ (← eqnsOf f).toArray
   lemmas := lemmas ++ calcLemmas.toArray
-  lemmas := lemmas ++ (← valueConstants lib).toArray
+  -- a generated encoder rewrites by its constructor equations, never by unfolding to a
+  -- `match` on a still-unknown value (which would copy every alternative into each fact)
+  for n in ← valueConstants lib do
+    let encoder := lib.isPrefixOf n && n.getString! == "toValue" &&
+      ((← getEnv).find? n).any (·.isDefinition)
+    if encoder then lemmas := lemmas ++ (← eqnsOf n).toArray
+    else lemmas := lemmas.push n
   -- the runtime's `canon` family, by equations
   for f in [``canon', ``canonFields, ``canons, ``canonMixfix, ``canonMixfixes] do
     lemmas := lemmas ++ (← eqnsOf f).toArray
@@ -202,7 +208,12 @@ def subtypeSimpSet : TacticM SimpSet := do
   let mut subtypeRules := #[``checkedMixop, ``checkedRecurseNat,
     ``P4SpecTec.Runtime.Value.Match.fuel,
     ``Function.comp_def, ``transposeOne, ``transposeTwo,
-    ``Option.isSome_some, ``Option.isSome_none]
+    ``Option.isSome_some, ``Option.isSome_none,
+    -- extracted columns share their source list's length
+    ``List.length_map,
+    -- slices: canonical erasure and encoding commute with `take` and `drop`
+    ``canons_take, ``canons_drop, ``List.map_take, ``List.map_drop, ``P4SpecTec.Prelude.Iter.slice,
+    ``Int.natCast_add, ``Int.ofNat_lt, ``Int.ofNat_le, ``Int.toNat_natCast]
   for f in [``Ctx.find_defined_typdef, ``Ctx.find_typdef, ``Ctx.find_typdef_opt,
       ``P4SpecTec.Runtime.Type.Subst.of_lists_checked, ``P4SpecTec.Prelude.Num.toNat?] do
     subtypeRules := subtypeRules ++ (← eqnsOf f).toArray
