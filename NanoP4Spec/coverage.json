@@ -12,7 +12,12 @@
      "kind": "representation",
      "expectedType":
      "∀ {α : Type} [ToValue α] [OfValue α]\n    (element : Lang.Il.typ) (accepted : α → Prop)\n    (elementCodec : Representation.Codec\n      (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain element.it) accepted),\n    @Representation.Codec (NanoP4Spec.set α) ⟨NanoP4Spec.set.toValue⟩\n      ⟨NanoP4Spec.set.ofValue⟩\n      (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.varT \"set\" [element]))\n      (set.admitted accepted)",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.set.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "∀ {α : Type} [ToValue α] [OfValue α]\n    (element : Lang.Il.typ) (accepted : α → Prop)\n    (elementCodec : Representation.Codec\n      (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) element.it) accepted),\n    @Representation.Codec (NanoP4Spec.set α) ⟨NanoP4Spec.set.toValue⟩\n      ⟨NanoP4Spec.set.ofValue⟩\n      (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) (Q.varT \"set\" [element]))\n      (set.admitted accepted)",
+     "direction": "runtimeCodec"}]},
   {"source": "upstream/nano-p4-spec/0-stdlib.watsup",
    "recursive": false,
    "kind": "type",
@@ -25,7 +30,12 @@
      "kind": "representation",
      "expectedType":
      "∀ {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n    (leftCodec : Representation.Codec (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain leftType.it) left)\n    (rightCodec : Representation.Codec\n      (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain rightType.it) right),\n    @Representation.Codec (NanoP4Spec.pair α β) ⟨NanoP4Spec.pair.toValue⟩\n      ⟨NanoP4Spec.pair.ofValue⟩\n      (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.varT \"pair\" [leftType, rightType]))\n      (pair.admitted left right)",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.pair.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "∀ {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n    (leftCodec : Representation.Codec (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) leftType.it) left)\n    (rightCodec : Representation.Codec\n      (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) rightType.it) right),\n    @Representation.Codec (NanoP4Spec.pair α β) ⟨NanoP4Spec.pair.toValue⟩\n      ⟨NanoP4Spec.pair.ofValue⟩\n      (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) (Q.varT \"pair\" [leftType, rightType]))\n      (pair.admitted left right)",
+     "direction": "runtimeCodec"}]},
   {"source": "upstream/nano-p4-spec/0-stdlib.watsup",
    "recursive": false,
    "kind": "type",
@@ -38,7 +48,12 @@
      "kind": "representation",
      "expectedType":
      "∀ {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n    (leftCodec : Representation.Codec (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain leftType.it) left)\n    (rightCodec : Representation.Codec\n      (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain rightType.it) right),\n    @Representation.Codec (NanoP4Spec.map α β) ⟨NanoP4Spec.map.toValue⟩\n      ⟨NanoP4Spec.map.ofValue⟩\n      (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.varT \"map\" [leftType, rightType]))\n      (NanoP4Spec.set.admitted (NanoP4Spec.pair.admitted left right))",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.map.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "∀ {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n    (leftCodec : Representation.Codec (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) leftType.it) left)\n    (rightCodec : Representation.Codec\n      (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) rightType.it) right),\n    @Representation.Codec (NanoP4Spec.map α β) ⟨NanoP4Spec.map.toValue⟩\n      ⟨NanoP4Spec.map.ofValue⟩\n      (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"]) (Q.varT \"map\" [leftType, rightType]))\n      (NanoP4Spec.set.admitted (NanoP4Spec.pair.admitted left right))",
+     "direction": "runtimeCodec"}]},
   {"source": "upstream/nano-p4-spec/1-syntax.watsup",
    "recursive": false,
    "kind": "type",
@@ -2276,7 +2291,17 @@
      "kind": "representation",
      "expectedType":
      "@Representation.Codec NanoP4Spec.fieldValue ⟨NanoP4Spec.fieldValue.toValue⟩\n  ⟨NanoP4Spec.fieldValue.ofValue⟩\n    (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.varT\n      \"fieldValue\" [])) NanoP4Spec.fieldValue.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.fieldValue.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Representation.Codec NanoP4Spec.fieldValue ⟨NanoP4Spec.fieldValue.toValue⟩\n  ⟨NanoP4Spec.fieldValue.ofValue⟩\n    (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"])\n      (Q.varT \"fieldValue\" [])) NanoP4Spec.fieldValue.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.fieldValue.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.fieldValue, (NanoP4Spec.fieldValue.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/3.0-value.watsup",
    "recursive": true,
    "kind": "type",
@@ -2290,7 +2315,17 @@
      "kind": "representation",
      "expectedType":
      "@Representation.Codec NanoP4Spec.value ⟨NanoP4Spec.value.toValue⟩ ⟨NanoP4Spec.value.ofValue⟩\n    (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.varT\n      \"value\" [])) NanoP4Spec.value.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.value.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Representation.Codec NanoP4Spec.value ⟨NanoP4Spec.value.toValue⟩ ⟨NanoP4Spec.value.ofValue⟩\n    (Representation.Source.Valid NanoP4Spec.spec (Representation.Source.runtimeDomain [\"value\"])\n      (Q.varT \"value\" [])) NanoP4Spec.value.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.value.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.value, (NanoP4Spec.value.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/3.0-value.watsup",
    "recursive": false,
    "kind": "type",
@@ -2303,7 +2338,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.structValue ⟨NanoP4Spec.structValue.toValue⟩ ⟨NanoP4Spec.structValue.ofValue⟩ NanoP4Spec.structValue.source NanoP4Spec.structValue.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.structValue.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.structValue ⟨NanoP4Spec.structValue.toValue⟩ ⟨NanoP4Spec.structValue.ofValue⟩ NanoP4Spec.structValue.runtimeSource NanoP4Spec.structValue.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.structValue.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.structValue, (NanoP4Spec.structValue.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/3.0-value.watsup",
    "recursive": false,
    "kind": "type",
@@ -2316,7 +2361,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.headerValue ⟨NanoP4Spec.headerValue.toValue⟩ ⟨NanoP4Spec.headerValue.ofValue⟩ NanoP4Spec.headerValue.source NanoP4Spec.headerValue.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.headerValue.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.headerValue ⟨NanoP4Spec.headerValue.toValue⟩ ⟨NanoP4Spec.headerValue.ofValue⟩ NanoP4Spec.headerValue.runtimeSource NanoP4Spec.headerValue.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.headerValue.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.headerValue, (NanoP4Spec.headerValue.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/3.0-value.watsup",
    "recursive": false,
    "kind": "type",
@@ -2329,7 +2384,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.dataValue ⟨NanoP4Spec.dataValue.toValue⟩ ⟨NanoP4Spec.dataValue.ofValue⟩ NanoP4Spec.dataValue.source NanoP4Spec.dataValue.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.dataValue.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.dataValue ⟨NanoP4Spec.dataValue.toValue⟩ ⟨NanoP4Spec.dataValue.ofValue⟩ NanoP4Spec.dataValue.runtimeSource NanoP4Spec.dataValue.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.dataValue.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.dataValue, (NanoP4Spec.dataValue.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/3.0-value.watsup",
    "recursive": false,
    "kind": "type",
@@ -2786,7 +2851,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.frame ⟨NanoP4Spec.frame.toValue⟩ ⟨NanoP4Spec.frame.ofValue⟩ NanoP4Spec.frame.source NanoP4Spec.frame.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.frame.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.frame ⟨NanoP4Spec.frame.toValue⟩ ⟨NanoP4Spec.frame.ofValue⟩ NanoP4Spec.frame.runtimeSource NanoP4Spec.frame.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.frame.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.frame, (NanoP4Spec.frame.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/8.00-eval-context.watsup",
    "recursive": false,
    "kind": "type",
@@ -2804,7 +2879,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.globalEvalLayer ⟨NanoP4Spec.globalEvalLayer.toValue⟩ ⟨NanoP4Spec.globalEvalLayer.ofValue⟩ NanoP4Spec.globalEvalLayer.source NanoP4Spec.globalEvalLayer.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.globalEvalLayer.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.globalEvalLayer ⟨NanoP4Spec.globalEvalLayer.toValue⟩ ⟨NanoP4Spec.globalEvalLayer.ofValue⟩ NanoP4Spec.globalEvalLayer.runtimeSource NanoP4Spec.globalEvalLayer.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.globalEvalLayer.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.globalEvalLayer, (NanoP4Spec.globalEvalLayer.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/8.00-eval-context.watsup",
    "recursive": false,
    "kind": "type",
@@ -2817,7 +2902,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.blockEvalLayer ⟨NanoP4Spec.blockEvalLayer.toValue⟩ ⟨NanoP4Spec.blockEvalLayer.ofValue⟩ NanoP4Spec.blockEvalLayer.source NanoP4Spec.blockEvalLayer.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.blockEvalLayer.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.blockEvalLayer ⟨NanoP4Spec.blockEvalLayer.toValue⟩ ⟨NanoP4Spec.blockEvalLayer.ofValue⟩ NanoP4Spec.blockEvalLayer.runtimeSource NanoP4Spec.blockEvalLayer.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.blockEvalLayer.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.blockEvalLayer, (NanoP4Spec.blockEvalLayer.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/8.00-eval-context.watsup",
    "recursive": false,
    "kind": "type",
@@ -2830,7 +2925,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.localEvalLayer ⟨NanoP4Spec.localEvalLayer.toValue⟩ ⟨NanoP4Spec.localEvalLayer.ofValue⟩ NanoP4Spec.localEvalLayer.source NanoP4Spec.localEvalLayer.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.localEvalLayer.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.localEvalLayer ⟨NanoP4Spec.localEvalLayer.toValue⟩ ⟨NanoP4Spec.localEvalLayer.ofValue⟩ NanoP4Spec.localEvalLayer.runtimeSource NanoP4Spec.localEvalLayer.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.localEvalLayer.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.localEvalLayer, (NanoP4Spec.localEvalLayer.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/8.00-eval-context.watsup",
    "recursive": false,
    "kind": "type",
@@ -2843,7 +2948,17 @@
      "kind": "representation",
      "expectedType":
      "@Refine.Representation.Codec NanoP4Spec.evalContext ⟨NanoP4Spec.evalContext.toValue⟩ ⟨NanoP4Spec.evalContext.ofValue⟩ NanoP4Spec.evalContext.source NanoP4Spec.evalContext.admitted",
-     "direction": "sourceCodec"}]},
+     "direction": "sourceCodec"},
+    {"name": "NanoP4Spec.evalContext.runtimeCodec",
+     "kind": "representation",
+     "expectedType":
+     "@Refine.Representation.Codec NanoP4Spec.evalContext ⟨NanoP4Spec.evalContext.toValue⟩ ⟨NanoP4Spec.evalContext.ofValue⟩ NanoP4Spec.evalContext.runtimeSource NanoP4Spec.evalContext.runtimeAdmitted",
+     "direction": "runtimeCodec"},
+    {"name": "NanoP4Spec.evalContext.runtimeAdmittedAll",
+     "kind": "admission",
+     "expectedType":
+     "∀ x : NanoP4Spec.evalContext, (NanoP4Spec.evalContext.runtimeAdmitted) x",
+     "direction": "runtimeWholeCarrier"}]},
   {"source": "upstream/nano-p4-spec/8.01-eval-relation.watsup",
    "recursive": false,
    "kind": "type",

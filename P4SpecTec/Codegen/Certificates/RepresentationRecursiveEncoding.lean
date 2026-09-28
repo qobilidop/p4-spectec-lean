@@ -31,7 +31,7 @@ private def variantBranch (env : Env) (index selected offset : Nat) (family : Fa
   let binders := children.zipIdx.map fun (child, i) => s!" (x{i} : Carrier .f{child})"
   let hypotheses := children.zipIdx.map fun (child, i) =>
     s!"\n    (h{i} : Representation.Source.Valid {env.lib}.spec " ++
-    s!"Representation.Source.externDomain (source .f{child}) (encode .f{child} x{i}))"
+    s!"{env.domainTerm} (source .f{child}) (encode .f{child} x{i}))"
   let originalCases := "[" ++ ", ".intercalate (cases.map quoteCase) ++ "]"
   let identity := positions.foldr (fun i tail =>
     s!".cons (instantiateField{index}_{offset + i}) ({tail})") ".nil"
@@ -43,7 +43,7 @@ private def variantBranch (env : Env) (index selected offset : Nat) (family : Fa
   let theoremName := s!"encodeBranch{index}_{selected}"
   return "/-- Source-valid children encode to the exact declared source constructor. -/\n" ++
     s!"private theorem {theoremName}" ++ String.join binders ++ String.join hypotheses ++
-    s!" :\n    Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain\n" ++
+    s!" :\n    Representation.Source.Valid {env.lib}.spec {env.domainTerm}\n" ++
     s!"      (source .f{index}) (encode .f{index} {typed}) := by\n" ++
     "  apply Representation.Source.ConstructorDomain.valid (Q.i " ++
     (Reify.str name.it).fmt.pretty 1000000 ++ ") " ++
@@ -84,7 +84,7 @@ def variantEncodingDeclarations (env : Env) (plan : Plan) (namespaceName : Strin
     s!"\n\nend {namespaceName}")))
 
 private def validity (env : Env) (index : Nat) (value : String) : String :=
-  s!"Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain " ++
+  s!"Representation.Source.Valid {env.lib}.spec {env.domainTerm} " ++
     s!"(source .f{index}) (encode .f{index} ({value}))"
 
 private def iterationEncoding (env : Env) (index child : Nat) (kind : iter) : String :=
@@ -150,6 +150,14 @@ def compositionEncodingDeclarations (env : Env) (plan : Plan) (namespaceName : S
     s!"namespace {namespaceName}\n\n" ++ "\n\n".intercalate declarations ++
     s!"\n\nend {namespaceName}")))
 
+/-- The raw-extern alternative encodes to a runtime-only alternative of its declared type. -/
+private def runtimeEncoding (env : Env) (index : Nat) (name : String) : String :=
+  s!"private theorem encodeRuntime{index} (x : P4SpecTec.Prelude.ExternValue) :\n" ++
+  s!"    {validity env index (runtimeExternValue env name ++ " x")} :=\n" ++
+  "  Representation.Source.Valid.runtime (Q.i " ++ (Reify.str name).fmt.pretty 1000000 ++
+  ") [] _\n    (Representation.Source.runtimeDomainExtern (by decide) (j := x.json) rfl)\n\n" ++
+  s!"#audit_axioms encodeRuntime{index}"
+
 private def consEncoding (env : Env) (index child : Nat) : String :=
   s!"private theorem encodeCons{index} (x : Carrier .f{child}) (xs : Carrier .f{index})\n" ++
   s!"    (head : {validity env child "x"}) (tail : {validity env index "xs"}) :\n" ++
@@ -205,7 +213,7 @@ def encodingDeclarations (env : Env) (plan : Plan) (namespaceName : String) :
       let [child] := family.children | throw "alias encoding induction needs one child family"
       minors := minors ++ [← admissionHandler plan [child] ["x"] fun proofs =>
         s!"encodeAlias{index} x " ++ " ".intercalate proofs]
-    | .VarT .., some (.VariantT cases) =>
+    | .VarT name _, some (.VariantT cases) =>
       let mut offset := 0
       for (sourceCase, selected) in cases.zipIdx do
         let count := (Mixfix.args sourceCase.nottyp.it).length
@@ -215,6 +223,9 @@ def encodingDeclarations (env : Env) (plan : Plan) (namespaceName : String) :
           s!"encodeBranch{index}_{selected} " ++ " ".intercalate (values ++ proofs)]
         offset := offset + count
       if offset != family.children.length then throw "encoding induction constructor arity differs"
+      if env.runtimeProfile && family.runtimeExtended then
+        extras := extras ++ [runtimeEncoding env index name.it]
+        minors := minors ++ [s!"encodeRuntime{index}"]
     | _, _ => throw "recursive encoding induction does not support this local source shape"
   let motives := recursive.zipIdx.map fun ((_, family), position) =>
     let name := if recursive.length == 1 then "motive" else s!"motive_{position + 1}"
@@ -230,7 +241,7 @@ def encodingDeclarations (env : Env) (plan : Plan) (namespaceName : String) :
     "/-- Every structurally admitted generated value belongs to its full source grammar. -/\n" ++
     "theorem encodingValid (family : Family) (x : Carrier family)\n" ++
     "    (accepted : admitted family x) :\n" ++
-    s!"    Representation.Source.Valid {env.lib}.spec Representation.Source.externDomain\n" ++
+    s!"    Representation.Source.Valid {env.lib}.spec {env.domainTerm}\n" ++
     "      (source family) (encode family x) := by\n  cases family with\n" ++
     "\n".intercalate branches ++ "\n\n#audit_axioms encodingValid"
   pure (Std.Format.text (boundedLines (

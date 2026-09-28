@@ -3,7 +3,8 @@ import P4SpecTec.Codegen.Certificates.RepresentationRecursive
 /-!
 Structural generated-carrier admission for recursive source codecs. These predicates
 follow the actual source constructors and independently admitted children. Explicit
-runtime-only carrier alternatives have no admission constructor.
+runtime-only carrier alternatives have no admission constructor in the source profile;
+the runtime profile admits them.
 -/
 
 namespace P4SpecTec.Codegen.RepresentationRecursive
@@ -61,6 +62,11 @@ private def admission (env : Env) (plan : Plan) (index : Nat) (family : Family) 
         constructors := constructors ++ [← constructor plan index name_ value children]
         cursor := cursor + count
       if cursor != family.children.length then throw "recursive variant admission field mismatch"
+      -- The runtime profile admits the carrier's explicit raw-extern alternative.
+      if env.runtimeProfile && family.runtimeExtended then
+        constructors := constructors ++ [s!"  | {Representation.rawExternCtor} " ++
+          "(x0 : P4SpecTec.Prelude.ExternValue) : " ++
+          s!"AdmittedF{index} ({runtimeExternValue env name.it} x0)"]
       pure ("\n".intercalate constructors)
     | _, _ => throw "recursive admission needs a supported actual source body"
   pure (Std.Format.text (boundedLines (header ++ body)))
@@ -78,7 +84,9 @@ def admissionDeclarations (env : Env) (plan : Plan) (namespaceName : String) :
     branches := branches ++ [s!"  | .f{index}, x => {predicate}"]
   pure [Std.Format.text s!"namespace {namespaceName}", mutualBlock predicates,
     Std.Format.text (boundedLines (
-      "/-- Structural admission excludes runtime-only constructors recursively. -/\n" ++
+      (if env.runtimeProfile then
+        "/-- Structural admission, including the runtime-only raw-extern alternatives. -/\n"
+      else "/-- Structural admission excludes runtime-only constructors recursively. -/\n") ++
       "def admitted : (family : Family) → Carrier family → Prop\n" ++
       "\n".intercalate branches)), Std.Format.text s!"end {namespaceName}"]
 
