@@ -228,8 +228,12 @@ def normalize (s : SimpSet) : TacticM Bool := timed "normalize" do
   catch e =>
     saved.restore
     let msg := e.toMessageData
-    unless (← msg.toString).startsWith "simp made no progress" do
+    let text ← msg.toString
+    unless text.startsWith "simp made no progress" do
       traceStep m!"normalize failed: {msg}"
+      if (text.splitOn "maximum number of steps").length > 1 &&
+          refine_al.trace.get (← getOptions) then
+        traceStep m!"on the goal\n{← Meta.ppGoal (← getMainGoal)}"
     pure false
 
 /-- Run the simp set at a hypothesis. -/

@@ -74,6 +74,26 @@ theorem typeParameterFresh_V : global.tdtbl.get? "V" = none :=
 
 #audit_axioms typeParameterFresh_V
 
+/-- Every environment assumption of the invocation certificates holds for the initialized
+reference context: checked table initialization, complete source lookups, no local
+overrides and fresh callable type parameters. The guard and print-hint configuration and
+the extern contract remain explicit assumptions of the certificates. -/
+theorem initialized :
+    Interp_al.Ctx.init NanoP4Spec.spec = .ok NanoP4Spec.Environment.global ∧
+    Refine.HoldsSpec NanoP4Spec.spec NanoP4Spec.Environment.global ∧
+    NanoP4Spec.Environment.ctx.local.fenv = [] ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "X" = none ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "K" = none ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "Y" = none ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "V" = none :=
+  ⟨initEqOk, holdsSpec, localFenvEmpty,
+    typeParameterFresh_X,
+    typeParameterFresh_K,
+    typeParameterFresh_Y,
+    typeParameterFresh_V⟩
+
+#audit_axioms initialized
+
 end Environment
 
 end NanoP4Spec

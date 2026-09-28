@@ -2980,7 +2980,12 @@
   {"name": "NanoP4Spec.Environment.localFenvEmpty",
    "kind": "tableInitialization",
    "expectedType": "NanoP4Spec.Environment.ctx.local.fenv = []",
-   "direction": "noLocalOverrides"}],
+   "direction": "noLocalOverrides"},
+  {"name": "NanoP4Spec.Environment.initialized",
+   "kind": "initialization",
+   "expectedType":
+   "Interp_al.Ctx.init NanoP4Spec.spec = .ok NanoP4Spec.Environment.global ∧\n    Refine.HoldsSpec NanoP4Spec.spec NanoP4Spec.Environment.global ∧\n    NanoP4Spec.Environment.ctx.local.fenv = [] ∧\n    NanoP4Spec.Environment.global.tdtbl.get? \"X\" = none ∧\n    NanoP4Spec.Environment.global.tdtbl.get? \"K\" = none ∧\n    NanoP4Spec.Environment.global.tdtbl.get? \"Y\" = none ∧\n    NanoP4Spec.Environment.global.tdtbl.get? \"V\" = none",
+   "direction": "certificateEnvironment"}],
  "library": "NanoP4Spec",
  "input": "exports/nano-p4.al.json",
  "definitions":

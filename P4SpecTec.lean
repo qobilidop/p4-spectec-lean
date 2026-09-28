@@ -9,6 +9,7 @@ import P4SpecTec.Codegen.Census
 import P4SpecTec.Codegen.Certificates.Builtin
 import P4SpecTec.Codegen.Certificates.CallAdmission
 import P4SpecTec.Codegen.Certificates.Equality
+import P4SpecTec.Codegen.Certificates.Extern
 import P4SpecTec.Codegen.Certificates.Forward
 import P4SpecTec.Codegen.Certificates.Initialization
 import P4SpecTec.Codegen.Certificates.Producer
@@ -112,6 +113,7 @@ import P4SpecTec.Refine.Builtin.Set
 import P4SpecTec.Refine.Builtin.Text
 import P4SpecTec.Refine.Calc
 import P4SpecTec.Refine.Call
+import P4SpecTec.Refine.Extern
 import P4SpecTec.Refine.Init
 import P4SpecTec.Refine.Iteration
 import P4SpecTec.Refine.IterationColumns

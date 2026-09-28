@@ -6,6 +6,7 @@ import P4SpecTec.Refine.Eval
 import P4SpecTec.Refine.Representation.Equality
 import P4SpecTec.Refine.Syntax
 import P4SpecTec.Refine.Subtype
+import P4SpecTec.Tactic.Refine.Simprocs
 
 /-!
 The forward lockstep driver's interpreter equations, runtime simplifications
@@ -183,7 +184,10 @@ def valueConstants (lib : Name) : MetaM (List Name) := do
 def simpSet : TacticM SimpSet := do
   let lib ← libOf
   let mut lemmas : Array Name := #[]
-  for f in blockFunctions do lemmas := lemmas ++ (← eqnsOf f).toArray
+  -- `assign_exp` unfolds at a successor fuel only for a concrete pattern (`assignExpConcrete`)
+  for f in blockFunctions do
+    if f == ``Interp.assign_exp then lemmas := lemmas.push ``Interp.assign_exp.eq_1
+    else lemmas := lemmas ++ (← eqnsOf f).toArray
   for f in helperFunctions do lemmas := lemmas ++ (← eqnsOf f).toArray
   lemmas := lemmas ++ calcLemmas.toArray
   -- a generated encoder rewrites by its constructor equations, never by unfolding to a
@@ -196,7 +200,7 @@ def simpSet : TacticM SimpSet := do
   -- the runtime's `canon` family, by equations
   for f in [``canon', ``canonFields, ``canons, ``canonMixfix, ``canonMixfixes] do
     lemmas := lemmas ++ (← eqnsOf f).toArray
-  pure { lemmas, procs := simprocs.toArray }
+  pure { lemmas, procs := simprocs.toArray.push ``assignExpConcrete }
 
 /-- Extend the forward preset with exact outer subtype checks and generated bridges.
 The ordinary function preset remains unchanged; recursive encoders are not simp rewrites. -/
@@ -213,7 +217,9 @@ def subtypeSimpSet : TacticM SimpSet := do
     ``List.length_map,
     -- slices: canonical erasure and encoding commute with `take` and `drop`
     ``canons_take, ``canons_drop, ``List.map_take, ``List.map_drop, ``P4SpecTec.Prelude.Iter.slice,
-    ``Int.natCast_add, ``Int.ofNat_lt, ``Int.ofNat_le, ``Int.toNat_natCast]
+    ``Int.natCast_add, ``Int.ofNat_lt, ``Int.ofNat_le, ``Int.toNat_natCast,
+    -- decided literal conditions, so that `reduceIte` selects their branch
+    ``Bool.false_eq_true, ``Bool.true_eq_false]
   for f in [``Ctx.find_defined_typdef, ``Ctx.find_typdef, ``Ctx.find_typdef_opt,
       ``P4SpecTec.Runtime.Type.Subst.of_lists_checked, ``P4SpecTec.Prelude.Num.toNat?] do
     subtypeRules := subtypeRules ++ (← eqnsOf f).toArray
