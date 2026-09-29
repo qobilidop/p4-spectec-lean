@@ -211,13 +211,17 @@ def prepareSimpSet (s : SimpSet) : TacticM SimpSet := withMainContext do
     { lemmas := s.lemmas, procs := s.procs, result, noProgress, closed }
   pure { s with prepared? := some prepared }
 
-/-- Every local proposition the default discharger may assume. It compares types by
-definitional equality, so a syntactic equation-hypothesis test misses reducible aliases. -/
+/-- Every local proposition the default discharger may assume. Its local-assumption
+path handles only forall-shaped equation hypotheses, including reducible aliases.
+Direct inductive propositions cannot match that shape; unknown heads stay in the key. -/
 def dischargeAssumptions : TacticM (Array Expr) := withMainContext do
   let mut out := #[]
   for decl in ← getLCtx do
     if decl.isImplementationDetail then continue
-    let ty ← instantiateMVars decl.type
+    let ty := (← instantiateMVars decl.type).consumeMData
+    if ty.isAppOf ``Eq || ty.isAppOf ``HEq || ty.isAppOf ``And ||
+        ty.isAppOf ``Or || ty.isConstOf ``True || ty.isConstOf ``False then
+      continue
     if ← isProp ty then out := out.push ty
   pure out
 
@@ -232,17 +236,31 @@ def localLetInputs : TacticM (Array Expr) := withMainContext do
       out := out.push (← instantiateMVars value)
   pure out
 
+/-- The selected fact types in the supplied order, retaining duplicates. For multiple
+facts, index the current context once; later declarations shadow earlier user names,
+matching `LocalContext.findFromUserName?`. Instantiate each type afresh after lookup. -/
+def factTypes (facts : List Name) : TacticM (Array Expr) := withMainContext do
+  match facts with
+  | [] => pure #[]
+  | [name] =>
+    let some decl := (← getLCtx).findFromUserName? name
+      | throwError "refine_al: no hypothesis {name}"
+    return #[← instantiateMVars decl.type]
+  | _ =>
+    let mut types : Std.HashMap Name Expr := {}
+    for decl in ← getLCtx do
+      types := types.insert decl.userName decl.type
+    facts.toArray.mapM fun name => do
+      let some type := types[name]? | throwError "refine_al: no hypothesis {name}"
+      instantiateMVars type
+
 /-- The local statements that can change how a closed term simplifies. Even a rule with a
 local variable on its left may match a closed term by definitional equality after unfolding a
-local let. The discharger may likewise use open or aliased propositions, so retain every fact
-and every local proposition in the cache key. -/
+local let. The discharger may likewise use open or aliased forall propositions, so retain
+every explicit fact and every proposition that can match its assumption path. -/
 def closedInputs (facts : List Name) : TacticM (Array Expr) := withMainContext do
-  let mut out := #[]
-  for n in facts do
-    let some decl := (← getLCtx).findFromUserName? n | throwError "refine_al: no hypothesis {n}"
-    let ty ← instantiateMVars decl.type
-    out := out.push ty
-  pure (out ++ #[mkConst `assumed] ++ (← dischargeAssumptions) ++
+  let types ← factTypes facts
+  pure (types ++ #[mkConst `assumed] ++ (← dischargeAssumptions) ++
     #[mkConst `localLets] ++ (← localLetInputs))
 
 /-- The inputs that determine a normalization with prepared rules: the statement it
@@ -261,7 +279,7 @@ def normalizationKey (s : SimpSet) (facts : List Name) (hyp? : Option Name) :
   let subject ← match hyp? with
     | none => do instantiateMVars (← getMainTarget)
     | some h => do pure (mkApp (mkConst `hyp) (← statement h))
-  pure (#[subject] ++ (← facts.toArray.mapM statement) ++ #[mkConst `assumed] ++
+  pure (#[subject] ++ (← factTypes facts) ++ #[mkConst `assumed] ++
     (← dischargeAssumptions) ++ #[mkConst `localLets] ++ (← localLetInputs))
 
 /-- The hash of a normalization key. -/

@@ -173,8 +173,10 @@ run_meta do
       [``canon', ``canonFields, ``canons, ``canonMixfix, ``canonMixfixes,
         ``Ctx.find_defined_typdef, ``Ctx.find_typdef, ``Ctx.find_typdef_opt,
         ``P4SpecTec.Runtime.Type.Subst.of_lists_checked, ``P4SpecTec.Prelude.Num.toNat?] do
-    discard <| getUnfoldEqnFor? f (nonRec := true)
-    for e in ← eqnsOf f do
+    let unfold? ← getUnfoldEqnFor? f (nonRec := true)
+    -- Conditional equations may select the definition itself; its unfolding equation
+    -- still contains matcher applications whose equations must be realized here.
+    for e in ((← eqnsOf f) ++ unfold?.toList).eraseDups do
       for c in (← getConstInfo e).type.getUsedConstants do
         if ← isMatcher c then discard <| Match.getEquationsFor c
 

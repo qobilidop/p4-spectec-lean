@@ -7,6 +7,102 @@ open Lean Elab Tactic P4SpecTec.Tactic
 
 private abbrev EqnAlias (x : Nat) : Prop := ∀ n : Nat, x = Nat.succ n → False
 
+-- Fact lookup keeps caller order and duplicates, and agrees with the direct lookup
+-- on empty and singleton inputs.
+set_option linter.unusedVariables false in
+example (first : (0 : Nat) = 0) (second : (1 : Nat) = 1) : True := by
+  run_tac
+    unless (← factTypes []).isEmpty do throwError "empty fact lookup was not empty"
+    let one ← factTypes [`first]
+    let two ← factTypes [`second]
+    unless one.size == 1 && two.size == 1 do
+      throwError "singleton fact lookup had the wrong size"
+    unless (← factTypes [`second, `first, `second]) == #[two[0]!, one[0]!, two[0]!] do
+      throwError "multi-fact lookup changed order or duplicates"
+    let missing ← try
+      let _ ← factTypes [`missing]
+      pure false
+    catch _ => pure true
+    unless missing do throwError "missing fact lookup succeeded"
+    evalTactic (← `(tactic| have $(mkIdent `first):ident : (2 : Nat) = 2 := rfl))
+    let expected ← withMainContext do
+      let some latest := (← getLCtx).findFromUserName? `first
+        | throwError "shadowed fact was missing"
+      instantiateMVars latest.type
+    unless (← factTypes [`first]) == #[expected] &&
+        (← factTypes [`first, `second])[0]! == expected do
+      throwError "fact lookup did not select the latest shadowed user name"
+  trivial
+
+-- Direct inductive propositions cannot match the default discharger's forall-shaped
+-- equation hypothesis, while an aliased forall can. Explicit rewrite facts remain keyed.
+set_option linter.unusedVariables false in
+example (p q : Prop) (hEq : (0 : Nat) = 0) (hHEq : HEq (0 : Nat) (0 : Nat))
+    (hAnd : p ∧ q) (hOr : p ∨ q) (hTrue : True) (hFalse : False)
+    (hAlias : EqnAlias 0) : True := by
+  run_tac
+    let ctx ← getLCtx
+    let typeOf (name : Name) : TacticM Expr := do
+      let some decl := ctx.findFromUserName? name | throwError "missing {name}"
+      pure ((← instantiateMVars decl.type).consumeMData)
+    let assumptions ← dischargeAssumptions
+    for name in [`hEq, `hHEq, `hAnd, `hOr, `hTrue, `hFalse] do
+      if assumptions.contains (← typeOf name) then
+        throwError "rigid proposition {name} remained in discharge assumptions"
+    unless assumptions.contains (← typeOf `hAlias) do
+      throwError "reducible forall alias was omitted from discharge assumptions"
+    unless (← closedInputs [`hEq]).contains (← typeOf `hEq) do
+      throwError "explicit equality rewrite fact was omitted from closed inputs"
+  trivial
+
+-- A selected open equality can discharge a selected conditional rewrite of a closed
+-- imported term. The first failed simplification must not be reused after it arrives.
+set_option linter.unusedVariables false in
+example (n : Nat)
+    (rf_c_cond : n = 0 → Classical.choice (show Nonempty Nat from ⟨0⟩) = 0) : True := by
+  run_tac
+    let s ← prepareSimpSet { lemmas := #[], procs := #[] }
+    let saved ← saveState
+    let marker ← instantiateMVars (← Term.elabTerm
+      (← `(term| Classical.choice (show Nonempty Nat from ⟨0⟩))) none)
+    let target ← instantiateMVars (← Term.elabTerm
+      (← `(term| Classical.choice (show Nonempty Nat from ⟨0⟩) = 0)) none)
+    let scratch ← Meta.mkFreshExprSyntheticOpaqueMVar target
+    setGoals [scratch.mvarId!]
+    if ← normalize s then
+      throwError "conditional rewrite applied before its side condition was known"
+    let before ← closedInputs (← factHyps)
+    let some prepared := s.prepared? | throwError "prepared simp state is missing"
+    unless ((← prepared.closed.get).getD before {}).contains marker do
+      throwError "closed marker was not cached before the new equality"
+    evalTactic (← `(tactic| by_cases $(mkIdent `rf_c_eq):ident :
+      $(mkIdent `n):ident = 0))
+    let positive := (← getGoals).head!
+    setGoals [positive]
+    unless before != (← closedInputs (← factHyps)) do
+      throwError "selected open equality did not partition the closed cache"
+    unless ← normalize s do
+      throwError "conditional closed rewrite missed the newly selected equality"
+    unless (← getGoals).isEmpty do
+      throwError "conditional closed rewrite did not close the positive branch"
+    saved.restore
+  trivial
+
+-- An unused rigid equality does not partition either cache. Selecting it for rewriting does.
+set_option linter.unusedVariables false in
+example (unusedEq : (0 : Nat) = 0) : True := by
+  run_tac
+    let s ← prepareSimpSet { lemmas := #[], procs := #[] }
+    let keyBefore ← normalizationKey s [] none
+    let closedBefore ← closedInputs []
+    unless closedBefore != (← closedInputs [`unusedEq]) do
+      throwError "selected equality fact did not change the closed-input key"
+    evalTactic (← `(tactic| clear $(mkIdent `unusedEq):ident))
+    unless keyBefore == (← normalizationKey s [] none) &&
+        closedBefore == (← closedInputs []) do
+      throwError "unused rigid equality changed the discharge-only key"
+  trivial
+
 -- An aliased condition is available to simp's definitional-equality discharger. Both
 -- no-progress and closed-result keys must change when it enters the local context.
 example : True := by
