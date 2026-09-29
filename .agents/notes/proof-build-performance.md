@@ -1,6 +1,6 @@
 # Proof build performance
 
-Active until final main CI, 2026-09-28. Retained for review provenance, rejected
+Durable performance evidence, closed 2026-09-29. Retained for review provenance, rejected
 experiments and remaining constraints. The public
 [N3 performance snapshot](../../docs/performance/n3-iteration-2026-09-28.md)
 owns measured artifact behavior and reproduction. This note supersedes the
@@ -76,6 +76,13 @@ precede final fact indexing and matcher pre-realization. Profiling phases nest:
 simp ~288s and interpretation ~104s are not exclusive wall time. Native loading
 removes interpreter dispatch but simp remains dominant.
 
+Final-tree matched follow-up at `4e566fb` (executable inputs identical to `d28d3b8`)
+passed both saved-source replays: ordinary 288.39s wall / 457.52s user and native
+265.09s / 417.76s, an 8.1% native gain. Ordinary replay remains close to the repaired
+baseline, supporting dependency scheduling as the main source of the full-build
+improvement rather than establishing an exclusive causal attribution.
+Logs: `codex-final-bin-op.log`, `codex-final-native-bin-op.log`.
+
 Three warmed native generator checks were 4.08–4.14s before and 3.93–4.10s after,
 all exit 0. Different concurrent process conditions and tiny sample size preclude
 a throughput claim. Catalog reuse prevents the future complex-field planning cliff;
@@ -119,7 +126,19 @@ The executable tree is identical to `d28d3b8`; only documentation differs.
 Main's compacted Nano constraints and stewardship record are preserved, stale
 coverage text is updated, and the dirty replay worktree is retained. Fresh text,
 staged whitespace and relative-link checks exited 0. These unchanged executable
-inputs reuse both full local gates above; final main CI is still pending.
+inputs reuse both full local gates above. Integrated `4e566fb` subsequently passed
+[CI 36531246981](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36531246981),
+including upstream pin checks. Certificate compilation took 2043s versus 2110s at
+stabilization, 3.2% lower. Both restored main's `ffc21e7` Lake cache. This smaller
+Linux gain is a single-run observation, with differing rebuilt module boundaries;
+it is not a statistically controlled latency guarantee. Log: `codex-optimized-ci.log`.
+
+Final evidence review found no blocker. The same independent Astra reviewer checked
+both final replay logs, the 8.1% arithmetic and source-domain import isolation;
+wording was qualified to avoid overstating causal attribution. Final documentation
+reuses unchanged executable inputs and passing local/remote gates, with fresh text,
+whitespace and relative-link checks. Verified-merged feature refs were removed only
+after passing main CI; the dirty scratch worktree and non-ancestor WIP ref remain.
 
 ## Rejected approaches and remaining work
 
@@ -140,3 +159,14 @@ Further native build integration needs a narrower tactic artifact boundary, not
 whole-core invalidation. Current performance is adequate to resume the remaining
 four domain proof shapes using catalog-backed generation. N3 completion still
 requires those proofs, strict owned-obligation validation and final review.
+
+A read-only Astra follow-up inspected imports at integrated `4e566fb`. The four
+missing shapes route through `SourcePolymorphic.complete`. Generator changes and
+source support (`Refine.SourceBuiltin`, `ProducerMap`, `Representation.SourceCodec`)
+do not invalidate heavy forward/reverse `bin_op` or `Expr_eval` proofs. Shared
+`Tactic.Refine.Normalize` changes still invalidate both directions. Regeneration
+rewrites files, but Lake hashes their contents, preserving byte-identical outputs.
+Build targeted generator tests, regenerate, then build the new `SourceDomain.*`
+targets directly before completion metadata, `--require-owned N3` and the full gate.
+Use actual target builds for new statements/support; replay against stale imports
+is not evidence for these changes. This review ran no builds and changed no code.

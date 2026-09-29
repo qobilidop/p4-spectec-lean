@@ -1,9 +1,10 @@
 # Status
 
-Autonomous performance work, checkpoint 2026-09-28. Implementation through
-`d28d3b8` on `n3-perf-next` has independent review and passing full local gates;
-final integration and remote CI remain before closing this task. Published N3
-history is preserved. N0/N1/N2 are complete; N3 remains incomplete. N4–N6 have
+Performance implementation complete, checkpoint 2026-09-29. Reviewed implementation
+through `d28d3b8` is integrated on `main` at `4e566fb`, with passing full local gates
+and [CI 36531246981](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36531246981).
+This final evidence-only checkpoint preserves those executable inputs. Published
+N3 history is preserved. N0/N1/N2 are complete; N3 remains incomplete. N4–N6 have
 not started and full-P4 M3 remains paused.
 
 ## Verified state
@@ -32,7 +33,12 @@ All executable inputs are unchanged through `d28d3b8`; subsequent evidence-only
 edits reuse these passes with fresh text/link checks and independent review.
 Ignored logs are `.artifacts/perf/codex-optimized-gate.log` and
 `codex-optimized-warm-gate.log`. Actual native replay and native `--no-build`
-replay also exited 0. See [performance evidence](notes/proof-build-performance.md)
+replay also exited 0. Final matched saved-proof replay was 288.39s ordinary versus
+265.09s native (8.1% faster), both exit 0. Main CI's certificate stage was 2043s
+versus 2110s at baseline (3.2% lower). Both restored the same main cache; these
+single runs show a smaller Linux gain and do not establish a stable latency.
+The remote log is `codex-optimized-ci.log`.
+See [performance evidence](notes/proof-build-performance.md)
 and the [public snapshot](../docs/performance/n3-iteration-2026-09-28.md).
 
 Independent read-only Codex GPT-6 Astra reviews found no remaining blocker;
@@ -42,16 +48,12 @@ reviews, not human review. Full gate execution was owned by the parent agent.
 
 ## Next steps
 
-1. Integrate the reviewed performance checkpoint into `main` without rewriting
-   published history. Require passing remote CI for the final revision, then
-   clean up integrated feature refs. Preserve the old replay worktree: it contains
-   uncommitted experiments that differ from the integrated files.
-2. Resume the four N3 domain proof shapes using the catalog-backed field resolver.
+1. Resume the four N3 domain proof shapes using the catalog-backed field resolver.
    `empty_set`/`empty_map` need constant-result domains; `ite` selects an admitted
    input; recursive `repeat_` needs a partial-correctness argument. The earlier
    20-minute recursive representation-planning route is removed from production
    source-domain planning.
-3. Regenerate completion, require `--require-owned N3`, update the
+2. Regenerate completion, require `--require-owned N3`, update the
    [Nano plan](notes/nano-certification.md), and run the full gate plus independent
    review before declaring N3 complete. Broader stage obligations are not waived.
 
@@ -64,8 +66,10 @@ Run one build/replay at a time per checkout.
 
 ## Repository state
 
-The worktree is on `main` with integration in progress; `n3-perf` contains the
-passing stabilization checkpoint and includes `n3-core`. Other integrated/superseded
-feature refs remain until final main CI. `../p4-spectec-lean-replay` is the old
-scratch worktree, retained with its uncommitted experiments. The expected four-file
-upstream exporter patch remains applied.
+On `main`. After passing integration CI, verified-merged local refs `n3-core`,
+`n3-runtime`, `n3-expr-eval`, `n3-perf` and `n3-perf-next` were removed, along with
+remote `n3-core` and `n3-perf`; branch listings verified removal. Preserve local
+`n3-decl-load` (`82fbe2e`, superseded implementation but not an ancestor) and the
+unrelated `docs/repository-review` branch. The old `../p4-spectec-lean-replay`
+worktree contains uncommitted experiments that differ from main and is retained.
+The expected four-file upstream exporter patch remains applied.

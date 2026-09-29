@@ -42,6 +42,12 @@ The forward chain can now proceed when its own callee is ready. `Expr_ok` took
 210s forward and 226s reverse, versus 399s in the earlier combined module;
 those per-module durations overlap and must not be added to estimate wall time.
 
+Integrated `4e566fb` also passed [main CI](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36531246981).
+Its Linux certificate stage took 2043s, versus 2110s at stabilization: 3.2% lower.
+Both runs restored the same `ffc21e7` main cache. This smaller Linux gain is a
+single-run observation with different rebuilt module boundaries, not a statistically
+controlled comparison or a promised latency.
+
 ## Changes and limits
 
 Forward and reverse certificates have separate dependency chains, with old paths
@@ -79,6 +85,12 @@ Native execution improved the matching replay by 7.3%. These experiments precede
 the final fact-lookup indexing and matcher pre-realization changes. Profile phases
 nest: simp reported about 288s of accumulated work, so phases cannot be summed
 as exclusive wall time. Simplification remains the largest cost.
+
+A follow-up on the final executable tree (`4e566fb`, identical to `d28d3b8`)
+replayed that same saved source: 288.39s wall / 457.52s user without native loading,
+and 265.09s / 417.76s with it. Both exited 0. The final matched native improvement
+was 8.1%; the ordinary replay remained close to the repaired baseline. This
+supports dependency scheduling as the main source of the full-build improvement.
 
 Exact structural sharing after simp did not help: 293.44s versus 291.29s, so that
 experiment was removed. Native library preparation cost 26.77s for module libraries
