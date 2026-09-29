@@ -4,17 +4,22 @@ import P4SpecTec.Runtime.Value.Match
 /-!
 Declared opaque source types use the upstream extern-value shape: arbitrary JSON
 inside `ExternV`. The source grammar still requires an actual external declaration.
-This does not add runtime-only alternatives to a declared source variant.
+The source profile adds no runtime-only alternative to a declared source variant; a runtime
+profile names the declared types whose runtime carriers also hold a raw `ExternV`.
 -/
 
 namespace P4SpecTec.Refine.Representation.Source
 
 open P4SpecTec.Lang.Il P4SpecTec.Prelude
 
-/-- The independently specified domain of opaque source extern types.
-Pinned upstream `runtime/value/match.ml` accepts exactly `ExternV` for `Extern`;
-the target interprets the JSON payload without further core-language restrictions. -/
-def externDomain (_name : String) : value → Prop := Shape.extern
+/-- The source domain admits no runtime-only value at any declared type. -/
+theorem externDomainNoRuntime (name : String) (v : value) : ¬ externDomain.runtime name v :=
+  fun admitted => nomatch admitted.1
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.externDomainNoRuntime' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms externDomainNoRuntime
+#audit_axioms externDomainNoRuntime
 
 /-- The checked runtime membership rule for a declared extern is exactly this domain.
 Positive fuel suffices; neither the JSON contents nor source metadata are restricted. -/
@@ -23,11 +28,11 @@ theorem externCheckedIff (findType : Runtime.Value.Match.FindTypdef)
     (v : value) (declared : findType name.it = some .Extern) :
     (Runtime.Value.Match.sub_checked findType findFunction (fuel + 1)
       (Util.Source.mkPhrase (.VarT name [])) v).run = some (.ok true) ↔
-      externDomain name.it v := by
+      externDomain.external name.it v := by
   rcases v with ⟨contents, note, location⟩
   cases contents <;>
     simp [Runtime.Value.Match.sub_checked, Util.Source.mkPhrase, declared,
-      externDomain, Shape.extern, pure, ExceptT.pure]
+      externDomain, runtimeDomain, Shape.extern, pure, ExceptT.pure]
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.externCheckedIff' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -58,7 +63,7 @@ theorem externalIff {spec : Lang.Al.spec} (name : id)
   have absent := externalBodyNone declared
   constructor
   · intro valid
-    cases valid <;> simp_all [externDomain]
+    cases valid <;> simp_all [externDomain, runtimeDomain]
   · intro payload
     exact .external name v declared payload
 

@@ -44,8 +44,6 @@ private theorem set.sourceArgs : Mixfix.args set.sourceConstructor.nottyp.it =
     [Q.t (.IterT (Q.t (Q.varT "K" [])) .List)] := by
   simp [set.sourceConstructor, typcase.nottyp, Q.tc, Q.nt, Mixfix.args]
 
-#audit_axioms set.sourceArgs
-
 private theorem set.sourceFields (element : Lang.Il.typ) (v : Lang.Il.value)
     (valid : Valid NanoP4Spec.spec Representation.Source.externDomain (Q.varT "set" [element])
       v) :
@@ -75,8 +73,6 @@ private theorem set.sourceFields (element : Lang.Il.typ) (v : Lang.Il.value)
   | cons type a types values ha tail =>
     cases tail
     exact ⟨tree, a, shape, mixopTrans _ _ _ matching rfl, hargs, ha⟩
-
-#audit_axioms set.sourceFields
 
 /-- Complete source codec for every legal element codec. -/
 theorem set.codec {α : Type} [ToValue α] [OfValue α]
@@ -152,7 +148,6 @@ theorem set.codec {α : Type} [ToValue α] [OfValue α]
                    pure (NanoP4Spec.set.lbrace_rbrace a')) = _
         rw [da']
         rfl
-#audit_axioms NanoP4Spec.set.codec
 
 /-- Encoded container validity is exactly independent validity of every encoded element. -/
 theorem set.encodingSourceIff {α : Type} [ToValue α]
@@ -188,14 +183,16 @@ theorem set.encodingSourceIff {α : Type} [ToValue α]
           (Values.cons (Q.t (.IterT element .List)) _ [] []
             ((Representation.Source.encodedListIff element xs).mpr accepted) .nil)
 
-#audit_axioms set.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem set.admittedAll {α : Type} (accepted : α → Prop)
     (all : ∀ x, accepted x) :
     ∀ x : NanoP4Spec.set α, NanoP4Spec.set.admitted accepted x := by
   intro x; cases x with | lbrace_rbrace xs => intro a ha; exact all a
 
+#audit_axioms set.sourceArgs
+#audit_axioms set.sourceFields
+#audit_axioms NanoP4Spec.set.codec
+#audit_axioms set.encodingSourceIff
 #audit_axioms NanoP4Spec.set.admittedAll
 
 end NanoP4Spec

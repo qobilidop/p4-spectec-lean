@@ -73,7 +73,8 @@ theorem TableActions_ok.callArgumentsSource :
     List (NanoP4Spec.tableAction) => ∀ x ∈ xs, (NanoP4Spec.tableAction.admitted) x) x from (fun
     xs x _ => ((show ∀ x : (NanoP4Spec.tableAction), (NanoP4Spec.tableAction.admitted) x from
     NanoP4Spec.tableAction.admittedAll)) x))) x)), trivial⟩
-#audit_axioms TableActions_ok.callArgumentsSource
 
+
+#audit_axioms TableActions_ok.callArgumentsSource
 
 end NanoP4Spec

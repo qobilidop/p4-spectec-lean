@@ -45,7 +45,8 @@ theorem «$flatten_typeFieldList».callArgumentsSource :
     (NanoP4Spec.typeFieldList.codec)) x (((show ∀ x : (NanoP4Spec.typeFieldList),
     (NanoP4Spec.typeFieldList.admitted) x from NanoP4Spec.typeFieldList.admittedAll)) x)),
     trivial⟩
-#audit_axioms «$flatten_typeFieldList».callArgumentsSource
 
+
+#audit_axioms «$flatten_typeFieldList».callArgumentsSource
 
 end NanoP4Spec

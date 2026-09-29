@@ -102,7 +102,8 @@ theorem «$add_vars_t».callArgumentsSource :
     (NanoP4Spec.varTypeIR) => ∀ x ∈ xs, (NanoP4Spec.varTypeIR.admitted) x) x from (fun xs x _ =>
     ((show ∀ x : (NanoP4Spec.varTypeIR), (NanoP4Spec.varTypeIR.admitted) x from
     NanoP4Spec.varTypeIR.admittedAll)) x))) x)), trivial⟩
-#audit_axioms «$add_vars_t».callArgumentsSource
 
+
+#audit_axioms «$add_vars_t».callArgumentsSource
 
 end NanoP4Spec

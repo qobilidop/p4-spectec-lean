@@ -175,6 +175,8 @@ if command -v lake >/dev/null 2>&1; then
   runStage "Lean keyword freshness" "$root/scripts/gen-keywords.sh" --check || { say "keyword table is stale"; fail=1; }
   runStage "Generated Nano freshness" inRoot lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --runtime-extern value --check \
     || { say "NanoP4Spec/ is stale; run: lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --runtime-extern value --update"; fail=1; }
+  runStage "Generated module cleanup contracts" python3 "$root/scripts/test_generate.py" \
+    || { say "generated module cleanup contracts failed"; fail=1; }
   runStage "Nano differential replay, both legs" inRoot python3 P4SpecTecTest/Oracle/Nano/Replay/replay.py || { say "differential test failed"; fail=1; }
   runStage "JSON transport contracts" python3 "$root/P4SpecTecTest/Oracle/Nano/Replay/test_json_boundary.py" \
     || { say "JSON transport/output checks failed"; fail=1; }

@@ -31,8 +31,6 @@ theorem «$strip_all_whitespace».dispatch (p0 : P4SpecTec.ByteText)
   rw [Refine.Builtin.Text.stripWhitespaceRunOfRel h0 cfg.printHints]
   rfl
 
-#audit_axioms NanoP4Spec.«$strip_all_whitespace».dispatch
-
 theorem «$strip_all_whitespace».refines (fuel : Nat) (p0 : P4SpecTec.ByteText)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
      (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = []) (hdecl : Holds
@@ -43,8 +41,6 @@ theorem «$strip_all_whitespace».refines (fuel : Nat) (p0 : P4SpecTec.ByteText)
     "strip_all_whitespace" _ _ _ [] [v0] hfenv hdecl
     (NanoP4Spec.«$strip_all_whitespace».dispatch p0 v0 h0 cfg)
 
-#audit_axioms NanoP4Spec.«$strip_all_whitespace».refines
-
 theorem «$strip_all_whitespace».realizes (p0 : P4SpecTec.ByteText)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
      (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = []) (hdecl : Holds
@@ -54,6 +50,8 @@ theorem «$strip_all_whitespace».realizes (p0 : P4SpecTec.ByteText)
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "strip_all_whitespace" _ _
     _ [] [v0] hfenv hdecl (NanoP4Spec.«$strip_all_whitespace».dispatch p0 v0 h0 cfg)
 
+#audit_axioms NanoP4Spec.«$strip_all_whitespace».dispatch
+#audit_axioms NanoP4Spec.«$strip_all_whitespace».refines
 #audit_axioms NanoP4Spec.«$strip_all_whitespace».realizes
 
 end NanoP4Spec

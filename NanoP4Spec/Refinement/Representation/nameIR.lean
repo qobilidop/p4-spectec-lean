@@ -42,8 +42,6 @@ theorem nameIR.sourceIff (v : Lang.Il.value) :
   unfold NanoP4Spec.nameIR.source
   exact Representation.Source.textAliasIff (Q.i "nameIR") (Q.t .TextT) (by rfl) rfl v
 
-#audit_axioms NanoP4Spec.nameIR.sourceIff
-
 /-- Admitted encodings are valid and the named decoder is sound and sufficient. -/
 theorem nameIR.codec : @Refine.Representation.Codec NanoP4Spec.nameIR
   ⟨NanoP4Spec.nameIR.toValue⟩ ⟨NanoP4Spec.nameIR.ofValue⟩ NanoP4Spec.nameIR.source (fun _ :
@@ -63,13 +61,13 @@ theorem nameIR.codec : @Refine.Representation.Codec NanoP4Spec.nameIR
           Representation.Shape.text (fun _ => True) Representation.textCodec
       | apply Representation.DecoderCorrect.delay
 
-#audit_axioms NanoP4Spec.nameIR.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem nameIR.admittedAll : ∀ x : NanoP4Spec.nameIR, (fun _ => True) x := by
   intro x
   exact ((show ∀ x : (ByteText), (fun _ : ByteText => True) x from (fun _ => True.intro))) x
 
+#audit_axioms NanoP4Spec.nameIR.sourceIff
+#audit_axioms NanoP4Spec.nameIR.codec
 #audit_axioms NanoP4Spec.nameIR.admittedAll
 
 end NanoP4Spec

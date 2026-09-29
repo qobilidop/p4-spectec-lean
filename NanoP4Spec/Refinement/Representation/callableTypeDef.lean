@@ -66,8 +66,6 @@ private theorem callableTypeDef.fieldCodec0_0 : @Representation.Codec (List
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
 
-#audit_axioms NanoP4Spec.callableTypeDef.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callableTypeDef.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (.IterT (Q.t (Q.varT "parameterIR" [])) .List)).it
@@ -85,8 +83,6 @@ private theorem callableTypeDef.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callableTypeDef.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callableTypeDef.fieldCodec1_0 : @Representation.Codec (List
   (NanoP4Spec.parameterIR)) ⟨@ToValue.toValue (List (NanoP4Spec.parameterIR))
@@ -100,8 +96,6 @@ private theorem callableTypeDef.fieldCodec1_0 : @Representation.Codec (List
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.callableTypeDef.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callableTypeDef.fieldSubstitution1_0 : ∀ actual,
@@ -120,8 +114,6 @@ private theorem callableTypeDef.fieldSubstitution1_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callableTypeDef.fieldSubstitution1_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callableTypeDef.fieldCodec2_0 : @Representation.Codec (List
   (NanoP4Spec.parameterIR)) ⟨@ToValue.toValue (List (NanoP4Spec.parameterIR))
@@ -135,8 +127,6 @@ private theorem callableTypeDef.fieldCodec2_0 : @Representation.Codec (List
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.callableTypeDef.fieldCodec2_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callableTypeDef.fieldSubstitution2_0 : ∀ actual,
@@ -154,8 +144,6 @@ private theorem callableTypeDef.fieldSubstitution2_0 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.callableTypeDef.fieldSubstitution2_0
 
 private theorem callableTypeDef.sourceCasesValid (v : Lang.Il.value) (hv :
   callableTypeDef.source v) :
@@ -213,8 +201,6 @@ private theorem callableTypeDef.sourceCasesValid (v : Lang.Il.value) (hv :
         | dsimp only [List.flatMap, List.append, List.map, List.flatten]
       exact .cons (callableTypeDef.fieldSubstitution2_0 _ sub0) (.nil)
 
-#audit_axioms NanoP4Spec.callableTypeDef.sourceCasesValid
-
 private theorem callableTypeDef.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -247,8 +233,6 @@ private theorem callableTypeDef.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
     (NanoP4Spec.callableTypeDef.ACTION x0))
   cases ((@OfValue.ofValue (List (NanoP4Spec.parameterIR)) (@P4SpecTec.Prelude.instOfValueList
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v0) <;> rfl
-
-#audit_axioms callableTypeDef.decode0
 
 private theorem callableTypeDef.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value)
@@ -283,8 +267,6 @@ private theorem callableTypeDef.decode1 (fuel : Nat) (v : Lang.Il.value) (tree :
   cases ((@OfValue.ofValue (List (NanoP4Spec.parameterIR)) (@P4SpecTec.Prelude.instOfValueList
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v0) <;> rfl
 
-#audit_axioms callableTypeDef.decode1
-
 private theorem callableTypeDef.decode2 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -317,8 +299,6 @@ private theorem callableTypeDef.decode2 (fuel : Nat) (v : Lang.Il.value) (tree :
     (NanoP4Spec.callableTypeDef.CONTROL x0))
   cases ((@OfValue.ofValue (List (NanoP4Spec.parameterIR)) (@P4SpecTec.Prelude.instOfValueList
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v0) <;> rfl
-
-#audit_axioms callableTypeDef.decode2
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem callableTypeDef.codec : @Refine.Representation.Codec NanoP4Spec.callableTypeDef
@@ -723,7 +703,6 @@ theorem callableTypeDef.codec : @Refine.Representation.Codec NanoP4Spec.callable
             tree _ _ matching rfl) hargs]
           rw [h0 fuel enough0]
           all_goals rfl
-#audit_axioms NanoP4Spec.callableTypeDef.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -748,6 +727,17 @@ theorem callableTypeDef.admittedAll : ∀ x : NanoP4Spec.callableTypeDef,
       NanoP4Spec.parameterIR.admittedAll)) x))) x0, trivial⟩
 
 
+#audit_axioms NanoP4Spec.callableTypeDef.fieldCodec0_0
+#audit_axioms NanoP4Spec.callableTypeDef.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.callableTypeDef.fieldCodec1_0
+#audit_axioms NanoP4Spec.callableTypeDef.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.callableTypeDef.fieldCodec2_0
+#audit_axioms NanoP4Spec.callableTypeDef.fieldSubstitution2_0
+#audit_axioms NanoP4Spec.callableTypeDef.sourceCasesValid
+#audit_axioms callableTypeDef.decode0
+#audit_axioms callableTypeDef.decode1
+#audit_axioms callableTypeDef.decode2
+#audit_axioms NanoP4Spec.callableTypeDef.codec
 #audit_axioms NanoP4Spec.callableTypeDef.admittedAll
 
 end NanoP4Spec

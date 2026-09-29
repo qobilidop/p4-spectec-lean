@@ -77,8 +77,6 @@ private theorem matchKindDeclaration.sourceFields (v : Lang.Il.value) (hv :
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.matchKindDeclaration.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def matchKindDeclaration.admitted : NanoP4Spec.matchKindDeclaration → Prop
@@ -202,8 +200,6 @@ theorem matchKindDeclaration.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.matchKindDeclaration.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem matchKindDeclaration.admittedAll : ∀ x : NanoP4Spec.matchKindDeclaration,
@@ -214,6 +210,8 @@ theorem matchKindDeclaration.admittedAll : ∀ x : NanoP4Spec.matchKindDeclarati
     exact ((show ∀ x : (NanoP4Spec.nameList), (NanoP4Spec.nameList.admitted) x from
       NanoP4Spec.nameList.admittedAll)) a
 
+#audit_axioms NanoP4Spec.matchKindDeclaration.sourceFields
+#audit_axioms NanoP4Spec.matchKindDeclaration.codec
 #audit_axioms NanoP4Spec.matchKindDeclaration.admittedAll
 
 end NanoP4Spec

@@ -59,7 +59,8 @@ theorem «$flatten_typeFieldList».producesSource :
     List (NanoP4Spec.typeField) => ∀ x ∈ xs, (NanoP4Spec.typeField.admitted) x) x from (fun xs x
     _ => ((show ∀ x : (NanoP4Spec.typeField), (NanoP4Spec.typeField.admitted) x from
     NanoP4Spec.typeField.admittedAll)) x))) result)
-#audit_axioms «$flatten_typeFieldList».producesSource
 
+
+#audit_axioms «$flatten_typeFieldList».producesSource
 
 end NanoP4Spec

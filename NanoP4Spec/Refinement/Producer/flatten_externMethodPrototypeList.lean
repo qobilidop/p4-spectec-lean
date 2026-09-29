@@ -66,7 +66,8 @@ theorem «$flatten_externMethodPrototypeList».producesSource :
     x) x from (fun xs x _ => ((show ∀ x : (NanoP4Spec.externMethodPrototype),
     (NanoP4Spec.externMethodPrototype.admitted) x from
     NanoP4Spec.externMethodPrototype.admittedAll)) x))) result)
-#audit_axioms «$flatten_externMethodPrototypeList».producesSource
 
+
+#audit_axioms «$flatten_externMethodPrototypeList».producesSource
 
 end NanoP4Spec

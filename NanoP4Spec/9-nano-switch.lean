@@ -74,12 +74,11 @@ def Var_init.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.typeIR) (p2 : Na
        have EC_0 := p0
        have typeIR := p1
        have nameIR := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$default» typeIR)
-          have value := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$add_var_e» NanoP4Spec.scope.GLOBAL EC_0 nameIR value)
-          have EC_1 := tmp_1
-          pure EC_1))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$default» typeIR)
+       have value := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$add_var_e» NanoP4Spec.scope.GLOBAL EC_0 nameIR value)
+       have EC_1 := tmp_1
+       pure EC_1)
 
 inductive Var_init : NanoP4Spec.evalContext →
   NanoP4Spec.typeIR →
@@ -104,8 +103,6 @@ theorem Var_init.run_sound
     NanoP4Spec.Var_init.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Var_init p0 p1 p2 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.Var_init.run_sound
-
 theorem Var_init.det
     {p0 : NanoP4Spec.evalContext}
     {p1 : NanoP4Spec.typeIR}
@@ -113,8 +110,6 @@ theorem Var_init.det
     {o0 o0' : NanoP4Spec.evalContext} :
     NanoP4Spec.Var_init p0 p1 p2 o0 → NanoP4Spec.Var_init p0 p1 p2 o0' → o0 = o0' :=
   by det
-
-#audit_axioms NanoP4Spec.Var_init.det
 
 def Var_init.al : Lang.Al.def :=
   Q.d
@@ -173,14 +168,13 @@ def NanoSwitch_init.run (p0 : NanoP4Spec.program) : Option (Except Fail NanoP4Sp
   ExceptT.run
     (do
        have program := p0
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Program_ok.run program)
-          have TC := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.Program_load.run TC program)
-          have LC := tmp_1
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$make_evalContext» TC LC)
-          have EC := tmp_2
-          pure EC))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Program_ok.run program)
+       have TC := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.Program_load.run TC program)
+       have LC := tmp_1
+       let tmp_2 ← ExceptT.mk (NanoP4Spec.«$make_evalContext» TC LC)
+       have EC := tmp_2
+       pure EC)
 
 inductive NanoSwitch_init : NanoP4Spec.program → NanoP4Spec.evalContext → Prop where
   | rule0
@@ -198,8 +192,6 @@ theorem NanoSwitch_init.run_sound
     (o : NanoP4Spec.evalContext) :
     NanoP4Spec.NanoSwitch_init.run p0 = some (.ok o) → NanoP4Spec.NanoSwitch_init p0 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.NanoSwitch_init.run_sound
 
 -- no determinism theorem: NanoSwitch_init
 --   calls Program_ok, which has no determinism theorem
@@ -266,39 +258,38 @@ def NanoSwitch_setup.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectSt
     (do
        have EC_0 := p0
        have objectState_packet := p1
-       (do
-          have packetValue :=
-              NanoP4Spec.packetValue.PACKET
+       have packetValue :=
+           NanoP4Spec.packetValue.PACKET
+             (P4SpecTec.ByteText.ofString "packet_in")
+             objectState_packet
+       let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
+       have EC_1 :=
+           { EC_0 with
+             GLOBAL.FRAME := tmp_0, }
+       let tmp_1 ←
+           ExceptT.mk
+             (NanoP4Spec.«$add_var_e»
+                NanoP4Spec.scope.GLOBAL
+                EC_1
                 (P4SpecTec.ByteText.ofString "packet_in")
-                objectState_packet
-          let tmp_0 ← ExceptT.mk NanoP4Spec.«$empty_frame»
-          have EC_1 :=
-              { EC_0 with
-                GLOBAL.FRAME := tmp_0, }
-          let tmp_1 ←
-              ExceptT.mk
-                (NanoP4Spec.«$add_var_e»
-                   NanoP4Spec.scope.GLOBAL
-                   EC_1
-                   (P4SpecTec.ByteText.ofString "packet_in")
-                   (NanoP4Spec.packetValue.to_value packetValue))
-          have EC_2 := tmp_1
-          let tmp_2 ←
-              ExceptT.mk (NanoP4Spec.«$find_typeDef_e» EC_1 (P4SpecTec.ByteText.ofString "Header"))
-          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$typeIR_of_typeDefIR» tmp_2)
-          have typeIR_header := tmp_3
-          let tmp_4 ←
-              ExceptT.mk
-                (NanoP4Spec.Var_init.run EC_2 typeIR_header (P4SpecTec.ByteText.ofString "hdr"))
-          have EC_3 := tmp_4
-          let tmp_5 ←
-              ExceptT.mk
-                (NanoP4Spec.Var_init.run
-                   EC_3
-                   (NanoP4Spec.baseTypeIR.to_typeIR NanoP4Spec.baseTypeIR.BOOL)
-                   (P4SpecTec.ByteText.ofString "accept"))
-          have EC_4 := tmp_5
-          pure EC_4))
+                (NanoP4Spec.packetValue.to_value packetValue))
+       have EC_2 := tmp_1
+       let tmp_2 ←
+           ExceptT.mk (NanoP4Spec.«$find_typeDef_e» EC_1 (P4SpecTec.ByteText.ofString "Header"))
+       let tmp_3 ← ExceptT.mk (NanoP4Spec.«$typeIR_of_typeDefIR» tmp_2)
+       have typeIR_header := tmp_3
+       let tmp_4 ←
+           ExceptT.mk
+             (NanoP4Spec.Var_init.run EC_2 typeIR_header (P4SpecTec.ByteText.ofString "hdr"))
+       have EC_3 := tmp_4
+       let tmp_5 ←
+           ExceptT.mk
+             (NanoP4Spec.Var_init.run
+                EC_3
+                (NanoP4Spec.baseTypeIR.to_typeIR NanoP4Spec.baseTypeIR.BOOL)
+                (P4SpecTec.ByteText.ofString "accept"))
+       have EC_4 := tmp_5
+       pure EC_4)
 
 inductive NanoSwitch_setup : NanoP4Spec.evalContext →
   NanoP4Spec.objectState →
@@ -345,16 +336,12 @@ theorem NanoSwitch_setup.run_sound
     NanoP4Spec.NanoSwitch_setup.run p0 p1 = some (.ok o) → NanoP4Spec.NanoSwitch_setup p0 p1 o :=
   by run_sound
 
-#audit_axioms NanoP4Spec.NanoSwitch_setup.run_sound
-
 theorem NanoSwitch_setup.det
     {p0 : NanoP4Spec.evalContext}
     {p1 : NanoP4Spec.objectState}
     {o0 o0' : NanoP4Spec.evalContext} :
     NanoP4Spec.NanoSwitch_setup p0 p1 o0 → NanoP4Spec.NanoSwitch_setup p0 p1 o0' → o0 = o0' :=
   by det
-
-#audit_axioms NanoP4Spec.NanoSwitch_setup.det
 
 def NanoSwitch_setup.al : Lang.Al.def :=
   Q.d
@@ -596,15 +583,14 @@ def NanoSwitch_parse.run [Externs]
     (do
        have EC_0 := p0
        have parserDeclarationIR := p1
-       (do
-          have «argument*» :=
-              [NanoP4Spec.identifier.to_expression
-                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "packet_in")),
-               NanoP4Spec.identifier.to_expression
-                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr"))]
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Parser_apply.run EC_0 «argument*» parserDeclarationIR)
-          let (transitionResult, EC_1) := tmp_0
-          pure (transitionResult, EC_1)))
+       have «argument*» :=
+           [NanoP4Spec.identifier.to_expression
+              (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "packet_in")),
+            NanoP4Spec.identifier.to_expression
+              (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr"))]
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Parser_apply.run EC_0 «argument*» parserDeclarationIR)
+       let (transitionResult, EC_1) := tmp_0
+       pure (transitionResult, EC_1))
 
 inductive NanoSwitch_parse [Externs] : NanoP4Spec.evalContext →
   NanoP4Spec.parserDeclarationIR →
@@ -634,8 +620,6 @@ theorem NanoSwitch_parse.run_sound [Externs]
     NanoP4Spec.NanoSwitch_parse.run p0 p1 = some (.ok o) →
         NanoP4Spec.NanoSwitch_parse p0 p1 o.1 o.2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.NanoSwitch_parse.run_sound
 
 -- no determinism theorem: NanoSwitch_parse
 --   calls Parser_apply, which has no determinism theorem
@@ -741,16 +725,14 @@ def NanoSwitch_filter.run [Externs]
     (do
        have EC_0 := p0
        have controlDeclarationIR := p1
-       (do
-          have «argument*» :=
-              [NanoP4Spec.identifier.to_expression
-                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr")),
-               NanoP4Spec.identifier.to_expression
-                 (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "accept"))]
-          let tmp_0 ←
-              ExceptT.mk (NanoP4Spec.Control_apply.run EC_0 «argument*» controlDeclarationIR)
-          have EC_1 := tmp_0
-          pure EC_1))
+       have «argument*» :=
+           [NanoP4Spec.identifier.to_expression
+              (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "hdr")),
+            NanoP4Spec.identifier.to_expression
+              (NanoP4Spec.identifier._ID (P4SpecTec.ByteText.ofString "accept"))]
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Control_apply.run EC_0 «argument*» controlDeclarationIR)
+       have EC_1 := tmp_0
+       pure EC_1)
 
 inductive NanoSwitch_filter [Externs] : NanoP4Spec.evalContext →
   NanoP4Spec.controlDeclarationIR →
@@ -776,8 +758,6 @@ theorem NanoSwitch_filter.run_sound [Externs]
     (o : NanoP4Spec.evalContext) :
     NanoP4Spec.NanoSwitch_filter.run p0 p1 = some (.ok o) → NanoP4Spec.NanoSwitch_filter p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.NanoSwitch_filter.run_sound
 
 -- no determinism theorem: NanoSwitch_filter
 --   calls Control_apply, which has no determinism theorem
@@ -868,35 +848,36 @@ def NanoSwitch_filter.al : Lang.Al.def :=
 def NanoSwitch_drive.run [Externs] (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.objectState)
     : Option (Except Fail (NanoP4Spec.forwardingDecision × NanoP4Spec.evalContext)) :=
   ExceptT.run
-    (do
-       have EC := p0
-       have objectState_packet := p1
-       (do
-          have parserDeclarationIR := EC.GLOBAL.PARSER
-          have controlDeclarationIR := EC.GLOBAL.CONTROL
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.NanoSwitch_setup.run EC objectState_packet)
-          have EC_0 := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run EC_0 parserDeclarationIR)
-          let (transitionResult, EC_1) := tmp_1
-          let _ ← Eval.check (match transitionResult with
-             | NanoP4Spec.transitionResult.REJECT => true
-             | _ => false)
-          pure (NanoP4Spec.forwardingDecision.DROP, EC_1)) <|>
-       (do
-          have parserDeclarationIR := EC.GLOBAL.PARSER
-          have controlDeclarationIR := EC.GLOBAL.CONTROL
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.NanoSwitch_setup.run EC objectState_packet)
-          have EC_0 := tmp_2
-          let tmp_3 ← ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run EC_0 parserDeclarationIR)
-          let (transitionResult, EC_1) := tmp_3
-          let _ ← Eval.check (match transitionResult with
-             | NanoP4Spec.transitionResult.ACCEPT => true
-             | _ => false)
-          let tmp_4 ← ExceptT.mk (NanoP4Spec.NanoSwitch_filter.run EC_1 controlDeclarationIR)
-          have EC_2 := tmp_4
-          let tmp_5 ← ExceptT.mk (NanoP4Spec.«$nanoswitch_forwarding» EC_2)
-          have forwardingDecision := tmp_5
-          pure (forwardingDecision, EC_2)))
+    ((do
+        have EC := p0
+        have objectState_packet := p1
+        have parserDeclarationIR := EC.GLOBAL.PARSER
+        have controlDeclarationIR := EC.GLOBAL.CONTROL
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.NanoSwitch_setup.run EC objectState_packet)
+        have EC_0 := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run EC_0 parserDeclarationIR)
+        let (transitionResult, EC_1) := tmp_1
+        let _ ← Eval.check (match transitionResult with
+           | NanoP4Spec.transitionResult.REJECT => true
+           | _ => false)
+        pure (NanoP4Spec.forwardingDecision.DROP, EC_1)) <|>
+     (do
+        have EC := p0
+        have objectState_packet := p1
+        have parserDeclarationIR := EC.GLOBAL.PARSER
+        have controlDeclarationIR := EC.GLOBAL.CONTROL
+        let tmp_2 ← ExceptT.mk (NanoP4Spec.NanoSwitch_setup.run EC objectState_packet)
+        have EC_0 := tmp_2
+        let tmp_3 ← ExceptT.mk (NanoP4Spec.NanoSwitch_parse.run EC_0 parserDeclarationIR)
+        let (transitionResult, EC_1) := tmp_3
+        let _ ← Eval.check (match transitionResult with
+           | NanoP4Spec.transitionResult.ACCEPT => true
+           | _ => false)
+        let tmp_4 ← ExceptT.mk (NanoP4Spec.NanoSwitch_filter.run EC_1 controlDeclarationIR)
+        have EC_2 := tmp_4
+        let tmp_5 ← ExceptT.mk (NanoP4Spec.«$nanoswitch_forwarding» EC_2)
+        have forwardingDecision := tmp_5
+        pure (forwardingDecision, EC_2)))
 
 inductive NanoSwitch_drive [Externs] : NanoP4Spec.evalContext →
   NanoP4Spec.objectState →
@@ -941,8 +922,6 @@ theorem NanoSwitch_drive.run_sound [Externs]
     NanoP4Spec.NanoSwitch_drive.run p0 p1 = some (.ok o) →
         NanoP4Spec.NanoSwitch_drive p0 p1 o.1 o.2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.NanoSwitch_drive.run_sound
 
 -- no determinism theorem: NanoSwitch_drive
 --   2 rule paths
@@ -1127,5 +1106,14 @@ def NanoSwitch_drive.al : Lang.Al.def :=
               Q.e (.VarE (Q.i "EC_2")) (Q.varT "evalContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Var_init.run_sound
+#audit_axioms NanoP4Spec.Var_init.det
+#audit_axioms NanoP4Spec.NanoSwitch_init.run_sound
+#audit_axioms NanoP4Spec.NanoSwitch_setup.run_sound
+#audit_axioms NanoP4Spec.NanoSwitch_setup.det
+#audit_axioms NanoP4Spec.NanoSwitch_parse.run_sound
+#audit_axioms NanoP4Spec.NanoSwitch_filter.run_sound
+#audit_axioms NanoP4Spec.NanoSwitch_drive.run_sound
 
 end NanoP4Spec

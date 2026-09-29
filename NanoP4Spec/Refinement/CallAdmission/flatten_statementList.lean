@@ -45,7 +45,8 @@ theorem «$flatten_statementList».callArgumentsSource :
     (NanoP4Spec.statementList.codec)) x (((show ∀ x : (NanoP4Spec.statementList),
     (NanoP4Spec.statementList.admitted) x from NanoP4Spec.statementList.admittedAll)) x)),
     trivial⟩
-#audit_axioms «$flatten_statementList».callArgumentsSource
 
+
+#audit_axioms «$flatten_statementList».callArgumentsSource
 
 end NanoP4Spec

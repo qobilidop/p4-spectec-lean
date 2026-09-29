@@ -73,8 +73,6 @@ private theorem boolValue.sourceFields (v : Lang.Il.value) (hv : boolValue.sourc
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.boolValue.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def boolValue.admitted : NanoP4Spec.boolValue → Prop
@@ -184,8 +182,6 @@ theorem boolValue.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.boolValue.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem boolValue.admittedAll : ∀ x : NanoP4Spec.boolValue, (NanoP4Spec.boolValue.admitted) x :=
@@ -195,6 +191,8 @@ theorem boolValue.admittedAll : ∀ x : NanoP4Spec.boolValue, (NanoP4Spec.boolVa
   | _B a =>
     exact ((show ∀ x : (Bool), (fun _ : Bool => True) x from (fun _ => True.intro))) a
 
+#audit_axioms NanoP4Spec.boolValue.sourceFields
+#audit_axioms NanoP4Spec.boolValue.codec
 #audit_axioms NanoP4Spec.boolValue.admittedAll
 
 end NanoP4Spec

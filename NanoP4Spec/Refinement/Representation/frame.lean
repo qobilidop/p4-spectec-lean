@@ -57,8 +57,6 @@ private theorem frame.bodyCodec : @Representation.Codec (NanoP4Spec.map (NanoP4S
     (Q.varT "nameIR" [])) (Q.t (Q.varT "value" [])) (fun _ => True) (NanoP4Spec.value.admitted)
     (NanoP4Spec.nameIR.codec) (NanoP4Spec.value.codec)
 
-#audit_axioms NanoP4Spec.frame.bodyCodec
-
 private theorem frame.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.frame.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "map" [Q.t (Q.varT "nameIR" []), Q.t
@@ -83,8 +81,6 @@ private theorem frame.sourceIff (v : Lang.Il.value) :
         "nameIR") [] [] rfl (.nil)) (.cons (Representation.Source.Substitutes.named (Q.i
         "value") [] [] rfl (.nil)) (.nil)))) v
 
-#audit_axioms NanoP4Spec.frame.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem frame.encodingSourceIff (x : NanoP4Spec.frame) :
     NanoP4Spec.frame.source (NanoP4Spec.frame.toValue x) ↔ (Representation.Source.Valid
@@ -92,8 +88,6 @@ theorem frame.encodingSourceIff (x : NanoP4Spec.frame) :
       "nameIR" []), Q.t (Q.varT "value" [])])).it) ((@NanoP4Spec.map.toValue (NanoP4Spec.nameIR)
       (NanoP4Spec.value) ⟨NanoP4Spec.nameIR.toValue⟩ ⟨NanoP4Spec.value.toValue⟩) x) :=
   NanoP4Spec.frame.sourceIff _
-
-#audit_axioms NanoP4Spec.frame.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem frame.codec : @Refine.Representation.Codec NanoP4Spec.frame ⟨NanoP4Spec.frame.toValue⟩
@@ -162,6 +156,9 @@ theorem frame.codec : @Refine.Representation.Codec NanoP4Spec.frame ⟨NanoP4Spe
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
+#audit_axioms NanoP4Spec.frame.bodyCodec
+#audit_axioms NanoP4Spec.frame.sourceIff
+#audit_axioms NanoP4Spec.frame.encodingSourceIff
 #audit_axioms NanoP4Spec.frame.codec
 
 end NanoP4Spec

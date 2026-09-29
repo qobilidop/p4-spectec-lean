@@ -101,8 +101,6 @@ theorem unop.codec : @Refine.Representation.Codec NanoP4Spec.unop ⟨NanoP4Spec.
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.unop.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem unop.sourceCodec : @Representation.Codec NanoP4Spec.unop ⟨NanoP4Spec.unop.toValue⟩
   ⟨NanoP4Spec.unop.ofValue⟩
@@ -127,12 +125,12 @@ theorem unop.sourceCodec : @Representation.Codec NanoP4Spec.unop ⟨NanoP4Spec.u
       rcases member with rfl | rfl | rfl | rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.unop.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem unop.admittedAll : ∀ x : NanoP4Spec.unop, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.unop.codec
+#audit_axioms NanoP4Spec.unop.sourceCodec
 #audit_axioms NanoP4Spec.unop.admittedAll
 
 end NanoP4Spec

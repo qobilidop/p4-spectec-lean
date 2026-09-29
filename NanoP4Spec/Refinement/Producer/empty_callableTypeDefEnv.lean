@@ -70,7 +70,8 @@ theorem «$empty_callableTypeDefEnv».producesSource :
     _ => True) x from NanoP4Spec.callableId.admittedAll)) a, ((show ∀ x :
     (NanoP4Spec.callableTypeDef), (NanoP4Spec.callableTypeDef.admitted) x from
     NanoP4Spec.callableTypeDef.admittedAll)) b⟩))))) result)
-#audit_axioms «$empty_callableTypeDefEnv».producesSource
 
+
+#audit_axioms «$empty_callableTypeDefEnv».producesSource
 
 end NanoP4Spec

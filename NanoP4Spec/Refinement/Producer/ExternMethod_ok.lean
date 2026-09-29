@@ -53,7 +53,8 @@ theorem ExternMethod_ok.producesSource :
     (NanoP4Spec.externMethodTypeDefIR.codec)) result (((show ∀ x :
     (NanoP4Spec.externMethodTypeDefIR), (NanoP4Spec.externMethodTypeDefIR.admitted) x from
     NanoP4Spec.externMethodTypeDefIR.admittedAll)) result)
-#audit_axioms ExternMethod_ok.producesSource
 
+
+#audit_axioms ExternMethod_ok.producesSource
 
 end NanoP4Spec

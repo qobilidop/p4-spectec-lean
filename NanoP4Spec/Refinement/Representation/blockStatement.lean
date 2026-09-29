@@ -130,8 +130,6 @@ theorem Matches.emptySubstitution {input result : P4SpecTec.Lang.Il.typ'} {famil
   | f8 name nameEq =>
     rw [substitution.emptyNamedResult name]; exact .f8 name nameEq
 
-#audit_axioms Matches.emptySubstitution
-
 /-- Actual closed source phrases indexed by the descriptor. -/
 def source : Family → P4SpecTec.Lang.Il.typ'
   | .f0 => (Q.t (Q.varT "blockStatement" [])).it
@@ -157,6 +155,7 @@ theorem sourceMatches (family : Family) : Matches (source family) family := by
   | f7 => exact .f7 (Q.i "expression") rfl
   | f8 => exact .f8 (Q.i "argumentList") rfl
 
+#audit_axioms Matches.emptySubstitution
 #audit_axioms sourceMatches
 
 end blockStatementSourceCodec
@@ -175,8 +174,6 @@ private theorem matchField0_0
   cases s_subs
   refine .f2 (Q.i "statementList") rfl
 
-#audit_axioms matchField0_0
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_0
     (result : P4SpecTec.Lang.Il.typ')
@@ -188,8 +185,6 @@ private theorem matchField1_0
   cases s_subs
   refine .f3 (Q.i "type") rfl
 
-#audit_axioms matchField1_0
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_1
     (result : P4SpecTec.Lang.Il.typ')
@@ -200,8 +195,6 @@ private theorem matchField1_1
   rw [s_shape]
   cases s_subs
   refine .f4 (Q.i "name") rfl
-
-#audit_axioms matchField1_1
 
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_2
@@ -215,8 +208,6 @@ private theorem matchField1_2
   cases s_subs
   refine .f5 (Q.i "initializer") rfl
 
-#audit_axioms matchField1_2
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_3
     (result : P4SpecTec.Lang.Il.typ')
@@ -227,8 +218,6 @@ private theorem matchField1_3
   rw [s_shape]
   cases s_subs
   refine .f6 (Q.i "lvalue") rfl
-
-#audit_axioms matchField1_3
 
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_4
@@ -241,8 +230,6 @@ private theorem matchField1_4
   cases s_subs
   refine .f7 (Q.i "expression") rfl
 
-#audit_axioms matchField1_4
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_5
     (result : P4SpecTec.Lang.Il.typ')
@@ -253,8 +240,6 @@ private theorem matchField1_5
   rw [s_shape]
   cases s_subs
   refine .f6 (Q.i "lvalue") rfl
-
-#audit_axioms matchField1_5
 
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_6
@@ -268,8 +253,6 @@ private theorem matchField1_6
   cases s_subs
   refine .f8 (Q.i "argumentList") rfl
 
-#audit_axioms matchField1_6
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_7
     (result : P4SpecTec.Lang.Il.typ')
@@ -282,8 +265,6 @@ private theorem matchField1_7
   cases s_subs
   refine .f2 (Q.i "statementList") rfl
 
-#audit_axioms matchField1_7
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_8
     (result : P4SpecTec.Lang.Il.typ')
@@ -294,8 +275,6 @@ private theorem matchField1_8
   rw [s_shape]
   cases s_subs
   refine .f7 (Q.i "expression") rfl
-
-#audit_axioms matchField1_8
 
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_9
@@ -309,8 +288,6 @@ private theorem matchField1_9
   cases s_subs
   refine .f0 (Q.i "blockStatement") rfl
 
-#audit_axioms matchField1_9
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField1_10
     (result : P4SpecTec.Lang.Il.typ')
@@ -322,8 +299,6 @@ private theorem matchField1_10
   rw [s_shape]
   cases s_subs
   refine .f0 (Q.i "blockStatement") rfl
-
-#audit_axioms matchField1_10
 
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField2_0
@@ -337,8 +312,6 @@ private theorem matchField2_0
   cases s_subs
   refine .f2 (Q.i "statementList") rfl
 
-#audit_axioms matchField2_0
-
 /-- Actual field substitution retains its finite source-family membership. -/
 private theorem matchField2_1
     (result : P4SpecTec.Lang.Il.typ')
@@ -350,6 +323,19 @@ private theorem matchField2_1
   cases s_subs
   refine .f1 (Q.i "statement") rfl
 
+#audit_axioms matchField0_0
+#audit_axioms matchField1_0
+#audit_axioms matchField1_1
+#audit_axioms matchField1_2
+#audit_axioms matchField1_3
+#audit_axioms matchField1_4
+#audit_axioms matchField1_5
+#audit_axioms matchField1_6
+#audit_axioms matchField1_7
+#audit_axioms matchField1_8
+#audit_axioms matchField1_9
+#audit_axioms matchField1_10
+#audit_axioms matchField2_0
 #audit_axioms matchField2_1
 
 end blockStatementSourceCodec
@@ -365,8 +351,6 @@ private theorem leafDomain3 {spec externalDomain input}
   | f3 name nameEq =>
     exact valid.nominalName nameEq
 
-#audit_axioms leafDomain3
-
 /-- Syntax membership transports a leaf to its independent source domain. -/
 private theorem leafDomain4 {spec externalDomain input}
     (matching : Matches input .f4) {v}
@@ -375,8 +359,6 @@ private theorem leafDomain4 {spec externalDomain input}
   cases matching with
   | f4 name nameEq =>
     exact valid.nominalName nameEq
-
-#audit_axioms leafDomain4
 
 /-- Syntax membership transports a leaf to its independent source domain. -/
 private theorem leafDomain5 {spec externalDomain input}
@@ -387,8 +369,6 @@ private theorem leafDomain5 {spec externalDomain input}
   | f5 name nameEq =>
     exact valid.nominalName nameEq
 
-#audit_axioms leafDomain5
-
 /-- Syntax membership transports a leaf to its independent source domain. -/
 private theorem leafDomain6 {spec externalDomain input}
     (matching : Matches input .f6) {v}
@@ -397,8 +377,6 @@ private theorem leafDomain6 {spec externalDomain input}
   cases matching with
   | f6 name nameEq =>
     exact valid.nominalName nameEq
-
-#audit_axioms leafDomain6
 
 /-- Syntax membership transports a leaf to its independent source domain. -/
 private theorem leafDomain7 {spec externalDomain input}
@@ -409,8 +387,6 @@ private theorem leafDomain7 {spec externalDomain input}
   | f7 name nameEq =>
     exact valid.nominalName nameEq
 
-#audit_axioms leafDomain7
-
 /-- Syntax membership transports a leaf to its independent source domain. -/
 private theorem leafDomain8 {spec externalDomain input}
     (matching : Matches input .f8) {v}
@@ -420,6 +396,11 @@ private theorem leafDomain8 {spec externalDomain input}
   | f8 name nameEq =>
     exact valid.nominalName nameEq
 
+#audit_axioms leafDomain3
+#audit_axioms leafDomain4
+#audit_axioms leafDomain5
+#audit_axioms leafDomain6
+#audit_axioms leafDomain7
 #audit_axioms leafDomain8
 
 end blockStatementSourceCodec
@@ -431,97 +412,84 @@ private theorem instantiateField0_0 : Representation.Source.Substitutes [].rever
     (Q.t (Q.varT "statementList" [])).it (source .f2) :=
   Representation.Source.Substitutes.named (Q.i "statementList") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField0_0
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_0 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "type" [])).it (source .f3) :=
   Representation.Source.Substitutes.named (Q.i "type") [] [] (by rfl) .nil
-
-#audit_axioms instantiateField1_0
 
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_1 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "name" [])).it (source .f4) :=
   Representation.Source.Substitutes.named (Q.i "name") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField1_1
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_2 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "initializer" [])).it (source .f5) :=
   Representation.Source.Substitutes.named (Q.i "initializer") [] [] (by rfl) .nil
-
-#audit_axioms instantiateField1_2
 
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_3 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "lvalue" [])).it (source .f6) :=
   Representation.Source.Substitutes.named (Q.i "lvalue") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField1_3
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_4 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "expression" [])).it (source .f7) :=
   Representation.Source.Substitutes.named (Q.i "expression") [] [] (by rfl) .nil
-
-#audit_axioms instantiateField1_4
 
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_5 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "lvalue" [])).it (source .f6) :=
   Representation.Source.Substitutes.named (Q.i "lvalue") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField1_5
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_6 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "argumentList" [])).it (source .f8) :=
   Representation.Source.Substitutes.named (Q.i "argumentList") [] [] (by rfl) .nil
-
-#audit_axioms instantiateField1_6
 
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_7 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "statementList" [])).it (source .f2) :=
   Representation.Source.Substitutes.named (Q.i "statementList") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField1_7
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_8 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "expression" [])).it (source .f7) :=
   Representation.Source.Substitutes.named (Q.i "expression") [] [] (by rfl) .nil
-
-#audit_axioms instantiateField1_8
 
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_9 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "blockStatement" [])).it (source .f0) :=
   Representation.Source.Substitutes.named (Q.i "blockStatement") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField1_9
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField1_10 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "blockStatement" [])).it (source .f0) :=
   Representation.Source.Substitutes.named (Q.i "blockStatement") [] [] (by rfl) .nil
-
-#audit_axioms instantiateField1_10
 
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField2_0 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "statementList" [])).it (source .f2) :=
   Representation.Source.Substitutes.named (Q.i "statementList") [] [] (by rfl) .nil
 
-#audit_axioms instantiateField2_0
-
 /-- The actual closed parameter binding instantiates this declared source field. -/
 private theorem instantiateField2_1 : Representation.Source.Substitutes [].reverse
     (Q.t (Q.varT "statement" [])).it (source .f1) :=
   Representation.Source.Substitutes.named (Q.i "statement") [] [] (by rfl) .nil
 
+#audit_axioms instantiateField0_0
+#audit_axioms instantiateField1_0
+#audit_axioms instantiateField1_1
+#audit_axioms instantiateField1_2
+#audit_axioms instantiateField1_3
+#audit_axioms instantiateField1_4
+#audit_axioms instantiateField1_5
+#audit_axioms instantiateField1_6
+#audit_axioms instantiateField1_7
+#audit_axioms instantiateField1_8
+#audit_axioms instantiateField1_9
+#audit_axioms instantiateField1_10
+#audit_axioms instantiateField2_0
 #audit_axioms instantiateField2_1
 
 end blockStatementSourceCodec
@@ -546,8 +514,6 @@ private theorem decoderBranch0_0 (fuel : Nat) (v : Lang.Il.value) (tree :
     ((NanoP4Spec.blockStatement.lbrace_rbrace x0) : Carrier .f0))
   cases (decode .f2 fuel a0) <;> rfl
 
-#audit_axioms decoderBranch0_0
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch0_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (x0 : Carrier
@@ -570,8 +536,6 @@ private theorem decodeBranch0_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [decoderBranch0_0 fuel v tree a0 shape matching fields]
     rw [d0]
     all_goals rfl
-
-#audit_axioms decodeBranch0_0
 
 private theorem decoderBranch1_0 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -616,8 +580,6 @@ private theorem decoderBranch1_0 (fuel : Nat) (v : Lang.Il.value) (tree :
     other4, other5]
   rfl
 
-#audit_axioms decoderBranch1_0
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch1_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value)
@@ -634,8 +596,6 @@ private theorem decodeBranch1_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
   | succ fuel =>
     rw [decoderBranch1_0 fuel v tree shape matching fields]
     all_goals rfl
-
-#audit_axioms decodeBranch1_0
 
 private theorem decoderBranch1_1 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -692,8 +652,6 @@ private theorem decoderBranch1_1 (fuel : Nat) (v : Lang.Il.value) (tree :
   cases (decode .f3 fuel a0) <;> cases (decode .f4 fuel a1) <;> cases (decode .f5 fuel a2) <;>
     rfl
 
-#audit_axioms decoderBranch1_1
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch1_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (a1 : P4SpecTec.Lang.Il.value)
@@ -722,8 +680,6 @@ private theorem decodeBranch1_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [decoderBranch1_1 fuel v tree a0 a1 a2 shape matching fields]
     rw [d0, d1, d2]
     all_goals rfl
-
-#audit_axioms decodeBranch1_1
 
 private theorem decoderBranch1_2 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -778,8 +734,6 @@ private theorem decoderBranch1_2 (fuel : Nat) (v : Lang.Il.value) (tree :
     ((NanoP4Spec.statement.eq_semi x0 x1) : Carrier .f1)))
   cases (decode .f6 fuel a0) <;> cases (decode .f7 fuel a1) <;> rfl
 
-#audit_axioms decoderBranch1_2
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch1_2 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (a1 : P4SpecTec.Lang.Il.value)
@@ -806,8 +760,6 @@ private theorem decodeBranch1_2 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [decoderBranch1_2 fuel v tree a0 a1 shape matching fields]
     rw [d0, d1]
     all_goals rfl
-
-#audit_axioms decodeBranch1_2
 
 private theorem decoderBranch1_3 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -862,8 +814,6 @@ private theorem decoderBranch1_3 (fuel : Nat) (v : Lang.Il.value) (tree :
     => some ((NanoP4Spec.statement.lparen_rparen_semi x0 x1) : Carrier .f1)))
   cases (decode .f6 fuel a0) <;> cases (decode .f8 fuel a1) <;> rfl
 
-#audit_axioms decoderBranch1_3
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch1_3 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (a1 : P4SpecTec.Lang.Il.value)
@@ -890,8 +840,6 @@ private theorem decodeBranch1_3 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [decoderBranch1_3 fuel v tree a0 a1 shape matching fields]
     rw [d0, d1]
     all_goals rfl
-
-#audit_axioms decodeBranch1_3
 
 private theorem decoderBranch1_4 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -941,8 +889,6 @@ private theorem decoderBranch1_4 (fuel : Nat) (v : Lang.Il.value) (tree :
     a0).bind (fun x0 => some ((NanoP4Spec.statement.lbrace_rbrace x0) : Carrier .f1))
   cases (decode .f2 fuel a0) <;> rfl
 
-#audit_axioms decoderBranch1_4
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch1_4 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (x0 : Carrier
@@ -965,8 +911,6 @@ private theorem decodeBranch1_4 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [decoderBranch1_4 fuel v tree a0 shape matching fields]
     rw [d0]
     all_goals rfl
-
-#audit_axioms decodeBranch1_4
 
 private theorem decoderBranch1_5 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -1027,8 +971,6 @@ private theorem decoderBranch1_5 (fuel : Nat) (v : Lang.Il.value) (tree :
   cases (decode .f7 fuel a0) <;> cases (decode .f0 fuel a1) <;> cases (decode .f0 fuel a2) <;>
     rfl
 
-#audit_axioms decoderBranch1_5
-
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch1_5 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (a1 : P4SpecTec.Lang.Il.value)
@@ -1060,8 +1002,6 @@ private theorem decodeBranch1_5 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [d0, d1, d2]
     all_goals rfl
 
-#audit_axioms decodeBranch1_5
-
 private theorem decoderBranch2_0 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
   Lang.Il.value)
@@ -1078,8 +1018,6 @@ private theorem decoderBranch2_0 (fuel : Nat) (v : Lang.Il.value) (tree :
       ((.Seq [(.Arg ()), (.Arg ())])) matching (by decide)
   simp only [decode, NanoP4Spec.statementList.ofValue, shape, selected, other1]
   rfl
-
-#audit_axioms decoderBranch2_0
 
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch2_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
@@ -1098,8 +1036,6 @@ private theorem decodeBranch2_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
   | succ fuel =>
     rw [decoderBranch2_0 fuel v tree shape matching fields]
     all_goals rfl
-
-#audit_axioms decodeBranch2_0
 
 private theorem decoderBranch2_1 (fuel : Nat) (v : Lang.Il.value) (tree :
   P4SpecTec.Domain.Mixfix.t
@@ -1123,8 +1059,6 @@ private theorem decoderBranch2_1 (fuel : Nat) (v : Lang.Il.value) (tree :
     (fun x0 => (decode .f1 fuel a1).bind (fun x1 => some ((NanoP4Spec.statementList.mk x0 x1) :
     Carrier .f2)))
   cases (decode .f2 fuel a0) <;> cases (decode .f1 fuel a1) <;> rfl
-
-#audit_axioms decoderBranch2_1
 
 /-- Stable child decodes compose through this actual source constructor. -/
 private theorem decodeBranch2_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
@@ -1151,6 +1085,23 @@ private theorem decodeBranch2_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.
     rw [d0, d1]
     all_goals rfl
 
+#audit_axioms decoderBranch0_0
+#audit_axioms decodeBranch0_0
+#audit_axioms decoderBranch1_0
+#audit_axioms decodeBranch1_0
+#audit_axioms decoderBranch1_1
+#audit_axioms decodeBranch1_1
+#audit_axioms decoderBranch1_2
+#audit_axioms decodeBranch1_2
+#audit_axioms decoderBranch1_3
+#audit_axioms decodeBranch1_3
+#audit_axioms decoderBranch1_4
+#audit_axioms decodeBranch1_4
+#audit_axioms decoderBranch1_5
+#audit_axioms decodeBranch1_5
+#audit_axioms decoderBranch2_0
+#audit_axioms decodeBranch2_0
+#audit_axioms decoderBranch2_1
 #audit_axioms decodeBranch2_1
 
 end blockStatementSourceCodec
@@ -1252,8 +1203,6 @@ private theorem soundBranch0_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
           change canon a0 = canon (encode .f2 x0) at related0
           rw [related0]
 
-#audit_axioms soundBranch0_0
-
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch1_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value)
@@ -1286,8 +1235,6 @@ private theorem soundBranch1_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
           simp only [P4SpecTec.Domain.Mixfix.args] <;> rfl
         rw [fields, renderedFields]
         all_goals simp only [canons]
-
-#audit_axioms soundBranch1_0
 
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch1_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
@@ -1359,8 +1306,6 @@ private theorem soundBranch1_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
               change canon a2 = canon (encode .f5 x2) at related2
               rw [related0, related1, related2]
 
-#audit_axioms soundBranch1_1
-
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch1_2 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value) (a1 : P4SpecTec.Lang.Il.value)
@@ -1420,8 +1365,6 @@ private theorem soundBranch1_2 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
             change canon a0 = canon (encode .f6 x0) at related0
             change canon a1 = canon (encode .f7 x1) at related1
             rw [related0, related1]
-
-#audit_axioms soundBranch1_2
 
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch1_3 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
@@ -1484,8 +1427,6 @@ private theorem soundBranch1_3 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
             change canon a1 = canon (encode .f8 x1) at related1
             rw [related0, related1]
 
-#audit_axioms soundBranch1_3
-
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch1_4 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value) (a0 : P4SpecTec.Lang.Il.value)
@@ -1532,8 +1473,6 @@ private theorem soundBranch1_4 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
           change [canon a0] = [canon (encode .f2 x0)]
           change canon a0 = canon (encode .f2 x0) at related0
           rw [related0]
-
-#audit_axioms soundBranch1_4
 
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch1_5 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
@@ -1611,8 +1550,6 @@ private theorem soundBranch1_5 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
               change canon a2 = canon (encode .f0 x2) at related2
               rw [related0, related1, related2]
 
-#audit_axioms soundBranch1_5
-
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch2_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
   P4SpecTec.Lang.Il.value)
@@ -1645,8 +1582,6 @@ private theorem soundBranch2_0 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
           simp only [P4SpecTec.Domain.Mixfix.args] <;> rfl
         rw [fields, renderedFields]
         all_goals simp only [canons]
-
-#audit_axioms soundBranch2_0
 
 /-- Child fidelity composes through the actual source constructor. -/
 private theorem soundBranch2_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.Domain.Mixfix.t
@@ -1702,6 +1637,14 @@ private theorem soundBranch2_1 (v : P4SpecTec.Lang.Il.value) (tree : P4SpecTec.D
             change canon a1 = canon (encode .f1 x1) at related1
             rw [related0, related1]
 
+#audit_axioms soundBranch0_0
+#audit_axioms soundBranch1_0
+#audit_axioms soundBranch1_1
+#audit_axioms soundBranch1_2
+#audit_axioms soundBranch1_3
+#audit_axioms soundBranch1_4
+#audit_axioms soundBranch1_5
+#audit_axioms soundBranch2_0
 #audit_axioms soundBranch2_1
 
 end blockStatementSourceCodec
@@ -2218,8 +2161,6 @@ private theorem listChildren (element : P4SpecTec.Lang.Il.typ) (raws : List
       · exact head
       · exact rec tail rawValue member
 
-#audit_axioms listChildren
-
 /-- Records retain their source declaration family. -/
 private theorem recordSourceFaithful (name : P4SpecTec.Lang.Il.id) (arguments : List
   P4SpecTec.Lang.Il.typ)
@@ -2281,13 +2222,12 @@ private theorem recordSourceFaithful (name : P4SpecTec.Lang.Il.id) (arguments : 
     | f8 name nameEq =>
       exact leafCorrect _ v .f8 rfl (.f8 name nameEq ) whole
 
-#audit_axioms recordSourceFaithful
-
 /-- Source external declarations use independent checked leaf codecs. -/
 private theorem externalSourceFaithful (name : P4SpecTec.Lang.Il.id) (v :
   P4SpecTec.Lang.Il.value)
     (declared : Representation.Source.external NanoP4Spec.spec name.it = true)
-    (payload : Representation.Source.externDomain name.it v) : Faithful (.VarT name []) v := by
+    (payload : Representation.Source.externDomain.external name.it v) : Faithful (.VarT name [])
+      v := by
   intro family matching
   cases matching with
     | f0 name nameEq =>
@@ -2344,8 +2284,6 @@ private theorem externalSourceFaithful (name : P4SpecTec.Lang.Il.id) (v :
       exact leafCorrect _ v .f8 rfl (.f8 name nameEq)
         (Representation.Source.Valid.external name v declared payload)
 
-#audit_axioms externalSourceFaithful
-
 /-- Complete actual decoder facts by independent source derivation. -/
 private theorem sourceFaithful {input : P4SpecTec.Lang.Il.typ'} {v : P4SpecTec.Lang.Il.value}
     (valid : Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain
@@ -2385,9 +2323,14 @@ private theorem sourceFaithful {input : P4SpecTec.Lang.Il.typ'} {v : P4SpecTec.L
       (.variant name arguments parameters cases constructor instantiated v tree
         declared member shape mixop fields payload)
   · exact externalSourceFaithful
+  · intro name arguments v payload
+    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)
   · exact .nil
   · intro type v types values head tail ihHead ihTail; exact .cons ihHead ihTail
 
+#audit_axioms listChildren
+#audit_axioms recordSourceFaithful
+#audit_axioms externalSourceFaithful
 #audit_axioms sourceFaithful
 
 end blockStatementSourceCodec
@@ -2892,8 +2835,6 @@ private theorem witnessesList (child : Family) (raws : List P4SpecTec.Lang.Il.va
     obtain ⟨xs, tail⟩ := ih (fun raw member => children raw (by simp [member]))
     exact ⟨x :: xs, .cons head tail⟩
 
-#audit_axioms witnessesList
-
 /-- Homogeneous source induction supplies every child fidelity fact. -/
 private theorem listChildrenWitness (element : P4SpecTec.Lang.Il.typ) (raws : List
   P4SpecTec.Lang.Il.value)
@@ -2910,8 +2851,6 @@ private theorem listChildrenWitness (element : P4SpecTec.Lang.Il.typ) (raws : Li
       rcases List.mem_cons.mp member with rfl | member
       · exact head
       · exact rec tail rawValue member
-
-#audit_axioms listChildrenWitness
 
 /-- Records retain their source declaration family. -/
 private theorem recordSourceWitness (name : P4SpecTec.Lang.Il.id) (arguments : List
@@ -2974,13 +2913,12 @@ private theorem recordSourceWitness (name : P4SpecTec.Lang.Il.id) (arguments : L
     | f8 name nameEq =>
       exact leafWitness _ v .f8 rfl (.f8 name nameEq ) whole
 
-#audit_axioms recordSourceWitness
-
 /-- Source external declarations use independent checked leaf codecs. -/
 private theorem externalSourceWitness (name : P4SpecTec.Lang.Il.id) (v :
   P4SpecTec.Lang.Il.value)
     (declared : Representation.Source.external NanoP4Spec.spec name.it = true)
-    (payload : Representation.Source.externDomain name.it v) : Witness (.VarT name []) v := by
+    (payload : Representation.Source.externDomain.external name.it v) : Witness (.VarT name [])
+      v := by
   intro family matching
   cases matching with
     | f0 name nameEq =>
@@ -3037,8 +2975,6 @@ private theorem externalSourceWitness (name : P4SpecTec.Lang.Il.id) (v :
       exact leafWitness _ v .f8 rfl (.f8 name nameEq)
         (Representation.Source.Valid.external name v declared payload)
 
-#audit_axioms externalSourceWitness
-
 /-- Complete actual decoder facts by independent source derivation. -/
 private theorem sourceWitness {input : P4SpecTec.Lang.Il.typ'} {v : P4SpecTec.Lang.Il.value}
     (valid : Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain
@@ -3078,9 +3014,15 @@ private theorem sourceWitness {input : P4SpecTec.Lang.Il.typ'} {v : P4SpecTec.La
       (.variant name arguments parameters cases constructor instantiated v tree
         declared member shape mixop fields payload)
   · exact externalSourceWitness
+  · intro name arguments v payload
+    exact absurd payload (Representation.Source.externDomainNoRuntime _ v)
   · exact .nil
   · intro type v types values head tail ihHead ihTail; exact .cons ihHead ihTail
 
+#audit_axioms witnessesList
+#audit_axioms listChildrenWitness
+#audit_axioms recordSourceWitness
+#audit_axioms externalSourceWitness
 #audit_axioms sourceWitness
 
 end blockStatementSourceCodec
@@ -3114,8 +3056,6 @@ private theorem encodeBranch0_0 (x0 : Carrier .f2)
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.nil)
 
-#audit_axioms encodeBranch0_0
-
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch1_0 :
     Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain
@@ -3147,8 +3087,6 @@ private theorem encodeBranch1_0 :
       | simp only [P4SpecTec.Domain.Mixfix.args]
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .nil
-
-#audit_axioms encodeBranch1_0
 
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch1_1 (x0 : Carrier .f3) (x1 : Carrier .f4) (x2 : Carrier .f5)
@@ -3192,8 +3130,6 @@ private theorem encodeBranch1_1 (x0 : Carrier .f3) (x1 : Carrier .f4) (x2 : Carr
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.cons _ _ _ _ h2 (.nil)))
 
-#audit_axioms encodeBranch1_1
-
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch1_2 (x0 : Carrier .f6) (x1 : Carrier .f7)
     (h0 : Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (source
@@ -3232,8 +3168,6 @@ private theorem encodeBranch1_2 (x0 : Carrier .f6) (x1 : Carrier .f7)
       | simp only [P4SpecTec.Domain.Mixfix.args]
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
-
-#audit_axioms encodeBranch1_2
 
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch1_3 (x0 : Carrier .f6) (x1 : Carrier .f8)
@@ -3276,8 +3210,6 @@ private theorem encodeBranch1_3 (x0 : Carrier .f6) (x1 : Carrier .f8)
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
 
-#audit_axioms encodeBranch1_3
-
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch1_4 (x0 : Carrier .f2)
     (h0 : Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (source
@@ -3313,8 +3245,6 @@ private theorem encodeBranch1_4 (x0 : Carrier .f2)
       | simp only [P4SpecTec.Domain.Mixfix.args]
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.nil)
-
-#audit_axioms encodeBranch1_4
 
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch1_5 (x0 : Carrier .f7) (x1 : Carrier .f0) (x2 : Carrier .f0)
@@ -3361,8 +3291,6 @@ private theorem encodeBranch1_5 (x0 : Carrier .f7) (x1 : Carrier .f0) (x2 : Carr
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.cons _ _ _ _ h2 (.nil)))
 
-#audit_axioms encodeBranch1_5
-
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch2_0 :
     Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain
@@ -3386,8 +3314,6 @@ private theorem encodeBranch2_0 :
       | simp only [P4SpecTec.Domain.Mixfix.args]
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .nil
-
-#audit_axioms encodeBranch2_0
 
 /-- Source-valid children encode to the exact declared source constructor. -/
 private theorem encodeBranch2_1 (x0 : Carrier .f2) (x1 : Carrier .f1)
@@ -3418,6 +3344,14 @@ private theorem encodeBranch2_1 (x0 : Carrier .f2) (x1 : Carrier .f1)
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
 
+#audit_axioms encodeBranch0_0
+#audit_axioms encodeBranch1_0
+#audit_axioms encodeBranch1_1
+#audit_axioms encodeBranch1_2
+#audit_axioms encodeBranch1_3
+#audit_axioms encodeBranch1_4
+#audit_axioms encodeBranch1_5
+#audit_axioms encodeBranch2_0
 #audit_axioms encodeBranch2_1
 
 end blockStatementSourceCodec
@@ -3432,8 +3366,6 @@ private theorem encodeLeaf3 (x : Carrier .f3)
     Representation.Source.externDomain (Q.t (Q.varT "type" [])).it) (NanoP4Spec.type.admitted)
     (NanoP4Spec.type.codec)) x accepted
 
-#audit_axioms encodeLeaf3
-
 private theorem encodeLeaf4 (x : Carrier .f4)
     (accepted : admitted .f4 x) : Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (source .f4) (encode .f4 (x)) := by
@@ -3441,8 +3373,6 @@ private theorem encodeLeaf4 (x : Carrier .f4)
     ⟨NanoP4Spec.name.ofValue⟩ (Representation.Source.Valid NanoP4Spec.spec
     Representation.Source.externDomain (Q.t (Q.varT "name" [])).it) (NanoP4Spec.name.admitted)
     (NanoP4Spec.name.codec)) x accepted
-
-#audit_axioms encodeLeaf4
 
 private theorem encodeLeaf5 (x : Carrier .f5)
     (accepted : admitted .f5 x) : Representation.Source.Valid NanoP4Spec.spec
@@ -3453,8 +3383,6 @@ private theorem encodeLeaf5 (x : Carrier .f5)
     "initializer" [])).it) (NanoP4Spec.initializer.admitted) (NanoP4Spec.initializer.codec)) x
     accepted
 
-#audit_axioms encodeLeaf5
-
 private theorem encodeLeaf6 (x : Carrier .f6)
     (accepted : admitted .f6 x) : Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (source .f6) (encode .f6 (x)) := by
@@ -3463,8 +3391,6 @@ private theorem encodeLeaf6 (x : Carrier .f6)
     Representation.Source.externDomain (Q.t (Q.varT "lvalue" [])).it)
     (NanoP4Spec.lvalue.admitted) (NanoP4Spec.lvalue.codec)) x accepted
 
-#audit_axioms encodeLeaf6
-
 private theorem encodeLeaf7 (x : Carrier .f7)
     (accepted : admitted .f7 x) : Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (source .f7) (encode .f7 (x)) := by
@@ -3472,8 +3398,6 @@ private theorem encodeLeaf7 (x : Carrier .f7)
     ⟨NanoP4Spec.expression.toValue⟩ ⟨NanoP4Spec.expression.ofValue⟩ (Representation.Source.Valid
     NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "expression" [])).it)
     (NanoP4Spec.expression.admitted) (NanoP4Spec.expression.codec)) x accepted
-
-#audit_axioms encodeLeaf7
 
 private theorem encodeLeaf8 (x : Carrier .f8)
     (accepted : admitted .f8 x) : Representation.Source.Valid NanoP4Spec.spec
@@ -3484,6 +3408,11 @@ private theorem encodeLeaf8 (x : Carrier .f8)
     "argumentList" [])).it) (NanoP4Spec.argumentList.admitted) (NanoP4Spec.argumentList.codec))
     x accepted
 
+#audit_axioms encodeLeaf3
+#audit_axioms encodeLeaf4
+#audit_axioms encodeLeaf5
+#audit_axioms encodeLeaf6
+#audit_axioms encodeLeaf7
 #audit_axioms encodeLeaf8
 
 end blockStatementSourceCodec
@@ -3601,8 +3530,6 @@ theorem blockStatement.codec : @Representation.Codec NanoP4Spec.blockStatement
     exact blockStatementSourceCodec.encodingValid .f0 x accepted
   · exact blockStatementSourceCodec.decoderCorrect .f0
 
-#audit_axioms blockStatement.codec
-
 /-- Recursive admission excludes runtime-only constructors. -/
 def statement.admitted (x : NanoP4Spec.statement) : Prop :=
   blockStatementSourceCodec.admitted .f1 x
@@ -3619,8 +3546,6 @@ theorem statement.codec : @Representation.Codec NanoP4Spec.statement
   · intro x accepted
     exact blockStatementSourceCodec.encodingValid .f1 x accepted
   · exact blockStatementSourceCodec.decoderCorrect .f1
-
-#audit_axioms statement.codec
 
 /-- Recursive admission excludes runtime-only constructors. -/
 def statementList.admitted (x : NanoP4Spec.statementList) : Prop :=
@@ -3639,6 +3564,8 @@ theorem statementList.codec : @Representation.Codec NanoP4Spec.statementList
     exact blockStatementSourceCodec.encodingValid .f2 x accepted
   · exact blockStatementSourceCodec.decoderCorrect .f2
 
+#audit_axioms blockStatement.codec
+#audit_axioms statement.codec
 #audit_axioms statementList.codec
 
 namespace blockStatementSourceCodec
@@ -3649,15 +3576,11 @@ private theorem total3 (x : Carrier .f3) : admitted .f3 x := by
   exact ((show ∀ x : (NanoP4Spec.type), (NanoP4Spec.type.admitted) x from
     NanoP4Spec.type.admittedAll)) x
 
-#audit_axioms total3
-
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total4 (x : Carrier .f4) : admitted .f4 x := by
   change (NanoP4Spec.name.admitted) x
   exact ((show ∀ x : (NanoP4Spec.name), (NanoP4Spec.name.admitted) x from
     NanoP4Spec.name.admittedAll)) x
-
-#audit_axioms total4
 
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total5 (x : Carrier .f5) : admitted .f5 x := by
@@ -3665,15 +3588,11 @@ private theorem total5 (x : Carrier .f5) : admitted .f5 x := by
   exact ((show ∀ x : (NanoP4Spec.initializer), (NanoP4Spec.initializer.admitted) x from
     NanoP4Spec.initializer.admittedAll)) x
 
-#audit_axioms total5
-
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total6 (x : Carrier .f6) : admitted .f6 x := by
   change (NanoP4Spec.lvalue.admitted) x
   exact ((show ∀ x : (NanoP4Spec.lvalue), (NanoP4Spec.lvalue.admitted) x from
     NanoP4Spec.lvalue.admittedAll)) x
-
-#audit_axioms total6
 
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total7 (x : Carrier .f7) : admitted .f7 x := by
@@ -3681,15 +3600,11 @@ private theorem total7 (x : Carrier .f7) : admitted .f7 x := by
   exact ((show ∀ x : (NanoP4Spec.expression), (NanoP4Spec.expression.admitted) x from
     NanoP4Spec.expression.admittedAll)) x
 
-#audit_axioms total7
-
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total8 (x : Carrier .f8) : admitted .f8 x := by
   change (NanoP4Spec.argumentList.admitted) x
   exact ((show ∀ x : (NanoP4Spec.argumentList), (NanoP4Spec.argumentList.admitted) x from
     NanoP4Spec.argumentList.admittedAll)) x
-
-#audit_axioms total8
 
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total0 (x : Carrier .f0) : admitted .f0 x := by
@@ -3707,8 +3622,6 @@ private theorem total0 (x : Carrier .f0) : admitted .f0 x := by
     | exact total8 _
     | constructor
 
-#audit_axioms total0
-
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total1 (x : Carrier .f1) : admitted .f1 x := by
   carrier_induction NanoP4Spec.statement.rec
@@ -3725,8 +3638,6 @@ private theorem total1 (x : Carrier .f1) : admitted .f1 x := by
     | exact total8 _
     | exact total0 _
     | constructor
-
-#audit_axioms total1
 
 /-- Every native value is admitted, from its actual carrier structure. -/
 private theorem total2 (x : Carrier .f2) : admitted .f2 x := by
@@ -3746,6 +3657,14 @@ private theorem total2 (x : Carrier .f2) : admitted .f2 x := by
     | exact total1 _
     | constructor
 
+#audit_axioms total3
+#audit_axioms total4
+#audit_axioms total5
+#audit_axioms total6
+#audit_axioms total7
+#audit_axioms total8
+#audit_axioms total0
+#audit_axioms total1
 #audit_axioms total2
 
 end blockStatementSourceCodec
@@ -3754,18 +3673,16 @@ end blockStatementSourceCodec
 theorem blockStatement.admittedAll (x : NanoP4Spec.blockStatement) : blockStatement.admitted x
   := blockStatementSourceCodec.total0 x
 
-#audit_axioms blockStatement.admittedAll
-
 /-- All native values of this complete source carrier are admitted. -/
 theorem statement.admittedAll (x : NanoP4Spec.statement) : statement.admitted x :=
   blockStatementSourceCodec.total1 x
-
-#audit_axioms statement.admittedAll
 
 /-- All native values of this complete source carrier are admitted. -/
 theorem statementList.admittedAll (x : NanoP4Spec.statementList) : statementList.admitted x :=
   blockStatementSourceCodec.total2 x
 
+#audit_axioms blockStatement.admittedAll
+#audit_axioms statement.admittedAll
 #audit_axioms statementList.admittedAll
 
 end NanoP4Spec

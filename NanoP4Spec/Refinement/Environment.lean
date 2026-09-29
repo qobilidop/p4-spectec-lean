@@ -25,8 +25,6 @@ namespace Environment
 
 private theorem namesUnique : Refine.Init.NamesUnique NanoP4Spec.spec := by decide
 
-#audit_axioms namesUnique
-
 /-- The concrete global tables of the complete generated quotation. -/
 def global : Interp_al.Ctx.global := Refine.Init.global NanoP4Spec.spec
 
@@ -34,13 +32,9 @@ def global : Interp_al.Ctx.global := Refine.Init.global NanoP4Spec.spec
 theorem initEqOk : Interp_al.Ctx.init NanoP4Spec.spec = .ok global :=
   Refine.Init.initEqOk _ namesUnique
 
-#audit_axioms initEqOk
-
 /-- The initialized global tables contain every quoted definition. -/
 theorem holdsSpec : Refine.HoldsSpec NanoP4Spec.spec global :=
   Refine.holdsSpec_of_init initEqOk
-
-#audit_axioms holdsSpec
 
 /-- An initial context with no local bindings or function overrides. -/
 def ctx : Interp_al.Ctx.t := Interp_al.Ctx.empty global
@@ -48,31 +42,49 @@ def ctx : Interp_al.Ctx.t := Interp_al.Ctx.empty global
 /-- The initialized context satisfies the no-local-override hypothesis. -/
 theorem localFenvEmpty : ctx.local.fenv = [] := rfl
 
-#audit_axioms localFenvEmpty
-
 /-- The initialized type table leaves this callable parameter name fresh. -/
 theorem typeParameterFresh_X : global.tdtbl.get? "X" = none :=
   Refine.Init.globalTypeAbsent NanoP4Spec.spec "X" (by decide)
-
-#audit_axioms typeParameterFresh_X
 
 /-- The initialized type table leaves this callable parameter name fresh. -/
 theorem typeParameterFresh_K : global.tdtbl.get? "K" = none :=
   Refine.Init.globalTypeAbsent NanoP4Spec.spec "K" (by decide)
 
-#audit_axioms typeParameterFresh_K
-
 /-- The initialized type table leaves this callable parameter name fresh. -/
 theorem typeParameterFresh_Y : global.tdtbl.get? "Y" = none :=
   Refine.Init.globalTypeAbsent NanoP4Spec.spec "Y" (by decide)
-
-#audit_axioms typeParameterFresh_Y
 
 /-- The initialized type table leaves this callable parameter name fresh. -/
 theorem typeParameterFresh_V : global.tdtbl.get? "V" = none :=
   Refine.Init.globalTypeAbsent NanoP4Spec.spec "V" (by decide)
 
+/-- Every environment assumption of the invocation certificates holds for the initialized
+reference context: checked table initialization, complete source lookups, no local
+overrides and fresh callable type parameters. The guard and print-hint configuration and
+the extern contract remain explicit assumptions of the certificates. -/
+theorem initialized :
+    Interp_al.Ctx.init NanoP4Spec.spec = .ok NanoP4Spec.Environment.global ∧
+    Refine.HoldsSpec NanoP4Spec.spec NanoP4Spec.Environment.global ∧
+    NanoP4Spec.Environment.ctx.local.fenv = [] ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "X" = none ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "K" = none ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "Y" = none ∧
+    NanoP4Spec.Environment.global.tdtbl.get? "V" = none :=
+  ⟨initEqOk, holdsSpec, localFenvEmpty,
+    typeParameterFresh_X,
+    typeParameterFresh_K,
+    typeParameterFresh_Y,
+    typeParameterFresh_V⟩
+
+#audit_axioms namesUnique
+#audit_axioms initEqOk
+#audit_axioms holdsSpec
+#audit_axioms localFenvEmpty
+#audit_axioms typeParameterFresh_X
+#audit_axioms typeParameterFresh_K
+#audit_axioms typeParameterFresh_Y
 #audit_axioms typeParameterFresh_V
+#audit_axioms initialized
 
 end Environment
 

@@ -37,8 +37,6 @@ theorem «$eq_set».dispatch {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Sp
   rw [Refine.Builtin.Set.eqRunOfRel h0 h1 cfg.printHints [t0]]
   rfl
 
-#audit_axioms NanoP4Spec.«$eq_set».dispatch
-
 theorem «$eq_set».refines (fuel : Nat) {τK : Type} [ToValue τK] [BEq τK]
       (p0 : NanoP4Spec.set τK)
       (p1 : NanoP4Spec.set τK)
@@ -50,8 +48,6 @@ theorem «$eq_set».refines (fuel : Nat) {τK : Type} [ToValue τK] [BEq τK]
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "eq_set" _ _ _
     [t0] [v0, v1] hfenv hdecl (NanoP4Spec.«$eq_set».dispatch p0 p1 t0 v0 v1 h0 h1 cfg)
 
-#audit_axioms NanoP4Spec.«$eq_set».refines
-
 theorem «$eq_set».realizes {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1 :
   NanoP4Spec.set τK)
    (t0 : Lang.Il.typ) (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg :
@@ -62,6 +58,8 @@ theorem «$eq_set».realizes {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Sp
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "eq_set" _ _ _ [t0] [v0,
     v1] hfenv hdecl (NanoP4Spec.«$eq_set».dispatch p0 p1 t0 v0 v1 h0 h1 cfg)
 
+#audit_axioms NanoP4Spec.«$eq_set».dispatch
+#audit_axioms NanoP4Spec.«$eq_set».refines
 #audit_axioms NanoP4Spec.«$eq_set».realizes
 
 end NanoP4Spec

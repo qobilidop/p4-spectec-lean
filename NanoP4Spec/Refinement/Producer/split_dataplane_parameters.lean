@@ -100,7 +100,8 @@ theorem «$split_dataplane_parameters».producesSource :
     (fun xs : List (NanoP4Spec.parameterIR) => ∀ x ∈ xs, (NanoP4Spec.parameterIR.admitted) x) x
     from (fun xs x _ => ((show ∀ x : (NanoP4Spec.parameterIR), (NanoP4Spec.parameterIR.admitted)
     x from NanoP4Spec.parameterIR.admittedAll)) x))) p.2⟩))) result)
-#audit_axioms «$split_dataplane_parameters».producesSource
 
+
+#audit_axioms «$split_dataplane_parameters».producesSource
 
 end NanoP4Spec

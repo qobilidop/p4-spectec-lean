@@ -10,7 +10,7 @@ namespace P4SpecTec.Refine.Representation.Source
 open P4SpecTec.Lang.Il P4SpecTec.Domain
 
 /-- A declared constructor shape with independently valid positional source fields. -/
-def ConstructorDomain (spec : Lang.Al.spec) (externalDomain : String → value → Prop)
+def ConstructorDomain (spec : Lang.Al.spec) (externalDomain : Domain)
     (constructor : typcase) (fields : List typ) (v : value) : Prop :=
   ∃ tree : Mixfix.t value, v.it = .CaseV tree ∧
     Mixfix.eq_mixop tree constructor.nottyp.it = true ∧
@@ -20,7 +20,8 @@ def ConstructorDomain (spec : Lang.Al.spec) (externalDomain : String → value �
 theorem Valid.variantPayload {spec externalDomain} (name : id) (args : List typ)
     (parameters : List tparam) (constructors : List typcase) (v : value)
     (declared : Source.body spec name.it = Option.some (parameters, .VariantT constructors))
-    (valid : Valid spec externalDomain (.VarT name args) v) :
+    (valid : Valid spec externalDomain (.VarT name args) v)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     ∃ constructor ∈ constructors, ∃ fields,
       instantiatedFields parameters args (Mixfix.args constructor.nottyp.it) fields ∧
       ConstructorDomain spec externalDomain constructor fields v := by
@@ -37,6 +38,7 @@ theorem Valid.variantPayload {spec externalDomain} (name : id) (args : List typ)
   | external name v found payload =>
     have absent := externalFalseOfBody declared
     simp [absent] at found
+  | runtime name args v payload => exact absurd payload (sourceOnly v)
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.variantPayload' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -87,10 +89,11 @@ theorem Valid.singleConstructor {spec externalDomain} (name : id) (arguments : L
       instantiatedFields parameters arguments (Mixfix.args constructor.nottyp.it) instantiated →
       List.Forall₂ (fun a b : typ => ∀ v,
         Valid spec externalDomain a.it v → Valid spec externalDomain b.it v) instantiated fields)
-    (valid : Valid spec externalDomain (.VarT name arguments) v) :
+    (valid : Valid spec externalDomain (.VarT name arguments) v)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     ConstructorDomain spec externalDomain constructor fields v := by
   obtain ⟨selected, member, instantiated, subs, tree, shape, matching, payload⟩ :=
-    valid.variantPayload name arguments parameters [constructor] v declared
+    valid.variantPayload name arguments parameters [constructor] v declared sourceOnly
   have same := List.mem_singleton.mp member
   subst selected
   exact ⟨tree, shape, matching, payload.domains (normalize instantiated subs)⟩

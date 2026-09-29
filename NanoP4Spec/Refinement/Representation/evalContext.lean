@@ -60,8 +60,6 @@ private theorem evalContext.fieldCodec0 : @Representation.Codec (NanoP4Spec.glob
   "globalEvalLayer" [])).it) (NanoP4Spec.globalEvalLayer.admitted) :=
   NanoP4Spec.globalEvalLayer.codec
 
-#audit_axioms evalContext.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem evalContext.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "globalEvalLayer" [])).it actual → ∀ v,
@@ -73,16 +71,12 @@ private theorem evalContext.fieldSubstitution0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "globalEvalLayer")] at valid
     exact valid)
 
-#audit_axioms evalContext.fieldSubstitution0
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem evalContext.fieldCodec1 : @Representation.Codec (NanoP4Spec.blockEvalLayer)
   ⟨NanoP4Spec.blockEvalLayer.toValue⟩ ⟨NanoP4Spec.blockEvalLayer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "blockEvalLayer" [])).it) (NanoP4Spec.blockEvalLayer.admitted) :=
   NanoP4Spec.blockEvalLayer.codec
-
-#audit_axioms evalContext.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem evalContext.fieldSubstitution1 : ∀ actual,
@@ -95,16 +89,12 @@ private theorem evalContext.fieldSubstitution1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "blockEvalLayer")] at valid
     exact valid)
 
-#audit_axioms evalContext.fieldSubstitution1
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem evalContext.fieldCodec2 : @Representation.Codec (NanoP4Spec.localEvalLayer)
   ⟨NanoP4Spec.localEvalLayer.toValue⟩ ⟨NanoP4Spec.localEvalLayer.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "localEvalLayer" [])).it) (NanoP4Spec.localEvalLayer.admitted) :=
   NanoP4Spec.localEvalLayer.codec
-
-#audit_axioms evalContext.fieldCodec2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem evalContext.fieldSubstitution2 : ∀ actual,
@@ -116,8 +106,6 @@ private theorem evalContext.fieldSubstitution2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "localEvalLayer")] at valid
     exact valid)
-
-#audit_axioms evalContext.fieldSubstitution2
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem evalContext.payload (v : Lang.Il.value) (hv : NanoP4Spec.evalContext.source v) :
@@ -143,8 +131,6 @@ private theorem evalContext.payload (v : Lang.Il.value) (hv : NanoP4Spec.evalCon
             (evalContext.fieldSubstitution1 _ sub1) (.cons (evalContext.fieldSubstitution2 _
             sub2) (.nil)))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.evalContext.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem evalContext.codec : @Refine.Representation.Codec NanoP4Spec.evalContext
@@ -348,8 +334,6 @@ theorem evalContext.codec : @Refine.Representation.Codec NanoP4Spec.evalContext
                     rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
                     rfl
 
-#audit_axioms NanoP4Spec.evalContext.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem evalContext.encodingSourceIff (x : NanoP4Spec.evalContext) :
     NanoP4Spec.evalContext.source (NanoP4Spec.evalContext.toValue x) ↔
@@ -389,6 +373,14 @@ theorem evalContext.encodingSourceIff (x : NanoP4Spec.evalContext) :
     exact ⟨_, rfl, .cons (rfl) (.cons (rfl) (.cons (rfl) (.nil))), .cons _ _ _ _ p0 (.cons _ _ _
       _ p1 (.cons _ _ _ _ p2 (.nil)))⟩
 
+#audit_axioms evalContext.fieldCodec0
+#audit_axioms evalContext.fieldSubstitution0
+#audit_axioms evalContext.fieldCodec1
+#audit_axioms evalContext.fieldSubstitution1
+#audit_axioms evalContext.fieldCodec2
+#audit_axioms evalContext.fieldSubstitution2
+#audit_axioms NanoP4Spec.evalContext.payload
+#audit_axioms NanoP4Spec.evalContext.codec
 #audit_axioms NanoP4Spec.evalContext.encodingSourceIff
 
 end NanoP4Spec

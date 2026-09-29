@@ -45,8 +45,6 @@ private theorem bit.bodyCodec : @Representation.Codec (Bool) ⟨@ToValue.toValue
   .BoolT).it) (fun _ : Bool => True) :=
   @Representation.Source.boolCodec NanoP4Spec.spec Representation.Source.externDomain
 
-#audit_axioms NanoP4Spec.bit.bodyCodec
-
 private theorem bit.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.bit.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t .BoolT).it) v := by
@@ -55,16 +53,12 @@ private theorem bit.sourceIff (v : Lang.Il.value) :
   intro actual substitution v valid
   simpa only [substitution.boolResult] using valid) (Representation.Source.Substitutes.bool) v
 
-#audit_axioms NanoP4Spec.bit.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem bit.encodingSourceIff (x : NanoP4Spec.bit) :
     NanoP4Spec.bit.source (NanoP4Spec.bit.toValue x) ↔ (Representation.Source.Valid
       NanoP4Spec.spec Representation.Source.externDomain (Q.t .BoolT).it) ((@ToValue.toValue
       Bool P4SpecTec.Prelude.instToValueBool) x) :=
   NanoP4Spec.bit.sourceIff _
-
-#audit_axioms NanoP4Spec.bit.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem bit.codec : @Refine.Representation.Codec NanoP4Spec.bit ⟨NanoP4Spec.bit.toValue⟩
@@ -110,13 +104,15 @@ theorem bit.codec : @Refine.Representation.Codec NanoP4Spec.bit ⟨NanoP4Spec.bi
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.bit.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem bit.admittedAll : ∀ x : NanoP4Spec.bit, (NanoP4Spec.bit.admitted) x := by
   intro x
   exact ((show ∀ x : (Bool), (fun _ : Bool => True) x from (fun _ => True.intro))) x
 
+#audit_axioms NanoP4Spec.bit.bodyCodec
+#audit_axioms NanoP4Spec.bit.sourceIff
+#audit_axioms NanoP4Spec.bit.encodingSourceIff
+#audit_axioms NanoP4Spec.bit.codec
 #audit_axioms NanoP4Spec.bit.admittedAll
 
 end NanoP4Spec

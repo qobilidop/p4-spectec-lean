@@ -60,7 +60,8 @@ theorem «$flatten_parserStateList».producesSource :
     xs : List (NanoP4Spec.parserState) => ∀ x ∈ xs, (NanoP4Spec.parserState.admitted) x) x from
     (fun xs x _ => ((show ∀ x : (NanoP4Spec.parserState), (NanoP4Spec.parserState.admitted) x
     from NanoP4Spec.parserState.admittedAll)) x))) result)
-#audit_axioms «$flatten_parserStateList».producesSource
 
+
+#audit_axioms «$flatten_parserStateList».producesSource
 
 end NanoP4Spec

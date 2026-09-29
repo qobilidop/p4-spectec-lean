@@ -48,8 +48,6 @@ private theorem parserLocalDeclaration.bodyCodec : @Representation.Codec
   (NanoP4Spec.variableDeclaration.admitted) :=
   NanoP4Spec.variableDeclaration.codec
 
-#audit_axioms NanoP4Spec.parserLocalDeclaration.bodyCodec
-
 private theorem parserLocalDeclaration.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.parserLocalDeclaration.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "variableDeclaration" [])).it) v := by
@@ -61,16 +59,12 @@ private theorem parserLocalDeclaration.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "variableDeclaration") [] [] rfl
     (.nil)) v
 
-#audit_axioms NanoP4Spec.parserLocalDeclaration.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem parserLocalDeclaration.encodingSourceIff (x : NanoP4Spec.parserLocalDeclaration) :
     NanoP4Spec.parserLocalDeclaration.source (NanoP4Spec.parserLocalDeclaration.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "variableDeclaration" [])).it) ((NanoP4Spec.variableDeclaration.toValue) x) :=
   NanoP4Spec.parserLocalDeclaration.sourceIff _
-
-#audit_axioms NanoP4Spec.parserLocalDeclaration.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem parserLocalDeclaration.codec : @Refine.Representation.Codec
@@ -120,8 +114,6 @@ theorem parserLocalDeclaration.codec : @Refine.Representation.Codec
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.parserLocalDeclaration.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem parserLocalDeclaration.admittedAll : ∀ x : NanoP4Spec.parserLocalDeclaration,
   (NanoP4Spec.parserLocalDeclaration.admitted) x := by
@@ -129,6 +121,10 @@ theorem parserLocalDeclaration.admittedAll : ∀ x : NanoP4Spec.parserLocalDecla
   exact ((show ∀ x : (NanoP4Spec.variableDeclaration), (NanoP4Spec.variableDeclaration.admitted)
     x from NanoP4Spec.variableDeclaration.admittedAll)) x
 
+#audit_axioms NanoP4Spec.parserLocalDeclaration.bodyCodec
+#audit_axioms NanoP4Spec.parserLocalDeclaration.sourceIff
+#audit_axioms NanoP4Spec.parserLocalDeclaration.encodingSourceIff
+#audit_axioms NanoP4Spec.parserLocalDeclaration.codec
 #audit_axioms NanoP4Spec.parserLocalDeclaration.admittedAll
 
 end NanoP4Spec

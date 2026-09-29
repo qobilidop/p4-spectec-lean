@@ -57,8 +57,6 @@ private theorem typeFrame.bodyCodec : @Representation.Codec (NanoP4Spec.map (Nan
     (Q.varT "id" [])) (Q.t (Q.varT "varTypeIR" [])) (fun _ => True)
     (NanoP4Spec.varTypeIR.admitted) (NanoP4Spec.id.codec) (NanoP4Spec.varTypeIR.codec)
 
-#audit_axioms NanoP4Spec.typeFrame.bodyCodec
-
 private theorem typeFrame.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.typeFrame.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "map" [Q.t (Q.varT "id" []), Q.t (Q.varT
@@ -83,8 +81,6 @@ private theorem typeFrame.sourceIff (v : Lang.Il.value) :
         (Representation.Source.Substitutes.named (Q.i "id") [] [] rfl (.nil)) (.cons
         (Representation.Source.Substitutes.named (Q.i "varTypeIR") [] [] rfl (.nil)) (.nil)))) v
 
-#audit_axioms NanoP4Spec.typeFrame.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem typeFrame.encodingSourceIff (x : NanoP4Spec.typeFrame) :
     NanoP4Spec.typeFrame.source (NanoP4Spec.typeFrame.toValue x) ↔ (Representation.Source.Valid
@@ -92,8 +88,6 @@ theorem typeFrame.encodingSourceIff (x : NanoP4Spec.typeFrame) :
       []), Q.t (Q.varT "varTypeIR" [])])).it) ((@NanoP4Spec.map.toValue (NanoP4Spec.id)
       (NanoP4Spec.varTypeIR) ⟨NanoP4Spec.id.toValue⟩ ⟨NanoP4Spec.varTypeIR.toValue⟩) x) :=
   NanoP4Spec.typeFrame.sourceIff _
-
-#audit_axioms NanoP4Spec.typeFrame.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem typeFrame.codec : @Refine.Representation.Codec NanoP4Spec.typeFrame
@@ -163,8 +157,6 @@ theorem typeFrame.codec : @Refine.Representation.Codec NanoP4Spec.typeFrame
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.typeFrame.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem typeFrame.admittedAll : ∀ x : NanoP4Spec.typeFrame, (NanoP4Spec.typeFrame.admitted) x :=
   by
@@ -177,6 +169,10 @@ theorem typeFrame.admittedAll : ∀ x : NanoP4Spec.typeFrame, (NanoP4Spec.typeFr
     NanoP4Spec.id.admittedAll)) a, ((show ∀ x : (NanoP4Spec.varTypeIR),
     (NanoP4Spec.varTypeIR.admitted) x from NanoP4Spec.varTypeIR.admittedAll)) b⟩))))) x
 
+#audit_axioms NanoP4Spec.typeFrame.bodyCodec
+#audit_axioms NanoP4Spec.typeFrame.sourceIff
+#audit_axioms NanoP4Spec.typeFrame.encodingSourceIff
+#audit_axioms NanoP4Spec.typeFrame.codec
 #audit_axioms NanoP4Spec.typeFrame.admittedAll
 
 end NanoP4Spec

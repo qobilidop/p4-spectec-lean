@@ -54,7 +54,8 @@ theorem «$add_typeDef_t».producesSource :
     "typingContext" [])).it) (NanoP4Spec.typingContext.admitted)
     (NanoP4Spec.typingContext.codec)) result (((show ∀ x : (NanoP4Spec.typingContext),
     (NanoP4Spec.typingContext.admitted) x from NanoP4Spec.typingContext.admittedAll)) result)
-#audit_axioms «$add_typeDef_t».producesSource
 
+
+#audit_axioms «$add_typeDef_t».producesSource
 
 end NanoP4Spec

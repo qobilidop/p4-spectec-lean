@@ -61,8 +61,6 @@ private theorem callableDefEnv.bodyCodec : @Representation.Codec (NanoP4Spec.map
     [])) (Q.t (Q.varT "callableDef" [])) (fun _ => True) (NanoP4Spec.callableDef.admitted)
     (NanoP4Spec.callableId.codec) (NanoP4Spec.callableDef.codec)
 
-#audit_axioms NanoP4Spec.callableDefEnv.bodyCodec
-
 private theorem callableDefEnv.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.callableDefEnv.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "map" [Q.t (Q.varT "callableId" []), Q.t
@@ -88,8 +86,6 @@ private theorem callableDefEnv.sourceIff (v : Lang.Il.value) :
         (.cons (Representation.Source.Substitutes.named (Q.i "callableDef") [] [] rfl (.nil))
         (.nil)))) v
 
-#audit_axioms NanoP4Spec.callableDefEnv.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem callableDefEnv.encodingSourceIff (x : NanoP4Spec.callableDefEnv) :
     NanoP4Spec.callableDefEnv.source (NanoP4Spec.callableDefEnv.toValue x) ↔
@@ -98,8 +94,6 @@ theorem callableDefEnv.encodingSourceIff (x : NanoP4Spec.callableDefEnv) :
       ((@NanoP4Spec.map.toValue (NanoP4Spec.callableId) (NanoP4Spec.callableDef)
       ⟨NanoP4Spec.callableId.toValue⟩ ⟨NanoP4Spec.callableDef.toValue⟩) x) :=
   NanoP4Spec.callableDefEnv.sourceIff _
-
-#audit_axioms NanoP4Spec.callableDefEnv.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem callableDefEnv.codec : @Refine.Representation.Codec NanoP4Spec.callableDefEnv
@@ -176,8 +170,6 @@ theorem callableDefEnv.codec : @Refine.Representation.Codec NanoP4Spec.callableD
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.callableDefEnv.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem callableDefEnv.admittedAll : ∀ x : NanoP4Spec.callableDefEnv,
   (NanoP4Spec.callableDefEnv.admitted) x := by
@@ -190,6 +182,10 @@ theorem callableDefEnv.admittedAll : ∀ x : NanoP4Spec.callableDefEnv,
     x from NanoP4Spec.callableId.admittedAll)) a, ((show ∀ x : (NanoP4Spec.callableDef),
     (NanoP4Spec.callableDef.admitted) x from NanoP4Spec.callableDef.admittedAll)) b⟩))))) x
 
+#audit_axioms NanoP4Spec.callableDefEnv.bodyCodec
+#audit_axioms NanoP4Spec.callableDefEnv.sourceIff
+#audit_axioms NanoP4Spec.callableDefEnv.encodingSourceIff
+#audit_axioms NanoP4Spec.callableDefEnv.codec
 #audit_axioms NanoP4Spec.callableDefEnv.admittedAll
 
 end NanoP4Spec

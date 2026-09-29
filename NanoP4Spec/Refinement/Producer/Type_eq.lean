@@ -50,7 +50,8 @@ theorem Type_eq.producesSource :
     NanoP4Spec.spec Representation.Source.externDomain (Q.t (.TupleT [])).it) (fun _ : Unit =>
     True) (@Representation.Source.unitCodec NanoP4Spec.spec Representation.Source.externDomain))
     result (((show ∀ x : (Unit), (fun _ : Unit => True) x from (fun _ => True.intro))) result)
-#audit_axioms Type_eq.producesSource
 
+
+#audit_axioms Type_eq.producesSource
 
 end NanoP4Spec

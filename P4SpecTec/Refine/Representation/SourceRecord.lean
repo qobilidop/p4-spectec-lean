@@ -10,7 +10,7 @@ namespace P4SpecTec.Refine.Representation.Source
 open P4SpecTec.Lang.Il P4SpecTec.Domain
 
 /-- A source record has exact ordered labels and independently valid instantiated fields. -/
-def RecordDomain (spec : Lang.Al.spec) (externalDomain : String → value → Prop)
+def RecordDomain (spec : Lang.Al.spec) (externalDomain : Domain)
     (sourceFields : List typfield) (types : List typ) (v : value) : Prop :=
   ∃ fields : List valuefield, v.it = .StructV fields ∧
     List.Forall₂ (fun source actual => Atom.eq source.1.it actual.1.it = true)
@@ -20,7 +20,8 @@ def RecordDomain (spec : Lang.Al.spec) (externalDomain : String → value → Pr
 theorem Valid.recordPayload {spec externalDomain} (name : id) (args : List typ)
     (parameters : List tparam) (sourceFields : List typfield) (v : value)
     (declared : body spec name.it = Option.some (parameters, .StructT sourceFields))
-    (valid : Valid spec externalDomain (.VarT name args) v) :
+    (valid : Valid spec externalDomain (.VarT name args) v)
+    (sourceOnly : Domain.SourceOnly externalDomain name.it := by source_only) :
     ∃ fields, instantiatedFields parameters args (sourceFields.map (·.2)) fields ∧
       RecordDomain spec externalDomain sourceFields fields v := by
   cases valid with
@@ -35,6 +36,7 @@ theorem Valid.recordPayload {spec externalDomain} (name : id) (args : List typ)
     simp [declared] at found
   | external name v found payload =>
     simp [externalFalseOfBody declared] at found
+  | runtime name args v payload => exact absurd payload (sourceOnly v)
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.recordPayload' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/

@@ -21,6 +21,7 @@ such changes build the affected modules first. `lake build --wfail` and
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -30,8 +31,10 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / ".artifacts/replay"
+NATIVE_TARGETS = ("@batteries/Batteries:shared", "P4SpecTec:shared")
 DECLARATION = re.compile(r"^(?:private )?(?:theorem|def|instance) ([^\s:({\[]+)")
 AUDIT = re.compile(r"^#audit_axioms (\S+)")
+BUDGET = re.compile(r"^set_option maxHeartbeats \d+ in$")
 
 
 def module_path(target):
@@ -42,11 +45,47 @@ def module_path(target):
     return ROOT / (target.replace(".", "/") + ".lean")
 
 
+def directional_sources(source, only):
+    """Expand a compatibility aggregate to its actual direction proof modules."""
+    relative = source.relative_to(ROOT)
+    if relative.parent.name != "Refinement":
+        return [source]
+    module = ".".join(relative.with_suffix("").parts)
+    imported = set(imports(source.read_text()))
+    prefix = module.rsplit(".", 1)[0]
+    expected = {direction: prefix + f".{direction}.{source.stem}"
+                for direction in ("Forward", "Reverse")}
+    if not any(name in imported for name in expected.values()):
+        return [source]
+    candidates = {direction: source.parent / direction / source.name
+                  for direction in expected}
+    if any(name not in imported or not candidates[direction].is_file()
+           for direction, name in expected.items()):
+        raise ValueError(f"incomplete directional aggregate: {source}")
+    ambiguous = any("refines" not in selector and "realizes" not in selector
+                    for selector in only)
+    directions = []
+    for direction, word in (("Forward", "refines"), ("Reverse", "realizes")):
+        candidate = candidates[direction]
+        if not only or ambiguous or any(word in selector for selector in only):
+            if not only or selected_theorems(candidate.read_text(), only):
+                directions.append(candidate)
+    return directions
+
+
+def selected_theorems(text, only):
+    """Count directly requested theorem declarations, before dependency expansion."""
+    return [name for kind, name in map(chunk_kind, chunks(text))
+            if kind == "theorem" and any(word in name for word in only)]
+
+
 def chunks(text):
-    """Split at blank lines followed by a column-0 line; a chunk keeps its docstring."""
+    """Split declarations and individual audits; a chunk keeps its docstring."""
     parts, current = [], []
     for line in text.splitlines(keepends=True):
-        if current and line.strip() and not line[0].isspace() and not current[-1].strip():
+        if current and (line.startswith("#audit_axioms ") or
+                        (line.strip() and not line[0].isspace() and
+                         not current[-1].strip())):
             parts.append("".join(current))
             current = []
         current.append(line)
@@ -60,6 +99,8 @@ def chunk_kind(chunk):
     Names are as written (`«$add_map».dispatch`, `NanoP4Spec.R.refines` for an audit)."""
     for line in chunk.splitlines():
         if line.startswith("/--") or line.startswith("  ") or not line.strip():
+            continue
+        if BUDGET.match(line):
             continue
         declared = DECLARATION.match(line)
         if declared and line.removeprefix("private ").startswith("theorem"):
@@ -115,10 +156,13 @@ def options(heartbeats, trace, full_terms):
 
 def instrument(text, extra):
     """Insert the options after the last preamble `set_option` (before the first `open`
-    or `namespace`), which they override; a later scoped option is left alone."""
+    or `namespace`), which they override. A per-theorem heartbeat budget is dropped when
+    the heartbeat limit is overridden; other scoped options are left alone."""
     if not extra:
         return text
     lines = text.splitlines(keepends=True)
+    if any(line.startswith("set_option maxHeartbeats ") for line in extra):
+        lines = [line for line in lines if not BUDGET.match(line.rstrip("\n"))]
     body = next((i for i, line in enumerate(lines)
                  if line.startswith("open ") or line.startswith("namespace ")), len(lines))
     last = max((i for i, line in enumerate(lines[:body]) if line.startswith("set_option ")),
@@ -146,6 +190,31 @@ def missing_imports(text):
     return missing
 
 
+def native_libraries(no_build):
+    """Ask Lake for the platform's native library paths in their required load order.
+
+    Lake's `--no-build` option rejects a stale or missing target, preserving this
+    script's `--no-build` promise even when native replay is selected.
+    """
+    command = ["lake"] + (["--no-build"] if no_build else []) + [
+        "query", "--json", *NATIVE_TARGETS]
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError("native library query failed: " +
+                           (result.stderr.strip() or result.stdout.strip()))
+    try:
+        paths = [json.loads(line) for line in result.stdout.splitlines()]
+        if len(paths) != len(NATIVE_TARGETS) or not all(isinstance(p, str) for p in paths):
+            raise ValueError("Lake did not return one path per native target")
+        paths = [Path(p) if Path(p).is_absolute() else ROOT / p for p in paths]
+    except (json.JSONDecodeError, ValueError) as error:
+        raise RuntimeError(f"invalid native library query output: {error}") from error
+    missing = [str(path) for path in paths if not path.is_file()]
+    if missing:
+        raise RuntimeError("native libraries are missing: " + ", ".join(missing))
+    return ["--load-dynlib=" + str(path) for path in paths]
+
+
 def replay(source, args):
     """Write the instrumented scratch copy of `source` and elaborate it; return the result."""
     text = source.read_text()
@@ -156,7 +225,7 @@ def replay(source, args):
     log = scratch.with_suffix(".log")
     started = time.monotonic()
     with log.open("w") as out:
-        code = subprocess.run(["lake", "env", "lean", str(scratch)], cwd=ROOT,
+        code = subprocess.run(["lake", "env", "lean", *args.native_args, str(scratch)], cwd=ROOT,
                               stdout=out, stderr=subprocess.STDOUT).returncode
     return source, code, time.monotonic() - started, log
 
@@ -175,11 +244,24 @@ def main(argv=None):
     parser.add_argument("--jobs", type=int, default=4, help="modules replayed in parallel")
     parser.add_argument("--no-build", action="store_true",
                         help="skip rebuilding the P4SpecTec library first")
+    parser.add_argument("--native", action="store_true",
+                        help="load Lake-built Batteries and P4SpecTec native libraries")
     args = parser.parse_args(argv)
-    sources = [module_path(m) for m in args.modules]
-    for source in sources:
+    requested = [module_path(m) for m in args.modules]
+    for source in requested:
         if not source.exists():
             parser.error(f"no source file {source}")
+    sources = []
+    for source in requested:
+        try:
+            expanded = directional_sources(source, args.only)
+        except ValueError as error:
+            parser.error(str(error))
+        if args.only and not any(selected_theorems(part.read_text(), args.only)
+                                 for part in expanded):
+            parser.error(f"--only matched no theorem in {source}")
+        sources.extend(expanded)
+    sources = list(dict.fromkeys(sources))
     if not args.no_build:
         built = subprocess.run(["lake", "build", "P4SpecTec"], cwd=ROOT,
                                capture_output=True, text=True)
@@ -191,6 +273,11 @@ def main(argv=None):
     if missing:
         print("[replay] missing object files; run: lake build " + " ".join(missing),
               file=sys.stderr)
+        return 1
+    try:
+        args.native_args = native_libraries(args.no_build) if args.native else []
+    except RuntimeError as error:
+        print(f"[replay] {error}", file=sys.stderr)
         return 1
     failed = 0
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:

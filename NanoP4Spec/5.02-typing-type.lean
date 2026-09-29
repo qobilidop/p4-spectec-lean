@@ -41,53 +41,77 @@ def Type_eq.run (p0 : NanoP4Spec.typeIR) (p1 : NanoP4Spec.typeIR) : Option (Exce
      ((do
          have typeIR := p0
          have typeIR' := p1
-         (do
+         have typeIR'' := typeIR
+         let _ ← Eval.check (NanoP4Spec.typeIR.is_structTypeIR typeIR'')
+         let tmp_2 ← Eval.err? (NanoP4Spec.typeIR.of_structTypeIR typeIR'')
+         let .STRUCT_lbrace_rbrace typeId «_fieldTypeIR*» := tmp_2
+         have typeIR''' := typeIR'
+         let _ ← Eval.check (NanoP4Spec.typeIR.is_structTypeIR typeIR''')
+         let tmp_3 ← Eval.err? (NanoP4Spec.typeIR.of_structTypeIR typeIR''')
+         let .STRUCT_lbrace_rbrace typeId' «_fieldTypeIR'*» := tmp_3
+         let _ ← Eval.check (typeId' == typeId)
+         pure ()) <|>
+      ((do
+          have typeIR := p0
+          have typeIR' := p1
+          have typeIR'' := typeIR
+          let _ ← Eval.check (NanoP4Spec.typeIR.is_headerTypeIR typeIR'')
+          let tmp_4 ← Eval.err? (NanoP4Spec.typeIR.of_headerTypeIR typeIR'')
+          let .HEADER_lbrace_rbrace typeId «_fieldTypeIR*» := tmp_4
+          have typeIR''' := typeIR'
+          let _ ← Eval.check (NanoP4Spec.typeIR.is_headerTypeIR typeIR''')
+          let tmp_5 ← Eval.err? (NanoP4Spec.typeIR.of_headerTypeIR typeIR''')
+          let .HEADER_lbrace_rbrace typeId' «_fieldTypeIR'*» := tmp_5
+          let _ ← Eval.check (typeId' == typeId)
+          pure ()) <|>
+       ((do
+           have typeIR := p0
+           have typeIR' := p1
+           have typeIR'' := typeIR
+           let _ ← Eval.check (NanoP4Spec.typeIR.is_externObjectTypeIR typeIR'')
+           let tmp_6 ← Eval.err? (NanoP4Spec.typeIR.of_externObjectTypeIR typeIR'')
+           let .EXTERN typeId _externMethodTypeDefEnv := tmp_6
+           have typeIR''' := typeIR'
+           let _ ← Eval.check (NanoP4Spec.typeIR.is_externObjectTypeIR typeIR''')
+           let tmp_7 ← Eval.err? (NanoP4Spec.typeIR.of_externObjectTypeIR typeIR''')
+           let .EXTERN typeId' _externMethodTypeDefEnv' := tmp_7
+           let _ ← Eval.check (typeId' == typeId)
+           pure ()) <|>
+        ((do
+            have typeIR := p0
+            have typeIR' := p1
             have typeIR'' := typeIR
-            let _ ← Eval.check (NanoP4Spec.typeIR.is_structTypeIR typeIR'')
-            let tmp_2 ← Eval.err? (NanoP4Spec.typeIR.of_structTypeIR typeIR'')
-            let .STRUCT_lbrace_rbrace typeId «_fieldTypeIR*» := tmp_2
+            let _ ← Eval.check (NanoP4Spec.typeIR.is_parserObjectTypeIR typeIR'')
+            let tmp_8 ← Eval.err? (NanoP4Spec.typeIR.of_parserObjectTypeIR typeIR'')
+            let .PARSER_lparen_rparen _typeId «parameterIR_a*» := tmp_8
             have typeIR''' := typeIR'
-            let _ ← Eval.check (NanoP4Spec.typeIR.is_structTypeIR typeIR''')
-            let tmp_3 ← Eval.err? (NanoP4Spec.typeIR.of_structTypeIR typeIR''')
-            let .STRUCT_lbrace_rbrace typeId' «_fieldTypeIR'*» := tmp_3
-            let _ ← Eval.check (typeId' == typeId)
-            pure ()) <|>
-         (do
-            have typeIR'' := typeIR
-            let _ ← Eval.check (NanoP4Spec.typeIR.is_headerTypeIR typeIR'')
-            let tmp_4 ← Eval.err? (NanoP4Spec.typeIR.of_headerTypeIR typeIR'')
-            let .HEADER_lbrace_rbrace typeId «_fieldTypeIR*» := tmp_4
-            have typeIR''' := typeIR'
-            let _ ← Eval.check (NanoP4Spec.typeIR.is_headerTypeIR typeIR''')
-            let tmp_5 ← Eval.err? (NanoP4Spec.typeIR.of_headerTypeIR typeIR''')
-            let .HEADER_lbrace_rbrace typeId' «_fieldTypeIR'*» := tmp_5
-            let _ ← Eval.check (typeId' == typeId)
-            pure ())) <|>
-      (do
-         have typeIR := p0
-         have typeIR' := p1
-         (do
-            have typeIR'' := typeIR
-            let _ ← Eval.check (NanoP4Spec.typeIR.is_externObjectTypeIR typeIR'')
-            let tmp_6 ← Eval.err? (NanoP4Spec.typeIR.of_externObjectTypeIR typeIR'')
-            let .EXTERN typeId _externMethodTypeDefEnv := tmp_6
-            have typeIR''' := typeIR'
-            let _ ← Eval.check (NanoP4Spec.typeIR.is_externObjectTypeIR typeIR''')
-            let tmp_7 ← Eval.err? (NanoP4Spec.typeIR.of_externObjectTypeIR typeIR''')
-            let .EXTERN typeId' _externMethodTypeDefEnv' := tmp_7
-            let _ ← Eval.check (typeId' == typeId)
+            let _ ← Eval.check (NanoP4Spec.typeIR.is_parserObjectTypeIR typeIR''')
+            let tmp_9 ← Eval.err? (NanoP4Spec.typeIR.of_parserObjectTypeIR typeIR''')
+            let .PARSER_lparen_rparen _typeId' «parameterIR_b*» := tmp_9
+            let _ ← Eval.check ((List.length «parameterIR_a*») == (List.length «parameterIR_b*»))
+            let tmp_10 ←
+                List.mapM
+                  (fun ((parameterIR_a, parameterIR_b) :
+                        NanoP4Spec.parameterIR × NanoP4Spec.parameterIR) =>
+                     (do
+                        let _ ←
+                            ExceptT.mk (NanoP4Spec.ParameterType_eq.run parameterIR_a parameterIR_b)
+                        pure ()))
+                  (List.zip «parameterIR_a*» «parameterIR_b*»)
             pure ()) <|>
          ((do
+             have typeIR := p0
+             have typeIR' := p1
              have typeIR'' := typeIR
-             let _ ← Eval.check (NanoP4Spec.typeIR.is_parserObjectTypeIR typeIR'')
-             let tmp_8 ← Eval.err? (NanoP4Spec.typeIR.of_parserObjectTypeIR typeIR'')
-             let .PARSER_lparen_rparen _typeId «parameterIR_a*» := tmp_8
+             let _ ← Eval.check (NanoP4Spec.typeIR.is_controlObjectTypeIR typeIR'')
+             let tmp_11 ← Eval.err? (NanoP4Spec.typeIR.of_controlObjectTypeIR typeIR'')
+             let .CONTROL_lparen_rparen _typeId «parameterIR_a*» := tmp_11
              have typeIR''' := typeIR'
-             let _ ← Eval.check (NanoP4Spec.typeIR.is_parserObjectTypeIR typeIR''')
-             let tmp_9 ← Eval.err? (NanoP4Spec.typeIR.of_parserObjectTypeIR typeIR''')
-             let .PARSER_lparen_rparen _typeId' «parameterIR_b*» := tmp_9
+             let _ ← Eval.check (NanoP4Spec.typeIR.is_controlObjectTypeIR typeIR''')
+             let tmp_12 ← Eval.err? (NanoP4Spec.typeIR.of_controlObjectTypeIR typeIR''')
+             let .CONTROL_lparen_rparen _typeId' «parameterIR_b*» := tmp_12
              let _ ← Eval.check ((List.length «parameterIR_a*») == (List.length «parameterIR_b*»))
-             let tmp_10 ←
+             let tmp_13 ←
                  List.mapM
                    (fun ((parameterIR_a, parameterIR_b) :
                          NanoP4Spec.parameterIR × NanoP4Spec.parameterIR) =>
@@ -99,16 +123,18 @@ def Type_eq.run (p0 : NanoP4Spec.typeIR) (p1 : NanoP4Spec.typeIR) : Option (Exce
                    (List.zip «parameterIR_a*» «parameterIR_b*»)
              pure ()) <|>
           ((do
+              have typeIR := p0
+              have typeIR' := p1
               have typeIR'' := typeIR
-              let _ ← Eval.check (NanoP4Spec.typeIR.is_controlObjectTypeIR typeIR'')
-              let tmp_11 ← Eval.err? (NanoP4Spec.typeIR.of_controlObjectTypeIR typeIR'')
-              let .CONTROL_lparen_rparen _typeId «parameterIR_a*» := tmp_11
+              let _ ← Eval.check (NanoP4Spec.typeIR.is_packageObjectTypeIR typeIR'')
+              let tmp_14 ← Eval.err? (NanoP4Spec.typeIR.of_packageObjectTypeIR typeIR'')
+              let .PACKAGE_lparen_rparen _typeId «parameterIR_a*» := tmp_14
               have typeIR''' := typeIR'
-              let _ ← Eval.check (NanoP4Spec.typeIR.is_controlObjectTypeIR typeIR''')
-              let tmp_12 ← Eval.err? (NanoP4Spec.typeIR.of_controlObjectTypeIR typeIR''')
-              let .CONTROL_lparen_rparen _typeId' «parameterIR_b*» := tmp_12
+              let _ ← Eval.check (NanoP4Spec.typeIR.is_packageObjectTypeIR typeIR''')
+              let tmp_15 ← Eval.err? (NanoP4Spec.typeIR.of_packageObjectTypeIR typeIR''')
+              let .PACKAGE_lparen_rparen _typeId' «parameterIR_b*» := tmp_15
               let _ ← Eval.check ((List.length «parameterIR_a*») == (List.length «parameterIR_b*»))
-              let tmp_13 ←
+              let tmp_16 ←
                   List.mapM
                     (fun ((parameterIR_a, parameterIR_b) :
                           NanoP4Spec.parameterIR × NanoP4Spec.parameterIR) =>
@@ -119,36 +145,16 @@ def Type_eq.run (p0 : NanoP4Spec.typeIR) (p1 : NanoP4Spec.typeIR) : Option (Exce
                           pure ()))
                     (List.zip «parameterIR_a*» «parameterIR_b*»)
               pure ()) <|>
-           ((do
-               have typeIR'' := typeIR
-               let _ ← Eval.check (NanoP4Spec.typeIR.is_packageObjectTypeIR typeIR'')
-               let tmp_14 ← Eval.err? (NanoP4Spec.typeIR.of_packageObjectTypeIR typeIR'')
-               let .PACKAGE_lparen_rparen _typeId «parameterIR_a*» := tmp_14
-               have typeIR''' := typeIR'
-               let _ ← Eval.check (NanoP4Spec.typeIR.is_packageObjectTypeIR typeIR''')
-               let tmp_15 ← Eval.err? (NanoP4Spec.typeIR.of_packageObjectTypeIR typeIR''')
-               let .PACKAGE_lparen_rparen _typeId' «parameterIR_b*» := tmp_15
-               let _ ← Eval.check ((List.length «parameterIR_a*») == (List.length «parameterIR_b*»))
-               let tmp_16 ←
-                   List.mapM
-                     (fun ((parameterIR_a, parameterIR_b) :
-                           NanoP4Spec.parameterIR × NanoP4Spec.parameterIR) =>
-                        (do
-                           let _ ←
-                               ExceptT.mk
-                                 (NanoP4Spec.ParameterType_eq.run parameterIR_a parameterIR_b)
-                           pure ()))
-                     (List.zip «parameterIR_a*» «parameterIR_b*»)
-               pure ()) <|>
-            (do
-               have typeIR'' := typeIR
-               let _ ← Eval.check (NanoP4Spec.typeIR.is_tableObjectTypeIR typeIR'')
-               let tmp_17 ← Eval.err? (NanoP4Spec.typeIR.of_tableObjectTypeIR typeIR'')
-               let .TABLE typeId := tmp_17
-               let _ ← Eval.check (typeIR' ==
-                (NanoP4Spec.tableObjectTypeIR.to_typeIR
-                   (NanoP4Spec.tableObjectTypeIR.TABLE typeId)))
-               pure ())))))))
+           (do
+              have typeIR := p0
+              have typeIR' := p1
+              have typeIR'' := typeIR
+              let _ ← Eval.check (NanoP4Spec.typeIR.is_tableObjectTypeIR typeIR'')
+              let tmp_17 ← Eval.err? (NanoP4Spec.typeIR.of_tableObjectTypeIR typeIR'')
+              let .TABLE typeId := tmp_17
+              let _ ← Eval.check (typeIR' ==
+               (NanoP4Spec.tableObjectTypeIR.to_typeIR (NanoP4Spec.tableObjectTypeIR.TABLE typeId)))
+              pure ()))))))))
   partial_fixpoint
 
 def ParameterType_eq.run (p0 : NanoP4Spec.parameterIR) (p1 : NanoP4Spec.parameterIR)
@@ -158,9 +164,8 @@ def ParameterType_eq.run (p0 : NanoP4Spec.parameterIR) (p1 : NanoP4Spec.paramete
        let .mk direction typeIR_a _nameIR := p0
        let .mk direction' typeIR_b _nameIR' := p1
        let _ ← Eval.check (direction == direction')
-       (do
-          let _ ← ExceptT.mk (NanoP4Spec.Type_eq.run typeIR_a typeIR_b)
-          pure ()))
+       let _ ← ExceptT.mk (NanoP4Spec.Type_eq.run typeIR_a typeIR_b)
+       pure ())
   partial_fixpoint
 
 end
@@ -342,23 +347,17 @@ theorem Type_eq.run_sound_group :
          NanoP4Spec.ParameterType_eq p0 p1) := by
   run_sound_group NanoP4Spec.Type_eq.run.mutual_partial_correctness
 
-#audit_axioms NanoP4Spec.Type_eq.run_sound_group
-
 theorem Type_eq.run_sound
     (p0 : NanoP4Spec.typeIR)
     (p1 : NanoP4Spec.typeIR) :
     NanoP4Spec.Type_eq.run p0 p1 = some (.ok ()) → NanoP4Spec.Type_eq p0 p1 :=
   fun h => NanoP4Spec.Type_eq.run_sound_group.1 p0 p1 _ h () rfl
 
-#audit_axioms NanoP4Spec.Type_eq.run_sound
-
 theorem ParameterType_eq.run_sound
     (p0 : NanoP4Spec.parameterIR)
     (p1 : NanoP4Spec.parameterIR) :
     NanoP4Spec.ParameterType_eq.run p0 p1 = some (.ok ()) → NanoP4Spec.ParameterType_eq p0 p1 :=
   fun h => NanoP4Spec.Type_eq.run_sound_group.2 p0 p1 _ h () rfl
-
-#audit_axioms NanoP4Spec.ParameterType_eq.run_sound
 
 def Type_eq.al : Lang.Al.def :=
   Q.d
@@ -1238,18 +1237,17 @@ def VarDecl_ok.run
        have TC_0 := p1
        let .semi type name tmp_0 := p2
        let .eq expression := tmp_0
-       (do
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
-          have typeIR := tmp_1
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.Expr_ok.run scope TC_0 expression)
-          have typeIR' := tmp_2
-          let _ ← ExceptT.mk (NanoP4Spec.Type_eq.run typeIR typeIR')
-          let tmp_3 ← ExceptT.mk (NanoP4Spec.«$id» name)
-          have id := tmp_3
-          have varTypeIR := NanoP4Spec.varTypeIR.mk NanoP4Spec.direction.INOUT typeIR
-          let tmp_4 ← ExceptT.mk (NanoP4Spec.«$add_var_t» scope TC_0 id varTypeIR)
-          have TC_1 := tmp_4
-          pure TC_1))
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
+       have typeIR := tmp_1
+       let tmp_2 ← ExceptT.mk (NanoP4Spec.Expr_ok.run scope TC_0 expression)
+       have typeIR' := tmp_2
+       let _ ← ExceptT.mk (NanoP4Spec.Type_eq.run typeIR typeIR')
+       let tmp_3 ← ExceptT.mk (NanoP4Spec.«$id» name)
+       have id := tmp_3
+       have varTypeIR := NanoP4Spec.varTypeIR.mk NanoP4Spec.direction.INOUT typeIR
+       let tmp_4 ← ExceptT.mk (NanoP4Spec.«$add_var_t» scope TC_0 id varTypeIR)
+       have TC_1 := tmp_4
+       pure TC_1)
 
 inductive VarDecl_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →
@@ -1289,8 +1287,6 @@ theorem VarDecl_ok.run_sound
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.VarDecl_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.VarDecl_ok p0 p1 p2 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.VarDecl_ok.run_sound
 
 -- no determinism theorem: VarDecl_ok
 --   calls Type_ok, which has no determinism theorem
@@ -1427,11 +1423,10 @@ def ParserTransition_ok.run
            | NanoP4Spec.stateExpression.semi _ => true
            | _ => false)
         let .semi name := stateExpression | throw Fail.err
-        (do
-           let tmp_0 ← ExceptT.mk (NanoP4Spec.«$id» name)
-           have nameIR := tmp_0
-           let _ ← Eval.check (List.elem nameIR «nameIR_state*»)
-           pure ())) <|>
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.«$id» name)
+        have nameIR := tmp_0
+        let _ ← Eval.check (List.elem nameIR «nameIR_state*»)
+        pure ()) <|>
      (do
         have TC_0 := p0
         have «nameIR_state*» := p1
@@ -1439,59 +1434,58 @@ def ParserTransition_ok.run
         let _ ← Eval.check (NanoP4Spec.stateExpression.is_selectExpression stateExpression)
         let tmp_1 ← Eval.err? (NanoP4Spec.stateExpression.of_selectExpression stateExpression)
         have selectExpression := tmp_1
-        (do
-           let .SELECT_lparen_rparen_lbrace_rbrace expression selectCaseList := selectExpression
-           let tmp_2 ← ExceptT.mk (NanoP4Spec.Expr_ok.run NanoP4Spec.scope.LOCAL TC_0 expression)
-           have typeIR := tmp_2
-           let tmp_3 ← ExceptT.mk (NanoP4Spec.«$flatten_selectCaseList» selectCaseList)
-           have «selectCase*» := tmp_3
-           let tmp_4 ←
-               List.mapM
-                 (fun (selectCase : NanoP4Spec.selectCase) =>
-                    (do
-                       let .colon_semi expression_case name_case := selectCase
-                       pure (expression_case, name_case)))
-                 «selectCase*»
-           have «expression_case*» := List.map (·.1) tmp_4
-           have «name_case*» := List.map (·.2) tmp_4
-           let tmp_6 ←
-               List.mapM
-                 (fun (expression_case : NanoP4Spec.expression) =>
-                    (do
-                       let tmp_5 ←
-                           ExceptT.mk
-                             (NanoP4Spec.Expr_ok.run NanoP4Spec.scope.LOCAL TC_0 expression_case)
-                       have typeIR_case := tmp_5
-                       pure typeIR_case))
-                 «expression_case*»
-           have «typeIR_case*» := tmp_6
-           let tmp_7 ←
-               List.mapM
-                 (fun (typeIR_case : NanoP4Spec.typeIR) =>
-                    (do
-                       let _ ← ExceptT.mk (NanoP4Spec.Type_eq.run typeIR typeIR_case)
-                       pure ()))
-                 «typeIR_case*»
-           let tmp_9 ←
-               List.mapM
-                 (fun (name_case : NanoP4Spec.name) =>
-                    (do
-                       let tmp_8 ← ExceptT.mk (NanoP4Spec.«$id» name_case)
-                       have nameIR_case := tmp_8
-                       pure nameIR_case))
-                 «name_case*»
-           have «nameIR_case*» := tmp_9
-           let tmp_10 ←
-               List.mapM
-                 (fun (nameIR_case : NanoP4Spec.nameIR) =>
-                    (do
-                       have b_contains := List.elem nameIR_case «nameIR_state*»
-                       pure b_contains))
-                 «nameIR_case*»
-           have «b_contains*» := tmp_10
-           let tmp_11 ← ExceptT.mk (NanoP4Spec.«$forall_» «b_contains*»)
-           let _ ← Eval.check tmp_11
-           pure ())))
+        let .SELECT_lparen_rparen_lbrace_rbrace expression selectCaseList := selectExpression
+        let tmp_2 ← ExceptT.mk (NanoP4Spec.Expr_ok.run NanoP4Spec.scope.LOCAL TC_0 expression)
+        have typeIR := tmp_2
+        let tmp_3 ← ExceptT.mk (NanoP4Spec.«$flatten_selectCaseList» selectCaseList)
+        have «selectCase*» := tmp_3
+        let tmp_4 ←
+            List.mapM
+              (fun (selectCase : NanoP4Spec.selectCase) =>
+                 (do
+                    let .colon_semi expression_case name_case := selectCase
+                    pure (expression_case, name_case)))
+              «selectCase*»
+        have «expression_case*» := List.map (·.1) tmp_4
+        have «name_case*» := List.map (·.2) tmp_4
+        let tmp_6 ←
+            List.mapM
+              (fun (expression_case : NanoP4Spec.expression) =>
+                 (do
+                    let tmp_5 ←
+                        ExceptT.mk
+                          (NanoP4Spec.Expr_ok.run NanoP4Spec.scope.LOCAL TC_0 expression_case)
+                    have typeIR_case := tmp_5
+                    pure typeIR_case))
+              «expression_case*»
+        have «typeIR_case*» := tmp_6
+        let tmp_7 ←
+            List.mapM
+              (fun (typeIR_case : NanoP4Spec.typeIR) =>
+                 (do
+                    let _ ← ExceptT.mk (NanoP4Spec.Type_eq.run typeIR typeIR_case)
+                    pure ()))
+              «typeIR_case*»
+        let tmp_9 ←
+            List.mapM
+              (fun (name_case : NanoP4Spec.name) =>
+                 (do
+                    let tmp_8 ← ExceptT.mk (NanoP4Spec.«$id» name_case)
+                    have nameIR_case := tmp_8
+                    pure nameIR_case))
+              «name_case*»
+        have «nameIR_case*» := tmp_9
+        let tmp_10 ←
+            List.mapM
+              (fun (nameIR_case : NanoP4Spec.nameIR) =>
+                 (do
+                    have b_contains := List.elem nameIR_case «nameIR_state*»
+                    pure b_contains))
+              «nameIR_case*»
+        have «b_contains*» := tmp_10
+        let tmp_11 ← ExceptT.mk (NanoP4Spec.«$forall_» «b_contains*»)
+        let _ ← Eval.check tmp_11
+        pure ()))
 
 inductive ParserTransition_ok : NanoP4Spec.typingContext →
   (List NanoP4Spec.nameIR) →
@@ -1566,8 +1560,6 @@ theorem ParserTransition_ok.run_sound
     NanoP4Spec.ParserTransition_ok.run p0 p1 p2 = some (.ok ()) →
         NanoP4Spec.ParserTransition_ok p0 p1 p2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ParserTransition_ok.run_sound
 
 -- no determinism theorem: ParserTransition_ok
 --   2 rule paths
@@ -1854,5 +1846,11 @@ def ParserTransition_ok.al : Lang.Al.def :=
              []]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Type_eq.run_sound_group
+#audit_axioms NanoP4Spec.Type_eq.run_sound
+#audit_axioms NanoP4Spec.ParameterType_eq.run_sound
+#audit_axioms NanoP4Spec.VarDecl_ok.run_sound
+#audit_axioms NanoP4Spec.ParserTransition_ok.run_sound
 
 end NanoP4Spec

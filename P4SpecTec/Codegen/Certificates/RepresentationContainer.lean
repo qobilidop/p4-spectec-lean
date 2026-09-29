@@ -39,14 +39,14 @@ private def pairTemplate : String :=
   "\n" ++
   "#audit_axioms NAME.sourceArgs\n\n" ++
   "private theorem NAME.sourceFields (leftType rightType : Lang.Il.typ) (v : Lang.Il.value)\n" ++
-  "    (valid : Valid LIB.spec Representation.Source.externDomain\n" ++
+  "    (valid : Valid LIB.spec DOMAIN\n" ++
   "      (Q.varT SOURCE_ID [leftType, rightType]) v) :\n" ++
   "    ∃ (tree : Mixfix.t Lang.Il.value) (a b : Lang.Il.value), v.it = .CaseV tree ∧\n" ++
   "      Mixfix.eq_mixop tree\n" ++
   "        MIXOP = true ∧\n" ++
   "      Mixfix.args tree = [a,b] ∧\n" ++
-  "      Valid LIB.spec Representation.Source.externDomain leftType.it a ∧\n" ++
-  "      Valid LIB.spec Representation.Source.externDomain rightType.it b := by\n" ++
+  "      Valid LIB.spec DOMAIN leftType.it a ∧\n" ++
+  "      Valid LIB.spec DOMAIN rightType.it b := by\n" ++
   "  obtain ⟨tree, shape, matching, payload⟩ := valid.singleConstructor\n" ++
   "    (Q.i SOURCE_ID) [leftType, rightType] [Q.i LEFT_ID, Q.i RIGHT_ID] " ++
   "NAME.sourceConstructor\n" ++
@@ -75,18 +75,18 @@ private def pairTemplate : String :=
   "\n" ++
   "#audit_axioms NAME.sourceFields\n\n" ++
   "/-- Complete source codec for every legal pair of parameter codecs. -/\n" ++
-  "theorem NAME.codec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n" ++
+  "theorem NAME.PART_CODEC {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n" ++
   "    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n" ++
   "    (leftCodec : Representation.Codec (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain" ++
+  "DOMAIN" ++
   " leftType.it) left)\n" ++
   "    (rightCodec : Representation.Codec\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain rightType.it) right) :\n" ++
+  "DOMAIN rightType.it) right) :\n" ++
   "    @Representation.Codec (QUALIFIED α β) ⟨QUALIFIED.toValue⟩\n" ++
   "      ⟨QUALIFIED.ofValue⟩\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID [leftType, " ++
+  "DOMAIN (Q.varT SOURCE_ID [leftType, " ++
   "rightType]))\n" ++
   "      (NAME.admitted left right) := by\n" ++
   "  letI : ToValue (QUALIFIED α β) := ⟨QUALIFIED.toValue⟩\n" ++
@@ -154,21 +154,21 @@ private def pairTemplate : String :=
   "        simp only [OfValue.ofValue, QUALIFIED.ofValue, shape, args]\n" ++
   "        rw [da', db']\n" ++
   "        rfl\n" ++
-  "#audit_axioms QUALIFIED.codec\n"
+  "#audit_axioms QUALIFIED.PART_CODEC\n"
 
 private def pairContract : String :=
   "∀ {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]\n" ++
   "    (leftType rightType : Lang.Il.typ) (left : α → Prop) (right : β → Prop)\n" ++
   "    (leftCodec : Representation.Codec (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain" ++
+  "DOMAIN" ++
   " leftType.it) left)\n" ++
   "    (rightCodec : Representation.Codec\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain rightType.it) right),\n" ++
+  "DOMAIN rightType.it) right),\n" ++
   "    @Representation.Codec (QUALIFIED α β) ⟨QUALIFIED.toValue⟩\n" ++
   "      ⟨QUALIFIED.ofValue⟩\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID [leftType, " ++
+  "DOMAIN (Q.varT SOURCE_ID [leftType, " ++
   "rightType]))\n" ++
   "      (NAME.admitted left right)"
 
@@ -201,12 +201,12 @@ private def listTemplate : String :=
   "#audit_axioms NAME.sourceArgs\n\n" ++
   "private theorem NAME.sourceFields (element : Lang.Il.typ) (v : Lang.Il.value)\n" ++
   "    (valid : Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID [element]) v) :\n" ++
+  "DOMAIN (Q.varT SOURCE_ID [element]) v) :\n" ++
   "    ∃ (tree : Mixfix.t Lang.Il.value) (a : Lang.Il.value), v.it = .CaseV tree ∧\n" ++
   "      Mixfix.eq_mixop tree\n" ++
   "        MIXOP = true ∧\n" ++
   "      Mixfix.args tree = [a] ∧\n" ++
-  "      Valid LIB.spec Representation.Source.externDomain (.IterT element .List) a := by\n" ++
+  "      Valid LIB.spec DOMAIN (.IterT element .List) a := by\n" ++
   "  obtain ⟨tree, shape, matching, payload⟩ := valid.singleConstructor\n" ++
   "    (Q.i SOURCE_ID) [element] [Q.i LEFT_ID] NAME.sourceConstructor [Q.t (.IterT element " ++
   ".List)] v\n" ++
@@ -232,15 +232,15 @@ private def listTemplate : String :=
   "\n" ++
   "#audit_axioms NAME.sourceFields\n\n" ++
   "/-- Complete source codec for every legal element codec. -/\n" ++
-  "theorem NAME.codec {α : Type} [ToValue α] [OfValue α]\n" ++
+  "theorem NAME.PART_CODEC {α : Type} [ToValue α] [OfValue α]\n" ++
   "    (element : Lang.Il.typ) (accepted : α → Prop)\n" ++
   "    (elementCodec : Representation.Codec\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain element.it) accepted) :\n" ++
+  "DOMAIN element.it) accepted) :\n" ++
   "    @Representation.Codec (QUALIFIED α) ⟨QUALIFIED.toValue⟩\n" ++
   "      ⟨QUALIFIED.ofValue⟩\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID " ++
+  "DOMAIN (Q.varT SOURCE_ID " ++
   "[element]))\n" ++
   "      (NAME.admitted accepted) := by\n" ++
   "  letI : ToValue (QUALIFIED α) := ⟨QUALIFIED.toValue⟩\n" ++
@@ -304,18 +304,18 @@ private def listTemplate : String :=
   "                   pure (QUALIFIED.CTOR a')) = _\n" ++
   "        rw [da']\n" ++
   "        rfl\n" ++
-  "#audit_axioms QUALIFIED.codec\n"
+  "#audit_axioms QUALIFIED.PART_CODEC\n"
 
 private def listContract : String :=
   "∀ {α : Type} [ToValue α] [OfValue α]\n" ++
   "    (element : Lang.Il.typ) (accepted : α → Prop)\n" ++
   "    (elementCodec : Representation.Codec\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain element.it) accepted),\n" ++
+  "DOMAIN element.it) accepted),\n" ++
   "    @Representation.Codec (QUALIFIED α) ⟨QUALIFIED.toValue⟩\n" ++
   "      ⟨QUALIFIED.ofValue⟩\n" ++
   "      (Representation.Source.Valid LIB.spec " ++
-  "Representation.Source.externDomain (Q.varT SOURCE_ID " ++
+  "DOMAIN (Q.varT SOURCE_ID " ++
   "[element]))\n" ++
   "      (NAME.admitted accepted)"
 
@@ -337,6 +337,8 @@ private def instantiate (env : Env) (d : Lang.Al.def) (template : String) :
   let decoded := mixfixTerm mixop (if isList then [.atom "(ToValue.toValue a')"]
     else [.atom "(ToValue.toValue a')", .atom "(ToValue.toValue b')"])
   return template
+    |>.replace "PART_CODEC" (env.part "codec")
+    |>.replace "DOMAIN" env.domainTerm
     |>.replace "SOURCE_CASE" sourceCase.fmt.pretty
     |>.replace "SOURCE_FIELDS" (Reify.lst ((Mixfix.args constructor.nottyp.it).map
       Reify.typ)).fmt.pretty
@@ -360,11 +362,11 @@ private def pairEncodingTemplate : String := "
 /-- Encoded pair validity is exactly independent validity of both encoded parameters. -/
 theorem NAME.encodingSourceIff {α β : Type} [ToValue α] [ToValue β]
     (leftType rightType : Lang.Il.typ) (x : QUALIFIED α β) :
-    Valid LIB.spec Representation.Source.externDomain
+    Valid LIB.spec DOMAIN
       (Q.varT SOURCE_ID [leftType, rightType]) (QUALIFIED.toValue x) ↔
     NAME.admitted
-      (fun a => Valid LIB.spec Representation.Source.externDomain leftType.it (ToValue.toValue a))
-      (fun b => Valid LIB.spec Representation.Source.externDomain
+      (fun a => Valid LIB.spec DOMAIN leftType.it (ToValue.toValue a))
+      (fun b => Valid LIB.spec DOMAIN
         rightType.it (ToValue.toValue b)) x := by
   cases x with
   | CTOR a b =>
@@ -398,10 +400,10 @@ private def listEncodingTemplate : String := "
 /-- Encoded container validity is exactly independent validity of every encoded element. -/
 theorem NAME.encodingSourceIff {α : Type} [ToValue α]
     (element : Lang.Il.typ) (x : QUALIFIED α) :
-    Valid LIB.spec Representation.Source.externDomain
+    Valid LIB.spec DOMAIN
       (Q.varT SOURCE_ID [element]) (QUALIFIED.toValue x) ↔
     NAME.admitted
-      (fun a => Valid LIB.spec Representation.Source.externDomain
+      (fun a => Valid LIB.spec DOMAIN
         element.it (ToValue.toValue a)) x := by
   cases x with
   | CTOR xs =>
@@ -430,12 +432,17 @@ theorem NAME.encodingSourceIff {α : Type} [ToValue α]
 #audit_axioms NAME.encodingSourceIff
 "
 
-/-- Emit source inversion and a codec quantified over arbitrary legal parameter codecs. -/
+/-- Emit source inversion and a codec quantified over arbitrary legal parameter codecs.
+The runtime profile emits only the codec, over the source profile's admission. -/
 def declarations (env : Env) (d : Lang.Al.def) : Except String Format := do
   let core := if (pairShape env d).isOk then pairTemplate else listTemplate
   let encoded := if (pairShape env d).isOk then pairEncodingTemplate else listEncodingTemplate
-  let proof ← instantiate env d
-    (core.trimAsciiEnd.toString ++ "\n\n" ++ encoded.trimAscii.toString)
+  let marker := "private def NAME.sourceConstructor"
+  let some start := (core.splitOn marker).tail.head?
+    | throw "container template lacks its source constructor"
+  let template := if env.runtimeProfile then (marker ++ start).trimAsciiEnd.toString
+    else core.trimAsciiEnd.toString ++ "\n\n" ++ encoded.trimAscii.toString
+  let proof ← instantiate env d template
   return Format.text (boundedLines ("open Lang.Il Domain Representation.Source\n\n" ++ proof))
 
 end P4SpecTec.Codegen.RepresentationContainers

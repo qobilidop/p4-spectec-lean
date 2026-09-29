@@ -67,7 +67,8 @@ theorem «$empty_typeDefEnv».producesSource :
     (NanoP4Spec.typeId), (fun _ => True) x from NanoP4Spec.typeId.admittedAll)) a, ((show ∀ x :
     (NanoP4Spec.typeDefIR), (NanoP4Spec.typeDefIR.admitted) x from
     NanoP4Spec.typeDefIR.admittedAll)) b⟩))))) result)
-#audit_axioms «$empty_typeDefEnv».producesSource
 
+
+#audit_axioms «$empty_typeDefEnv».producesSource
 
 end NanoP4Spec

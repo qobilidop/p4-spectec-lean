@@ -116,7 +116,8 @@ theorem Lvalue_ok.callArgumentsSource :
     Representation.Source.externDomain (Q.t (Q.varT "lvalue" [])).it)
     (NanoP4Spec.lvalue.admitted) (NanoP4Spec.lvalue.codec)) x (((show ∀ x : (NanoP4Spec.lvalue),
     (NanoP4Spec.lvalue.admitted) x from NanoP4Spec.lvalue.admittedAll)) x)), trivial⟩
-#audit_axioms Lvalue_ok.callArgumentsSource
 
+
+#audit_axioms Lvalue_ok.callArgumentsSource
 
 end NanoP4Spec

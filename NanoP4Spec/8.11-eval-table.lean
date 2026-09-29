@@ -29,10 +29,9 @@ def TableKey_eval.run (p0 : NanoP4Spec.evalContext) (p1 : NanoP4Spec.tableKey)
     (do
        have EC := p0
        let .lbrace_colon_semi_rbrace expression name := p1
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
-          have value := tmp_0
-          pure value))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_eval.run NanoP4Spec.scope.LOCAL EC expression)
+       have value := tmp_0
+       pure value)
 
 inductive TableKey_eval : NanoP4Spec.evalContext →
   NanoP4Spec.tableKey →
@@ -55,8 +54,6 @@ theorem TableKey_eval.run_sound
     (o : NanoP4Spec.value) :
     NanoP4Spec.TableKey_eval.run p0 p1 = some (.ok o) → NanoP4Spec.TableKey_eval p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TableKey_eval.run_sound
 
 -- no determinism theorem: TableKey_eval
 --   calls Expr_eval, which has no determinism theorem
@@ -538,5 +535,7 @@ def «$match_entry_value».al : Lang.Al.def :=
                    .BoolT))]]
        none
        [])
+
+#audit_axioms NanoP4Spec.TableKey_eval.run_sound
 
 end NanoP4Spec

@@ -274,8 +274,9 @@ the proved direction, domain and environment, not infer a stronger contract
 from the word “certificate”. See the [verification contract](design.md#5-verification-and-validation).
 
 **Evaluate complete uses, not just generated coverage.** The
-[generated AL refinement](../NanoP4Spec/Refinement.lean) covers only part of the 153
-Nano definitions; [Certification](certification.md) records the current count. The handwritten
+[generated AL refinement](../NanoP4Spec/Refinement.lean) provides correspondence
+claims for Nano definitions; [Certification](certification.md) records current
+coverage and assumptions. The handwritten
 [field-update certificate](../ExampleProofs/NanoP4FieldUpdate/Certificate.lean)
 additionally establishes representation coverage, initialization and two-way
 terminating correspondence on its scalar domain. The

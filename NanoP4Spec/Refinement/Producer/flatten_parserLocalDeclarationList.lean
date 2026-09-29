@@ -67,7 +67,8 @@ theorem «$flatten_parserLocalDeclarationList».producesSource :
     ∀ x ∈ xs, (NanoP4Spec.parserLocalDeclaration.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.parserLocalDeclaration), (NanoP4Spec.parserLocalDeclaration.admitted) x from
     NanoP4Spec.parserLocalDeclaration.admittedAll)) x))) result)
-#audit_axioms «$flatten_parserLocalDeclarationList».producesSource
 
+
+#audit_axioms «$flatten_parserLocalDeclarationList».producesSource
 
 end NanoP4Spec

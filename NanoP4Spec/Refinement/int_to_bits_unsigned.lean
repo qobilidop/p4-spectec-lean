@@ -31,8 +31,6 @@ theorem «$int_to_bits_unsigned».dispatch (p0 : Nat) (p1 : Int)
       by
   exact Refine.Builtin.Numeric.intToBitsUnsignedRun h0 h1 cfg.printHints
 
-#audit_axioms NanoP4Spec.«$int_to_bits_unsigned».dispatch
-
 theorem «$int_to_bits_unsigned».refines (fuel : Nat) (p0 : Nat) (p1 : Int)
    (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg : Interp_al.Interp.Config)
      (ctx : Interp_al.Ctx.t) (internal : Bool) (hguard : cfg.guard = false) (hfenv :
@@ -42,8 +40,6 @@ theorem «$int_to_bits_unsigned».refines (fuel : Nat) (p0 : Nat) (p1 : Int)
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal
     "int_to_bits_unsigned" _ _ _ [] [v0, v1] hfenv hdecl
     (NanoP4Spec.«$int_to_bits_unsigned».dispatch p0 p1 v0 v1 h0 h1 cfg)
-
-#audit_axioms NanoP4Spec.«$int_to_bits_unsigned».refines
 
 theorem «$int_to_bits_unsigned».realizes (p0 : Nat) (p1 : Int)
    (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg : Interp_al.Interp.Config)
@@ -56,6 +52,8 @@ theorem «$int_to_bits_unsigned».realizes (p0 : Nat) (p1 : Int)
     _ [] [v0, v1] hfenv hdecl (NanoP4Spec.«$int_to_bits_unsigned».dispatch p0 p1 v0 v1 h0 h1
     cfg)
 
+#audit_axioms NanoP4Spec.«$int_to_bits_unsigned».dispatch
+#audit_axioms NanoP4Spec.«$int_to_bits_unsigned».refines
 #audit_axioms NanoP4Spec.«$int_to_bits_unsigned».realizes
 
 end NanoP4Spec

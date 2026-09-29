@@ -57,8 +57,6 @@ private theorem actionCallee.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.c
   => True) :=
   NanoP4Spec.callableId.codec
 
-#audit_axioms NanoP4Spec.actionCallee.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem actionCallee.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "callableId" [])).it actual → ∀ v,
@@ -69,8 +67,6 @@ private theorem actionCallee.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "callableId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.actionCallee.fieldSubstitution0_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem actionCallee.fieldCodec0_1 : @Representation.Codec (List
@@ -85,8 +81,6 @@ private theorem actionCallee.fieldCodec0_1 : @Representation.Codec (List
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.actionCallee.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem actionCallee.fieldSubstitution0_1 : ∀ actual,
@@ -105,16 +99,12 @@ private theorem actionCallee.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.actionCallee.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem actionCallee.fieldCodec0_2 : @Representation.Codec (NanoP4Spec.blockStatement)
   ⟨NanoP4Spec.blockStatement.toValue⟩ ⟨NanoP4Spec.blockStatement.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "blockStatement" [])).it) (NanoP4Spec.blockStatement.admitted) :=
   NanoP4Spec.blockStatement.codec
-
-#audit_axioms NanoP4Spec.actionCallee.fieldCodec0_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem actionCallee.fieldSubstitution0_2 : ∀ actual,
@@ -126,8 +116,6 @@ private theorem actionCallee.fieldSubstitution0_2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "blockStatement")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.actionCallee.fieldSubstitution0_2
 
 private theorem actionCallee.sourceCasesValid (v : Lang.Il.value) (hv : actionCallee.source v) :
     ∃ c ∈ actionCallee.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -160,8 +148,6 @@ private theorem actionCallee.sourceCasesValid (v : Lang.Il.value) (hv : actionCa
             (actionCallee.fieldSubstitution0_1 _ sub1) (.cons (actionCallee.fieldSubstitution0_2
             _ sub2) (.nil)))
 
-#audit_axioms NanoP4Spec.actionCallee.sourceCasesValid
-
 private theorem actionCallee.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -193,8 +179,6 @@ private theorem actionCallee.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Do
     (NanoP4Spec.parameterIR)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.parameterIR)
     ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v1) <;> cases ((NanoP4Spec.blockStatement.ofValue)
     fuel v2) <;> rfl
-
-#audit_axioms actionCallee.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem actionCallee.codec : @Refine.Representation.Codec NanoP4Spec.actionCallee
@@ -428,7 +412,6 @@ theorem actionCallee.codec : @Refine.Representation.Codec NanoP4Spec.actionCalle
                 (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
               rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
               all_goals rfl
-#audit_axioms NanoP4Spec.actionCallee.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -446,6 +429,15 @@ theorem actionCallee.admittedAll : ∀ x : NanoP4Spec.actionCallee,
       NanoP4Spec.blockStatement.admittedAll)) x2, trivial⟩
 
 
+#audit_axioms NanoP4Spec.actionCallee.fieldCodec0_0
+#audit_axioms NanoP4Spec.actionCallee.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.actionCallee.fieldCodec0_1
+#audit_axioms NanoP4Spec.actionCallee.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.actionCallee.fieldCodec0_2
+#audit_axioms NanoP4Spec.actionCallee.fieldSubstitution0_2
+#audit_axioms NanoP4Spec.actionCallee.sourceCasesValid
+#audit_axioms actionCallee.decode0
+#audit_axioms NanoP4Spec.actionCallee.codec
 #audit_axioms NanoP4Spec.actionCallee.admittedAll
 
 end NanoP4Spec

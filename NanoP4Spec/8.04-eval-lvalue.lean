@@ -264,12 +264,11 @@ def Lvalue_write.run
         let _ ← Eval.check (NanoP4Spec.lvalue.is_nonTypeName lvalue)
         let tmp_0 ← Eval.err? (NanoP4Spec.lvalue.of_nonTypeName lvalue)
         have referenceExpression := tmp_0
-        (do
-           let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» referenceExpression)
-           have nameIR := tmp_1
-           let tmp_2 ← ExceptT.mk (NanoP4Spec.«$update_var_e» scope EC_0 nameIR value)
-           have EC_1 := tmp_2
-           pure EC_1)) <|>
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» referenceExpression)
+        have nameIR := tmp_1
+        let tmp_2 ← ExceptT.mk (NanoP4Spec.«$update_var_e» scope EC_0 nameIR value)
+        have EC_1 := tmp_2
+        pure EC_1) <|>
      ((do
          have scope := p0
          have EC_0 := p1
@@ -279,67 +278,73 @@ def Lvalue_write.run
             | NanoP4Spec.lvalue.dot _ _ => true
             | _ => false)
          let .dot lvalue_base member := lvalue | throw Fail.err
-         (do
-            let tmp_3 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC_0 lvalue_base)
-            have value_base := tmp_3
-            have value' := value_base
-            let _ ← Eval.check (match value' with
-               | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
-               | _ => false)
-            let tmp_4 ← Eval.err? (NanoP4Spec.value.of_structValue value')
-            let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_4
-            let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» member)
-            have nameIR := tmp_5
-            let tmp_6 ← ExceptT.mk (NanoP4Spec.«$update_fieldValue» «fieldValue*» nameIR value)
-            have «fieldValue_update*» := tmp_6
-            have structValue_base_update :=
-                NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue_update*»
-            let tmp_7 ←
-                ExceptT.mk
-                  (NanoP4Spec.Lvalue_write.run
-                     scope
-                     EC_0
-                     lvalue_base
-                     (NanoP4Spec.structValue.to_value structValue_base_update))
-            have EC_1 := tmp_7
-            pure EC_1) <|>
-         (do
-            let tmp_8 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC_0 lvalue_base)
-            have value_base := tmp_8
-            have value' := value_base
-            let _ ← Eval.check (match value' with
-               | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
-               | _ => false)
-            let tmp_9 ← Eval.err? (NanoP4Spec.value.of_headerValue value')
-            let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_9
-            let tmp_10 ← ExceptT.mk (NanoP4Spec.«$id» member)
-            have nameIR := tmp_10
-            let tmp_11 ← ExceptT.mk (NanoP4Spec.«$update_fieldValue» «fieldValue*» nameIR value)
-            have «fieldValue_update*» := tmp_11
-            have headerValue_base_update :=
-                NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue_update*»
-            let tmp_12 ←
-                ExceptT.mk
-                  (NanoP4Spec.Lvalue_write.run
-                     scope
-                     EC_0
-                     lvalue_base
-                     (NanoP4Spec.headerValue.to_value headerValue_base_update))
-            have EC_1 := tmp_12
-            pure EC_1)) <|>
-      (do
-         have scope := p0
-         have EC_0 := p1
-         have lvalue' := p2
-         have value := p3
-         let _ ← Eval.check (match lvalue' with
-            | NanoP4Spec.lvalue.lparen_rparen _ => true
+         let tmp_3 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC_0 lvalue_base)
+         have value_base := tmp_3
+         have value' := value_base
+         let _ ← Eval.check (match value' with
+            | NanoP4Spec.value.STRUCT_lbrace_rbrace _ _ => true
             | _ => false)
-         let .lparen_rparen lvalue := lvalue' | throw Fail.err
-         (do
-            let tmp_13 ← ExceptT.mk (NanoP4Spec.Lvalue_write.run scope EC_0 lvalue value)
-            have EC_1 := tmp_13
-            pure EC_1))))
+         let tmp_4 ← Eval.err? (NanoP4Spec.value.of_structValue value')
+         let .STRUCT_lbrace_rbrace typeId «fieldValue*» := tmp_4
+         let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» member)
+         have nameIR := tmp_5
+         let tmp_6 ← ExceptT.mk (NanoP4Spec.«$update_fieldValue» «fieldValue*» nameIR value)
+         have «fieldValue_update*» := tmp_6
+         have structValue_base_update :=
+             NanoP4Spec.structValue.STRUCT_lbrace_rbrace typeId «fieldValue_update*»
+         let tmp_7 ←
+             ExceptT.mk
+               (NanoP4Spec.Lvalue_write.run
+                  scope
+                  EC_0
+                  lvalue_base
+                  (NanoP4Spec.structValue.to_value structValue_base_update))
+         have EC_1 := tmp_7
+         pure EC_1) <|>
+      ((do
+          have scope := p0
+          have EC_0 := p1
+          have lvalue := p2
+          have value := p3
+          let _ ← Eval.check (match lvalue with
+             | NanoP4Spec.lvalue.dot _ _ => true
+             | _ => false)
+          let .dot lvalue_base member := lvalue | throw Fail.err
+          let tmp_8 ← ExceptT.mk (NanoP4Spec.Lvalue_eval.run scope EC_0 lvalue_base)
+          have value_base := tmp_8
+          have value' := value_base
+          let _ ← Eval.check (match value' with
+             | NanoP4Spec.value.HEADER_lbrace_rbrace _ _ => true
+             | _ => false)
+          let tmp_9 ← Eval.err? (NanoP4Spec.value.of_headerValue value')
+          let .HEADER_lbrace_rbrace typeId «fieldValue*» := tmp_9
+          let tmp_10 ← ExceptT.mk (NanoP4Spec.«$id» member)
+          have nameIR := tmp_10
+          let tmp_11 ← ExceptT.mk (NanoP4Spec.«$update_fieldValue» «fieldValue*» nameIR value)
+          have «fieldValue_update*» := tmp_11
+          have headerValue_base_update :=
+              NanoP4Spec.headerValue.HEADER_lbrace_rbrace typeId «fieldValue_update*»
+          let tmp_12 ←
+              ExceptT.mk
+                (NanoP4Spec.Lvalue_write.run
+                   scope
+                   EC_0
+                   lvalue_base
+                   (NanoP4Spec.headerValue.to_value headerValue_base_update))
+          have EC_1 := tmp_12
+          pure EC_1) <|>
+       (do
+          have scope := p0
+          have EC_0 := p1
+          have lvalue' := p2
+          have value := p3
+          let _ ← Eval.check (match lvalue' with
+             | NanoP4Spec.lvalue.lparen_rparen _ => true
+             | _ => false)
+          let .lparen_rparen lvalue := lvalue' | throw Fail.err
+          let tmp_13 ← ExceptT.mk (NanoP4Spec.Lvalue_write.run scope EC_0 lvalue value)
+          have EC_1 := tmp_13
+          pure EC_1))))
   partial_fixpoint
 
 inductive Lvalue_write : NanoP4Spec.scope →
@@ -454,8 +459,6 @@ theorem Lvalue_write.run_sound_group :
          NanoP4Spec.Lvalue_write p0 p1 p2 p3 o) := by
   run_sound_group NanoP4Spec.Lvalue_write.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Lvalue_write.run_sound_group
-
 theorem Lvalue_write.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -465,8 +468,6 @@ theorem Lvalue_write.run_sound
     NanoP4Spec.Lvalue_write.run p0 p1 p2 p3 = some (.ok o) →
         NanoP4Spec.Lvalue_write p0 p1 p2 p3 o :=
   fun h => NanoP4Spec.Lvalue_write.run_sound_group p0 p1 p2 p3 _ h o rfl
-
-#audit_axioms NanoP4Spec.Lvalue_write.run_sound
 
 def Lvalue_write.al : Lang.Al.def :=
   Q.d
@@ -892,5 +893,8 @@ def Lvalue_write.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "EC_1")) (Q.varT "evalContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Lvalue_write.run_sound_group
+#audit_axioms NanoP4Spec.Lvalue_write.run_sound
 
 end NanoP4Spec

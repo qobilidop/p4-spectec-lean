@@ -145,7 +145,8 @@ theorem TableAction_ok.callArgumentsSource :
     ∈ xs, (NanoP4Spec.argumentIR.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.argumentIR), (NanoP4Spec.argumentIR.admitted) x from
     NanoP4Spec.argumentIR.admittedAll)) x))) x)), trivial⟩
-#audit_axioms TableAction_ok.callArgumentsSource
 
+
+#audit_axioms TableAction_ok.callArgumentsSource
 
 end NanoP4Spec

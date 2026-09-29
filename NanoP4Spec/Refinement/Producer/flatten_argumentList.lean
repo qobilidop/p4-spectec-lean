@@ -59,7 +59,8 @@ theorem «$flatten_argumentList».producesSource :
     List (NanoP4Spec.argument) => ∀ x ∈ xs, (NanoP4Spec.argument.admitted) x) x from (fun xs x _
     => ((show ∀ x : (NanoP4Spec.argument), (NanoP4Spec.argument.admitted) x from
     NanoP4Spec.argument.admittedAll)) x))) result)
-#audit_axioms «$flatten_argumentList».producesSource
 
+
+#audit_axioms «$flatten_argumentList».producesSource
 
 end NanoP4Spec

@@ -158,36 +158,49 @@ def admission (env : Env) (t : typ) (value : String) : Except String String := d
   pure ("(" ++ RepresentationFields.source env t ++ ") ((" ++ (← encoder env t) ++
     ") " ++ value ++ ")")
 
+/-- The projections of a right-nested product of `count` results: `r.1, r.2.1, ..., r.2.2`. -/
+def resultProjections (count : Nat) (result : String := "result") : List String :=
+  (List.range count).map fun i =>
+    let prefix_ := result ++ String.join (List.replicate i ".2")
+    if i + 1 == count then prefix_ else prefix_ ++ ".1"
+
+/-- The source types of a callable's inputs and results, and its generated name. -/
+def signature (d : Lang.Al.def) : Except String (String × List typ × List typ) :=
+  match d.it with
+  | .FuncDecD name [] params result .. => do
+    let types ← params.mapM fun param => match param.it with
+      | .ExpP t => pure t | _ => throw "producer contract requires value parameters"
+    pure (Names.funcName name.it, types, [result])
+  | .RelD name sourceNotation inputs .. => do
+    let arguments := Mixfix.args sourceNotation.it
+    unless inputs.all (fun i => i ≥ 0 && i.toNat < arguments.length) &&
+        inputs.eraseDups.length == inputs.length do
+      throw "producer relation has invalid input positions"
+    let (types, results) := Exp.splitArgs (inputs.map (·.toNat)) arguments
+    pure (Names.relName name.it ++ ".run", types,
+      if results.isEmpty then [Q.t (.TupleT [])] else results)
+  | _ => throw "producer contract needs a monomorphic function or relation"
+
 /-- The exact successful-result contract shared with compiled certificate checking.
+A relation with several outputs states each output's domain.
 This API constructs a statement only; an emitter must separately validate its proof plan. -/
-def theoremType (env : Env) (d : Lang.Al.def) : Except String String := do
+def theoremType (env : Env) (d : Lang.Al.def) (externs : Bool := false) :
+    Except String String := do
   unless env.mode == .pure do throw "producer contract requires pure execution"
-  let (callable, types, result) ← match d.it with
-    | .FuncDecD name [] params result .. => do
-      let types ← params.mapM fun param => match param.it with
-        | .ExpP t => pure t | _ => throw "producer contract requires value parameters"
-      pure (Names.funcName name.it, types, result)
-    | .RelD name sourceNotation inputs .. => do
-      let arguments := Mixfix.args sourceNotation.it
-      unless inputs.all (fun i => i ≥ 0 && i.toNat < arguments.length) &&
-          inputs.eraseDups.length == inputs.length do
-        throw "producer relation has invalid input positions"
-      let (types, results) := Exp.splitArgs (inputs.map (·.toNat)) arguments
-      let result ← match results with
-        | [] => pure (Q.t (.TupleT []))
-        | [result] => pure result
-        | _ => throw "producer relation supports zero or one output"
-      pure (Names.relName name.it ++ ".run", types, result)
-    | _ => throw "producer contract needs a monomorphic function or single-output relation"
+  let (callable, types, results) ← signature d
   let binders := (types.zipIdx).map fun (t, index) =>
     s!"(p{index} : {(typTerm env [] t.it).fmt.pretty})"
   let premises ← (types.zipIdx).mapM fun (t, index) => admission env t s!"p{index}"
   let call := env.q callable ++ " " ++
     " ".intercalate ((List.range types.length).map (fun i => s!"p{i}"))
   let quantifiers := if binders.isEmpty then "" else "∀ " ++ " ".intercalate binders ++ ",\n"
+  -- an extern-dependent callable runs under the generated extern instance
+  let quantifiers := (if externs then s!"∀ [{env.q "Externs"}],\n" else "") ++ quantifiers
   pure (quantifiers ++
     "\n".intercalate (premises.map (· ++ " →")) ++
-    s!"\n∀ result, {call} = some (.ok result) →\n" ++ (← admission env result "result"))
+    s!"\n∀ result, {call} = some (.ok result) →\n" ++
+    " ∧\n".intercalate (← (results.zip (resultProjections results.length)).mapM
+      fun (t, value) => admission env t value))
 
 /-- Emit an audited preservation proof for a source-checked first-match updater. -/
 def declarations (env : Env) (d : Lang.Al.def) : Except String String := do

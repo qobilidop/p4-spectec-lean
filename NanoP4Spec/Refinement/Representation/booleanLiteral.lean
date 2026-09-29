@@ -87,8 +87,6 @@ theorem booleanLiteral.codec : @Refine.Representation.Codec NanoP4Spec.booleanLi
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.booleanLiteral.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem booleanLiteral.sourceCodec : @Representation.Codec NanoP4Spec.booleanLiteral
   ⟨NanoP4Spec.booleanLiteral.toValue⟩ ⟨NanoP4Spec.booleanLiteral.ofValue⟩
@@ -109,12 +107,12 @@ theorem booleanLiteral.sourceCodec : @Representation.Codec NanoP4Spec.booleanLit
       rcases member with rfl | rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.booleanLiteral.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem booleanLiteral.admittedAll : ∀ x : NanoP4Spec.booleanLiteral, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.booleanLiteral.codec
+#audit_axioms NanoP4Spec.booleanLiteral.sourceCodec
 #audit_axioms NanoP4Spec.booleanLiteral.admittedAll
 
 end NanoP4Spec

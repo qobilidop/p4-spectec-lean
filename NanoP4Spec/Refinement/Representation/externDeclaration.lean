@@ -48,8 +48,6 @@ private theorem externDeclaration.bodyCodec : @Representation.Codec
   (NanoP4Spec.externObjectDeclaration.admitted) :=
   NanoP4Spec.externObjectDeclaration.codec
 
-#audit_axioms NanoP4Spec.externDeclaration.bodyCodec
-
 private theorem externDeclaration.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.externDeclaration.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "externObjectDeclaration" [])).it) v := by
@@ -61,8 +59,6 @@ private theorem externDeclaration.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "externObjectDeclaration") [] []
     rfl (.nil)) v
 
-#audit_axioms NanoP4Spec.externDeclaration.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem externDeclaration.encodingSourceIff (x : NanoP4Spec.externDeclaration) :
     NanoP4Spec.externDeclaration.source (NanoP4Spec.externDeclaration.toValue x) ↔
@@ -70,8 +66,6 @@ theorem externDeclaration.encodingSourceIff (x : NanoP4Spec.externDeclaration) :
       (Q.varT "externObjectDeclaration" [])).it) ((NanoP4Spec.externObjectDeclaration.toValue)
       x) :=
   NanoP4Spec.externDeclaration.sourceIff _
-
-#audit_axioms NanoP4Spec.externDeclaration.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem externDeclaration.codec : @Refine.Representation.Codec NanoP4Spec.externDeclaration
@@ -121,8 +115,6 @@ theorem externDeclaration.codec : @Refine.Representation.Codec NanoP4Spec.extern
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.externDeclaration.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem externDeclaration.admittedAll : ∀ x : NanoP4Spec.externDeclaration,
   (NanoP4Spec.externDeclaration.admitted) x := by
@@ -131,6 +123,10 @@ theorem externDeclaration.admittedAll : ∀ x : NanoP4Spec.externDeclaration,
     (NanoP4Spec.externObjectDeclaration.admitted) x from
     NanoP4Spec.externObjectDeclaration.admittedAll)) x
 
+#audit_axioms NanoP4Spec.externDeclaration.bodyCodec
+#audit_axioms NanoP4Spec.externDeclaration.sourceIff
+#audit_axioms NanoP4Spec.externDeclaration.encodingSourceIff
+#audit_axioms NanoP4Spec.externDeclaration.codec
 #audit_axioms NanoP4Spec.externDeclaration.admittedAll
 
 end NanoP4Spec

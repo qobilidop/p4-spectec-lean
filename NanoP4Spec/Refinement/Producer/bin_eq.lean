@@ -51,7 +51,8 @@ theorem «$bin_eq».producesSource :
     .BoolT).it) (fun _ : Bool => True) (@Representation.Source.boolCodec NanoP4Spec.spec
     Representation.Source.externDomain)) result (((show ∀ x : (Bool), (fun _ : Bool => True) x
     from (fun _ => True.intro))) result)
-#audit_axioms «$bin_eq».producesSource
 
+
+#audit_axioms «$bin_eq».producesSource
 
 end NanoP4Spec

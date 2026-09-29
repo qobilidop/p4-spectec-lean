@@ -52,7 +52,8 @@ theorem «$distinct_params».callArgumentsSource :
     (NanoP4Spec.nameIR) => ∀ x ∈ xs, (fun _ => True) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.nameIR), (fun _ => True) x from NanoP4Spec.nameIR.admittedAll)) x))) x)),
     trivial⟩
-#audit_axioms «$distinct_params».callArgumentsSource
 
+
+#audit_axioms «$distinct_params».callArgumentsSource
 
 end NanoP4Spec

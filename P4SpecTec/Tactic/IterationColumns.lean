@@ -18,7 +18,9 @@ partial def columnTraversalInputs (prove : TacticM Unit) (raw typed : Expr) :
     let some right ← columnTraversalInputs prove (raw.getArg! 3) (typed.getArg! 3) | return none
     return some (← mkAppM ``forall₂Zip #[left, right])
   if let some observed ← traversalInputs prove raw typed then return some observed
-  if typed.isAppOfArity ``List.map 4 then
+  -- a mapped or sliced generated list: relate the whole lists canonically
+  if typed.isAppOfArity ``List.map 4 || typed.isAppOfArity ``List.take 3 ||
+      typed.isAppOfArity ``List.drop 3 then
     let saved ← saveState
     try
       let rawSyntax ← Term.exprToSyntax raw
@@ -42,13 +44,18 @@ partial def columnTraversalInputs (prove : TacticM Unit) (raw typed : Expr) :
     return some (← mkAppM ``forall₂MapSource #[raw.getArg! 2, observed])
   return none
 
+/-- The components of a right-nested generated tuple of `count` columns: `x.1, x.2.1, ...`. -/
+private partial def columnFields (count : Nat) (type value : Expr) : MetaM (List Expr) := do
+  if count == 1 then return [value]
+  let type ← whnf type
+  unless type.isAppOfArity ``Prod 2 do return []
+  let rest ← columnFields (count - 1) (type.getArg! 1) (mkProj ``Prod 1 value)
+  return mkProj ``Prod 0 value :: rest
+
 private def columnEncoders (count : Nat) (type : Expr) : MetaM (Option Expr) := do
-  if count != 1 && count != 2 then return none
+  if count == 0 then return none
   withLocalDeclD `columnValue type fun value => do
-    let fields ← if count == 1 then pure [value] else do
-      let type ← whnf type
-      if type.isAppOfArity ``Prod 2 then pure [mkProj ``Prod 0 value, mkProj ``Prod 1 value]
-      else pure []
+    let fields ← columnFields count type value
     if fields.length != count then return none
     let encoders ← fields.mapM fun field => do
       let encoded ← mkAppM ``P4SpecTec.Prelude.toValue #[field]
@@ -57,7 +64,7 @@ private def columnEncoders (count : Nat) (type : Expr) : MetaM (Option Expr) := 
     return some (← mkListLit encoderType encoders)
 
 /-- Infer each output encoder from the declared source column count and generated result.
-A single column encodes its whole carrier; two columns project the actual generated pair. -/
+A single column encodes its whole carrier; several columns project the generated tuple. -/
 def columnTraversalRelation (source generated : Expr) : TacticM (Option Expr) :=
     withMainContext do
   let sourceHead := chainHead source
@@ -77,8 +84,8 @@ def columnTraversalRelation (source generated : Expr) : TacticM (Option Expr) :=
       let some encoders ← columnEncoders count type | return none
       let encodersSyntax ← Term.exprToSyntax encoders
       let typeSyntax ← Term.exprToSyntax type
-      return some (← Term.elabTerm (← `(fun (row : List P4SpecTec.Lang.Il.value)
-        (x : $typeSyntax) => canons row = canons (List.map (fun f => f x) $encodersSyntax))) none)
+      return some (← Term.elabTerm
+        (← `(@P4SpecTec.Refine.ColumnRows $typeSyntax $encodersSyntax)) none)
     catch _ =>
       saved.restore
       return none
@@ -115,7 +122,9 @@ def columnTraversalResult (source : Expr) : TacticM Bool := withMainContext do
     let type := (← instantiateMVars declaration.type).consumeMData
     unless type.isAppOfArity ``List.Forall₂ 5 do continue
     unless ← isDefEq (type.getArg! 3) (source.getArg! 1) do continue
-    let encoders? ← lambdaTelescope (type.getArg! 2) fun arguments body => do
+    let relation := (type.getArg! 2).consumeMData
+    let encoders? ← if relation.isAppOfArity ``ColumnRows 2 then pure (some (relation.getArg! 1))
+      else lambdaTelescope relation fun arguments body => do
       unless arguments.size == 2 do return none
       let some (_, left, right) := body.eq? | return none
       unless left.isAppOfArity ``canons 1 do return none

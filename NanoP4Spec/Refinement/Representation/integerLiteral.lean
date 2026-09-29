@@ -53,8 +53,6 @@ private theorem integerLiteral.fieldCodec0_0 : @Representation.Codec (Nat) ⟨@T
   .NatT)).it) (fun _ : Nat => True) :=
   @Representation.Source.natCodec NanoP4Spec.spec Representation.Source.externDomain
 
-#audit_axioms NanoP4Spec.integerLiteral.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem integerLiteral.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (.NumT .NatT)).it actual → ∀ v,
@@ -65,16 +63,12 @@ private theorem integerLiteral.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     simpa only [substitution.numResult] using valid)
 
-#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem integerLiteral.fieldCodec0_1 : @Representation.Codec (Int) ⟨@ToValue.toValue Int
   P4SpecTec.Prelude.instToValueInt⟩ ⟨@OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (.NumT
   .IntT)).it) (fun _ : Int => True) :=
   @Representation.Source.intCodec NanoP4Spec.spec Representation.Source.externDomain
-
-#audit_axioms NanoP4Spec.integerLiteral.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem integerLiteral.fieldSubstitution0_1 : ∀ actual,
@@ -86,16 +80,12 @@ private theorem integerLiteral.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     simpa only [substitution.numResult] using valid)
 
-#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem integerLiteral.fieldCodec1_0 : @Representation.Codec (Nat) ⟨@ToValue.toValue Nat
   P4SpecTec.Prelude.instToValueNat⟩ ⟨@OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (.NumT
   .NatT)).it) (fun _ : Nat => True) :=
   @Representation.Source.natCodec NanoP4Spec.spec Representation.Source.externDomain
-
-#audit_axioms NanoP4Spec.integerLiteral.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem integerLiteral.fieldSubstitution1_0 : ∀ actual,
@@ -107,16 +97,12 @@ private theorem integerLiteral.fieldSubstitution1_0 : ∀ actual,
     intro actual substitution v valid
     simpa only [substitution.numResult] using valid)
 
-#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution1_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem integerLiteral.fieldCodec1_1 : @Representation.Codec (Int) ⟨@ToValue.toValue Int
   P4SpecTec.Prelude.instToValueInt⟩ ⟨@OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (.NumT
   .IntT)).it) (fun _ : Int => True) :=
   @Representation.Source.intCodec NanoP4Spec.spec Representation.Source.externDomain
-
-#audit_axioms NanoP4Spec.integerLiteral.fieldCodec1_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem integerLiteral.fieldSubstitution1_1 : ∀ actual,
@@ -127,8 +113,6 @@ private theorem integerLiteral.fieldSubstitution1_1 : ∀ actual,
   (by
     intro actual substitution v valid
     simpa only [substitution.numResult] using valid)
-
-#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution1_1
 
 private theorem integerLiteral.sourceCasesValid (v : Lang.Il.value) (hv : integerLiteral.source
   v) :
@@ -177,8 +161,6 @@ private theorem integerLiteral.sourceCasesValid (v : Lang.Il.value) (hv : intege
         exact .cons (integerLiteral.fieldSubstitution1_0 _ sub0) (.cons
           (integerLiteral.fieldSubstitution1_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.integerLiteral.sourceCasesValid
-
 private theorem integerLiteral.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -206,8 +188,6 @@ private theorem integerLiteral.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : 
   cases ((@OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat) fuel v0) <;> cases
     ((@OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt) fuel v1) <;> rfl
 
-#audit_axioms integerLiteral.decode0
-
 private theorem integerLiteral.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -234,8 +214,6 @@ private theorem integerLiteral.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : 
     x0 x1)))
   cases ((@OfValue.ofValue Nat P4SpecTec.Prelude.instOfValueNat) fuel v0) <;> cases
     ((@OfValue.ofValue Int P4SpecTec.Prelude.instOfValueInt) fuel v1) <;> rfl
-
-#audit_axioms integerLiteral.decode1
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem integerLiteral.codec : @Refine.Representation.Codec NanoP4Spec.integerLiteral
@@ -533,7 +511,6 @@ theorem integerLiteral.codec : @Refine.Representation.Codec NanoP4Spec.integerLi
               tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.integerLiteral.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -549,6 +526,18 @@ theorem integerLiteral.admittedAll : ∀ x : NanoP4Spec.integerLiteral,
       x : (Int), (fun _ : Int => True) x from (fun _ => True.intro))) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.integerLiteral.fieldCodec0_0
+#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.integerLiteral.fieldCodec0_1
+#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.integerLiteral.fieldCodec1_0
+#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.integerLiteral.fieldCodec1_1
+#audit_axioms NanoP4Spec.integerLiteral.fieldSubstitution1_1
+#audit_axioms NanoP4Spec.integerLiteral.sourceCasesValid
+#audit_axioms integerLiteral.decode0
+#audit_axioms integerLiteral.decode1
+#audit_axioms NanoP4Spec.integerLiteral.codec
 #audit_axioms NanoP4Spec.integerLiteral.admittedAll
 
 end NanoP4Spec

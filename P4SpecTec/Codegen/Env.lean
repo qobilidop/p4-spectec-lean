@@ -80,8 +80,41 @@ structure Env where
   rels : Std.HashMap String RelInfo := {}
   /-- Definitions in spec order. -/
   defs : List Lang.Al.def := []
+  /-- Representation certificates state the runtime profile, which also admits the raw-extern
+  alternatives of `representation`, instead of the source grammar. -/
+  runtimeProfile : Bool := false
 
 namespace Env
+
+/-- The value domain representation certificates are stated over, as a Lean term. -/
+def domainTerm (env : Env) : String :=
+  if env.runtimeProfile then
+    "(Representation.Source.runtimeDomain [" ++
+      ", ".intercalate (env.representation.rawExternTypes.map fun t => t.quote) ++ "])"
+  else "Representation.Source.externDomain"
+
+/-- The declaration name of a certificate part (`codec`, `admitted`, `source`, ...) in the
+selected profile: the runtime profile's parts are `runtimeCodec`, `runtimeAdmitted`, .... -/
+def part (env : Env) (base : String) : String :=
+  if env.runtimeProfile then "runtime" ++ base.capitalize else base
+
+/-- The namespace of a recursive group's codec bundle in the selected profile. -/
+def bundle (env : Env) (leader : String) : String :=
+  leader ++ (if env.runtimeProfile then "RuntimeCodec" else "SourceCodec")
+
+/-- The declaration name of the checked certificate that the runtime profile adds no
+alternative outside its runtime types' declared closure. -/
+def runtimeClosedName (env : Env) : String := env.lib ++ ".runtimeClosed"
+
+/-- Lift a source-profile codec term, with its exact carrier and dictionaries, of a type whose
+declared closure avoids the runtime types to the runtime profile; the identity in the source
+profile. The dictionaries are explicit, so no instance of a reducible carrier is synthesized. -/
+def liftRuntime (env : Env) (carrier encoder decoder codec : String) : String :=
+  if env.runtimeProfile then
+    s!"(@Representation.Source.Codec.toRuntime ({carrier}) ⟨{encoder}⟩ ⟨{decoder}⟩ _ _ _ " ++
+      env.runtimeClosedName ++
+      " _ (Representation.Source.namesInCheckSound _ _ (by closure_check)) _ (" ++ codec ++ "))"
+  else codec
 
 /-- The file a definition comes from. -/
 def fileOf (d : Lang.Al.def) : String := d.«at».left.file
@@ -166,6 +199,16 @@ partial def resolve (env : Env) : typ' → typ'
     | some (.PlainT t) => env.resolve t.it
     | _ => .VarT i targs
   | t => t
+
+/-- `resolve` below every constructor as well: aliases inside lists, options, tuples and type
+arguments are unfolded too. -/
+partial def resolveDeep (env : Env) (t : typ') : typ' :=
+  let deep (u : typ) : typ := { u with it := env.resolveDeep u.it }
+  match env.resolve t with
+  | .VarT i targs => .VarT i (targs.map deep)
+  | .IterT u k => .IterT (deep u) k
+  | .TupleT us => .TupleT (us.map deep)
+  | u => u
 
 /-- Whether a type name is an alias. -/
 def isAlias (env : Env) (id : String) : Bool :=

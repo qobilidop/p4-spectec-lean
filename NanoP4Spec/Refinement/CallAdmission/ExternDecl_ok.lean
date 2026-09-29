@@ -112,7 +112,8 @@ theorem ExternDecl_ok.callArgumentsSource :
     (((show ∀ x : (NanoP4Spec.externMethodPrototype),
     (NanoP4Spec.externMethodPrototype.admitted) x from
     NanoP4Spec.externMethodPrototype.admittedAll)) x)), trivial⟩
-#audit_axioms ExternDecl_ok.callArgumentsSource
 
+
+#audit_axioms ExternDecl_ok.callArgumentsSource
 
 end NanoP4Spec

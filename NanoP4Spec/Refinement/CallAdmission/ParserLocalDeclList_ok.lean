@@ -80,7 +80,8 @@ theorem ParserLocalDeclList_ok.callArgumentsSource :
     ∀ x ∈ xs, (NanoP4Spec.parserLocalDeclaration.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.parserLocalDeclaration), (NanoP4Spec.parserLocalDeclaration.admitted) x from
     NanoP4Spec.parserLocalDeclaration.admittedAll)) x))) x)), trivial⟩
-#audit_axioms ParserLocalDeclList_ok.callArgumentsSource
 
+
+#audit_axioms ParserLocalDeclList_ok.callArgumentsSource
 
 end NanoP4Spec

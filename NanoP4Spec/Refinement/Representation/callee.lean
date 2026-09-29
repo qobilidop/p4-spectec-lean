@@ -71,8 +71,6 @@ private theorem callee.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.callabl
   => True) :=
   NanoP4Spec.callableId.codec
 
-#audit_axioms NanoP4Spec.callee.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "callableId" [])).it actual → ∀ v,
@@ -83,8 +81,6 @@ private theorem callee.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "callableId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.callee.fieldSubstitution0_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec0_1 : @Representation.Codec (List (NanoP4Spec.parameterIR))
@@ -98,8 +94,6 @@ private theorem callee.fieldCodec0_1 : @Representation.Codec (List (NanoP4Spec.p
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.callee.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution0_1 : ∀ actual,
@@ -118,16 +112,12 @@ private theorem callee.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callee.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec0_2 : @Representation.Codec (NanoP4Spec.blockStatement)
   ⟨NanoP4Spec.blockStatement.toValue⟩ ⟨NanoP4Spec.blockStatement.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "blockStatement" [])).it) (NanoP4Spec.blockStatement.admitted) :=
   NanoP4Spec.blockStatement.codec
-
-#audit_axioms NanoP4Spec.callee.fieldCodec0_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution0_2 : ∀ actual,
@@ -140,16 +130,12 @@ private theorem callee.fieldSubstitution0_2 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "blockStatement")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callee.fieldSubstitution0_2
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec1_0 : @Representation.Codec (NanoP4Spec.lvalue)
   ⟨NanoP4Spec.lvalue.toValue⟩ ⟨NanoP4Spec.lvalue.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "lvalue" [])).it)
   (NanoP4Spec.lvalue.admitted) :=
   NanoP4Spec.lvalue.codec
-
-#audit_axioms NanoP4Spec.callee.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution1_0 : ∀ actual,
@@ -162,16 +148,12 @@ private theorem callee.fieldSubstitution1_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "lvalue")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callee.fieldSubstitution1_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec1_1 : @Representation.Codec (NanoP4Spec.callableId)
   ⟨NanoP4Spec.callableId.toValue⟩ ⟨NanoP4Spec.callableId.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "callableId" [])).it) (fun _
   => True) :=
   NanoP4Spec.callableId.codec
-
-#audit_axioms NanoP4Spec.callee.fieldCodec1_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution1_1 : ∀ actual,
@@ -183,8 +165,6 @@ private theorem callee.fieldSubstitution1_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "callableId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.callee.fieldSubstitution1_1
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec1_2 : @Representation.Codec (List (NanoP4Spec.parameterIR))
@@ -198,8 +178,6 @@ private theorem callee.fieldCodec1_2 : @Representation.Codec (List (NanoP4Spec.p
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.callee.fieldCodec1_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution1_2 : ∀ actual,
@@ -218,16 +196,12 @@ private theorem callee.fieldSubstitution1_2 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callee.fieldSubstitution1_2
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec2_0 : @Representation.Codec (NanoP4Spec.nameIR)
   ⟨NanoP4Spec.nameIR.toValue⟩ ⟨NanoP4Spec.nameIR.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "nameIR" [])).it) (fun _ =>
   True) :=
   NanoP4Spec.nameIR.codec
-
-#audit_axioms NanoP4Spec.callee.fieldCodec2_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution2_0 : ∀ actual,
@@ -240,16 +214,12 @@ private theorem callee.fieldSubstitution2_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "nameIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.callee.fieldSubstitution2_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem callee.fieldCodec2_1 : @Representation.Codec (NanoP4Spec.tableProperties)
   ⟨NanoP4Spec.tableProperties.toValue⟩ ⟨NanoP4Spec.tableProperties.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "tableProperties" [])).it) (NanoP4Spec.tableProperties.admitted) :=
   NanoP4Spec.tableProperties.codec
-
-#audit_axioms NanoP4Spec.callee.fieldCodec2_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem callee.fieldSubstitution2_1 : ∀ actual,
@@ -261,8 +231,6 @@ private theorem callee.fieldSubstitution2_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "tableProperties")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.callee.fieldSubstitution2_1
 
 private theorem callee.sourceCasesValid (v : Lang.Il.value) (hv : callee.source v) :
     ∃ c ∈ callee.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -332,8 +300,6 @@ private theorem callee.sourceCasesValid (v : Lang.Il.value) (hv : callee.source 
         exact .cons (callee.fieldSubstitution2_0 _ sub0) (.cons (callee.fieldSubstitution2_1 _
           sub1) (.nil))
 
-#audit_axioms NanoP4Spec.callee.sourceCasesValid
-
 private theorem callee.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -384,8 +350,6 @@ private theorem callee.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.M
     (NanoP4Spec.parameterIR)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.parameterIR)
     ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v1) <;> cases ((NanoP4Spec.blockStatement.ofValue)
     fuel v2) <;> rfl
-
-#audit_axioms callee.decode0
 
 private theorem callee.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
@@ -439,8 +403,6 @@ private theorem callee.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.M
     (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.parameterIR)
     ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v2) <;> rfl
 
-#audit_axioms callee.decode1
-
 private theorem callee.decode2 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -483,8 +445,6 @@ private theorem callee.decode2 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.M
     (NanoP4Spec.callee.TABLE_dot_APPLY_lbrace_rbrace x0 x1)))
   cases ((NanoP4Spec.nameIR.ofValue) fuel v0) <;> cases ((NanoP4Spec.tableProperties.ofValue)
     fuel v1) <;> rfl
-
-#audit_axioms callee.decode2
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem callee.codec : @Refine.Representation.Codec NanoP4Spec.callee
@@ -1066,7 +1026,6 @@ theorem callee.codec : @Refine.Representation.Codec NanoP4Spec.callee
               _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.callee.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -1096,6 +1055,27 @@ theorem callee.admittedAll : ∀ x : NanoP4Spec.callee, (NanoP4Spec.callee.admit
       trivial⟩
 
 
+#audit_axioms NanoP4Spec.callee.fieldCodec0_0
+#audit_axioms NanoP4Spec.callee.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.callee.fieldCodec0_1
+#audit_axioms NanoP4Spec.callee.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.callee.fieldCodec0_2
+#audit_axioms NanoP4Spec.callee.fieldSubstitution0_2
+#audit_axioms NanoP4Spec.callee.fieldCodec1_0
+#audit_axioms NanoP4Spec.callee.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.callee.fieldCodec1_1
+#audit_axioms NanoP4Spec.callee.fieldSubstitution1_1
+#audit_axioms NanoP4Spec.callee.fieldCodec1_2
+#audit_axioms NanoP4Spec.callee.fieldSubstitution1_2
+#audit_axioms NanoP4Spec.callee.fieldCodec2_0
+#audit_axioms NanoP4Spec.callee.fieldSubstitution2_0
+#audit_axioms NanoP4Spec.callee.fieldCodec2_1
+#audit_axioms NanoP4Spec.callee.fieldSubstitution2_1
+#audit_axioms NanoP4Spec.callee.sourceCasesValid
+#audit_axioms callee.decode0
+#audit_axioms callee.decode1
+#audit_axioms callee.decode2
+#audit_axioms NanoP4Spec.callee.codec
 #audit_axioms NanoP4Spec.callee.admittedAll
 
 end NanoP4Spec

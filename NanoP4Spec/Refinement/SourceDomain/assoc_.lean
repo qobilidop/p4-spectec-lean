@@ -97,7 +97,7 @@ theorem «$assoc_».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α0] 
     exact SourceBuiltin.assocPreserves A1 p0 p1 (fun pair member => (hp1 pair member).2) value
       found
 
-#audit_axioms «$assoc_».sourceDomain
 
+#audit_axioms «$assoc_».sourceDomain
 
 end NanoP4Spec

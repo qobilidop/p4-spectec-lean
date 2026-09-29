@@ -73,8 +73,6 @@ private theorem typeIdentifier.sourceFields (v : Lang.Il.value) (hv : typeIdenti
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.typeIdentifier.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def typeIdentifier.admitted : NanoP4Spec.typeIdentifier → Prop
@@ -186,8 +184,6 @@ theorem typeIdentifier.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.typeIdentifier.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem typeIdentifier.admittedAll : ∀ x : NanoP4Spec.typeIdentifier,
@@ -197,6 +193,8 @@ theorem typeIdentifier.admittedAll : ∀ x : NanoP4Spec.typeIdentifier,
   | _TID a =>
     exact ((show ∀ x : (ByteText), (fun _ : ByteText => True) x from (fun _ => True.intro))) a
 
+#audit_axioms NanoP4Spec.typeIdentifier.sourceFields
+#audit_axioms NanoP4Spec.typeIdentifier.codec
 #audit_axioms NanoP4Spec.typeIdentifier.admittedAll
 
 end NanoP4Spec

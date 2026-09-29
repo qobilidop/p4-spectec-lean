@@ -57,8 +57,6 @@ private theorem nonTypeName.fieldCodec0_0 : @Representation.Codec (ByteText) ⟨
   Representation.Source.externDomain (Q.t .TextT).it) (fun _ : ByteText => True) :=
   @Representation.Source.textCodec NanoP4Spec.spec Representation.Source.externDomain
 
-#audit_axioms NanoP4Spec.nonTypeName.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem nonTypeName.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t .TextT).it actual → ∀ v,
@@ -68,8 +66,6 @@ private theorem nonTypeName.fieldSubstitution0_0 : ∀ actual,
   (by
     intro actual substitution v valid
     simpa only [substitution.textResult] using valid)
-
-#audit_axioms NanoP4Spec.nonTypeName.fieldSubstitution0_0
 
 private theorem nonTypeName.sourceCasesValid (v : Lang.Il.value) (hv : nonTypeName.source v) :
     ∃ c ∈ nonTypeName.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -148,8 +144,6 @@ private theorem nonTypeName.sourceCasesValid (v : Lang.Il.value) (hv : nonTypeNa
       | dsimp only [List.flatMap, List.append, List.map, List.flatten]
     exact .nil
 
-#audit_axioms NanoP4Spec.nonTypeName.sourceCasesValid
-
 private theorem nonTypeName.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -187,8 +181,6 @@ private theorem nonTypeName.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
     some (NanoP4Spec.nonTypeName._ID x0))
   cases ((@OfValue.ofValue ByteText P4SpecTec.Prelude.instOfValueByteText) fuel v0) <;> rfl
 
-#audit_axioms nonTypeName.decode0
-
 private theorem nonTypeName.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -218,8 +210,6 @@ private theorem nonTypeName.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
   simp only [NanoP4Spec.nonTypeName.ofValue, shape, selected, other0, other2, other3, other4]
   rfl
 
-#audit_axioms nonTypeName.decode1
-
 private theorem nonTypeName.decode2 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -247,8 +237,6 @@ private theorem nonTypeName.decode2 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
       ((.Atom (Prelude.Value.atom (.Keyword "STATE")))) matching (by decide)
   simp only [NanoP4Spec.nonTypeName.ofValue, shape, selected, other0, other1, other3, other4]
   rfl
-
-#audit_axioms nonTypeName.decode2
 
 private theorem nonTypeName.decode3 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value)
@@ -279,8 +267,6 @@ private theorem nonTypeName.decode3 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
   simp only [NanoP4Spec.nonTypeName.ofValue, shape, selected, other0, other1, other2, other4]
   rfl
 
-#audit_axioms nonTypeName.decode3
-
 private theorem nonTypeName.decode4 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -309,8 +295,6 @@ private theorem nonTypeName.decode4 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
       "STATE")))) ((.Atom (Prelude.Value.atom (.Keyword "ACTIONS")))) matching (by decide)
   simp only [NanoP4Spec.nonTypeName.ofValue, shape, selected, other0, other1, other2, other3]
   rfl
-
-#audit_axioms nonTypeName.decode4
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem nonTypeName.codec : @Refine.Representation.Codec NanoP4Spec.nonTypeName
@@ -659,7 +643,6 @@ theorem nonTypeName.codec : @Refine.Representation.Codec NanoP4Spec.nonTypeName
         rw [nonTypeName.decode4 fuel v tree shape (Representation.Source.mixopTrans tree _ _
           matching rfl) hargs]
         all_goals rfl
-#audit_axioms NanoP4Spec.nonTypeName.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -680,6 +663,15 @@ theorem nonTypeName.admittedAll : ∀ x : NanoP4Spec.nonTypeName,
     trivial
 
 
+#audit_axioms NanoP4Spec.nonTypeName.fieldCodec0_0
+#audit_axioms NanoP4Spec.nonTypeName.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.nonTypeName.sourceCasesValid
+#audit_axioms nonTypeName.decode0
+#audit_axioms nonTypeName.decode1
+#audit_axioms nonTypeName.decode2
+#audit_axioms nonTypeName.decode3
+#audit_axioms nonTypeName.decode4
+#audit_axioms NanoP4Spec.nonTypeName.codec
 #audit_axioms NanoP4Spec.nonTypeName.admittedAll
 
 end NanoP4Spec

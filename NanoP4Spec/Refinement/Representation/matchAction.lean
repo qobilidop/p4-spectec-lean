@@ -57,8 +57,6 @@ private theorem matchAction.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.ca
   => True) :=
   NanoP4Spec.callableId.codec
 
-#audit_axioms NanoP4Spec.matchAction.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem matchAction.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "callableId" [])).it actual → ∀ v,
@@ -69,8 +67,6 @@ private theorem matchAction.fieldSubstitution0_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "callableId")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.matchAction.fieldSubstitution0_0
 
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem matchAction.fieldCodec0_1 : @Representation.Codec (List
@@ -85,8 +81,6 @@ private theorem matchAction.fieldCodec0_1 : @Representation.Codec (List
     (NanoP4Spec.parameterIR) ⟨NanoP4Spec.parameterIR.toValue⟩ ⟨NanoP4Spec.parameterIR.ofValue⟩
     (Q.t (Q.varT "parameterIR" [])) (NanoP4Spec.parameterIR.admitted)
     (NanoP4Spec.parameterIR.codec)
-
-#audit_axioms NanoP4Spec.matchAction.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem matchAction.fieldSubstitution0_1 : ∀ actual,
@@ -105,8 +99,6 @@ private theorem matchAction.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parameterIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.matchAction.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem matchAction.fieldCodec0_2 : @Representation.Codec (List (NanoP4Spec.argumentIR))
   ⟨@ToValue.toValue (List (NanoP4Spec.argumentIR)) (@P4SpecTec.Prelude.instToValueList
@@ -118,8 +110,6 @@ private theorem matchAction.fieldCodec0_2 : @Representation.Codec (List (NanoP4S
   @Representation.Source.listCodec NanoP4Spec.spec Representation.Source.externDomain
     (NanoP4Spec.argumentIR) ⟨NanoP4Spec.argumentIR.toValue⟩ ⟨NanoP4Spec.argumentIR.ofValue⟩ (Q.t
     (Q.varT "argumentIR" [])) (NanoP4Spec.argumentIR.admitted) (NanoP4Spec.argumentIR.codec)
-
-#audit_axioms NanoP4Spec.matchAction.fieldCodec0_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem matchAction.fieldSubstitution0_2 : ∀ actual,
@@ -137,8 +127,6 @@ private theorem matchAction.fieldSubstitution0_2 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "argumentIR")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.matchAction.fieldSubstitution0_2
 
 private theorem matchAction.sourceCasesValid (v : Lang.Il.value) (hv : matchAction.source v) :
     ∃ c ∈ matchAction.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -170,8 +158,6 @@ private theorem matchAction.sourceCasesValid (v : Lang.Il.value) (hv : matchActi
           exact .cons (matchAction.fieldSubstitution0_0 _ sub0) (.cons
             (matchAction.fieldSubstitution0_1 _ sub1) (.cons (matchAction.fieldSubstitution0_2 _
             sub2) (.nil)))
-
-#audit_axioms NanoP4Spec.matchAction.sourceCasesValid
 
 private theorem matchAction.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
@@ -209,8 +195,6 @@ private theorem matchAction.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
     ⟨NanoP4Spec.parameterIR.ofValue⟩)) fuel v1) <;> cases ((@OfValue.ofValue (List
     (NanoP4Spec.argumentIR)) (@P4SpecTec.Prelude.instOfValueList (NanoP4Spec.argumentIR)
     ⟨NanoP4Spec.argumentIR.ofValue⟩)) fuel v2) <;> rfl
-
-#audit_axioms matchAction.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem matchAction.codec : @Refine.Representation.Codec NanoP4Spec.matchAction
@@ -473,7 +457,6 @@ theorem matchAction.codec : @Refine.Representation.Codec NanoP4Spec.matchAction
                 (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
               rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
               all_goals rfl
-#audit_axioms NanoP4Spec.matchAction.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -493,6 +476,15 @@ theorem matchAction.admittedAll : ∀ x : NanoP4Spec.matchAction,
       NanoP4Spec.argumentIR.admittedAll)) x))) x2, trivial⟩
 
 
+#audit_axioms NanoP4Spec.matchAction.fieldCodec0_0
+#audit_axioms NanoP4Spec.matchAction.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.matchAction.fieldCodec0_1
+#audit_axioms NanoP4Spec.matchAction.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.matchAction.fieldCodec0_2
+#audit_axioms NanoP4Spec.matchAction.fieldSubstitution0_2
+#audit_axioms NanoP4Spec.matchAction.sourceCasesValid
+#audit_axioms matchAction.decode0
+#audit_axioms NanoP4Spec.matchAction.codec
 #audit_axioms NanoP4Spec.matchAction.admittedAll
 
 end NanoP4Spec

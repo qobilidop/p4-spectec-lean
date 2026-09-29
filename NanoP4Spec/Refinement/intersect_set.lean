@@ -40,8 +40,6 @@ theorem «$intersect_set».dispatch {τK : Type} [ToValue τK] [BEq τK] (p0 : N
     _)))
   exact congrArg (fun v => some (Except.ok (ε := Fail) v)) rel
 
-#audit_axioms NanoP4Spec.«$intersect_set».dispatch
-
 theorem «$intersect_set».refines (fuel : Nat) {τK : Type} [ToValue τK] [BEq τK]
       (p0 : NanoP4Spec.set τK)
       (p1 : NanoP4Spec.set τK)
@@ -55,8 +53,6 @@ theorem «$intersect_set».refines (fuel : Nat) {τK : Type} [ToValue τK] [BEq 
     _ _ _ [t0] [v0, v1] hfenv hdecl (NanoP4Spec.«$intersect_set».dispatch p0 p1 t0 v0 v1 h0 h1
     cfg)
 
-#audit_axioms NanoP4Spec.«$intersect_set».refines
-
 theorem «$intersect_set».realizes {τK : Type} [ToValue τK] [BEq τK] (p0 : NanoP4Spec.set τK) (p1
   : NanoP4Spec.set τK)
    (t0 : Lang.Il.typ) (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg :
@@ -68,6 +64,8 @@ theorem «$intersect_set».realizes {τK : Type} [ToValue τK] [BEq τK] (p0 : N
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "intersect_set" _ _ _ [t0]
     [v0, v1] hfenv hdecl (NanoP4Spec.«$intersect_set».dispatch p0 p1 t0 v0 v1 h0 h1 cfg)
 
+#audit_axioms NanoP4Spec.«$intersect_set».dispatch
+#audit_axioms NanoP4Spec.«$intersect_set».refines
 #audit_axioms NanoP4Spec.«$intersect_set».realizes
 
 end NanoP4Spec

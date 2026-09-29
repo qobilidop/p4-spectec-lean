@@ -1,3 +1,4 @@
+import P4SpecTec.Tactic.Constants
 import P4SpecTec.Tactic.Refine.Normalize
 import P4SpecTec.Tactic.RunSound
 
@@ -33,9 +34,8 @@ def listEncoder? (name : Name) : MetaM (Option Expr) := do
 
 /-- Establish list-map equations by induction; every proposed encoder equation is checked. -/
 def encodingFacts (lib : Name) : TacticM Unit := withMainContext do
-  let candidates := (← getEnv).constants.map₂.toList ++ (← getEnv).constants.map₁.toList
-  for (name, info) in candidates do
-    unless lib.isPrefixOf name && !name.isInternal && info.isDefinition &&
+  for (name, kind) in ← constantsUnder lib do
+    unless !name.isInternal && kind == .defn &&
         name.getString!.startsWith "toValue_" do continue
     let some encoder ← listEncoder? name | continue
     let fact ← freshName "rf_c_encoding"
@@ -88,6 +88,79 @@ elab "subtype_canon " lib:ident " [" injections:ident,* "]" : tactic => withoutR
             induction xs <;> simp_all [$(mkIdent helper):ident]))
         extra := extra.push (← `(Lean.Parser.Tactic.simpLemma| $(mkIdent fact):ident))
   unless (← getGoals).isEmpty do throwError "subtype_canon: canonical encodings differ"
+
+/-- Two library encoders of the same generated value agree canonically (`canon (A x) =
+canon (B x)`), as a recursive group's nested helper encoders and the generic instance
+encoders do: split the value at its constructor, unfold both encoders, rewrite nested list
+helpers by their list-map equations (proved by induction) and compare list elements
+pointwise, to a bounded nesting depth. Every step is a checked rewrite of the actual goal. -/
+partial def encodingCoherence (depth : Nat := 4) : TacticM Unit := do
+  if (← getGoals).isEmpty then return
+  if depth == 0 then throwError "encoding coherence: nesting depth exhausted"
+  let lib ← libOf
+  let used (select : Name → Bool) : TacticM (Array Name) := withMainContext do
+    let goal ← instantiateMVars (← getMainTarget)
+    pure (goal.getUsedConstants.filter fun name =>
+      lib.isPrefixOf name && !name.isInternal && select name)
+  let unfold : TacticM Unit := do
+    for _ in [0:6] do
+      if (← getGoals).isEmpty then return
+      let encoders ← used fun n => (n.toString.splitOn ".toValue").length > 1 ||
+        (n.toString.splitOn "instToValue").length > 1
+      let names := encoders ++ #[``P4SpecTec.Prelude.ToValue.toValue,
+        ``P4SpecTec.Prelude.instToValueList, ``P4SpecTec.Runtime.Value.Make.case,
+        ``P4SpecTec.Runtime.Value.Make.list, ``P4SpecTec.Runtime.Value.Make.text,
+        ``P4SpecTec.Refine.canon_make_mk, ``P4SpecTec.Refine.canon_mk, ``P4SpecTec.Refine.canon',
+        ``P4SpecTec.Refine.canonMixfix, ``P4SpecTec.Refine.canonMixfixes]
+      let lemmas ← names.mapM fun n => `(Lean.Parser.Tactic.simpLemma| $(mkIdent n):ident)
+      let rules : Syntax.TSepArray `Lean.Parser.Tactic.simpLemma "," := .ofElems lemmas
+      unless ← tryTac (evalTactic (← `(tactic| simp only [$rules,*]))) do return
+  let helperFacts : TacticM Unit := do
+    for helper in ← used (·.getString!.startsWith "toValue_") do
+      let some encoder ← listEncoder? helper | continue
+      let fact ← freshName "rz_encoding"
+      let enc ← withMainContext do Term.exprToSyntax encoder
+      evalTactic (← `(tactic|
+        have $(mkIdent fact):ident : ∀ xs, $(mkIdent helper):ident xs = List.map $enc xs := by
+          intro xs
+          induction xs <;> simp_all [$(mkIdent helper):ident]))
+      let _ ← tryTac (evalTactic (← `(tactic| simp only [$(mkIdent fact):ident])))
+  unfold
+  if (← getGoals).isEmpty then return
+  if ← tryTac (evalTactic (← `(tactic| rfl))) then return
+  helperFacts
+  if (← getGoals).isEmpty then return
+  -- canonical constructor payloads: compare nested lists of the same elements pointwise
+  let _ ← tryTac (evalTactic (← `(tactic|
+    simp only [P4SpecTec.Lang.Il.value'.CaseV.injEq, P4SpecTec.Lang.Il.value'.ListV.injEq,
+      P4SpecTec.Util.Source.info.mk.injEq, P4SpecTec.Domain.Mixfix.t.Brack.injEq,
+      P4SpecTec.Domain.Mixfix.t.Arg.injEq, P4SpecTec.Domain.Mixfix.t.Seq.injEq,
+      and_true, true_and, List.cons.injEq])))
+  if (← getGoals).isEmpty then return
+  if ← tryTac (evalTactic (← `(tactic| apply P4SpecTec.Refine.canons_map_congr))) then
+    let x ← freshName "rz_element"
+    let hx ← freshName "rz_member"
+    evalTactic (← `(tactic| intro $(mkIdent x):ident $(mkIdent hx):ident))
+    return ← encodingCoherence (depth - 1)
+  -- otherwise split the encoded generated value at its constructor and unfold again
+  let value? ← withMainContext do
+    let target ← instantiateMVars (← getMainTarget)
+    let some (_, lhs, _) := target.eq? | return none
+    let lhs := lhs.consumeMData
+    unless lhs.isAppOfArity ``P4SpecTec.Refine.canon 1 do return none
+    match (lhs.getArg! 0).consumeMData.getAppArgs.back? with
+    | some argument => match argument.consumeMData with
+      | .fvar f => return some f
+      | _ => return none
+    | none => return none
+  let some value := value? |
+    throwError
+      "encoding coherence: no encoded variable to split{Lean.MessageData.ofGoal (← getMainGoal)}"
+  -- by its id: a variable left by an earlier split has an inaccessible name
+  let subgoals ← (← getMainGoal).cases value
+  for g in subgoals.map (·.mvarId) do
+    setGoals [g]
+    encodingCoherence (depth - 1)
 
 /-- Related raw lists have the lengths of their explicitly encoded typed lists. -/
 def encodingLengths : TacticM Unit := do

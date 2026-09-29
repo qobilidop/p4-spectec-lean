@@ -72,7 +72,8 @@ theorem Block_ok.callArgumentsSource :
     (NanoP4Spec.statement) => ∀ x ∈ xs, (NanoP4Spec.statement.admitted) x) x from (fun xs x _ =>
     ((show ∀ x : (NanoP4Spec.statement), (NanoP4Spec.statement.admitted) x from
     NanoP4Spec.statement.admittedAll)) x))) x)), trivial⟩
-#audit_axioms Block_ok.callArgumentsSource
 
+
+#audit_axioms Block_ok.callArgumentsSource
 
 end NanoP4Spec

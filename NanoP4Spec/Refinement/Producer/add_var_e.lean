@@ -77,8 +77,6 @@ private theorem addMapValid (keys : NanoP4Spec.nameIR → Prop) (valid : NanoP4S
     exact ProducerMap.update (fun pair => keys pair.1 ∧ valid pair.2)
       _ key value all ⟨hk, hv⟩ _ belongs
 
-#audit_axioms addMapValid
-
 private theorem addVarValid (keys : NanoP4Spec.nameIR → Prop) (valid : NanoP4Spec.value → Prop)
   (other) (scope : NanoP4Spec.scope)
     (ctx : NanoP4Spec.evalContext) (key : NanoP4Spec.nameIR) (value : NanoP4Spec.value)
@@ -128,8 +126,6 @@ private theorem addVarValid (keys : NanoP4Spec.nameIR → Prop) (valid : NanoP4S
         · exact acceptedFrame
         · exact acceptedFrames element (List.mem_cons_of_mem _ member)
 
-#audit_axioms addVarValid
-
 
 /-- Actual source admission of map keys. -/
 private def keyDomain (x : NanoP4Spec.nameIR) :=
@@ -171,8 +167,6 @@ private theorem sourceIff (ctx : NanoP4Spec.evalContext) :
     frameIff, NanoP4Spec.map.encodingSourceIff,
     Representation.Source.encodedListIff, true_and, and_assoc, and_left_comm, and_comm]
 
-#audit_axioms sourceIff
-
 /-- Bare generic map admission uses its actual declared key and value types. -/
 private theorem frameSourceIff (x : NanoP4Spec.frame) :
     (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
@@ -188,6 +182,9 @@ private theorem frameSourceIff (x : NanoP4Spec.frame) :
     (Q.t (Q.varT "nameIR" []))
     (Q.t (Q.varT "value" [])) x
 
+#audit_axioms addMapValid
+#audit_axioms addVarValid
+#audit_axioms sourceIff
 #audit_axioms frameSourceIff
 
 end add_var_eContextProducer
@@ -215,8 +212,6 @@ theorem «$add_var_e».producesSource : ∀ (p0 : NanoP4Spec.scope) (p1 : NanoP4
   change NanoP4Spec.evalContext.source (NanoP4Spec.evalContext.toValue result)
   exact (add_var_eContextProducer.sourceIff result).mpr (preserved result run)
 
-#audit_axioms «$add_var_e».producesSource
-
 /-- All reachable projected map arguments belong to their source domains. -/
 theorem «$add_var_e».callInputsSource : ∀ (ctx : NanoP4Spec.evalContext),
 (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
@@ -240,8 +235,6 @@ theorem «$add_var_e».callInputsSource : ∀ (ctx : NanoP4Spec.evalContext),
     (add_var_eContextProducer.frameSourceIff _).mpr valid.2.2.1, ?_⟩
   intro frame member
   exact (add_var_eContextProducer.frameSourceIff _).mpr (valid.2.2.2 frame member)
-
-#audit_axioms «$add_var_e».callInputsSource
 
 /-- Complete actual source call arguments, including arbitrary intermediate key sets. -/
 theorem «$add_var_e».callArgumentsSource :
@@ -289,7 +282,9 @@ theorem «$add_var_e».callArgumentsSource :
     NanoP4Spec.set.casesOn x (fun xs a _ => ((show ∀ x : (NanoP4Spec.nameIR), (fun _ => True) x
     from NanoP4Spec.nameIR.admittedAll)) a))) keys)
 
-#audit_axioms «$add_var_e».callArgumentsSource
 
+#audit_axioms «$add_var_e».producesSource
+#audit_axioms «$add_var_e».callInputsSource
+#audit_axioms «$add_var_e».callArgumentsSource
 
 end NanoP4Spec

@@ -60,7 +60,8 @@ theorem «$flatten_tableEntryList».producesSource :
     => ∀ x ∈ xs, (NanoP4Spec.tableEntry.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.tableEntry), (NanoP4Spec.tableEntry.admitted) x from
     NanoP4Spec.tableEntry.admittedAll)) x))) result)
-#audit_axioms «$flatten_tableEntryList».producesSource
 
+
+#audit_axioms «$flatten_tableEntryList».producesSource
 
 end NanoP4Spec

@@ -49,6 +49,13 @@ theorem canon_eq_it {v : value} {q : value'} {n : vnote} {r : region} (h : canon
   rw [Bool.eq_iff_iff, eq_iff_canon]
   simp [canon_mk, canon']
 
+/-- The interpreter's equality observes only payloads, so known payload shapes decide it
+through the literal equalities above. -/
+theorem eq_of_its {v w : value} {p q : value'} (hv : v.it = p) (hw : w.it = q) :
+    Runtime.Value.eq v w = Runtime.Value.eq ⟨p, dummy, no_region⟩ ⟨q, dummy, no_region⟩ := by
+  apply Bool.eq_iff_iff.mpr
+  rw [eq_iff_canon, eq_iff_canon, canon_mk, canon_mk, canon, canon, hv, hw]
+
 /-- The interpreter's equality is reflexive. -/
 @[simp] theorem eq_refl (v : value) : Runtime.Value.eq v v = true := by
   rw [eq_iff_canon]
@@ -216,6 +223,20 @@ theorem canons_eq_map (vs : List value) : canons vs = vs.map canon := by
   induction vs with
   | nil => rfl
   | cons x xs ih => simp [canons, ih]
+
+/-- `canons` of a prefix: slicing commutes with canonical erasure. -/
+theorem canons_take (n : Nat) (vs : List value) : canons (vs.take n) = (canons vs).take n := by
+  rw [canons_eq_map, canons_eq_map, List.map_take]
+
+/-- `canons` of a suffix: slicing commutes with canonical erasure. -/
+theorem canons_drop (n : Nat) (vs : List value) : canons (vs.drop n) = (canons vs).drop n := by
+  rw [canons_eq_map, canons_eq_map, List.map_drop]
+
+/-- Two encodings of the same list agree canonically when they agree on every element. -/
+theorem canons_map_congr {α : Type} {f g : α → value} {xs : List α}
+    (h : ∀ x ∈ xs, canon (f x) = canon (g x)) : canons (xs.map f) = canons (xs.map g) := by
+  rw [canons_eq_map, canons_eq_map, List.map_map, List.map_map]
+  exact List.map_congr_left h
 
 /-- The length of a canonical list. -/
 @[simp] theorem canons_length (vs : List value) : (canons vs).length = vs.length := by

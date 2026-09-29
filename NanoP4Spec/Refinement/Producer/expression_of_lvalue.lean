@@ -50,7 +50,8 @@ theorem «$expression_of_lvalue».producesSource :
     (NanoP4Spec.expression.admitted) (NanoP4Spec.expression.codec)) result (((show ∀ x :
     (NanoP4Spec.expression), (NanoP4Spec.expression.admitted) x from
     NanoP4Spec.expression.admittedAll)) result)
-#audit_axioms «$expression_of_lvalue».producesSource
 
+
+#audit_axioms «$expression_of_lvalue».producesSource
 
 end NanoP4Spec

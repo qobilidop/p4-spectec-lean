@@ -71,7 +71,6 @@ private theorem «$default».producerCase0 (p0 : Nat) (p1 : Int) (h0 :
     | exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil)))
-#audit_axioms «$default».producerCase0
 
 private theorem «$default».producerCase1 (p0 : Nat) (p1 : Int) (h0 :
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (.NumT
@@ -110,7 +109,6 @@ private theorem «$default».producerCase1 (p0 : Nat) (p1 : Int) (h0 :
     | exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil)))
-#audit_axioms «$default».producerCase1
 
 private theorem «$default».producerCase2 (p0 : Bool) (h0 : (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t .BoolT).it) ((@ToValue.toValue Bool
@@ -145,7 +143,6 @@ private theorem «$default».producerCase2 (p0 : Bool) (h0 : (Representation.Sou
     | exact .cons _ _ _ _ h0 (.nil)
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.nil))
-#audit_axioms «$default».producerCase2
 
 private theorem «$default».producerCase3 (p0 : NanoP4Spec.typeId) (p1 : List
   NanoP4Spec.fieldValue) (h0 : (Representation.Source.Valid NanoP4Spec.spec
@@ -191,7 +188,6 @@ private theorem «$default».producerCase3 (p0 : NanoP4Spec.typeId) (p1 : List
     | exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil)))
-#audit_axioms «$default».producerCase3
 
 private theorem «$default».producerField3 (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.nameIR) (h0 :
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
@@ -220,7 +216,6 @@ private theorem «$default».producerField3 (p0 : NanoP4Spec.value) (p1 : NanoP4
     | exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil)))
-#audit_axioms «$default».producerField3
 
 private theorem «$default».producerCase4 (p0 : NanoP4Spec.typeId) (p1 : List
   NanoP4Spec.fieldValue) (h0 : (Representation.Source.Valid NanoP4Spec.spec
@@ -266,7 +261,6 @@ private theorem «$default».producerCase4 (p0 : NanoP4Spec.typeId) (p1 : List
     | exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil)))
-#audit_axioms «$default».producerCase4
 
 private theorem «$default».producerField4 (p0 : NanoP4Spec.value) (p1 : NanoP4Spec.nameIR) (h0 :
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
@@ -295,7 +289,6 @@ private theorem «$default».producerField4 (p0 : NanoP4Spec.value) (p1 : NanoP4
     | exact .cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil))
     | run_tac P4SpecTec.Tactic.encodingFacts `NanoP4Spec
       simpa only [*] using (.cons _ _ _ _ h0 (.cons _ _ _ _ h1 (.nil)))
-#audit_axioms «$default».producerField4
 
 private theorem «$default».producesSourceAll (input : NanoP4Spec.typeIR) (result :
   NanoP4Spec.value)
@@ -465,7 +458,6 @@ private theorem «$default».producesSourceAll (input : NanoP4Spec.typeIR) (resu
                       Representation.Source.externDomain (Q.t (Q.varT "fieldValue" [])) fs).mpr
                       accepted)
   ) v hq
-#audit_axioms «$default».producesSourceAll
 
 /-- Successful generated results preserve the independent source output domain. -/
 theorem «$default».producesSource :
@@ -477,7 +469,16 @@ theorem «$default».producesSource :
       "value" [])).it) ((NanoP4Spec.value.toValue) result) := by
   intro p0 _ result run
   exact «$default».producesSourceAll p0 result run
-#audit_axioms «$default».producesSource
 
+
+#audit_axioms «$default».producerCase0
+#audit_axioms «$default».producerCase1
+#audit_axioms «$default».producerCase2
+#audit_axioms «$default».producerCase3
+#audit_axioms «$default».producerField3
+#audit_axioms «$default».producerCase4
+#audit_axioms «$default».producerField4
+#audit_axioms «$default».producesSourceAll
+#audit_axioms «$default».producesSource
 
 end NanoP4Spec

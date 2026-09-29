@@ -10,14 +10,27 @@ separate obligations.
 
 namespace P4SpecTec.Codegen.Initialization
 
-/-- Declarations for a concrete, checked environment of the generated quotation. -/
-def declarations (lib : String) (spec : Lang.Al.spec := []) : Std.Format :=
+/-- Callable type-parameter names that no type declaration uses: every actual registration
+of them needs them fresh in the initialized type table. -/
+def parameterNames (spec : Lang.Al.spec) : List String :=
   let typeNames := spec.filterMap fun d => match d.it with
     | .TypD id .. | .ExternTypD id .. => some id.it
     | _ => none
-  let parameterNames := (spec.flatMap fun d => match d.it with
+  (spec.flatMap fun d => match d.it with
     | .FuncDecD _ ps .. | .BuiltinDecD _ ps .. | .ExternDecD _ ps .. => ps.map (·.it)
     | _ => []).eraseDups.filter fun name => !typeNames.contains name
+
+/-- The exact statement of the combined environment certificate, one conjunct per line. -/
+def initializedType (lib : String) (spec : Lang.Al.spec) : String :=
+  " ∧\n    ".intercalate ([s!"Interp_al.Ctx.init {lib}.spec = .ok {lib}.Environment.global",
+    s!"Refine.HoldsSpec {lib}.spec {lib}.Environment.global",
+    s!"{lib}.Environment.ctx.local.fenv = []"] ++
+    (parameterNames spec).map fun name =>
+      s!"{lib}.Environment.global.tdtbl.get? {name.quote} = none")
+
+/-- Declarations for a concrete, checked environment of the generated quotation. -/
+def declarations (lib : String) (spec : Lang.Al.spec := []) : Std.Format :=
+  let parameterNames := parameterNames spec
   let freshness := String.join <| parameterNames.map fun name =>
     let theoremName := "typeParameterFresh_" ++ Names.typeName name
     String.join [
@@ -44,6 +57,14 @@ def declarations (lib : String) (spec : Lang.Al.spec := []) : Std.Format :=
     "/-- The initialized context satisfies the no-local-override hypothesis. -/\n",
     "theorem localFenvEmpty : ctx.local.fenv = [] := rfl\n\n",
     "#audit_axioms localFenvEmpty\n\n",
-    freshness, "end Environment"]
+    freshness,
+    "/-- Every environment assumption of the invocation certificates holds for the initialized\n",
+    "reference context: checked table initialization, complete source lookups, no local\n",
+    "overrides and fresh callable type parameters. The guard and print-hint configuration and\n",
+    "the extern contract remain explicit assumptions of the certificates. -/\n",
+    s!"theorem initialized :\n    {initializedType lib spec} :=\n",
+    "  ⟨initEqOk, holdsSpec, localFenvEmpty" ++ String.join (parameterNames.map fun name =>
+      s!",\n    typeParameterFresh_{Names.typeName name}") ++ "⟩\n\n",
+    "#audit_axioms initialized\n\n", "end Environment"]
 
 end P4SpecTec.Codegen.Initialization

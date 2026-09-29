@@ -48,8 +48,6 @@ private theorem externTypeDefIR.bodyCodec : @Representation.Codec
   (NanoP4Spec.externObjectTypeIR.admitted) :=
   NanoP4Spec.externObjectTypeIR.codec
 
-#audit_axioms NanoP4Spec.externTypeDefIR.bodyCodec
-
 private theorem externTypeDefIR.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.externTypeDefIR.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "externObjectTypeIR" [])).it) v := by
@@ -61,16 +59,12 @@ private theorem externTypeDefIR.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "externObjectTypeIR") [] [] rfl
     (.nil)) v
 
-#audit_axioms NanoP4Spec.externTypeDefIR.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem externTypeDefIR.encodingSourceIff (x : NanoP4Spec.externTypeDefIR) :
     NanoP4Spec.externTypeDefIR.source (NanoP4Spec.externTypeDefIR.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "externObjectTypeIR" [])).it) ((NanoP4Spec.externObjectTypeIR.toValue) x) :=
   NanoP4Spec.externTypeDefIR.sourceIff _
-
-#audit_axioms NanoP4Spec.externTypeDefIR.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem externTypeDefIR.codec : @Refine.Representation.Codec NanoP4Spec.externTypeDefIR
@@ -118,8 +112,6 @@ theorem externTypeDefIR.codec : @Refine.Representation.Codec NanoP4Spec.externTy
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.externTypeDefIR.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem externTypeDefIR.admittedAll : ∀ x : NanoP4Spec.externTypeDefIR,
   (NanoP4Spec.externTypeDefIR.admitted) x := by
@@ -127,6 +119,10 @@ theorem externTypeDefIR.admittedAll : ∀ x : NanoP4Spec.externTypeDefIR,
   exact ((show ∀ x : (NanoP4Spec.externObjectTypeIR), (NanoP4Spec.externObjectTypeIR.admitted) x
     from NanoP4Spec.externObjectTypeIR.admittedAll)) x
 
+#audit_axioms NanoP4Spec.externTypeDefIR.bodyCodec
+#audit_axioms NanoP4Spec.externTypeDefIR.sourceIff
+#audit_axioms NanoP4Spec.externTypeDefIR.encodingSourceIff
+#audit_axioms NanoP4Spec.externTypeDefIR.codec
 #audit_axioms NanoP4Spec.externTypeDefIR.admittedAll
 
 end NanoP4Spec

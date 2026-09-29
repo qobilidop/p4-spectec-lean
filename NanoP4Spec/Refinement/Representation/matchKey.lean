@@ -52,8 +52,6 @@ private theorem matchKey.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.typeI
   (NanoP4Spec.typeIR.admitted) :=
   NanoP4Spec.typeIR.codec
 
-#audit_axioms NanoP4Spec.matchKey.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem matchKey.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeIR" [])).it actual → ∀ v,
@@ -65,16 +63,12 @@ private theorem matchKey.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "typeIR")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.matchKey.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem matchKey.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.nameIR)
   ⟨NanoP4Spec.nameIR.toValue⟩ ⟨NanoP4Spec.nameIR.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "nameIR" [])).it) (fun _ =>
   True) :=
   NanoP4Spec.nameIR.codec
-
-#audit_axioms NanoP4Spec.matchKey.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem matchKey.fieldSubstitution0_1 : ∀ actual,
@@ -86,8 +80,6 @@ private theorem matchKey.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "nameIR")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.matchKey.fieldSubstitution0_1
 
 private theorem matchKey.sourceCasesValid (v : Lang.Il.value) (hv : matchKey.source v) :
     ∃ c ∈ matchKey.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -117,8 +109,6 @@ private theorem matchKey.sourceCasesValid (v : Lang.Il.value) (hv : matchKey.sou
         exact .cons (matchKey.fieldSubstitution0_0 _ sub0) (.cons (matchKey.fieldSubstitution0_1
           _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.matchKey.sourceCasesValid
-
 private theorem matchKey.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -137,8 +127,6 @@ private theorem matchKey.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain
     v1).bind (fun x1 => some (NanoP4Spec.matchKey.colon x0 x1)))
   cases ((NanoP4Spec.typeIR.ofValue) fuel v0) <;> cases ((NanoP4Spec.nameIR.ofValue) fuel v1)
     <;> rfl
-
-#audit_axioms matchKey.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem matchKey.codec : @Refine.Representation.Codec NanoP4Spec.matchKey
@@ -288,7 +276,6 @@ theorem matchKey.codec : @Refine.Representation.Codec NanoP4Spec.matchKey
               _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.matchKey.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -301,6 +288,13 @@ theorem matchKey.admittedAll : ∀ x : NanoP4Spec.matchKey, (NanoP4Spec.matchKey
       from NanoP4Spec.nameIR.admittedAll)) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.matchKey.fieldCodec0_0
+#audit_axioms NanoP4Spec.matchKey.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.matchKey.fieldCodec0_1
+#audit_axioms NanoP4Spec.matchKey.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.matchKey.sourceCasesValid
+#audit_axioms matchKey.decode0
+#audit_axioms NanoP4Spec.matchKey.codec
 #audit_axioms NanoP4Spec.matchKey.admittedAll
 
 end NanoP4Spec

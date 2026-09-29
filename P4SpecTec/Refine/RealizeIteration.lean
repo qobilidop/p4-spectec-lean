@@ -62,4 +62,35 @@ theorem transposeRelatedEmptyPrefix {β : Type} {rows : List (List Lang.Il.value
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms transposeRelatedEmptyPrefix
 
+/-- A reference step whose result the generated code has already computed purely: the
+generated side takes no step, and the continuation receives the related reference result. -/
+theorem Realizes.bindPure {α β γ δ : Type} {P : α → β → Prop} {Q : γ → δ → Prop}
+    {m : Nat → Prelude.Eval α} {c : β} {next : Nat → α → Prelude.Eval γ}
+    {n : Prelude.Eval δ} (hm : Realizes P m (Pure.pure c))
+    (hn : ∀ a, P a c → Realizes Q (fun fuel => next fuel a) n) :
+    Realizes Q (fun fuel => m fuel >>= next fuel) n := by
+  intro q hq
+  obtain ⟨r, hr, hrel⟩ := hm (.ok c) rfl
+  cases r with
+  | error _ => cases hrel
+  | ok a =>
+    obtain ⟨out, hout, hresult⟩ := hn a hrel q hq
+    exact ⟨out, hr.bindOk hout, hresult⟩
+
+/-- info: 'P4SpecTec.Refine.Realizes.bindPure' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in #print axioms Realizes.bindPure
+
+/-- A reference traversal realizes the generated pure map of related inputs, element by
+element; each element must realize its generated pure value. -/
+theorem Realizes.mapMPureMap {α β γ δ : Type} {P : α → β → Prop} {Q : γ → δ → Prop}
+    {f : Nat → α → Prelude.Eval γ} {g : β → δ} {xs : List α} {ys : List β}
+    (hinputs : List.Forall₂ P xs ys)
+    (hsteps : ∀ a b, P a b → Realizes Q (fun fuel => f fuel a) (Pure.pure (g b))) :
+    Realizes (List.Forall₂ Q) (fun fuel => xs.mapM (f fuel)) (Pure.pure (ys.map g)) := by
+  rw [← List.mapM_pure]
+  exact Realizes.mapM hinputs hsteps
+
+/-- info: 'P4SpecTec.Refine.Realizes.mapMPureMap' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms Realizes.mapMPureMap
+
 end P4SpecTec.Refine

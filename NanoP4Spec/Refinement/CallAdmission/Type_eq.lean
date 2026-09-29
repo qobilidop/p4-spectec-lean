@@ -44,7 +44,8 @@ theorem Type_eq.callArgumentsSource :
     "parameterIR" [])).it) (NanoP4Spec.parameterIR.admitted) (NanoP4Spec.parameterIR.codec)) x
     (((show ∀ x : (NanoP4Spec.parameterIR), (NanoP4Spec.parameterIR.admitted) x from
     NanoP4Spec.parameterIR.admittedAll)) x)), trivial⟩
-#audit_axioms Type_eq.callArgumentsSource
 
+
+#audit_axioms Type_eq.callArgumentsSource
 
 end NanoP4Spec

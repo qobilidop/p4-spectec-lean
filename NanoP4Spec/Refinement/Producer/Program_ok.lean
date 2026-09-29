@@ -50,7 +50,8 @@ theorem Program_ok.producesSource :
     "typingContext" [])).it) (NanoP4Spec.typingContext.admitted)
     (NanoP4Spec.typingContext.codec)) result (((show ∀ x : (NanoP4Spec.typingContext),
     (NanoP4Spec.typingContext.admitted) x from NanoP4Spec.typingContext.admittedAll)) result)
-#audit_axioms Program_ok.producesSource
 
+
+#audit_axioms Program_ok.producesSource
 
 end NanoP4Spec

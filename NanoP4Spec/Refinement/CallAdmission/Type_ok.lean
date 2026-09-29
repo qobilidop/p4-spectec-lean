@@ -62,7 +62,8 @@ theorem Type_ok.callArgumentsSource :
     "typeDefIR" [])).it) (NanoP4Spec.typeDefIR.admitted) (NanoP4Spec.typeDefIR.codec)) x (((show
     ∀ x : (NanoP4Spec.typeDefIR), (NanoP4Spec.typeDefIR.admitted) x from
     NanoP4Spec.typeDefIR.admittedAll)) x)), trivial⟩
-#audit_axioms Type_ok.callArgumentsSource
 
+
+#audit_axioms Type_ok.callArgumentsSource
 
 end NanoP4Spec

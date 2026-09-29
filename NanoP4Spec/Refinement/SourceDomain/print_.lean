@@ -61,7 +61,7 @@ theorem «$print_».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α0] 
       result
     trivial
 
-#audit_axioms «$print_».sourceDomain
 
+#audit_axioms «$print_».sourceDomain
 
 end NanoP4Spec

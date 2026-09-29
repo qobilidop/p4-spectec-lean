@@ -84,7 +84,7 @@ theorem «$unions_set».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue �
     obtain ⟨entry, originalMember, rfl⟩ := List.mem_map.mp member
     cases entry with | lbrace_rbrace xs => exact hp0 _ originalMember
 
-#audit_axioms «$unions_set».sourceDomain
 
+#audit_axioms «$unions_set».sourceDomain
 
 end NanoP4Spec

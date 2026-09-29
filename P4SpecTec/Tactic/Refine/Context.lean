@@ -174,8 +174,12 @@ def stuckOn (head : Expr) : TacticM (Option FVarId) := timed "stuckOn" do
           let lhs := lhs.consumeMData
           if lhs.isApp && (lhs.getArg! (lhs.getAppNumArgs - 1)).consumeMData == .fvar v then
             if let some g := generatedVar rhs then return some g
-    -- a variable of a generated type in the discriminant itself
+    -- a variable of a generated type in the discriminant itself; a list's shape first, as
+    -- splitting its elements first would repeat the shape split in every element case
     let lib ← libOf
+    for v in vars do
+      if (← isGeneratedVar lib v) && (← whnfR (← v.getType)).isAppOf ``List then
+        return some v
     for v in vars do
       if ← isGeneratedVar lib v then return some v
     pure none

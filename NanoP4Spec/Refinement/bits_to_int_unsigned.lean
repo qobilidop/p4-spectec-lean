@@ -34,8 +34,6 @@ theorem «$bits_to_int_unsigned».dispatch (p0 : NanoP4Spec.bits)
   funext result
   cases result <;> rfl
 
-#audit_axioms NanoP4Spec.«$bits_to_int_unsigned».dispatch
-
 theorem «$bits_to_int_unsigned».refines (fuel : Nat) (p0 : NanoP4Spec.bits)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
      (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = []) (hdecl : Holds
@@ -46,8 +44,6 @@ theorem «$bits_to_int_unsigned».refines (fuel : Nat) (p0 : NanoP4Spec.bits)
     "bits_to_int_unsigned" _ _ _ [] [v0] hfenv hdecl
     (NanoP4Spec.«$bits_to_int_unsigned».dispatch p0 v0 h0 cfg)
 
-#audit_axioms NanoP4Spec.«$bits_to_int_unsigned».refines
-
 theorem «$bits_to_int_unsigned».realizes (p0 : NanoP4Spec.bits)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
      (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = []) (hdecl : Holds
@@ -57,6 +53,8 @@ theorem «$bits_to_int_unsigned».realizes (p0 : NanoP4Spec.bits)
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "bits_to_int_unsigned" _ _
     _ [] [v0] hfenv hdecl (NanoP4Spec.«$bits_to_int_unsigned».dispatch p0 v0 h0 cfg)
 
+#audit_axioms NanoP4Spec.«$bits_to_int_unsigned».dispatch
+#audit_axioms NanoP4Spec.«$bits_to_int_unsigned».refines
 #audit_axioms NanoP4Spec.«$bits_to_int_unsigned».realizes
 
 end NanoP4Spec

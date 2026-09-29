@@ -289,7 +289,8 @@ theorem Decl_ok.callArgumentsSource :
     (NanoP4Spec.typeDeclaration.codec)) x (((show ∀ x : (NanoP4Spec.typeDeclaration),
     (NanoP4Spec.typeDeclaration.admitted) x from NanoP4Spec.typeDeclaration.admittedAll)) x)),
     trivial⟩
-#audit_axioms Decl_ok.callArgumentsSource
 
+
+#audit_axioms Decl_ok.callArgumentsSource
 
 end NanoP4Spec

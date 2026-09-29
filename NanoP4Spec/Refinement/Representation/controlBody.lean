@@ -46,8 +46,6 @@ private theorem controlBody.bodyCodec : @Representation.Codec (NanoP4Spec.blockS
   "blockStatement" [])).it) (NanoP4Spec.blockStatement.admitted) :=
   NanoP4Spec.blockStatement.codec
 
-#audit_axioms NanoP4Spec.controlBody.bodyCodec
-
 private theorem controlBody.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.controlBody.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "blockStatement" [])).it) v := by
@@ -59,16 +57,12 @@ private theorem controlBody.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "blockStatement") [] [] rfl (.nil))
     v
 
-#audit_axioms NanoP4Spec.controlBody.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem controlBody.encodingSourceIff (x : NanoP4Spec.controlBody) :
     NanoP4Spec.controlBody.source (NanoP4Spec.controlBody.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "blockStatement" [])).it) ((NanoP4Spec.blockStatement.toValue) x) :=
   NanoP4Spec.controlBody.sourceIff _
-
-#audit_axioms NanoP4Spec.controlBody.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem controlBody.codec : @Refine.Representation.Codec NanoP4Spec.controlBody
@@ -115,8 +109,6 @@ theorem controlBody.codec : @Refine.Representation.Codec NanoP4Spec.controlBody
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.controlBody.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem controlBody.admittedAll : ∀ x : NanoP4Spec.controlBody,
   (NanoP4Spec.controlBody.admitted) x := by
@@ -124,6 +116,10 @@ theorem controlBody.admittedAll : ∀ x : NanoP4Spec.controlBody,
   exact ((show ∀ x : (NanoP4Spec.blockStatement), (NanoP4Spec.blockStatement.admitted) x from
     NanoP4Spec.blockStatement.admittedAll)) x
 
+#audit_axioms NanoP4Spec.controlBody.bodyCodec
+#audit_axioms NanoP4Spec.controlBody.sourceIff
+#audit_axioms NanoP4Spec.controlBody.encodingSourceIff
+#audit_axioms NanoP4Spec.controlBody.codec
 #audit_axioms NanoP4Spec.controlBody.admittedAll
 
 end NanoP4Spec

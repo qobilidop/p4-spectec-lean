@@ -35,67 +35,65 @@ def Decl_load.run (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.declaration)
         let _ ← Eval.check (NanoP4Spec.type.is_typeIdentifier type)
         let tmp_1 ← Eval.err? (NanoP4Spec.type.of_typeIdentifier type)
         let ._TID typeId_target := tmp_1
-        (do
-           let tmp_2 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
-           have «argument*» := tmp_2
-           let _ ← Eval.check (decide ((0 : Nat) < (List.length «argument*»)))
-           let tmp_3 ← Eval.err? (Iter.idx «argument*» (0 : Nat))
-           have expression := tmp_3
-           let _ ← Eval.check (NanoP4Spec.expression.is_callExpression expression)
-           let tmp_4 ← Eval.err? (NanoP4Spec.expression.of_callExpression expression)
-           let .lparen_rparen tmp_5 _argumentList := tmp_4
-           let ._TID callableId_parser := tmp_5
-           let tmp_6 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_l» LC_0 callableId_parser)
-           have callableDef := tmp_6
-           let _ ← Eval.check (NanoP4Spec.callableDef.is_parserDeclarationIR callableDef)
-           let tmp_7 ← Eval.err? (NanoP4Spec.callableDef.of_parserDeclarationIR callableDef)
-           have parserDeclarationIR := tmp_7
-           let _ ← Eval.check (decide ((1 : Nat) < (List.length «argument*»)))
-           let tmp_8 ← Eval.err? (Iter.idx «argument*» (1 : Nat))
-           have expression' := tmp_8
-           let _ ← Eval.check (NanoP4Spec.expression.is_callExpression expression')
-           let tmp_9 ← Eval.err? (NanoP4Spec.expression.of_callExpression expression')
-           let .lparen_rparen tmp_10 _argumentList' := tmp_9
-           let ._TID callableId_control := tmp_10
-           let tmp_11 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_l» LC_0 callableId_control)
-           have callableDef' := tmp_11
-           let _ ← Eval.check (NanoP4Spec.callableDef.is_controlDeclarationIR callableDef')
-           let tmp_12 ← Eval.err? (NanoP4Spec.callableDef.of_controlDeclarationIR callableDef')
-           have controlDeclarationIR := tmp_12
-           have LC_1 :=
-               { { LC_0 with
-                 PARSER := some parserDeclarationIR, } with
-                 CONTROL := some controlDeclarationIR, }
-           pure LC_1)) <|>
+        let tmp_2 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
+        have «argument*» := tmp_2
+        let _ ← Eval.check (decide ((0 : Nat) < (List.length «argument*»)))
+        let tmp_3 ← Eval.err? (Iter.idx «argument*» (0 : Nat))
+        have expression := tmp_3
+        let _ ← Eval.check (NanoP4Spec.expression.is_callExpression expression)
+        let tmp_4 ← Eval.err? (NanoP4Spec.expression.of_callExpression expression)
+        let .lparen_rparen tmp_5 _argumentList := tmp_4
+        let ._TID callableId_parser := tmp_5
+        let tmp_6 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_l» LC_0 callableId_parser)
+        have callableDef := tmp_6
+        let _ ← Eval.check (NanoP4Spec.callableDef.is_parserDeclarationIR callableDef)
+        let tmp_7 ← Eval.err? (NanoP4Spec.callableDef.of_parserDeclarationIR callableDef)
+        have parserDeclarationIR := tmp_7
+        let _ ← Eval.check (decide ((1 : Nat) < (List.length «argument*»)))
+        let tmp_8 ← Eval.err? (Iter.idx «argument*» (1 : Nat))
+        have expression' := tmp_8
+        let _ ← Eval.check (NanoP4Spec.expression.is_callExpression expression')
+        let tmp_9 ← Eval.err? (NanoP4Spec.expression.of_callExpression expression')
+        let .lparen_rparen tmp_10 _argumentList' := tmp_9
+        let ._TID callableId_control := tmp_10
+        let tmp_11 ← ExceptT.mk (NanoP4Spec.«$find_callableDef_l» LC_0 callableId_control)
+        have callableDef' := tmp_11
+        let _ ← Eval.check (NanoP4Spec.callableDef.is_controlDeclarationIR callableDef')
+        let tmp_12 ← Eval.err? (NanoP4Spec.callableDef.of_controlDeclarationIR callableDef')
+        have controlDeclarationIR := tmp_12
+        have LC_1 :=
+            { { LC_0 with
+              PARSER := some parserDeclarationIR, } with
+              CONTROL := some controlDeclarationIR, }
+        pure LC_1) <|>
      ((do
          have LC_0 := p0
          have declaration := p1
          let _ ← Eval.check (NanoP4Spec.declaration.is_actionDeclaration declaration)
          let tmp_13 ← Eval.err? (NanoP4Spec.declaration.of_actionDeclaration declaration)
          have actionDeclaration := tmp_13
-         (do
-            let .ACTION_lparen_rparen name_action _parameterList blockStatement := actionDeclaration
-            let tmp_14 ← ExceptT.mk (NanoP4Spec.«$id» name_action)
-            have callableId := tmp_14
-            let tmp_15 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
-            have callableTypeDef := tmp_15
-            let _ ← Eval.check (match callableTypeDef with
-               | NanoP4Spec.callableTypeDef.ACTION _ => true
-               | _ => false)
-            let .ACTION «parameterIR*» := callableTypeDef | throw Fail.err
-            have actionDeclarationIR :=
-                NanoP4Spec.actionDeclarationIR.ACTION_lparen_rparen
+         let .ACTION_lparen_rparen name_action _parameterList blockStatement := actionDeclaration
+         let tmp_14 ← ExceptT.mk (NanoP4Spec.«$id» name_action)
+         have callableId := tmp_14
+         let tmp_15 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
+         have callableTypeDef := tmp_15
+         let _ ← Eval.check (match callableTypeDef with
+            | NanoP4Spec.callableTypeDef.ACTION _ => true
+            | _ => false)
+         let .ACTION «parameterIR*» := callableTypeDef | throw Fail.err
+         have actionDeclarationIR :=
+             NanoP4Spec.actionDeclarationIR.ACTION_lparen_rparen
+               callableId
+               «parameterIR*»
+               blockStatement
+         let tmp_16 ←
+             ExceptT.mk
+               (NanoP4Spec.«$add_callableDef_l»
+                  LC_0
                   callableId
-                  «parameterIR*»
-                  blockStatement
-            let tmp_16 ←
-                ExceptT.mk
-                  (NanoP4Spec.«$add_callableDef_l»
-                     LC_0
-                     callableId
-                     (NanoP4Spec.actionDeclarationIR.to_callableDef actionDeclarationIR))
-            have LC_1 := tmp_16
-            pure LC_1)) <|>
+                  (NanoP4Spec.actionDeclarationIR.to_callableDef actionDeclarationIR))
+         have LC_1 := tmp_16
+         pure LC_1) <|>
       ((do
           have LC := p0
           have declaration := p1
@@ -116,70 +114,68 @@ def Decl_load.run (p0 : NanoP4Spec.loadContext) (p1 : NanoP4Spec.declaration)
             let _ ← Eval.check (NanoP4Spec.declaration.is_parserDeclaration declaration)
             let tmp_19 ← Eval.err? (NanoP4Spec.declaration.of_parserDeclaration declaration)
             have parserDeclaration := tmp_19
-            (do
-               let .PARSER_lparen_rparen_lbrace_rbrace
-                       name
-                       parameterList
-                       parserLocalDeclarationList
-                       parserStateList :=
-                   parserDeclaration
-               let tmp_20 ← ExceptT.mk (NanoP4Spec.«$id» name)
-               have callableId := tmp_20
-               let tmp_21 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
-               have callableTypeDef := tmp_21
-               let _ ← Eval.check (match callableTypeDef with
-                  | NanoP4Spec.callableTypeDef.PARSER _ => true
-                  | _ => false)
-               let .PARSER «parameterIR*» := callableTypeDef | throw Fail.err
-               have parserDeclarationIR :=
-                   NanoP4Spec.parserDeclarationIR.PARSER_lparen_rparen_lbrace_rbrace
+            let .PARSER_lparen_rparen_lbrace_rbrace
+                    name
+                    parameterList
+                    parserLocalDeclarationList
+                    parserStateList :=
+                parserDeclaration
+            let tmp_20 ← ExceptT.mk (NanoP4Spec.«$id» name)
+            have callableId := tmp_20
+            let tmp_21 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
+            have callableTypeDef := tmp_21
+            let _ ← Eval.check (match callableTypeDef with
+               | NanoP4Spec.callableTypeDef.PARSER _ => true
+               | _ => false)
+            let .PARSER «parameterIR*» := callableTypeDef | throw Fail.err
+            have parserDeclarationIR :=
+                NanoP4Spec.parserDeclarationIR.PARSER_lparen_rparen_lbrace_rbrace
+                  callableId
+                  «parameterIR*»
+                  parserLocalDeclarationList
+                  parserStateList
+            let tmp_22 ←
+                ExceptT.mk
+                  (NanoP4Spec.«$add_callableDef_l»
+                     LC_0
                      callableId
-                     «parameterIR*»
-                     parserLocalDeclarationList
-                     parserStateList
-               let tmp_22 ←
-                   ExceptT.mk
-                     (NanoP4Spec.«$add_callableDef_l»
-                        LC_0
-                        callableId
-                        (NanoP4Spec.parserDeclarationIR.to_callableDef parserDeclarationIR))
-               have LC_1 := tmp_22
-               pure LC_1)) <|>
+                     (NanoP4Spec.parserDeclarationIR.to_callableDef parserDeclarationIR))
+            have LC_1 := tmp_22
+            pure LC_1) <|>
          ((do
              have LC_0 := p0
              have declaration := p1
              let _ ← Eval.check (NanoP4Spec.declaration.is_controlDeclaration declaration)
              let tmp_23 ← Eval.err? (NanoP4Spec.declaration.of_controlDeclaration declaration)
              have controlDeclaration := tmp_23
-             (do
-                let .CONTROL_lparen_rparen_lbrace_APPLY_rbrace
-                        name
-                        parameterList
-                        controlLocalDeclarationList
-                        controlBody :=
-                    controlDeclaration
-                let tmp_24 ← ExceptT.mk (NanoP4Spec.«$id» name)
-                have callableId := tmp_24
-                let tmp_25 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
-                have callableTypeDef := tmp_25
-                let _ ← Eval.check (match callableTypeDef with
-                   | NanoP4Spec.callableTypeDef.CONTROL _ => true
-                   | _ => false)
-                let .CONTROL «parameterIR*» := callableTypeDef | throw Fail.err
-                have controlDeclarationIR :=
-                    NanoP4Spec.controlDeclarationIR.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
+             let .CONTROL_lparen_rparen_lbrace_APPLY_rbrace
+                     name
+                     parameterList
+                     controlLocalDeclarationList
+                     controlBody :=
+                 controlDeclaration
+             let tmp_24 ← ExceptT.mk (NanoP4Spec.«$id» name)
+             have callableId := tmp_24
+             let tmp_25 ← ExceptT.mk (NanoP4Spec.«$find_callableTypeDef_l» LC_0 callableId)
+             have callableTypeDef := tmp_25
+             let _ ← Eval.check (match callableTypeDef with
+                | NanoP4Spec.callableTypeDef.CONTROL _ => true
+                | _ => false)
+             let .CONTROL «parameterIR*» := callableTypeDef | throw Fail.err
+             have controlDeclarationIR :=
+                 NanoP4Spec.controlDeclarationIR.CONTROL_lparen_rparen_lbrace_APPLY_rbrace
+                   callableId
+                   «parameterIR*»
+                   controlLocalDeclarationList
+                   controlBody
+             let tmp_26 ←
+                 ExceptT.mk
+                   (NanoP4Spec.«$add_callableDef_l»
+                      LC_0
                       callableId
-                      «parameterIR*»
-                      controlLocalDeclarationList
-                      controlBody
-                let tmp_26 ←
-                    ExceptT.mk
-                      (NanoP4Spec.«$add_callableDef_l»
-                         LC_0
-                         callableId
-                         (NanoP4Spec.controlDeclarationIR.to_callableDef controlDeclarationIR))
-                have LC_1 := tmp_26
-                pure LC_1)) <|>
+                      (NanoP4Spec.controlDeclarationIR.to_callableDef controlDeclarationIR))
+             have LC_1 := tmp_26
+             pure LC_1) <|>
           (do
              have LC := p0
              have declaration := p1
@@ -374,8 +370,6 @@ theorem Decl_load.run_sound
     (o : NanoP4Spec.loadContext) :
     NanoP4Spec.Decl_load.run p0 p1 = some (.ok o) → NanoP4Spec.Decl_load p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.Decl_load.run_sound
 
 -- no determinism theorem: Decl_load
 --   7 rule paths
@@ -1288,21 +1282,22 @@ def Decl_load.al : Lang.Al.def :=
 def Decls_load.run (p0 : NanoP4Spec.loadContext) (p1 : List NanoP4Spec.declaration)
     : Option (Except Fail NanoP4Spec.loadContext) :=
   ExceptT.run
-    (do
-       have LC_0 := p0
-       have «declaration*» := p1
-       (do
-          let _ ← Eval.check («declaration*» == ([] : List NanoP4Spec.declaration))
-          pure LC_0) <|>
-       (do
-          have «declaration'*» := «declaration*»
-          let _ ← Eval.check (!(List.isEmpty «declaration'*»))
-          let declaration_h :: «declaration_t*» := «declaration'*» | throw Fail.err
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Decl_load.run LC_0 declaration_h)
-          have LC_1 := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.Decls_load.run LC_1 «declaration_t*»)
-          have LC_2 := tmp_1
-          pure LC_2))
+    ((do
+        have LC_0 := p0
+        have «declaration*» := p1
+        let _ ← Eval.check («declaration*» == ([] : List NanoP4Spec.declaration))
+        pure LC_0) <|>
+     (do
+        have LC_0 := p0
+        have «declaration*» := p1
+        have «declaration'*» := «declaration*»
+        let _ ← Eval.check (!(List.isEmpty «declaration'*»))
+        let declaration_h :: «declaration_t*» := «declaration'*» | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.Decl_load.run LC_0 declaration_h)
+        have LC_1 := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.Decls_load.run LC_1 «declaration_t*»)
+        have LC_2 := tmp_1
+        pure LC_2))
   partial_fixpoint
 
 inductive Decls_load : NanoP4Spec.loadContext →
@@ -1333,16 +1328,12 @@ theorem Decls_load.run_sound_group :
          NanoP4Spec.Decls_load p0 p1 o) := by
   run_sound_group NanoP4Spec.Decls_load.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Decls_load.run_sound_group
-
 theorem Decls_load.run_sound
     (p0 : NanoP4Spec.loadContext)
     (p1 : List NanoP4Spec.declaration)
     (o : NanoP4Spec.loadContext) :
     NanoP4Spec.Decls_load.run p0 p1 = some (.ok o) → NanoP4Spec.Decls_load p0 p1 o :=
   fun h => NanoP4Spec.Decls_load.run_sound_group p0 p1 _ h o rfl
-
-#audit_axioms NanoP4Spec.Decls_load.run_sound
 
 def Decls_load.al : Lang.Al.def :=
   Q.d
@@ -1482,14 +1473,13 @@ def Program_load.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.program)
     (do
        have TC := p0
        have program := p1
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_program» program)
-          have «declaration*» := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$make_loadContext» TC)
-          have LC := tmp_1
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.Decls_load.run LC «declaration*»)
-          have LC' := tmp_2
-          pure LC'))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_program» program)
+       have «declaration*» := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$make_loadContext» TC)
+       have LC := tmp_1
+       let tmp_2 ← ExceptT.mk (NanoP4Spec.Decls_load.run LC «declaration*»)
+       have LC' := tmp_2
+       pure LC')
 
 inductive Program_load : NanoP4Spec.typingContext →
   NanoP4Spec.program →
@@ -1512,8 +1502,6 @@ theorem Program_load.run_sound
     (o : NanoP4Spec.loadContext) :
     NanoP4Spec.Program_load.run p0 p1 = some (.ok o) → NanoP4Spec.Program_load p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.Program_load.run_sound
 
 -- no determinism theorem: Program_load
 --   calls Decls_load, which has no determinism theorem
@@ -1581,5 +1569,10 @@ def Program_load.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "LC'")) (Q.varT "loadContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Decl_load.run_sound
+#audit_axioms NanoP4Spec.Decls_load.run_sound_group
+#audit_axioms NanoP4Spec.Decls_load.run_sound
+#audit_axioms NanoP4Spec.Program_load.run_sound
 
 end NanoP4Spec

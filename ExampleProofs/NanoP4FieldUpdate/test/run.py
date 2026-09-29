@@ -38,6 +38,17 @@ def extract(text, start, end):
     return text.split(start, 1)[1].split(end, 1)[0]
 
 
+def extract_refinement_group(text):
+    """Copy the group proof up to the next theorem, excluding its scoped budget."""
+    start = "theorem «$update_fieldValue».refines_group"
+    end = "theorem «$update_fieldValue».refines\n"
+    body = extract(text, start, end)
+    body, count = re.subn(r"\n\nset_option maxHeartbeats \d+ in\n$", "\n", body)
+    if count != 1:
+        raise HarnessError("missing or ambiguous refinement theorem boundary")
+    return "theorem _root_.NanoP4Spec.«$mutation_fieldValue».refines_group" + body
+
+
 def replace_exact(text, anchor, replacement, count):
     if text.count(anchor) != count:
         raise HarnessError(f"expected {count} namespace anchors: {anchor!r}")
@@ -123,10 +134,8 @@ def proof_probe(case, nonce):
         semantics, "theorem generatedEqUpdate", "/-- info: 'ExampleProofs.NanoP4FieldUpdate.generatedEqUpdate'")
     behavior = replace_exact(behavior, 'NanoP4Spec.«$update_fieldValue»',
                              'Scratch.«$update_fieldValue»', 3)
-    emitted = (ROOT / "NanoP4Spec/Refinement/update_fieldValue.lean").read_text()
-    refinement = "theorem _root_.NanoP4Spec.«$mutation_fieldValue».refines_group" + extract(emitted,
-        "theorem «$update_fieldValue».refines_group",
-        "#audit_axioms NanoP4Spec.«$update_fieldValue».refines_group")
+    emitted = (ROOT / "NanoP4Spec/Refinement/Forward/update_fieldValue.lean").read_text()
+    refinement = extract_refinement_group(emitted)
     refinement = replace_once(refinement,
         "(ExceptT.mk (NanoP4Spec.«$update_fieldValue» p0 p1 p2))",
         "(ExceptT.mk (Scratch.«$update_fieldValue» p0 p1 p2))")

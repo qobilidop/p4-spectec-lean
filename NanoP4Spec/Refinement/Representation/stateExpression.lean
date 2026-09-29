@@ -58,8 +58,6 @@ private theorem stateExpression.fieldCodec0_0 : @Representation.Codec (NanoP4Spe
   (NanoP4Spec.name.admitted) :=
   NanoP4Spec.name.codec
 
-#audit_axioms NanoP4Spec.stateExpression.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem stateExpression.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "name" [])).it actual → ∀ v,
@@ -71,16 +69,12 @@ private theorem stateExpression.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "name")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.stateExpression.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem stateExpression.fieldCodec1_0 : @Representation.Codec (NanoP4Spec.expression)
   ⟨NanoP4Spec.expression.toValue⟩ ⟨NanoP4Spec.expression.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "expression" [])).it)
   (NanoP4Spec.expression.admitted) :=
   NanoP4Spec.expression.codec
-
-#audit_axioms NanoP4Spec.stateExpression.fieldCodec1_0
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem stateExpression.fieldSubstitution1_0 : ∀ actual,
@@ -93,8 +87,6 @@ private theorem stateExpression.fieldSubstitution1_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "expression")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.stateExpression.fieldSubstitution1_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem stateExpression.fieldCodec1_1 : @Representation.Codec
   (NanoP4Spec.selectCaseList) ⟨NanoP4Spec.selectCaseList.toValue⟩
@@ -102,8 +94,6 @@ private theorem stateExpression.fieldCodec1_1 : @Representation.Codec
   Representation.Source.externDomain (Q.t (Q.varT "selectCaseList" [])).it)
   (NanoP4Spec.selectCaseList.admitted) :=
   NanoP4Spec.selectCaseList.codec
-
-#audit_axioms NanoP4Spec.stateExpression.fieldCodec1_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem stateExpression.fieldSubstitution1_1 : ∀ actual,
@@ -115,8 +105,6 @@ private theorem stateExpression.fieldSubstitution1_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "selectCaseList")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.stateExpression.fieldSubstitution1_1
 
 private theorem stateExpression.sourceCasesValid (v : Lang.Il.value) (hv :
   stateExpression.source v) :
@@ -162,8 +150,6 @@ private theorem stateExpression.sourceCasesValid (v : Lang.Il.value) (hv :
         exact .cons (stateExpression.fieldSubstitution1_0 _ sub0) (.cons
           (stateExpression.fieldSubstitution1_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.stateExpression.sourceCasesValid
-
 private theorem stateExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -187,8 +173,6 @@ private theorem stateExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
     (NanoP4Spec.stateExpression.semi x0))) <|> none) = ((NanoP4Spec.name.ofValue) fuel v0).bind
     (fun x0 => some (NanoP4Spec.stateExpression.semi x0))
   cases ((NanoP4Spec.name.ofValue) fuel v0) <;> rfl
-
-#audit_axioms stateExpression.decode0
 
 private theorem stateExpression.decode1 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
@@ -220,8 +204,6 @@ private theorem stateExpression.decode1 (fuel : Nat) (v : Lang.Il.value) (tree :
     (NanoP4Spec.stateExpression.SELECT_lparen_rparen_lbrace_rbrace x0 x1)))
   cases ((NanoP4Spec.expression.ofValue) fuel v0) <;> cases ((NanoP4Spec.selectCaseList.ofValue)
     fuel v1) <;> rfl
-
-#audit_axioms stateExpression.decode1
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem stateExpression.codec : @Refine.Representation.Codec NanoP4Spec.stateExpression
@@ -482,7 +464,6 @@ theorem stateExpression.codec : @Refine.Representation.Codec NanoP4Spec.stateExp
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.stateExpression.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -500,6 +481,16 @@ theorem stateExpression.admittedAll : ∀ x : NanoP4Spec.stateExpression,
       trivial⟩
 
 
+#audit_axioms NanoP4Spec.stateExpression.fieldCodec0_0
+#audit_axioms NanoP4Spec.stateExpression.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.stateExpression.fieldCodec1_0
+#audit_axioms NanoP4Spec.stateExpression.fieldSubstitution1_0
+#audit_axioms NanoP4Spec.stateExpression.fieldCodec1_1
+#audit_axioms NanoP4Spec.stateExpression.fieldSubstitution1_1
+#audit_axioms NanoP4Spec.stateExpression.sourceCasesValid
+#audit_axioms stateExpression.decode0
+#audit_axioms stateExpression.decode1
+#audit_axioms NanoP4Spec.stateExpression.codec
 #audit_axioms NanoP4Spec.stateExpression.admittedAll
 
 end NanoP4Spec

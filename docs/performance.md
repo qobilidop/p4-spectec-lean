@@ -25,6 +25,10 @@ records matched local hot-path measurements, native dependency reductions and
 observed remote gate times. It distinguishes warm gates from rebuilds and
 retains the measurement limits.
 
+The [N3 iteration snapshot](performance/n3-iteration-2026-09-28.md) records the
+repaired baseline, independent proof dependency chains, domain-planning boundary,
+and optional native replay measurements.
+
 ## Reproduce a measurement
 
 From the repository root, with the pinned toolchain available:

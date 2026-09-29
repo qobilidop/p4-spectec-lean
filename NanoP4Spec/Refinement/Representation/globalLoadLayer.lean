@@ -68,8 +68,6 @@ private theorem globalLoadLayer.fieldCodec0 : @Representation.Codec
   (NanoP4Spec.callableTypeDefEnv.admitted) :=
   NanoP4Spec.callableTypeDefEnv.codec
 
-#audit_axioms globalLoadLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalLoadLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "callableTypeDefEnv" [])).it actual → ∀ v,
@@ -81,16 +79,12 @@ private theorem globalLoadLayer.fieldSubstitution0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "callableTypeDefEnv")] at valid
     exact valid)
 
-#audit_axioms globalLoadLayer.fieldSubstitution0
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalLoadLayer.fieldCodec1 : @Representation.Codec (NanoP4Spec.callableDefEnv)
   ⟨NanoP4Spec.callableDefEnv.toValue⟩ ⟨NanoP4Spec.callableDefEnv.ofValue⟩
   (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT
   "callableDefEnv" [])).it) (NanoP4Spec.callableDefEnv.admitted) :=
   NanoP4Spec.callableDefEnv.codec
-
-#audit_axioms globalLoadLayer.fieldCodec1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalLoadLayer.fieldSubstitution1 : ∀ actual,
@@ -102,8 +96,6 @@ private theorem globalLoadLayer.fieldSubstitution1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "callableDefEnv")] at valid
     exact valid)
-
-#audit_axioms globalLoadLayer.fieldSubstitution1
 
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalLoadLayer.fieldCodec2 : @Representation.Codec (Option
@@ -119,8 +111,6 @@ private theorem globalLoadLayer.fieldCodec2 : @Representation.Codec (Option
     (NanoP4Spec.parserDeclarationIR) ⟨NanoP4Spec.parserDeclarationIR.toValue⟩
     ⟨NanoP4Spec.parserDeclarationIR.ofValue⟩ (Q.t (Q.varT "parserDeclarationIR" []))
     (NanoP4Spec.parserDeclarationIR.admitted) (NanoP4Spec.parserDeclarationIR.codec)
-
-#audit_axioms globalLoadLayer.fieldCodec2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalLoadLayer.fieldSubstitution2 : ∀ actual,
@@ -139,8 +129,6 @@ private theorem globalLoadLayer.fieldSubstitution2 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "parserDeclarationIR")] at valid
     exact valid)
 
-#audit_axioms globalLoadLayer.fieldSubstitution2
-
 /-- The field's independent source grammar and exact dictionaries. -/
 private theorem globalLoadLayer.fieldCodec3 : @Representation.Codec (Option
   (NanoP4Spec.controlDeclarationIR)) ⟨@ToValue.toValue (Option
@@ -156,8 +144,6 @@ private theorem globalLoadLayer.fieldCodec3 : @Representation.Codec (Option
     (NanoP4Spec.controlDeclarationIR) ⟨NanoP4Spec.controlDeclarationIR.toValue⟩
     ⟨NanoP4Spec.controlDeclarationIR.ofValue⟩ (Q.t (Q.varT "controlDeclarationIR" []))
     (NanoP4Spec.controlDeclarationIR.admitted) (NanoP4Spec.controlDeclarationIR.codec)
-
-#audit_axioms globalLoadLayer.fieldCodec3
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem globalLoadLayer.fieldSubstitution3 : ∀ actual,
@@ -175,8 +161,6 @@ private theorem globalLoadLayer.fieldSubstitution3 : ∀ actual,
     intro v valid
     rw [substitution.emptyNamedResult (Q.i "controlDeclarationIR")] at valid
     exact valid)
-
-#audit_axioms globalLoadLayer.fieldSubstitution3
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem globalLoadLayer.payload (v : Lang.Il.value) (hv :
@@ -206,8 +190,6 @@ private theorem globalLoadLayer.payload (v : Lang.Il.value) (hv :
               (globalLoadLayer.fieldSubstitution2 _ sub2) (.cons
               (globalLoadLayer.fieldSubstitution3 _ sub3) (.nil))))
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.globalLoadLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem globalLoadLayer.codec : @Refine.Representation.Codec NanoP4Spec.globalLoadLayer
@@ -598,8 +580,6 @@ theorem globalLoadLayer.codec : @Refine.Representation.Codec NanoP4Spec.globalLo
                         rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2, h3 fuel enough3]
                         rfl
 
-#audit_axioms NanoP4Spec.globalLoadLayer.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem globalLoadLayer.encodingSourceIff (x : NanoP4Spec.globalLoadLayer) :
     NanoP4Spec.globalLoadLayer.source (NanoP4Spec.globalLoadLayer.toValue x) ↔
@@ -658,8 +638,6 @@ theorem globalLoadLayer.encodingSourceIff (x : NanoP4Spec.globalLoadLayer) :
     exact ⟨_, rfl, .cons (rfl) (.cons (rfl) (.cons (rfl) (.cons (rfl) (.nil)))), .cons _ _ _ _
       p0 (.cons _ _ _ _ p1 (.cons _ _ _ _ p2 (.cons _ _ _ _ p3 (.nil))))⟩
 
-#audit_axioms NanoP4Spec.globalLoadLayer.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem globalLoadLayer.admittedAll : ∀ x : NanoP4Spec.globalLoadLayer,
   (NanoP4Spec.globalLoadLayer.admitted) x := by
@@ -677,6 +655,17 @@ theorem globalLoadLayer.admittedAll : ∀ x : NanoP4Spec.globalLoadLayer,
     (NanoP4Spec.controlDeclarationIR), (NanoP4Spec.controlDeclarationIR.admitted) x from
     NanoP4Spec.controlDeclarationIR.admittedAll)) x))) (x.CONTROL), trivial⟩
 
+#audit_axioms globalLoadLayer.fieldCodec0
+#audit_axioms globalLoadLayer.fieldSubstitution0
+#audit_axioms globalLoadLayer.fieldCodec1
+#audit_axioms globalLoadLayer.fieldSubstitution1
+#audit_axioms globalLoadLayer.fieldCodec2
+#audit_axioms globalLoadLayer.fieldSubstitution2
+#audit_axioms globalLoadLayer.fieldCodec3
+#audit_axioms globalLoadLayer.fieldSubstitution3
+#audit_axioms NanoP4Spec.globalLoadLayer.payload
+#audit_axioms NanoP4Spec.globalLoadLayer.codec
+#audit_axioms NanoP4Spec.globalLoadLayer.encodingSourceIff
 #audit_axioms NanoP4Spec.globalLoadLayer.admittedAll
 
 end NanoP4Spec

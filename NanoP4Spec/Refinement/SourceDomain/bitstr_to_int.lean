@@ -72,7 +72,7 @@ theorem «$bitstr_to_int».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 :
       Representation.Source.externDomain) result
     trivial
 
-#audit_axioms «$bitstr_to_int».sourceDomain
 
+#audit_axioms «$bitstr_to_int».sourceDomain
 
 end NanoP4Spec

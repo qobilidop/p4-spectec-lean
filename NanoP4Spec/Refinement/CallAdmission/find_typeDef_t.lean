@@ -71,7 +71,8 @@ theorem «$find_typeDef_t».callArgumentsSource :
     Representation.Source.externDomain (Q.t (Q.varT "typeId" [])).it) (fun _ => True)
     (NanoP4Spec.typeId.codec)) x (((show ∀ x : (NanoP4Spec.typeId), (fun _ => True) x from
     NanoP4Spec.typeId.admittedAll)) x)), trivial⟩
-#audit_axioms «$find_typeDef_t».callArgumentsSource
 
+
+#audit_axioms «$find_typeDef_t».callArgumentsSource
 
 end NanoP4Spec

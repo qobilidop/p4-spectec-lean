@@ -77,8 +77,6 @@ private theorem transitionStatement.sourceFields (v : Lang.Il.value) (hv :
       exact ⟨tree, shape, Representation.Source.mixopTrans tree _ _ matching rfl, text, hargs,
         head⟩
 
-#audit_axioms NanoP4Spec.transitionStatement.sourceFields
-
 
 /-- Admission is inherited from the independently specified field contract. -/
 def transitionStatement.admitted : NanoP4Spec.transitionStatement → Prop
@@ -195,8 +193,6 @@ theorem transitionStatement.codec :
       rw [stable fuel (by omega)]
       rfl
 
-#audit_axioms NanoP4Spec.transitionStatement.codec
-
 
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem transitionStatement.admittedAll : ∀ x : NanoP4Spec.transitionStatement,
@@ -207,6 +203,8 @@ theorem transitionStatement.admittedAll : ∀ x : NanoP4Spec.transitionStatement
     exact ((show ∀ x : (NanoP4Spec.stateExpression), (NanoP4Spec.stateExpression.admitted) x
       from NanoP4Spec.stateExpression.admittedAll)) a
 
+#audit_axioms NanoP4Spec.transitionStatement.sourceFields
+#audit_axioms NanoP4Spec.transitionStatement.codec
 #audit_axioms NanoP4Spec.transitionStatement.admittedAll
 
 end NanoP4Spec

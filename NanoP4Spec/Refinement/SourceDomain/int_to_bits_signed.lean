@@ -72,7 +72,7 @@ theorem «$int_to_bits_signed».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 :
       (NanoP4Spec.bits.codec) result
     exact NanoP4Spec.bits.admittedAll result
 
-#audit_axioms «$int_to_bits_signed».sourceDomain
 
+#audit_axioms «$int_to_bits_signed».sourceDomain
 
 end NanoP4Spec

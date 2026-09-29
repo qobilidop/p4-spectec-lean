@@ -172,6 +172,52 @@ def named_type_references(definition, type_keys):
     return sorted(found)
 
 
+# Checks the completion CLI itself runs before counting obligations; never a compiled claim.
+IDENTITY_CHECKS = ["source pins and export digest", "generated library freshness",
+                   "check-quotes", "check-coverage"]
+
+MONOMORPHIC_DOMAIN = (("sourceEntry", "sourceInputsToTwoWay"),
+                      ("producer", "sourceInputsToSourceOutput"))
+# The runtime profile's grammar contains the source grammar and adds only the configured
+# runtime-only raw extern (decisions, "Runtime-inclusive evaluation domain"); complete
+# runtime evidence therefore covers the source domain as well as actual runtime values.
+RUNTIME_DOMAIN = (("sourceEntry", "runtimeInputsToTwoWay"),
+                  ("producer", "runtimeInputsToRuntimeOutput"))
+RUNTIME_CALL_DIRECTIONS = frozenset({"runtimeCallArgumentCarriers"})
+
+
+def domain_evidence(tag, definition, entry, claim):
+    """Bind a callable's source domain only when its complete domain evidence exists.
+
+    A polymorphic or leaf callable has one combined source-domain contract. A monomorphic
+    bodied callable needs source entry and producer claims, and call admission when it has
+    call sites (the bounded N2 criteria, applied to every callable), all in the source profile
+    or all in the runtime profile. The returned name is the entry claim; every required claim
+    is still checked as compiled by check-coverage.
+    """
+    combined = claim(entry, "sourceDomain", "sourceInputsAndOutput")
+    # An extern relation's inputs are covered by its runtime entry; its results are those of
+    # the abstract extern contract that entry assumes, discharged by the target.
+    if tag == "ExternRelD":
+        return claim(entry, "sourceEntry", "runtimeInputsToTwoWay")
+    polymorphic = (tag == "FuncDecD" and len(definition["it"]) > 2
+                   and bool(definition["it"][2]))
+    if tag not in ("FuncDecD", "RelD", "TableDecD") or polymorphic:
+        return combined
+    if not entry["dependencies"] and combined:
+        return combined
+    for profile, calls in ((MONOMORPHIC_DOMAIN, N2_CALL_DIRECTIONS),
+                           (RUNTIME_DOMAIN, RUNTIME_CALL_DIRECTIONS)):
+        names = [claim(entry, kind, direction) for kind, direction in profile]
+        if entry["dependencies"]:
+            admitted = [c["name"] for c in entry["claims"] if c["kind"] == "callAdmission"
+                        and c["direction"] in calls]
+            names.append(admitted[0] if admitted else None)
+        if all(names):
+            return names[0]
+    return None
+
+
 def build_manifest(source, coverage, corpus_ids, identity):
     """Join the full source inventory to existing callable proof evidence.
 
@@ -198,10 +244,14 @@ def build_manifest(source, coverage, corpus_ids, identity):
                  if isinstance(d, dict) and isinstance(d.get("it"), list)
                  and d["it"][0] in ("TypD", "ExternTypD")}
 
-    def add(key, requirement, subject, stage="core", dependencies=(), evidence=None):
-        obligations.append({"id": key, "requirement": requirement, "subject": subject,
-                            "stage": stage, "dependencies": list(dependencies),
-                            "coverageClaim": evidence})
+    def add(key, requirement, subject, stage="core", dependencies=(), evidence=None,
+            checked_by=None):
+        obligation = {"id": key, "requirement": requirement, "subject": subject,
+                      "stage": stage, "dependencies": list(dependencies),
+                      "coverageClaim": evidence}
+        if checked_by is not None:
+            obligation["checkedBy"] = checked_by
+        obligations.append(obligation)
 
     def claim(entry, kind, direction):
         found = [c for c in entry["claims"] if c["kind"] == kind and c["direction"] == direction]
@@ -250,16 +300,14 @@ def build_manifest(source, coverage, corpus_ids, identity):
             if entry["source"] != location["file"]:
                 raise CertificationError(f"callable source differs from coverage: {key}")
             domain = f"domain:{name}"
-            # This combined contract covers calls only when there are no nested call sites.
-            # Other call-domain components are checked separately by the bounded N2 validator.
-            domain_claim = claim(entry, "sourceDomain", "sourceInputsAndOutput")
             add(domain, "domain", key, dependencies=representations,
-                evidence=domain_claim if not entry["dependencies"] else None)
+                evidence=domain_evidence(tag, definition, entry, claim))
             if entry["kind"] == "builtin":
                 add(f"contract:{name}", "builtin", key, dependencies=[domain],
                     evidence=claim(entry, "builtinContract", "twoWayDispatch"))
             elif entry["kind"].startswith("extern"):
-                add(f"contract:{name}", "extern", key, dependencies=[domain])
+                add(f"contract:{name}", "extern", key, dependencies=[domain],
+                    evidence=claim(entry, "externContract", "abstractTwoWay"))
                 add(f"target:{name}", "target", key, "target", [f"contract:{name}"])
             else:
                 for direction, requirement in (("referenceToGenerated", "forward"),
@@ -287,8 +335,9 @@ def build_manifest(source, coverage, corpus_ids, identity):
         raise CertificationError("coverage contains a callable absent from the source")
     add("profile:primitiveRepresentations", "representation", "primitive and container codecs",
         evidence=profile_claim("primitiveRepresentation", "legalSourceCodecs"))
-    add("profile:sourceIdentity", "sourceIdentity", "NanoP4Spec")
-    add("profile:initialization", "initialization", "NanoP4Spec", dependencies=
+    add("profile:sourceIdentity", "sourceIdentity", "NanoP4Spec", checked_by=IDENTITY_CHECKS)
+    add("profile:initialization", "initialization", "NanoP4Spec",
+        evidence=profile_claim("initialization", "certificateEnvironment"), dependencies=
         ["profile:sourceIdentity"] + [o["id"] for o in obligations if o["requirement"] == "variable"])
     target_contracts = [o["id"] for o in obligations if o["requirement"] == "target"]
     add("profile:observations", "observations", "NanoSwitch", "target",
@@ -330,16 +379,25 @@ def check_stored(text, regenerated):
         raise CertificationError("completion manifest differs from current inputs/requirements")
 
 
-def outstanding(manifest, stage="all"):
+MILESTONES = ("N0", "N1", "N2", "N3", "N4", "N5", "N6")
+
+
+def outstanding(manifest, stage="all", checked=False, owned=None):
     """Report missing evidence after callers have validated compiled bindings.
 
-    Presence of a binding is not evidence until the Lean checker succeeds.
+    Presence of a binding is not evidence until the Lean checker succeeds. An obligation
+    discharged by the CLI's own checks counts only when the caller ran them (`checked`).
+    `owned` restricts the core stage to requirements owned by milestones up to it.
     This function alone must never be exposed as a certification verdict.
     """
     stages = {"core"} if stage == "core" else {"core", "target"} if stage == "target" else {
         "core", "target", "release"}
+    owners = None if owned is None else set(MILESTONES[:MILESTONES.index(owned) + 1])
+    requirements = manifest["requirements"]
     return [o for o in manifest["obligations"]
-            if o["stage"] in stages and o["coverageClaim"] is None]
+            if o["stage"] in stages and o["coverageClaim"] is None
+            and not (checked and o.get("checkedBy"))
+            and (owners is None or requirements[o["requirement"]]["owner"] in owners)]
 
 
 def _required_claim(entry, kind, directions):
@@ -436,11 +494,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--update", action="store_true", help="regenerate metadata, not proof evidence")
     parser.add_argument("--require-complete", choices=("core", "target", "all"))
+    parser.add_argument("--require-owned", choices=MILESTONES,
+                        help="require every core-stage obligation owned by milestones "
+                        "up to this one; later-owned obligations stay reported")
     parser.add_argument("--require-n2", action="store_true",
                         help="require the bounded N2 profile; broader stages stay independent")
     args = parser.parse_args(argv)
-    if args.update and (args.require_complete or args.require_n2):
+    if args.update and (args.require_complete or args.require_n2 or args.require_owned):
         parser.error("--update cannot be combined with a completion requirement")
+    if args.require_complete and args.require_owned:
+        parser.error("--require-owned selects the core stage; omit --require-complete")
     try:
         corpus = corpus_module(ROOT)
         corpus_ids = corpus.check(root=ROOT, path=source_path(ROOT, str(CORPUS)))
@@ -451,9 +514,12 @@ def main(argv=None):
             print(f"[completion] wrote {MANIFEST}; metadata only, no validation verdict")
             return 0
         check_stored((ROOT / MANIFEST).read_text(), manifest)
+        run(ROOT, ["lake", "exe", "p4spectec-gen", str(EXPORT), "--lib", "NanoP4Spec",
+                   "--runtime-extern", "value", "--check"])
         run(ROOT, ["lake", "exe", "check-coverage"])
         run(ROOT, ["lake", "exe", "check-quotes"])
-        missing = outstanding(manifest, args.require_complete or "all")
+        stage = "core" if args.require_owned else args.require_complete or "all"
+        missing = outstanding(manifest, stage, checked=True, owned=args.require_owned)
         bound = sum(o["coverageClaim"] is not None for o in manifest["obligations"])
         print(f"[completion] {len(manifest['declarations'])} source declarations; "
               f"{len(manifest['obligations'])} obligations; {bound} compiled claim bindings; "
@@ -466,12 +532,13 @@ def main(argv=None):
                 raise CertificationError(f"Nano N2 certification is incomplete ({len(n2)} bindings)")
             print("[completion] bounded N2 source-domain and selected-closure checks passed; "
                   "broader core, target and release obligations remain independent")
-        if args.require_complete and missing:
+        if (args.require_complete or args.require_owned) and missing:
             for kind in REQUIREMENTS:
                 count = sum(o["requirement"] == kind for o in missing)
                 if count:
                     print(f"[completion] missing {kind}: {count}")
-            raise CertificationError(f"Nano {args.require_complete} certification is incomplete")
+            scope = args.require_complete or f"core ({args.require_owned}-owned)"
+            raise CertificationError(f"Nano {scope} certification is incomplete")
         return 0
     except (CertificationError, OSError, ValueError, KeyError) as error:
         print(f"[completion] {error}", file=sys.stderr)

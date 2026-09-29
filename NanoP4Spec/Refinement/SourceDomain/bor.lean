@@ -71,7 +71,7 @@ theorem «$bor».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 : (Representation
       Representation.Source.externDomain) result
     trivial
 
-#audit_axioms «$bor».sourceDomain
 
+#audit_axioms «$bor».sourceDomain
 
 end NanoP4Spec

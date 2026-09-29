@@ -2806,7 +2806,7 @@
     "corpus": "test/nano-certification/corpus.json",
     "corpusSha256": "425a17c9c5490702a6754f64bf339b6858b6be6218cc1bbf23cd5ba6ab7ced1b",
     "coverage": "NanoP4Spec/coverage.json",
-    "coverageSha256": "2d904ffbb30e4efcfbc29341d67a8e97bcc08950d752d34c2df0b571826dfb11",
+    "coverageSha256": "927f3293631f854e3fd33d6cc22a0700ea5a9781e64d3c11cec284014a539ebc",
     "export": "exports/nano-p4.al.json",
     "exportSha256": "3a7b47d75ca97a1404026cde45df09bde0372a06e32c8d80b00ca3ef48b99dd6",
     "pins": {
@@ -2906,7 +2906,7 @@
       "subject": "FuncDecD:ite"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$ite».refines",
       "dependencies": [
         "domain:ite",
         "profile:initialization",
@@ -2918,7 +2918,7 @@
       "subject": "FuncDecD:ite"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$ite».realizes",
       "dependencies": [
         "domain:ite",
         "profile:initialization",
@@ -2940,7 +2940,7 @@
       "subject": "FuncDecD:repeat_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$repeat_».refines",
       "dependencies": [
         "domain:repeat_",
         "profile:initialization",
@@ -2952,7 +2952,7 @@
       "subject": "FuncDecD:repeat_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$repeat_».realizes",
       "dependencies": [
         "domain:repeat_",
         "profile:initialization",
@@ -2964,7 +2964,7 @@
       "subject": "FuncDecD:repeat_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$exists_».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations"
       ],
@@ -2998,7 +2998,7 @@
       "subject": "FuncDecD:exists_"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$forall_».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations"
       ],
@@ -3598,7 +3598,7 @@
       "subject": "TypD:nameList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_nameList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:name",
@@ -3738,7 +3738,7 @@
       "subject": "TypD:parameterList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_parameterList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:nonEmptyParameterList",
@@ -3960,7 +3960,7 @@
       "subject": "TypD:argumentList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_argumentList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -4118,7 +4118,7 @@
       "subject": "TypD:statementList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_statementList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:statement",
@@ -4226,7 +4226,7 @@
       "subject": "TypD:typeFieldList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_typeFieldList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:typeField",
@@ -4320,7 +4320,7 @@
       "subject": "TypD:externMethodPrototypeList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_externMethodPrototypeList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:externMethodPrototype",
@@ -4402,7 +4402,7 @@
       "subject": "TypD:selectCaseList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_selectCaseList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:selectCase",
@@ -4513,7 +4513,7 @@
       "subject": "TypD:parserStateList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_parserStateList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parserState",
@@ -4571,7 +4571,7 @@
       "subject": "TypD:parserLocalDeclarationList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_parserLocalDeclarationList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parserLocalDeclaration",
@@ -4668,7 +4668,7 @@
       "subject": "TypD:tableActionList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_tableActionList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:tableAction",
@@ -4727,7 +4727,7 @@
       "subject": "TypD:tableEntryList"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_tableEntryList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:tableEntry",
@@ -4883,7 +4883,7 @@
       "subject": "TypD:controlDeclaration"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_controlLocalDeclarationList».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -4977,7 +4977,7 @@
       "subject": "TypD:program"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$flatten_program».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:declaration",
@@ -5043,7 +5043,7 @@
       "subject": "TypD:nameIR"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$id».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:name"
@@ -5530,7 +5530,7 @@
       "subject": "TypD:value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$default».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:baseTypeIR",
@@ -5718,7 +5718,7 @@
       "subject": "BuiltinDecD:bor"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$un_op».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:boolValue",
@@ -5762,7 +5762,7 @@
       "subject": "FuncDecD:un_op"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bin_op».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:binop",
@@ -5776,7 +5776,7 @@
       "subject": "FuncDecD:bin_op"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bin_op».refines",
       "dependencies": [
         "domain:bin_op",
         "profile:initialization",
@@ -5794,7 +5794,7 @@
       "subject": "FuncDecD:bin_op"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bin_op».realizes",
       "dependencies": [
         "domain:bin_op",
         "profile:initialization",
@@ -5812,7 +5812,7 @@
       "subject": "FuncDecD:bin_op"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bin_eq».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:boolValue",
@@ -5832,7 +5832,7 @@
       "subject": "FuncDecD:bin_eq"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bin_eq».refines",
       "dependencies": [
         "domain:bin_eq",
         "profile:initialization",
@@ -5845,7 +5845,7 @@
       "subject": "FuncDecD:bin_eq"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$bin_eq».realizes",
       "dependencies": [
         "domain:bin_eq",
         "profile:initialization",
@@ -5963,7 +5963,7 @@
       "subject": "BuiltinDecD:int_to_bits_signed"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_from_bits».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:bit",
@@ -5976,7 +5976,7 @@
       "subject": "FuncDecD:write_value_from_bits"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_from_bits».refines",
       "dependencies": [
         "domain:write_value_from_bits",
         "profile:initialization",
@@ -5989,7 +5989,7 @@
       "subject": "FuncDecD:write_value_from_bits"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_from_bits».realizes",
       "dependencies": [
         "domain:write_value_from_bits",
         "profile:initialization",
@@ -6002,7 +6002,7 @@
       "subject": "FuncDecD:write_value_from_bits"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_from_bits'».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:bits",
@@ -6020,7 +6020,7 @@
       "subject": "FuncDecD:write_value_from_bits'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_from_bits'».refines",
       "dependencies": [
         "domain:write_value_from_bits'",
         "profile:initialization",
@@ -6036,7 +6036,7 @@
       "subject": "FuncDecD:write_value_from_bits'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_from_bits'».realizes",
       "dependencies": [
         "domain:write_value_from_bits'",
         "profile:initialization",
@@ -6052,7 +6052,7 @@
       "subject": "FuncDecD:write_value_from_bits'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_fields_from_bits'».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:bits",
@@ -6066,7 +6066,7 @@
       "subject": "FuncDecD:write_value_fields_from_bits'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_fields_from_bits'».refines",
       "dependencies": [
         "domain:write_value_fields_from_bits'",
         "profile:initialization",
@@ -6079,7 +6079,7 @@
       "subject": "FuncDecD:write_value_fields_from_bits'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$write_value_fields_from_bits'».realizes",
       "dependencies": [
         "domain:write_value_fields_from_bits'",
         "profile:initialization",
@@ -6105,7 +6105,7 @@
       "subject": "TypD:typeDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typeDefEnv».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:map",
@@ -6155,7 +6155,7 @@
       "subject": "TypD:callableTypeDef"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$params_of_callableTypeDef».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableTypeDef",
@@ -6204,7 +6204,7 @@
       "subject": "TypD:callableTypeDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_callableTypeDefEnv».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -6268,7 +6268,7 @@
       "subject": "TypD:typeFrame"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typeFrame».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:id",
@@ -6366,7 +6366,7 @@
       "subject": "VarD:TC"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_typingContext».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockTypingLayer",
@@ -6465,7 +6465,7 @@
       "subject": "VarD:TBLC"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$enter_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:id",
@@ -6507,7 +6507,7 @@
       "subject": "FuncDecD:enter_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$exit_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:localTypingLayer",
@@ -6544,7 +6544,7 @@
       "subject": "FuncDecD:exit_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_var_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockTypingLayer",
@@ -6594,7 +6594,7 @@
       "subject": "FuncDecD:add_var_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_vars_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:id",
@@ -6608,7 +6608,7 @@
       "subject": "FuncDecD:add_vars_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_vars_t».refines",
       "dependencies": [
         "domain:add_vars_t",
         "profile:initialization",
@@ -6621,7 +6621,7 @@
       "subject": "FuncDecD:add_vars_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_vars_t».realizes",
       "dependencies": [
         "domain:add_vars_t",
         "profile:initialization",
@@ -6634,7 +6634,7 @@
       "subject": "FuncDecD:add_vars_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_callableDef_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -6681,7 +6681,7 @@
       "subject": "FuncDecD:add_callableDef_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_typeDef_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:globalTypingLayer",
@@ -6728,7 +6728,7 @@
       "subject": "FuncDecD:add_typeDef_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_var_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockTypingLayer",
@@ -6774,7 +6774,7 @@
       "subject": "FuncDecD:find_var_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_typeDef_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:globalTypingLayer",
@@ -6815,7 +6815,7 @@
       "subject": "FuncDecD:find_typeDef_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_callableTypeDef_t».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -6856,7 +6856,7 @@
       "subject": "FuncDecD:find_callableTypeDef_t"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$typeIR_of_typeDefIR».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:dataTypeIR",
@@ -6894,7 +6894,7 @@
       "subject": "FuncDecD:typeIR_of_typeDefIR"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Type_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:baseType",
@@ -6950,7 +6950,7 @@
       "subject": "RelD:Type_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Type_eq.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:baseTypeIR",
@@ -7007,7 +7007,7 @@
       "subject": "RelD:Type_eq"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Expr_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentList",
@@ -7048,7 +7048,7 @@
       "subject": "RelD:Expr_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Expr_ok.refines",
       "dependencies": [
         "domain:Expr_ok",
         "profile:initialization",
@@ -7064,7 +7064,7 @@
       "subject": "RelD:Expr_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Expr_ok.realizes",
       "dependencies": [
         "domain:Expr_ok",
         "profile:initialization",
@@ -7088,7 +7088,7 @@
       "subject": "RelD:Expr_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ArgumentList_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -7103,7 +7103,7 @@
       "subject": "RelD:ArgumentList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ArgumentList_ok.refines",
       "dependencies": [
         "domain:ArgumentList_ok",
         "profile:initialization",
@@ -7117,7 +7117,7 @@
       "subject": "RelD:ArgumentList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ArgumentList_ok.realizes",
       "dependencies": [
         "domain:ArgumentList_ok",
         "profile:initialization",
@@ -7139,7 +7139,7 @@
       "subject": "RelD:ArgumentList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -7162,7 +7162,7 @@
       "subject": "RelD:Lvalue_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_ok.refines",
       "dependencies": [
         "domain:Lvalue_ok",
         "profile:initialization",
@@ -7177,7 +7177,7 @@
       "subject": "RelD:Lvalue_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_ok.realizes",
       "dependencies": [
         "domain:Lvalue_ok",
         "profile:initialization",
@@ -7200,7 +7200,7 @@
       "subject": "RelD:Lvalue_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_convention_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -7212,7 +7212,7 @@
       "subject": "RelD:Call_convention_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_convention_ok.refines",
       "dependencies": [
         "domain:Call_convention_ok",
         "profile:initialization",
@@ -7225,7 +7225,7 @@
       "subject": "RelD:Call_convention_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_convention_ok.realizes",
       "dependencies": [
         "domain:Call_convention_ok",
         "profile:initialization",
@@ -7246,7 +7246,7 @@
       "subject": "RelD:Call_convention_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statement_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -7282,7 +7282,7 @@
       "subject": "RelD:Statement_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statement_ok.refines",
       "dependencies": [
         "domain:Statement_ok",
         "profile:initialization",
@@ -7308,7 +7308,7 @@
       "subject": "RelD:Statement_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statement_ok.realizes",
       "dependencies": [
         "domain:Statement_ok",
         "profile:initialization",
@@ -7342,7 +7342,7 @@
       "subject": "RelD:Statement_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statements_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:scope",
@@ -7355,7 +7355,7 @@
       "subject": "RelD:Statements_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statements_ok.refines",
       "dependencies": [
         "domain:Statements_ok",
         "profile:initialization",
@@ -7369,7 +7369,7 @@
       "subject": "RelD:Statements_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statements_ok.realizes",
       "dependencies": [
         "domain:Statements_ok",
         "profile:initialization",
@@ -7391,7 +7391,7 @@
       "subject": "RelD:Statements_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Block_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockStatement",
@@ -7405,7 +7405,7 @@
       "subject": "RelD:Block_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Block_ok.refines",
       "dependencies": [
         "domain:Block_ok",
         "profile:initialization",
@@ -7420,7 +7420,7 @@
       "subject": "RelD:Block_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Block_ok.realizes",
       "dependencies": [
         "domain:Block_ok",
         "profile:initialization",
@@ -7443,7 +7443,7 @@
       "subject": "RelD:Block_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDeclList_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parserLocalDeclaration",
@@ -7456,7 +7456,7 @@
       "subject": "RelD:ParserLocalDeclList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDeclList_ok.refines",
       "dependencies": [
         "domain:ParserLocalDeclList_ok",
         "profile:initialization",
@@ -7470,7 +7470,7 @@
       "subject": "RelD:ParserLocalDeclList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDeclList_ok.realizes",
       "dependencies": [
         "domain:ParserLocalDeclList_ok",
         "profile:initialization",
@@ -7492,7 +7492,7 @@
       "subject": "RelD:ParserLocalDeclList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserTransition_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:expression",
@@ -7513,7 +7513,7 @@
       "subject": "RelD:ParserTransition_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserTransition_ok.refines",
       "dependencies": [
         "domain:ParserTransition_ok",
         "profile:initialization",
@@ -7530,7 +7530,7 @@
       "subject": "RelD:ParserTransition_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserTransition_ok.realizes",
       "dependencies": [
         "domain:ParserTransition_ok",
         "profile:initialization",
@@ -7555,7 +7555,7 @@
       "subject": "RelD:ParserTransition_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserStateList_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:name",
@@ -7572,7 +7572,7 @@
       "subject": "RelD:ParserStateList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserStateList_ok.refines",
       "dependencies": [
         "domain:ParserStateList_ok",
         "profile:initialization",
@@ -7588,7 +7588,7 @@
       "subject": "RelD:ParserStateList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserStateList_ok.realizes",
       "dependencies": [
         "domain:ParserStateList_ok",
         "profile:initialization",
@@ -7612,7 +7612,7 @@
       "subject": "RelD:ParserStateList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableKey_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:baseTypeIR",
@@ -7634,7 +7634,7 @@
       "subject": "RelD:TableKey_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableKey_ok.refines",
       "dependencies": [
         "domain:TableKey_ok",
         "profile:initialization",
@@ -7651,7 +7651,7 @@
       "subject": "RelD:TableKey_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableKey_ok.realizes",
       "dependencies": [
         "domain:TableKey_ok",
         "profile:initialization",
@@ -7676,7 +7676,7 @@
       "subject": "RelD:TableKey_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableActionList_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -7693,7 +7693,7 @@
       "subject": "RelD:TableActionList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableActionList_ok.refines",
       "dependencies": [
         "domain:TableActionList_ok",
         "profile:initialization",
@@ -7708,7 +7708,7 @@
       "subject": "RelD:TableActionList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableActionList_ok.realizes",
       "dependencies": [
         "domain:TableActionList_ok",
         "profile:initialization",
@@ -7731,7 +7731,7 @@
       "subject": "RelD:TableActionList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableEntries_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:tableContext",
@@ -7744,7 +7744,7 @@
       "subject": "RelD:TableEntries_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableEntries_ok.refines",
       "dependencies": [
         "domain:TableEntries_ok",
         "profile:initialization",
@@ -7757,7 +7757,7 @@
       "subject": "RelD:TableEntries_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableEntries_ok.realizes",
       "dependencies": [
         "domain:TableEntries_ok",
         "profile:initialization",
@@ -7778,7 +7778,7 @@
       "subject": "RelD:TableEntries_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableProperties_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:matchAction",
@@ -7800,7 +7800,7 @@
       "subject": "RelD:TableProperties_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableProperties_ok.refines",
       "dependencies": [
         "domain:TableProperties_ok",
         "profile:initialization",
@@ -7816,7 +7816,7 @@
       "subject": "RelD:TableProperties_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableProperties_ok.realizes",
       "dependencies": [
         "domain:TableProperties_ok",
         "profile:initialization",
@@ -7840,7 +7840,7 @@
       "subject": "RelD:TableProperties_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -7861,7 +7861,7 @@
       "subject": "RelD:TableDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableDecl_ok.refines",
       "dependencies": [
         "domain:TableDecl_ok",
         "profile:initialization",
@@ -7876,7 +7876,7 @@
       "subject": "RelD:TableDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableDecl_ok.realizes",
       "dependencies": [
         "domain:TableDecl_ok",
         "profile:initialization",
@@ -7899,7 +7899,7 @@
       "subject": "RelD:TableDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDeclList_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -7912,7 +7912,7 @@
       "subject": "RelD:ControlLocalDeclList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDeclList_ok.refines",
       "dependencies": [
         "domain:ControlLocalDeclList_ok",
         "profile:initialization",
@@ -7926,7 +7926,7 @@
       "subject": "RelD:ControlLocalDeclList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDeclList_ok.realizes",
       "dependencies": [
         "domain:ControlLocalDeclList_ok",
         "profile:initialization",
@@ -7948,7 +7948,7 @@
       "subject": "RelD:ControlLocalDeclList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ExternMethod_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -7967,7 +7967,7 @@
       "subject": "RelD:ExternMethod_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ExternMethod_ok.refines",
       "dependencies": [
         "domain:ExternMethod_ok",
         "profile:initialization",
@@ -7981,7 +7981,7 @@
       "subject": "RelD:ExternMethod_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ExternMethod_ok.realizes",
       "dependencies": [
         "domain:ExternMethod_ok",
         "profile:initialization",
@@ -8003,7 +8003,7 @@
       "subject": "RelD:ExternMethod_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.VarDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -8024,7 +8024,7 @@
       "subject": "RelD:VarDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.VarDecl_ok.refines",
       "dependencies": [
         "domain:VarDecl_ok",
         "profile:initialization",
@@ -8041,7 +8041,7 @@
       "subject": "RelD:VarDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.VarDecl_ok.realizes",
       "dependencies": [
         "domain:VarDecl_ok",
         "profile:initialization",
@@ -8066,7 +8066,7 @@
       "subject": "RelD:VarDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:actionDeclaration",
@@ -8108,7 +8108,7 @@
       "subject": "RelD:Decl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decl_ok.refines",
       "dependencies": [
         "domain:Decl_ok",
         "profile:initialization",
@@ -8138,7 +8138,7 @@
       "subject": "RelD:Decl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decl_ok.realizes",
       "dependencies": [
         "domain:Decl_ok",
         "profile:initialization",
@@ -8176,7 +8176,7 @@
       "subject": "RelD:Decl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decls_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:declaration",
@@ -8188,7 +8188,7 @@
       "subject": "RelD:Decls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decls_ok.refines",
       "dependencies": [
         "domain:Decls_ok",
         "profile:initialization",
@@ -8201,7 +8201,7 @@
       "subject": "RelD:Decls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decls_ok.realizes",
       "dependencies": [
         "domain:Decls_ok",
         "profile:initialization",
@@ -8222,7 +8222,7 @@
       "subject": "RelD:Decls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Program_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:declaration",
@@ -8235,7 +8235,7 @@
       "subject": "RelD:Program_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Program_ok.refines",
       "dependencies": [
         "domain:Program_ok",
         "profile:initialization",
@@ -8250,7 +8250,7 @@
       "subject": "RelD:Program_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Program_ok.realizes",
       "dependencies": [
         "domain:Program_ok",
         "profile:initialization",
@@ -8273,7 +8273,7 @@
       "subject": "RelD:Program_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParameterType_eq.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -8321,7 +8321,7 @@
       "subject": "RelD:ParameterType_eq"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$expression_is_lvalue».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:expression",
@@ -8335,7 +8335,7 @@
       "subject": "FuncDecD:expression_is_lvalue"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$expression_is_lvalue».refines",
       "dependencies": [
         "domain:expression_is_lvalue",
         "profile:initialization",
@@ -8347,7 +8347,7 @@
       "subject": "FuncDecD:expression_is_lvalue"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$expression_is_lvalue».realizes",
       "dependencies": [
         "domain:expression_is_lvalue",
         "profile:initialization",
@@ -8359,7 +8359,7 @@
       "subject": "FuncDecD:expression_is_lvalue"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$expression_of_lvalue».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:expression",
@@ -8399,7 +8399,7 @@
       "subject": "FuncDecD:expression_of_lvalue"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$lvalue_of_expression».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:expression",
@@ -8440,7 +8440,7 @@
       "subject": "FuncDecD:lvalue_of_expression"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$is_object_typeIR».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlObjectTypeIR",
@@ -8454,7 +8454,7 @@
       "subject": "FuncDecD:is_object_typeIR"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$is_object_typeIR».refines",
       "dependencies": [
         "domain:is_object_typeIR",
         "profile:initialization",
@@ -8466,7 +8466,7 @@
       "subject": "FuncDecD:is_object_typeIR"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$is_object_typeIR».realizes",
       "dependencies": [
         "domain:is_object_typeIR",
         "profile:initialization",
@@ -8478,7 +8478,7 @@
       "subject": "FuncDecD:is_object_typeIR"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$no_object_params».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -8492,7 +8492,7 @@
       "subject": "FuncDecD:no_object_params"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$no_object_params».refines",
       "dependencies": [
         "domain:no_object_params",
         "profile:initialization",
@@ -8505,7 +8505,7 @@
       "subject": "FuncDecD:no_object_params"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$no_object_params».realizes",
       "dependencies": [
         "domain:no_object_params",
         "profile:initialization",
@@ -8518,7 +8518,7 @@
       "subject": "FuncDecD:no_object_params"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$distinct_params».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -8532,7 +8532,7 @@
       "subject": "FuncDecD:distinct_params"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$distinct_params».refines",
       "dependencies": [
         "domain:distinct_params",
         "profile:initialization",
@@ -8545,7 +8545,7 @@
       "subject": "FuncDecD:distinct_params"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$distinct_params».realizes",
       "dependencies": [
         "domain:distinct_params",
         "profile:initialization",
@@ -8558,7 +8558,7 @@
       "subject": "FuncDecD:distinct_params"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parameter_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -8616,7 +8616,7 @@
       "subject": "RelD:Parameter_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parameters_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parameter",
@@ -8664,7 +8664,7 @@
       "subject": "RelD:Parameters_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParameterList_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parameter",
@@ -8679,7 +8679,7 @@
       "subject": "RelD:ParameterList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParameterList_ok.refines",
       "dependencies": [
         "domain:ParameterList_ok",
         "profile:initialization",
@@ -8694,7 +8694,7 @@
       "subject": "RelD:ParameterList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParameterList_ok.realizes",
       "dependencies": [
         "domain:ParameterList_ok",
         "profile:initialization",
@@ -8717,7 +8717,7 @@
       "subject": "RelD:ParameterList_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Argument_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -8733,7 +8733,7 @@
       "subject": "RelD:Argument_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Argument_ok.refines",
       "dependencies": [
         "domain:Argument_ok",
         "profile:initialization",
@@ -8746,7 +8746,7 @@
       "subject": "RelD:Argument_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Argument_ok.realizes",
       "dependencies": [
         "domain:Argument_ok",
         "profile:initialization",
@@ -8767,7 +8767,7 @@
       "subject": "RelD:Argument_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$directionless_trailing».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction"
@@ -8806,7 +8806,7 @@
       "subject": "FuncDecD:directionless_trailing"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$directionless_trailing'».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction"
@@ -8841,7 +8841,7 @@
       "subject": "FuncDecD:directionless_trailing'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ActionDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:actionDeclaration",
@@ -8863,7 +8863,7 @@
       "subject": "RelD:ActionDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ActionDecl_ok.refines",
       "dependencies": [
         "domain:ActionDecl_ok",
         "profile:initialization",
@@ -8881,7 +8881,7 @@
       "subject": "RelD:ActionDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ActionDecl_ok.realizes",
       "dependencies": [
         "domain:ActionDecl_ok",
         "profile:initialization",
@@ -8907,7 +8907,7 @@
       "subject": "RelD:ActionDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ExternDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -8932,7 +8932,7 @@
       "subject": "RelD:ExternDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ExternDecl_ok.refines",
       "dependencies": [
         "domain:ExternDecl_ok",
         "profile:initialization",
@@ -8949,7 +8949,7 @@
       "subject": "RelD:ExternDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ExternDecl_ok.realizes",
       "dependencies": [
         "domain:ExternDecl_ok",
         "profile:initialization",
@@ -8974,7 +8974,7 @@
       "subject": "RelD:ExternDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TypeDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlObjectTypeIR",
@@ -9009,7 +9009,7 @@
       "subject": "RelD:TypeDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TypeDecl_ok.refines",
       "dependencies": [
         "domain:TypeDecl_ok",
         "profile:initialization",
@@ -9029,7 +9029,7 @@
       "subject": "RelD:TypeDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TypeDecl_ok.realizes",
       "dependencies": [
         "domain:TypeDecl_ok",
         "profile:initialization",
@@ -9057,7 +9057,7 @@
       "subject": "RelD:TypeDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parserLocalDeclaration",
@@ -9071,7 +9071,7 @@
       "subject": "RelD:ParserLocalDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecl_ok.refines",
       "dependencies": [
         "domain:ParserLocalDecl_ok",
         "profile:initialization",
@@ -9084,7 +9084,7 @@
       "subject": "RelD:ParserLocalDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecl_ok.realizes",
       "dependencies": [
         "domain:ParserLocalDecl_ok",
         "profile:initialization",
@@ -9105,7 +9105,7 @@
       "subject": "RelD:ParserLocalDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecls_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:parserLocalDeclaration",
@@ -9117,7 +9117,7 @@
       "subject": "RelD:ParserLocalDecls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecls_ok.refines",
       "dependencies": [
         "domain:ParserLocalDecls_ok",
         "profile:initialization",
@@ -9130,7 +9130,7 @@
       "subject": "RelD:ParserLocalDecls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecls_ok.realizes",
       "dependencies": [
         "domain:ParserLocalDecls_ok",
         "profile:initialization",
@@ -9151,7 +9151,7 @@
       "subject": "RelD:ParserLocalDecls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:name",
@@ -9168,7 +9168,7 @@
       "subject": "RelD:ParserState_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_ok.refines",
       "dependencies": [
         "domain:ParserState_ok",
         "profile:initialization",
@@ -9185,7 +9185,7 @@
       "subject": "RelD:ParserState_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_ok.realizes",
       "dependencies": [
         "domain:ParserState_ok",
         "profile:initialization",
@@ -9210,7 +9210,7 @@
       "subject": "RelD:ParserState_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecl_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -9225,7 +9225,7 @@
       "subject": "RelD:ControlLocalDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecl_ok.refines",
       "dependencies": [
         "domain:ControlLocalDecl_ok",
         "profile:initialization",
@@ -9239,7 +9239,7 @@
       "subject": "RelD:ControlLocalDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecl_ok.realizes",
       "dependencies": [
         "domain:ControlLocalDecl_ok",
         "profile:initialization",
@@ -9261,7 +9261,7 @@
       "subject": "RelD:ControlLocalDecl_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecls_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -9273,7 +9273,7 @@
       "subject": "RelD:ControlLocalDecls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecls_ok.refines",
       "dependencies": [
         "domain:ControlLocalDecls_ok",
         "profile:initialization",
@@ -9286,7 +9286,7 @@
       "subject": "RelD:ControlLocalDecls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecls_ok.realizes",
       "dependencies": [
         "domain:ControlLocalDecls_ok",
         "profile:initialization",
@@ -9307,7 +9307,7 @@
       "subject": "RelD:ControlLocalDecls_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$split_dataplane_parameters».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -9345,7 +9345,7 @@
       "subject": "FuncDecD:split_dataplane_parameters"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_action».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -9386,7 +9386,7 @@
       "subject": "FuncDecD:find_action"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_action'».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -9424,7 +9424,7 @@
       "subject": "FuncDecD:find_action'"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableAction_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -9449,7 +9449,7 @@
       "subject": "RelD:TableAction_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableAction_ok.refines",
       "dependencies": [
         "domain:TableAction_ok",
         "profile:initialization",
@@ -9468,7 +9468,7 @@
       "subject": "RelD:TableAction_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableAction_ok.realizes",
       "dependencies": [
         "domain:TableAction_ok",
         "profile:initialization",
@@ -9495,7 +9495,7 @@
       "subject": "RelD:TableAction_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableActions_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:matchAction",
@@ -9508,7 +9508,7 @@
       "subject": "RelD:TableActions_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableActions_ok.refines",
       "dependencies": [
         "domain:TableActions_ok",
         "profile:initialization",
@@ -9521,7 +9521,7 @@
       "subject": "RelD:TableActions_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableActions_ok.realizes",
       "dependencies": [
         "domain:TableActions_ok",
         "profile:initialization",
@@ -9542,7 +9542,7 @@
       "subject": "RelD:TableActions_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableEntry_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -9566,7 +9566,7 @@
       "subject": "RelD:TableEntry_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableEntry_ok.refines",
       "dependencies": [
         "domain:TableEntry_ok",
         "profile:initialization",
@@ -9585,7 +9585,7 @@
       "subject": "RelD:TableEntry_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableEntry_ok.realizes",
       "dependencies": [
         "domain:TableEntry_ok",
         "profile:initialization",
@@ -9612,7 +9612,7 @@
       "subject": "RelD:TableEntry_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_convention_arg_ok.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentIR",
@@ -9628,7 +9628,7 @@
       "subject": "RelD:Call_convention_arg_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_convention_arg_ok.refines",
       "dependencies": [
         "domain:Call_convention_arg_ok",
         "profile:initialization",
@@ -9642,7 +9642,7 @@
       "subject": "RelD:Call_convention_arg_ok"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_convention_arg_ok.realizes",
       "dependencies": [
         "domain:Call_convention_arg_ok",
         "profile:initialization",
@@ -9735,7 +9735,7 @@
       "subject": "TypD:callableDefEnv"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_callableDefEnv».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableDef",
@@ -9810,7 +9810,7 @@
       "subject": "VarD:LC"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$make_loadContext».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableDef",
@@ -9856,7 +9856,7 @@
       "subject": "FuncDecD:make_loadContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_callableDef_l».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableDef",
@@ -9896,7 +9896,7 @@
       "subject": "FuncDecD:find_callableDef_l"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_callableDef_l».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableDef",
@@ -9942,7 +9942,7 @@
       "subject": "FuncDecD:add_callableDef_l"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_callableTypeDef_l».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -9982,7 +9982,7 @@
       "subject": "FuncDecD:find_callableTypeDef_l"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decl_load.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:actionDeclaration",
@@ -10023,7 +10023,7 @@
       "subject": "RelD:Decl_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decl_load.refines",
       "dependencies": [
         "domain:Decl_load",
         "profile:initialization",
@@ -10040,7 +10040,7 @@
       "subject": "RelD:Decl_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decl_load.realizes",
       "dependencies": [
         "domain:Decl_load",
         "profile:initialization",
@@ -10065,7 +10065,7 @@
       "subject": "RelD:Decl_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decls_load.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:declaration",
@@ -10077,7 +10077,7 @@
       "subject": "RelD:Decls_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decls_load.refines",
       "dependencies": [
         "domain:Decls_load",
         "profile:initialization",
@@ -10090,7 +10090,7 @@
       "subject": "RelD:Decls_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Decls_load.realizes",
       "dependencies": [
         "domain:Decls_load",
         "profile:initialization",
@@ -10111,7 +10111,7 @@
       "subject": "RelD:Decls_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Program_load.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:declaration",
@@ -10125,7 +10125,7 @@
       "subject": "RelD:Program_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Program_load.refines",
       "dependencies": [
         "domain:Program_load",
         "profile:initialization",
@@ -10140,7 +10140,7 @@
       "subject": "RelD:Program_load"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Program_load.realizes",
       "dependencies": [
         "domain:Program_load",
         "profile:initialization",
@@ -10176,7 +10176,7 @@
       "subject": "TypD:frame"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$empty_frame».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:frame",
@@ -10277,7 +10277,7 @@
       "subject": "VarD:EC"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$make_evalContext».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockEvalLayer",
@@ -10325,7 +10325,7 @@
       "subject": "FuncDecD:make_evalContext"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$inherit_e».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockEvalLayer",
@@ -10366,7 +10366,7 @@
       "subject": "FuncDecD:inherit_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_var_e».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockEvalLayer",
@@ -10412,7 +10412,7 @@
       "subject": "FuncDecD:find_var_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$add_var_e».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockEvalLayer",
@@ -10462,7 +10462,7 @@
       "subject": "FuncDecD:add_var_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$update_var_e».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockEvalLayer",
@@ -10482,7 +10482,7 @@
       "subject": "FuncDecD:update_var_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$update_var_e».refines",
       "dependencies": [
         "domain:update_var_e",
         "profile:initialization",
@@ -10497,7 +10497,7 @@
       "subject": "FuncDecD:update_var_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$update_var_e».realizes",
       "dependencies": [
         "domain:update_var_e",
         "profile:initialization",
@@ -10512,7 +10512,7 @@
       "subject": "FuncDecD:update_var_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_callableDef_e».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableDef",
@@ -10553,7 +10553,7 @@
       "subject": "FuncDecD:find_callableDef_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_typeDef_e».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -10594,7 +10594,7 @@
       "subject": "FuncDecD:find_typeDef_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$enter_e».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -10633,7 +10633,7 @@
       "subject": "FuncDecD:enter_e"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$exit_e».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -10681,7 +10681,7 @@
       "subject": "TypD:transitionResult"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Expr_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:binaryExpression",
@@ -10712,7 +10712,7 @@
       "subject": "RelD:Expr_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Expr_eval.refines",
       "dependencies": [
         "domain:Expr_eval",
         "profile:initialization",
@@ -10729,7 +10729,7 @@
       "subject": "RelD:Expr_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Expr_eval.realizes",
       "dependencies": [
         "domain:Expr_eval",
         "profile:initialization",
@@ -10754,7 +10754,7 @@
       "subject": "RelD:Expr_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -10769,7 +10769,7 @@
       "subject": "RelD:Lvalue_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_eval.refines",
       "dependencies": [
         "domain:Lvalue_eval",
         "profile:initialization",
@@ -10783,7 +10783,7 @@
       "subject": "RelD:Lvalue_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_eval.realizes",
       "dependencies": [
         "domain:Lvalue_eval",
         "profile:initialization",
@@ -10805,7 +10805,7 @@
       "subject": "RelD:Lvalue_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_write.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -10826,7 +10826,7 @@
       "subject": "RelD:Lvalue_write"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_write.refines",
       "dependencies": [
         "domain:Lvalue_write",
         "profile:initialization",
@@ -10842,7 +10842,7 @@
       "subject": "RelD:Lvalue_write"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Lvalue_write.realizes",
       "dependencies": [
         "domain:Lvalue_write",
         "profile:initialization",
@@ -10920,7 +10920,7 @@
       "subject": "TypD:callee"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parser_apply.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -10941,7 +10941,7 @@
       "subject": "RelD:Parser_apply"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parser_apply.refines",
       "dependencies": [
         "domain:Parser_apply",
         "profile:initialization",
@@ -10959,7 +10959,7 @@
       "subject": "RelD:Parser_apply"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Parser_apply.realizes",
       "dependencies": [
         "domain:Parser_apply",
         "profile:initialization",
@@ -10985,7 +10985,7 @@
       "subject": "RelD:Parser_apply"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Control_apply.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -11004,7 +11004,7 @@
       "subject": "RelD:Control_apply"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Control_apply.refines",
       "dependencies": [
         "domain:Control_apply",
         "profile:initialization",
@@ -11021,7 +11021,7 @@
       "subject": "RelD:Control_apply"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Control_apply.realizes",
       "dependencies": [
         "domain:Control_apply",
         "profile:initialization",
@@ -11046,7 +11046,7 @@
       "subject": "RelD:Control_apply"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Callee_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:ExternTypD:objectState",
@@ -11081,7 +11081,7 @@
       "subject": "RelD:Callee_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Callee_eval.refines",
       "dependencies": [
         "domain:Callee_eval",
         "profile:initialization",
@@ -11098,7 +11098,7 @@
       "subject": "RelD:Callee_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Callee_eval.realizes",
       "dependencies": [
         "domain:Callee_eval",
         "profile:initialization",
@@ -11123,7 +11123,7 @@
       "subject": "RelD:Callee_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:actionCallee",
@@ -11152,7 +11152,7 @@
       "subject": "RelD:Call_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_eval.refines",
       "dependencies": [
         "domain:Call_eval",
         "profile:initialization",
@@ -11175,7 +11175,7 @@
       "subject": "RelD:Call_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Call_eval.realizes",
       "dependencies": [
         "domain:Call_eval",
         "profile:initialization",
@@ -11206,7 +11206,7 @@
       "subject": "RelD:Call_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Externs.ExternMethodCall_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:callableId",
@@ -11220,7 +11220,7 @@
       "subject": "ExternRelD:ExternMethodCall_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Externs.ExternMethodCall_eval.invocations",
       "dependencies": [
         "domain:ExternMethodCall_eval"
       ],
@@ -11240,7 +11240,7 @@
       "subject": "ExternRelD:ExternMethodCall_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_in.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -11255,7 +11255,7 @@
       "subject": "RelD:Copy_in"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_in.refines",
       "dependencies": [
         "domain:Copy_in",
         "profile:initialization",
@@ -11268,7 +11268,7 @@
       "subject": "RelD:Copy_in"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_in.realizes",
       "dependencies": [
         "domain:Copy_in",
         "profile:initialization",
@@ -11289,7 +11289,7 @@
       "subject": "RelD:Copy_in"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_out.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11303,7 +11303,7 @@
       "subject": "RelD:Copy_out"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_out.refines",
       "dependencies": [
         "domain:Copy_out",
         "profile:initialization",
@@ -11316,7 +11316,7 @@
       "subject": "RelD:Copy_out"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_out.realizes",
       "dependencies": [
         "domain:Copy_out",
         "profile:initialization",
@@ -11337,7 +11337,7 @@
       "subject": "RelD:Copy_out"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_trans.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11351,7 +11351,7 @@
       "subject": "RelD:ParserState_trans"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_trans.refines",
       "dependencies": [
         "domain:ParserState_trans",
         "profile:initialization",
@@ -11365,7 +11365,7 @@
       "subject": "RelD:ParserState_trans"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_trans.realizes",
       "dependencies": [
         "domain:ParserState_trans",
         "profile:initialization",
@@ -11387,7 +11387,7 @@
       "subject": "RelD:ParserState_trans"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDeclList_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11400,7 +11400,7 @@
       "subject": "RelD:ParserLocalDeclList_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDeclList_eval.refines",
       "dependencies": [
         "domain:ParserLocalDeclList_eval",
         "profile:initialization",
@@ -11414,7 +11414,7 @@
       "subject": "RelD:ParserLocalDeclList_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDeclList_eval.realizes",
       "dependencies": [
         "domain:ParserLocalDeclList_eval",
         "profile:initialization",
@@ -11436,7 +11436,7 @@
       "subject": "RelD:ParserLocalDeclList_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDeclList_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -11449,7 +11449,7 @@
       "subject": "RelD:ControlLocalDeclList_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDeclList_eval.refines",
       "dependencies": [
         "domain:ControlLocalDeclList_eval",
         "profile:initialization",
@@ -11463,7 +11463,7 @@
       "subject": "RelD:ControlLocalDeclList_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDeclList_eval.realizes",
       "dependencies": [
         "domain:ControlLocalDeclList_eval",
         "profile:initialization",
@@ -11485,7 +11485,7 @@
       "subject": "RelD:ControlLocalDeclList_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Table_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11505,7 +11505,7 @@
       "subject": "RelD:Table_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Table_eval.refines",
       "dependencies": [
         "domain:Table_eval",
         "profile:initialization",
@@ -11524,7 +11524,7 @@
       "subject": "RelD:Table_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Table_eval.realizes",
       "dependencies": [
         "domain:Table_eval",
         "profile:initialization",
@@ -11551,7 +11551,7 @@
       "subject": "RelD:Table_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.VarDecl_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11570,7 +11570,7 @@
       "subject": "RelD:VarDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.VarDecl_eval.refines",
       "dependencies": [
         "domain:VarDecl_eval",
         "profile:initialization",
@@ -11585,7 +11585,7 @@
       "subject": "RelD:VarDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.VarDecl_eval.realizes",
       "dependencies": [
         "domain:VarDecl_eval",
         "profile:initialization",
@@ -11608,7 +11608,7 @@
       "subject": "RelD:VarDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statement_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -11634,7 +11634,7 @@
       "subject": "RelD:Statement_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statement_eval.refines",
       "dependencies": [
         "domain:Statement_eval",
         "profile:initialization",
@@ -11658,7 +11658,7 @@
       "subject": "RelD:Statement_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statement_eval.realizes",
       "dependencies": [
         "domain:Statement_eval",
         "profile:initialization",
@@ -11690,7 +11690,7 @@
       "subject": "RelD:Statement_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statements_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11703,7 +11703,7 @@
       "subject": "RelD:Statements_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statements_eval.refines",
       "dependencies": [
         "domain:Statements_eval",
         "profile:initialization",
@@ -11720,7 +11720,7 @@
       "subject": "RelD:Statements_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Statements_eval.realizes",
       "dependencies": [
         "domain:Statements_eval",
         "profile:initialization",
@@ -11745,7 +11745,7 @@
       "subject": "RelD:Statements_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Block_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:blockStatement",
@@ -11760,7 +11760,7 @@
       "subject": "RelD:Block_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Block_eval.refines",
       "dependencies": [
         "domain:Block_eval",
         "profile:initialization",
@@ -11778,7 +11778,7 @@
       "subject": "RelD:Block_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Block_eval.realizes",
       "dependencies": [
         "domain:Block_eval",
         "profile:initialization",
@@ -11804,7 +11804,7 @@
       "subject": "RelD:Block_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$update_fieldValue».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:fieldValue",
@@ -11841,7 +11841,7 @@
       "subject": "FuncDecD:update_fieldValue"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserTransition_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11858,7 +11858,7 @@
       "subject": "RelD:ParserTransition_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserTransition_eval.refines",
       "dependencies": [
         "domain:ParserTransition_eval",
         "profile:initialization",
@@ -11872,7 +11872,7 @@
       "subject": "RelD:ParserTransition_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserTransition_eval.realizes",
       "dependencies": [
         "domain:ParserTransition_eval",
         "profile:initialization",
@@ -11894,7 +11894,7 @@
       "subject": "RelD:ParserTransition_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserSelect_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -11915,7 +11915,7 @@
       "subject": "RelD:ParserSelect_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserSelect_eval.refines",
       "dependencies": [
         "domain:ParserSelect_eval",
         "profile:initialization",
@@ -11931,7 +11931,7 @@
       "subject": "RelD:ParserSelect_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserSelect_eval.realizes",
       "dependencies": [
         "domain:ParserSelect_eval",
         "profile:initialization",
@@ -11955,7 +11955,7 @@
       "subject": "RelD:ParserSelect_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$match_case_value».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:name",
@@ -11967,7 +11967,7 @@
       "subject": "FuncDecD:match_case_value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$match_case_value».refines",
       "dependencies": [
         "domain:match_case_value",
         "profile:initialization",
@@ -11980,7 +11980,7 @@
       "subject": "FuncDecD:match_case_value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$match_case_value».realizes",
       "dependencies": [
         "domain:match_case_value",
         "profile:initialization",
@@ -11993,7 +11993,7 @@
       "subject": "FuncDecD:match_case_value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -12011,7 +12011,7 @@
       "subject": "RelD:ParserState_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_eval.refines",
       "dependencies": [
         "domain:ParserState_eval",
         "profile:initialization",
@@ -12026,7 +12026,7 @@
       "subject": "RelD:ParserState_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserState_eval.realizes",
       "dependencies": [
         "domain:ParserState_eval",
         "profile:initialization",
@@ -12049,7 +12049,7 @@
       "subject": "RelD:ParserState_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$find_parserState».sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:name",
@@ -12090,7 +12090,7 @@
       "subject": "FuncDecD:find_parserState"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecl_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -12104,7 +12104,7 @@
       "subject": "RelD:ParserLocalDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecl_eval.refines",
       "dependencies": [
         "domain:ParserLocalDecl_eval",
         "profile:initialization",
@@ -12117,7 +12117,7 @@
       "subject": "RelD:ParserLocalDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecl_eval.realizes",
       "dependencies": [
         "domain:ParserLocalDecl_eval",
         "profile:initialization",
@@ -12138,7 +12138,7 @@
       "subject": "RelD:ParserLocalDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecls_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -12150,7 +12150,7 @@
       "subject": "RelD:ParserLocalDecls_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecls_eval.refines",
       "dependencies": [
         "domain:ParserLocalDecls_eval",
         "profile:initialization",
@@ -12163,7 +12163,7 @@
       "subject": "RelD:ParserLocalDecls_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ParserLocalDecls_eval.realizes",
       "dependencies": [
         "domain:ParserLocalDecls_eval",
         "profile:initialization",
@@ -12184,7 +12184,7 @@
       "subject": "RelD:ParserLocalDecls_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecl_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -12204,7 +12204,7 @@
       "subject": "RelD:ControlLocalDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecl_eval.refines",
       "dependencies": [
         "domain:ControlLocalDecl_eval",
         "profile:initialization",
@@ -12219,7 +12219,7 @@
       "subject": "RelD:ControlLocalDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecl_eval.realizes",
       "dependencies": [
         "domain:ControlLocalDecl_eval",
         "profile:initialization",
@@ -12242,7 +12242,7 @@
       "subject": "RelD:ControlLocalDecl_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecls_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:controlLocalDeclaration",
@@ -12254,7 +12254,7 @@
       "subject": "RelD:ControlLocalDecls_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecls_eval.refines",
       "dependencies": [
         "domain:ControlLocalDecls_eval",
         "profile:initialization",
@@ -12267,7 +12267,7 @@
       "subject": "RelD:ControlLocalDecls_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.ControlLocalDecls_eval.realizes",
       "dependencies": [
         "domain:ControlLocalDecls_eval",
         "profile:initialization",
@@ -12288,7 +12288,7 @@
       "subject": "RelD:ControlLocalDecls_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableKey_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -12304,7 +12304,7 @@
       "subject": "RelD:TableKey_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableKey_eval.refines",
       "dependencies": [
         "domain:TableKey_eval",
         "profile:initialization",
@@ -12317,7 +12317,7 @@
       "subject": "RelD:TableKey_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableKey_eval.realizes",
       "dependencies": [
         "domain:TableKey_eval",
         "profile:initialization",
@@ -12338,7 +12338,7 @@
       "subject": "RelD:TableKey_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableMatch_eval.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argumentList",
@@ -12359,7 +12359,7 @@
       "subject": "RelD:TableMatch_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableMatch_eval.refines",
       "dependencies": [
         "domain:TableMatch_eval",
         "profile:initialization",
@@ -12378,7 +12378,7 @@
       "subject": "RelD:TableMatch_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.TableMatch_eval.realizes",
       "dependencies": [
         "domain:TableMatch_eval",
         "profile:initialization",
@@ -12405,7 +12405,7 @@
       "subject": "RelD:TableMatch_eval"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$match_entry_value».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:tableActionReference",
@@ -12417,7 +12417,7 @@
       "subject": "FuncDecD:match_entry_value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$match_entry_value».refines",
       "dependencies": [
         "domain:match_entry_value",
         "profile:initialization",
@@ -12430,7 +12430,7 @@
       "subject": "FuncDecD:match_entry_value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$match_entry_value».realizes",
       "dependencies": [
         "domain:match_entry_value",
         "profile:initialization",
@@ -12443,7 +12443,7 @@
       "subject": "FuncDecD:match_entry_value"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_in_arg.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -12462,7 +12462,7 @@
       "subject": "RelD:Copy_in_arg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_in_arg.refines",
       "dependencies": [
         "domain:Copy_in_arg",
         "profile:initialization",
@@ -12478,7 +12478,7 @@
       "subject": "RelD:Copy_in_arg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_in_arg.realizes",
       "dependencies": [
         "domain:Copy_in_arg",
         "profile:initialization",
@@ -12502,7 +12502,7 @@
       "subject": "RelD:Copy_in_arg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_out_arg.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:direction",
@@ -12520,7 +12520,7 @@
       "subject": "RelD:Copy_out_arg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_out_arg.refines",
       "dependencies": [
         "domain:Copy_out_arg",
         "profile:initialization",
@@ -12534,7 +12534,7 @@
       "subject": "RelD:Copy_out_arg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Copy_out_arg.realizes",
       "dependencies": [
         "domain:Copy_out_arg",
         "profile:initialization",
@@ -12556,7 +12556,7 @@
       "subject": "RelD:Copy_out_arg"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Var_init.sourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -12607,7 +12607,7 @@
       "subject": "RelD:Var_init"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_init.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:evalContext",
@@ -12621,7 +12621,7 @@
       "subject": "RelD:NanoSwitch_init"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_init.refines",
       "dependencies": [
         "domain:NanoSwitch_init",
         "profile:initialization",
@@ -12636,7 +12636,7 @@
       "subject": "RelD:NanoSwitch_init"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_init.realizes",
       "dependencies": [
         "domain:NanoSwitch_init",
         "profile:initialization",
@@ -12659,7 +12659,7 @@
       "subject": "RelD:NanoSwitch_init"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_setup.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:ExternTypD:objectState",
@@ -12731,7 +12731,7 @@
       "subject": "TypD:forwardingDecision"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.«$nanoswitch_forwarding».runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:boolValue",
@@ -12772,7 +12772,7 @@
       "subject": "FuncDecD:nanoswitch_forwarding"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_parse.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -12788,7 +12788,7 @@
       "subject": "RelD:NanoSwitch_parse"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_parse.refines",
       "dependencies": [
         "domain:NanoSwitch_parse",
         "profile:initialization",
@@ -12801,7 +12801,7 @@
       "subject": "RelD:NanoSwitch_parse"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_parse.realizes",
       "dependencies": [
         "domain:NanoSwitch_parse",
         "profile:initialization",
@@ -12822,7 +12822,7 @@
       "subject": "RelD:NanoSwitch_parse"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_filter.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:TypD:argument",
@@ -12837,7 +12837,7 @@
       "subject": "RelD:NanoSwitch_filter"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_filter.refines",
       "dependencies": [
         "domain:NanoSwitch_filter",
         "profile:initialization",
@@ -12850,7 +12850,7 @@
       "subject": "RelD:NanoSwitch_filter"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_filter.realizes",
       "dependencies": [
         "domain:NanoSwitch_filter",
         "profile:initialization",
@@ -12871,7 +12871,7 @@
       "subject": "RelD:NanoSwitch_filter"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_drive.runtimeSourceCorrespondence",
       "dependencies": [
         "profile:primitiveRepresentations",
         "representation:ExternTypD:objectState",
@@ -12888,7 +12888,7 @@
       "subject": "RelD:NanoSwitch_drive"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_drive.refines",
       "dependencies": [
         "domain:NanoSwitch_drive",
         "profile:initialization",
@@ -12904,7 +12904,7 @@
       "subject": "RelD:NanoSwitch_drive"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.NanoSwitch_drive.realizes",
       "dependencies": [
         "domain:NanoSwitch_drive",
         "profile:initialization",
@@ -12936,6 +12936,12 @@
       "subject": "primitive and container codecs"
     },
     {
+      "checkedBy": [
+        "source pins and export digest",
+        "generated library freshness",
+        "check-quotes",
+        "check-coverage"
+      ],
       "coverageClaim": null,
       "dependencies": [],
       "id": "profile:sourceIdentity",
@@ -12944,7 +12950,7 @@
       "subject": "NanoP4Spec"
     },
     {
-      "coverageClaim": null,
+      "coverageClaim": "NanoP4Spec.Environment.initialized",
       "dependencies": [
         "profile:sourceIdentity",
         "variable:VarD:b",

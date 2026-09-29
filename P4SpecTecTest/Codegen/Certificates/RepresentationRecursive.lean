@@ -5,6 +5,7 @@ import NanoP4Spec.Refinement.Representation.direction
 import NanoP4Spec.Refinement.Representation.id
 import NanoP4Spec.Refinement.Representation.nameIR
 import NanoP4Spec.Refinement.Representation.typeId
+import P4SpecTec.Codegen.Certificates.Representation
 import P4SpecTec.Codegen.Certificates.RepresentationRecursive
 import P4SpecTec.Codegen.Certificates.RepresentationRecursiveAdmission
 import P4SpecTec.Codegen.Certificates.RepresentationRecursiveCodec
@@ -146,6 +147,51 @@ run_cmd do
       "(NanoP4Spec.value.runtimeExtern state) (ByteText.ofString \"\")) := by\n" ++
       "  intro accepted\n  cases accepted with\n  | semi _ _ head _ => cases head",
     "#audit_axioms nestedRuntimeRejected", "end ValueSourceFamilies"]
+  let texts := (render families).splitOn "\n\n" ++ predicates.map render ++ checks
+  for text in texts do
+    let command ← match Parser.runParserCategory (← getEnv) `command text with
+      | .ok command => pure command
+      | .error message => throwError "{text}\n{message}"
+    elabCommand command
+
+-- The runtime closure is exactly the declared types that can contain a runtime `value`.
+#guard (RepresentationCertificates.runtimeClosure actualEnv).isEmpty
+#guard (RepresentationCertificates.runtimeClosure valueEnv).mergeSort (· ≤ ·) ==
+  ["blockEvalLayer", "dataValue", "evalContext", "fieldValue", "frame", "globalEvalLayer",
+    "headerValue", "localEvalLayer", "structValue", "value"]
+
+-- The runtime profile admits the raw extern, directly and nested, and its totality is total.
+private def runtimeEnv := { valueEnv with runtimeProfile := true }
+private def leafTotal (_ : String) : Option RepresentationTotals.TotalContract :=
+  some ⟨⟨"unprovedLeaf", "fun _ => True"⟩, "fun _ => True.intro"⟩
+#guard valuePlan.toOption.any fun plan =>
+  !(totalityDeclarations valueEnv plan "RejectedRuntimeTotals" leafTotal).isOk &&
+    (totalityDeclarations runtimeEnv plan "RuntimeTotals" leafTotal).isOk
+
+open Lean Elab Command in
+run_cmd do
+  let plan ← match valuePlan with
+    | .ok plan => pure plan
+    | .error message => throwError "{message}"
+  let families ← match familyDeclarations plan "ValueRuntimeFamilies" with
+    | .ok families => pure families
+    | .error message => throwError "{message}"
+  let predicates ← match admissionDeclarations runtimeEnv plan "ValueRuntimeFamilies" with
+    | .ok predicates => pure predicates
+    | .error message => throwError "{message}"
+  let some (_, valueIndex) := plan.roots.find? (fun (name, _) => name == "value")
+    | throwError "value source family is absent"
+  let some (_, fieldIndex) := plan.roots.find? (fun (name, _) => name == "fieldValue")
+    | throwError "fieldValue source family is absent"
+  let checks := ["namespace ValueRuntimeFamilies",
+    s!"private theorem runtimeAdmitted (state : ExternValue) : " ++
+      s!"AdmittedF{valueIndex} (NanoP4Spec.value.runtimeExtern state) := .runtimeExtern state",
+    "#audit_axioms runtimeAdmitted",
+    s!"private theorem nestedRuntimeAdmitted (state : ExternValue) : " ++
+      s!"AdmittedF{fieldIndex} (NanoP4Spec.fieldValue.semi " ++
+      "(NanoP4Spec.value.runtimeExtern state) (ByteText.ofString \"\")) :=\n" ++
+      "  .semi _ _ (.runtimeExtern state) trivial",
+    "#audit_axioms nestedRuntimeAdmitted", "end ValueRuntimeFamilies"]
   let texts := (render families).splitOn "\n\n" ++ predicates.map render ++ checks
   for text in texts do
     let command ← match Parser.runParserCategory (← getEnv) `command text with

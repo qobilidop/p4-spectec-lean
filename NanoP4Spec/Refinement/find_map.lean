@@ -53,8 +53,6 @@ theorem «$find_map».dispatch {τK τV : Type} [ToValue τK] [BEq τK] [ToValue
     _)))
   exact congrArg (fun v => some (Except.ok (ε := Fail) v)) rel
 
-#audit_axioms NanoP4Spec.«$find_map».dispatch
-
 theorem «$find_map».refines (fuel : Nat) {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq
   τV]
       (p0 : NanoP4Spec.map τK τV)
@@ -67,8 +65,6 @@ theorem «$find_map».refines (fuel : Nat) {τK τV : Type} [ToValue τK] [BEq �
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "find_map" _ _ _
     [t0, t1] [v0, v1] hfenv hdecl (NanoP4Spec.«$find_map».dispatch p0 p1 t0 t1 v0 v1 h0 h1 cfg)
 
-#audit_axioms NanoP4Spec.«$find_map».refines
-
 theorem «$find_map».realizes {τK τV : Type} [ToValue τK] [BEq τK] [ToValue τV] [BEq τV]
       (p0 : NanoP4Spec.map τK τV)
       (p1 : τK)
@@ -80,6 +76,8 @@ theorem «$find_map».realizes {τK τV : Type} [ToValue τK] [BEq τK] [ToValue
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "find_map" _ _ _ [t0, t1]
     [v0, v1] hfenv hdecl (NanoP4Spec.«$find_map».dispatch p0 p1 t0 t1 v0 v1 h0 h1 cfg)
 
+#audit_axioms NanoP4Spec.«$find_map».dispatch
+#audit_axioms NanoP4Spec.«$find_map».refines
 #audit_axioms NanoP4Spec.«$find_map».realizes
 
 end NanoP4Spec

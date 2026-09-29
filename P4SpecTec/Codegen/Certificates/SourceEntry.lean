@@ -20,7 +20,7 @@ def inputTypes (d : Lang.Al.def) : Except String (List typ) := do
     parameters.mapM fun parameter => match parameter.it with
       | .ExpP type => pure type
       | _ => throw "source entry needs first-order input parameters"
-  | .RelD _ nottyp inputs .. =>
+  | .RelD _ nottyp inputs .. | .ExternRelD _ nottyp inputs _ =>
     let fields := Mixfix.args nottyp.it
     pure (Exp.splitArgs (inputs.map (·.toNat)) fields).1
   | _ => throw "source entry needs a monomorphic defined callable"
@@ -53,9 +53,11 @@ def contracts (env : Env) (d : Lang.Al.def)
 
 private def assumptions (env : Env) (m : Props.Member)
     (fields : List (typ × Contract)) : String :=
+  (if m.externs then Validate.externInstance env.lib m ++ " " else "") ++
   "(cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t) (internal : Bool)\n" ++
   "    (hguard : cfg.guard = false) " ++
   (if m.printHints then "(hhints : cfg.printHints = []) " else "") ++
+  (if m.externs then s!"(hextern : {env.lib}.externsContract cfg) " else "") ++
   "(hfenv : ctx.local.fenv = [])\n" ++
   s!"    (hspec : HoldsSpec {env.lib}.spec ctx.global)" ++
   String.join (m.typeFreshness.zipIdx.map fun (name, index) =>
@@ -108,7 +110,8 @@ def declarations (env : Env) (d : Lang.Al.def) (m : Props.Member)
   let witnesses := indices.map (fun index => s!"p{index}") ++
     indices.flatMap (fun index => [s!"admitted{index}", s!"h{index}"]) ++ ["?_", "?_"]
   let arguments := ["cfg", "ctx", "internal", "hguard"] ++
-    (if m.printHints then ["hhints"] else []) ++ ["hfenv", "hspec"] ++
+    (if m.printHints then ["hhints"] else []) ++ (if m.externs then ["hextern"] else []) ++
+    ["hfenv", "hspec"] ++
     (List.range m.typeFreshness.length).map (fun index => s!"ht{index}") ++
     indices.map (fun index => s!"v{index}") ++ indices.map (fun index => s!"p{index}") ++
     indices.map (fun index => s!"h{index}")
@@ -118,8 +121,9 @@ def declarations (env : Env) (d : Lang.Al.def) (m : Props.Member)
     s!"  · exact {qualified}.realizes " ++ " ".intercalate arguments ++ "\n"
   pure (Std.Format.text (boundedLines (
     "/-- Every declared source input has admitted witnesses with both execution directions. -/\n" ++
-    s!"theorem {owner}.sourceCorrespondence\n    " ++ assumptions env m fields ++ " :\n" ++
+    s!"theorem {owner}.{env.part "sourceCorrespondence"}\n    " ++
+    assumptions env m fields ++ " :\n" ++
     "    " ++ result m fields ++ " := by\n" ++ proof ++
-    s!"\n#audit_axioms {qualified}.sourceCorrespondence")))
+    s!"\n#audit_axioms {qualified}.{env.part "sourceCorrespondence"}")))
 
 end P4SpecTec.Codegen.SourceEntry

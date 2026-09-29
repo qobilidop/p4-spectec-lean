@@ -22,14 +22,15 @@ def Field.source (field : Field) (env : Env) : String :=
 
 private def parenthesize (text : String) : String := "(" ++ text ++ ")"
 
-private def namedKnown (env : Env) (name : String) : Option NominalContract := do
+/-- Resolve a standalone nominal codec through recursive representation planning. -/
+def namedKnown (env : Env) (name : String) : Option NominalContract := do
   let d ← env.defs.find? fun d => match d.it with
     | .TypD identifier .. => identifier.it == name | _ => false
   (← (RepresentationCertificates.plan env d).toOption).nominal
 
-/-- Resolve arbitrary legal parameters and the source containers used by builtin signatures.
-Closed leaves use the same checked nominal registry as ordinary source-entry certificates. -/
-partial def field (env : Env) (parameters : List String) (type : typ) : Except String Field := do
+/-- Resolve arbitrary legal parameters and source containers against checked nominal codecs. -/
+partial def fieldWithKnown (env : Env) (known : String → Option NominalContract)
+    (parameters : List String) (type : typ) : Except String Field := do
   if let .VarT name [] := type.it then
     if let some index := parameters.idxOf? name.it then
       return {
@@ -42,7 +43,7 @@ partial def field (env : Env) (parameters : List String) (type : typ) : Except S
         sourceType := s!"t{index}" }
   match type.it with
   | .IterT element kind =>
-    let child ← field env parameters element
+    let child ← fieldWithKnown env known parameters element
     let container := if kind == .List then "List" else "Option"
     let codec := if kind == .List then "listCodec" else "optionCodec"
     let carrier := s!"{container} ({child.carrier})"
@@ -62,7 +63,7 @@ partial def field (env : Env) (parameters : List String) (type : typ) : Except S
       sourceType := s!"Q.t (.IterT ({child.sourceType}) {kindText})" }
   | .VarT name arguments =>
     if arguments.isEmpty then
-      let contract ← resolve env (namedKnown env) type
+      let contract ← resolve env known type
       return { contract with sourceType := (Reify.typ type).fmt.pretty }
     let some declaration := env.defs.find? (fun d => match d.it with
       | .TypD identifier .. => identifier.it == name.it | _ => false)
@@ -72,7 +73,7 @@ partial def field (env : Env) (parameters : List String) (type : typ) : Except S
       else if (RepresentationMaps.checkSupport env declaration).isOk then pure 2
       else throw "unsupported parameterized source codec"
     unless arity == arguments.length do throw "source codec type arity differs"
-    let children ← arguments.mapM (field env parameters)
+    let children ← arguments.mapM (fieldWithKnown env known parameters)
     let q := env.q (Names.typeName name.it)
     let carriers := children.map (parenthesize ·.carrier)
     let predicates := children.map (parenthesize ·.admitted)
@@ -98,8 +99,8 @@ partial def field (env : Env) (parameters : List String) (type : typ) : Except S
       sourceType := "Q.t (Q.varT " ++ name.it.quote ++ " [" ++
         ", ".intercalate sourceTypes ++ "])" }
   | .TupleT [leftType, rightType] =>
-    let left ← field env parameters leftType
-    let right ← field env parameters rightType
+    let left ← fieldWithKnown env known parameters leftType
+    let right ← fieldWithKnown env known parameters rightType
     let carrier := s!"({left.carrier}) × ({right.carrier})"
     return {
       carrier
@@ -117,18 +118,27 @@ partial def field (env : Env) (parameters : List String) (type : typ) : Except S
       sourceType := s!"Q.t (.TupleT [({left.sourceType}), ({right.sourceType})])" }
   | .TupleT _ => throw "source tuple domain requires exactly two fields"
   | _ =>
-    let contract ← resolve env (namedKnown env) type
+    let contract ← resolve env known type
     return { contract with sourceType := (Reify.typ type).fmt.pretty }
 
+/-- Resolve a standalone field by recursively planning its named source codecs. -/
+def field (env : Env) (parameters : List String) (type : typ) : Except String Field :=
+  fieldWithKnown env (namedKnown env) parameters type
+
 /-- Actual input and result contracts, after signature and source carrier validation. -/
-def fields (env : Env) (d : Lang.Al.def) : Except String (List String × List Field × Field) := do
+def fieldsWithKnown (env : Env) (known : String → Option NominalContract)
+    (d : Lang.Al.def) : Except String (List String × List Field × Field) := do
   BuiltinCertificates.checkSupport env d
   let .BuiltinDecD _ parameters inputs result _ := d.it | throw "not a builtin"
   let parameters := parameters.map (·.it)
   let inputs ← inputs.mapM fun p => match p.it with
-    | .ExpP t => field env parameters t
+    | .ExpP t => fieldWithKnown env known parameters t
     | _ => throw "source builtin callback is unsupported"
-  return (parameters, inputs, ← field env parameters result)
+  return (parameters, inputs, ← fieldWithKnown env known parameters result)
+
+/-- Actual standalone input and result contracts. -/
+def fields (env : Env) (d : Lang.Al.def) : Except String (List String × List Field × Field) :=
+  fieldsWithKnown env (namedKnown env) d
 
 private def parameterBinders (env : Env) (parameters : List String) : String :=
   String.join ((List.range parameters.length).map fun i =>
@@ -259,5 +269,15 @@ def domainDeclaration (env : Env) (d : Lang.Al.def) (parameters : List String)
 def declarations (env : Env) (d : Lang.Al.def) : Except String String := do
   let (parameters, inputs, output) ← fields env d
   return domainDeclaration env d parameters inputs output (← outputProof env d inputs output)
+
+/-- Render the proof, exact statement and dependencies from one catalog-backed signature. -/
+def complete (env : Env) (known : String → Option NominalContract) (d : Lang.Al.def) :
+    Except String (String × String × List String) := do
+  let (parameters, inputs, output) ← fieldsWithKnown env known d
+  let proof := domainDeclaration env d parameters inputs output
+    (← outputProof env d inputs output)
+  let statement := domainType env d parameters inputs output
+  let dependencies := ((inputs ++ [output]).flatMap (·.dependencies)).eraseDups
+  return (proof, statement, dependencies)
 
 end P4SpecTec.Codegen.SourceBuiltinCertificates

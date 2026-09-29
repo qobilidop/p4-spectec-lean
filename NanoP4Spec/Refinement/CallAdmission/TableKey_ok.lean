@@ -88,7 +88,8 @@ theorem TableKey_ok.callArgumentsSource :
     (NanoP4Spec.expression.admitted) (NanoP4Spec.expression.codec)) x (((show ∀ x :
     (NanoP4Spec.expression), (NanoP4Spec.expression.admitted) x from
     NanoP4Spec.expression.admittedAll)) x)), trivial⟩
-#audit_axioms TableKey_ok.callArgumentsSource
 
+
+#audit_axioms TableKey_ok.callArgumentsSource
 
 end NanoP4Spec

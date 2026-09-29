@@ -83,6 +83,17 @@ theorem orElse_unmatch {α : Type} {a : Eval α} : Eval.orElse a (throw .unmatch
 /-- A check that fails. -/
 @[simp] theorem check_false : Eval.check false = throw .unmatch := rfl
 
+/-- A guarded optional result is a guarded computation, whose test the drivers decide. -/
+theorem ofOption_ite {α : Type} (f : Fail) (c : Prop) [Decidable c] (x : α) :
+    Eval.ofOption f (if c then some x else none) = if c then pure x else throw f := by
+  by_cases h : c <;> simp [h, Eval.ofOption]
+
+/-- Generated membership as a disjunction, the form the reference's `List.any` takes;
+core's `List.elem_cons` leaves a Boolean `match` that never meets it. -/
+theorem elem_cons_or {α : Type} [BEq α] (a b : α) (bs : List α) :
+    List.elem a (b :: bs) = (a == b || List.elem a bs) := by
+  simp only [List.elem_cons]; cases a == b <;> rfl
+
 /-- Generated option tests (`eps = $f(…)`) compare with the derived `Option` equality;
 these decide it on constructors, leaving element equality for `some`. -/
 @[simp] theorem option_beq_none_none {α : Type} [BEq α] :
@@ -117,6 +128,11 @@ theorem refines_diverge {α β : Type} {P : α → β → Prop} {n : Eval β} :
 theorem refines_of_none {α β : Type} {P : α → β → Prop} {m : Eval α} {n : Eval β}
     (h : m.run = none) : Refines P m n := by
   intro r hr; rw [h] at hr; cases hr
+
+/-- A first step with no defined result, before its continuation, refines anything. -/
+theorem refines_bind_of_none {α γ β : Type} {P : γ → β → Prop} {m : Eval α}
+    {k : α → Eval γ} {n : Eval β} (h : m.run = none) : Refines P (m >>= k) n := by
+  intro r hr; rw [run_bind, h] at hr; cases hr
 
 /-- Related values. -/
 theorem refines_pure {α β : Type} {P : α → β → Prop} {a : α} {b : β} (h : P a b) :

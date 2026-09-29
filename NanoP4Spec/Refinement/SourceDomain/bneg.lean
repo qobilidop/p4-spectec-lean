@@ -61,7 +61,7 @@ theorem «$bneg».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 : (Representatio
       Representation.Source.externDomain) result
     trivial
 
-#audit_axioms «$bneg».sourceDomain
 
+#audit_axioms «$bneg».sourceDomain
 
 end NanoP4Spec

@@ -99,12 +99,14 @@ theorem pairFields {spec externalDomain} (keyType valueType : typ) (v : value)
     (declared : body spec "pair" = some ([Q.i "K", Q.i "V"], .VariantT
       [Q.tc (.Seq [.Arg (Q.t (Q.varT "K" [])), .Atom (Q.a (.Operator ":")),
         .Arg (Q.t (Q.varT "V" []))]) "pair" [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])]]))
-    (valid : Valid spec externalDomain (Q.varT "pair" [keyType, valueType]) v) :
+    (valid : Valid spec externalDomain (Q.varT "pair" [keyType, valueType]) v)
+    (sourceOnly : Domain.SourceOnly externalDomain "pair" := by source_only) :
     ∃ (tree : Mixfix.t value) (key item : value), v.it = .CaseV tree ∧
       Mixfix.eq_mixop tree (.Seq [.Arg (), .Atom (Q.a (.Operator ":")), .Arg ()]) = true ∧
       Mixfix.args tree = [key, item] ∧ Valid spec externalDomain keyType.it key ∧
       Valid spec externalDomain valueType.it item := by
   cases valid with
+  | runtime name args v payload => exact absurd payload (sourceOnly v)
   | record name args parameters sourceFields instantiated v valueFields found =>
     simp [declared] at found
   | «alias» name args parameters definition instantiated v found =>
@@ -147,12 +149,14 @@ theorem setFields {spec externalDomain} (element : typ) (v : value)
     (declared : body spec "set" = some ([Q.i "K"], .VariantT
       [Q.tc (.Brack (Q.a .LBrace) (.Arg (Q.t (.IterT (Q.t (Q.varT "K" [])) .List)))
         (Q.a .RBrace)) "set" [Q.t (Q.varT "K" [])]]))
-    (valid : Valid spec externalDomain (Q.varT "set" [element]) v) :
+    (valid : Valid spec externalDomain (Q.varT "set" [element]) v)
+    (sourceOnly : Domain.SourceOnly externalDomain "set" := by source_only) :
     ∃ (tree : Mixfix.t value) (contents : value), v.it = .CaseV tree ∧
       Mixfix.eq_mixop tree (.Brack (Q.a .LBrace) (.Arg ()) (Q.a .RBrace)) = true ∧
       Mixfix.args tree = [contents] ∧
       Valid spec externalDomain (.IterT element .List) contents := by
   cases valid with
+  | runtime name args v payload => exact absurd payload (sourceOnly v)
   | record name args parameters sourceFields instantiated v valueFields found =>
     simp [declared] at found
   | «alias» name args parameters definition instantiated v found =>
@@ -188,11 +192,12 @@ theorem mapPayload {spec externalDomain} (keyType valueType : typ) (v : value)
     (declared : body spec "map" = some ([Q.i "K", Q.i "V"], .PlainT
       (Q.t (Q.varT "set" [Q.t (Q.varT "pair"
         [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])])]))))
-    (valid : Valid spec externalDomain (Q.varT "map" [keyType, valueType]) v) :
+    (valid : Valid spec externalDomain (Q.varT "map" [keyType, valueType]) v)
+    (sourceOnly : Domain.SourceOnly externalDomain "map" := by source_only) :
     ∃ keyType' valueType' : typ, keyType'.it = keyType.it ∧ valueType'.it = valueType.it ∧
       Valid spec externalDomain
         (Q.varT "set" [Q.t (Q.varT "pair" [keyType', valueType'])]) v := by
-  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared
+  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared sourceOnly
   obtain ⟨_, fields⟩ := fields
   cases fields with
   | cons sub rest =>

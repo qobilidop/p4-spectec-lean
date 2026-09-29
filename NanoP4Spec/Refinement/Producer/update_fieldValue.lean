@@ -67,7 +67,6 @@ private theorem «$update_fieldValue».preservesFields (P : NanoP4Spec.fieldValu
           simp only [bne, equal]
           rfl
         · simpa only [List.mem_cons, forall_eq_or_imp] using And.intro accepted tailValid
-#audit_axioms «$update_fieldValue».preservesFields
 
 /-- Successful generated results preserve the independent source output domain. -/
 theorem «$update_fieldValue».producesSource :
@@ -116,7 +115,6 @@ theorem «$update_fieldValue».producesSource :
   exact (@Representation.Source.encodedListIff NanoP4Spec.fieldValue
     ⟨NanoP4Spec.fieldValue.toValue⟩ NanoP4Spec.spec Representation.Source.externDomain (Q.t
     (Q.varT "fieldValue" [])) _).mpr valid
-#audit_axioms «$update_fieldValue».producesSource
 
 
 /-- Every recursive suffix has all actual declared input source domains. -/
@@ -151,7 +149,9 @@ theorem «$update_fieldValue».recursiveInputsSource :
     P4SpecTec.Refine.Representation.Source.externDomain (Q.t (Q.varT "fieldValue" [])) p0).mp h0
     field (List.mem_of_mem_drop member)
 
-#audit_axioms «$update_fieldValue».recursiveInputsSource
 
+#audit_axioms «$update_fieldValue».preservesFields
+#audit_axioms «$update_fieldValue».producesSource
+#audit_axioms «$update_fieldValue».recursiveInputsSource
 
 end NanoP4Spec

@@ -39,12 +39,11 @@ theorem objectState.codec : @Representation.Codec (NanoP4Spec.objectState) ⟨@T
   True) :=
   @Representation.Source.externalCodec NanoP4Spec.spec (Q.i "objectState") (by rfl)
 
-#audit_axioms NanoP4Spec.objectState.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem objectState.admittedAll : ∀ x : NanoP4Spec.objectState, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.objectState.codec
 #audit_axioms NanoP4Spec.objectState.admittedAll
 
 end NanoP4Spec

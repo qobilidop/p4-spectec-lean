@@ -52,7 +52,8 @@ theorem «$find_typeDef_e».producesSource :
     (NanoP4Spec.typeDefIR.admitted) (NanoP4Spec.typeDefIR.codec)) result (((show ∀ x :
     (NanoP4Spec.typeDefIR), (NanoP4Spec.typeDefIR.admitted) x from
     NanoP4Spec.typeDefIR.admittedAll)) result)
-#audit_axioms «$find_typeDef_e».producesSource
 
+
+#audit_axioms «$find_typeDef_e».producesSource
 
 end NanoP4Spec

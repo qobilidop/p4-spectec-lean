@@ -62,7 +62,8 @@ theorem TableActionList_ok.producesSource :
     xs : List (NanoP4Spec.matchAction) => ∀ x ∈ xs, (NanoP4Spec.matchAction.admitted) x) x from
     (fun xs x _ => ((show ∀ x : (NanoP4Spec.matchAction), (NanoP4Spec.matchAction.admitted) x
     from NanoP4Spec.matchAction.admittedAll)) x))) result)
-#audit_axioms TableActionList_ok.producesSource
 
+
+#audit_axioms TableActionList_ok.producesSource
 
 end NanoP4Spec

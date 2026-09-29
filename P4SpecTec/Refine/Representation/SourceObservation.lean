@@ -141,9 +141,14 @@ private theorem canonsLength (vs : List value) : (canons vs).length = vs.length 
   | nil => rfl
   | cons v vs ih => simp only [canons, List.length_cons, ih]
 
+/-- The domain's opaque and runtime-only parts are insensitive to canonical observations. -/
+def Domain.Canonical (domain : Domain) : Prop :=
+  (∀ name v w, canon v = canon w → domain.external name v → domain.external name w) ∧
+    (∀ name v w, canon v = canon w → domain.runtime name v → domain.runtime name w)
+
 /-- Source grammar validity is insensitive to canonical value observations when externs are. -/
 theorem Valid.ofCanon {spec externalDomain}
-    (externs : ∀ name v w, canon v = canon w → externalDomain name v → externalDomain name w)
+    (externs : Domain.Canonical externalDomain)
     {type v} (valid : Valid spec externalDomain type v) (w : value)
     (same : canon v = canon w) : Valid spec externalDomain type w := by
   induction valid using Valid.rec
@@ -186,7 +191,9 @@ theorem Valid.ofCanon {spec externalDomain}
     exact .variant name arguments parameters cases constructor instantiated w next declared
       member shape matched fields (ih _ valuesEq)
   | external name v declared payload =>
-    exact .external name w declared (externs name.it v w same payload)
+    exact .external name w declared (externs.1 name.it v w same payload)
+  | runtime name arguments v payload =>
+    exact .runtime name arguments w (externs.2 name.it v w same payload)
   | nil =>
     rename_i ws same
     cases ws <;> simp_all [canons]
@@ -201,7 +208,7 @@ theorem Valid.ofCanon {spec externalDomain}
 
 /-- Canonically equal positional field lists preserve every independent source domain. -/
 theorem Values.ofCanons {spec externalDomain}
-    (externs : ∀ name v w, canon v = canon w → externalDomain name v → externalDomain name w)
+    (externs : Domain.Canonical externalDomain)
     {types vs} (valid : Values spec externalDomain types vs) (ws : List value)
     (same : canons vs = canons ws) : Values spec externalDomain types ws := by
   induction vs generalizing types ws with
@@ -225,23 +232,29 @@ theorem Values.ofCanons {spec externalDomain}
 #guard_msgs (whitespace := lax) in #print axioms Values.ofCanons
 #audit_axioms Values.ofCanons
 
-/-- Opaque source membership accepts every canonically related extern payload. -/
-theorem externDomainCanonical (name : String) (v w : value) (same : canon v = canon w)
-    (valid : externDomain name v) : externDomain name w := by
+/-- An extern payload shape is preserved by canonical observation. -/
+private theorem externCanonical {v w : value} (same : canon v = canon w)
+    (valid : Shape.extern v) : Shape.extern w := by
   obtain ⟨payload, shape⟩ := valid
   cases hw : w.it <;> try (rename_i inner; cases inner)
-  all_goals simp_all [externDomain, Shape.extern, canon, canon']
+  all_goals simp_all [Shape.extern, canon, canon']
 
-/-- info: 'P4SpecTec.Refine.Representation.Source.externDomainCanonical' depends on axioms:
+/-- Opaque and runtime-only membership accept every canonically related extern payload. -/
+theorem runtimeDomainCanonical (types : List String) : (runtimeDomain types).Canonical :=
+  ⟨fun _ _ _ same valid => externCanonical same valid,
+   fun _ _ _ same valid => ⟨valid.1, externCanonical same valid.2⟩⟩
+
+/-- info: 'P4SpecTec.Refine.Representation.Source.runtimeDomainCanonical' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
-#guard_msgs (whitespace := lax) in #print axioms externDomainCanonical
-#audit_axioms externDomainCanonical
+#guard_msgs (whitespace := lax) in #print axioms runtimeDomainCanonical
+#audit_axioms runtimeDomainCanonical
 
-/-- The declared source domain is invariant under canonical value equality. -/
-theorem Valid.canonIff {spec type v w} (same : canon v = canon w) :
-    Valid spec externDomain type v ↔ Valid spec externDomain type w :=
-  ⟨fun valid => valid.ofCanon externDomainCanonical w same,
-   fun valid => valid.ofCanon externDomainCanonical v same.symm⟩
+/-- The declared source domain, or a runtime profile of it, is invariant under canonical
+value equality. -/
+theorem Valid.canonIff {spec types type v w} (same : canon v = canon w) :
+    Valid spec (runtimeDomain types) type v ↔ Valid spec (runtimeDomain types) type w :=
+  ⟨fun valid => valid.ofCanon (runtimeDomainCanonical types) w same,
+   fun valid => valid.ofCanon (runtimeDomainCanonical types) v same.symm⟩
 
 /-- info: 'P4SpecTec.Refine.Representation.Source.Valid.canonIff' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
@@ -255,10 +268,10 @@ open P4SpecTec.Prelude
 
 /-- An admitted producer result transfers source validity to its related reference value. -/
 theorem Codec.sourceOfRelated {α : Type} [ToValue α] [OfValue α]
-    {spec type} {admitted : α → Prop}
-    (contract : Codec (Source.Valid spec Source.externDomain type) admitted)
+    {spec types type} {admitted : α → Prop}
+    (contract : Codec (Source.Valid spec (Source.runtimeDomain types) type) admitted)
     {v : Lang.Il.value} {x : α} (accepted : admitted x) (related : Rel v x) :
-    Source.Valid spec Source.externDomain type v :=
+    Source.Valid spec (Source.runtimeDomain types) type v :=
   (Source.Valid.canonIff related).mpr (contract.encodingValid x accepted)
 
 /-- info: 'P4SpecTec.Refine.Representation.Codec.sourceOfRelated' depends on axioms:

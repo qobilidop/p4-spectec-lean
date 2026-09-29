@@ -181,8 +181,6 @@ theorem binop.codec : @Refine.Representation.Codec NanoP4Spec.binop ⟨NanoP4Spe
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.binop.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem binop.sourceCodec : @Representation.Codec NanoP4Spec.binop ⟨NanoP4Spec.binop.toValue⟩
   ⟨NanoP4Spec.binop.ofValue⟩
@@ -228,12 +226,12 @@ theorem binop.sourceCodec : @Representation.Codec NanoP4Spec.binop ⟨NanoP4Spec
         rfl | rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.binop.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem binop.admittedAll : ∀ x : NanoP4Spec.binop, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.binop.codec
+#audit_axioms NanoP4Spec.binop.sourceCodec
 #audit_axioms NanoP4Spec.binop.admittedAll
 
 end NanoP4Spec

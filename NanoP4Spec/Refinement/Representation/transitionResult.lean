@@ -54,8 +54,6 @@ private theorem transitionResult.fieldCodec2_0 : @Representation.Codec (NanoP4Sp
   Representation.Source.externDomain (Q.t (Q.varT "id" [])).it) (fun _ => True) :=
   NanoP4Spec.id.codec
 
-#audit_axioms NanoP4Spec.transitionResult.fieldCodec2_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem transitionResult.fieldSubstitution2_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "id" [])).it actual → ∀ v,
@@ -66,8 +64,6 @@ private theorem transitionResult.fieldSubstitution2_0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "id")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.transitionResult.fieldSubstitution2_0
 
 private theorem transitionResult.sourceCasesValid (v : Lang.Il.value) (hv :
   transitionResult.source v) :
@@ -121,8 +117,6 @@ private theorem transitionResult.sourceCasesValid (v : Lang.Il.value) (hv :
         | dsimp only [List.flatMap, List.append, List.map, List.flatten]
       exact .cons (transitionResult.fieldSubstitution2_0 _ sub0) (.nil)
 
-#audit_axioms NanoP4Spec.transitionResult.sourceCasesValid
-
 private theorem transitionResult.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -145,8 +139,6 @@ private theorem transitionResult.decode0 (fuel : Nat) (v : Lang.Il.value) (tree 
   simp only [NanoP4Spec.transitionResult.ofValue, shape, selected, other1, other2]
   rfl
 
-#audit_axioms transitionResult.decode0
-
 private theorem transitionResult.decode1 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Atom
@@ -168,8 +160,6 @@ private theorem transitionResult.decode1 (fuel : Nat) (v : Lang.Il.value) (tree 
       matching (by decide)
   simp only [NanoP4Spec.transitionResult.ofValue, shape, selected, other0, other2]
   rfl
-
-#audit_axioms transitionResult.decode1
 
 private theorem transitionResult.decode2 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value)
@@ -196,8 +186,6 @@ private theorem transitionResult.decode2 (fuel : Nat) (v : Lang.Il.value) (tree 
     (NanoP4Spec.transitionResult.STATE x0)))) = ((NanoP4Spec.id.ofValue) fuel v0).bind (fun x0
     => some (NanoP4Spec.transitionResult.STATE x0))
   cases ((NanoP4Spec.id.ofValue) fuel v0) <;> rfl
-
-#audit_axioms transitionResult.decode2
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem transitionResult.codec : @Refine.Representation.Codec NanoP4Spec.transitionResult
@@ -428,7 +416,6 @@ theorem transitionResult.codec : @Refine.Representation.Codec NanoP4Spec.transit
             tree _ _ matching rfl) hargs]
           rw [h0 fuel enough0]
           all_goals rfl
-#audit_axioms NanoP4Spec.transitionResult.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -445,6 +432,13 @@ theorem transitionResult.admittedAll : ∀ x : NanoP4Spec.transitionResult,
       trivial⟩
 
 
+#audit_axioms NanoP4Spec.transitionResult.fieldCodec2_0
+#audit_axioms NanoP4Spec.transitionResult.fieldSubstitution2_0
+#audit_axioms NanoP4Spec.transitionResult.sourceCasesValid
+#audit_axioms transitionResult.decode0
+#audit_axioms transitionResult.decode1
+#audit_axioms transitionResult.decode2
+#audit_axioms NanoP4Spec.transitionResult.codec
 #audit_axioms NanoP4Spec.transitionResult.admittedAll
 
 end NanoP4Spec

@@ -64,7 +64,8 @@ theorem ArgumentList_ok.producesSource :
     => ∀ x ∈ xs, (NanoP4Spec.argumentIR.admitted) x) x from (fun xs x _ => ((show ∀ x :
     (NanoP4Spec.argumentIR), (NanoP4Spec.argumentIR.admitted) x from
     NanoP4Spec.argumentIR.admittedAll)) x))) result)
-#audit_axioms ArgumentList_ok.producesSource
 
+
+#audit_axioms ArgumentList_ok.producesSource
 
 end NanoP4Spec

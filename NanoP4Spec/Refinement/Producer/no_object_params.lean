@@ -51,7 +51,8 @@ theorem «$no_object_params».producesSource :
     .BoolT).it) (fun _ : Bool => True) (@Representation.Source.boolCodec NanoP4Spec.spec
     Representation.Source.externDomain)) result (((show ∀ x : (Bool), (fun _ : Bool => True) x
     from (fun _ => True.intro))) result)
-#audit_axioms «$no_object_params».producesSource
 
+
+#audit_axioms «$no_object_params».producesSource
 
 end NanoP4Spec

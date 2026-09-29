@@ -51,7 +51,8 @@ theorem «$id».producesSource :
     (@Representation.Source.textCodec NanoP4Spec.spec Representation.Source.externDomain))
     result (((show ∀ x : (ByteText), (fun _ : ByteText => True) x from (fun _ => True.intro)))
     result)
-#audit_axioms «$id».producesSource
 
+
+#audit_axioms «$id».producesSource
 
 end NanoP4Spec

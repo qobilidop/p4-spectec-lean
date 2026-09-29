@@ -93,8 +93,6 @@ theorem scope.codec : @Refine.Representation.Codec NanoP4Spec.scope ⟨NanoP4Spe
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.scope.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem scope.sourceCodec : @Representation.Codec NanoP4Spec.scope ⟨NanoP4Spec.scope.toValue⟩
   ⟨NanoP4Spec.scope.ofValue⟩
@@ -117,12 +115,12 @@ theorem scope.sourceCodec : @Representation.Codec NanoP4Spec.scope ⟨NanoP4Spec
       rcases member with rfl | rfl | rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.scope.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem scope.admittedAll : ∀ x : NanoP4Spec.scope, (fun _ => True) x := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.scope.codec
+#audit_axioms NanoP4Spec.scope.sourceCodec
 #audit_axioms NanoP4Spec.scope.admittedAll
 
 end NanoP4Spec

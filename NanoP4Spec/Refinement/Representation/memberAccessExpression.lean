@@ -55,8 +55,6 @@ private theorem memberAccessExpression.fieldCodec0_0 : @Representation.Codec
   (NanoP4Spec.memberAccessBase.admitted) :=
   NanoP4Spec.memberAccessBase.codec
 
-#audit_axioms NanoP4Spec.memberAccessExpression.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem memberAccessExpression.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "memberAccessBase" [])).it actual → ∀ v,
@@ -68,16 +66,12 @@ private theorem memberAccessExpression.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "memberAccessBase")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.memberAccessExpression.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem memberAccessExpression.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.member)
   ⟨NanoP4Spec.member.toValue⟩ ⟨NanoP4Spec.member.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "member" [])).it)
   (NanoP4Spec.member.admitted) :=
   NanoP4Spec.member.codec
-
-#audit_axioms NanoP4Spec.memberAccessExpression.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem memberAccessExpression.fieldSubstitution0_1 : ∀ actual,
@@ -89,8 +83,6 @@ private theorem memberAccessExpression.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "member")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.memberAccessExpression.fieldSubstitution0_1
 
 private theorem memberAccessExpression.sourceCasesValid (v : Lang.Il.value) (hv :
   memberAccessExpression.source v) :
@@ -124,8 +116,6 @@ private theorem memberAccessExpression.sourceCasesValid (v : Lang.Il.value) (hv 
         exact .cons (memberAccessExpression.fieldSubstitution0_0 _ sub0) (.cons
           (memberAccessExpression.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.memberAccessExpression.sourceCasesValid
-
 private theorem memberAccessExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -146,8 +136,6 @@ private theorem memberAccessExpression.decode0 (fuel : Nat) (v : Lang.Il.value) 
     (NanoP4Spec.memberAccessExpression.dot x0 x1)))
   cases ((NanoP4Spec.memberAccessBase.ofValue) fuel v0) <;> cases ((NanoP4Spec.member.ofValue)
     fuel v1) <;> rfl
-
-#audit_axioms memberAccessExpression.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem memberAccessExpression.codec : @Refine.Representation.Codec
@@ -315,7 +303,6 @@ theorem memberAccessExpression.codec : @Refine.Representation.Codec
               (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.memberAccessExpression.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -329,6 +316,13 @@ theorem memberAccessExpression.admittedAll : ∀ x : NanoP4Spec.memberAccessExpr
       (NanoP4Spec.member.admitted) x from NanoP4Spec.member.admittedAll)) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.memberAccessExpression.fieldCodec0_0
+#audit_axioms NanoP4Spec.memberAccessExpression.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.memberAccessExpression.fieldCodec0_1
+#audit_axioms NanoP4Spec.memberAccessExpression.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.memberAccessExpression.sourceCasesValid
+#audit_axioms memberAccessExpression.decode0
+#audit_axioms NanoP4Spec.memberAccessExpression.codec
 #audit_axioms NanoP4Spec.memberAccessExpression.admittedAll
 
 end NanoP4Spec

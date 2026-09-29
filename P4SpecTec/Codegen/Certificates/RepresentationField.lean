@@ -36,7 +36,7 @@ structure Contract where
 
 /-- The independent source predicate for a field in the actual compiled specification. -/
 def source (env : Env) (t : typ) : String :=
-  "Representation.Source.Valid " ++ env.lib ++ ".spec Representation.Source.externDomain " ++
+  "Representation.Source.Valid " ++ env.lib ++ ".spec " ++ env.domainTerm ++ " " ++
     "(" ++ (Reify.typ t).fmt.pretty ++ ").it"
 
 /-- A codec type with fully explicit dictionaries, avoiding reducible alias capture. -/
@@ -70,8 +70,7 @@ private def primitive (env : Env) (kind carrier instanceName : String) : Contrac
     encoder := s!"@ToValue.toValue {carrier} P4SpecTec.Prelude.instToValue{instanceName}"
     decoder := s!"@OfValue.ofValue {carrier} P4SpecTec.Prelude.instOfValue{instanceName}"
     admitted := s!"fun _ : {carrier} => True"
-    codec := s!"@Representation.Source.{kind}Codec {env.lib}.spec " ++
-      "Representation.Source.externDomain"
+    codec := s!"@Representation.Source.{kind}Codec {env.lib}.spec " ++ env.domainTerm
     dependencies := [] }
 
 private def scalarSubstitutionResult (t : typ) (proof : String) : Except String String :=
@@ -168,8 +167,11 @@ partial def resolve (env : Env) (known : String → Option NominalContract) (t :
                encoder := "@ToValue.toValue ExternValue P4SpecTec.Prelude.instToValueExternValue"
                decoder := "@OfValue.ofValue ExternValue P4SpecTec.Prelude.instOfValueExternValue"
                admitted := "fun _ : ExternValue => True"
-               codec := s!"@Representation.Source.externalCodec {env.lib}.spec " ++
-                 "(Q.i " ++ (Reify.str name.it).fmt.pretty ++ ") (by rfl)"
+               codec := env.liftRuntime (env.q (Names.typeName name.it))
+                 "@ToValue.toValue ExternValue P4SpecTec.Prelude.instToValueExternValue"
+                 "@OfValue.ofValue ExternValue P4SpecTec.Prelude.instOfValueExternValue"
+                 (s!"@Representation.Source.externalCodec {env.lib}.spec " ++
+                   "(Q.i " ++ (Reify.str name.it).fmt.pretty ++ ") (by rfl)")
                dependencies := [] }
     let some contract := known name.it | throw s!"unproved source field codec {name.it}"
     let qualified := env.q (Names.typeName name.it)
@@ -192,7 +194,7 @@ partial def resolve (env : Env) (known : String → Option NominalContract) (t :
     pure { carrier, encoder, decoder
            admitted := s!"fun xs : {carrier} => ∀ x ∈ xs, ({child.admitted}) x"
            codec := s!"@Representation.Source.{codec} {env.lib}.spec " ++
-             "Representation.Source.externDomain " ++
+             env.domainTerm ++ " " ++
              s!"({child.carrier}) ⟨{child.encoder}⟩ ⟨{child.decoder}⟩ " ++
              s!"({(Reify.typ element).fmt.pretty}) ({child.admitted}) ({child.codec})"
            dependencies := child.dependencies }
@@ -227,7 +229,7 @@ partial def resolve (env : Env) (known : String → Option NominalContract) (t :
            encoder := "@" ++ qualified ++ ".toValue " ++ " ".intercalate (carriers ++ encoders)
            decoder := "@" ++ qualified ++ ".ofValue " ++ " ".intercalate (carriers ++ decoders)
            admitted
-           codec := "@" ++ qualified ++ ".codec " ++
+           codec := "@" ++ qualified ++ "." ++ env.part "codec" ++ " " ++
              " ".intercalate (carriers ++ instances ++ sourceTypes ++ predicates ++ proofs)
            dependencies := (name.it :: children.flatMap (·.dependencies)).eraseDups }
   | .TupleT [] =>
@@ -236,7 +238,7 @@ partial def resolve (env : Env) (known : String → Option NominalContract) (t :
            decoder := "Representation.Source.unitDecoder"
            admitted := "fun _ : Unit => True"
            codec := "@Representation.Source.unitCodec " ++ env.lib ++
-             ".spec Representation.Source.externDomain"
+             ".spec " ++ env.domainTerm
            dependencies := [] }
   | .TupleT [left, right] =>
     if let .TupleT (_ :: _ :: _) := env.resolve right.it then
@@ -253,7 +255,7 @@ partial def resolve (env : Env) (known : String → Option NominalContract) (t :
              s!"⟨{a.decoder}⟩ ⟨{b.decoder}⟩"
            admitted := s!"fun p : {carrier} => ({a.admitted}) p.1 ∧ ({b.admitted}) p.2"
            codec := "@Representation.Source.pairCodec " ++ env.lib ++
-             ".spec Representation.Source.externDomain " ++ instances ++
+             ".spec " ++ env.domainTerm ++ " " ++ instances ++
              s!" ({(Reify.typ left).fmt.pretty}) ({(Reify.typ right).fmt.pretty}) " ++
              s!"({a.admitted}) ({b.admitted}) ({a.codec}) ({b.codec})"
            dependencies := (a.dependencies ++ b.dependencies).eraseDups }

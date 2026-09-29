@@ -33,8 +33,6 @@ theorem «$pow2».dispatch (p0 : Nat)
   funext result
   cases result <;> rfl
 
-#audit_axioms NanoP4Spec.«$pow2».dispatch
-
 theorem «$pow2».refines (fuel : Nat) (p0 : Nat)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
      (internal : Bool) (hguard : cfg.guard = false) (hfenv : ctx.local.fenv = []) (hdecl : Holds
@@ -43,8 +41,6 @@ theorem «$pow2».refines (fuel : Nat) (p0 : Nat)
     (ExceptT.mk (NanoP4Spec.«$pow2» p0)) := by
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "pow2" _ _ _ []
     [v0] hfenv hdecl (NanoP4Spec.«$pow2».dispatch p0 v0 h0 cfg)
-
-#audit_axioms NanoP4Spec.«$pow2».refines
 
 theorem «$pow2».realizes (p0 : Nat)
    (v0 : Lang.Il.value) (h0 : Rel v0 p0) (cfg : Interp_al.Interp.Config) (ctx : Interp_al.Ctx.t)
@@ -55,6 +51,8 @@ theorem «$pow2».realizes (p0 : Nat)
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "pow2" _ _ _ [] [v0] hfenv
     hdecl (NanoP4Spec.«$pow2».dispatch p0 v0 h0 cfg)
 
+#audit_axioms NanoP4Spec.«$pow2».dispatch
+#audit_axioms NanoP4Spec.«$pow2».refines
 #audit_axioms NanoP4Spec.«$pow2».realizes
 
 end NanoP4Spec

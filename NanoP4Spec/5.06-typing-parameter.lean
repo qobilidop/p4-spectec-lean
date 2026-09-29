@@ -33,16 +33,15 @@ def Parameter_ok.run
        have scope := p0
        have TC_0 := p1
        let .mk direction type name := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
-          have typeIR := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
-          have nameIR := tmp_1
-          have parameterIR := NanoP4Spec.parameterIR.mk direction typeIR nameIR
-          have varTypeIR := NanoP4Spec.varTypeIR.mk direction typeIR
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$add_var_t» scope TC_0 nameIR varTypeIR)
-          have TC_1 := tmp_2
-          pure (parameterIR, TC_1)))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
+       have typeIR := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
+       have nameIR := tmp_1
+       have parameterIR := NanoP4Spec.parameterIR.mk direction typeIR nameIR
+       have varTypeIR := NanoP4Spec.varTypeIR.mk direction typeIR
+       let tmp_2 ← ExceptT.mk (NanoP4Spec.«$add_var_t» scope TC_0 nameIR varTypeIR)
+       have TC_1 := tmp_2
+       pure (parameterIR, TC_1))
 
 inductive Parameter_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →
@@ -78,8 +77,6 @@ theorem Parameter_ok.run_sound
     NanoP4Spec.Parameter_ok.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.Parameter_ok p0 p1 p2 o.1 o.2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.Parameter_ok.run_sound
 
 -- no determinism theorem: Parameter_ok
 --   calls Type_ok, which has no determinism theorem
@@ -185,24 +182,26 @@ def Parameters_ok.run
         (p2 : List NanoP4Spec.parameter)
     : Option (Except Fail ((List NanoP4Spec.parameterIR) × NanoP4Spec.typingContext)) :=
   ExceptT.run
-    (do
-       have scope := p0
-       have TC' := p1
-       have «parameter*» := p2
-       (do
-          have TC := TC'
-          let _ ← Eval.check («parameter*» == ([] : List NanoP4Spec.parameter))
-          pure (([] : List NanoP4Spec.parameterIR), TC)) <|>
-       (do
-          have TC_0 := TC'
-          have «parameter'*» := «parameter*»
-          let _ ← Eval.check (!(List.isEmpty «parameter'*»))
-          let parameter_h :: «parameter_t*» := «parameter'*» | throw Fail.err
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Parameter_ok.run scope TC_0 parameter_h)
-          let (parameterIR_h, TC_1) := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.Parameters_ok.run scope TC_1 «parameter_t*»)
-          let («parameterIR_t*», TC_2) := tmp_1
-          pure (parameterIR_h :: «parameterIR_t*», TC_2)))
+    ((do
+        have scope := p0
+        have TC' := p1
+        have «parameter*» := p2
+        have TC := TC'
+        let _ ← Eval.check («parameter*» == ([] : List NanoP4Spec.parameter))
+        pure (([] : List NanoP4Spec.parameterIR), TC)) <|>
+     (do
+        have scope := p0
+        have TC' := p1
+        have «parameter*» := p2
+        have TC_0 := TC'
+        have «parameter'*» := «parameter*»
+        let _ ← Eval.check (!(List.isEmpty «parameter'*»))
+        let parameter_h :: «parameter_t*» := «parameter'*» | throw Fail.err
+        let tmp_0 ← ExceptT.mk (NanoP4Spec.Parameter_ok.run scope TC_0 parameter_h)
+        let (parameterIR_h, TC_1) := tmp_0
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.Parameters_ok.run scope TC_1 «parameter_t*»)
+        let («parameterIR_t*», TC_2) := tmp_1
+        pure (parameterIR_h :: «parameterIR_t*», TC_2)))
   partial_fixpoint
 
 inductive Parameters_ok : NanoP4Spec.scope →
@@ -247,8 +246,6 @@ theorem Parameters_ok.run_sound_group :
          NanoP4Spec.Parameters_ok p0 p1 p2 o.1 o.2) := by
   run_sound_group NanoP4Spec.Parameters_ok.run.partial_correctness
 
-#audit_axioms NanoP4Spec.Parameters_ok.run_sound_group
-
 theorem Parameters_ok.run_sound
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.typingContext)
@@ -257,8 +254,6 @@ theorem Parameters_ok.run_sound
     NanoP4Spec.Parameters_ok.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.Parameters_ok p0 p1 p2 o.1 o.2 :=
   fun h => NanoP4Spec.Parameters_ok.run_sound_group p0 p1 p2 _ h o rfl
-
-#audit_axioms NanoP4Spec.Parameters_ok.run_sound
 
 def Parameters_ok.al : Lang.Al.def :=
   Q.d
@@ -505,14 +500,13 @@ def ParameterList_ok.run
        have scope := p0
        have TC_0 := p1
        have parameterList := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
-          have «parameter*» := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.Parameters_ok.run scope TC_0 «parameter*»)
-          let («parameterIR*», TC_1) := tmp_1
-          let tmp_2 ← ExceptT.mk (NanoP4Spec.«$distinct_params» «parameterIR*»)
-          let _ ← Eval.check tmp_2
-          pure («parameterIR*», TC_1)))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
+       have «parameter*» := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.Parameters_ok.run scope TC_0 «parameter*»)
+       let («parameterIR*», TC_1) := tmp_1
+       let tmp_2 ← ExceptT.mk (NanoP4Spec.«$distinct_params» «parameterIR*»)
+       let _ ← Eval.check tmp_2
+       pure («parameterIR*», TC_1))
 
 inductive ParameterList_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →
@@ -542,8 +536,6 @@ theorem ParameterList_ok.run_sound
     NanoP4Spec.ParameterList_ok.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.ParameterList_ok p0 p1 p2 o.1 o.2 :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ParameterList_ok.run_sound
 
 -- no determinism theorem: ParameterList_ok
 --   calls Parameters_ok, which has no determinism theorem
@@ -645,16 +637,15 @@ def ExternMethod_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.externM
     (do
        have TC := p0
        let .semi functionPrototype := p1
-       (do
-          let .VOID_lparen_rparen name parameterList := functionPrototype
-          let tmp_0 ←
-              ExceptT.mk (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.LOCAL TC parameterList)
-          let («parameterIR*», TC_body) := tmp_0
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
-          have callableId := tmp_1
-          have externMethodTypeDefIR :=
-              NanoP4Spec.externMethodTypeDefIR.VOID_lparen_rparen callableId «parameterIR*»
-          pure externMethodTypeDefIR))
+       let .VOID_lparen_rparen name parameterList := functionPrototype
+       let tmp_0 ←
+           ExceptT.mk (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.LOCAL TC parameterList)
+       let («parameterIR*», TC_body) := tmp_0
+       let tmp_1 ← ExceptT.mk (NanoP4Spec.«$id» name)
+       have callableId := tmp_1
+       have externMethodTypeDefIR :=
+           NanoP4Spec.externMethodTypeDefIR.VOID_lparen_rparen callableId «parameterIR*»
+       pure externMethodTypeDefIR)
 
 inductive ExternMethod_ok : NanoP4Spec.typingContext →
   NanoP4Spec.externMethodPrototype →
@@ -686,8 +677,6 @@ theorem ExternMethod_ok.run_sound
     (o : NanoP4Spec.externMethodTypeDefIR) :
     NanoP4Spec.ExternMethod_ok.run p0 p1 = some (.ok o) → NanoP4Spec.ExternMethod_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ExternMethod_ok.run_sound
 
 -- no determinism theorem: ExternMethod_ok
 --   calls ParameterList_ok, which has no determinism theorem
@@ -1027,5 +1016,11 @@ def «$no_object_params».al : Lang.Al.def :=
                    .BoolT))]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Parameter_ok.run_sound
+#audit_axioms NanoP4Spec.Parameters_ok.run_sound_group
+#audit_axioms NanoP4Spec.Parameters_ok.run_sound
+#audit_axioms NanoP4Spec.ParameterList_ok.run_sound
+#audit_axioms NanoP4Spec.ExternMethod_ok.run_sound
 
 end NanoP4Spec

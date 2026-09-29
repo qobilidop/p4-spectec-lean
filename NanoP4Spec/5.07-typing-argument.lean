@@ -33,11 +33,10 @@ def Argument_ok.run
        have scope := p0
        have TC := p1
        have expression := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_ok.run scope TC expression)
-          have typeIR := tmp_0
-          have argumentIR := NanoP4Spec.argumentIR.hash expression typeIR
-          pure argumentIR))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.Expr_ok.run scope TC expression)
+       have typeIR := tmp_0
+       have argumentIR := NanoP4Spec.argumentIR.hash expression typeIR
+       pure argumentIR)
 
 inductive Argument_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →
@@ -59,8 +58,6 @@ theorem Argument_ok.run_sound
     (o : NanoP4Spec.argumentIR) :
     NanoP4Spec.Argument_ok.run p0 p1 p2 = some (.ok o) → NanoP4Spec.Argument_ok p0 p1 p2 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.Argument_ok.run_sound
 
 -- no determinism theorem: Argument_ok
 --   calls Expr_ok, which has no determinism theorem
@@ -126,19 +123,18 @@ def ArgumentList_ok.run
        have scope := p0
        have TC := p1
        have argumentList := p2
-       (do
-          let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
-          have «argument*» := tmp_0
-          let tmp_2 ←
-              List.mapM
-                (fun (argument : NanoP4Spec.argument) =>
-                   (do
-                      let tmp_1 ← ExceptT.mk (NanoP4Spec.Argument_ok.run scope TC argument)
-                      have argumentIR := tmp_1
-                      pure argumentIR))
-                «argument*»
-          have «argumentIR*» := tmp_2
-          pure «argumentIR*»))
+       let tmp_0 ← ExceptT.mk (NanoP4Spec.«$flatten_argumentList» argumentList)
+       have «argument*» := tmp_0
+       let tmp_2 ←
+           List.mapM
+             (fun (argument : NanoP4Spec.argument) =>
+                (do
+                   let tmp_1 ← ExceptT.mk (NanoP4Spec.Argument_ok.run scope TC argument)
+                   have argumentIR := tmp_1
+                   pure argumentIR))
+             «argument*»
+       have «argumentIR*» := tmp_2
+       pure «argumentIR*»)
 
 inductive ArgumentList_ok : NanoP4Spec.scope →
   NanoP4Spec.typingContext →
@@ -168,8 +164,6 @@ theorem ArgumentList_ok.run_sound
     NanoP4Spec.ArgumentList_ok.run p0 p1 p2 = some (.ok o) →
         NanoP4Spec.ArgumentList_ok p0 p1 p2 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ArgumentList_ok.run_sound
 
 -- no determinism theorem: ArgumentList_ok
 --   iterated premise
@@ -238,5 +232,8 @@ def ArgumentList_ok.al : Lang.Al.def :=
                 (.IterT (Q.t (Q.varT "argumentIR" [])) .List)]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.Argument_ok.run_sound
+#audit_axioms NanoP4Spec.ArgumentList_ok.run_sound
 
 end NanoP4Spec

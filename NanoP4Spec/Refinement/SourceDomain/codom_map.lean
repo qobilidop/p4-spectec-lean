@@ -83,7 +83,7 @@ theorem «$codom_map».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue α
     obtain ⟨entry, pairMember, rfl⟩ := List.mem_map.mp originalMember
     cases entry with | colon k v => exact (hp0 _ pairMember).2
 
-#audit_axioms «$codom_map».sourceDomain
 
+#audit_axioms «$codom_map».sourceDomain
 
 end NanoP4Spec

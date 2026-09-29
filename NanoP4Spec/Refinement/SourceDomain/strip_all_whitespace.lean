@@ -63,7 +63,7 @@ theorem «$strip_all_whitespace».sourceDomain : (∀ (v0 : Lang.Il.value) (hv0 
       result
     trivial
 
-#audit_axioms «$strip_all_whitespace».sourceDomain
 
+#audit_axioms «$strip_all_whitespace».sourceDomain
 
 end NanoP4Spec

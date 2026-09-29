@@ -46,8 +46,6 @@ private theorem loadContext.bodyCodec : @Representation.Codec (NanoP4Spec.global
   "globalLoadLayer" [])).it) (NanoP4Spec.globalLoadLayer.admitted) :=
   NanoP4Spec.globalLoadLayer.codec
 
-#audit_axioms NanoP4Spec.loadContext.bodyCodec
-
 private theorem loadContext.sourceIff (v : Lang.Il.value) :
     NanoP4Spec.loadContext.source v ↔ (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "globalLoadLayer" [])).it) v := by
@@ -59,16 +57,12 @@ private theorem loadContext.sourceIff (v : Lang.Il.value) :
   exact valid) (Representation.Source.Substitutes.named (Q.i "globalLoadLayer") [] [] rfl
     (.nil)) v
 
-#audit_axioms NanoP4Spec.loadContext.sourceIff
-
 /-- The alias encoder has exactly its declared body's independent source domain. -/
 theorem loadContext.encodingSourceIff (x : NanoP4Spec.loadContext) :
     NanoP4Spec.loadContext.source (NanoP4Spec.loadContext.toValue x) ↔
       (Representation.Source.Valid NanoP4Spec.spec Representation.Source.externDomain (Q.t
       (Q.varT "globalLoadLayer" [])).it) ((NanoP4Spec.globalLoadLayer.toValue) x) :=
   NanoP4Spec.loadContext.sourceIff _
-
-#audit_axioms NanoP4Spec.loadContext.encodingSourceIff
 
 /-- Complete alias codec, with the declared alias fuel frame retained. -/
 theorem loadContext.codec : @Refine.Representation.Codec NanoP4Spec.loadContext
@@ -115,8 +109,6 @@ theorem loadContext.codec : @Refine.Representation.Codec NanoP4Spec.loadContext
       | zero => omega
       | succ fuel => exact result fuel (by omega)
 
-#audit_axioms NanoP4Spec.loadContext.codec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem loadContext.admittedAll : ∀ x : NanoP4Spec.loadContext,
   (NanoP4Spec.loadContext.admitted) x := by
@@ -124,6 +116,10 @@ theorem loadContext.admittedAll : ∀ x : NanoP4Spec.loadContext,
   exact ((show ∀ x : (NanoP4Spec.globalLoadLayer), (NanoP4Spec.globalLoadLayer.admitted) x from
     NanoP4Spec.globalLoadLayer.admittedAll)) x
 
+#audit_axioms NanoP4Spec.loadContext.bodyCodec
+#audit_axioms NanoP4Spec.loadContext.sourceIff
+#audit_axioms NanoP4Spec.loadContext.encodingSourceIff
+#audit_axioms NanoP4Spec.loadContext.codec
 #audit_axioms NanoP4Spec.loadContext.admittedAll
 
 end NanoP4Spec

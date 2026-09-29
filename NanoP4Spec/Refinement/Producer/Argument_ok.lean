@@ -54,7 +54,8 @@ theorem Argument_ok.producesSource :
     (NanoP4Spec.argumentIR.admitted) (NanoP4Spec.argumentIR.codec)) result (((show ∀ x :
     (NanoP4Spec.argumentIR), (NanoP4Spec.argumentIR.admitted) x from
     NanoP4Spec.argumentIR.admittedAll)) result)
-#audit_axioms Argument_ok.producesSource
 
+
+#audit_axioms Argument_ok.producesSource
 
 end NanoP4Spec

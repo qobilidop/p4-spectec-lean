@@ -72,7 +72,8 @@ theorem ArgumentList_ok.callArgumentsSource :
     (NanoP4Spec.argument.admitted) (NanoP4Spec.argument.codec)) x (((show ∀ x :
     (NanoP4Spec.argument), (NanoP4Spec.argument.admitted) x from
     NanoP4Spec.argument.admittedAll)) x)), trivial⟩
-#audit_axioms ArgumentList_ok.callArgumentsSource
 
+
+#audit_axioms ArgumentList_ok.callArgumentsSource
 
 end NanoP4Spec

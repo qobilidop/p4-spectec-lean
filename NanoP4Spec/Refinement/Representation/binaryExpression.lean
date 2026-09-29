@@ -54,8 +54,6 @@ private theorem binaryExpression.fieldCodec0_0 : @Representation.Codec (NanoP4Sp
   (NanoP4Spec.expression.admitted) :=
   NanoP4Spec.expression.codec
 
-#audit_axioms NanoP4Spec.binaryExpression.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem binaryExpression.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "expression" [])).it actual → ∀ v,
@@ -67,16 +65,12 @@ private theorem binaryExpression.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "expression")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.binaryExpression.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem binaryExpression.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.binop)
   ⟨NanoP4Spec.binop.toValue⟩ ⟨NanoP4Spec.binop.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "binop" [])).it) (fun _ =>
   True) :=
   NanoP4Spec.binop.sourceCodec
-
-#audit_axioms NanoP4Spec.binaryExpression.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem binaryExpression.fieldSubstitution0_1 : ∀ actual,
@@ -89,16 +83,12 @@ private theorem binaryExpression.fieldSubstitution0_1 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "binop")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.binaryExpression.fieldSubstitution0_1
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem binaryExpression.fieldCodec0_2 : @Representation.Codec (NanoP4Spec.expression)
   ⟨NanoP4Spec.expression.toValue⟩ ⟨NanoP4Spec.expression.ofValue⟩ (Representation.Source.Valid
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "expression" [])).it)
   (NanoP4Spec.expression.admitted) :=
   NanoP4Spec.expression.codec
-
-#audit_axioms NanoP4Spec.binaryExpression.fieldCodec0_2
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem binaryExpression.fieldSubstitution0_2 : ∀ actual,
@@ -110,8 +100,6 @@ private theorem binaryExpression.fieldSubstitution0_2 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "expression")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.binaryExpression.fieldSubstitution0_2
 
 private theorem binaryExpression.sourceCasesValid (v : Lang.Il.value) (hv :
   binaryExpression.source v) :
@@ -145,8 +133,6 @@ private theorem binaryExpression.sourceCasesValid (v : Lang.Il.value) (hv :
             (binaryExpression.fieldSubstitution0_1 _ sub1) (.cons
             (binaryExpression.fieldSubstitution0_2 _ sub2) (.nil)))
 
-#audit_axioms NanoP4Spec.binaryExpression.sourceCasesValid
-
 private theorem binaryExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree :
   Domain.Mixfix.t Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value) (v2 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Arg ()),
@@ -168,8 +154,6 @@ private theorem binaryExpression.decode0 (fuel : Nat) (v : Lang.Il.value) (tree 
     (NanoP4Spec.binaryExpression.mk x0 x1 x2))))
   cases ((NanoP4Spec.expression.ofValue) fuel v0) <;> cases ((NanoP4Spec.binop.ofValue) fuel v1)
     <;> cases ((NanoP4Spec.expression.ofValue) fuel v2) <;> rfl
-
-#audit_axioms binaryExpression.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem binaryExpression.codec : @Refine.Representation.Codec NanoP4Spec.binaryExpression
@@ -368,7 +352,6 @@ theorem binaryExpression.codec : @Refine.Representation.Codec NanoP4Spec.binaryE
                 (Representation.Source.mixopTrans tree _ _ matching rfl) hargs]
               rw [h0 fuel enough0, h1 fuel enough1, h2 fuel enough2]
               all_goals rfl
-#audit_axioms NanoP4Spec.binaryExpression.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -383,6 +366,15 @@ theorem binaryExpression.admittedAll : ∀ x : NanoP4Spec.binaryExpression,
       (NanoP4Spec.expression.admitted) x from NanoP4Spec.expression.admittedAll)) x2, trivial⟩
 
 
+#audit_axioms NanoP4Spec.binaryExpression.fieldCodec0_0
+#audit_axioms NanoP4Spec.binaryExpression.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.binaryExpression.fieldCodec0_1
+#audit_axioms NanoP4Spec.binaryExpression.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.binaryExpression.fieldCodec0_2
+#audit_axioms NanoP4Spec.binaryExpression.fieldSubstitution0_2
+#audit_axioms NanoP4Spec.binaryExpression.sourceCasesValid
+#audit_axioms binaryExpression.decode0
+#audit_axioms NanoP4Spec.binaryExpression.codec
 #audit_axioms NanoP4Spec.binaryExpression.admittedAll
 
 end NanoP4Spec

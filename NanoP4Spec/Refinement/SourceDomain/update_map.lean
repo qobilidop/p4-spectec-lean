@@ -103,7 +103,7 @@ theorem «$update_map».sourceDomain : ∀ {α0 : Type} [ToValue α0] [OfValue �
       obtain ⟨entry, originalMember, rfl⟩ := List.mem_map.mp member
       cases entry with | colon k v => exact hp0 _ originalMember
 
-#audit_axioms «$update_map».sourceDomain
 
+#audit_axioms «$update_map».sourceDomain
 
 end NanoP4Spec

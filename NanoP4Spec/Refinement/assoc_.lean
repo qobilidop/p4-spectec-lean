@@ -36,8 +36,6 @@ theorem «$assoc_».dispatch {τX τY : Type} [ToValue τX] [BEq τX] [ToValue �
     _)))
   exact congrArg (fun v => some (Except.ok (ε := Fail) v)) rel
 
-#audit_axioms NanoP4Spec.«$assoc_».dispatch
-
 theorem «$assoc_».refines (fuel : Nat) {τX τY : Type} [ToValue τX] [BEq τX] [ToValue τY] [BEq
   τY]
       (p0 : τX)
@@ -50,8 +48,6 @@ theorem «$assoc_».refines (fuel : Nat) {τX τY : Type} [ToValue τX] [BEq τX
   exact Refine.Builtin.refinesInvokeOfCanonicalRun fuel cfg hguard ctx internal "assoc_" _ _ _
     [t0, t1] [v0, v1] hfenv hdecl (NanoP4Spec.«$assoc_».dispatch p0 p1 t0 t1 v0 v1 h0 h1 cfg)
 
-#audit_axioms NanoP4Spec.«$assoc_».refines
-
 theorem «$assoc_».realizes {τX τY : Type} [ToValue τX] [BEq τX] [ToValue τY] [BEq τY] (p0 : τX)
   (p1 : List (τX × τY))
    (t0 t1 : Lang.Il.typ) (v0 v1 : Lang.Il.value) (h0 : Rel v0 p0) (h1 : Rel v1 p1) (cfg :
@@ -62,6 +58,8 @@ theorem «$assoc_».realizes {τX τY : Type} [ToValue τX] [BEq τX] [ToValue �
   exact Refine.Builtin.realizesOfCanonicalRun cfg hguard ctx internal "assoc_" _ _ _ [t0, t1]
     [v0, v1] hfenv hdecl (NanoP4Spec.«$assoc_».dispatch p0 p1 t0 t1 v0 v1 h0 h1 cfg)
 
+#audit_axioms NanoP4Spec.«$assoc_».dispatch
+#audit_axioms NanoP4Spec.«$assoc_».refines
 #audit_axioms NanoP4Spec.«$assoc_».realizes
 
 end NanoP4Spec

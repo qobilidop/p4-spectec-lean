@@ -53,8 +53,6 @@ private theorem packetValue.fieldCodec0_0 : @Representation.Codec (NanoP4Spec.ty
   True) :=
   NanoP4Spec.typeId.codec
 
-#audit_axioms NanoP4Spec.packetValue.fieldCodec0_0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem packetValue.fieldSubstitution0_0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "typeId" [])).it actual → ∀ v,
@@ -66,8 +64,6 @@ private theorem packetValue.fieldSubstitution0_0 : ∀ actual,
     rw [substitution.emptyNamedResult (Q.i "typeId")] at valid
     exact valid)
 
-#audit_axioms NanoP4Spec.packetValue.fieldSubstitution0_0
-
 /-- The exact positional field codec on its independent source grammar. -/
 private theorem packetValue.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.objectState)
   ⟨@ToValue.toValue ExternValue P4SpecTec.Prelude.instToValueExternValue⟩ ⟨@OfValue.ofValue
@@ -75,8 +71,6 @@ private theorem packetValue.fieldCodec0_1 : @Representation.Codec (NanoP4Spec.ob
   NanoP4Spec.spec Representation.Source.externDomain (Q.t (Q.varT "objectState" [])).it) (fun _
   : ExternValue => True) :=
   @Representation.Source.externalCodec NanoP4Spec.spec (Q.i "objectState") (by rfl)
-
-#audit_axioms NanoP4Spec.packetValue.fieldCodec0_1
 
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem packetValue.fieldSubstitution0_1 : ∀ actual,
@@ -88,8 +82,6 @@ private theorem packetValue.fieldSubstitution0_1 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "objectState")] at valid
     exact valid)
-
-#audit_axioms NanoP4Spec.packetValue.fieldSubstitution0_1
 
 private theorem packetValue.sourceCasesValid (v : Lang.Il.value) (hv : packetValue.source v) :
     ∃ c ∈ packetValue.sourceCases, Representation.Source.ConstructorDomain NanoP4Spec.spec
@@ -119,8 +111,6 @@ private theorem packetValue.sourceCasesValid (v : Lang.Il.value) (hv : packetVal
         exact .cons (packetValue.fieldSubstitution0_0 _ sub0) (.cons
           (packetValue.fieldSubstitution0_1 _ sub1) (.nil))
 
-#audit_axioms NanoP4Spec.packetValue.sourceCasesValid
-
 private theorem packetValue.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Domain.Mixfix.t
   Lang.Il.value) (v0 : Lang.Il.value) (v1 : Lang.Il.value)
     (shape : v.it = .CaseV tree) (matching : Domain.Mixfix.eq_mixop tree (((.Seq [(.Atom
@@ -141,8 +131,6 @@ private theorem packetValue.decode0 (fuel : Nat) (v : Lang.Il.value) (tree : Dom
     (fun x1 => some (NanoP4Spec.packetValue.PACKET x0 x1)))
   cases ((NanoP4Spec.typeId.ofValue) fuel v0) <;> cases ((@OfValue.ofValue ExternValue
     P4SpecTec.Prelude.instOfValueExternValue) fuel v1) <;> rfl
-
-#audit_axioms packetValue.decode0
 
 /-- The full codec fixes the actual named encoder and decoder dictionaries. -/
 theorem packetValue.codec : @Refine.Representation.Codec NanoP4Spec.packetValue
@@ -303,7 +291,6 @@ theorem packetValue.codec : @Refine.Representation.Codec NanoP4Spec.packetValue
               tree _ _ matching rfl) hargs]
             rw [h0 fuel enough0, h1 fuel enough1]
             all_goals rfl
-#audit_axioms NanoP4Spec.packetValue.codec
 
 
 /-- Every carrier value is admitted under the stated child totals. -/
@@ -317,6 +304,13 @@ theorem packetValue.admittedAll : ∀ x : NanoP4Spec.packetValue,
       ExternValue => True) x from fun _ => True.intro)) x1, trivial⟩
 
 
+#audit_axioms NanoP4Spec.packetValue.fieldCodec0_0
+#audit_axioms NanoP4Spec.packetValue.fieldSubstitution0_0
+#audit_axioms NanoP4Spec.packetValue.fieldCodec0_1
+#audit_axioms NanoP4Spec.packetValue.fieldSubstitution0_1
+#audit_axioms NanoP4Spec.packetValue.sourceCasesValid
+#audit_axioms packetValue.decode0
+#audit_axioms NanoP4Spec.packetValue.codec
 #audit_axioms NanoP4Spec.packetValue.admittedAll
 
 end NanoP4Spec

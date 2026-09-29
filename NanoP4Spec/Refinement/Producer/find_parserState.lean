@@ -64,7 +64,8 @@ theorem «$find_parserState».producesSource :
     (fun xs : Option (NanoP4Spec.parserState) => ∀ x ∈ xs, (NanoP4Spec.parserState.admitted) x)
     x from (fun xs x _ => ((show ∀ x : (NanoP4Spec.parserState),
     (NanoP4Spec.parserState.admitted) x from NanoP4Spec.parserState.admittedAll)) x))) result)
-#audit_axioms «$find_parserState».producesSource
 
+
+#audit_axioms «$find_parserState».producesSource
 
 end NanoP4Spec

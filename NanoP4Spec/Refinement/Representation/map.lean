@@ -51,18 +51,18 @@ private theorem map.sourceValid {spec externalDomain} (keyType valueType : Lang.
   · exact .bound (Q.i "K") keyType.it rfl
   · exact .bound (Q.i "V") valueType.it rfl
 
-#audit_axioms map.sourceValid
-
 private theorem map.sourcePayload {spec externalDomain} (keyType valueType : Lang.Il.typ) (v :
   Lang.Il.value)
     (declared : body spec "map" = some ([Q.i "K", Q.i "V"], .PlainT
       (Q.t (Q.varT "set" [Q.t (Q.varT "pair"
         [Q.t (Q.varT "K" []), Q.t (Q.varT "V" [])])]))))
-    (valid : Valid spec externalDomain (Q.varT "map" [keyType, valueType]) v) :
+    (valid : Valid spec externalDomain (Q.varT "map" [keyType, valueType]) v)
+    (sourceOnly : Representation.Source.Domain.SourceOnly externalDomain "map" := by
+      source_only) :
     ∃ keyType' valueType' : typ, keyType'.it = keyType.it ∧ valueType'.it = valueType.it ∧
       Valid spec externalDomain
         (Q.varT "set" [Q.t (Q.varT "pair" [keyType', valueType'])]) v := by
-  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared
+  obtain ⟨instantiated, fields, payload⟩ := valid.plainPayload declared sourceOnly
   obtain ⟨_, fields⟩ := fields
   cases fields with
   | cons sub rest =>
@@ -85,8 +85,6 @@ private theorem map.sourcePayload {spec externalDomain} (keyType valueType : Lan
           apply payload.arguments
           simpa only [List.map_cons, List.map_nil, Q.t, Util.Source.mkPhrase] using
             congrArg (fun t : typ' => [t]) pairResult
-
-#audit_axioms map.sourcePayload
 
 /-- Every legal parameter codec yields the exact declared composite alias codec. -/
 theorem map.codec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue β]
@@ -131,7 +129,6 @@ theorem map.codec {α β : Type} [ToValue α] [OfValue α] [ToValue β] [OfValue
       cases fuel with
       | zero => omega
       | succ fuel => exact result fuel (by omega)
-#audit_axioms NanoP4Spec.map.codec
 
 /-- Encoded map validity is exactly independent validity of its encoded keys and values. -/
 theorem map.encodingSourceIff {α β : Type} [ToValue α] [ToValue β]
@@ -161,8 +158,6 @@ theorem map.encodingSourceIff {α β : Type} [ToValue α] [ToValue β]
       exact (NanoP4Spec.pair.encodingSourceIff leftType rightType entry).mpr (accepted entry
         member)
 
-#audit_axioms map.encodingSourceIff
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem map.admittedAll {α β : Type} (left : α → Prop) (right : β → Prop)
     (hl : ∀ x, left x) (hr : ∀ x, right x) :
@@ -171,6 +166,10 @@ theorem map.admittedAll {α β : Type} (left : α → Prop) (right : β → Prop
   intro x; cases x with | lbrace_rbrace xs =>
     intro p hp; cases p with | colon a b => exact ⟨hl a, hr b⟩
 
+#audit_axioms map.sourceValid
+#audit_axioms map.sourcePayload
+#audit_axioms NanoP4Spec.map.codec
+#audit_axioms map.encodingSourceIff
 #audit_axioms NanoP4Spec.map.admittedAll
 
 end NanoP4Spec

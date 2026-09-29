@@ -89,7 +89,8 @@ theorem TableDecl_ok.callArgumentsSource :
     (NanoP4Spec.tableProperties.admitted) (NanoP4Spec.tableProperties.codec)) x (((show ∀ x :
     (NanoP4Spec.tableProperties), (NanoP4Spec.tableProperties.admitted) x from
     NanoP4Spec.tableProperties.admittedAll)) x)), trivial⟩
-#audit_axioms TableDecl_ok.callArgumentsSource
 
+
+#audit_axioms TableDecl_ok.callArgumentsSource
 
 end NanoP4Spec

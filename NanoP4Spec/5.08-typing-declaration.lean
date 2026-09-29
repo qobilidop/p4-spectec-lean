@@ -330,49 +330,47 @@ def ExternDecl_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.externDec
     (do
        have TC_0 := p0
        let .EXTERN_lbrace_rbrace name externMethodPrototypeList := p1
-       (do
-          let tmp_0 ←
-              ExceptT.mk (NanoP4Spec.«$flatten_externMethodPrototypeList» externMethodPrototypeList)
-          have «externMethodPrototype*» := tmp_0
-          let tmp_2 ←
-              List.mapM
-                (fun (externMethodPrototype : NanoP4Spec.externMethodPrototype) =>
-                   (do
-                      let tmp_1 ←
-                          ExceptT.mk (NanoP4Spec.ExternMethod_ok.run TC_0 externMethodPrototype)
-                      have externMethodTypeDefIR := tmp_1
-                      pure externMethodTypeDefIR))
-                «externMethodPrototype*»
-          have «externMethodTypeDefIR*» := tmp_2
-          let tmp_3 ←
-              List.mapM
-                (fun (externMethodTypeDefIR : NanoP4Spec.externMethodTypeDefIR) =>
-                   (do
-                      let .VOID_lparen_rparen callableId_method «_parameterIR*» :=
-                          externMethodTypeDefIR
-                      pure («_parameterIR*», callableId_method)))
-                «externMethodTypeDefIR*»
-          have «_parameterIR**» := List.map (·.1) tmp_3
-          have «callableId_method*» := List.map (·.2) tmp_3
-          let tmp_4 ←
-              ExceptT.mk
-                (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.callableId) «callableId_method*»)
-          let _ ← Eval.check tmp_4
-          have externMethodTypeDefEnv :=
-              NanoP4Spec.set.lbrace_rbrace
-                (List.map
-                   (fun ((callableId_method, externMethodTypeDefIR) :
-                         NanoP4Spec.callableId × NanoP4Spec.externMethodTypeDefIR) =>
-                      NanoP4Spec.pair.colon callableId_method externMethodTypeDefIR)
-                   (List.zip «callableId_method*» «externMethodTypeDefIR*»))
-          let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» name)
-          have typeId := tmp_5
-          have typeDefIR :=
-              NanoP4Spec.externObjectTypeIR.to_typeDefIR
-                (NanoP4Spec.externObjectTypeIR.EXTERN typeId externMethodTypeDefEnv)
-          let tmp_6 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
-          have TC_1 := tmp_6
-          pure TC_1))
+       let tmp_0 ←
+           ExceptT.mk (NanoP4Spec.«$flatten_externMethodPrototypeList» externMethodPrototypeList)
+       have «externMethodPrototype*» := tmp_0
+       let tmp_2 ←
+           List.mapM
+             (fun (externMethodPrototype : NanoP4Spec.externMethodPrototype) =>
+                (do
+                   let tmp_1 ←
+                       ExceptT.mk (NanoP4Spec.ExternMethod_ok.run TC_0 externMethodPrototype)
+                   have externMethodTypeDefIR := tmp_1
+                   pure externMethodTypeDefIR))
+             «externMethodPrototype*»
+       have «externMethodTypeDefIR*» := tmp_2
+       let tmp_3 ←
+           List.mapM
+             (fun (externMethodTypeDefIR : NanoP4Spec.externMethodTypeDefIR) =>
+                (do
+                   let .VOID_lparen_rparen callableId_method «_parameterIR*» :=
+                       externMethodTypeDefIR
+                   pure («_parameterIR*», callableId_method)))
+             «externMethodTypeDefIR*»
+       have «_parameterIR**» := List.map (·.1) tmp_3
+       have «callableId_method*» := List.map (·.2) tmp_3
+       let tmp_4 ←
+           ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.callableId) «callableId_method*»)
+       let _ ← Eval.check tmp_4
+       have externMethodTypeDefEnv :=
+           NanoP4Spec.set.lbrace_rbrace
+             (List.map
+                (fun ((callableId_method, externMethodTypeDefIR) :
+                      NanoP4Spec.callableId × NanoP4Spec.externMethodTypeDefIR) =>
+                   NanoP4Spec.pair.colon callableId_method externMethodTypeDefIR)
+                (List.zip «callableId_method*» «externMethodTypeDefIR*»))
+       let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» name)
+       have typeId := tmp_5
+       have typeDefIR :=
+           NanoP4Spec.externObjectTypeIR.to_typeDefIR
+             (NanoP4Spec.externObjectTypeIR.EXTERN typeId externMethodTypeDefEnv)
+       let tmp_6 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
+       have TC_1 := tmp_6
+       pure TC_1)
 
 inductive ExternDecl_ok : NanoP4Spec.typingContext →
   NanoP4Spec.externDeclaration →
@@ -427,8 +425,6 @@ theorem ExternDecl_ok.run_sound
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.ExternDecl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.ExternDecl_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.ExternDecl_ok.run_sound
 
 -- no determinism theorem: ExternDecl_ok
 --   iterated premise
@@ -667,176 +663,180 @@ def ExternDecl_ok.al : Lang.Al.def :=
 def TypeDecl_ok.run (p0 : NanoP4Spec.typingContext) (p1 : NanoP4Spec.typeDeclaration)
     : Option (Except Fail NanoP4Spec.typingContext) :=
   ExceptT.run
-    (do
-       have TC_0 := p0
-       have typeDeclaration := p1
-       (do
+    ((do
+        have TC_0 := p0
+        have typeDeclaration := p1
+        have typeDeclaration' := typeDeclaration
+        let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_structTypeDeclaration typeDeclaration')
+        let tmp_0 ← Eval.err? (NanoP4Spec.typeDeclaration.of_structTypeDeclaration typeDeclaration')
+        have structTypeDeclaration := tmp_0
+        let .STRUCT_lbrace_rbrace name_struct typeFieldList := structTypeDeclaration
+        let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_typeFieldList» typeFieldList)
+        have «typeField*» := tmp_1
+        let tmp_2 ←
+            List.mapM
+              (fun (typeField : NanoP4Spec.typeField) =>
+                 (do
+                    let .semi type name := typeField
+                    pure (name, type)))
+              «typeField*»
+        have «name*» := List.map (·.1) tmp_2
+        have «type*» := List.map (·.2) tmp_2
+        let tmp_4 ←
+            List.mapM
+              (fun (type : NanoP4Spec.type) =>
+                 (do
+                    let tmp_3 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
+                    have typeIR := tmp_3
+                    pure typeIR))
+              «type*»
+        have «typeIR*» := tmp_4
+        let tmp_6 ←
+            List.mapM
+              (fun (name : NanoP4Spec.name) =>
+                 (do
+                    let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» name)
+                    have id_field := tmp_5
+                    pure id_field))
+              «name*»
+        have «id_field*» := tmp_6
+        let tmp_7 ← ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id_field*»)
+        let _ ← Eval.check tmp_7
+        let tmp_8 ← ExceptT.mk (NanoP4Spec.«$id» name_struct)
+        have typeId := tmp_8
+        have «fieldTypeIR*» :=
+            List.map
+              (fun ((id_field, typeIR) : NanoP4Spec.id × NanoP4Spec.typeIR) =>
+                 NanoP4Spec.fieldTypeIR.semi typeIR id_field)
+              (List.zip «id_field*» «typeIR*»)
+        have typeDefIR :=
+            NanoP4Spec.structTypeIR.to_typeDefIR
+              (NanoP4Spec.structTypeIR.STRUCT_lbrace_rbrace typeId «fieldTypeIR*»)
+        let tmp_9 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
+        have TC_1 := tmp_9
+        pure TC_1) <|>
+     ((do
+         have TC_0 := p0
+         have typeDeclaration := p1
+         have typeDeclaration' := typeDeclaration
+         let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_headerTypeDeclaration typeDeclaration')
+         let tmp_10 ←
+             Eval.err? (NanoP4Spec.typeDeclaration.of_headerTypeDeclaration typeDeclaration')
+         have headerTypeDeclaration := tmp_10
+         let .HEADER_lbrace_rbrace name_header typeFieldList := headerTypeDeclaration
+         let tmp_11 ← ExceptT.mk (NanoP4Spec.«$flatten_typeFieldList» typeFieldList)
+         have «typeField*» := tmp_11
+         let tmp_12 ←
+             List.mapM
+               (fun (typeField : NanoP4Spec.typeField) =>
+                  (do
+                     let .semi type name := typeField
+                     pure (name, type)))
+               «typeField*»
+         have «name*» := List.map (·.1) tmp_12
+         have «type*» := List.map (·.2) tmp_12
+         let tmp_14 ←
+             List.mapM
+               (fun (type : NanoP4Spec.type) =>
+                  (do
+                     let tmp_13 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
+                     have typeIR := tmp_13
+                     pure typeIR))
+               «type*»
+         have «typeIR*» := tmp_14
+         let tmp_16 ←
+             List.mapM
+               (fun (name : NanoP4Spec.name) =>
+                  (do
+                     let tmp_15 ← ExceptT.mk (NanoP4Spec.«$id» name)
+                     have id_field := tmp_15
+                     pure id_field))
+               «name*»
+         have «id_field*» := tmp_16
+         let tmp_17 ← ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id_field*»)
+         let _ ← Eval.check tmp_17
+         let tmp_18 ← ExceptT.mk (NanoP4Spec.«$id» name_header)
+         have typeId := tmp_18
+         have «fieldTypeIR*» :=
+             List.map
+               (fun ((id_field, typeIR) : NanoP4Spec.id × NanoP4Spec.typeIR) =>
+                  NanoP4Spec.fieldTypeIR.semi typeIR id_field)
+               (List.zip «id_field*» «typeIR*»)
+         have typeDefIR :=
+             NanoP4Spec.headerTypeIR.to_typeDefIR
+               (NanoP4Spec.headerTypeIR.HEADER_lbrace_rbrace typeId «fieldTypeIR*»)
+         let tmp_19 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
+         have TC_1 := tmp_19
+         pure TC_1) <|>
+      ((do
+          have TC_0 := p0
+          have typeDeclaration := p1
           have typeDeclaration' := typeDeclaration
-          let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_structTypeDeclaration typeDeclaration')
-          let tmp_0 ←
-              Eval.err? (NanoP4Spec.typeDeclaration.of_structTypeDeclaration typeDeclaration')
-          have structTypeDeclaration := tmp_0
-          let .STRUCT_lbrace_rbrace name_struct typeFieldList := structTypeDeclaration
-          let tmp_1 ← ExceptT.mk (NanoP4Spec.«$flatten_typeFieldList» typeFieldList)
-          have «typeField*» := tmp_1
-          let tmp_2 ←
-              List.mapM
-                (fun (typeField : NanoP4Spec.typeField) =>
-                   (do
-                      let .semi type name := typeField
-                      pure (name, type)))
-                «typeField*»
-          have «name*» := List.map (·.1) tmp_2
-          have «type*» := List.map (·.2) tmp_2
-          let tmp_4 ←
-              List.mapM
-                (fun (type : NanoP4Spec.type) =>
-                   (do
-                      let tmp_3 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
-                      have typeIR := tmp_3
-                      pure typeIR))
-                «type*»
-          have «typeIR*» := tmp_4
-          let tmp_6 ←
-              List.mapM
-                (fun (name : NanoP4Spec.name) =>
-                   (do
-                      let tmp_5 ← ExceptT.mk (NanoP4Spec.«$id» name)
-                      have id_field := tmp_5
-                      pure id_field))
-                «name*»
-          have «id_field*» := tmp_6
-          let tmp_7 ← ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id_field*»)
-          let _ ← Eval.check tmp_7
-          let tmp_8 ← ExceptT.mk (NanoP4Spec.«$id» name_struct)
-          have typeId := tmp_8
-          have «fieldTypeIR*» :=
-              List.map
-                (fun ((id_field, typeIR) : NanoP4Spec.id × NanoP4Spec.typeIR) =>
-                   NanoP4Spec.fieldTypeIR.semi typeIR id_field)
-                (List.zip «id_field*» «typeIR*»)
+          let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_parserTypeDeclaration typeDeclaration')
+          let tmp_20 ←
+              Eval.err? (NanoP4Spec.typeDeclaration.of_parserTypeDeclaration typeDeclaration')
+          let .PARSER_lparen_rparen_semi name parameterList := tmp_20
+          let tmp_21 ←
+              ExceptT.mk (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.BLOCK TC_0 parameterList)
+          let («parameterIR*», TC_body) := tmp_21
+          let tmp_22 ← ExceptT.mk (NanoP4Spec.«$no_object_params» «parameterIR*»)
+          let _ ← Eval.check tmp_22
+          let tmp_23 ← ExceptT.mk (NanoP4Spec.«$id» name)
+          have typeId := tmp_23
           have typeDefIR :=
-              NanoP4Spec.structTypeIR.to_typeDefIR
-                (NanoP4Spec.structTypeIR.STRUCT_lbrace_rbrace typeId «fieldTypeIR*»)
-          let tmp_9 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
-          have TC_1 := tmp_9
+              NanoP4Spec.parserObjectTypeIR.to_typeDefIR
+                (NanoP4Spec.parserObjectTypeIR.PARSER_lparen_rparen typeId «parameterIR*»)
+          let tmp_24 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
+          have TC_1 := tmp_24
           pure TC_1) <|>
        ((do
+           have TC_0 := p0
+           have typeDeclaration := p1
            have typeDeclaration' := typeDeclaration
-           let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_headerTypeDeclaration typeDeclaration')
-           let tmp_10 ←
-               Eval.err? (NanoP4Spec.typeDeclaration.of_headerTypeDeclaration typeDeclaration')
-           have headerTypeDeclaration := tmp_10
-           let .HEADER_lbrace_rbrace name_header typeFieldList := headerTypeDeclaration
-           let tmp_11 ← ExceptT.mk (NanoP4Spec.«$flatten_typeFieldList» typeFieldList)
-           have «typeField*» := tmp_11
-           let tmp_12 ←
-               List.mapM
-                 (fun (typeField : NanoP4Spec.typeField) =>
-                    (do
-                       let .semi type name := typeField
-                       pure (name, type)))
-                 «typeField*»
-           have «name*» := List.map (·.1) tmp_12
-           have «type*» := List.map (·.2) tmp_12
-           let tmp_14 ←
-               List.mapM
-                 (fun (type : NanoP4Spec.type) =>
-                    (do
-                       let tmp_13 ← ExceptT.mk (NanoP4Spec.Type_ok.run TC_0 type)
-                       have typeIR := tmp_13
-                       pure typeIR))
-                 «type*»
-           have «typeIR*» := tmp_14
-           let tmp_16 ←
-               List.mapM
-                 (fun (name : NanoP4Spec.name) =>
-                    (do
-                       let tmp_15 ← ExceptT.mk (NanoP4Spec.«$id» name)
-                       have id_field := tmp_15
-                       pure id_field))
-                 «name*»
-           have «id_field*» := tmp_16
-           let tmp_17 ← ExceptT.mk (NanoP4Spec.«$distinct_» (τK := NanoP4Spec.id) «id_field*»)
-           let _ ← Eval.check tmp_17
-           let tmp_18 ← ExceptT.mk (NanoP4Spec.«$id» name_header)
-           have typeId := tmp_18
-           have «fieldTypeIR*» :=
-               List.map
-                 (fun ((id_field, typeIR) : NanoP4Spec.id × NanoP4Spec.typeIR) =>
-                    NanoP4Spec.fieldTypeIR.semi typeIR id_field)
-                 (List.zip «id_field*» «typeIR*»)
+           let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_controlTypeDeclaration
+              typeDeclaration')
+           let tmp_25 ←
+               Eval.err? (NanoP4Spec.typeDeclaration.of_controlTypeDeclaration typeDeclaration')
+           let .CONTROL_lparen_rparen_semi name parameterList := tmp_25
+           let tmp_26 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
+           have «parameter*» := tmp_26
+           let tmp_27 ←
+               ExceptT.mk
+                 (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.BLOCK TC_0 parameterList)
+           let («parameterIR*», TC_body) := tmp_27
+           let tmp_28 ← ExceptT.mk (NanoP4Spec.«$no_object_params» «parameterIR*»)
+           let _ ← Eval.check tmp_28
+           let tmp_29 ← ExceptT.mk (NanoP4Spec.«$id» name)
+           have typeId := tmp_29
            have typeDefIR :=
-               NanoP4Spec.headerTypeIR.to_typeDefIR
-                 (NanoP4Spec.headerTypeIR.HEADER_lbrace_rbrace typeId «fieldTypeIR*»)
-           let tmp_19 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
-           have TC_1 := tmp_19
+               NanoP4Spec.controlObjectTypeIR.to_typeDefIR
+                 (NanoP4Spec.controlObjectTypeIR.CONTROL_lparen_rparen typeId «parameterIR*»)
+           let tmp_30 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
+           have TC_1 := tmp_30
            pure TC_1) <|>
-        ((do
-            have typeDeclaration' := typeDeclaration
-            let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_parserTypeDeclaration
-               typeDeclaration')
-            let tmp_20 ←
-                Eval.err? (NanoP4Spec.typeDeclaration.of_parserTypeDeclaration typeDeclaration')
-            let .PARSER_lparen_rparen_semi name parameterList := tmp_20
-            let tmp_21 ←
-                ExceptT.mk
-                  (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.BLOCK TC_0 parameterList)
-            let («parameterIR*», TC_body) := tmp_21
-            let tmp_22 ← ExceptT.mk (NanoP4Spec.«$no_object_params» «parameterIR*»)
-            let _ ← Eval.check tmp_22
-            let tmp_23 ← ExceptT.mk (NanoP4Spec.«$id» name)
-            have typeId := tmp_23
-            have typeDefIR :=
-                NanoP4Spec.parserObjectTypeIR.to_typeDefIR
-                  (NanoP4Spec.parserObjectTypeIR.PARSER_lparen_rparen typeId «parameterIR*»)
-            let tmp_24 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
-            have TC_1 := tmp_24
-            pure TC_1) <|>
-         ((do
-             have typeDeclaration' := typeDeclaration
-             let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_controlTypeDeclaration
-                typeDeclaration')
-             let tmp_25 ←
-                 Eval.err? (NanoP4Spec.typeDeclaration.of_controlTypeDeclaration typeDeclaration')
-             let .CONTROL_lparen_rparen_semi name parameterList := tmp_25
-             let tmp_26 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
-             have «parameter*» := tmp_26
-             let tmp_27 ←
-                 ExceptT.mk
-                   (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.BLOCK TC_0 parameterList)
-             let («parameterIR*», TC_body) := tmp_27
-             let tmp_28 ← ExceptT.mk (NanoP4Spec.«$no_object_params» «parameterIR*»)
-             let _ ← Eval.check tmp_28
-             let tmp_29 ← ExceptT.mk (NanoP4Spec.«$id» name)
-             have typeId := tmp_29
-             have typeDefIR :=
-                 NanoP4Spec.controlObjectTypeIR.to_typeDefIR
-                   (NanoP4Spec.controlObjectTypeIR.CONTROL_lparen_rparen typeId «parameterIR*»)
-             let tmp_30 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
-             have TC_1 := tmp_30
-             pure TC_1) <|>
-          (do
-             have typeDeclaration' := typeDeclaration
-             let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_packageTypeDeclaration
-                typeDeclaration')
-             let tmp_31 ←
-                 Eval.err? (NanoP4Spec.typeDeclaration.of_packageTypeDeclaration typeDeclaration')
-             let .PACKAGE_lparen_rparen_semi name parameterList := tmp_31
-             let tmp_32 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
-             have «parameter*» := tmp_32
-             let tmp_33 ←
-                 ExceptT.mk
-                   (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.BLOCK TC_0 parameterList)
-             let («parameterIR*», TC_body) := tmp_33
-             let tmp_34 ← ExceptT.mk (NanoP4Spec.«$id» name)
-             have typeId := tmp_34
-             have typeDefIR :=
-                 NanoP4Spec.packageObjectTypeIR.to_typeDefIR
-                   (NanoP4Spec.packageObjectTypeIR.PACKAGE_lparen_rparen typeId «parameterIR*»)
-             let tmp_35 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
-             have TC_1 := tmp_35
-             pure TC_1)))))
+        (do
+           have TC_0 := p0
+           have typeDeclaration := p1
+           have typeDeclaration' := typeDeclaration
+           let _ ← Eval.check (NanoP4Spec.typeDeclaration.is_packageTypeDeclaration
+              typeDeclaration')
+           let tmp_31 ←
+               Eval.err? (NanoP4Spec.typeDeclaration.of_packageTypeDeclaration typeDeclaration')
+           let .PACKAGE_lparen_rparen_semi name parameterList := tmp_31
+           let tmp_32 ← ExceptT.mk (NanoP4Spec.«$flatten_parameterList» parameterList)
+           have «parameter*» := tmp_32
+           let tmp_33 ←
+               ExceptT.mk
+                 (NanoP4Spec.ParameterList_ok.run NanoP4Spec.scope.BLOCK TC_0 parameterList)
+           let («parameterIR*», TC_body) := tmp_33
+           let tmp_34 ← ExceptT.mk (NanoP4Spec.«$id» name)
+           have typeId := tmp_34
+           have typeDefIR :=
+               NanoP4Spec.packageObjectTypeIR.to_typeDefIR
+                 (NanoP4Spec.packageObjectTypeIR.PACKAGE_lparen_rparen typeId «parameterIR*»)
+           let tmp_35 ← ExceptT.mk (NanoP4Spec.«$add_typeDef_t» TC_0 typeId typeDefIR)
+           have TC_1 := tmp_35
+           pure TC_1)))))
 
 inductive TypeDecl_ok : NanoP4Spec.typingContext →
   NanoP4Spec.typeDeclaration →
@@ -1025,8 +1025,6 @@ theorem TypeDecl_ok.run_sound
     (o : NanoP4Spec.typingContext) :
     NanoP4Spec.TypeDecl_ok.run p0 p1 = some (.ok o) → NanoP4Spec.TypeDecl_ok p0 p1 o :=
   by run_sound
-
-#audit_axioms NanoP4Spec.TypeDecl_ok.run_sound
 
 -- no determinism theorem: TypeDecl_ok
 --   5 rule paths
@@ -1799,5 +1797,8 @@ def TypeDecl_ok.al : Lang.Al.def :=
              [Q.e (.VarE (Q.i "TC_1")) (Q.varT "typingContext" [])]]]
        none
        [])
+
+#audit_axioms NanoP4Spec.ExternDecl_ok.run_sound
+#audit_axioms NanoP4Spec.TypeDecl_ok.run_sound
 
 end NanoP4Spec

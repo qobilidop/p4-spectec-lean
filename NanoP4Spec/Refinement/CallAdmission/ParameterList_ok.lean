@@ -101,7 +101,8 @@ theorem ParameterList_ok.callArgumentsSource :
     (NanoP4Spec.parameter) => ∀ x ∈ xs, (NanoP4Spec.parameter.admitted) x) x from (fun xs x _ =>
     ((show ∀ x : (NanoP4Spec.parameter), (NanoP4Spec.parameter.admitted) x from
     NanoP4Spec.parameter.admittedAll)) x))) x)), trivial⟩
-#audit_axioms ParameterList_ok.callArgumentsSource
 
+
+#audit_axioms ParameterList_ok.callArgumentsSource
 
 end NanoP4Spec

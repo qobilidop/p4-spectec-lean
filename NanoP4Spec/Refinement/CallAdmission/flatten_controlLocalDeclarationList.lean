@@ -48,7 +48,8 @@ theorem «$flatten_controlLocalDeclarationList».callArgumentsSource :
     (NanoP4Spec.controlLocalDeclarationList.codec)) x (((show ∀ x :
     (NanoP4Spec.controlLocalDeclarationList), (NanoP4Spec.controlLocalDeclarationList.admitted)
     x from NanoP4Spec.controlLocalDeclarationList.admittedAll)) x)), trivial⟩
-#audit_axioms «$flatten_controlLocalDeclarationList».callArgumentsSource
 
+
+#audit_axioms «$flatten_controlLocalDeclarationList».callArgumentsSource
 
 end NanoP4Spec

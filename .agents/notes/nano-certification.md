@@ -1,8 +1,9 @@
 # Nano-P4 certification implementation plan
 
-Active plan and durable evidence, updated 2026-09-27. N0/N1/N2 are closed (N2
-closure `d85e82c`). The user authorized N3, which is in progress; N4–N6 remain
-planned and full-P4 M3 remains paused.
+Active plan and durable evidence, updated 2026-09-28. N0/N1/N2 are closed (N2
+closure `d85e82c`). N3 is in progress: stabilization checkpoint `770e405`
+passed the full local gate and CI. N4–N6 remain planned, and full-P4 M3 remains
+paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
 and [status](../status.md) owns the next immediate action.
@@ -26,7 +27,7 @@ composition remain separate acceptance stages.
   source value. Recursive/nested families use source derivations and actual
   carrier induction; parameter codecs and dictionaries remain explicit.
 - At N2 closure both correspondence directions covered 39 of 153 bodied declarations
-  (68 now; see N3 progress). The strict
+  (68 at the historical first N3 checkpoint, 153 at stabilization). The strict
   N2 exit requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and
   Var_init, with their complete 30-definition dependency/SCC closure. It also
   requires source input coverage, successful source outputs and every actual
@@ -64,47 +65,27 @@ is excluded from the source value grammar. General target composition remains N4
 
 ## N3 progress (in progress)
 
-Delivered on `main` through `b6f1576` (passing CI 36357022016): paired
-forward/reverse coverage 39 → 68 of 153 bodied definitions, with no existing
-claim statement changed (checked claim by claim at each step). Relation
-run-soundness covers all 77 relations. Completion inventory: 888 obligations,
-439 bound, 449 unresolved. New reusable support:
+The first checkpoint on `main` reached 68 of 153 bodied definitions; its
+blockers and review are historical. At stabilization checkpoint `770e405`, all
+153 bodied definitions have compiled forward and reverse theorems, including
+`Decl_load`, `bin_op`, `Expr_eval` and the six-member `Call_eval` group.
+Relation run-soundness covers all 77 relations. The full local gate and CI
+passed. Extern-dependent theorems assume the abstract `externsContract`;
+print-dependent theorems assume `cfg.printHints = []`.
 
-- Print callers state `cfg.printHints = []` when their actual callable closure
-  reaches `print_` (forward, reverse and source-entry statements).
-- Relation premises binding outputs; generated emptiness tests split the list;
-  impossible branches close by conflicting decided tests.
-- Pure polymorphic clauses (`empty_map`, `empty_set`) and the context builders.
-- Recursive functions with subtype checks, via generated `canon_toValue`
-  injection bridges (`subtype_canon`); those registering type parameters stay out.
-- Numeric coercions (`un_op`): the old exclusion was stale.
-- `scripts/replay-cert.py` for fast tactic iteration (not evidence), and
-  resource-limit goal reporting under `refine_al.trace`.
+The evaluation domain uses the runtime-inclusive profile where the source-only
+profile is incomplete. The N3-owned inventory still lacks domain contracts for
+`ite`, `repeat_`, `empty_set` and `empty_map`; the completion CLI checks its
+source-identity item separately. The current inventory has 888 obligations and
+758 compiled claim bindings. Core, target and release obligations remain open,
+so N3 is not complete. See [status](../status.md) for the next step.
 
-Remaining: 85 bodied definitions, by source file: typing 5.01 (21), 5.06 (4),
-5.09 (3), 5.11 (3), 5.08 (3), 5.10 (2), 5.00/5.04/5.07/5.13 (1 each); evaluation
-8.01 (17), 8.09 (6), 8.11 (3), 8.10 (2), 8.14 (2), 8.00 (1); 9-nano-switch (4);
-3.2-bits (3); 7.1-load (3); 0-stdlib (2); 3.1-operations (2). Neither first
-checkpoint entry point is closed:
-
-| Closure | Blocker | State |
-|---|---|---|
-| Program_load | `Decl_load`: literal list indexing (`argument*[0]`) | Local WIP branch `n3-decl-load` (`82fbe2e`, based on `b6f1576`, generated files omitted). Admitting `IdxE` on a list at a literal emits exactly `Decl_load`, `Decls_load`, `Program_load`. `Decl_load.refines` reaches the `find_callableDef_l` call at 8M heartbeats (~5 min per replay), where the reference `PARSER` option is exposed as `none` but the generated `p0.PARSER` is not split. Semantics agree (out of range is `Fail.err` on both sides). Seven rule paths over very large reference values make the proof slow; address cost first. |
-| Expr_eval | `bin_eq` (hence `bin_op`): two-column extraction premises and iterated recursive calls over zipped columns | Local WIP branch `n3-expr-eval` (`8ed31d3`, based on `b6f1576`, generated files omitted) admits the shape. Both extraction premises prove; the forward proof then stalls where a fuel split inside the iterated calls leaves `List.mapM (fun _ => diverge) (zip …)` against the generated traversal. Needs ordered-traversal pairing over zipped extracted columns with the recursion hypothesis. |
-| Expr_eval | `Expr_eval`: the same extraction premise, then an iterated pair into `assoc_` | Waits on `bin_op`; untested. |
-| — | `write_value_from_bits'` group | Slicing. |
-
-Reviews (read-only Claude Opus subagents, not human review; no build by the
-reviewer; resolutions verified by the full gate): `aa5865f..63a95cd` found no
-soundness blocker (resolved: an empty-goal `getLast!` path, overbroad list split,
-an overstated docstring, missing predicate tests); the replay tooling (resolved:
-tracing-only goal formatting that rethrows the original exception, full-name
-`--only` keeping referenced helpers, anchored options, stated faithfulness
-limits); the uncommitted `un_op` diff that became `b6f1576` found only nits (resolved:
-a test-comment callee name, a stale count, the WIP-branch rebase note). No
-unresolved findings. Kept by choice:
-`Builtin.requiresPrintHints` beside `reachesPrintHints`; the 50-character subject
-of `8ae7998` (published).
+Reusable support now covers relation output premises, recursive subtype bridges,
+numeric coercions, guarded cast unfolding, relation pattern iteration, membership
+conflicts, generated traversals, no-output calls and sliced inputs. The
+`scripts/replay-cert.py` tool speeds tactic iteration but is not certification
+evidence. Earlier WIP blockers and their reviews remain recoverable in Git history
+at `b6f1576`.
 
 ## N2 closure verification (historical)
 
@@ -265,10 +246,12 @@ Retain actual counterexamples and trustworthy failure classifications. Git histo
 holds superseded experiments and chronological probes; this note holds current
 claims, constraints and the remaining plan.
 
-## Remaining effort estimate
+## Historical effort estimate
 
 Planning forecast discussed with the user on 2026-09-27; moderate-to-low
-confidence, not implementation authorization. Units are elapsed working hours
+confidence, superseded by the 153-definition stabilization checkpoint. The
+remaining N3 work is the four domain contracts above; no current effort estimate
+is recorded here. The earlier forecast used elapsed working hours
 with the current lead and targeted specialists, including review, integration,
 builds and validation, not summed subagent-hours or a calendar commitment.
 
@@ -279,13 +262,6 @@ builds and validation, not summed subagent-hours or a calendar commitment.
 | N5: whole-program theorem | 4–8 hours | Usability of completed N3/N4 contracts |
 | N6: release evidence | 4–8 hours | Scope audit, mutations, performance and final validation |
 
-The base total is 36–72 hours; budget 45–90 with contingency, about 60 as a
-working estimate. Definition/obligation counts are not effort percentages.
-Reassessment (2026-09-27, low confidence): about 10 N3 hours went into 39 → 68
-without closing the first checkpoint; most time was rebuild latency, now reduced
-by the replay tool. Remaining N3 is estimated at 20–35 hours (30–45 in total,
-raising the base total to about 50–85 hours; N4–N6 unchanged): the untouched
-typing and evaluation relations may still expose new tactic gaps. Sample one or
-two typing relations and one evaluation rule early to calibrate. N4 has the
-highest semantic uncertainty. Some N3/N4 work can overlap,
-but the budget assumes no large parallelism discount before interfaces settle.
+The forecast's base total was 36–72 hours, with 45–90 including contingency.
+Definition and obligation counts are not effort percentages. N4's typed target
+and packet observations remain a major semantic uncertainty.

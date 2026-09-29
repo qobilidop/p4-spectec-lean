@@ -90,8 +90,6 @@ theorem forwardingDecision.codec : @Refine.Representation.Codec NanoP4Spec.forwa
           Domain.Mixfix.eq_mixop, Domain.Mixfix.eq, Domain.Atom.eq,
           Domain.Atom.compare, ha, Prelude.Value.atom, Domain.Mixfix.args]
 
-#audit_axioms NanoP4Spec.forwardingDecision.codec
-
 /-- The atomic codec also inhabits the complete finite source grammar. -/
 theorem forwardingDecision.sourceCodec : @Representation.Codec NanoP4Spec.forwardingDecision
   ⟨NanoP4Spec.forwardingDecision.toValue⟩ ⟨NanoP4Spec.forwardingDecision.ofValue⟩
@@ -113,13 +111,13 @@ theorem forwardingDecision.sourceCodec : @Representation.Codec NanoP4Spec.forwar
       rcases member with rfl | rfl
       all_goals exact ⟨_, rfl⟩) v).symm
 
-#audit_axioms NanoP4Spec.forwardingDecision.sourceCodec
-
 /-- Every carrier value is admitted under the stated child totals. -/
 theorem forwardingDecision.admittedAll : ∀ x : NanoP4Spec.forwardingDecision, (fun _ => True) x
   := by
   intro x; trivial
 
+#audit_axioms NanoP4Spec.forwardingDecision.codec
+#audit_axioms NanoP4Spec.forwardingDecision.sourceCodec
 #audit_axioms NanoP4Spec.forwardingDecision.admittedAll
 
 end NanoP4Spec

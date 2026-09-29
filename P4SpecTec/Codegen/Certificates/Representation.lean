@@ -175,6 +175,14 @@ def planWithKnown (env : Env) (d : Lang.Al.def)
     (known : String → Option RepresentationFields.NominalContract) : Except String Plan := do
   let name := d.it.id.it
   let qualified := env.q (Names.typeName name)
+  let codec := qualified ++ "." ++ env.part "codec"
+  let admitted := qualified ++ "." ++ env.part "admitted"
+  if env.runtimeProfile then
+    -- Only the families whose generators state the selected profile.
+    if (RepresentationExterns.checkSupport d).isOk || (checkSupport env d).isOk ||
+        (plainAlias d && (RepresentationAliases.checkSupport env d).isOk) ||
+        (RepresentationVariants.checkSupport env d known).isOk then
+      throw "runtime profile codec is not implemented for this source family"
   if (RepresentationExterns.checkSupport d).isOk then
     return { type := ← RepresentationExterns.codecType env d
              declarations := ← RepresentationExterns.declarations env d
@@ -194,11 +202,11 @@ def planWithKnown (env : Env) (d : Lang.Al.def)
     let some leader := recursive.members.head? | throw "recursive codec group is empty"
     let declarations ← if name == leader then
         pure (joinDecls (← RepresentationRecursive.declarations env recursive
-          (Names.typeName (leader ++ "SourceCodec"))))
+          (Names.typeName (env.bundle leader))))
       else pure (Format.text "")
     return { type := RepresentationRecursive.memberCodecType env name, declarations
              dependencies := if name == leader then recursive.dependencies else [leader]
-             nominal := some ⟨qualified ++ ".codec", qualified ++ ".admitted"⟩ }
+             nominal := some ⟨codec, admitted⟩ }
   if plainAlias d then
     if (RepresentationAliases.checkSupport env d).isOk then
       return { type := ← RepresentationAliases.codecType env d
@@ -208,7 +216,7 @@ def planWithKnown (env : Env) (d : Lang.Al.def)
     return { type := ← RepresentationAliases.fieldCodecType env known d
              declarations := ← RepresentationAliases.fieldDeclarations env known d
              dependencies := field.dependencies
-             nominal := some ⟨qualified ++ ".codec", qualified ++ ".admitted"⟩ }
+             nominal := some ⟨codec, admitted⟩ }
   if (RepresentationVariants.checkSupport env d known).isOk then
     let (_, _, field) ← RepresentationVariants.checkSupport env d known
     return { type := ← RepresentationVariants.codecType env d known
@@ -221,12 +229,12 @@ def planWithKnown (env : Env) (d : Lang.Al.def)
              declarations := ← RepresentationMixedVariants.declarations env d known
              dependencies := (constructors.flatMap fun constructor =>
                constructor.fields.flatMap (fun (_, field) => field.dependencies)).eraseDups
-             nominal := some ⟨qualified ++ ".codec", qualified ++ ".admitted"⟩ }
+             nominal := some ⟨codec, admitted⟩ }
   let fields ← RepresentationRecords.checkSupport env known d
   return { type := ← RepresentationRecords.codecType env known d
            declarations := ← RepresentationRecords.declarations env known d
            dependencies := (fields.flatMap (fun (_, field) => field.dependencies)).eraseDups
-           nominal := some ⟨qualified ++ ".codec", qualified ++ ".admitted"⟩ }
+           nominal := some ⟨codec, admitted⟩ }
 
 /-- Resolve a single requested codec recursively for standalone clients and fixtures. -/
 partial def plan (env : Env) (d : Lang.Al.def) (seen : List String := []) : Except String Plan := do
@@ -238,9 +246,11 @@ partial def plan (env : Env) (d : Lang.Al.def) (seen : List String := []) : Exce
       | _ => false)
     (← (plan env declaration (name :: seen)).toOption).nominal
 
-/-- Build each source codec once, in actual declaration dependency/SCC order.
-Parents can use only complete prior plans; failures retain their concrete exclusion reason. -/
-def catalog (env : Env) : Std.HashMap String (Except String Plan) := Id.run do
+/-- Build each selected codec once, in actual declaration dependency/SCC order. Parents can
+use only complete prior plans, or a `fallback` plan of a type outside the selection; failures
+retain their concrete exclusion reason. -/
+private def catalogWith (env : Env) (selected : String → Bool)
+    (fallback : String → Option Plan) : Std.HashMap String (Except String Plan) := Id.run do
   let definitions := env.defs.filter fun d => match d.it with
     | .TypD .. | .ExternTypD .. => true
     | _ => false
@@ -252,10 +262,12 @@ def catalog (env : Env) : Std.HashMap String (Except String Plan) := Id.run do
     | none => []
   let mut completed : Std.HashMap String (Except String Plan) := {}
   for group in Graph.sccs (definitions.map (·.it.id.it)) dependencies do
-    let known := fun name => do
-      (← (← completed[name]?).toOption).nominal
+    let prior := fun name => match completed[name]? with
+      | some plan => plan.toOption
+      | none => fallback name
+    let known := fun name => do (← prior name).nominal
     let totals := fun child => do
-      let parent ← (← completed[child]?).toOption
+      let parent ← prior child
       pure { nominal := ← parent.nominal, proof := ← parent.total :
         RepresentationTotals.TotalContract }
     -- A complete recursive group shares one native induction bundle at its codec leader.
@@ -265,9 +277,10 @@ def catalog (env : Env) : Std.HashMap String (Except String Plan) := Id.run do
       let recursive ← (RepresentationRecursive.derive env known requested).toOption
       let leader ← recursive.members.head?
       let proof ← (RepresentationRecursive.totalityDeclarations env recursive
-        (Names.typeName (leader ++ "SourceCodec")) totals).toOption
+        (Names.typeName (env.bundle leader)) totals).toOption
       pure (leader, proof)
     for name in group do
+      if !selected name then continue
       if let some d := definitions.find? (·.it.id.it == name) then
         let candidate := planWithKnown env d known
         let candidate := candidate.map fun representation => Id.run do
@@ -276,7 +289,7 @@ def catalog (env : Env) : Std.HashMap String (Except String Plan) := Id.run do
               declarations := if name == leader then
                 joinDecls [representation.declarations, proof] else representation.declarations
               total := representation.nominal.map fun _ =>
-                env.q (Names.typeName name) ++ ".admittedAll" }
+                env.q (Names.typeName name) ++ "." ++ env.part "admittedAll" }
           let admitted := representation.nominal.map (·.admitted) |>.getD ""
           match RepresentationTotals.declarations env d admitted totals with
           | .error _ => return representation
@@ -285,9 +298,62 @@ def catalog (env : Env) : Std.HashMap String (Except String Plan) := Id.run do
               dependencies := (representation.dependencies ++
                 (dependencies name).filter (fun child => (totals child).isSome)).eraseDups
               total := representation.nominal.map fun _ =>
-                env.q (Names.typeName name) ++ ".admittedAll" }
+                env.q (Names.typeName name) ++ "." ++ env.part "admittedAll" }
         completed := completed.insert name candidate
   return completed
+
+/-- Build each source codec once, in actual declaration dependency/SCC order.
+Parents can use only complete prior plans; failures retain their concrete exclusion reason. -/
+def catalog (env : Env) : Std.HashMap String (Except String Plan) :=
+  catalogWith env (fun _ => true) (fun _ => none)
+
+/-- The declared types whose values can contain an explicitly runtime-extended carrier. -/
+def runtimeClosure (env : Env) : List String :=
+  (env.defs.filterMap fun d => match d.it with
+    | .TypD name .. => if env.runtimeAffected (.VarT name []) then some name.it else none
+    | _ => none).eraseDups
+
+/-- The polymorphic containers, whose runtime codecs take runtime-profile parameter codecs. -/
+def runtimeContainers (env : Env) : List String :=
+  env.defs.filterMap fun d => match d.it with
+    | .TypD name (_ :: _) .. =>
+      if (RepresentationMaps.checkSupport env d).isOk ||
+          (RepresentationContainers.codecType env d).isOk then some name.it else none
+    | _ => none
+
+/-- The runtime-profile codecs of the runtime closure and of the polymorphic containers.
+Every other type contributes its source codec, lifted by the checked closure certificate. -/
+def runtimeCatalog (env : Env) (source : Std.HashMap String (Except String Plan)) :
+    Std.HashMap String (Except String Plan) :=
+  let closure := runtimeClosure env
+  if closure.isEmpty then {} else
+  let runtime := { env with runtimeProfile := true }
+  let selected := closure ++ runtimeContainers env
+  catalogWith runtime selected.contains fun name =>
+    if closure.contains name then none else do
+      let plan ← (← source[name]?).toOption
+      let qualified := env.q (Names.typeName name)
+      let lift := runtime.liftRuntime qualified (qualified ++ ".toValue") (qualified ++ ".ofValue")
+      pure { plan with nominal := plan.nominal.map fun nominal =>
+        { nominal with codec := lift nominal.codec } }
+
+/-- The checked certificate that the runtime profile adds no alternative within the declared
+closure of any type outside the runtime closure, which lifts their source codecs. -/
+def runtimeClosedDeclarations (env : Env) : Format :=
+  let runtime := { env with runtimeProfile := true }
+  let closure := runtimeClosure env
+  let names := (env.defs.filterMap fun d => match d.it with
+    | .TypD name .. | .ExternTypD name .. =>
+      if closure.contains name.it then none else some name.it
+    | _ => none).eraseDups
+  let list := "[" ++ ", ".intercalate (names.map fun n => (Reify.str n).fmt.pretty) ++ "]"
+  Format.text (boundedLines (
+    "/-- The runtime profile adds no alternative within the declared closure of any type\n" ++
+    "outside the runtime closure, so their source codecs are runtime codecs. -/\n" ++
+    "theorem runtimeClosed : Representation.Source.ClosedAvoiding " ++ env.lib ++ ".spec\n" ++
+    "    " ++ runtime.domainTerm ++ "\n    " ++ list ++ " :=\n" ++
+    "  Representation.Source.closedCheckSound (by closure_check)\n\n" ++
+    s!"#audit_axioms {runtime.runtimeClosedName}"))
 
 /-- Exact compiled obligation for a complete source-family certificate. -/
 def codecType (env : Env) (d : Lang.Al.def) : Except String Format := do

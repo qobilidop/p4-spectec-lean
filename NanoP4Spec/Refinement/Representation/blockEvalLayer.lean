@@ -55,8 +55,6 @@ private theorem blockEvalLayer.fieldCodec0 : @Representation.Codec (NanoP4Spec.f
   (NanoP4Spec.frame.admitted) :=
   NanoP4Spec.frame.codec
 
-#audit_axioms blockEvalLayer.fieldCodec0
-
 /-- Empty substitution preserves the complete independent field domain. -/
 private theorem blockEvalLayer.fieldSubstitution0 : ∀ actual,
     Representation.Source.Substitutes [] (Q.t (Q.varT "frame" [])).it actual → ∀ v,
@@ -67,8 +65,6 @@ private theorem blockEvalLayer.fieldSubstitution0 : ∀ actual,
     intro actual substitution v valid
     rw [substitution.emptyNamedResult (Q.i "frame")] at valid
     exact valid)
-
-#audit_axioms blockEvalLayer.fieldSubstitution0
 
 /-- Source derivations expose the declared labels and exact positional field domains. -/
 private theorem blockEvalLayer.payload (v : Lang.Il.value) (hv :
@@ -89,8 +85,6 @@ private theorem blockEvalLayer.payload (v : Lang.Il.value) (hv :
       cases tail
       exact .cons (blockEvalLayer.fieldSubstitution0 _ sub0) (.nil)
   exact ⟨fields, shape, labels, valid.domains transfers⟩
-
-#audit_axioms NanoP4Spec.blockEvalLayer.payload
 
 /-- The actual record encoder and decoder satisfy the complete source grammar. -/
 theorem blockEvalLayer.codec : @Refine.Representation.Codec NanoP4Spec.blockEvalLayer
@@ -188,8 +182,6 @@ theorem blockEvalLayer.codec : @Refine.Representation.Codec NanoP4Spec.blockEval
             rw [h0 fuel enough0]
             rfl
 
-#audit_axioms NanoP4Spec.blockEvalLayer.codec
-
 /-- Validity of the actual encoded record is exactly validity of its encoded fields. -/
 theorem blockEvalLayer.encodingSourceIff (x : NanoP4Spec.blockEvalLayer) :
     NanoP4Spec.blockEvalLayer.source (NanoP4Spec.blockEvalLayer.toValue x) ↔
@@ -216,6 +208,10 @@ theorem blockEvalLayer.encodingSourceIff (x : NanoP4Spec.blockEvalLayer) :
         (.nil)⟩
     exact ⟨_, rfl, .cons (rfl) (.nil), .cons _ _ _ _ p0 (.nil)⟩
 
+#audit_axioms blockEvalLayer.fieldCodec0
+#audit_axioms blockEvalLayer.fieldSubstitution0
+#audit_axioms NanoP4Spec.blockEvalLayer.payload
+#audit_axioms NanoP4Spec.blockEvalLayer.codec
 #audit_axioms NanoP4Spec.blockEvalLayer.encodingSourceIff
 
 end NanoP4Spec
