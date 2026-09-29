@@ -232,6 +232,13 @@ the claimed observations; new differences require an explicit entry.
   Unmodeled EL hint syntax remains JSON; consumers must validate supported forms.
 - **Control effects:** explicit fuel and error data replace unrestricted
   reference recursion and exceptions. Exhaustion never becomes a default.
+  The mutable `Spec.Func.call` trampoline that upstream registers for target
+  callbacks is an explicit argument of an extern relation: the interpreter
+  passes its own function evaluator, over the same global tables, at the
+  remaining fuel. A target registers it through upstream's `call_func`, which
+  makes either failure kind of a callee a mismatch of the extern call; Lean's
+  failure data cannot separate a nested target abort from AL `Err`, which
+  matters only for callbacks whose closures reach an extern (none in Nano).
 - **Execution profile:** sequential, cache-free interpretation omits cache
   registration, hooks, backtraces and deterministic checking. These modes are
   not interchangeable
@@ -243,7 +250,15 @@ the claimed observations; new differences require an explicit entry.
   profile, including wraparound and failed-attempt allocations.
 - **Values and equality:** structural values replace identity/hash shortcuts;
   generated equality uses runtime-value comparison. Numeric representations
-  and conversions preserve signedness and checked failure behavior.
+  and conversions preserve signedness and checked failure behavior. Extern
+  payloads compare by their compressed JSON text, where upstream compares the
+  `Yojson` trees structurally; this identifies, for example, a number written
+  with a redundant exponent with the plain integer. A target therefore decodes
+  a payload from its compressed text, so payloads that equality identifies are
+  indistinguishable to it. This applies to the reference port too, which
+  decodes the reparsed text where upstream decodes the tree. Unit tests and
+  packet replay check that payloads the target serializes itself decode back
+  unchanged; no parser proof is claimed.
 - **Text and transport:** semantic text uses bytes, identifiers use strings.
   JSON ingress rejects invalid UTF-8 and unpaired surrogates; this transport
   restriction is not a lossless encoding of every OCaml string.

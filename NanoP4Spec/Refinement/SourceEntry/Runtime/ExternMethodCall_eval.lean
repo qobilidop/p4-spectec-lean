@@ -46,6 +46,9 @@ theorem Externs.ExternMethodCall_eval.runtimeSourceCorrespondence
     (hguard : cfg.guard = false) (hextern : NanoP4Spec.externsContract cfg) (hfenv :
       ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 : Lang.Il.value) (hv0 : (Representation.Source.Valid NanoP4Spec.spec
       (Representation.Source.runtimeDomain ["value"]) (Q.t (Q.varT "evalContext" [])).it) v0)
     (v1 : Lang.Il.value) (hv1 : (Representation.Source.Valid NanoP4Spec.spec
@@ -103,9 +106,9 @@ theorem Externs.ExternMethodCall_eval.runtimeSourceCorrespondence
   refine ⟨p0, p1, p2, p3, admitted0, h0, admitted1, h1, admitted2, h2, admitted3, h3, ?_, ?_⟩
   · intro fuel
     exact NanoP4Spec.Externs.ExternMethodCall_eval.refines fuel cfg ctx internal hguard hextern
-      hfenv hspec v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
+      hfenv hspec ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
   · exact NanoP4Spec.Externs.ExternMethodCall_eval.realizes cfg ctx internal hguard hextern
-      hfenv hspec v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
+      hfenv hspec ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
 
 #audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.runtimeSourceCorrespondence
 

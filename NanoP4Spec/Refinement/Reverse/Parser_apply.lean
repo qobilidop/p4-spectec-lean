@@ -40,6 +40,7 @@ theorem Parser_apply.realizes
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
     (ht0 : ctx.global.tdtbl.get? "K" = none)
     (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht2 : ctx.global.tdtbl.get? "X" = none)
     (v0 v1 v2 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : List NanoP4Spec.argument)

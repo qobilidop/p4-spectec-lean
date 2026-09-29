@@ -38,7 +38,8 @@ private def checkValue (kind : String) : value :=
     [.Atom (mkPhrase (if kind == "tag" then .Keyword "B" else .Tag "B")),
      .Arg (if kind == "inner" then Value.Make.nat 1 else b)])
 
-private def callback (check failure : String) (calls : Array Json) : Call := fun name ts args => do
+private def callback (check failure : String) (calls : Array Json) : Call StateEval :=
+    fun name ts args => do
   let index := (← get).counter.toNat
   let some observed := calls[index]? | throw .err
   let expected ← checked (values (← checked (field observed "args")))
@@ -72,7 +73,7 @@ private def checkCase (request expected : Json) : Except String Unit := do
       let (c, a, r) ← BackendSim.Core.Func.verify call ctx arch
       pure [c, a, r]
     else if entry == "function" then eval_extern_func_call call (args shape)
-    else (externInterface call).eval_extern_rel entry (args shape)
+    else eval_extern_rel call entry (args shape)
   let some (actual, state) := StateEval.run computation 0 | throw "unexpected divergence"
   unless state.counter == (← (← field expected "counterAfter").getInt?) &&
       state.counter == calls.size do throw "callback count or post-state differs"
@@ -133,7 +134,7 @@ private def checkReachability (observed : Json) : IO Unit := do
     (← IO.ofExcept (field observed "externRelations")))
   unless externs == expected && !externs.contains "ExternFunctionCall_eval" do
     throw (IO.userError "Nano extern declarations changed")
-  let call : Call := fun name ts args =>
+  let call : Call StateEval := fun name ts args =>
     Interp.do_eval_func 1000000 { guard := false } g name ts args
   let before ← IO.ofExcept ((← IO.ofExcept (field observed "counterBefore")).getInt?)
   unless before == 0 do throw (IO.userError "unexpected boundary seed")

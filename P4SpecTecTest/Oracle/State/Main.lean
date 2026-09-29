@@ -60,7 +60,7 @@ private def globals : Ctx.global := (Interp.init spec).toOption.getD {}
 private def cfg : Interp.Config StateEval := { guard := false }
 private def externCfg : Interp.Config StateEval := { cfg with
   extern := {
-    eval_extern_rel := fun _ _ => throw .unmatch
+    eval_extern_rel := fun _ _ _ => throw .unmatch
     eval_extern_func := fun _ _ _ => do
       let _ ← StateEval.freshTypeId
       throw .unmatch } }

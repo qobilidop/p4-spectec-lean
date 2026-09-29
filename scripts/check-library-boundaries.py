@@ -11,7 +11,7 @@ import sys
 import tomllib
 
 
-REUSABLE = frozenset({"P4SpecTec", "NanoP4Spec"})
+REUSABLE = frozenset({"P4SpecTec", "NanoP4Spec", "NanoP4Target"})
 CONSUMERS = frozenset({"ExampleProofs", "P4SpecTecTest"})
 TOOLS = frozenset({"Tools"})
 HELPER = Path(__file__).with_name("library-imports.lean")
@@ -187,6 +187,10 @@ def check_graph(graph, starts, root):
             if namespace(start, root) == "P4SpecTec" and namespace(source, root) == "NanoP4Spec":
                 display = " -> ".join(str(path.relative_to(root)) for path in chain)
                 raise BoundaryError(f"core library imports a generated model: {display}")
+            if (namespace(start, root) in {"P4SpecTec", "NanoP4Spec"}
+                    and namespace(source, root) == "NanoP4Target"):
+                display = " -> ".join(str(path.relative_to(root)) for path in chain)
+                raise BoundaryError(f"core or generated library imports the target: {display}")
             if source not in graph:
                 raise BoundaryError(f"missing parsed dependency input: {source}")
             pending.extend((dep, chain + [dep]) for dep in sorted(graph[source])

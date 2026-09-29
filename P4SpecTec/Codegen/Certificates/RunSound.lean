@@ -346,8 +346,17 @@ def requiresColumnsOf (d : Lang.Al.def) : Bool :=
         iterated common || iterated premises)
   | _ => false
 
+/-- The registration names of every defined function. An extern relation's target may call
+back into any function through the interpreter's trampoline, so extern calls conservatively
+require all of them to stay fresh. -/
+def externRegistrationNames (env : Env) : List String :=
+  (env.defs.flatMap fun d => match d.it with
+    | .FuncDecD _ ps .. => ps.map (·.it)
+    | _ => []).eraseDups
+
 /-- Conservatively collect registration names through the actual callable closure.
-Builtin dispatch does not register its type parameters; defined calls do, after localizing. -/
+Builtin dispatch does not register its type parameters; defined calls do, after localizing;
+an extern relation may call any defined function. -/
 def registrationNames (env : Env) (d : Lang.Al.def) : List String := Id.run do
   let own := match d.it with
     | .FuncDecD _ ps .. => ps.map (·.it)
@@ -369,6 +378,7 @@ def registrationNames (env : Env) (d : Lang.Al.def) : List String := Id.run do
           names := names ++ ps.map (·.it)
           pending := pending ++ callsOfDef callee
         | .RelD .. | .TableDecD .. => pending := pending ++ callsOfDef callee
+        | .ExternRelD .. => names := names ++ externRegistrationNames env
         | _ => pure ()
   return names.eraseDups
 

@@ -4,7 +4,7 @@ import P4SpecTec.BackendSim.SpecImpl.Unpack
 /-!
 Partial port of `p4spec/lib/backend-sim/core/func.ml`: verify only.
 Both lookups precede Boolean unpacking, even when check is true or malformed.
-Explicit callbacks preserve all outcomes and fresh post-state; context and
+Explicit callbacks preserve all outcomes and any carrier state; context and
 architecture values are returned unchanged. static_assert is not ported.
 -/
 
@@ -14,8 +14,8 @@ open P4SpecTec.Lang.Il P4SpecTec.Runtime P4SpecTec.Prelude P4SpecTec.Util.Source
 open P4SpecTec.BackendSim.SpecImpl
 
 /-- Mirrors verify, including exact RETURN/REJECT shapes and distinct result notes. -/
-def verify (call : SpecImpl.Func.Call) (value_ctx value_arch : value) :
-    StateEval (value × value × value) := do
+def verify {m : Type → Type} [Monad m] [MonadExceptOf Fail m] (call : SpecImpl.Func.Call m)
+    (value_ctx value_arch : value) : m (value × value × value) := do
   let value_check ← SpecImpl.Func.find_var_e_local call value_ctx "check"
   let value_toSignal ← SpecImpl.Func.find_var_e_local call value_ctx "toSignal"
   let some check := Unpack.unpack_p4_bool value_check | throw .err

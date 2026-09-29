@@ -59,7 +59,7 @@ private def primitive (op : String) (j : Json) : Except Error Json := do
 private def isNat (v : value) (n : Nat) : Bool :=
   match v.it with | .NumV (.Nat actual) => actual == n | _ => false
 
-private def callback : Call := fun name ts vs => do
+private def callback : Call StateEval := fun name ts vs => do
   unless ts.isEmpty do throw .err
   let counter ← StateEval.freshTypeId
   match name, vs with

@@ -8,7 +8,7 @@ version = "0.0.1"
 # Warnings fail the build through `lake build --wfail` in
 # scripts/check.sh, not through warningAsError, which would also rewrite the
 # severities that #guard_msgs tests observe.
-defaultTargets = ["P4SpecTec", "NanoP4Spec"]
+defaultTargets = ["P4SpecTec", "NanoP4Spec", "NanoP4Target"]
 testDriver = "P4SpecTecTest"
 
 [leanOptions]
@@ -27,6 +27,10 @@ name = "P4SpecTec"
 
 [[lean_lib]]
 name = "NanoP4Spec"
+
+# The concrete NanoSwitch target over the generated model: extern instance and contracts.
+[[lean_lib]]
+name = "NanoP4Target"
 
 [[lean_lib]]
 name = "ExampleProofs"

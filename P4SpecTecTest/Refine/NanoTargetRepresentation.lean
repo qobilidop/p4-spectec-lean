@@ -110,7 +110,7 @@ depends on axioms: [propext, Classical.choice, Quot.sound] -/
 
 /-- The actual source target rejects a decoded raw receiver before any callback and
 preserves its fresh counter on this hard-error branch. -/
-theorem rawReceiverHandlerError (call : BackendSim.NanoSwitch.Pipe.Call)
+theorem rawReceiverHandlerError (call : BackendSim.NanoSwitch.Pipe.Call StateEval)
     (ctx method names : Lang.Il.value) (note : Lang.Il.typ') (json : Lean.Json)
     (state : FreshState) :
     StateEval.run (BackendSim.NanoSwitch.Pipe.eval_extern_method_call call

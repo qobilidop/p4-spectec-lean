@@ -16,7 +16,7 @@ private def str (j : Json) (key : String) : Except String String := do
 
 private def atom (name : String) : Domain.Mixfix.t value := .Atom (mkPhrase (.Keyword name))
 
-private def callback (decision payload : String) : RelCall := fun name args => do
+private def callback (decision payload : String) : RelCall StateEval := fun name args => do
   unless name == "NanoSwitch_drive" do throw .err
   let [ctx, state] := args | throw .err
   unless Value.Get.bool ctx == some false do throw .err

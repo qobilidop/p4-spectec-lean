@@ -54,6 +54,7 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        cfg.guard = false → cfg.printHints = [] →
        NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
        HoldsSpec NanoP4Spec.spec ctx.global →
+       ctx.global.tdtbl.get? "X" = none →
        ctx.global.tdtbl.get? "K" = none →
        ctx.global.tdtbl.get? "V" = none →
        ∀ (v0 v1 v2 v3 : Lang.Il.value),
@@ -74,6 +75,7 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        cfg.guard = false → cfg.printHints = [] →
        NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
        HoldsSpec NanoP4Spec.spec ctx.global →
+       ctx.global.tdtbl.get? "X" = none →
        ctx.global.tdtbl.get? "K" = none →
        ctx.global.tdtbl.get? "V" = none →
        ∀ (v0 v1 : Lang.Il.value),
@@ -93,6 +95,7 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        cfg.guard = false → cfg.printHints = [] →
        NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
        HoldsSpec NanoP4Spec.spec ctx.global →
+       ctx.global.tdtbl.get? "X" = none →
        ctx.global.tdtbl.get? "K" = none →
        ctx.global.tdtbl.get? "V" = none →
        ∀ (v0 v1 v2 : Lang.Il.value),
@@ -113,6 +116,7 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        cfg.guard = false → cfg.printHints = [] →
        NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
        HoldsSpec NanoP4Spec.spec ctx.global →
+       ctx.global.tdtbl.get? "X" = none →
        ctx.global.tdtbl.get? "K" = none →
        ctx.global.tdtbl.get? "V" = none →
        ∀ (v0 v1 v2 : Lang.Il.value),
@@ -132,6 +136,7 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        cfg.guard = false → cfg.printHints = [] →
        NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
        HoldsSpec NanoP4Spec.spec ctx.global →
+       ctx.global.tdtbl.get? "X" = none →
        ctx.global.tdtbl.get? "K" = none →
        ctx.global.tdtbl.get? "V" = none →
        ∀ (v0 v1 : Lang.Il.value),
@@ -151,6 +156,7 @@ theorem Call_eval.realizes_group [NanoP4Spec.Externs] :
        cfg.guard = false → cfg.printHints = [] →
        NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
        HoldsSpec NanoP4Spec.spec ctx.global →
+       ctx.global.tdtbl.get? "X" = none →
        ctx.global.tdtbl.get? "K" = none →
        ctx.global.tdtbl.get? "V" = none →
        ∀ (v0 v1 v2 : Lang.Il.value),
@@ -170,8 +176,9 @@ theorem Call_eval.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (_hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 v3 : Lang.Il.value)
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -204,6 +211,7 @@ theorem Call_eval.realizes
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     v2
@@ -220,8 +228,9 @@ theorem Table_eval.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.tableProperties)
@@ -246,6 +255,7 @@ theorem Table_eval.realizes
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     h0
@@ -258,8 +268,9 @@ theorem Statement_eval.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (_hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 : Lang.Il.value)
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -289,6 +300,7 @@ theorem Statement_eval.realizes
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     v2
@@ -303,8 +315,9 @@ theorem Statements_eval.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 : Lang.Il.value)
     (p0 : NanoP4Spec.scope)
     (p1 : NanoP4Spec.evalContext)
@@ -334,6 +347,7 @@ theorem Statements_eval.realizes
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     v2
@@ -348,8 +362,9 @@ theorem Block_eval.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.blockStatement)
@@ -374,6 +389,7 @@ theorem Block_eval.realizes
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     h0
@@ -386,8 +402,9 @@ theorem TableMatch_eval.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (_hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.value)
@@ -417,6 +434,7 @@ theorem TableMatch_eval.realizes
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     v2

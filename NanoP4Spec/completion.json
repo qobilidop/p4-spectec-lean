@@ -2806,7 +2806,7 @@
     "corpus": "test/nano-certification/corpus.json",
     "corpusSha256": "425a17c9c5490702a6754f64bf339b6858b6be6218cc1bbf23cd5ba6ab7ced1b",
     "coverage": "NanoP4Spec/coverage.json",
-    "coverageSha256": "447db8c14c64d7866a46445c9da88fdfb326562a49c0ca236559d336053f0752",
+    "coverageSha256": "9b90676b1be9b111cf3fd4f8baf5379a66800e9db63456bc63060e2cf452ce1a",
     "export": "exports/nano-p4.al.json",
     "exportSha256": "3a7b47d75ca97a1404026cde45df09bde0372a06e32c8d80b00ca3ef48b99dd6",
     "pins": {

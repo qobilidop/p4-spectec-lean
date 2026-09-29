@@ -42,6 +42,7 @@ theorem NanoSwitch_drive.sourceCorrespondence
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
     (ht0 : ctx.global.tdtbl.get? "K" = none)
     (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht2 : ctx.global.tdtbl.get? "X" = none)
     (v0 : Lang.Il.value) (hv0 : (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "evalContext" [])).it) v0)
     (v1 : Lang.Il.value) (hv1 : (Representation.Source.Valid NanoP4Spec.spec
@@ -71,9 +72,9 @@ theorem NanoSwitch_drive.sourceCorrespondence
   refine ⟨p0, p1, admitted0, h0, admitted1, h1, ?_, ?_⟩
   · intro fuel
     exact NanoP4Spec.NanoSwitch_drive.refines fuel cfg ctx internal hguard hhints hextern hfenv
-      hspec ht0 ht1 v0 v1 p0 p1 h0 h1
+      hspec ht0 ht1 ht2 v0 v1 p0 p1 h0 h1
   · exact NanoP4Spec.NanoSwitch_drive.realizes cfg ctx internal hguard hhints hextern hfenv
-      hspec ht0 ht1 v0 v1 p0 p1 h0 h1
+      hspec ht0 ht1 ht2 v0 v1 p0 p1 h0 h1
 
 #audit_axioms NanoP4Spec.NanoSwitch_drive.sourceCorrespondence
 

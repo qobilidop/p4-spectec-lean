@@ -20,7 +20,7 @@ def fuel : Nat := 10000000
 /-! The pinned `backend-sim/placeholder.ml` externs used by AL validation.
 Other extern operations stay hard failures; this is not a P4 simulator. -/
 private def placeholderExtern : Interp.Extern StateEval where
-  eval_extern_rel := fun _ _ => throw .err
+  eval_extern_rel := fun _ _ _ => throw .err
   eval_extern_func := fun name _ _ =>
     let typName := match name with
       | "init_objectState" => some "objectState"

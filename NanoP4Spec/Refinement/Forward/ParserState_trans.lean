@@ -34,6 +34,7 @@ theorem ParserState_trans.refines_group [NanoP4Spec.Externs] :
          cfg.guard = false → cfg.printHints = [] →
          NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
          HoldsSpec NanoP4Spec.spec ctx.global →
+         ctx.global.tdtbl.get? "X" = none →
          ctx.global.tdtbl.get? "K" = none →
          ctx.global.tdtbl.get? "V" = none →
          ∀ (v0 v1 v2 : Lang.Il.value)
@@ -62,8 +63,9 @@ theorem ParserState_trans.refines
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : List NanoP4Spec.parserState)
@@ -86,6 +88,7 @@ theorem ParserState_trans.refines
     hspec
     ht0
     ht1
+    ht2
     v0
     v1
     v2

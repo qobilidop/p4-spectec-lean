@@ -52,12 +52,12 @@ private def args (pkt : PacketIn.t) : List value :=
    Value.Make.list (.IterT (mkPhrase (varT "nameIR")) .List)
      [Value.Make.text (ByteText.ofString "hdr")]]
 
-private def noCallback : Call := fun _ _ _ => throw .err
+private def noCallback : Call StateEval := fun _ _ _ => throw .err
 
 private def isNat (v : value) (n : Nat) : Bool :=
   match v.it with | .NumV (.Nat x) => x == n | _ => false
 
-private def callbacks : Call := fun name types values => do
+private def callbacks : Call StateEval := fun name types values => do
   if !types.isEmpty then throw .err
   let token ← StateEval.freshTypeId
   match name, values with
@@ -124,5 +124,52 @@ private def packet : PacketIn.t := { bits := Array.replicate 24 true, idx := 0, 
 #guard match StateEval.run (eval_extern_method_call noCallback []) 5 with
   | some (.error .err, s) => s == 5
   | _ => false
+
+-- The registered trampoline collapses either callee failure to a mismatch, keeping the
+-- callee's post-state, and passes success and divergence through (`Make.call_func`).
+private def failing (e : Fail) : Call StateEval := fun _ _ _ => do
+  let _ ← StateEval.freshTypeId
+  throw e
+#guard match StateEval.run (BackendSim.Make.call_func (failing .err) "f" [] []) 5 with
+  | some (.error .unmatch, s) => s == 6
+  | _ => false
+#guard match StateEval.run (BackendSim.Make.call_func (failing .unmatch) "f" [] []) 5 with
+  | some (.error .unmatch, s) => s == 6
+  | _ => false
+#guard match StateEval.run (BackendSim.Make.call_func callbacks "find_var_e" []
+    [Value.Make.case (varT "scope") (.Atom (mkPhrase (.Keyword "LOCAL"))),
+     Value.Make.bool false, Value.Make.text (ByteText.ofString "hdr")]) 5 with
+  | some (.ok v, s) => isNat v 10 && s == 6
+  | _ => false
+#guard (StateEval.run (BackendSim.Make.call_func (fun _ _ _ => ExceptT.mk fun _ => none)
+  "f" [] []) 5).isNone
+-- Registered through the interface, a hard callee error makes the extern call a mismatch;
+-- the direct handler keeps the callee's own failure kind.
+#guard match StateEval.run ((externInterface (m := StateEval)).eval_extern_rel (failing .err)
+    "ExternMethodCall_eval" (args packet)) 5 with
+  | some (.error .unmatch, s) => s == 6
+  | _ => false
+#guard match StateEval.run (eval_extern_method_call (failing .err) (args packet)) 5 with
+  | some (.error .err, s) => s == 6
+  | _ => false
+#guard match StateEval.run ((externInterface (m := StateEval)).eval_extern_rel noCallback
+    "ExternFunctionCall_eval" []) 5 with
+  | some (.error .err, s) => s == 5
+  | _ => false
+
+-- Payloads are decoded through their canonical compressed text: a JSON number written with
+-- a redundant exponent compresses like the integer, so runtime value equality identifies the
+-- two payloads, and the target decodes them alike (design section 5.3).
+private def redundantIdx : Lean.Json := .arr #[.str "PacketIn", Lean.Json.mkObj
+  [("bits", .arr #[]), ("idx", .num ⟨0, 1⟩), ("len", Lean.toJson (0 : Int))]]
+#guard redundantIdx.compress ==
+  (extern_to_yojson (.PacketIn { bits := #[], idx := 0, len := 0 })).compress
+#guard match extern_of_yojson redundantIdx with | .error _ => true | .ok _ => false
+#guard match extern_of_payload redundantIdx with
+  | .ok (.PacketIn pkt) => pkt == { bits := #[], idx := 0, len := 0 }
+  | .error _ => false
+#guard match extern_of_payload (extern_to_yojson (.PacketIn inconsistent)) with
+  | .ok (.PacketIn pkt) => pkt == inconsistent
+  | .error _ => false
 
 end P4SpecTecTest.NanoTarget

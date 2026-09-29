@@ -17,8 +17,11 @@ listed in the design (section 5.3):
   recurses freely.
 - The interpreter is parameterised by `Config`: the extern
   implementations (the `Extern` functor argument) and the guard flag
-  (`check_guard`). The effect interface dispatches pure builtins through `Builtin.Call` and
-  implements explicit fresh allocation in stateful mode. This port models
+  (`check_guard`). An extern relation receives the interpreter's own function
+  evaluator, at the remaining fuel, in place of the mutable `Spec.Func.call`
+  trampoline that upstream registers at initialization. The effect interface
+  dispatches pure builtins through `Builtin.Call` and implements explicit fresh
+  allocation in stateful mode. This port models
   sequential, cache-free execution. Caches, registration, hooks, backtraces
   and deterministic checking (`Nondet`) are not mirrored. With fresh IDs,
   checking extra alternatives can consume state, so modes are not interchangeable.
@@ -44,17 +47,22 @@ open P4SpecTec.Runtime.Dynamic
 open P4SpecTec.Runtime.Dynamic_al
 open P4SpecTec.Interp_al.Backtrack
 
+/-- The function trampoline an extern relation calls back through: upstream's
+registered `Spec.Func.call`, supplied explicitly by the interpreter at its current fuel. -/
+abbrev FuncCall (m : Type → Type) := String → List targ → List value → m value
+
 /-- The extern implementations (the `Extern` functor argument), in the
 same effect carrier as the evaluator. The default preserves the pure API. -/
 structure Extern (m : Type → Type := Eval) where
-  /-- Mirrors `Extern.eval_extern_rel`. -/
-  eval_extern_rel : String → List value → m (List value)
+  /-- Mirrors `Extern.eval_extern_rel`; the first argument replaces the mutable trampoline. -/
+  eval_extern_rel : FuncCall m → String → List value → m (List value)
   /-- Mirrors `Extern.eval_extern_func`. -/
   eval_extern_func : String → List typ → List value → m value
 
 /-- No externs: every extern call is undefined. -/
 def Extern.none [Effects m] : Extern m where
-  eval_extern_rel := fun i _ => monadLift (back_err no_region s!"extern relation {i} is undefined")
+  eval_extern_rel := fun _ i _ =>
+    monadLift (back_err no_region s!"extern relation {i} is undefined")
   eval_extern_func := fun i _ _ =>
     monadLift (back_err no_region s!"extern function {i} is undefined")
 
@@ -1021,8 +1029,12 @@ def invoke_rel : Nat → Config m → Bool → Ctx.t → Lang.Il.id → List val
 def invoke_extern_rel : Nat → Config m → Ctx.t → Lang.Il.id → nottyp → Lang.Il.Hints.Input.t →
     List value → m (List value)
   | 0, _, _, _, _, _, _ => do Eval.diverge
-  | _ + 1, cfg, ctx, i, nottyp, inputs, values_input => do
-    let values_output ← cfg.extern.eval_extern_rel i.it values_input
+  | fuel + 1, cfg, ctx, i, nottyp, inputs, values_input => do
+    -- Upstream registers `eval_func` (a fresh context over the same global tables)
+    -- as the trampoline; here the interpreter passes it at the remaining fuel.
+    let call : FuncCall m := fun name targs values =>
+      invoke_func fuel cfg false (Ctx.empty ctx.global) (mkPhrase name) targs values
+    let values_output ← cfg.extern.eval_extern_rel call i.it values_input
     check_rel_outputs cfg ctx i nottyp inputs values_output
     pure values_output
 

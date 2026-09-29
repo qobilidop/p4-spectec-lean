@@ -41,6 +41,7 @@ Documentation is split by purpose and audience:
 | `.agents/notes/full-p4/overview.md` | full-P4 census findings and remaining obligations |
 | `.agents/notes/state-integration/overview.md` | bounded state support versus paused production integration |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
+| `NanoP4Target/` | concrete NanoSwitch target over the generated model: typed externs, extern-contract discharge, session composition |
 | `ExampleProofs/NanoP4FieldUpdate/` | bounded consumer proof, checked `Certificate.lean`, `Example.lean` walkthrough and colocated `test/` |
 
 `.agents/` is a hidden directory; `rg` and `fd` skip it unless told to
@@ -213,7 +214,7 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   rejects.
 - **Downstream examples live in `ExampleProofs/`**, outside default targets.
   The full gate explicitly builds them and runs colocated example tests.
-  Reusable libraries (`P4SpecTec`, `NanoP4Spec`) must not
+  Reusable libraries (`P4SpecTec`, `NanoP4Spec`, `NanoP4Target`) must not
   import examples or test-only modules, directly or through local helpers.
   Keep reusable proof support in the library, not in an example namespace.
 - **Generated code** carries a grep-able first line naming the generator

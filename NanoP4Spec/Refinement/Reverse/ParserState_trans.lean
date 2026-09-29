@@ -36,6 +36,7 @@ private def ParserState_trans.realizesMotive [NanoP4Spec.Externs]
     cfg.guard = false → cfg.printHints = [] →
     NanoP4Spec.externsContract cfg → ctx.local.fenv = [] →
     HoldsSpec NanoP4Spec.spec ctx.global →
+    ctx.global.tdtbl.get? "X" = none →
     ctx.global.tdtbl.get? "K" = none →
     ctx.global.tdtbl.get? "V" = none →
     ∀ (v0 v1 v2 : Lang.Il.value),
@@ -55,8 +56,9 @@ theorem ParserState_trans.realizes
     (hguard : cfg.guard = false) (hhints : cfg.printHints = [])
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : List NanoP4Spec.parserState)
@@ -73,10 +75,10 @@ theorem ParserState_trans.realizes
   intro q hq
   exact NanoP4Spec.ParserState_trans.run.partial_correctness
     (motive := ParserState_trans.realizesMotive) (by
-      intro rec ih p0 p1 p2 q hq cfg ctx internal hguard hhints hextern hfenv hspec ht0 ht1 v0 v1 v2
-          h0 h1 h2
+      intro rec ih p0 p1 p2 q hq cfg ctx internal hguard hhints hextern hfenv hspec ht0 ht1 ht2 v0
+          v1 v2 h0 h1 h2
       realize_step (relations) hq)
-    p0 p1 p2 q hq cfg ctx internal hguard hhints hextern hfenv hspec ht0 ht1 v0 v1 v2 h0 h1 h2
+    p0 p1 p2 q hq cfg ctx internal hguard hhints hextern hfenv hspec ht0 ht1 ht2 v0 v1 v2 h0 h1 h2
 
 #audit_axioms NanoP4Spec.ParserState_trans.realizes
 

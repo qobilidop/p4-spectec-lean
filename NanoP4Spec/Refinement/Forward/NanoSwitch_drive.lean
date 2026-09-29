@@ -39,6 +39,7 @@ theorem NanoSwitch_drive.refines
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
     (ht0 : ctx.global.tdtbl.get? "K" = none)
     (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht2 : ctx.global.tdtbl.get? "X" = none)
     (v0 v1 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.objectState)

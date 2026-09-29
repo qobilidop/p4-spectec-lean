@@ -26,10 +26,12 @@ private def mutateArgs (mutation : Mutation) (args : List Lang.Il.value) : List 
     | _ => v
   else args
 
-private def targetExtern (call : Call) (mutation : Mutation) : Interp.Extern StateEval :=
-  let target := externInterface call
-  { target with eval_extern_rel := fun name args => do
-      let outputs ← target.eval_extern_rel name args
+private def targetExtern (mutation : Mutation) : Interp.Extern StateEval :=
+  let target : Interp.Extern StateEval := externInterface
+  { target with eval_extern_rel := fun call name args => do
+      let call' : Interp.FuncCall StateEval := fun name typs args =>
+        call name typs (mutateArgs mutation args)
+      let outputs ← target.eval_extern_rel call' name args
       if mutation == .restoredPacket then
         match args, outputs with
         | [_, receiver, _, _], [state, ctx] =>
@@ -38,12 +40,9 @@ private def targetExtern (call : Call) (mutation : Mutation) : Interp.Extern Sta
         | _, _ => throw .err
       else pure outputs }
 
-private def config (g : Ctx.global) (base : Interp.Config StateEval)
-    (fuel : Nat) (mutation : Mutation := .none) : Nat → Interp.Config StateEval
-  | 0 => { base with extern := targetExtern (fun _ _ _ => ExceptT.mk fun _ => none) mutation }
-  | n + 1 => { base with extern := targetExtern (fun name typs args =>
-      Interp.do_eval_func fuel (config g base fuel mutation n) g name typs
-        (mutateArgs mutation args)) mutation }
+private def config (base : Interp.Config StateEval) (mutation : Mutation := .none) :
+    Interp.Config StateEval :=
+  { base with extern := targetExtern mutation }
 
 private def field := Lean.Json.getObjVal?
 private def str (j : Lean.Json) (key : String) : Except String String := do
@@ -112,7 +111,7 @@ private def checkDriver (g : Ctx.global) (cfg : Interp.Config StateEval)
 
 private def sensitivity (g : Ctx.global) (base : Interp.Config StateEval)
     (event : Lean.Json) : Except String Unit := do
-  let cfg := config g base 1000000 .none 100
+  let cfg := config base .none
   let outputs ← (← field event "outputs").getArr?
   let some first := outputs[0]? | throw "missing mutation output"
   let changed := first.setObjVal! "it" (.arr #[.str "BoolV", .bool false])
@@ -121,7 +120,7 @@ private def sensitivity (g : Ctx.global) (base : Interp.Config StateEval)
   rejects "counter" "fresh counter differs" (checkEvent g cfg
     (event.setObjVal! "counterAfter" (Lean.toJson ((← int event "counterAfter") + 1))))
   rejects "LOCAL sequence" "Lean failed" (checkEvent g
-    (config g base 1000000 .localSequence 100) event)
+    (config base .localSequence) event)
   let inputs ← (← field event "inputs").getArr?
   let packet := inputs[1]!
   let payload ← (← field packet "it").getArr?
@@ -219,7 +218,7 @@ private def copiedHeader (size : Nat) : NanoP4Spec.value :=
 private def extractContinuation (base : Interp.Config StateEval) (event : Lean.Json) :
     Except String Unit := do
   let g ← Interp.init NanoP4Spec.spec
-  let cfg := config g { base with guard := false } 1000000 .none 100
+  let cfg := config { base with guard := false } .none
   let [initialContext, _] ← Util.Yojson.list Lang.Il.Json.value (← field event "inputs")
     | throw "extract continuation: wrong driver input arity"
   let initialState := FreshState.ofInt (← int event "counterBefore")
@@ -301,7 +300,7 @@ def run (path : String) : IO UInt32 := do
     let guard ← IO.ofExcept ((← IO.ofExcept (field c "guard")).getBool?)
     let base ← IO.ofExcept (Interp.Config.withPrintHints
       ({ guard, debug } : Interp.Config StateEval) spec)
-    let cfg := config g base 1000000 .none 100
+    let cfg := config base .none
     let observation ← IO.ofExcept (field c "observation")
     let events ← IO.ofExcept ((← IO.ofExcept (field observation "events")).getArr?)
     unless !events.isEmpty do throw (IO.userError "empty packet observation")
@@ -331,7 +330,7 @@ def run (path : String) : IO UInt32 := do
       IO.println "[nano-packet] four semantic/state mutations rejected"
     if guard then
       IO.ofExcept (rejects "restored PACKET" "outcome differs" (checkEvent g
-        (config g base 1000000 .restoredPacket 100) events[0]!))
+        (config base .restoredPacket) events[0]!))
       IO.println "[nano-packet] restored-PACKET guarded mutation rejected"
   return 0
 

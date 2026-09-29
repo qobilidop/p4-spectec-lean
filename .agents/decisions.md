@@ -191,14 +191,25 @@ one to one. Cost: shared premises run once per attempted path, as upstream does.
 Revisit only with a proved distribution lemma for every prefix form.
 
 Certificates of definitions whose callable closure reaches an extern relation quantify
-the generated `Externs` instance and assume `externsContract cfg`: on related inputs,
-every configured callback outcome has a related generated outcome and conversely, with
-failure kinds preserved. The extern relation's invocation certificates follow from it,
-and the completion manifest binds the `extern` obligation to their combined claim. The
-concrete NanoSwitch target discharges the contract in N4. Reason: design section 9.2
-allows extern-dependent results under explicit contracts; one contract keeps every
-caller's assumption identical. Revisit when the target exposes output invariants a
-caller needs.
+the generated `Externs` instance and assume `externsContract cfg`: for every global
+context satisfying the specification with every defined function's type parameters
+fresh, every trampoline fuel and related inputs, every configured callback outcome has a
+related generated outcome and conversely, with failure kinds preserved. The extern
+relation's invocation certificates follow from it, and the completion manifest binds the
+`extern` obligation to their combined claim. Reason: design section 9.2 allows
+extern-dependent results under explicit contracts; one contract keeps every caller's
+assumption identical. Revisit when the target exposes output invariants a caller needs.
+
+Updated 2026-09-29 (N4): the extern callback receives the interpreter's function
+evaluator at the remaining fuel instead of a fixed trampoline, and the contract quantifies
+global contexts and type-parameter freshness. Reason: a callback fixed in the configuration
+has fixed fuel, so reverse correspondence (an eventual reference witness) was unprovable for
+any target that calls back; and the target's callees (`update_var_e`) need the same type-table
+freshness their callers already carry. The trampoline may call any defined function, so the
+freshness list is every defined function's type parameters (`X`, `K`, `V`); callers of an
+extern gained the `X` hypothesis, discharged by the initialized environment.
+`NanoP4Target.externsContractHolds` discharges the contract for the concrete target.
+Confidence high; revisit if a target needs builtin registration or a callback-free ABI.
 
 A certificate module keeps the 4M heartbeat default; a group theorem adds 1M per source
 rule path or clause of its members. Symbolic execution cost grows with the paths

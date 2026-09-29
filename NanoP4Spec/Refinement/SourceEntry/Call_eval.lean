@@ -43,8 +43,9 @@ theorem Call_eval.sourceCorrespondence
     (hguard : cfg.guard = false) (hhints : cfg.printHints = []) (hextern :
       NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
-    (ht0 : ctx.global.tdtbl.get? "K" = none)
-    (ht1 : ctx.global.tdtbl.get? "V" = none)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 : Lang.Il.value) (hv0 : (Representation.Source.Valid NanoP4Spec.spec
       Representation.Source.externDomain (Q.t (Q.varT "scope" [])).it) v0)
     (v1 : Lang.Il.value) (hv1 : (Representation.Source.Valid NanoP4Spec.spec
@@ -93,9 +94,9 @@ theorem Call_eval.sourceCorrespondence
   refine ⟨p0, p1, p2, p3, admitted0, h0, admitted1, h1, admitted2, h2, admitted3, h3, ?_, ?_⟩
   · intro fuel
     exact NanoP4Spec.Call_eval.refines fuel cfg ctx internal hguard hhints hextern hfenv hspec
-      ht0 ht1 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
+      ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
   · exact NanoP4Spec.Call_eval.realizes cfg ctx internal hguard hhints hextern hfenv hspec ht0
-      ht1 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
+      ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
 
 #audit_axioms NanoP4Spec.Call_eval.sourceCorrespondence
 

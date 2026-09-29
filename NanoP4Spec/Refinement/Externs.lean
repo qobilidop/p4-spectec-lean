@@ -28,10 +28,15 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine
 namespace NanoP4Spec
 
 /-- The abstract extern contract: on related inputs, every reference callback outcome has a
-related generated extern outcome and conversely, for every extern relation. Certificates
-of callers assume it; the concrete target discharges it separately. -/
+related generated extern outcome and conversely, for every extern relation, global context
+satisfying the specification and trampoline fuel. Certificates of callers assume it;
+the concrete target discharges it separately. -/
 def externsContract [Externs] (cfg : Interp_al.Interp.Config) : Prop :=
-    (∀ (v0 v1 v2 v3 : Lang.Il.value)
+    ∀ (g : Interp_al.Ctx.global), HoldsSpec NanoP4Spec.spec g →
+    (g.tdtbl.get? "X" = none →
+       g.tdtbl.get? "K" = none →
+       g.tdtbl.get? "V" = none →
+       ∀ (v0 v1 v2 v3 : Lang.Il.value)
        (p0 : NanoP4Spec.evalContext)
        (p1 : NanoP4Spec.value)
        (p2 : NanoP4Spec.callableId)
@@ -40,13 +45,20 @@ def externsContract [Externs] (cfg : Interp_al.Interp.Config) : Prop :=
        Rel v1 p1 →
        Rel v2 p2 →
        Rel v3 p3 →
-       Refines (fun vs (o : NanoP4Spec.value × NanoP4Spec.evalContext) =>
+       (∀ fuel : Nat, Refines (fun vs (o : NanoP4Spec.value × NanoP4Spec.evalContext) =>
             Outs vs [toValue o.1, toValue o.2])
-         (cfg.extern.eval_extern_rel "ExternMethodCall_eval" [v0, v1, v2, v3])
-         (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3)) ∧
+         (cfg.extern.eval_extern_rel
+            (Interp_al.Interp.do_eval_func fuel cfg g)
+            "ExternMethodCall_eval"
+            [v0, v1, v2, v3])
+         (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3))) ∧
        Realizes (fun vs (o : NanoP4Spec.value × NanoP4Spec.evalContext) =>
             Outs vs [toValue o.1, toValue o.2])
-         (fun _ => cfg.extern.eval_extern_rel "ExternMethodCall_eval" [v0, v1, v2, v3])
+         (fun fuel =>
+          cfg.extern.eval_extern_rel
+            (Interp_al.Interp.do_eval_func fuel cfg g)
+            "ExternMethodCall_eval"
+            [v0, v1, v2, v3])
          (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3)))
 
 theorem Externs.ExternMethodCall_eval.refines
@@ -56,6 +68,9 @@ theorem Externs.ExternMethodCall_eval.refines
     (hguard : cfg.guard = false)
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 v3 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.value)
@@ -72,7 +87,10 @@ theorem Externs.ExternMethodCall_eval.refines
          [v0, v1, v2, v3])
       (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3)) := by
   have hrel : Holds ctx.global NanoP4Spec.ExternMethodCall_eval.al := by holds_from_spec
-  exact externRelRefines hguard internal hrel (hextern v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3).1 fuel
+  have hclause := hextern ctx.global hspec
+  have hinv := hclause
+      ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
+  exact externRelRefines hguard internal hrel hinv.1 fuel
 
 theorem Externs.ExternMethodCall_eval.realizes
     [NanoP4Spec.Externs]
@@ -80,6 +98,9 @@ theorem Externs.ExternMethodCall_eval.realizes
     (hguard : cfg.guard = false)
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 v3 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.value)
@@ -96,7 +117,10 @@ theorem Externs.ExternMethodCall_eval.realizes
           [v0, v1, v2, v3]))
       (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3)) := by
   have hrel : Holds ctx.global NanoP4Spec.ExternMethodCall_eval.al := by holds_from_spec
-  exact externRelRealizes hguard internal hrel (hextern v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3).2
+  have hclause := hextern ctx.global hspec
+  have hinv := hclause
+      ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3
+  exact externRelRealizes hguard internal hrel hinv.2
 
 theorem Externs.ExternMethodCall_eval.invocations
     [NanoP4Spec.Externs]
@@ -104,6 +128,9 @@ theorem Externs.ExternMethodCall_eval.invocations
     (hguard : cfg.guard = false)
     (hextern : NanoP4Spec.externsContract cfg) (hfenv : ctx.local.fenv = [])
     (hspec : HoldsSpec NanoP4Spec.spec ctx.global)
+    (ht0 : ctx.global.tdtbl.get? "X" = none)
+    (ht1 : ctx.global.tdtbl.get? "K" = none)
+    (ht2 : ctx.global.tdtbl.get? "V" = none)
     (v0 v1 v2 v3 : Lang.Il.value)
     (p0 : NanoP4Spec.evalContext)
     (p1 : NanoP4Spec.value)
@@ -126,8 +153,8 @@ theorem Externs.ExternMethodCall_eval.invocations
           [v0, v1, v2, v3]))
       (ExceptT.mk (NanoP4Spec.Externs.ExternMethodCall_eval p0 p1 p2 p3)) :=
   ⟨fun fuel => Externs.ExternMethodCall_eval.refines fuel cfg ctx internal hguard hextern hfenv
-    hspec v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3 , Externs.ExternMethodCall_eval.realizes cfg ctx
-    internal hguard hextern hfenv hspec v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3 ⟩
+    hspec ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3 , Externs.ExternMethodCall_eval.realizes
+    cfg ctx internal hguard hextern hfenv hspec ht0 ht1 ht2 v0 v1 v2 v3 p0 p1 p2 p3 h0 h1 h2 h3 ⟩
 
 #audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.refines
 #audit_axioms NanoP4Spec.Externs.ExternMethodCall_eval.realizes
