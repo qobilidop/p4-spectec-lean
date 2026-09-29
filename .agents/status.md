@@ -1,7 +1,7 @@
 # Status
 
-Session handoff, updated 2026-09-28. N3 is authorized and in progress on the local
-feature branch `n3-core` (not pushed); `main` still holds the first N3 checkpoint.
+Session handoff, updated 2026-09-28. N3 is authorized and in progress on the
+feature branch `n3-core` (pushed 2026-09-28, WIP); `main` still holds the first N3 checkpoint.
 N4–N6 have not started and full-P4 M3 remains paused.
 
 ## Verified checkpoint on `main`
@@ -47,7 +47,8 @@ must be squashed into coherent commits before `main`.
 
 ## Proof-build performance on `n3-perf`
 
-Branch `n3-perf` (local, not pushed) holds a WIP commit on top of `n3-core` that
+Branch `n3-perf` (pushed with its base `n3-core` at the user's explicit request despite the
+failing gate; CI runs only on `main`) holds a WIP commit on top of `n3-core` that
 roughly halves certificate rebuild latency: critical path 20.5 → 10.9 min, and
 `bin_op` 540 → 173s. See
 [the performance note](notes/proof-build-performance.md). The certificate build
