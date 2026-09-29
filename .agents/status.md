@@ -28,10 +28,15 @@ must be squashed into coherent commits before `main`.
   one profile. After regenerating with the current generator, the N3-owned inventory
   (`--require-owned N3`, unchecked mode) lists only `domain` for `ite`, `repeat_`,
   `empty_set`, `empty_map`, plus `sourceIdentity`, which the completion CLI checks
-  itself. The latest generated claims are **not compiled yet**: runtime producers
-  with the `Externs` binder, per-output producers for multi-output relations, call
-  admission with deep alias resolution (`find_var_t/e`, `write_value_*`), and the
-  extern relation's runtime entry.
+  itself. The latest generated claims compile: on `n3-perf` (`deaa47a`, regenerated
+  from the same generator plus audit hoisting), `lake test` and the gate's "Library and
+  certificate build" passed for every module (2026-09-28). The only test failure is the
+  stale guard `P4SpecTecTest/Codegen/Certificates/Producer.lean:76`, which expects
+  two-output relations to be rejected; `57928eb` made them supported. The gate also
+  reports runtime `CallAdmission` modules unreachable from the `NanoP4Spec` root, and
+  long lines in generated `Equality.lean`, `Codegen/Certificates/{Reverse,RunSound,
+  SourceEntry}.lean` and `Tactic/Refine/Forward.lean`. All of these were present at
+  `57928eb`.
 - Parked: constant/selection polymorphic domains for `empty_set`, `empty_map` and
   `ite`. Hand prototypes prove the outputs (`simp only [f] at run` then
   `simp [set.admitted]`; `cases p0 <;> simp [f, Eval.check] at run <;> subst run;
@@ -54,7 +59,10 @@ then merge `n3-perf` into `n3-core`.
 
 ## Resume point
 
-1. `nix develop -c lake test`; fix the new domain modules it reports.
+0. Finish `n3-perf` (above) and merge it into `n3-core`: that branch holds the current
+   generated tree.
+1. Fix the `57928eb` gate failures listed above: the `Producer.lean:76` guard, library
+   reachability, and long lines (wrap them in the generator, not by hand).
 2. The four polymorphic domains above; then run
    `nix develop -c python3 scripts/nano-certification.py --update` and
    `--require-owned N3`.
@@ -65,6 +73,8 @@ then merge `n3-perf` into `n3-core`.
 Iteration: `scripts/replay-cert.py` in the main tree with `--no-build` after
 `lake build P4SpecTec` (never while a full build runs there); it is faithful only for
 tactic-only changes. Generation takes seconds; minutes mean a generator regression.
+Until the `n3-perf` follow-up, `replay-cert.py --only` does not keep hoisted audits
+with their theorems (its contract test fails). Keep full modules, or drop the audits.
 
 ## Maintenance and repository state
 

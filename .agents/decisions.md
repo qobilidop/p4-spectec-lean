@@ -201,6 +201,14 @@ explored; a fixed budget either fails large definitions (`bin_op`, 26 clauses) o
 small ones loose. The budget is a resource limit, not a weakened statement. Revisit
 with measurements or if a budget masks a runaway tactic.
 
+Generated `#audit_axioms` commands sit at the end of their namespace or section (ahead
+of any `mutual` block), not after each theorem (`Emit.hoistAudits`, 2026-09-28, WIP on
+`n3-perf`). An audit waits for its theorem's proof, so placed after it, it serialized a
+module's proofs, which Lean otherwise elaborates in parallel. The audits and their exact
+axiom rule are unchanged. Tools that pair audits with theorems (`replay-cert.py`, the
+field-update mutation runner) must follow this layout. Revisit if Lean exposes
+per-declaration async audits.
+
 `scripts/nano-certification.py --require-owned N3` requires every core-stage obligation
 owned by N0–N3. Core replay of the typing corpus is owned by N4 and printing
 observations are target-stage; they stay reported, not waived. Source identity is
