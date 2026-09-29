@@ -36,8 +36,11 @@ owns this pass's fresh checks, review and publication state.
 
 The next separately scoped work is target contracts/composition and complete
 corpus evidence, per the [Nano plan](notes/nano-certification.md#n4-discharge-target-contracts-and-compose-packet-execution).
-Read that section and `notes/nano-target.md` before choosing the first bounded N4
-step. Retain all 78 N4-owned core corpus obligations; metadata binding alone does
+The authorized readiness pass selected [short-packet extract and raw-receiver
+rejection](notes/nano-target.md#first-bounded-n4-task-extract-without-callbacks)
+as the first proposed helper contract, with exact files, missing proof pieces and
+acceptance commands. No N4 implementation was started. Retain all 78 N4-owned core
+corpus obligations; metadata binding alone does
 not discharge replay. Do not describe N3-owned closure as full core acceptance.
 
 ## Performance and repository state
