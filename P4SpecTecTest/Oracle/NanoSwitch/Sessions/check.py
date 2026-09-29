@@ -3,8 +3,8 @@
 
 No network or OCaml is needed. Every packet obligation of the corpus inventory must have
 exactly one session with matching source digests; the Lean replay then compares both Lean
-paths with upstream and must report every session as matching. With `--summary FILE`, the
-matched session identities are written as JSON for the completion checker.
+paths with upstream and must report every session as matching. The completion checker
+calls `replay`.
 """
 
 import argparse
@@ -43,6 +43,17 @@ def check_corpus(bundle):
                 or session["program"] != program["source"]["path"]
                 or session["programSha256"] != program["source"]["sha256"]):
             raise SystemExit(f"session source identity differs from the inventory: {sid}")
+        packets = []
+        for line in (ROOT / "upstream/p4-spectec" / session["stf"]).read_text().splitlines():
+            words = line.split()
+            if words[:1] == ["packet"]:
+                packets.append([int(words[1]), "".join(words[2:])])
+        driven = [drive["rx"] for drive in session["drives"]]
+        failed = session["drives"] and session["drives"][-1]["class"] != "pass"
+        if driven != packets[:len(driven)] or (not failed and len(driven) != len(packets)):
+            raise SystemExit(f"recorded packets do not cover the pinned STF packets: {sid}")
+        if session["stfResult"] != "pass":
+            raise SystemExit(f"upstream STF result changed from pass: {sid}")
         export = f"exports/programs/nano-p4/{program['id'].removeprefix('corpus:typing:')}.json"
         if session["export"] != export or not (ROOT / export).is_file():
             raise SystemExit(f"session program export differs or is missing: {sid}")
@@ -57,7 +68,7 @@ def mutations(lean, bundle, scratch):
     # Replace a context by a decision and a decision by an architecture state: canonically
     # distinct values of a different shape, whatever the table order.
 
-    def mutate(label, change):
+    def mutate(label, needle, change):
         mutated = json.loads(json.dumps(bundle))
         session = next(s for s in mutated["sessions"] if s["id"] == first["id"])
         change(session, next(d for d in session["drives"] if d["rx"] == drive["rx"]))
@@ -66,31 +77,38 @@ def mutations(lean, bundle, scratch):
         path.write_text(json.dumps(mutated))
         result = subprocess.run([str(lean), str(path)], cwd=ROOT, timeout=600,
                                 capture_output=True, text=True)
-        if result.returncode == 0 or "MISMATCH" not in result.stderr:
-            raise SystemExit(f"session mutation accepted: {label}")
+        if result.returncode == 0 or needle not in result.stderr:
+            raise SystemExit(f"session mutation not rejected as expected: {label}")
 
-    mutate("transmission", lambda s, d: d.update(txs=[]))
-    mutate("context", lambda s, d: d.update(ctx=d["decision"]))
-    mutate("decision", lambda s, d: d.update(decision=d["arch"]))
-    mutate("outcome", lambda s, d: d.update({"class": "runtimeFail"}) or
-           [d.pop(k) for k in ("ctx", "arch", "decision", "txs")])
-    mutate("initialization", lambda s, d: s["init"].update(ctx=d["decision"]))
-    print("[nano-sessions] five observation mutations rejected")
+    mutate("transmission", "reference packet processing differs", lambda s, d: d.update(txs=[]))
+    mutate("context", "reference packet processing differs",
+           lambda s, d: d.update(ctx=d["decision"]))
+    mutate("decision", "forwarding decision differs", lambda s, d: d.update(decision=d["arch"]))
+    mutate("outcome", "packet outcome differs", lambda s, d: d.update({"class": "runtimeFail"})
+           or [d.pop(k) for k in ("ctx", "arch", "decision", "txs")])
+    mutate("initialization", "reference initialization differs",
+           lambda s, d: s["init"].update(ctx=d["decision"]))
+    dropped = json.loads(json.dumps(bundle))
+    session = next(s for s in dropped["sessions"] if s["id"] == first["id"])
+    session["drives"].pop()
+    try:
+        check_corpus(dropped)
+    except SystemExit:
+        pass
+    else:
+        raise SystemExit("session mutation accepted: dropped packet")
+    print("[nano-sessions] six observation mutations rejected")
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--lean", type=pathlib.Path,
-                        default=ROOT / ".lake/build/bin/check-nano-sessions")
-    parser.add_argument("--summary", type=pathlib.Path)
-    args = parser.parse_args()
+def replay(lean):
+    """Check the snapshot and replay it; the corpus packet identities that all match."""
     bundle, data = fixture.read()
     ids = check_corpus(bundle)
     cache = ROOT / ".artifacts/nano-sessions/sessions-observed.json"
     cache.parent.mkdir(parents=True, exist_ok=True)
     snapshot = load("session_snapshot", ROOT / "scripts/spec-snapshot.py")
     snapshot.atomic_write(cache, data)
-    result = subprocess.run([str(args.lean.resolve()), str(cache)], cwd=ROOT, timeout=1800,
+    result = subprocess.run([str(lean), str(cache)], cwd=ROOT, timeout=1800,
                             capture_output=True, text=True)
     sys.stdout.write(result.stdout)
     sys.stderr.write(result.stderr)
@@ -98,10 +116,17 @@ def main():
                      if line.startswith("SESSION ") and line.endswith(" match"))
     if result.returncode != 0 or matched != ids:
         raise SystemExit("session replay did not match every corpus packet case")
-    mutations(args.lean.resolve(), bundle, cache.parent)
-    if args.summary:
-        args.summary.write_text(json.dumps({"matched": matched}, indent=1) + "\n")
+    mutations(lean, bundle, cache.parent)
     print(f"[nano-sessions] {len(matched)} corpus sessions checked")
+    return matched
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--lean", type=pathlib.Path,
+                        default=ROOT / ".lake/build/bin/check-nano-sessions")
+    args = parser.parse_args()
+    replay(args.lean.resolve())
 
 
 if __name__ == "__main__":

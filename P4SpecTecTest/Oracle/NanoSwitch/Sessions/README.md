@@ -13,8 +13,18 @@ corpus packet obligation with the inventory's source digests and program export,
 program and drives the recorded packets through both Lean paths: the AL interpreter with the
 registered NanoSwitch externs, and the generated model with the typed extern instance. Each
 must match upstream at every step, and the whole-session compositions of
-`NanoP4Target.Session` must match the stepwise replay. Five observation mutations must be
-rejected. Nothing is skipped: a decode failure or exhausted fuel fails the session.
+`NanoP4Target.Session` must match the stepwise replay. Six observation mutations (five in Lean, a dropped packet in
+the driver) must be
+rejected. Nothing is skipped: a decode failure or exhausted fuel fails the session. The
+driver also requires the recorded packets to be exactly the `packet` lines of each pinned
+STF file, and every upstream STF result to be `pass`, as it is at these pins.
+
+Values compare by canonical runtime equality, which ignores notes; zeroing cache identities
+and sharing table entries therefore loses nothing that is compared. The forwarding decision
+is recomputed on both paths from the same state and compared as a value. Upstream failure
+kinds are not recorded (the simulator reports only a class), and no corpus session fails.
+STF expectation matching stays upstream; the pinned corpus has only `packet` and `expect`
+statements, so no architecture-changing STF command is outside this model.
 
 Recapture in the upstream shell (exact pins required):
 

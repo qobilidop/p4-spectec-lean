@@ -36,6 +36,9 @@ private def packet (j : Lean.Json) : Except String Runtime.Sim.Io.rx := do
 private def packets (j : Lean.Json) : Except String (List Runtime.Sim.Io.tx) := do
   (← j.getArr?).toList.mapM packet
 
+private def NanoSwitch_drive (ctx : NanoP4Spec.evalContext) (state : NanoP4Spec.objectState) :=
+  NanoP4Spec.NanoSwitch_drive.run ctx state
+
 private def failure : Fail → String
   | .err => "err"
   | .unmatch => "unmatch"
@@ -58,7 +61,8 @@ def checkSession (g : Ctx.global) (cfg : Interp.Config) (values : Array Lang.Il.
   let reference := (Pipe.init_pipe call program).run
   let generated := (ExceptT.mk (NanoP4Spec.NanoSwitch_init.run typed) : Eval _).run
   match ← str init "class", reference, generated with
-  | "runtimeFail", some (.error _), some (.error _) =>
+  | "runtimeFail", some (.error r), some (.error q) =>
+    unless r == q do fail s!"initialization failure kinds differ: {failure r} and {failure q}"
     unless drives.isEmpty do fail "failed initialization has driven packets"
     return
   | "pass", some (.ok (ctx, arch)), some (.ok typedCtx) =>
@@ -71,7 +75,9 @@ def checkSession (g : Ctx.global) (cfg : Interp.Config) (values : Array Lang.Il.
     let mut state := (ctx, arch, typedCtx)
     let mut rxs := []
     let mut transmitted := []
+    let mut ended := false
     for drive in drives do
+      if ended then fail "a failing packet does not end its session"
       let rx ← packet (← field drive "rx")
       rxs := rxs ++ [rx]
       let (ctx, arch, typedCtx) := state
@@ -80,6 +86,7 @@ def checkSession (g : Ctx.global) (cfg : Interp.Config) (values : Array Lang.Il.
       match ← str drive "class", reference, generated with
       | "runtimeFail", some (.error r), some (.error q) =>
         unless r == q do fail s!"failure kinds differ: {failure r} and {failure q}"
+        ended := true
       | "pass", some (.ok (ctx', arch', txs)), some (.ok (typedCtx', typedTxs)) =>
         let expected ← packets (← field drive "txs")
         unless Runtime.Value.eq ctx' (← value "ctx" drive) &&
@@ -88,7 +95,19 @@ def checkSession (g : Ctx.global) (cfg : Interp.Config) (values : Array Lang.Il.
         unless Runtime.Value.eq (toValue typedCtx') (← value "ctx" drive) &&
             typedTxs == expected do
           fail "generated packet processing differs from upstream"
-        unless Pipe.is_forward (← value "decision" drive) == !expected.isEmpty do
+        -- The forwarding decision itself, from both paths' NanoSwitch_drive on the same state.
+        let decision ← value "decision" drive
+        let .ok packetIn := Core.Object.PacketIn.init rx.2
+          | fail "passing packet does not initialize"
+        let packetState := Pipe.extern_to_yojson (.PacketIn packetIn)
+        match (Interp.do_eval_rel fuel cfg g "NanoSwitch_drive"
+            [ctx, Runtime.Value.Make.extern (Pipe.varT "objectState") packetState]).run,
+          NanoSwitch_drive typedCtx ⟨packetState⟩ with
+        | some (.ok [d, _]), some (.ok (typedDecision, _)) =>
+          unless Runtime.Value.eq d decision && Runtime.Value.eq (toValue typedDecision) decision do
+            fail "forwarding decision differs from upstream"
+        | _, _ => fail "forwarding decision could not be recomputed"
+        unless Pipe.is_forward decision == !expected.isEmpty do
           fail "upstream decision and transmissions disagree"
         state := (ctx', arch', typedCtx')
         transmitted := transmitted ++ [txs]
