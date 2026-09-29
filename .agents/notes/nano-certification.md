@@ -1,9 +1,10 @@
 # Nano-P4 certification implementation plan
 
-Durable completion evidence and remaining plan, updated 2026-09-27.
+Durable completion evidence and remaining plan, updated 2026-09-28.
 N0/N1/N2 are closed. N2 implementation is validated at `76bed84`; closure is
 recorded at `d85e82c`, with independent review and passing full local/remote gates.
-N3 is in progress (first checkpoint below); N4–N6 remain planned.
+N3 is in progress: the first checkpoint below is historical, and the later
+stabilization checkpoint `770e405` passed the full local gate. N4–N6 remain planned.
 The user authorized N3; full-P4 M3 remains paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
@@ -28,7 +29,7 @@ composition remain separate acceptance stages.
   source value. Recursive/nested families use source derivations and actual
   carrier induction; parameter codecs and dictionaries remain explicit.
 - At N2 closure both correspondence directions covered 39 of 153 bodied declarations
-  (68 after the N3 work below). The strict
+  (68 at the historical first N3 checkpoint, 153 at stabilization). The strict
   N2 exit requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and
   Var_init, with their complete 30-definition dependency/SCC closure. It also
   requires source input coverage, successful source outputs and every actual
@@ -66,6 +67,7 @@ is excluded from the source value grammar. General target composition remains N4
 
 ## N3 first checkpoint (in progress)
 
+This first checkpoint is historical; N3 as a whole remains in progress.
 Authorized 2026-09-27. Three commits (`8ae7998`, `42c3fd3`, `63a95cd`) raise
 paired forward/reverse coverage from 39 to 67 of 153 bodied definitions without
 changing any existing claim statement (checked by claim-by-claim diff):
@@ -81,17 +83,23 @@ changing any existing claim statement (checked by claim-by-claim diff):
   via generated `canon_toValue` injection bridges and the `subtype_canon` tactic.
   Recursive functions that register type parameters stay excluded.
 
-### N3 core coverage (branch `n3-core`, 2026-09-28, in progress)
+### N3 core coverage (stabilization checkpoint `770e405`, 2026-09-28)
 
-The blocker table below is historical: on `n3-core` every bodied definition is
-admitted (the fragment gate lists no exclusion) and the forward/reverse theorems of
-all of them build (local `lake test`, not yet the gate), including `Decl_load`,
-`bin_op`, `Expr_ok`, `Expr_eval` and the six-member `Call_eval` group. Domain evidence
-uses runtime-profile codecs and claims where the source profile's is incomplete;
-remaining before the N3 exit: compiling the latest domain claims, the domain contracts
-of `ite`, `repeat_`, `empty_set` and `empty_map`, docs, the full gate and independent
-review ([status](../status.md) has the exact state). Shapes added to the drivers, each exercised by a named
-certificate: guarded cast unfolding (`Expr_ok`, `Decl_load`), relation pattern
+The blocker table below describes the historical first checkpoint. At `770e405`
+every bodied definition is admitted (the fragment gate lists no exclusion), and
+forward and reverse theorems for all 153 build, including `Decl_load`, `bin_op`,
+`Expr_ok`, `Expr_eval` and the six-member `Call_eval` group. Extern-dependent
+theorems state the abstract `externsContract`; print-dependent theorems state
+`cfg.printHints = []`. The full local `nix develop -c scripts/check.sh` passed,
+including generated runtime-domain claims. Evaluation-domain evidence uses the
+runtime-inclusive profile where the source-only profile is incomplete. The N3-owned
+inventory still lacks domain contracts for `ite`, `repeat_`, `empty_set` and
+`empty_map`; its source-identity item is checked by the completion CLI. Broader
+core, target and release obligations remain open. Thus N3 is not complete; see
+[status](../status.md) for the current next step.
+
+Shapes added to the drivers, each exercised by a named certificate: guarded cast
+unfolding (`Expr_ok`, `Decl_load`), relation pattern
 iteration presets (`Expr_ok`), membership conflicts through `ValueBEq.elemOfRel`
 (`ParserTransition_ok`, `ParserStateList_ok`), bare generated traversals
 (`ArgumentList_ok`), no-output column batches, canonical callee premises and

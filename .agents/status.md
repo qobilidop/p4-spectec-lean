@@ -1,82 +1,69 @@
 # Status
 
-Active autonomous stabilization and performance work, updated 2026-09-28.
-The user requested a passing local gate and CI before further optimization,
-then measured improvements to the remaining N3 iteration workflows.
-The current `n3-perf` tree passes the full local gate; publication and CI are next.
-It contains the work on `n3-core`; `main` still holds the first N3 checkpoint.
-N4–N6 have not started and full-P4 M3 remains paused.
+Autonomous performance work, checkpoint 2026-09-28. Implementation through
+`d28d3b8` on `n3-perf-next` has independent review and passing full local gates;
+final integration and remote CI remain before closing this task. Published N3
+history is preserved. N0/N1/N2 are complete; N3 remains incomplete. N4–N6 have
+not started and full-P4 M3 remains paused.
 
-## Verified checkpoint on `main`
+## Verified state
 
-N0/N1/N2 are complete (closure `d85e82c`, CI 36316496027). The first N3 checkpoint
-(68 of 153 bodied definitions two-way) and the replay tooling are on `main`, with
-passing full local gates; details in the
-[Nano plan](notes/nano-certification.md#n3-first-checkpoint-in-progress).
+- Stabilization `770e405` passed the full local gate and
+  [CI 36525856029](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36525856029).
+  It repairs the producer guard, obsolete generated modules, completion metadata,
+  replay/mutation contracts, text hygiene and cache-context completeness.
+- All 153 bodied definitions have compiled forward and reverse correspondence
+  theorems. Extern-dependent claims assume `externsContract`; print-dependent
+  claims assume empty hints. All generated runtime-domain claims compile.
+- The completion manifest records 350 declarations, 888 obligations and 758 claim
+  bindings. Of 130 unbound items, the CLI checks source identity; 129 remain
+  unresolved across stages. Strict bounded N2 passes. N3-owned domain contracts
+  still missing: `ite`, `repeat_`, `empty_set`, `empty_map`.
+- Performance commits: catalog reuse `2ee52b9`, normalization `c5974e7`, independent
+  proof directions `fa522c6`, optional native replay `d28d3b8`. No theorem statement,
+  proof body, audit or obligation was removed. No source pin changed.
 
-## Work in progress on `n3-core`
+## Validation and performance
 
-The branch contains WIP checkpoints and merges `n3-runtime` (`be20c38`, `c2a5f04`,
-delegated to a subagent). These commits are now published: preserve their history.
-Integrate only after validation and review, with the incomplete N3 scope explicit.
+`nix develop -c /usr/bin/time -l -p scripts/check.sh` exited 0 on the combined
+implementation: 835.25s wall, certificate/library stage 668s, no skipped stages.
+The repaired baseline was 1073.97s / 903s. A warm full gate exited 0 in 118.93s.
+All executable inputs are unchanged through `d28d3b8`; subsequent evidence-only
+edits reuse these passes with fresh text/link checks and independent review.
+Ignored logs are `.artifacts/perf/codex-optimized-gate.log` and
+`codex-optimized-warm-gate.log`. Actual native replay and native `--no-build`
+replay also exited 0. See [performance evidence](notes/proof-build-performance.md)
+and the [public snapshot](../docs/performance/n3-iteration-2026-09-28.md).
 
-- Refinement: every one of the 153 bodied definitions is admitted and emitted with
-  forward and reverse theorems (extern-dependent ones under the abstract
-  `externsContract`). All certificates and tests passed the full local gate on
-  2026-09-28, including the generated runtime-domain claims.
-- Domain evidence: the evaluation side uses the runtime-inclusive profile (decisions,
-  "Runtime-inclusive evaluation domain"). The manifest accepts complete evidence from
-  one profile. After regenerating with the current generator, the N3-owned inventory
-  (`--require-owned N3`, unchecked mode) lists only `domain` for `ite`, `repeat_`,
-  `empty_set`, `empty_map`, plus `sourceIdentity`, which the completion CLI checks
-  itself. The refreshed completion manifest and bounded N2 checks pass; broader
-  core/target/release obligations remain incomplete. The stale producer guard,
-  obsolete generated modules, and source/generated line-length failures are fixed.
-- Parked: constant/selection polymorphic domains for `empty_set`, `empty_map` and
-  `ite`. Hand prototypes prove the outputs (`simp only [f] at run` then
-  `simp [set.admitted]`; `cases p0 <;> simp [f, Eval.check] at run <;> subst run;
-  assumption`), but routing them through `SourcePolymorphic.field` made the generator
-  run the uncached recursive `RepresentationCertificates.plan` for 20+ minutes; the
-  change was reverted. Resolve their fields from the catalog instead. `repeat_` (a
-  recursive list builder) needs a `partial_correctness` proof shape.
+Independent read-only Codex GPT-6 Astra reviews found no remaining blocker;
+implementation and bounded tests used GPT-6 Sol agents. A second Astra reviewer
+reviewed the fact-lookup optimization authored by the first. Reviews are AI-agent
+reviews, not human review. Full gate execution was owned by the parent agent.
 
-## Proof-build performance on `n3-perf`
+## Next steps
 
-Claude's `deaa47a` removed synchronization and repeated simplification work. A fresh
-isolated `bin_op` check against those tactic artifacts passed in 173.77s. Independent
-review then found two tactic-completeness issues in its caches; those are fixed and
-covered by regressions. Replay and mutation tools now handle hoisted audits.
+1. Integrate the reviewed performance checkpoint into `main` without rewriting
+   published history. Require passing remote CI for the final revision, then
+   clean up integrated feature refs and the disposable replay worktree.
+2. Resume the four N3 domain proof shapes using the catalog-backed field resolver.
+   `empty_set`/`empty_map` need constant-result domains; `ite` selects an admitted
+   input; recursive `repeat_` needs a partial-correctness argument. The earlier
+   20-minute recursive representation-planning route is removed from production
+   source-domain planning.
+3. Regenerate completion, require `--require-owned N3`, update the
+   [Nano plan](notes/nano-certification.md), and run the full gate plus independent
+   review before declaring N3 complete. Broader stage obligations are not waived.
 
-`nix develop -c /usr/bin/time -p scripts/check.sh` exited 0 on the stabilization tree
-(1073.97s wall, library/certificate build 903s). No gate was skipped. Evidence is
-`.artifacts/perf/codex-stabilization-gate.log`; review and measurement limits are in
-[the performance note](notes/proof-build-performance.md). The rebuilt `bin_op` took
-316s, so recovering performance with the corrected caches is an explicit next task.
-CI now covers pushes to `main` and `n3-*`; this checkpoint's CI is not yet observed.
+For tactic iteration, build core once and use `scripts/replay-cert.py` with a
+selected theorem/direction; `--native` is optional and `--no-build` rejects stale
+native artifacts. Aggregate module names expand to real proof sources. Directly
+checking an aggregate file only imports existing proofs. Replay is faithful for
+tactic-only changes, not evidence for regenerated or changed dependencies.
+Run one build/replay at a time per checkout.
 
-## Resume point
+## Repository state
 
-0. Publish the reviewed stabilization checkpoint and require passing CI. Preserve
-   that run while measuring performance experiments on a separate `n3-*` branch.
-1. Reuse the representation catalog for domain planning; measure proof finalization,
-   structural sharing and independent forward/reverse dependency chains. Preserve
-   statements, audits and all validation requirements.
-2. After performance work, the four polymorphic domains above; then run
-   `nix develop -c python3 scripts/nano-certification.py --update` and
-   `--require-owned N3`.
-3. Update the Nano plan's N3 section and `docs/certification.md` to the delivered
-   claims, run `nix develop -c scripts/check.sh`, get an independent review, then
-   integrate into `main` without rewriting published commits.
-
-Iteration: `scripts/replay-cert.py` in the main tree with `--no-build` after
-`lake build P4SpecTec` (never while a full build runs there); it is faithful only for
-tactic-only changes. Generation takes seconds; minutes mean a generator regression.
-`replay-cert.py --only` now preserves each selected theorem's hoisted audit.
-
-## Maintenance and repository state
-
-Worktrees: main (`n3-perf`) and `../p4-spectec-lean-replay` (scratch replays,
-detached, disposable). Local branch `n3-runtime` is merged into `n3-core`; delete it
-with the other feature refs after integration. Older local branches `n3-decl-load`
-and `n3-expr-eval` are superseded by `n3-core`. The expected upstream exporter patch
-remains applied. No source pins changed.
+The worktree is on `n3-perf-next` pending final integration; `n3-perf` contains the
+passing stabilization checkpoint and includes `n3-core`. Other integrated/superseded
+feature refs remain until final main CI. `../p4-spectec-lean-replay` is the old
+scratch worktree. The expected four-file upstream exporter patch remains applied.

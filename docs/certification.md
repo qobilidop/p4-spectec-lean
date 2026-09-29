@@ -30,17 +30,14 @@ the user-facing account of current capabilities and their guarantees.
 | Generated relation soundness theorems | Successful generated execution implies the generated logical relation | Does not by itself connect that relation to AL or prove every relational witness executable |
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its [refinement
-index](../NanoP4Spec/Refinement.lean) currently record forward and reverse AL theorems
-for the same 68 of 153 bodied definitions, including the recursive
-`Type_eq`/`ParameterType_eq` group, the `Type_ok` and `Var_init` closures, the recursive
-output-producing `Parameters_ok` relation, the empty-context constructors behind
-`make_loadContext`/`make_evalContext`, `NanoSwitch_setup`, and recursive syntax
-flattening and variable lookup (`flatten_argumentList`, `find_var_e`), and unary
-operators with numeric coercions (`un_op`). A theorem whose
-callable closure reaches `print_` states the pinned empty print-hint table as a
-hypothesis. Both reports come from the same generation plan. They record exclusions,
-including blockers inherited from dependencies or other members of a recursive group.
-These counts are not a percentage of P4 language behavior certified.
+index](../NanoP4Spec/Refinement.lean) record forward and reverse AL theorems for
+all 153 bodied definitions at the current Nano-P4 pin. Extern-dependent theorems
+assume the abstract `externsContract`; a theorem whose callable closure reaches
+`print_` also assumes `cfg.printHints = []`. Both reports come from the same
+generation plan. Source-domain evidence is separate: the N3-owned inventory
+still lacks domain contracts for `ite`, `repeat_`, `empty_set` and `empty_map`.
+These counts are not a percentage of P4 language behavior certified, and N3 core
+completion has not passed.
 
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
@@ -97,8 +94,8 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 381 compiled claim bindings; 507 remain
-unresolved. The bounded N2 check additionally requires the selected 30-definition
+The current 888 obligations have 758 compiled claim bindings; 130 have no claim
+binding. The bounded N2 check additionally requires the selected 30-definition
 closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
 primitive codecs and table initialization. It checks input coverage, output
 preservation and full intermediate call admission separately. These counts are neither behavioral
@@ -113,10 +110,10 @@ belongs to the core stage; packet replay additionally belongs to the target.
 
 The checker regenerates the inventory, checks source identities and the pinned
 corpus, and invokes the existing compiled coverage and quotation checks. There
-is no editable `checked` flag. Contract kinds without a statement/checker
-adapter remain unresolved, including the complete source-identity obligation
-beyond the existing normalized quotation comparison. Review and release
-evidence are recorded obligations, not kernel theorems or metadata verdicts.
+is no editable `checked` flag. The source-identity obligation is checked by this
+CLI, not bound to a compiled theorem claim. Other contract kinds without a
+statement/checker adapter remain unresolved. Review and release evidence are
+recorded obligations, not kernel theorems or metadata verdicts.
 
 The [corpus inventory](../P4SpecTecTest/Oracle/Nano/Certification/corpus.json) retains 78 programs
 and 39 STF sessions. Upstream observations exist for all typing cases and three
