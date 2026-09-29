@@ -6,9 +6,10 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
 
 ## Status
 
-- [Nano-P4](https://github.com/pacokwon/nano-p4-spec): generated semantics,
-  differential tests, and a checked verification example. Certification
-  coverage is partial.
+- [Nano-P4](https://github.com/pacokwon/nano-p4-spec): two-way correspondence
+  for all bodied definitions under explicit contracts, bounded differential
+  tests, and a checked verification example. Complete corpus evidence and
+  target composition remain open; see [certification limits](docs/certification.md).
 - Full P4 production generation remains incomplete.
 
 The next major milestone is [complete Nano-P4 support and certification](docs/design.md#9-nano-p4-scope-and-acceptance):

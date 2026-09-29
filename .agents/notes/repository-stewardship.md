@@ -1,6 +1,6 @@
 # Repository stewardship
 
-Durable, 2026-09-27. Retained as the evidence index for requested repository
+Durable, 2026-09-29. Retained as the evidence index for requested repository
 maintenance passes: what each changed, how it was reviewed and validated, and
 where its full record is recoverable. Policy lives in AGENTS, not here. Rewrite
 this note at each upkeep; do not append a journal.
@@ -64,37 +64,46 @@ unless stated otherwise. Historical Git paths are recovery pointers, not links.
   [CI 36341571853](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36341571853)
   passed. Full record at `aa5865f:.agents/notes/repository-stewardship.md`.
 
-## Current Claude Code tend-repo pass
+- N3 handoff compaction (`ffc21e7`, Claude Code) condensed completed N2 evidence,
+  recorded then-open N3 blockers, corrected counts and rebased two local WIP refs.
+  It reused `b6f1576`'s actual exit-0 full gate (45 stages, no skips) and passing
+  exact-revision CI 36357022016; fresh text/whitespace/link checks passed.
+  Independent-context Claude Opus review resolved scope/evidence wording and
+  found no remaining blocker; it ran no builds and did not review blocker
+  semantics beyond commit messages. This is AI review, not human review.
+  The original record and historical WIP identities are recoverable at
+  `ffc21e7:.agents/notes/repository-stewardship.md`. Current refs belong in status;
+  this historical record did not establish a CI outcome for `ffc21e7` itself.
 
-Requested scope: general maintenance to hand off N3 to a new session. Base
-`b6f1576`, whose exact-revision CI 36357022016 passed (checked before editing).
-Changes, documentation and working state only:
+## Current maintenance pass
 
-- Compacted the Nano plan: N3 progress now states delivered support, the
-  remaining 85 definitions by file, the blocker table and review outcomes; the
-  finished N2 plan text is condensed to its binding constraints (full text at
-  `d85e82c:.agents/notes/nano-certification.md`); N2 counts are labelled
-  historical; the N3 estimate is reassessed.
-- Rewrote status as a resume point for completing N3.
-- Corrected stale public counts: completion bindings (381 → 439) in
-  Certification, and a volatile "18 of 153" in Related Work.
-- Rebased the local WIP branches `n3-decl-load` (`6996172` → `82fbe2e`) and
-  `n3-expr-eval` (`b451d9e` → `8ed31d3`) onto `b6f1576` as hand-written changes
-  only; both still compile the generator (and `n3-decl-load` the tactic
-  library). The superseded commits are local and unreferenced.
+Requested general maintenance after N3 closure, based on `6ca3a22`. Its exact
+CI 36539336394 was freshly queried and passed. Documentation changes only:
+consolidated the completed source-domain note into the Nano plan, retired the
+completed N3 task list, shortened status, corrected stale scope and cache guidance,
+and documented canonical regeneration and controlled recursive unfolding.
+The removed note is recoverable at `6ca3a22:.agents/notes/n3-source-domains.md`.
+No skill/policy changes, pins, generated artifacts, branches or worktrees changed.
 
-No skill change: this run found no demonstrated weakness in the procedure.
-Validation: executable inputs are unchanged from `b6f1576`, so this pass reuses
-its full local gate (actual exit 0, 45 stages, no skips) and exact-revision CI
-36357022016; fresh text hygiene, `git diff --check` and a relative-link scan of
-`.agents/`, `docs/`, README and AGENTS returned exit 0 with no broken links.
-Independent read-only review of the uncommitted diff: a Claude Opus subagent (same
-model family as the author; independent context, not vendor), without building.
-It verified the counts, the per-file breakdown, branch bases, recovery paths and
-CI runs, and found no blockers; resolved: an unsupported review claim, the estimate
-arithmetic, this missing evidence record, two condensed constraints, an ambiguous
-branch description and a lesson that restated AGENTS. Not checked by the reviewer:
-the local gate, WIP compilation, and blocker semantics beyond commit messages.
+Validation reuses `67f67ae`'s actual exit-0 full gate (124.00s, no skips), because
+all executable inputs are unchanged through `6ca3a22` and this diff. Fresh text
+hygiene, staged whitespace and library-boundary/reachability checks returned exit 0;
+120 relative Markdown links across 33 files passed target/heading-anchor checks.
+The first text check exited 1 because the deleted tracked note was still in the
+index; staging its removal resolved that, without changing the checker.
+The resulting note inventory was checked, including the historical recovery path.
+Independent read-only Codex GPT-6 Astra review passed with no blocking findings.
+Reviewed staged diff against `6ca3a22`, SHA-256
+`f6a08fdafdfc3889abc44ccc6a61354558463c7747499afd5ce71f6b0faf567f`:
+11 Markdown paths only. It checked retained obligations/evidence, cache guidance
+against `Normalize.lean`, public scope and recovery pointers. It ran no builds or
+fresh CI query; validation above is integrator evidence, not reviewer execution.
+This was AI review, not human review. The older unverified determinism-bookkeeping
+and empty-spec observations remain in their existing notes, outside this scope.
+This routine maintenance commit's remote CI is separate from the verified N3
+milestone run above.
+
+## Shared-skill layout reproduction
 
 The shared-skill layout cases can be reproduced from the repository's Nix shell;
 the temporary fixtures are outside the checkout, and the tested block comes

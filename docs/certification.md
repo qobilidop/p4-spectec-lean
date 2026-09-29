@@ -13,9 +13,10 @@ upstream OCaml or the intended P4 language.
 
 ## What is certified today?
 
-Nano-P4 generates a Lean model that builds and is differential-tested against
-the pinned upstream corpus. That executable support is broader than the
-AL correspondence coverage below. The intended completion criteria for both
+Nano-P4 generates a Lean model with two-way AL correspondence for every bodied
+definition, under the assumptions below, and bounded differential tests against
+the pinned upstream corpus. Complete corpus evidence and target composition remain
+open. The intended completion criteria for both
 core semantics and target composition are in
 [Design, section 9](design.md#9-nano-p4-scope-and-acceptance); neither stage is
 complete. Full-P4 support is not yet a usable generated library.
@@ -142,6 +143,16 @@ After changing source or evidence, regenerate metadata with
 `python3 P4SpecTecTest/Oracle/Nano/Certification/corpus.py --update` followed by
 `python3 scripts/nano-certification.py --update`, both inside the pinned shell.
 Regeneration itself is not validation or certification.
+
+Regenerate the Lean model from the repository root using the canonical relative
+input argument:
+
+```sh
+nix develop --command lake exe p4spectec-gen exports/nano-p4.al.json --lib NanoP4Spec --runtime-extern value --update
+```
+
+The generator records that argument in generated headers. An absolute input path
+changes otherwise identical files and triggers unnecessary proof rebuilds.
 
 ### Implementation boundaries
 

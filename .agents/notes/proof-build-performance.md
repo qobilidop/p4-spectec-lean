@@ -4,7 +4,8 @@ Durable performance evidence, closed 2026-09-29. Retained for review provenance,
 experiments and remaining constraints. The public
 [N3 performance snapshot](../../docs/performance/n3-iteration-2026-09-28.md)
 owns measured artifact behavior and reproduction. This note supersedes the
-working reports retained in Git history; it does not claim N3 completion.
+working reports retained in Git history. N3 subsequently closed; the
+[Nano plan](nano-certification.md#n3-proof-closure-complete) owns that evidence.
 
 ## Stabilization and inherited work
 
@@ -140,7 +141,7 @@ reuses unchanged executable inputs and passing local/remote gates, with fresh te
 whitespace and relative-link checks. Verified-merged feature refs were removed only
 after passing main CI; the dirty scratch worktree and non-ancestor WIP ref remain.
 
-## Rejected approaches and remaining work
+## Rejected approaches and iteration constraints
 
 Exact structural sharing after simp (32-result epochs) passed in 293.44s versus
 291.29s, so it was removed. A one-second stack sample had overemphasized finalization;
@@ -156,12 +157,12 @@ roll back freshly realized constants. Both boundaries remain protected.
 The longest chain still includes reverse `bin_eq`, `bin_op`, `Expr_eval` and
 `Call_eval`; reverse `bin_op` took 308s during the concurrent optimized rebuild.
 Further native build integration needs a narrower tactic artifact boundary, not
-whole-core invalidation. Current performance is adequate to resume the remaining
-four domain proof shapes using catalog-backed generation. N3 completion still
-requires those proofs, strict owned-obligation validation and final review.
+whole-core invalidation. The four final domain shapes subsequently passed their
+actual target builds, strict owned-obligation validation and final review in
+`67f67ae`; they are no longer pending performance work.
 
 A read-only Astra follow-up inspected imports at integrated `4e566fb`. The four
-missing shapes route through `SourcePolymorphic.complete`. Generator changes and
+then-missing shapes route through `SourcePolymorphic.complete`. Generator changes and
 source support (`Refine.SourceBuiltin`, `ProducerMap`, `Representation.SourceCodec`)
 do not invalidate heavy forward/reverse `bin_op` or `Expr_eval` proofs. Shared
 `Tactic.Refine.Normalize` changes still invalidate both directions. Regeneration

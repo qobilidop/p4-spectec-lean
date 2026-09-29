@@ -81,8 +81,39 @@ profile is incomplete. The final four domain contracts (`ite`, `repeat_`,
 The completion CLI checks source identity separately. The inventory has 888
 obligations and 762 compiled claim bindings. The normal gate now requires
 `--require-owned N3` as well as bounded N2; later-owned core corpus, target and
-release obligations remain open. See [the source-domain checkpoint](n3-source-domains.md)
-for proof/review evidence and [status](../status.md) for validation and integration.
+release obligations remain open. Of 126 unbound obligations, the CLI checks source
+identity, leaving 125 unresolved across stages, including 78 N4-owned core corpus
+items. This is N3-owned proof closure, not full core acceptance.
+
+The final implementation `67f67ae` adds exactly four sourceDomain claims, without
+changing or removing earlier claims. Empty-container input coverage is `True`;
+choice returns an admitted input. Repetition preserves admitted outputs by induction
+on the actual natural count and successful recursive tail, without asserting totality.
+Recognition checks source structure, not callable names: repetition compares complete
+region-erased clauses with distinct actual binders and the recursive callee. Tests
+cover consistent renaming and malformed types, bodies, parameters, clause order and
+removed guards. The recursive equation unfolds once per induction case; unrestricted
+`simp` loops (see [Lean pitfalls](../../docs/lean-pitfalls.md)).
+
+Independent read-only Codex GPT-6 Astra review of the implementation diff found the
+zero-input coverage bug, required its correction, and re-reviewed all four theorem
+types, proofs, audits, exact inventory diffs and stronger gate flags with no remaining
+blocker. Scope wording and a historical-estimate link were also corrected. GPT-6 Sol
+authored the first three shapes; the parent authored repetition and integration.
+These were AI reviews, not human review; the reviewer ran no builds.
+
+All four actual source-domain targets and final focused generator tests passed with
+`--wfail` and axiom audits. Two initial full gates exited 1 on a test layout error;
+the final named-definition form fixed it. The corrected full
+`nix develop -c /usr/bin/time -l -p scripts/check.sh` exited 0 in 124.00s, no skips.
+Implementation [CI 36538318591](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36538318591)
+passed (certificate stage 10s), as did exact final documentation revision `6ca3a22`
+in [CI 36539336394](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36539336394).
+That documentation checkpoint reused unchanged executable inputs with fresh text/link
+checks and independent review. The merged `n3-source-domains` ref was removed only
+after passing main CI, verified by branch listing. The original detailed record is
+recoverable at historical Git path `6ca3a22:.agents/notes/n3-source-domains.md`;
+ignored `.artifacts/perf/n3-domain-*` logs are supplementary, not required to resume.
 
 Reusable support now covers relation output premises, recursive subtype bridges,
 numeric coercions, guarded cast unfolding, relation pattern iteration, membership
@@ -149,33 +180,9 @@ recoverable at `d85e82c:.agents/notes/nano-certification.md`. Primary surfaces:
 `Codegen/Types.lean`, `Codegen/Funcs.lean`, `Codegen/Certificates/Forward.lean`,
 `Codegen/Emit.lean`, `Refine/`, `Tactic/` and `P4SpecTecTest/`.
 
-## N3. Close core semantics in dependency order
-
-Use these actual entry points as integration checkpoints, while scheduling
-their helpers and SCCs in dependency order:
-
-1. `Program_load` and `Expr_eval`: independently useful loading and expression
-   closures, with success and representable rejection/error results.
-2. `Program_ok`: all typing relations, including syntactically valid programs
-   rejected by typing; do not assume well-typedness to certify the checker.
-3. `NanoSwitch_init`: compose typing, loading and evaluation-context creation
-   from exported programs, discharging actual environment assumptions.
-4. `NanoSwitch_drive`: certify parser/control behavior and the six-member
-   call/table/statement recursive group under explicit extern contracts.
-5. Sweep every remaining exported definition and representation, including
-   stdlib helpers outside these entry-point closures.
-
-Exit: both directions for all 153 bodied definitions at the current pin,
-all 26 builtin contracts, representation/initialization evidence, and all
-77 relation run-soundness theorems; regenerate the denominator on pin changes.
-The core check for obligations owned through N3 (`--require-owned N3`) passes,
-with target-dependent results explicitly conditional on the named extern contracts.
-The broader core stage still requires N4-owned corpus evidence. No missing callee or SCC member
-can be hidden by a conditional wrapper theorem.
-
 ## N4. Discharge target contracts and compose packet execution
 
-After N1 settles representation, target port work can proceed alongside N2/N3.
+N1–N3 have settled the representation and core proof prerequisites.
 Complete the typed Nano extern instance, packet operations, driver and semantic
 target initialization using the pinned upstream NanoSwitch as the oracle.
 Prove the contracts consumed by the core, including intermediate contexts,

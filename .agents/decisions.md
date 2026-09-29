@@ -1,6 +1,6 @@
 # Decisions
 
-Current cross-cutting choices and reasons. Updated 2026-09-27.
+Current cross-cutting choices and reasons. Updated 2026-09-29.
 Rules belong in [AGENTS.md](../AGENTS.md), architecture in
 [Design](../docs/design.md), and detailed constraints in the linked topic
 notes. This register is not a chronological log.
@@ -21,8 +21,9 @@ scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
 first authorized settling this scope and then explicitly approved autonomous
 implementation of the Nano plan, then explicitly requested completion through N2,
-then on 2026-09-27 approved starting N3 at its first checkpoint. N4–N6 remain
-planned; broader full-P4 M3 remains paused. Use the model tiers in
+then authorized N3 through its proof closure on 2026-09-29. N3-owned proofs are
+closed; N4–N6 remain planned and need a new scope. Broader full-P4 M3 remains paused.
+Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit
 ownership and one integrator. Confidence high in the milestone choice;
@@ -153,8 +154,9 @@ The chosen interface uses ordinary codecs and contextual contracts, with exact
 callback/state evidence separate from full target certification. Confidence high
 for this Nano profile. Revisit if a pin changes the callback result, subtype-check
 forms, or a new carrier needs a different runtime extension. N2 supplies all 162
-source codecs and the selected closure's call invariants; broader core coverage
-remains N3 and complete target composition remains N4.
+source codecs and the selected closure's call invariants; N3 has since closed
+the remaining owned proof obligations. Complete corpus evidence and target
+composition remain N4.
 
 ## Runtime-inclusive evaluation domain (2026-09-28)
 
@@ -220,8 +222,8 @@ Native tactic execution is opt-in for scratch replay (`--native`), resolving
 Batteries and core shared-library paths through Lake in dependency order.
 Do not attach the entire core shared library to Nano's library configuration:
 Lake includes native artifact hashes in every module's trace, so a Codegen edit
-would rebuild unchanged Nano proofs. This would penalize the remaining N3 domain
-work. Confidence high from pinned Lake's dependency implementation; revisit a
+would rebuild unchanged Nano proofs and penalize generator-only iteration.
+Confidence high from pinned Lake's dependency implementation; revisit a
 separate native tactic artifact only if repeated measurements justify its build
 boundary and maintenance cost.
 

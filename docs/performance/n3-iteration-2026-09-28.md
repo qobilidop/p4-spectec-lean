@@ -97,7 +97,7 @@ experiment was removed. Native library preparation cost 26.77s for module librar
 and another 1.68s for the combined library, with existing Lean/C artifacts; this is
 not a clean native build measurement. Native replay is opt-in. Attaching the entire
 core native library to Nano builds would make Codegen edits invalidate unchanged
-proofs, which would slow the remaining N3 domain work.
+proofs, which would slow generator-only iteration.
 
 ## Reproduction and iteration
 

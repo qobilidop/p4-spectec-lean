@@ -1,6 +1,6 @@
 # Certification rationale and open questions
 
-Durable discussion reference and paused design questions, compacted 2026-09-26.
+Durable discussion reference and paused design questions, updated 2026-09-29.
 The user requested preservation of this discussion. This is not a second
 literature survey or authorization for new implementation.
 
@@ -37,15 +37,14 @@ The independent critique reviewed baseline
 `c215d102758c00b829a50085e1e271185a176613` on 2026-09-25.
 Its approved first consumer milestone is now complete
 ([field-update evidence](field-update.md)); broader M3 remains paused.
-Remaining proposals are advisory:
+Machine-readable source/claim/dependency inventories and full Nano source codecs
+have since landed through N3; [Certification](../../docs/certification.md) owns
+their current coverage and assumptions. Remaining proposals are advisory:
 
-- Make certification coverage machine-readable by source identity, definitions,
-  dependencies, theorem names, representations, environments and exclusions.
-  A strict entry-point certificate needs every reachable contract. Successful
-  generation is distinct from successful certification.
-- Generalize source representation adequacy beyond the completed scalar case.
-  Validity, coverage and decoding do not follow from canonical equality alone;
-  printing, callbacks and metadata need observation-specific contracts.
+- Complete target/composition evidence in the inventory. A strict entry-point
+  certificate needs every reachable contract; successful generation is distinct
+  from certification. Printing, callbacks and metadata still need their explicit
+  observation contracts; canonical equality alone does not supply them.
 - Expand distinguishing mutations: alternative order, hard-error retry, state
   reset after rejection, omitted constructors, wrong quotations, jointly
   altered executable/relation, and print provenance. Identify which boundary
@@ -69,7 +68,8 @@ a finite reverse witness. No novelty claim follows merely from using Lean.
 
 Documentation scope settled on 2026-09-26 at the user's request. The durable
 contract is [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance);
-implementation remains deferred. Both core semantics and target composition
+implementation was deferred at that historical checkpoint. N0–N3 are now closed;
+N4–N6 remain planned. Both core semantics and target composition
 are required to avoid calling a collection of helper certificates a complete
 Nano model. General logical converse is separate from the required two-way
 executable correspondence. Upstream parsing and test syntax may remain outside
