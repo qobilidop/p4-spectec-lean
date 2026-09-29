@@ -43,6 +43,40 @@ def module_path(target):
     return ROOT / (target.replace(".", "/") + ".lean")
 
 
+def directional_sources(source, only):
+    """Expand a compatibility aggregate to its actual direction proof modules."""
+    relative = source.relative_to(ROOT)
+    if relative.parent.name != "Refinement":
+        return [source]
+    module = ".".join(relative.with_suffix("").parts)
+    imported = set(imports(source.read_text()))
+    prefix = module.rsplit(".", 1)[0]
+    expected = {direction: prefix + f".{direction}.{source.stem}"
+                for direction in ("Forward", "Reverse")}
+    if not any(name in imported for name in expected.values()):
+        return [source]
+    candidates = {direction: source.parent / direction / source.name
+                  for direction in expected}
+    if any(name not in imported or not candidates[direction].is_file()
+           for direction, name in expected.items()):
+        raise ValueError(f"incomplete directional aggregate: {source}")
+    ambiguous = any("refines" not in selector and "realizes" not in selector
+                    for selector in only)
+    directions = []
+    for direction, word in (("Forward", "refines"), ("Reverse", "realizes")):
+        candidate = candidates[direction]
+        if not only or ambiguous or any(word in selector for selector in only):
+            if not only or selected_theorems(candidate.read_text(), only):
+                directions.append(candidate)
+    return directions
+
+
+def selected_theorems(text, only):
+    """Count directly requested theorem declarations, before dependency expansion."""
+    return [name for kind, name in map(chunk_kind, chunks(text))
+            if kind == "theorem" and any(word in name for word in only)]
+
+
 def chunks(text):
     """Split declarations and individual audits; a chunk keeps its docstring."""
     parts, current = [], []
@@ -184,10 +218,21 @@ def main(argv=None):
     parser.add_argument("--no-build", action="store_true",
                         help="skip rebuilding the P4SpecTec library first")
     args = parser.parse_args(argv)
-    sources = [module_path(m) for m in args.modules]
-    for source in sources:
+    requested = [module_path(m) for m in args.modules]
+    for source in requested:
         if not source.exists():
             parser.error(f"no source file {source}")
+    sources = []
+    for source in requested:
+        try:
+            expanded = directional_sources(source, args.only)
+        except ValueError as error:
+            parser.error(str(error))
+        if args.only and not any(selected_theorems(part.read_text(), args.only)
+                                 for part in expanded):
+            parser.error(f"--only matched no theorem in {source}")
+        sources.extend(expanded)
+    sources = list(dict.fromkeys(sources))
     if not args.no_build:
         built = subprocess.run(["lake", "build", "P4SpecTec"], cwd=ROOT,
                                capture_output=True, text=True)

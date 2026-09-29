@@ -2,8 +2,11 @@
 """Certificate replay copies select theorems and add options without changing others."""
 
 import importlib.util
+import io
 from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("replay_cert", ROOT / "scripts/replay-cert.py")
@@ -105,7 +108,10 @@ class ReplayTest(unittest.TestCase):
 
     def test_generated_modules_keep_what_kept_theorems_use(self):
         # Every theorem named in a kept chunk and defined in the module is kept too.
-        for path in sorted((ROOT / "NanoP4Spec/Refinement").glob("*.lean")):
+        directory = ROOT / "NanoP4Spec/Refinement"
+        paths = (list(directory.glob("*.lean")) + list(directory.glob("Forward/*.lean")) +
+                 list(directory.glob("Reverse/*.lean")))
+        for path in sorted(paths):
             text = path.read_text()
             theorems = [name for _, kind, name in
                         ((c, *replay.chunk_kind(c)) for c in replay.chunks(text))
@@ -125,9 +131,76 @@ class ReplayTest(unittest.TestCase):
         self.assertNotIn("theorem «$add_map».realizes", kept)
 
     def test_selection_uses_full_names(self):
-        text = (ROOT / "NanoP4Spec/Refinement/Type_eq.lean").read_text()
+        text = (ROOT / "NanoP4Spec/Refinement/Forward/Type_eq.lean").read_text()
         kept = replay.select(text, ["ParameterType_eq"])
         self.assertIn("theorem ParameterType_eq.refines", kept)
+
+    def test_aggregate_resolves_to_direction_proofs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            refinement = root / "Fixture/Refinement"
+            (refinement / "Forward").mkdir(parents=True)
+            (refinement / "Reverse").mkdir()
+            aggregate = refinement / "R.lean"
+            aggregate.write_text("import Fixture.Refinement.Forward.R\n"
+                                 "import Fixture.Refinement.Reverse.R\n")
+            forward = refinement / "Forward/R.lean"
+            reverse = refinement / "Reverse/R.lean"
+            forward.write_text("theorem R.refines : True := trivial\n")
+            reverse.write_text("theorem R.realizes : True := trivial\n")
+            with patch.object(replay, "ROOT", root):
+                self.assertEqual(replay.directional_sources(aggregate, []), [forward, reverse])
+                self.assertEqual(replay.directional_sources(aggregate, ["refines"]), [forward])
+                self.assertEqual(replay.directional_sources(aggregate, ["realizes"]), [reverse])
+                self.assertEqual(replay.directional_sources(aggregate, ["R"]), [forward, reverse])
+                self.assertEqual(replay.selected_theorems(aggregate.read_text(), ["refines"]), [])
+                self.assertEqual(replay.selected_theorems(forward.read_text(), ["refines"]),
+                                 ["R.refines"])
+                reverse.unlink()
+                with self.assertRaisesRegex(ValueError, "incomplete directional aggregate"):
+                    replay.directional_sources(aggregate, ["refines"])
+
+    def test_each_requested_module_must_match_selection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            refinement = root / "Fixture/Refinement"
+            refinement.mkdir(parents=True)
+            matching = refinement / "Matching.lean"
+            unmatched = refinement / "Unmatched.lean"
+            matching.write_text("theorem R.refines : True := trivial\n")
+            unmatched.write_text("theorem S.realizes : True := trivial\n")
+            with patch.object(replay, "ROOT", root):
+                with self.assertRaises(SystemExit) as result:
+                    replay.main([str(matching), str(unmatched), "--only", "refines",
+                                 "--no-build"])
+            self.assertEqual(result.exception.code, 2)
+
+    def test_main_replays_direction_instead_of_empty_aggregate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            refinement = root / "Fixture/Refinement"
+            (refinement / "Forward").mkdir(parents=True)
+            (refinement / "Reverse").mkdir()
+            aggregate = refinement / "R.lean"
+            aggregate.write_text("import Fixture.Refinement.Forward.R\n"
+                                 "import Fixture.Refinement.Reverse.R\n")
+            forward = refinement / "Forward/R.lean"
+            reverse = refinement / "Reverse/R.lean"
+            forward.write_text("theorem R.refines : True := trivial\n")
+            reverse.write_text("theorem R.realizes : True := trivial\n")
+            seen = []
+
+            def checked(source, _args):
+                seen.append(source)
+                return source, 0, 0.0, root / "replay.log"
+
+            with patch.object(replay, "ROOT", root), \
+                    patch.object(replay, "missing_imports", return_value=[]), \
+                    patch.object(replay, "replay", side_effect=checked), \
+                    patch("sys.stdout", io.StringIO()):
+                self.assertEqual(replay.main([str(aggregate), "--only", "refines",
+                                              "--no-build", "--jobs", "1"]), 0)
+            self.assertEqual(seen, [forward])
 
     def test_imports_and_paths(self):
         self.assertEqual(replay.imports(MODULE),

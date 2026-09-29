@@ -134,7 +134,7 @@ def proof_probe(case, nonce):
         semantics, "theorem generatedEqUpdate", "/-- info: 'ExampleProofs.NanoP4FieldUpdate.generatedEqUpdate'")
     behavior = replace_exact(behavior, 'NanoP4Spec.«$update_fieldValue»',
                              'Scratch.«$update_fieldValue»', 3)
-    emitted = (ROOT / "NanoP4Spec/Refinement/update_fieldValue.lean").read_text()
+    emitted = (ROOT / "NanoP4Spec/Refinement/Forward/update_fieldValue.lean").read_text()
     refinement = extract_refinement_group(emitted)
     refinement = replace_once(refinement,
         "(ExceptT.mk (NanoP4Spec.«$update_fieldValue» p0 p1 p2))",

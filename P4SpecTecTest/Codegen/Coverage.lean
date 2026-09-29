@@ -25,6 +25,39 @@ def fixture : Lang.Al.spec :=
 
 def report : Except String Codegen.Coverage.Report := Emit.coverage "Fixture" "test.json" fixture
 
+private def groups (spec : Lang.Al.spec) : Option (List Emit.RefGroup) := do
+  let (_, _, refinement) ← (Emit.plan (Env.ofSpec "Fixture" spec) spec).toOption
+  pure refinement.groups
+
+private def groupNamed (spec : Lang.Al.spec) (name : String) : Option Emit.RefGroup := do
+  (← groups spec).find? (·.name == name)
+
+-- Invocation directions have independent callee chains; the old module is an aggregate.
+#guard (groupNamed fixture "Forward.caller").any (·.deps == ["Forward.leaf"])
+#guard (groupNamed fixture "Reverse.caller").any (·.deps == ["Reverse.leaf"])
+#guard (groupNamed fixture "caller").any (·.deps ==
+  ["Forward.caller", "Reverse.caller"])
+#guard (groupNamed fixture "Forward.leaf").isSome
+#guard (groupNamed fixture "Reverse.leaf").isSome
+#guard (groupNamed fixture "Forward.blocked").isNone
+#guard (groupNamed fixture "Reverse.blocked").isNone
+
+private def emittedDirections : Except String (List Emit.Output) :=
+  Emit.generate "Fixture" "test.json" [func "leaf" bool, func "caller" (call "leaf")]
+
+#guard emittedDirections.toOption.any fun outputs =>
+  let source (path : String) := (outputs.find? (·.path == path)).map (·.text)
+  (source "Fixture/Refinement/Forward/caller.lean").any
+    (fun body => body.contains "import Fixture.Refinement.Forward.leaf\n" &&
+      !(body.contains "import P4SpecTec.Tactic.Realize\n")) &&
+  (source "Fixture/Refinement/Reverse/caller.lean").any
+    (fun body => body.contains "import Fixture.Refinement.Reverse.leaf\n" &&
+      body.contains "import P4SpecTec.Tactic.Realize\n") &&
+  (source "Fixture/Refinement/caller.lean").any fun body =>
+    body.contains "import Fixture.Refinement.Forward.caller\n" &&
+      body.contains "import Fixture.Refinement.Reverse.caller\n" &&
+      !(body.contains "theorem caller.refines") && !(body.contains "theorem caller.realizes")
+
 def entry (name : String) : Except String Codegen.Coverage.Entry := do
   let r ← report
   match r.definitions.find? (·.id == name) with
@@ -60,6 +93,13 @@ def reverseOnly : Codegen.Coverage.Entry := {
 #guard reverseOnly.hasReverseRefinement && !reverseOnly.hasForwardRefinement
 
 def coveredCycle : Lang.Al.spec := [func "a" (call "b"), func "b" (call "a")]
+
+-- Joint recursive induction stays in one module for each direction.
+#guard (groups coveredCycle).any fun modules =>
+  (modules.filter (·.name.startsWith "Forward.")).length == 1 &&
+  (modules.filter (·.name.startsWith "Reverse.")).length == 1 &&
+  (modules.filter (fun g => ((render g.decls).splitOn "refines_group").length > 1)).length == 1 &&
+  (modules.filter (fun g => ((render g.decls).splitOn "realizes_group").length > 1)).length == 1
 
 -- A mutual recursive group is certified in both directions, and so are its callers.
 #guard (Emit.coverage "Fixture" "test.json" coveredCycle).toOption.any fun r =>

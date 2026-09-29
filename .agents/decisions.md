@@ -202,12 +202,19 @@ small ones loose. The budget is a resource limit, not a weakened statement. Revi
 with measurements or if a budget masks a runaway tactic.
 
 Generated `#audit_axioms` commands sit at the end of their namespace or section (ahead
-of any `mutual` block), not after each theorem (`Emit.hoistAudits`, 2026-09-28, WIP on
-`n3-perf`). An audit waits for its theorem's proof, so placed after it, it serialized a
+of any `mutual` block), not after each theorem (`Emit.hoistAudits`, 2026-09-28, validated
+in `770e405`). An audit waits for its theorem's proof, so placed after it, it serialized a
 module's proofs, which Lean otherwise elaborates in parallel. The audits and their exact
 axiom rule are unchanged. Tools that pair audits with theorems (`replay-cert.py`, the
 field-update mutation runner) must follow this layout. Revisit if Lean exposes
 per-declaration async audits.
+
+Forward and reverse certificates now have independent per-group dependency chains,
+with the old module names retained as import-only aggregates. This lets a caller
+wait on its own direction and keeps reverse-tactic edits out of forward-only
+modules where no shared extern dependency reintroduces them. Statements, SCC
+boundaries and audits are unchanged. Replay expands aggregate names to the actual
+proof sources; timing an aggregate import alone does not measure proof work.
 
 `scripts/nano-certification.py --require-owned N3` requires every core-stage obligation
 owned by N0–N3. Core replay of the typing corpus is owned by N4 and printing

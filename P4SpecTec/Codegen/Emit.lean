@@ -88,6 +88,19 @@ structure RefGroup where
   /-- A builtin family needs its contracts instead of symbolic-execution tactics. -/
   supportImports : Option (List String) := none
 
+/-- Shared proof support before selecting a direction's tactic. -/
+private def commonProofImports : List String :=
+  ["P4SpecTec.Prelude", "P4SpecTec.Tactic.Audit", "P4SpecTec.Refine.Quote",
+   "P4SpecTec.Refine.Calc"]
+
+/-- Only the forward symbolic-execution tactic is needed by forward groups. -/
+private def forwardProofImports : List String :=
+  commonProofImports ++ ["P4SpecTec.Tactic.Refine"]
+
+/-- The reverse tactic imports the forward support it shares transitively. -/
+private def reverseProofImports : List String :=
+  commonProofImports ++ ["P4SpecTec.Tactic.Realize"]
+
 /-- The rung 3 part of the plan. -/
 structure RefPlan where
   /-- The quoted spec, `def spec`. -/
@@ -437,6 +450,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let certifiedBuiltins := spec.filterMap fun d =>
     if (BuiltinCertificates.checkSupport env d).isOk then some d.it.id.it else none
   let mut groupModule : Std.HashMap String String := {}   -- covered id → its module
+  let mut forwardModule : Std.HashMap String String := {}
+  let mut reverseModule : Std.HashMap String String := {}
   let mut coveredIds : List String := []
   let mut reverseCoveredIds : List String := []
   let mut detIds : List String := []
@@ -450,6 +465,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
         "P4SpecTec.Tactic.Refine", "P4SpecTec.Tactic.Realize"] }]
     for m in externMembers do
       groupModule := groupModule.insert m.id "Externs"
+      forwardModule := forwardModule.insert m.id "Externs"
+      reverseModule := reverseModule.insert m.id "Externs"
       coveredIds := coveredIds ++ [m.id]
       reverseCoveredIds := reverseCoveredIds ++ [m.id]
   let ctxBase : Ctx := { env, externs := externNames }
@@ -548,18 +565,33 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       if budget > certificateHeartbeats && (render declaration).startsWith "theorem" then
         Format.text s!"set_option maxHeartbeats {budget} in" ++ Term.hardLine ++ declaration
       else declaration
-    let thms := (Validate.groupTheorems env.lib recursive bodied
-      (reasons.map fun r => (r.definition, r.reason)) ++
-      Reverse.groupTheorems env.lib recursive bodied
-        (reverseReasons.map fun r => (r.definition, r.reason))).map withBudget
+    let forwardTheorems := (Validate.groupTheorems env.lib recursive bodied
+      (reasons.map fun r => (r.definition, r.reason))).map withBudget
+    let reverseTheorems := (Reverse.groupTheorems env.lib recursive bodied
+      (reverseReasons.map fun r => (r.definition, r.reason))).map withBudget
     if reasons.isEmpty && !bodied.isEmpty then
       let base := groupModuleName bodied.head!.id
-      let taken := refGroups.map (·.name)
-      let name := if taken.contains base then s!"{base}_{refGroups.length}" else base
-      let deps := (group.flatMap fun id => (calls id).filterMap fun c =>
-        if group.contains c then none else groupModule.get? c).eraseDups
-      refGroups := refGroups ++ [{ name, decls := joinDecls thms, deps }]
-      for m in bodied do groupModule := groupModule.insert m.id name
+      let aggregateGroups := refGroups.filter fun g =>
+        !g.name.startsWith "Forward." && !g.name.startsWith "Reverse."
+      let taken := aggregateGroups.map (·.name)
+      let name := if taken.contains base then s!"{base}_{aggregateGroups.length}" else base
+      let forwardName := "Forward." ++ name
+      let reverseName := "Reverse." ++ name
+      let deps (modules : Std.HashMap String String) :=
+        (group.flatMap fun id => (calls id).filterMap fun c =>
+          if group.contains c then none else modules.get? c).eraseDups
+      refGroups := refGroups ++ [
+        { name := forwardName, decls := joinDecls forwardTheorems
+          deps := deps forwardModule, supportImports := some forwardProofImports },
+        { name := reverseName, decls := joinDecls reverseTheorems
+          deps := deps reverseModule, supportImports := some reverseProofImports },
+        { name, decls := Format.nil, deps := [forwardName, reverseName]
+          supportImports := some [] }]
+      for m in bodied do
+        groupModule := groupModule.insert m.id name
+        forwardModule := forwardModule.insert m.id forwardName
+        if reverseReasons.isEmpty then
+          reverseModule := reverseModule.insert m.id reverseName
     for m in members do
       let some d := defById.get? m.id | throw s!"unknown coverage definition {m.id}"
       let kind := match d.it with
@@ -749,8 +781,10 @@ def plan (env : Env) (spec : Lang.Al.spec) :
           exclusions := [{ kind := "builtinContract", definition := m.id, reason }]
         | .ok builtinProofs =>
           let base := groupModuleName m.id
-          let name := if (refGroups.map (·.name)).contains base then
-            s!"{base}_{refGroups.length}" else base
+          let aggregateGroups := refGroups.filter fun g =>
+            !g.name.startsWith "Forward." && !g.name.startsWith "Reverse."
+          let name := if (aggregateGroups.map (·.name)).contains base then
+            s!"{base}_{aggregateGroups.length}" else base
           refGroups := refGroups ++ [{
             name, decls := builtinProofs, deps := []
             supportImports := some (BuiltinCertificates.supportImports d) }]
@@ -767,6 +801,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
               expectedType := render (← BuiltinCertificates.theoremType env d direction) }]
           exclusions := []
           groupModule := groupModule.insert m.id name
+          forwardModule := forwardModule.insert m.id name
+          reverseModule := reverseModule.insert m.id name
           coveredIds := coveredIds ++ [m.id]
           reverseCoveredIds := reverseCoveredIds ++ [m.id]
       let sourceDomain := if kind == "builtin" then
@@ -896,9 +932,7 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     modules := modules ++ [module]
   -- the refinement theorems, after every spec file
   let specSupportImports : List String := ["P4SpecTec.Prelude", "P4SpecTec.Refine.Quote"]
-  let proofSupportImports : List String := [
-    "P4SpecTec.Prelude", "P4SpecTec.Tactic.Audit", "P4SpecTec.Refine.Quote",
-    "P4SpecTec.Refine.Calc", "P4SpecTec.Tactic.Refine", "P4SpecTec.Tactic.Realize"]
+  let proofSupportImports := forwardProofImports ++ ["P4SpecTec.Tactic.Realize"]
   let refOptions := String.join [
     "set_option linter.missingDocs false\nset_option linter.unusedVariables false\n",
     "set_option autoImplicit false\n",

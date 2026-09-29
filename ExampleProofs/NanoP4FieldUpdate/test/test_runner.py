@@ -33,7 +33,7 @@ class RunnerTests(unittest.TestCase):
             self.assertNotIn("theorem «$update_fieldValue».refines\n", source)
 
     def test_refinement_extraction_rejects_changed_boundaries(self):
-        emitted = (run.ROOT / "NanoP4Spec/Refinement/update_fieldValue.lean").read_text()
+        emitted = (run.ROOT / "NanoP4Spec/Refinement/Forward/update_fieldValue.lean").read_text()
         theorem = run.extract_refinement_group(emitted)
         self.assertIn("by\n  intro fuel", theorem)
         self.assertNotIn("set_option maxHeartbeats", theorem)
