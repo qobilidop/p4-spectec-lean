@@ -38,6 +38,16 @@ abbrev trampoline (cfg : Interp_al.Interp.Config) (g : Interp_al.Ctx.global) (fu
     Pipe.Call Eval :=
   Make.call_func (Interp_al.Interp.do_eval_func fuel cfg g)
 
+/-- The reference configuration is inhabited: the NanoSwitch externs with guards off and the
+pinned empty print hints, the configuration the session replay runs. -/
+theorem referenceWitness :
+    Reference { guard := false, extern := Pipe.externInterface } ∧
+      ({ guard := false, extern := Pipe.externInterface } :
+        Interp_al.Interp.Config).printHints = [] :=
+  ⟨⟨rfl, rfl⟩, rfl⟩
+
+#audit_axioms referenceWitness
+
 /-- Extract's intermediate result: the same packet and related contexts. -/
 def ExtractRel (a : Core.Object.PacketIn.t × value)
     (b : Core.Object.PacketIn.t × NanoP4Spec.evalContext) : Prop :=

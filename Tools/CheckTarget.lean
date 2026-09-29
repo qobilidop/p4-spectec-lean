@@ -18,25 +18,35 @@ open P4SpecTec P4SpecTec.Codegen.Coverage
 def targetClaims : List Claim :=
   [{ name := "NanoP4Target.externsContractHolds", kind := "target"
      direction := "externsContract"
-     expectedType := "∀ {cfg : Interp_al.Interp.Config}, NanoP4Target.Reference cfg → " ++
-       "NanoP4Spec.externsContract cfg" },
+     expectedType := "∀ {cfg : P4SpecTec.Interp_al.Interp.Config}, " ++
+       "NanoP4Target.Reference cfg → NanoP4Spec.externsContract cfg" },
+   { name := "NanoP4Target.referenceWitness", kind := "target"
+     direction := "referenceInhabited"
+     expectedType := "NanoP4Target.Reference " ++ config ++ " ∧ (" ++ config ++
+       " : P4SpecTec.Interp_al.Interp.Config).printHints = []" },
    { name := "NanoP4Target.initializedSessionCorrespondence", kind := "composition"
      direction := "initializedTwoWaySessions"
      expectedType := sessionType "NanoP4Target.SessionRel" },
    { name := "NanoP4Target.sessionObservations", kind := "observations"
      direction := "sessionObservations"
-     expectedType := sessionType
-       "(fun a b => Rel a.1 b.1 ∧ a.2.1 = BackendSim.NanoSwitch.Pipe.init_arch_state ∧ a.2.2 = b.2)" }]
+     expectedType := sessionType ("(fun a b => P4SpecTec.Refine.Rel a.1 b.1 ∧ " ++
+       "a.2.1 = P4SpecTec.BackendSim.NanoSwitch.Pipe.init_arch_state ∧ a.2.2 = b.2)") }]
 where
-  /-- Two-way session composition on the initialized environment under a relation. -/
+  /-- The concrete reference configuration the session replay runs. -/
+  config : String :=
+    "{ guard := false, extern := P4SpecTec.BackendSim.NanoSwitch.Pipe.externInterface }"
+  /-- Two-way session composition on the initialized environment under a relation; every
+  name is fully qualified so a same-named local declaration cannot capture it. -/
   sessionType (relation : String) : String :=
-    "∀ {cfg : Interp_al.Interp.Config}, NanoP4Target.Reference cfg → cfg.printHints = [] → " ++
-    "∀ {vprogram : Lang.Il.value} {program : NanoP4Spec.program}, Rel vprogram program → " ++
-    "∀ (rxs : List Runtime.Sim.Io.rx), " ++
-    s!"(∀ fuel, Refines {relation} (NanoP4Target.referenceSession " ++
+    "∀ {cfg : P4SpecTec.Interp_al.Interp.Config}, NanoP4Target.Reference cfg → " ++
+    "cfg.printHints = [] → " ++
+    "∀ {vprogram : P4SpecTec.Lang.Il.value} {program : NanoP4Spec.program}, " ++
+    "P4SpecTec.Refine.Rel vprogram program → " ++
+    "∀ (rxs : List P4SpecTec.Runtime.Sim.Io.rx), " ++
+    s!"(∀ fuel, P4SpecTec.Refine.Refines {relation} (NanoP4Target.referenceSession " ++
     "(NanoP4Target.relCall cfg NanoP4Spec.Environment.global fuel) vprogram rxs) " ++
     "(NanoP4Target.session program rxs)) ∧ " ++
-    s!"Realizes {relation} (fun fuel => NanoP4Target.referenceSession " ++
+    s!"P4SpecTec.Refine.Realizes {relation} (fun fuel => NanoP4Target.referenceSession " ++
     "(NanoP4Target.relCall cfg NanoP4Spec.Environment.global fuel) vprogram rxs) " ++
     "(NanoP4Target.session program rxs)"
 

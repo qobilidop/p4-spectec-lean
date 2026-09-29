@@ -45,7 +45,7 @@ def check_corpus(bundle):
             raise SystemExit(f"session source identity differs from the inventory: {sid}")
         packets = []
         for line in (ROOT / "upstream/p4-spectec" / session["stf"]).read_text().splitlines():
-            words = line.split()
+            words = line.split("#", 1)[0].split()
             if words[:1] == ["packet"]:
                 packets.append([int(words[1]), "".join(words[2:])])
         driven = [drive["rx"] for drive in session["drives"]]

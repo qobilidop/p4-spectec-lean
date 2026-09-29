@@ -181,6 +181,8 @@ TARGET_CLAIMS = {
     "profile:composition": "NanoP4Target.initializedSessionCorrespondence",
     "profile:observations": "NanoP4Target.sessionObservations",
 }
+# Checked alongside the bound claims: the reference configuration they assume is inhabited.
+TARGET_WITNESSES = {"NanoP4Target.referenceWitness"}
 TARGET_CHECKS = ["check-target: exact NanoP4Target theorem types and allowed axioms"]
 PRINTING_CHECKS = ["check-coverage: print_ dispatch under the empty hint table",
                    "check-target: the pinned export declares no print hints"]
@@ -519,7 +521,8 @@ def target_verified(manifest):
     output = run(ROOT, ["lake", "exe", "check-target"])
     claims = {line.removeprefix("[target] claim ").strip() for line in output.splitlines()
               if line.startswith("[target] claim ")}
-    if claims != set(TARGET_CLAIMS.values()) or "pinned print hints empty" not in output:
+    if (claims != set(TARGET_CLAIMS.values()) | TARGET_WITNESSES
+            or "pinned print hints empty" not in output):
         raise CertificationError("check-target did not verify exactly the bound target claims")
     return {o["id"] for o in manifest["obligations"]
             if o.get("checkedBy") in (TARGET_CHECKS, PRINTING_CHECKS)
@@ -542,7 +545,11 @@ def replay_verified(manifest, corpus):
     verified = {typing[path][0] for path in agreeing}
     sessions = corpus_helper(ROOT / "P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py",
                              "nano_session_check")
-    matched = sessions.replay(ROOT / ".lake/build/bin/check-nano-sessions")
+    run(ROOT, ["lake", "build", "check-nano-sessions"])
+    try:
+        matched = sessions.replay(ROOT / ".lake/build/bin/check-nano-sessions")
+    except SystemExit as error:
+        raise CertificationError(f"session replay failed: {error}") from error
     verified |= {f"replay:{case}" for case in matched}
     return verified
 
@@ -561,15 +568,15 @@ def main(argv=None):
     parser.add_argument("--update", action="store_true", help="regenerate metadata, not proof evidence")
     parser.add_argument("--require-complete", choices=("core", "target", "all"))
     parser.add_argument("--require-owned", choices=MILESTONES,
-                        help="require every core-stage obligation owned by milestones "
-                        "up to this one; later-owned obligations stay reported")
+                        help="require every core- and target-stage obligation owned by "
+                        "milestones up to this one; later-owned obligations stay reported")
     parser.add_argument("--require-n2", action="store_true",
                         help="require the bounded N2 profile; broader stages stay independent")
     args = parser.parse_args(argv)
     if args.update and (args.require_complete or args.require_n2 or args.require_owned):
         parser.error("--update cannot be combined with a completion requirement")
     if args.require_complete and args.require_owned:
-        parser.error("--require-owned selects the core stage; omit --require-complete")
+        parser.error("--require-owned selects its own stages; omit --require-complete")
     try:
         corpus = corpus_module(ROOT)
         corpus_ids = corpus.check(root=ROOT, path=source_path(ROOT, str(CORPUS)))
@@ -608,7 +615,7 @@ def main(argv=None):
                 count = sum(o["requirement"] == kind for o in missing)
                 if count:
                     print(f"[completion] missing {kind}: {count}")
-            scope = args.require_complete or f"core ({args.require_owned}-owned)"
+            scope = args.require_complete or f"core and target ({args.require_owned}-owned)"
             raise CertificationError(f"Nano {scope} certification is incomplete")
         return 0
     except (CertificationError, OSError, ValueError, KeyError) as error:

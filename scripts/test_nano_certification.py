@@ -149,6 +149,58 @@ class CompletionTests(unittest.TestCase):
         self.assertIn(obligations["target:extern"], completion.outstanding(
             manifest, "target", verified={"target:extern"}))
 
+    def test_target_verification_requires_exact_claims(self):
+        claims = set(completion.TARGET_CLAIMS.values()) | completion.TARGET_WITNESSES
+        good = "".join(f"[target] claim {c}\n" for c in sorted(claims)) + \
+            "[target] 4 claims checked; pinned print hints empty"
+        with patch.object(completion, "run", return_value=good):
+            verified = completion.target_verified(self.manifest)
+        composition = next(o for o in self.manifest["obligations"]
+                           if o["id"] == "profile:composition")
+        self.assertIn(composition["id"], verified)
+        self.assertNotIn("target:extern", verified)  # no compiled claim to verify
+        for output in (good.replace("[target] claim NanoP4Target.referenceWitness\n", ""),
+                       good + "\n[target] claim NanoP4Target.extra",
+                       good.replace("pinned print hints empty", "")):
+            with patch.object(completion, "run", return_value=output):
+                with self.assertRaises(completion.CertificationError):
+                    completion.target_verified(self.manifest)
+
+    def test_replay_verification_needs_verdicts_and_both_legs(self):
+        case = "corpus:typing:positive/free-pass"
+        manifest = completion.build_manifest(self.source, self.coverage,
+                                             [case, "corpus:typing:missing/none",
+                                              "corpus:packet:positive/free-pass"], {})
+
+        class Replay:
+            agree = True
+
+            @classmethod
+            def agreeing_programs(cls, paths, expected):
+                return set(paths) if cls.agree else set()
+
+        class Sessions:
+            @staticmethod
+            def replay(lean):
+                return ["corpus:packet:positive/free-pass"]
+
+        helpers = {"nano_replay": Replay, "nano_session_check": Sessions}
+        with patch.object(completion, "corpus_helper", lambda path, name: helpers[name]), \
+                patch.object(completion, "run", return_value=""):
+            verified = completion.replay_verified(manifest, None)
+            self.assertEqual(verified, {f"replay:{case}",
+                                        "replay:corpus:packet:positive/free-pass"})
+            Replay.agree = False
+            self.assertEqual(completion.replay_verified(manifest, None),
+                             {"replay:corpus:packet:positive/free-pass"})
+
+    def test_owned_n4_spans_core_and_target_but_not_release(self):
+        missing = completion.outstanding(self.manifest, "target", owned="N4")
+        stages = {o["stage"] for o in missing}
+        self.assertTrue(stages <= {"core", "target"})
+        self.assertIn("profile:printing", [o["id"] for o in missing])
+        self.assertNotIn("profile:consumer", [o["id"] for o in missing])
+
     def test_owned_scope_excludes_later_owners_and_other_stages(self):
         owned = completion.outstanding(self.manifest, "core",
                                        verified={"profile:sourceIdentity"}, owned="N3")

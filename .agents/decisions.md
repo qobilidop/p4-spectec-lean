@@ -252,9 +252,11 @@ discharged by the completion CLI's own checks (pins, export digest, generated fr
 The concrete target lives in the reusable `NanoP4Target` library, over the generated model;
 neither `P4SpecTec` nor `NanoP4Spec` may import it. Completion binds target-stage obligations
 to handwritten theorems only through `check-target`, which elaborates their exact expected
-types and audits axioms: the extern discharge, initialized two-way session composition, and
-session observations with the observation relation spelled out so a weakened definition
-cannot pass. Printing binds the existing `print_` dispatch contract plus the checked fact
+types (fully qualified names) and audits axioms: the extern discharge, a witness that the
+assumed reference configuration is inhabited, initialized two-way session composition, and
+session observations with the observation relation spelled out. The handwritten
+`referenceSession`/`session` definitions are pinned by name and by the corpus replay, not by
+their statement. Printing binds the existing `print_` dispatch contract plus the checked fact
 that the pinned export declares no print hints. Replay obligations are verified per case by
 the completion CLI itself, running both typing legs and the session replay; an obligation
 with `checkedBy` counts only when that run verified it. `--require-owned` now spans the core
