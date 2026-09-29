@@ -74,11 +74,13 @@ passed. Extern-dependent theorems assume the abstract `externsContract`;
 print-dependent theorems assume `cfg.printHints = []`.
 
 The evaluation domain uses the runtime-inclusive profile where the source-only
-profile is incomplete. The N3-owned inventory still lacks domain contracts for
-`ite`, `repeat_`, `empty_set` and `empty_map`; the completion CLI checks its
-source-identity item separately. The current inventory has 888 obligations and
-758 compiled claim bindings. Core, target and release obligations remain open,
-so N3 is not complete. See [status](../status.md) for the next step.
+profile is incomplete. The final four domain contracts (`ite`, `repeat_`,
+`empty_set`, `empty_map`) now compile under arbitrary legal parameter codecs.
+The completion CLI checks source identity separately. The inventory has 888
+obligations and 762 compiled claim bindings. The normal gate now requires
+`--require-owned N3` as well as bounded N2; later-owned core corpus, target and
+release obligations remain open. See [the source-domain checkpoint](n3-source-domains.md)
+for proof/review evidence and [status](../status.md) for validation and integration.
 
 Reusable support now covers relation output premises, recursive subtype bridges,
 numeric coercions, guarded cast unfolding, relation pattern iteration, membership
@@ -164,8 +166,9 @@ their helpers and SCCs in dependency order:
 Exit: both directions for all 153 bodied definitions at the current pin,
 all 26 builtin contracts, representation/initialization evidence, and all
 77 relation run-soundness theorems; regenerate the denominator on pin changes.
-The core completion check passes, with target-dependent results explicitly
-conditional on the named extern contracts. No missing callee or SCC member
+The core check for obligations owned through N3 (`--require-owned N3`) passes,
+with target-dependent results explicitly conditional on the named extern contracts.
+The broader core stage still requires N4-owned corpus evidence. No missing callee or SCC member
 can be hidden by a conditional wrapper theorem.
 
 ## N4. Discharge target contracts and compose packet execution
@@ -250,7 +253,7 @@ claims, constraints and the remaining plan.
 
 Planning forecast discussed with the user on 2026-09-27; moderate-to-low
 confidence, superseded by the 153-definition stabilization checkpoint. The
-remaining N3 work is the four domain contracts above; no current effort estimate
+four final N3 domain contracts now compile; no current effort estimate
 is recorded here. The earlier forecast used elapsed working hours
 with the current lead and targeted specialists, including review, integration,
 builds and validation, not summed subagent-hours or a calendar commitment.

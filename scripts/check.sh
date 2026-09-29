@@ -185,10 +185,10 @@ if command -v lake >/dev/null 2>&1; then
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
     check-nano-target check-nano-packet check-nano-driver check-nano-verify \
     || { say "reconnaissance tools failed to build"; fail=1; }
-  # N2 requires all source representations and its complete selected call closure.
-  # Broader core/target completion remains incomplete and is reported separately.
+  # Retain bounded N2 closure checks and require every core obligation owned through N3.
+  # Later-owned corpus, target and release obligations remain separately reported.
   runStage "Completion inventory, coverage and quotation" python3 "$root/scripts/nano-certification.py" \
-    --require-n2 \
+    --require-n2 --require-owned N3 \
     || { say "Nano completion inventory/coverage/quotation check failed"; fail=1; }
   runStage "Field-update certificate mutations" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }

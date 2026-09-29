@@ -148,6 +148,7 @@ private def parameterBinders (env : Env) (parameters : List String) : String :=
     s!"Representation.Source.externDomain t{i}.it) A{i})")
 
 private def coverageType (env : Env) (inputs : List Field) : String :=
+  if inputs.isEmpty then "True" else
   "∀ " ++ String.join (inputs.zipIdx.map fun (f, i) =>
     s!"(v{i} : Lang.Il.value) (hv{i} : ({f.source env}) v{i}) ") ++ ", " ++
   String.join (inputs.zipIdx.map fun (f, i) => s!"∃ p{i} : {f.carrier}, ") ++
@@ -185,6 +186,7 @@ def supportImports : List String :=
     "P4SpecTec.Refine.Representation.SourceTuple", "P4SpecTec.Tactic.Audit"]
 
 private def coverageProof (env : Env) (inputs : List Field) : String := Id.run do
+  if inputs.isEmpty then return "trivial"
   let mut proof := "intro " ++ " ".intercalate
     (inputs.zipIdx.flatMap fun (_, i) => [s!"v{i}", s!"hv{i}"]) ++ "\n"
   for (f, i) in inputs.zipIdx do

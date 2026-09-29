@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated 2026-09-27. Nano work through N3 is authorized; other backlog remains deferred.
+Updated 2026-09-29. Nano work through N3 is authorized; other backlog remains deferred.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -42,8 +42,9 @@ checks. N2 implementation is validated at `76bed84`; closure is recorded at
 `d85e82c`, with independent review, all 44 local gate stages and successful
 [final CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
 The user authorized N3 on 2026-09-27, starting from the Program_load/Expr_eval
-checkpoint; it is in progress ([status](status.md)). N4–N6 remain planned.
-The plan owns the [remaining effort estimate](notes/nano-certification.md#remaining-effort-estimate);
+checkpoint; the final four domain proofs now compile, with strict N3 validation
+and integration tracked in [status](status.md). N4–N6 remain planned.
+The plan owns the [historical effort estimate](notes/nano-certification.md#historical-effort-estimate);
 status owns the next concrete step.
 
 ## Candidate next work
@@ -55,11 +56,11 @@ Deferred priorities include broader representation adequacy, discriminating gene
 consumer-guided wrappers, and measured maintenance across upstream changes.
 These other priorities are not newly authorized implementation.
 
-N2 provides all builtin source contracts, recursive relation integration and
-selected iteration, cast/membership and polymorphic support. Broader N3 coverage
-still needs remaining source forms, including indexing/slicing, and each actual
-entry point's complete dependency/SCC closure. Target extern contracts remain N4;
-selected helper proofs do not establish whole-program composition.
+N3 now has both correspondence directions for all 153 bodied definitions and
+source-domain proofs for the four final polymorphic shapes. The normal gate
+requires all core obligations owned through N3. Target extern implementations,
+complete corpus evidence and composition remain N4; the proof checkpoint does not
+establish whole-program composition or broader full-stage acceptance.
 
 Known runtime boundaries before broadening claims:
 `Match.sub_` and `Match.check'` retain legacy fallback behavior outside the

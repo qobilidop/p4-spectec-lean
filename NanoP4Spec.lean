@@ -215,9 +215,11 @@ import NanoP4Spec.Refinement.SourceDomain.strip_all_whitespace
 import NanoP4Spec.Refinement.Forward.ite
 import NanoP4Spec.Refinement.Reverse.ite
 import NanoP4Spec.Refinement.ite
+import NanoP4Spec.Refinement.SourceDomain.ite
 import NanoP4Spec.Refinement.Forward.repeat_
 import NanoP4Spec.Refinement.Reverse.repeat_
 import NanoP4Spec.Refinement.repeat_
+import NanoP4Spec.Refinement.SourceDomain.repeat_
 import NanoP4Spec.Refinement.Forward.exists_
 import NanoP4Spec.Refinement.Reverse.exists_
 import NanoP4Spec.Refinement.exists_
@@ -239,6 +241,7 @@ import NanoP4Spec.Refinement.SourceDomain.assoc_
 import NanoP4Spec.Refinement.Forward.empty_set
 import NanoP4Spec.Refinement.Reverse.empty_set
 import NanoP4Spec.Refinement.empty_set
+import NanoP4Spec.Refinement.SourceDomain.empty_set
 import NanoP4Spec.Refinement.Forward.in_set
 import NanoP4Spec.Refinement.Reverse.in_set
 import NanoP4Spec.Refinement.in_set
@@ -258,6 +261,7 @@ import NanoP4Spec.Refinement.SourceDomain.eq_set
 import NanoP4Spec.Refinement.Forward.empty_map
 import NanoP4Spec.Refinement.Reverse.empty_map
 import NanoP4Spec.Refinement.empty_map
+import NanoP4Spec.Refinement.SourceDomain.empty_map
 import NanoP4Spec.Refinement.Forward.dom_map
 import NanoP4Spec.Refinement.Reverse.dom_map
 import NanoP4Spec.Refinement.dom_map

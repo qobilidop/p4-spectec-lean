@@ -34,10 +34,12 @@ index](../NanoP4Spec/Refinement.lean) record forward and reverse AL theorems for
 all 153 bodied definitions at the current Nano-P4 pin. Extern-dependent theorems
 assume the abstract `externsContract`; a theorem whose callable closure reaches
 `print_` also assumes `cfg.printHints = []`. Both reports come from the same
-generation plan. Source-domain evidence is separate: the N3-owned inventory
-still lacks domain contracts for `ite`, `repeat_`, `empty_set` and `empty_map`.
-These counts are not a percentage of P4 language behavior certified, and N3 core
-completion has not passed.
+generation plan. Separate source-domain certificates now also cover `ite`,
+`repeat_`, `empty_set` and `empty_map`, under arbitrary legal parameter codecs
+and independent admission predicates. The gate requires every core obligation
+owned through N3. These counts are not a percentage of P4 language behavior
+certified: the broader core corpus, target composition and release checks remain
+incomplete.
 
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
@@ -94,7 +96,7 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 758 compiled claim bindings; 130 have no claim
+The current 888 obligations have 762 compiled claim bindings; 126 have no claim
 binding. The bounded N2 check additionally requires the selected 30-definition
 closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
 primitive codecs and table initialization. It checks input coverage, output
@@ -123,14 +125,16 @@ inventory keeps all 117 replay obligations open until checked evidence is wired
 to them; this does not negate the existing bounded replay tests.
 
 Normal checking accepts an accurately reported incomplete inventory. The full
-gate additionally requires `--require-n2`; this does not complete the broader
-core or target stage. Strict full-stage checking returns a nonzero exit while
+gate additionally requires `--require-n2 --require-owned N3`: it retains the
+bounded N2 checks and rejects missing core obligations owned by N0–N3. Later-owned
+core corpus obligations remain open, so this does not complete the broader core
+or target stage. Strict full-stage checking returns a nonzero exit while
 that stage has unresolved
 obligations (`target` includes core prerequisites; `all` includes release
 evidence). Neither stage is complete today:
 
 ```sh
-nix develop --command python3 scripts/nano-certification.py --require-n2
+nix develop --command python3 scripts/nano-certification.py --require-n2 --require-owned N3
 nix develop --command python3 scripts/nano-certification.py --require-complete all
 ```
 
