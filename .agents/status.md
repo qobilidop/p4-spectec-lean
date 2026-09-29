@@ -1,7 +1,8 @@
 # Status
 
-N4 target composition implemented, 2026-09-29, on branch `n4-target` (user-authorized the
-same day). The completion check now verifies every core and target obligation; the four
+N4 target composition complete, 2026-09-29 (user-authorized the same day), merged to `main`
+at `4535868` with passing exact-revision
+[CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255). The completion check now verifies every core and target obligation; the four
 release-stage obligations (N5 consumer proof, N6 sensitivity, review, release) remain.
 Full-P4 M3 remains paused.
 
@@ -36,14 +37,13 @@ resolutions are in the [target note](notes/nano-target.md#n4-review-record).
   `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in 156.45s, all
   47 stages, no skips (`.artifacts/n4-gate-5.log`). An earlier attempt at that commit failed
   one axiom `#guard_msgs` expectation and was amended before publication.
-- This evidence-only update reuses that gate (fresh text check). Remote CI for the pushed
-  revision is recorded at the next checkpoint; milestone completion requires it.
+- `4535868` (final evidence commit, reusing that gate with a fresh text check) passed
+  remote [CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255).
+  The merged `n4-target` branch was local only and is deleted.
 
 ## Next steps
 
-1. Confirm exact-revision CI for the pushed `main` (milestone completion requires it);
-   then delete the merged `n4-target` refs.
-2. N5 (whole-program theorem) needs a separate user scope. The candidate is
+1. N5 (whole-program theorem) needs a separate user scope. The candidate is
    `positive/src-addr-filter.p4`, whose session the replay already covers; build it on
    `NanoP4Target.initializedSessionCorrespondence`.
 
