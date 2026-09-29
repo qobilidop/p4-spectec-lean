@@ -676,7 +676,8 @@ theorem nonTypeName.to_nameList.canon_toValue
 
 theorem nonTypeName.to_nameList.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
-    Refine.canon (NanoP4Spec.nameList.toValue (NanoP4Spec.nonTypeName.to_nameList x)) =
+    Refine.canon (NanoP4Spec.nameList.toValue
+      (NanoP4Spec.nonTypeName.to_nameList x)) =
     Refine.canon (NanoP4Spec.nonTypeName.toValue x) := by
   cases x <;> first
     | rfl
@@ -692,7 +693,8 @@ theorem parameter.to_parameterList.canon_toValue
 
 theorem parameter.to_parameterList.canon_encoder
     (x : NanoP4Spec.parameter) :
-    Refine.canon (NanoP4Spec.parameterList.toValue (NanoP4Spec.parameter.to_parameterList x)) =
+    Refine.canon (NanoP4Spec.parameterList.toValue
+      (NanoP4Spec.parameter.to_parameterList x)) =
     Refine.canon (NanoP4Spec.parameter.toValue x) := by
   cases x <;> first
     | rfl
@@ -708,7 +710,8 @@ theorem nonEmptyParameterList.to_parameterList.canon_toValue
 
 theorem nonEmptyParameterList.to_parameterList.canon_encoder
     (x : NanoP4Spec.nonEmptyParameterList) :
-    Refine.canon (NanoP4Spec.parameterList.toValue (NanoP4Spec.nonEmptyParameterList.to_parameterList x)) =
+    Refine.canon (NanoP4Spec.parameterList.toValue
+      (NanoP4Spec.nonEmptyParameterList.to_parameterList x)) =
     Refine.canon (NanoP4Spec.nonEmptyParameterList.toValue x) := by
   cases x <;> first
     | rfl
@@ -724,7 +727,8 @@ theorem expression.to_argumentList.canon_toValue
 
 theorem expression.to_argumentList.canon_encoder
     (x : NanoP4Spec.expression) :
-    Refine.canon (NanoP4Spec.argumentList.toValue (NanoP4Spec.expression.to_argumentList x)) =
+    Refine.canon (NanoP4Spec.argumentList.toValue
+      (NanoP4Spec.expression.to_argumentList x)) =
     Refine.canon (NanoP4Spec.expression.toValue x) := by
   cases x <;> first
     | rfl
@@ -740,7 +744,8 @@ theorem argumentListNonEmpty.to_argumentList.canon_toValue
 
 theorem argumentListNonEmpty.to_argumentList.canon_encoder
     (x : NanoP4Spec.argumentListNonEmpty) :
-    Refine.canon (NanoP4Spec.argumentList.toValue (NanoP4Spec.argumentListNonEmpty.to_argumentList x)) =
+    Refine.canon (NanoP4Spec.argumentList.toValue
+      (NanoP4Spec.argumentListNonEmpty.to_argumentList x)) =
     Refine.canon (NanoP4Spec.argumentListNonEmpty.toValue x) := by
   cases x <;> first
     | rfl
@@ -756,7 +761,8 @@ theorem parserState.to_parserStateList.canon_toValue
 
 theorem parserState.to_parserStateList.canon_encoder
     (x : NanoP4Spec.parserState) :
-    Refine.canon (NanoP4Spec.parserStateList.toValue (NanoP4Spec.parserState.to_parserStateList x)) =
+    Refine.canon (NanoP4Spec.parserStateList.toValue
+      (NanoP4Spec.parserState.to_parserStateList x)) =
     Refine.canon (NanoP4Spec.parserState.toValue x) := by
   cases x <;> first
     | rfl
@@ -772,7 +778,8 @@ theorem tableAction.to_tableActionList.canon_toValue
 
 theorem tableAction.to_tableActionList.canon_encoder
     (x : NanoP4Spec.tableAction) :
-    Refine.canon (NanoP4Spec.tableActionList.toValue (NanoP4Spec.tableAction.to_tableActionList x)) =
+    Refine.canon (NanoP4Spec.tableActionList.toValue
+      (NanoP4Spec.tableAction.to_tableActionList x)) =
     Refine.canon (NanoP4Spec.tableAction.toValue x) := by
   cases x <;> first
     | rfl
@@ -788,7 +795,8 @@ theorem integerLiteral.to_value.canon_toValue
 
 theorem integerLiteral.to_value.canon_encoder
     (x : NanoP4Spec.integerLiteral) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.integerLiteral.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.integerLiteral.to_value x)) =
     Refine.canon (NanoP4Spec.integerLiteral.toValue x) := by
   cases x <;> first
     | rfl
@@ -804,7 +812,8 @@ theorem integerTypeIR.to_typeIR.canon_toValue
 
 theorem integerTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.integerTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.integerTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.integerTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.integerTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -820,7 +829,8 @@ theorem boolValue.to_value.canon_toValue
 
 theorem boolValue.to_value.canon_encoder
     (x : NanoP4Spec.boolValue) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.boolValue.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.boolValue.to_value x)) =
     Refine.canon (NanoP4Spec.boolValue.toValue x) := by
   cases x <;> first
     | rfl
@@ -836,7 +846,8 @@ theorem baseTypeIR.to_typeIR.canon_toValue
 
 theorem baseTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.baseTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.baseTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.baseTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.baseTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -852,7 +863,8 @@ theorem structValue.to_value.canon_toValue
 
 theorem structValue.to_value.canon_encoder
     (x : NanoP4Spec.structValue) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.structValue.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.structValue.to_value x)) =
     Refine.canon (NanoP4Spec.structValue.toValue x) := by
   cases x <;> first
     | rfl
@@ -868,7 +880,8 @@ theorem structTypeIR.to_typeIR.canon_toValue
 
 theorem structTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.structTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.structTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.structTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.structTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -884,7 +897,8 @@ theorem headerValue.to_value.canon_toValue
 
 theorem headerValue.to_value.canon_encoder
     (x : NanoP4Spec.headerValue) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.headerValue.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.headerValue.to_value x)) =
     Refine.canon (NanoP4Spec.headerValue.toValue x) := by
   cases x <;> first
     | rfl
@@ -900,7 +914,8 @@ theorem headerTypeIR.to_typeIR.canon_toValue
 
 theorem headerTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.headerTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.headerTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.headerTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.headerTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -916,7 +931,8 @@ theorem matchKindValue.to_value.canon_toValue
 
 theorem matchKindValue.to_value.canon_encoder
     (x : NanoP4Spec.matchKindValue) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.matchKindValue.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.matchKindValue.to_value x)) =
     Refine.canon (NanoP4Spec.matchKindValue.toValue x) := by
   cases x <;> first
     | rfl
@@ -932,7 +948,8 @@ theorem dataTypeIR.to_typeIR.canon_toValue
 
 theorem dataTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.dataTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.dataTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.dataTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.dataTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -948,7 +965,8 @@ theorem dataTypeIR.to_typeDefIR.canon_toValue
 
 theorem dataTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.dataTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.dataTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.dataTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.dataTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -964,7 +982,8 @@ theorem objectTypeDefIR.to_typeIR.canon_toValue
 
 theorem objectTypeDefIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.objectTypeDefIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.objectTypeDefIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.objectTypeDefIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.objectTypeDefIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -980,7 +999,8 @@ theorem objectTypeDefIR.to_typeDefIR.canon_toValue
 
 theorem objectTypeDefIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.objectTypeDefIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.objectTypeDefIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.objectTypeDefIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.objectTypeDefIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -996,7 +1016,8 @@ theorem integerType.to_type.canon_toValue
 
 theorem integerType.to_type.canon_encoder
     (x : NanoP4Spec.integerType) :
-    Refine.canon (NanoP4Spec.type.toValue (NanoP4Spec.integerType.to_type x)) =
+    Refine.canon (NanoP4Spec.type.toValue
+      (NanoP4Spec.integerType.to_type x)) =
     Refine.canon (NanoP4Spec.integerType.toValue x) := by
   cases x <;> first
     | rfl
@@ -1012,7 +1033,8 @@ theorem baseType.to_type.canon_toValue
 
 theorem baseType.to_type.canon_encoder
     (x : NanoP4Spec.baseType) :
-    Refine.canon (NanoP4Spec.type.toValue (NanoP4Spec.baseType.to_type x)) =
+    Refine.canon (NanoP4Spec.type.toValue
+      (NanoP4Spec.baseType.to_type x)) =
     Refine.canon (NanoP4Spec.baseType.toValue x) := by
   cases x <;> first
     | rfl
@@ -1028,7 +1050,8 @@ theorem typeIdentifier.to_type.canon_toValue
 
 theorem typeIdentifier.to_type.canon_encoder
     (x : NanoP4Spec.typeIdentifier) :
-    Refine.canon (NanoP4Spec.type.toValue (NanoP4Spec.typeIdentifier.to_type x)) =
+    Refine.canon (NanoP4Spec.type.toValue
+      (NanoP4Spec.typeIdentifier.to_type x)) =
     Refine.canon (NanoP4Spec.typeIdentifier.toValue x) := by
   cases x <;> first
     | rfl
@@ -1044,7 +1067,8 @@ theorem externObjectTypeIR.to_typeIR.canon_toValue
 
 theorem externObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.externObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.externObjectTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.externObjectTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.externObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1060,7 +1084,8 @@ theorem parserObjectTypeIR.to_typeIR.canon_toValue
 
 theorem parserObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.parserObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.parserObjectTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.parserObjectTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.parserObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1076,7 +1101,8 @@ theorem controlObjectTypeIR.to_typeIR.canon_toValue
 
 theorem controlObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.controlObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.controlObjectTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.controlObjectTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.controlObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1092,7 +1118,8 @@ theorem packageObjectTypeIR.to_typeIR.canon_toValue
 
 theorem packageObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.packageObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.packageObjectTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.packageObjectTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.packageObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1108,7 +1135,8 @@ theorem tableObjectTypeIR.to_typeIR.canon_toValue
 
 theorem tableObjectTypeIR.to_typeIR.canon_encoder
     (x : NanoP4Spec.tableObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeIR.toValue (NanoP4Spec.tableObjectTypeIR.to_typeIR x)) =
+    Refine.canon (NanoP4Spec.typeIR.toValue
+      (NanoP4Spec.tableObjectTypeIR.to_typeIR x)) =
     Refine.canon (NanoP4Spec.tableObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1124,7 +1152,8 @@ theorem booleanLiteral.to_expression.canon_toValue
 
 theorem booleanLiteral.to_expression.canon_encoder
     (x : NanoP4Spec.booleanLiteral) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.booleanLiteral.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.booleanLiteral.to_expression x)) =
     Refine.canon (NanoP4Spec.booleanLiteral.toValue x) := by
   cases x <;> first
     | rfl
@@ -1140,7 +1169,8 @@ theorem integerLiteral.to_expression.canon_toValue
 
 theorem integerLiteral.to_expression.canon_encoder
     (x : NanoP4Spec.integerLiteral) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.integerLiteral.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.integerLiteral.to_expression x)) =
     Refine.canon (NanoP4Spec.integerLiteral.toValue x) := by
   cases x <;> first
     | rfl
@@ -1156,7 +1186,8 @@ theorem nonTypeName.to_expression.canon_toValue
 
 theorem nonTypeName.to_expression.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.nonTypeName.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.nonTypeName.to_expression x)) =
     Refine.canon (NanoP4Spec.nonTypeName.toValue x) := by
   cases x <;> first
     | rfl
@@ -1172,7 +1203,8 @@ theorem unaryExpression.to_expression.canon_toValue
 
 theorem unaryExpression.to_expression.canon_encoder
     (x : NanoP4Spec.unaryExpression) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.unaryExpression.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.unaryExpression.to_expression x)) =
     Refine.canon (NanoP4Spec.unaryExpression.toValue x) := by
   cases x <;> first
     | rfl
@@ -1188,7 +1220,8 @@ theorem binaryExpression.to_expression.canon_toValue
 
 theorem binaryExpression.to_expression.canon_encoder
     (x : NanoP4Spec.binaryExpression) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.binaryExpression.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.binaryExpression.to_expression x)) =
     Refine.canon (NanoP4Spec.binaryExpression.toValue x) := by
   cases x <;> first
     | rfl
@@ -1204,7 +1237,8 @@ theorem memberAccessExpression.to_expression.canon_toValue
 
 theorem memberAccessExpression.to_expression.canon_encoder
     (x : NanoP4Spec.memberAccessExpression) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.memberAccessExpression.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.memberAccessExpression.to_expression x)) =
     Refine.canon (NanoP4Spec.memberAccessExpression.toValue x) := by
   cases x <;> first
     | rfl
@@ -1220,7 +1254,8 @@ theorem callExpression.to_expression.canon_toValue
 
 theorem callExpression.to_expression.canon_encoder
     (x : NanoP4Spec.callExpression) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.callExpression.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.callExpression.to_expression x)) =
     Refine.canon (NanoP4Spec.callExpression.toValue x) := by
   cases x <;> first
     | rfl
@@ -1236,7 +1271,8 @@ theorem parenthesizedExpression.to_expression.canon_toValue
 
 theorem parenthesizedExpression.to_expression.canon_encoder
     (x : NanoP4Spec.parenthesizedExpression) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.parenthesizedExpression.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.parenthesizedExpression.to_expression x)) =
     Refine.canon (NanoP4Spec.parenthesizedExpression.toValue x) := by
   cases x <;> first
     | rfl
@@ -1252,7 +1288,8 @@ theorem nonTypeName.to_lvalue.canon_toValue
 
 theorem nonTypeName.to_lvalue.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
-    Refine.canon (NanoP4Spec.lvalue.toValue (NanoP4Spec.nonTypeName.to_lvalue x)) =
+    Refine.canon (NanoP4Spec.lvalue.toValue
+      (NanoP4Spec.nonTypeName.to_lvalue x)) =
     Refine.canon (NanoP4Spec.nonTypeName.toValue x) := by
   cases x <;> first
     | rfl
@@ -1268,7 +1305,8 @@ theorem emptyStatement.to_statement.canon_toValue
 
 theorem emptyStatement.to_statement.canon_encoder
     (x : NanoP4Spec.emptyStatement) :
-    Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.emptyStatement.to_statement x)) =
+    Refine.canon (NanoP4Spec.statement.toValue
+      (NanoP4Spec.emptyStatement.to_statement x)) =
     Refine.canon (NanoP4Spec.emptyStatement.toValue x) := by
   cases x <;> first
     | rfl
@@ -1284,7 +1322,8 @@ theorem variableDeclaration.to_statement.canon_toValue
 
 theorem variableDeclaration.to_statement.canon_encoder
     (x : NanoP4Spec.variableDeclaration) :
-    Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.variableDeclaration.to_statement x)) =
+    Refine.canon (NanoP4Spec.statement.toValue
+      (NanoP4Spec.variableDeclaration.to_statement x)) =
     Refine.canon (NanoP4Spec.variableDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1300,7 +1339,8 @@ theorem assignmentStatement.to_statement.canon_toValue
 
 theorem assignmentStatement.to_statement.canon_encoder
     (x : NanoP4Spec.assignmentStatement) :
-    Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.assignmentStatement.to_statement x)) =
+    Refine.canon (NanoP4Spec.statement.toValue
+      (NanoP4Spec.assignmentStatement.to_statement x)) =
     Refine.canon (NanoP4Spec.assignmentStatement.toValue x) := by
   cases x <;> first
     | rfl
@@ -1316,7 +1356,8 @@ theorem callStatement.to_statement.canon_toValue
 
 theorem callStatement.to_statement.canon_encoder
     (x : NanoP4Spec.callStatement) :
-    Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.callStatement.to_statement x)) =
+    Refine.canon (NanoP4Spec.statement.toValue
+      (NanoP4Spec.callStatement.to_statement x)) =
     Refine.canon (NanoP4Spec.callStatement.toValue x) := by
   cases x <;> first
     | rfl
@@ -1332,7 +1373,8 @@ theorem blockStatement.to_statement.canon_toValue
 
 theorem blockStatement.to_statement.canon_encoder
     (x : NanoP4Spec.blockStatement) :
-    Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.blockStatement.to_statement x)) =
+    Refine.canon (NanoP4Spec.statement.toValue
+      (NanoP4Spec.blockStatement.to_statement x)) =
     Refine.canon (NanoP4Spec.blockStatement.toValue x) := by
   cases x <;> first
     | rfl
@@ -1348,7 +1390,8 @@ theorem conditionalStatement.to_statement.canon_toValue
 
 theorem conditionalStatement.to_statement.canon_encoder
     (x : NanoP4Spec.conditionalStatement) :
-    Refine.canon (NanoP4Spec.statement.toValue (NanoP4Spec.conditionalStatement.to_statement x)) =
+    Refine.canon (NanoP4Spec.statement.toValue
+      (NanoP4Spec.conditionalStatement.to_statement x)) =
     Refine.canon (NanoP4Spec.conditionalStatement.toValue x) := by
   cases x <;> first
     | rfl
@@ -1364,7 +1407,8 @@ theorem selectExpression.to_stateExpression.canon_toValue
 
 theorem selectExpression.to_stateExpression.canon_encoder
     (x : NanoP4Spec.selectExpression) :
-    Refine.canon (NanoP4Spec.stateExpression.toValue (NanoP4Spec.selectExpression.to_stateExpression x)) =
+    Refine.canon (NanoP4Spec.stateExpression.toValue
+      (NanoP4Spec.selectExpression.to_stateExpression x)) =
     Refine.canon (NanoP4Spec.selectExpression.toValue x) := by
   cases x <;> first
     | rfl
@@ -1380,7 +1424,8 @@ theorem instantiation.to_declaration.canon_toValue
 
 theorem instantiation.to_declaration.canon_encoder
     (x : NanoP4Spec.instantiation) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.instantiation.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.instantiation.to_declaration x)) =
     Refine.canon (NanoP4Spec.instantiation.toValue x) := by
   cases x <;> first
     | rfl
@@ -1396,7 +1441,8 @@ theorem packageObjectTypeIR.to_typeDefIR.canon_toValue
 
 theorem packageObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.packageObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.packageObjectTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.packageObjectTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.packageObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1412,7 +1458,8 @@ theorem actionDeclaration.to_declaration.canon_toValue
 
 theorem actionDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.actionDeclaration) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.actionDeclaration.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.actionDeclaration.to_declaration x)) =
     Refine.canon (NanoP4Spec.actionDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1428,7 +1475,8 @@ theorem matchKindDeclaration.to_declaration.canon_toValue
 
 theorem matchKindDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.matchKindDeclaration) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.matchKindDeclaration.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.matchKindDeclaration.to_declaration x)) =
     Refine.canon (NanoP4Spec.matchKindDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1444,7 +1492,8 @@ theorem externObjectDeclaration.to_declaration.canon_toValue
 
 theorem externObjectDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.externObjectDeclaration) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.externObjectDeclaration.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.externObjectDeclaration.to_declaration x)) =
     Refine.canon (NanoP4Spec.externObjectDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1460,7 +1509,8 @@ theorem parserDeclaration.to_declaration.canon_toValue
 
 theorem parserDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.parserDeclaration) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.parserDeclaration.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.parserDeclaration.to_declaration x)) =
     Refine.canon (NanoP4Spec.parserDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1476,7 +1526,8 @@ theorem controlDeclaration.to_declaration.canon_toValue
 
 theorem controlDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.controlDeclaration) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.controlDeclaration.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.controlDeclaration.to_declaration x)) =
     Refine.canon (NanoP4Spec.controlDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1492,7 +1543,8 @@ theorem typeDeclaration.to_declaration.canon_toValue
 
 theorem typeDeclaration.to_declaration.canon_encoder
     (x : NanoP4Spec.typeDeclaration) :
-    Refine.canon (NanoP4Spec.declaration.toValue (NanoP4Spec.typeDeclaration.to_declaration x)) =
+    Refine.canon (NanoP4Spec.declaration.toValue
+      (NanoP4Spec.typeDeclaration.to_declaration x)) =
     Refine.canon (NanoP4Spec.typeDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1508,7 +1560,8 @@ theorem externObjectTypeIR.to_typeDefIR.canon_toValue
 
 theorem externObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.externObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.externObjectTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.externObjectTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.externObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1524,7 +1577,8 @@ theorem structTypeDeclaration.to_typeDeclaration.canon_toValue
 
 theorem structTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.structTypeDeclaration) :
-    Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.structTypeDeclaration.to_typeDeclaration x)) =
+    Refine.canon (NanoP4Spec.typeDeclaration.toValue
+      (NanoP4Spec.structTypeDeclaration.to_typeDeclaration x)) =
     Refine.canon (NanoP4Spec.structTypeDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1540,7 +1594,8 @@ theorem structTypeIR.to_typeDefIR.canon_toValue
 
 theorem structTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.structTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.structTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.structTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.structTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1556,7 +1611,8 @@ theorem headerTypeDeclaration.to_typeDeclaration.canon_toValue
 
 theorem headerTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.headerTypeDeclaration) :
-    Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.headerTypeDeclaration.to_typeDeclaration x)) =
+    Refine.canon (NanoP4Spec.typeDeclaration.toValue
+      (NanoP4Spec.headerTypeDeclaration.to_typeDeclaration x)) =
     Refine.canon (NanoP4Spec.headerTypeDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1572,7 +1628,8 @@ theorem headerTypeIR.to_typeDefIR.canon_toValue
 
 theorem headerTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.headerTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.headerTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.headerTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.headerTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1588,7 +1645,8 @@ theorem parserTypeDeclaration.to_typeDeclaration.canon_toValue
 
 theorem parserTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.parserTypeDeclaration) :
-    Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.parserTypeDeclaration.to_typeDeclaration x)) =
+    Refine.canon (NanoP4Spec.typeDeclaration.toValue
+      (NanoP4Spec.parserTypeDeclaration.to_typeDeclaration x)) =
     Refine.canon (NanoP4Spec.parserTypeDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1604,7 +1662,8 @@ theorem parserObjectTypeIR.to_typeDefIR.canon_toValue
 
 theorem parserObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.parserObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.parserObjectTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.parserObjectTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.parserObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1620,7 +1679,8 @@ theorem controlTypeDeclaration.to_typeDeclaration.canon_toValue
 
 theorem controlTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.controlTypeDeclaration) :
-    Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.controlTypeDeclaration.to_typeDeclaration x)) =
+    Refine.canon (NanoP4Spec.typeDeclaration.toValue
+      (NanoP4Spec.controlTypeDeclaration.to_typeDeclaration x)) =
     Refine.canon (NanoP4Spec.controlTypeDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1636,7 +1696,8 @@ theorem controlObjectTypeIR.to_typeDefIR.canon_toValue
 
 theorem controlObjectTypeIR.to_typeDefIR.canon_encoder
     (x : NanoP4Spec.controlObjectTypeIR) :
-    Refine.canon (NanoP4Spec.typeDefIR.toValue (NanoP4Spec.controlObjectTypeIR.to_typeDefIR x)) =
+    Refine.canon (NanoP4Spec.typeDefIR.toValue
+      (NanoP4Spec.controlObjectTypeIR.to_typeDefIR x)) =
     Refine.canon (NanoP4Spec.controlObjectTypeIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1652,7 +1713,8 @@ theorem packageTypeDeclaration.to_typeDeclaration.canon_toValue
 
 theorem packageTypeDeclaration.to_typeDeclaration.canon_encoder
     (x : NanoP4Spec.packageTypeDeclaration) :
-    Refine.canon (NanoP4Spec.typeDeclaration.toValue (NanoP4Spec.packageTypeDeclaration.to_typeDeclaration x)) =
+    Refine.canon (NanoP4Spec.typeDeclaration.toValue
+      (NanoP4Spec.packageTypeDeclaration.to_typeDeclaration x)) =
     Refine.canon (NanoP4Spec.packageTypeDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1668,7 +1730,8 @@ theorem variableDeclaration.to_controlLocalDeclaration.canon_toValue
 
 theorem variableDeclaration.to_controlLocalDeclaration.canon_encoder
     (x : NanoP4Spec.variableDeclaration) :
-    Refine.canon (NanoP4Spec.controlLocalDeclaration.toValue (NanoP4Spec.variableDeclaration.to_controlLocalDeclaration x)) =
+    Refine.canon (NanoP4Spec.controlLocalDeclaration.toValue
+      (NanoP4Spec.variableDeclaration.to_controlLocalDeclaration x)) =
     Refine.canon (NanoP4Spec.variableDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1684,7 +1747,8 @@ theorem tableDeclaration.to_controlLocalDeclaration.canon_toValue
 
 theorem tableDeclaration.to_controlLocalDeclaration.canon_encoder
     (x : NanoP4Spec.tableDeclaration) :
-    Refine.canon (NanoP4Spec.controlLocalDeclaration.toValue (NanoP4Spec.tableDeclaration.to_controlLocalDeclaration x)) =
+    Refine.canon (NanoP4Spec.controlLocalDeclaration.toValue
+      (NanoP4Spec.tableDeclaration.to_controlLocalDeclaration x)) =
     Refine.canon (NanoP4Spec.tableDeclaration.toValue x) := by
   cases x <;> first
     | rfl
@@ -1700,7 +1764,8 @@ theorem nonTypeName.to_tableActionReference.canon_toValue
 
 theorem nonTypeName.to_tableActionReference.canon_encoder
     (x : NanoP4Spec.nonTypeName) :
-    Refine.canon (NanoP4Spec.tableActionReference.toValue (NanoP4Spec.nonTypeName.to_tableActionReference x)) =
+    Refine.canon (NanoP4Spec.tableActionReference.toValue
+      (NanoP4Spec.nonTypeName.to_tableActionReference x)) =
     Refine.canon (NanoP4Spec.nonTypeName.toValue x) := by
   cases x <;> first
     | rfl
@@ -1716,7 +1781,8 @@ theorem parserDeclarationIR.to_callableDef.canon_toValue
 
 theorem parserDeclarationIR.to_callableDef.canon_encoder
     (x : NanoP4Spec.parserDeclarationIR) :
-    Refine.canon (NanoP4Spec.callableDef.toValue (NanoP4Spec.parserDeclarationIR.to_callableDef x)) =
+    Refine.canon (NanoP4Spec.callableDef.toValue
+      (NanoP4Spec.parserDeclarationIR.to_callableDef x)) =
     Refine.canon (NanoP4Spec.parserDeclarationIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1732,7 +1798,8 @@ theorem controlDeclarationIR.to_callableDef.canon_toValue
 
 theorem controlDeclarationIR.to_callableDef.canon_encoder
     (x : NanoP4Spec.controlDeclarationIR) :
-    Refine.canon (NanoP4Spec.callableDef.toValue (NanoP4Spec.controlDeclarationIR.to_callableDef x)) =
+    Refine.canon (NanoP4Spec.callableDef.toValue
+      (NanoP4Spec.controlDeclarationIR.to_callableDef x)) =
     Refine.canon (NanoP4Spec.controlDeclarationIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1748,7 +1815,8 @@ theorem actionDeclarationIR.to_callableDef.canon_toValue
 
 theorem actionDeclarationIR.to_callableDef.canon_encoder
     (x : NanoP4Spec.actionDeclarationIR) :
-    Refine.canon (NanoP4Spec.callableDef.toValue (NanoP4Spec.actionDeclarationIR.to_callableDef x)) =
+    Refine.canon (NanoP4Spec.callableDef.toValue
+      (NanoP4Spec.actionDeclarationIR.to_callableDef x)) =
     Refine.canon (NanoP4Spec.actionDeclarationIR.toValue x) := by
   cases x <;> first
     | rfl
@@ -1764,7 +1832,8 @@ theorem actionCallee.to_callee.canon_toValue
 
 theorem actionCallee.to_callee.canon_encoder
     (x : NanoP4Spec.actionCallee) :
-    Refine.canon (NanoP4Spec.callee.toValue (NanoP4Spec.actionCallee.to_callee x)) =
+    Refine.canon (NanoP4Spec.callee.toValue
+      (NanoP4Spec.actionCallee.to_callee x)) =
     Refine.canon (NanoP4Spec.actionCallee.toValue x) := by
   cases x <;> first
     | rfl
@@ -1780,7 +1849,8 @@ theorem packetValue.to_value.canon_toValue
 
 theorem packetValue.to_value.canon_encoder
     (x : NanoP4Spec.packetValue) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.packetValue.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.packetValue.to_value x)) =
     Refine.canon (NanoP4Spec.packetValue.toValue x) := by
   cases x <;> first
     | rfl
@@ -1796,7 +1866,8 @@ theorem externMethodCallee.to_callee.canon_toValue
 
 theorem externMethodCallee.to_callee.canon_encoder
     (x : NanoP4Spec.externMethodCallee) :
-    Refine.canon (NanoP4Spec.callee.toValue (NanoP4Spec.externMethodCallee.to_callee x)) =
+    Refine.canon (NanoP4Spec.callee.toValue
+      (NanoP4Spec.externMethodCallee.to_callee x)) =
     Refine.canon (NanoP4Spec.externMethodCallee.toValue x) := by
   cases x <;> first
     | rfl
@@ -1812,7 +1883,8 @@ theorem tableValue.to_value.canon_toValue
 
 theorem tableValue.to_value.canon_encoder
     (x : NanoP4Spec.tableValue) :
-    Refine.canon (NanoP4Spec.value.toValue (NanoP4Spec.tableValue.to_value x)) =
+    Refine.canon (NanoP4Spec.value.toValue
+      (NanoP4Spec.tableValue.to_value x)) =
     Refine.canon (NanoP4Spec.tableValue.toValue x) := by
   cases x <;> first
     | rfl
@@ -1828,7 +1900,8 @@ theorem tableApplyMethodCallee.to_callee.canon_toValue
 
 theorem tableApplyMethodCallee.to_callee.canon_encoder
     (x : NanoP4Spec.tableApplyMethodCallee) :
-    Refine.canon (NanoP4Spec.callee.toValue (NanoP4Spec.tableApplyMethodCallee.to_callee x)) =
+    Refine.canon (NanoP4Spec.callee.toValue
+      (NanoP4Spec.tableApplyMethodCallee.to_callee x)) =
     Refine.canon (NanoP4Spec.tableApplyMethodCallee.toValue x) := by
   cases x <;> first
     | rfl
@@ -1844,7 +1917,8 @@ theorem identifier.to_expression.canon_toValue
 
 theorem identifier.to_expression.canon_encoder
     (x : NanoP4Spec.identifier) :
-    Refine.canon (NanoP4Spec.expression.toValue (NanoP4Spec.identifier.to_expression x)) =
+    Refine.canon (NanoP4Spec.expression.toValue
+      (NanoP4Spec.identifier.to_expression x)) =
     Refine.canon (NanoP4Spec.identifier.toValue x) := by
   cases x <;> first
     | rfl

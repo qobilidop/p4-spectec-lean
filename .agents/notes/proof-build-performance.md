@@ -112,3 +112,55 @@ every certificate builds and audits clean. Failing stages:
 - Present at `57928eb` already: 20 long lines in generated `Equality.lean` and four in
   `Codegen`/`Forward.lean`, runtime `CallAdmission` modules unreachable from the
   library root, and the stale `Producer.lean:76` guard.
+
+## Autonomous stabilization and optimization (2026-09-28)
+
+User-authorized continuation: first restore the full gate and CI, then optimize the
+remaining N3 workflows with measured results. Published WIP history is retained.
+N3 completion itself is not claimed by a green intermediate checkpoint.
+
+Fresh baseline on the existing `694e616` tactic artifacts, with no concurrent Lean
+build: `nix develop -c /usr/bin/time -p lake env lean
+NanoP4Spec/Refinement/bin_op.lean` exited 0; wall 173.77s, user 302.03s, system 2.27s.
+Raw evidence: `.artifacts/perf/codex-baseline-bin-op.log` (ignored).
+
+Independent read-only review by Codex GPT-6 Astra of `694e616`/`deaa47a` found:
+
+- Across 682 changed generated modules, all 3,894 audits and all nonblank,
+  non-audit lines were preserved by audit hoisting.
+- No kernel-soundness escape identified. Runtime-domain and extern assumptions
+  remain explicit; the four missing polymorphic domains remain mandatory.
+- Two tactic-completeness fixes required: simplification cache keys must include
+  reducible aliases of discharger assumptions, and imported constant inventories
+  must not use a process-global prefix-only cache across different environments.
+- Stabilization review found that generated cleanup must reject or skip a symlink
+  at the library root as well as symlinked children. Regression coverage required.
+
+Resolution: both cache findings are fixed with conservative keys and environment-local
+constant enumeration. Generated cleanup rejects a symlinked library root, skips linked
+children, and preserves handwritten/foreign-generator files. Regression tests cover
+each boundary. Codex GPT-6 Astra re-reviewed the implementation with no remaining
+blocking finding; the final two-environment regression exercises `importedUnder` itself.
+The review was read-only and did not execute builds; it prioritized the performance
+changes and contract boundaries, not an exhaustive re-review of every N3 tactic.
+
+Read-only planning investigation by Codex GPT-6 Sol identified a direct remaining-N3
+bottleneck: `SourceBuiltin.field` invokes recursive representation planning instead
+of using `Emit.plan`'s existing catalog. Polymorphic source-domain generation also
+repeats planning separately for declarations, type and dependencies. Reuse that
+catalog before extending the four missing domain proof shapes.
+
+The full stabilization gate `nix develop -c /usr/bin/time -p scripts/check.sh` exited
+0: wall 1073.97s, user 4271.05s, system 441.99s; certificate/library build 903s.
+No stages were skipped. `.artifacts/perf/codex-stabilization-gate.log` retains the
+actual result. Focused replay/mutation Python contracts, generator cleanup tests,
+and `lake build P4SpecTecTest.Tactic.Refine` also exited 0. The gate checks the
+regenerated tree and refreshed completion manifest, with N3 still incomplete.
+
+Rebuild module times include `bin_eq` 159s, `bin_op` 316s and `Expr_ok` 399s. They are
+not directly comparable to the earlier isolated `bin_op` baseline. A one-second
+sample of `bin_op` found the active worker in proof finalization: 60/89 samples in
+`shareCommonPreDefs`, 21/89 in `partitionPreDefs` constant traversal. The audit was
+waiting for that proof. This identifies a candidate bottleneck, not its total share
+of the run. Measure exact structural sharing after simplification before changing
+the normalization algorithm; no stale normal form may hide a newly applicable rule.

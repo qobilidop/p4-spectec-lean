@@ -44,10 +44,12 @@ def module_path(target):
 
 
 def chunks(text):
-    """Split at blank lines followed by a column-0 line; a chunk keeps its docstring."""
+    """Split declarations and individual audits; a chunk keeps its docstring."""
     parts, current = [], []
     for line in text.splitlines(keepends=True):
-        if current and line.strip() and not line[0].isspace() and not current[-1].strip():
+        if current and (line.startswith("#audit_axioms ") or
+                        (line.strip() and not line[0].isspace() and
+                         not current[-1].strip())):
             parts.append("".join(current))
             current = []
         current.append(line)

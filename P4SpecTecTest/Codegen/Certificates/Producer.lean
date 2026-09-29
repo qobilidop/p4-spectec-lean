@@ -73,7 +73,12 @@ private def relationModes (positions : List Int) : Lang.Al.def :=
     { relation with it := .RelD name sourceNotation positions groups alternative hints }
   | _ => relation
 
-#guard !(Producer.theoremType env (relationModes [0, 1])).isOk
+-- Two result positions are represented by a product and both receive domain claims.
+#guard (Producer.theoremType env (relationModes [0, 1])).isOk
+#guard match Producer.theoremType env (relationModes [0, 1]) with
+  | .error _ => false
+  | .ok statement => (statement.splitOn "result.1").length > 1 &&
+    (statement.splitOn "result.2").length > 1
 -- All arguments are inputs: the declared result is the supported empty tuple/Unit.
 #guard (Producer.theoremType env (relationModes [0, 1, 2, 3])).isOk
 #guard !(Producer.theoremType env (relationModes [0, 1, 1])).isOk

@@ -739,7 +739,8 @@ def subtypeCanonTheorem (env : Env) (s t : typ') : Format :=
   let encoderName := upName s t ++ ".canon_encoder"
   let encoderForm := Format.group (Format.nest 4 (Format.text s!"theorem {encoderName}" ++
     Format.line ++ Format.text "(x : " ++ (typTerm env [] s).fmt ++ ") :" ++ Format.line ++
-    Format.text s!"Refine.canon ({encoder t} ({env.q (upName s t)} x)) =" ++
+    Format.text s!"Refine.canon ({encoder t}" ++
+      Format.nest 2 (Format.line ++ Format.text s!"({env.q (upName s t)} x)) =") ++
       Format.line ++ s!"Refine.canon ({encoder s} x)" ++ " := by")) ++ proof ++
     Term.hardLine ++ Term.hardLine ++ Format.text s!"#audit_axioms {env.q encoderName}"
   Format.group (Format.nest 4 (Format.text s!"theorem {name}" ++ Format.line ++

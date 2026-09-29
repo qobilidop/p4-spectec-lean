@@ -121,7 +121,8 @@ def declarations (env : Env) (d : Lang.Al.def) (m : Props.Member)
     s!"  · exact {qualified}.realizes " ++ " ".intercalate arguments ++ "\n"
   pure (Std.Format.text (boundedLines (
     "/-- Every declared source input has admitted witnesses with both execution directions. -/\n" ++
-    s!"theorem {owner}.{env.part "sourceCorrespondence"}\n    " ++ assumptions env m fields ++ " :\n" ++
+    s!"theorem {owner}.{env.part "sourceCorrespondence"}\n    " ++
+    assumptions env m fields ++ " :\n" ++
     "    " ++ result m fields ++ " := by\n" ++ proof ++
     s!"\n#audit_axioms {qualified}.{env.part "sourceCorrespondence"}")))
 

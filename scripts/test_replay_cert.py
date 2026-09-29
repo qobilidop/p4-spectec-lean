@@ -42,6 +42,14 @@ theorem R.realizes : True := trivial
 end NanoP4Spec
 """
 
+HOISTED = MODULE.replace(
+    "#audit_axioms NanoP4Spec.R.refines_group\n\n", "").replace(
+    "#audit_axioms NanoP4Spec.R.refines\n\n", "").replace(
+    "#audit_axioms NanoP4Spec.R.realizes\n\n",
+    "#audit_axioms NanoP4Spec.R.refines_group\n"
+    "#audit_axioms NanoP4Spec.R.refines\n"
+    "#audit_axioms NanoP4Spec.R.realizes\n\n")
+
 
 class ReplayTest(unittest.TestCase):
     def test_no_selection_is_identity(self):
@@ -60,6 +68,13 @@ class ReplayTest(unittest.TestCase):
         kept = replay.select(MODULE, ["refines"])
         self.assertIn("theorem R.refines_group", kept)
         self.assertIn("theorem R.refines\n", kept)
+        self.assertNotIn("theorem R.realizes", kept)
+
+    def test_hoisted_audits_follow_their_theorems(self):
+        kept = replay.select(HOISTED, ["refines"])
+        self.assertIn("#audit_axioms NanoP4Spec.R.refines_group", kept)
+        self.assertIn("#audit_axioms NanoP4Spec.R.refines\n", kept)
+        self.assertNotIn("#audit_axioms NanoP4Spec.R.realizes", kept)
         self.assertNotIn("theorem R.realizes", kept)
 
     def test_options_follow_the_preamble(self):

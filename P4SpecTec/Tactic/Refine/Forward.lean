@@ -38,7 +38,8 @@ def closeBoolConflict : TacticM Bool := do
           falses := falses.push (lhs, decl.fvarId)
       else if ty.isAppOfArity ``Not 1 then
         if let some (_, lhs, rhs) := (ty.getArg! 0).consumeMData.eq? then
-          if rhs.consumeMData.isConstOf ``Bool.true then negated := negated.push (lhs, true, decl.fvarId)
+          if rhs.consumeMData.isConstOf ``Bool.true then
+            negated := negated.push (lhs, true, decl.fvarId)
           else if rhs.consumeMData.isConstOf ``Bool.false then
             negated := negated.push (lhs, false, decl.fvarId)
     for (e, outcome, n) in negated do

@@ -30,6 +30,19 @@ class RunnerTests(unittest.TestCase):
                 "(ExceptT.mk (Scratch.«$update_fieldValue» p0 p1 p2))"), 1)
             self.assertNotIn("#audit_axioms NanoP4Spec.«$update_fieldValue».refines_group",
                              source)
+            self.assertNotIn("theorem «$update_fieldValue».refines\n", source)
+
+    def test_refinement_extraction_rejects_changed_boundaries(self):
+        emitted = (run.ROOT / "NanoP4Spec/Refinement/update_fieldValue.lean").read_text()
+        theorem = run.extract_refinement_group(emitted)
+        self.assertIn("by\n  intro fuel", theorem)
+        self.assertNotIn("set_option maxHeartbeats", theorem)
+        for changed in (emitted.replace("theorem «$update_fieldValue».refines\n", "", 1),
+                        emitted.replace("set_option maxHeartbeats 7000000 in\n"
+                                        "theorem «$update_fieldValue».refines\n",
+                                        "theorem «$update_fieldValue».refines\n", 1)):
+            with self.assertRaises(run.HarnessError):
+                run.extract_refinement_group(changed)
 
     def test_semantic_reports(self):
         for case, report in [("baseline", "true:true:true"),

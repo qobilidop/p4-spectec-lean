@@ -110,7 +110,8 @@ def mutualTheorems (lib : String) (members : List Member) : List Format := Id.ru
   let statement := Format.joinSep (members.map fun m => Format.paren (groupStatement lib m))
     (Format.text " ∧" ++ Format.line)
   let instanceBinder := if first.externs then " " ++ Validate.externInstance lib first else ""
-  let declaration := Format.text ("theorem " ++ owner ++ ".realizes_group" ++ instanceBinder ++ " :") ++
+  let declaration :=
+    Format.text ("theorem " ++ owner ++ ".realizes_group" ++ instanceBinder ++ " :") ++
     Format.nest 2 (Format.line ++ statement) ++ " := by" ++
     Format.nest 2 (Format.line ++ Format.text
       ((if members.any (·.requiresColumns) then "realize_group (columns) " else "realize_group ")
