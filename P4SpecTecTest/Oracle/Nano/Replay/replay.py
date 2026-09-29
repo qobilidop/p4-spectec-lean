@@ -25,21 +25,38 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[4]
 CORPUS = ROOT / "exports" / "programs" / "nano-p4"
+LEGS = ["nano-p4-run", "nano-p4-interp"]
 
 
-def leg(exe, programs, paths):
-    """Run one executable on the programs; the number of disagreements."""
+def lean_verdicts(exe, paths):
+    """One executable's verdict per program path, or None when the executable fails."""
     run = subprocess.run(["lake", "exe", exe, *paths], cwd=ROOT,
                          capture_output=True, text=True)
     if run.returncode != 0:
         sys.stderr.write(run.stderr)
         print(f"{exe} failed with exit {run.returncode}")
-        return len(programs)
+        return None
     lean = {}
     for line in run.stdout.splitlines():
         if " " in line:
             path, verdict = line.rsplit(" ", 1)
             lean[path] = verdict
+    return lean
+
+
+def agreeing_programs(paths, expected):
+    """Programs whose verdicts agree with upstream on both legs (completion evidence)."""
+    legs = [lean_verdicts(exe, paths) for exe in LEGS]
+    if any(leg is None for leg in legs):
+        return set()
+    return {path for path in paths if all(leg.get(path) == expected[path] for leg in legs)}
+
+
+def leg(exe, programs, paths):
+    """Run one executable on the programs; the number of disagreements."""
+    lean = lean_verdicts(exe, paths)
+    if lean is None:
+        return len(programs)
     agree = disagree = 0
     for (path, expected), rel in zip(programs, paths):
         got = lean.get(rel, "missing")
@@ -53,7 +70,7 @@ def leg(exe, programs, paths):
 
 
 def main(argv):
-    legs = ["nano-p4-run", "nano-p4-interp"]
+    legs = LEGS
     if "--leg" in argv:
         i = argv.index("--leg")
         legs = ["nano-p4-" + argv[i + 1]]

@@ -175,6 +175,17 @@ def named_type_references(definition, type_keys):
 # Checks the completion CLI itself runs before counting obligations; never a compiled claim.
 IDENTITY_CHECKS = ["source pins and export digest", "generated library freshness",
                    "check-quotes", "check-coverage"]
+# Handwritten concrete-target theorems; check-target verifies their exact types and axioms.
+TARGET_CLAIMS = {
+    "target:ExternMethodCall_eval": "NanoP4Target.externsContractHolds",
+    "profile:composition": "NanoP4Target.initializedSessionCorrespondence",
+    "profile:observations": "NanoP4Target.sessionObservations",
+}
+TARGET_CHECKS = ["check-target: exact NanoP4Target theorem types and allowed axioms"]
+PRINTING_CHECKS = ["check-coverage: print_ dispatch under the empty hint table",
+                   "check-target: the pinned export declares no print hints"]
+TYPING_REPLAY = ["nano-p4-run and nano-p4-interp match the upstream verdict and outputs"]
+SESSION_REPLAY = ["check-nano-sessions matches every upstream session step on both paths"]
 
 MONOMORPHIC_DOMAIN = (("sourceEntry", "sourceInputsToTwoWay"),
                       ("producer", "sourceInputsToSourceOutput"))
@@ -308,7 +319,8 @@ def build_manifest(source, coverage, corpus_ids, identity):
             elif entry["kind"].startswith("extern"):
                 add(f"contract:{name}", "extern", key, dependencies=[domain],
                     evidence=claim(entry, "externContract", "abstractTwoWay"))
-                add(f"target:{name}", "target", key, "target", [f"contract:{name}"])
+                add(f"target:{name}", "target", key, "target", [f"contract:{name}"],
+                    evidence=TARGET_CLAIMS.get(f"target:{name}"), checked_by=TARGET_CHECKS)
             else:
                 for direction, requirement in (("referenceToGenerated", "forward"),
                                                ("generatedToReference", "reverse")):
@@ -341,12 +353,16 @@ def build_manifest(source, coverage, corpus_ids, identity):
         ["profile:sourceIdentity"] + [o["id"] for o in obligations if o["requirement"] == "variable"])
     target_contracts = [o["id"] for o in obligations if o["requirement"] == "target"]
     add("profile:observations", "observations", "NanoSwitch", "target",
-        target_contracts + ["profile:primitiveRepresentations"])
+        target_contracts + ["profile:primitiveRepresentations"],
+        evidence=TARGET_CLAIMS["profile:observations"], checked_by=TARGET_CHECKS)
     add("profile:printing", "printing", "NanoSwitch", "target",
-        ["contract:print_"] if "print_" in by_id else ["profile:primitiveRepresentations"])
+        ["contract:print_"] if "print_" in by_id else ["profile:primitiveRepresentations"],
+        evidence=(claim(by_id["print_"], "builtinContract", "twoWayDispatch")
+                  if "print_" in by_id else None), checked_by=PRINTING_CHECKS)
     core_proofs = [o["id"] for o in obligations if o["requirement"] in ("forward", "reverse")]
     add("profile:composition", "composition", "NanoSwitch", "target",
-        core_proofs + target_contracts + ["profile:initialization", "profile:observations"])
+        core_proofs + target_contracts + ["profile:initialization", "profile:observations"],
+        evidence=TARGET_CLAIMS["profile:composition"], checked_by=TARGET_CHECKS)
     add("profile:consumer", "consumer", "Nano-P4 milestone", "release",
         ["profile:composition", "profile:sourceIdentity"])
     if len(corpus_ids) != len(set(corpus_ids)):
@@ -354,8 +370,9 @@ def build_manifest(source, coverage, corpus_ids, identity):
     for case in corpus_ids:
         if not case.startswith(("corpus:typing:", "corpus:packet:")):
             raise CertificationError(f"unknown corpus obligation kind: {case}")
-        stage = "core" if case.startswith("corpus:typing:") else "target"
-        add(f"replay:{case}", "replay", case, stage, ["profile:sourceIdentity"])
+        typing = case.startswith("corpus:typing:")
+        add(f"replay:{case}", "replay", case, "core" if typing else "target",
+            ["profile:sourceIdentity"], checked_by=TYPING_REPLAY if typing else SESSION_REPLAY)
     add("profile:sensitivity", "sensitivity", "Nano-P4 milestone", "release",
         ["profile:sourceIdentity", "profile:consumer"])
     add("profile:review", "review", "Nano-P4 milestone", "release",
@@ -382,21 +399,28 @@ def check_stored(text, regenerated):
 MILESTONES = ("N0", "N1", "N2", "N3", "N4", "N5", "N6")
 
 
-def outstanding(manifest, stage="all", checked=False, owned=None):
+def outstanding(manifest, stage="all", verified=frozenset(), owned=None):
     """Report missing evidence after callers have validated compiled bindings.
 
     Presence of a binding is not evidence until the Lean checker succeeds. An obligation
-    discharged by the CLI's own checks counts only when the caller ran them (`checked`).
-    `owned` restricts the core stage to requirements owned by milestones up to it.
+    with `checkedBy` counts only when the caller ran those checks and they verified that
+    obligation (`verified`), whether or not it also names a compiled claim.
+    `owned` restricts the result to requirements owned by milestones up to it.
     This function alone must never be exposed as a certification verdict.
     """
     stages = {"core"} if stage == "core" else {"core", "target"} if stage == "target" else {
         "core", "target", "release"}
     owners = None if owned is None else set(MILESTONES[:MILESTONES.index(owned) + 1])
     requirements = manifest["requirements"]
+
+    def done(o):
+        if o.get("checkedBy"):
+            return o["id"] in verified and (o["coverageClaim"] is not None
+                                            or o["requirement"] in ("sourceIdentity", "replay"))
+        return o["coverageClaim"] is not None
+
     return [o for o in manifest["obligations"]
-            if o["stage"] in stages and o["coverageClaim"] is None
-            and not (checked and o.get("checkedBy"))
+            if o["stage"] in stages and not done(o)
             and (owners is None or requirements[o["requirement"]]["owner"] in owners)]
 
 
@@ -490,6 +514,48 @@ def n2_missing(source, coverage):
     return sorted(missing)
 
 
+def target_verified(manifest):
+    """Run check-target; the target-stage obligations whose compiled claims it verified."""
+    output = run(ROOT, ["lake", "exe", "check-target"])
+    claims = {line.removeprefix("[target] claim ").strip() for line in output.splitlines()
+              if line.startswith("[target] claim ")}
+    if claims != set(TARGET_CLAIMS.values()) or "pinned print hints empty" not in output:
+        raise CertificationError("check-target did not verify exactly the bound target claims")
+    return {o["id"] for o in manifest["obligations"]
+            if o.get("checkedBy") in (TARGET_CHECKS, PRINTING_CHECKS)
+            and o["coverageClaim"] is not None}
+
+
+def replay_verified(manifest, corpus):
+    """Run both typing replay legs and the session replay; every agreeing replay obligation."""
+    replay = corpus_helper(ROOT / "P4SpecTecTest/Oracle/Nano/Replay/replay.py", "nano_replay")
+    typing = {}
+    for o in manifest["obligations"]:
+        case = o["subject"]
+        if o["requirement"] == "replay" and case.startswith("corpus:typing:"):
+            path = f"exports/programs/nano-p4/{case.removeprefix('corpus:typing:')}.json"
+            verdict = ROOT / path.removesuffix(".json")
+            verdict = verdict.with_name(verdict.name + ".verdict")
+            if verdict.is_file():
+                typing[path] = (o["id"], verdict.read_text().strip())
+    agreeing = replay.agreeing_programs(list(typing), {p: v for p, (_, v) in typing.items()})
+    verified = {typing[path][0] for path in agreeing}
+    sessions = corpus_helper(ROOT / "P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py",
+                             "nano_session_check")
+    matched = sessions.replay(ROOT / ".lake/build/bin/check-nano-sessions")
+    verified |= {f"replay:{case}" for case in matched}
+    return verified
+
+
+def corpus_helper(path, name):
+    """Load a colocated oracle driver as a module, with its own directory importable."""
+    sys.path.insert(0, str(path.parent))
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--update", action="store_true", help="regenerate metadata, not proof evidence")
@@ -518,8 +584,13 @@ def main(argv=None):
                    "--runtime-extern", "value", "--check"])
         run(ROOT, ["lake", "exe", "check-coverage"])
         run(ROOT, ["lake", "exe", "check-quotes"])
-        stage = "core" if args.require_owned else args.require_complete or "all"
-        missing = outstanding(manifest, stage, checked=True, owned=args.require_owned)
+        verified = {o["id"] for o in manifest["obligations"]
+                    if o.get("checkedBy") == IDENTITY_CHECKS}
+        verified |= target_verified(manifest)
+        verified |= replay_verified(manifest, corpus)
+        # Owned scope spans the core and target stages; release evidence stays separate.
+        stage = "target" if args.require_owned else args.require_complete or "all"
+        missing = outstanding(manifest, stage, verified=verified, owned=args.require_owned)
         bound = sum(o["coverageClaim"] is not None for o in manifest["obligations"])
         print(f"[completion] {len(manifest['declarations'])} source declarations; "
               f"{len(manifest['obligations'])} obligations; {bound} compiled claim bindings; "

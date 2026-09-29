@@ -74,7 +74,8 @@ class CompletionTests(unittest.TestCase):
         self.assertIsNone(identity["coverageClaim"])
         self.assertIn("check-quotes", identity["checkedBy"])
         self.assertIn(identity, completion.outstanding(self.manifest, "core"))
-        self.assertNotIn(identity, completion.outstanding(self.manifest, "core", checked=True))
+        self.assertNotIn(identity, completion.outstanding(
+            self.manifest, "core", verified={"profile:sourceIdentity"}))
         self.coverage["definitions"][3]["claims"] = [{
             "name": "NanoP4Spec.Externs.extern.invocations", "kind": "externContract",
             "direction": "abstractTwoWay", "expectedType": "True"}]
@@ -124,8 +125,33 @@ class CompletionTests(unittest.TestCase):
         self.assertIsNone(bound(source[:2] + runtime[2:]))
         self.assertIsNone(bound(runtime[:2] + source[2:]))
 
+    def test_target_and_replay_bindings_need_their_checks(self):
+        manifest = completion.build_manifest(self.source, self.coverage,
+                                             ["corpus:typing:a/b", "corpus:packet:a/b"], {})
+        obligations = {o["id"]: o for o in manifest["obligations"]}
+        for key in ("profile:composition", "profile:observations"):
+            self.assertEqual(obligations[key]["coverageClaim"], completion.TARGET_CLAIMS[key])
+            self.assertEqual(obligations[key]["checkedBy"], completion.TARGET_CHECKS)
+        # The fixture's extern is not NanoSwitch's, so it has no concrete target claim.
+        self.assertIsNone(obligations["target:extern"]["coverageClaim"])
+        typing, packet = obligations["replay:corpus:typing:a/b"], obligations[
+            "replay:corpus:packet:a/b"]
+        self.assertEqual(typing["checkedBy"], completion.TYPING_REPLAY)
+        self.assertEqual(packet["checkedBy"], completion.SESSION_REPLAY)
+        missing = completion.outstanding(manifest, "target")
+        for obligation in (obligations["profile:composition"], typing, packet):
+            self.assertIn(obligation, missing)
+        verified = {"profile:composition", typing["id"], packet["id"]}
+        missing = completion.outstanding(manifest, "target", verified=verified)
+        for obligation in (obligations["profile:composition"], typing, packet):
+            self.assertNotIn(obligation, missing)
+        # A verified id without its compiled claim is still missing.
+        self.assertIn(obligations["target:extern"], completion.outstanding(
+            manifest, "target", verified={"target:extern"}))
+
     def test_owned_scope_excludes_later_owners_and_other_stages(self):
-        owned = completion.outstanding(self.manifest, "core", checked=True, owned="N3")
+        owned = completion.outstanding(self.manifest, "core",
+                                       verified={"profile:sourceIdentity"}, owned="N3")
         owners = {self.manifest["requirements"][o["requirement"]]["owner"] for o in owned}
         self.assertTrue(owners <= {"N0", "N1", "N2", "N3"})
         self.assertTrue(all(o["stage"] == "core" for o in owned))

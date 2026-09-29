@@ -317,6 +317,24 @@ theorem initializedSessionCorrespondence {cfg : Interp_al.Interp.Config} (hcfg :
       (session program rxs) :=
   sessionCorrespondence (initializedSessionEnv hcfg hhints) hprogram rxs
 
+/-- The session observations on the concrete initialized environment, with the observation
+relation spelled out: related final contexts, the initial architecture state, and equal
+ordered transmissions (and so forward/drop) for every packet, with failure kinds preserved. -/
+theorem sessionObservations {cfg : Interp_al.Interp.Config} (hcfg : Reference cfg)
+    (hhints : cfg.printHints = []) {vprogram : value} {program : NanoP4Spec.program}
+    (hprogram : Rel vprogram program) (rxs : List Runtime.Sim.Io.rx) :
+    (∀ fuel, Refines (fun a b => Rel a.1 b.1 ∧ a.2.1 = Pipe.init_arch_state ∧ a.2.2 = b.2)
+      (referenceSession (relCall cfg NanoP4Spec.Environment.global fuel) vprogram rxs)
+      (session program rxs)) ∧
+    Realizes (fun a b => Rel a.1 b.1 ∧ a.2.1 = Pipe.init_arch_state ∧ a.2.2 = b.2)
+      (fun fuel => referenceSession (relCall cfg NanoP4Spec.Environment.global fuel) vprogram rxs)
+      (session program rxs) :=
+  initializedSessionCorrespondence hcfg hhints hprogram rxs
+
+/-- info: 'NanoP4Target.sessionObservations' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms sessionObservations
+
 /-- info: 'NanoP4Target.sessionCorrespondence' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms sessionCorrespondence

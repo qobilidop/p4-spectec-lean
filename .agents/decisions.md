@@ -247,6 +247,23 @@ observations are target-stage; they stay reported, not waived. Source identity i
 discharged by the completion CLI's own checks (pins, export digest, generated freshness,
 `check-quotes`, `check-coverage`), recorded as `checkedBy`, never as a compiled claim.
 
+## N4 target evidence (2026-09-29)
+
+The concrete target lives in the reusable `NanoP4Target` library, over the generated model;
+neither `P4SpecTec` nor `NanoP4Spec` may import it. Completion binds target-stage obligations
+to handwritten theorems only through `check-target`, which elaborates their exact expected
+types and audits axioms: the extern discharge, initialized two-way session composition, and
+session observations with the observation relation spelled out so a weakened definition
+cannot pass. Printing binds the existing `print_` dispatch contract plus the checked fact
+that the pinned export declares no print hints. Replay obligations are verified per case by
+the completion CLI itself, running both typing legs and the session replay; an obligation
+with `checkedBy` counts only when that run verified it. `--require-owned` now spans the core
+and target stages, and the gate requires N4. Reason: design section 9.4 requires a
+completion check that rejects missing target and replay evidence; metadata cannot certify
+itself. Upstream session observations store values once with cache identities zeroed, since
+comparison is canonical. Confidence high; revisit if a corpus session fails upstream (failure
+kinds are not recorded) or another target needs STF commands beyond `packet`/`expect`.
+
 ## Knowledge ownership (2026-09-26)
 
 README is the short introduction/status; Design describes the intended system;

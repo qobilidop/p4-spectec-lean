@@ -55,6 +55,11 @@ root = "Tools.CheckCoverage"
 needs = ["NanoP4Spec"]
 
 [[lean_exe]]
+name = "check-target"
+root = "Tools.CheckTarget"
+needs = ["NanoP4Target"]
+
+[[lean_exe]]
 name = "p4spectec-census"
 root = "Tools.Census"
 
