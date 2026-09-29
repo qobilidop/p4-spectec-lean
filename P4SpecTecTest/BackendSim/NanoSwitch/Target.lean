@@ -102,6 +102,14 @@ private def packet : PacketIn.t := { bits := Array.replicate 24 true, idx := 0, 
 -- A validly decoded but inconsistent record retains operation-specific behavior.
 #guard rawResult (StateEval.run
   (eval_extern_method_call noCallback (args inconsistent)) 5) 0 false 5
+-- Compare the whole packet payload with a state-changing callback available.
+#guard match StateEval.run (eval_extern_method_call callbacks (args inconsistent)) 5 with
+  | some (.ok [output, context], final) =>
+    match output.it with
+    | .ExternV json => json == extern_to_yojson (.PacketIn inconsistent) &&
+        Value.Get.bool context == some false && final == 5
+    | _ => false
+  | _ => false
 -- Wrapped idx+24 is negative, so parse is attempted and rejects the invalid array index.
 #guard match StateEval.run (eval_extern_method_call noCallback
     (args { packet with idx := (2 : Int) ^ 62 - 1 })) 5 with

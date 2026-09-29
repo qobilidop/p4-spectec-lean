@@ -3,8 +3,8 @@
 N3-owned proof milestone closed, 2026-09-29. Implementation `67f67ae` and final
 evidence checkpoint `6ca3a22` are on `main`; exact final
 [CI 36539336394](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36539336394)
-passed (rechecked during maintenance). The bounded raw-receiver theorem promotion
-has passed local validation and review. No implementation is active; broader N4–N6
+passed (rechecked during maintenance). The short-packet extract branch contract has
+passed local validation and review. No implementation is active; broader N4–N6
 implementation and full-P4 M3 remain paused.
 
 ## Verified state
@@ -25,15 +25,15 @@ implementation and full-P4 M3 remain paused.
 
 ## Validation and maintenance
 
-The new reusable contract and its consuming test passed their focused `--wfail`
-build. The full local `scripts/check.sh` returned actual exit 0 in 161.97s, no skips,
+The short-packet contract and target regression passed their focused `--wfail`
+build. Its full local `scripts/check.sh` returned actual exit 0 in 142.03s, no skips,
 including unchanged strict N3 inventory, oracle replay and mutation checks.
 Independent read-only AI review found no code issue. The
 [Nano plan](notes/nano-certification.md#n3-proof-closure-complete) retains earlier
 N3 milestone evidence; this bounded helper does not close an N4 inventory item.
 The [maintenance record](notes/repository-stewardship.md#current-maintenance-pass)
 owns that earlier maintenance pass's checks. Current contract validation belongs in
-the [target note](notes/nano-target.md#reusable-raw-receiver-contract).
+the [target note](notes/nano-target.md#first-bounded-n4-task-extract-without-callbacks).
 
 ## Next steps
 
@@ -42,8 +42,9 @@ corpus evidence, per the [Nano plan](notes/nano-certification.md#n4-discharge-ta
 The authorized readiness pass selected [short-packet extract and raw-receiver
 rejection](notes/nano-target.md#first-bounded-n4-task-extract-without-callbacks)
 as the first proposed helper contract, with exact files, missing proof pieces and
-acceptance commands. The existing rejection theorem is now in reusable support;
-the short-packet proof remains the next separately scoped task. Retain all 78 N4-owned core
+acceptance commands. Both branch theorems are now in reusable support; the short
+branch retains a successful-decoding premise. Host-domain JSON round trips are
+the next separately scoped task. Retain all 78 N4-owned core
 corpus obligations; metadata binding alone does
 not discharge replay. Do not describe N3-owned closure as full core acceptance.
 

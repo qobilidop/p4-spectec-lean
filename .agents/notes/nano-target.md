@@ -1,6 +1,7 @@
 # Bounded Nano target
 
-The raw-receiver rejection contract is reusable; broader N4 implementation remains planned.
+Raw-receiver rejection and short-packet extract have reusable branch contracts;
+broader N4 implementation remains planned.
 Retained because it owns the current target exclusions that constrain claims
 under the approved certification plan. Updated 2026-09-29.
 Historical target/packet/driver/verify evidence remains
@@ -100,8 +101,8 @@ Bounded implementation based on `e9c9b5e`: `PipeContract.lean` now owns
 (`propext`, `Classical.choice`, `Quot.sound`). The test keeps its original theorem
 and audit, consuming the library theorem. The core root imports the new module;
 the new module imports only `Pipe`, with no generated-model dependency.
-This changes proof ownership, not execution or certified scope. Short-packet extract,
-JSON round trips, the pure/state bridge and full extern/target contracts remain open.
+This changed proof ownership, not execution or certified scope. At that checkpoint,
+short-packet extract, JSON round trips and target composition remained open.
 Targeted `lake build --wfail` of the contract and representation test returned exit 0.
 Independent read-only Codex GPT-6 Astra review against `e9c9b5e` found no issue:
 the exact universal statement, proof, audits and core import boundary are retained.
@@ -115,12 +116,12 @@ Remote CI for this new code checkpoint is separate and not yet established here.
 
 ### First bounded N4 task: extract without callbacks
 
-Reconnaissance at `fde887c`; the short-packet branch is not implemented as a contract.
-Start with the short-packet
-branch of `Pipe.eval_extern_method_call`, checked against pinned upstream
+Implemented from `9aff53b` as `Pipe.shortPacketExtract` in `PipeContract.lean`.
+It covers the short-packet branch of `Pipe.eval_extern_method_call`, aligned with
 `p4spec/lib/backend-sim/nano_switch/pipe.ml`. For correctly shaped PACKET/extract/hdr
-arguments whose JSON decodes to `PacketIn pkt`, and `hostAdd pkt.idx 24 > pkt.len`,
-prove the exact result for every context, callback and initial fresh counter:
+arguments constructed with the theorem's fixed notes, whose JSON decodes to
+`PacketIn pkt`, and `hostAdd pkt.idx 24 > pkt.len`, it proves the exact result for
+every context, packet type identifier, callback and initial fresh counter:
 `some (.ok [rawExtern (extern_to_yojson (.PacketIn pkt)), originalContext], counter)`.
 Here `rawExtern` abbreviates `Value.Make.extern (Pipe.varT "objectState")`.
 No callback premise is needed: this branch never calls one. Keep signed/inconsistent
@@ -129,18 +130,36 @@ Use the now-reusable `Pipe.rawReceiverHandlerError` theorem alongside it: raw-Ex
 receiver rejection gives hard `.err`, unchanged counter, for arbitrary callback
 and other arguments. This is a helper contract, not N4 closure.
 
-Suggested files and missing proof pieces:
+The proof simplifies the handler with its decoding/guard hypotheses, then closes
+the concrete dispatch with `rfl`; the audit requires exactly `propext`,
+`Classical.choice`, `Quot.sound`. The target regression checks the full packet JSON,
+context Boolean and counter for an inconsistent signed-length record with a
+state-changing callback available. The universal theorem proves the stronger exact
+context/value equality. Focused contract/target `--wfail` builds passed, exit 0.
+Early focused failures were proof completion, audit whitespace and an attempted
+concrete JSON equality proof; that extra round-trip proof is outside this slice.
+The final executable regression uses structural JSON comparison, not value-wide BEq.
+One premature full gate was stopped (exit 143) before code correction; it is not
+passing evidence. The corrected full `scripts/check.sh` returned actual exit 0
+in 142.03s, no skips (session 78128); log
+`.artifacts/n4-short-packet-gate-validated.log`. Strict N3, both Nano replay legs,
+target oracles and mutations passed. Fresh text, whitespace and 26 relative-link/
+heading checks passed. Independent read-only Codex GPT-6 Astra review against
+`9aff53b` found no blocker in the theorem, exact axiom audit, final executable
+regression or scope documentation. It ran no builds; this is AI review.
+This branch helper leaves completion metadata unchanged. Remote CI for the new
+checkpoint is separate from these local results.
+
+Next separately scoped proof pieces:
 
 - Extend `P4SpecTec/BackendSim/NanoSwitch/PipeContract.lean`, already registered
   in `P4SpecTec.lean`. It must not import generated Nano modules.
-- Prove the short branch using `StateEval.runBind`, `runPure`, `runThrow`; reuse
-  the existing raw-receiver theorem rather than duplicating its proof obligation.
-  A branch lemma may assume successful JSON decoding; separately establish that
+- The short branch assumes successful JSON decoding. Separately establish that
   serialization/decoding gives that premise for admitted host-range packet records.
   Do not assume JSON round trips for arbitrary mathematical integers.
-- Extend `P4SpecTecTest/BackendSim/NanoSwitch/Target.lean`: it already has receiver
+- `P4SpecTecTest/BackendSim/NanoSwitch/Target.lean` already has receiver
   and argument constructors, `noCallback`, inconsistent-length and overflow cases.
-  Require exact raw output, original context and counter, plus rejection on reuse.
+  Preserve these checks when adding round-trip and long-packet proofs.
 - The future typed bridge must consume the representation established in
   `P4SpecTecTest/Refine/NanoTargetRepresentation.lean`; reusable versions belong
   outside tests. Generated `NanoP4Spec/8.01-eval-relation.lean` defines pure
@@ -150,10 +169,8 @@ Suggested files and missing proof pieces:
   merely this successful branch. Long-packet callbacks and all failure branches
   remain obligations; do not bind the complete target obligation after this slice.
 
-Acceptance: both universally quantified branch lemmas compile with exact axiom
-audits; packet round-trip premises are justified on their stated host domain;
-focused regressions and existing upstream fixture replay pass. Suggested commands,
-from the repository root, after implementing the short-packet contract:
+The next round-trip task must justify decoding on its stated host domain; it is
+not a claim of this branch contract. Reproduction commands from the repository root:
 
 ```sh
 nix develop -c lake build --wfail P4SpecTec.BackendSim.NanoSwitch.PipeContract P4SpecTecTest.BackendSim.NanoSwitch.Target
@@ -163,7 +180,7 @@ nix develop -c /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh
 ```
 
 Run one build at a time, then independent review and the required publication checks.
-These are proposed validation commands, not executed evidence for new proofs.
+The full gate builds the oracle binaries before running their replay.
 No new library, generated-file edit, source pin change or whole-corpus claim is needed.
 
 Readiness validation: documentation only, reusing the actual exit-0 full gate for
