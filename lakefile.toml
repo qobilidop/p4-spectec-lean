@@ -97,6 +97,11 @@ root = "P4SpecTecTest.Oracle.NanoSwitch.Packets.Main"
 name = "check-nano-driver"
 root = "P4SpecTecTest.Oracle.NanoSwitch.Driver.Main"
 
+# Complete STF sessions through both Lean paths against the pinned upstream simulator.
+[[lean_exe]]
+name = "check-nano-sessions"
+root = "P4SpecTecTest.Oracle.NanoSwitch.Sessions.Main"
+
 # Bounded full-P4 replay tool; the gate builds it and checks its harness contracts.
 [[lean_exe]]
 name = "p4-interp-replay"

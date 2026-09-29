@@ -183,7 +183,7 @@ if command -v lake >/dev/null 2>&1; then
   runStage "Diagnostic and oracle executable build" inRoot lake build --wfail \
     check-quotes check-coverage check-print check-text-builtins \
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
-    check-nano-target check-nano-packet check-nano-driver check-nano-verify \
+    check-nano-target check-nano-packet check-nano-driver check-nano-verify check-nano-sessions \
     || { say "reconnaissance tools failed to build"; fail=1; }
   # Retain bounded N2 closure checks and require every core obligation owned through N3.
   # Later-owned corpus, target and release obligations remain separately reported.
@@ -201,6 +201,8 @@ if command -v lake >/dev/null 2>&1; then
     || { say "state oracle sensitivity check failed"; fail=1; }
   runStage "Nano target and packet replay" python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Packets/check.py" \
     || { say "Nano dynamic target and packet relation replay failed"; fail=1; }
+  runStage "Nano STF session replay, both paths" python3 "$root/P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py" \
+    || { say "Nano STF session replay failed"; fail=1; }
   runStage "Shared verify and Nano dispatch replay" inRoot lake exe check-nano-verify \
     || { say "Shared verify and Nano dispatch replay failed"; fail=1; }
   runStage "Full-P4 capability census" inRoot lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json \

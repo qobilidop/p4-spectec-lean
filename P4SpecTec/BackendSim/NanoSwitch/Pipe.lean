@@ -137,6 +137,23 @@ def eval_extern_method_call (call : Call m) (values_input : List value) :
 /-- Explicit substitute for the pinned mutable Spec.Rel.call trampoline. -/
 abbrev RelCall (m : Type → Type) := String → List value → m (List value)
 
+/-- Mirrors init_pipe after upstream parsing (`Spec.Pgm.nanoswitch_init`), with `call_pgm`'s
+result handling from `make.ml`: `NanoSwitch_init` on the parsed program value; one output is
+the context with the initial architecture state, two are the context and architecture.
+Other arities are hard errors; relation failures propagate with their kind. -/
+def init_pipe (call : RelCall m) (value_program : value) : m (value × value) := do
+  match ← call "NanoSwitch_init" [value_program] with
+  | [value_ctx] => pure (value_ctx, init_arch_state)
+  | [value_ctx, value_arch] => pure (value_ctx, value_arch)
+  | _ => throw .err
+
+/-- Mirrors `Value.Get.(value_forwarding_decision |>>? "FORWARD" |> Option.is_some)`. -/
+def is_forward (value_forwarding_decision : value) : Bool :=
+  match value_forwarding_decision.it with
+  | .CaseV decision => Domain.Mixfix.eq_mixop decision
+    (.Atom (mkPhrase (.Keyword "FORWARD")) : Domain.Mixfix.t Unit)
+  | _ => false
+
 /-- Mirrors drive_pipe, including optional FORWARD matching and byte-preserving output.
 The caller supplies the relation evaluator and its fuel/configuration. Unsupported
 host integers, invalid hex and wrong relation arity are hard errors; relation
@@ -149,10 +166,7 @@ def drive_pipe (call : RelCall m) (value_ctx value_arch : value) (rx : Runtime.S
   let value_packet_in_state := Value.Make.extern (varT "objectState") (extern_to_yojson packet_in)
   let [value_forwarding_decision, value_ctx] ←
     call "NanoSwitch_drive" [value_ctx, value_packet_in_state] | throw .err
-  let forward := match value_forwarding_decision.it with
-    | .CaseV decision => Domain.Mixfix.eq_mixop decision
-      (.Atom (mkPhrase (.Keyword "FORWARD")) : Domain.Mixfix.t Unit)
-    | _ => false
+  let forward := is_forward value_forwarding_decision
   pure (value_ctx, value_arch, if forward then [(port_in, packet_bytes)] else [])
 
 /-- The extern relations, given the registered trampoline. Unported names are hard errors. -/
