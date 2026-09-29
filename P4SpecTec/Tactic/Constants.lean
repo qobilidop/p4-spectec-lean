@@ -14,23 +14,22 @@ namespace P4SpecTec.Tactic
 
 open Lean
 
-/-- Imported constants under a prefix, per prefix; the imports of a process are fixed. -/
-initialize importedUnderCache : IO.Ref (Std.HashMap Name (Array (Name × ConstantKind))) ←
-  IO.mkRef {}
-
-/-- The imported constants whose names extend `pre`, with their kinds. -/
-def importedUnder (pre : Name) : CoreM (Array (Name × ConstantKind)) := do
-  if let some found := (← importedUnderCache.get)[pre]? then return found
+/-- The imported constants in `env` whose names extend `pre`, with their kinds. Distinct
+environments in one process may have different imports, so the scan is environment-local. -/
+def importedUnderIn (env : Environment) (pre : Name) : Array (Name × ConstantKind) := Id.run do
   let mut out := #[]
   -- a constant realized in several modules is listed once, as in the kernel environment
   let mut seen : Std.HashSet Name := {}
-  for data in (← getEnv).header.moduleData do
+  for data in env.header.moduleData do
     for info in data.constants do
       if pre.isPrefixOf info.name && !seen.contains info.name then
         seen := seen.insert info.name
         out := out.push (info.name, ConstantKind.ofConstantInfo info)
-  importedUnderCache.modify (·.insert pre out)
-  pure out
+  return out
+
+/-- The imported constants whose names extend `pre`, with their kinds. -/
+def importedUnder (pre : Name) : CoreM (Array (Name × ConstantKind)) := do
+  return importedUnderIn (← getEnv) pre
 
 /-- The constants of the current module whose names extend `pre`, with their kinds, including
 declarations whose proofs are still being elaborated. -/

@@ -1,8 +1,39 @@
+import P4SpecTec.Tactic.Constants
 import P4SpecTec.Tactic.Refine.Normalize
 
 /-! Regression checks for prepared refinement simplifier rules and fresh local facts. -/
 
 open Lean Elab Tactic P4SpecTec.Tactic
+
+private abbrev EqnAlias (x : Nat) : Prop := ∀ n : Nat, x = Nat.succ n → False
+
+-- An aliased condition is available to simp's definitional-equality discharger. Both
+-- no-progress and closed-result keys must change when it enters the local context.
+example : True := by
+  run_tac
+    let s ← prepareSimpSet { lemmas := #[], procs := #[] }
+    let before ← normalizationKey s [] none
+    let closedBefore ← closedInputs []
+    evalTactic (← `(tactic| have hidden : EqnAlias 0 := by intro n h; cases h))
+    let after ← normalizationKey s [] none
+    let closedAfter ← closedInputs []
+    unless before != after && closedBefore != closedAfter do
+      throwError "aliased discharge condition was missing from the cache keys"
+  trivial
+
+-- A prefix scanned in two different imported environments must use each environment's
+-- module data, even within the same process.
+example : True := by
+  run_tac
+    let env ← getEnv
+    let empty ← mkEmptyEnvironment
+    setEnv empty
+    let fromEmpty ← importedUnder `P4SpecTec.Tactic
+    setEnv env
+    let fromImports ← importedUnder `P4SpecTec.Tactic
+    unless fromEmpty.isEmpty && !fromImports.isEmpty do
+      throwError "imported constants were reused across environments"
+  trivial
 
 -- A caller extending the rule names must not reuse the original empty preparation.
 example (n : Nat) : 0 + n = n := by

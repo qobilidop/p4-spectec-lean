@@ -211,43 +211,39 @@ def prepareSimpSet (s : SimpSet) : TacticM SimpSet := withMainContext do
     { lemmas := s.lemmas, procs := s.procs, result, noProgress, closed }
   pure { s with prepared? := some prepared }
 
-/-- The local hypotheses the default discharger may assume: those shaped like an equation
-theorem's hypothesis (`Simp.isEqnThmHypothesis`), which `dischargeUsingAssumption?` looks up in
-the whole local context. -/
+/-- Every local proposition the default discharger may assume. It compares types by
+definitional equality, so a syntactic equation-hypothesis test misses reducible aliases. -/
 def dischargeAssumptions : TacticM (Array Expr) := withMainContext do
   let mut out := #[]
   for decl in ← getLCtx do
     if decl.isImplementationDetail then continue
     let ty ← instantiateMVars decl.type
-    if Simp.isEqnThmHypothesis ty then out := out.push ty
+    if ← isProp ty then out := out.push ty
   pure out
 
-/-- The left sides a hypothesis rewrites with as a simp rule, under its binders: `a` for
-`a = b` or `a ↔ b`, `p` for `¬ p`, each conjunct's for a conjunction, the proposition itself
-otherwise. -/
-partial def ruleSides (ty : Expr) : List Expr :=
-  match ty.consumeMData with
-  | .forallE _ _ body _ => ruleSides body
-  | ty =>
-    if ty.isAppOfArity ``And 2 then ruleSides (ty.getArg! 0) ++ ruleSides (ty.getArg! 1)
-    else if let some (_, lhs, _) := ty.eq? then [lhs]
-    else if let some (lhs, _) := ty.iff? then [lhs]
-    else if ty.isAppOfArity ``Not 1 then [ty.getArg! 0]
-    else [ty]
+/-- Local let values can change definitional equality for a rewriting fact or a discharger
+assumption, even when its syntactic type is unchanged across tactic backtracking. -/
+def localLetInputs : TacticM (Array Expr) := withMainContext do
+  let mut out := #[]
+  for decl in ← getLCtx do
+    if let some value := decl.value? then
+      out := out.push (mkFVar decl.fvarId)
+      out := out.push (← instantiateMVars decl.type)
+      out := out.push (← instantiateMVars value)
+  pure out
 
-/-- The local statements that can change how a closed term simplifies: facts with a rule side
-free of local variables (`∀ xs, enc xs = List.map f xs` rewrites closed lists), and closed
-hypotheses the discharger may assume. Closed results are shared only between normalizations
-with the same such statements. -/
+/-- The local statements that can change how a closed term simplifies. Even a rule with a
+local variable on its left may match a closed term by definitional equality after unfolding a
+local let. The discharger may likewise use open or aliased propositions, so retain every fact
+and every local proposition in the cache key. -/
 def closedInputs (facts : List Name) : TacticM (Array Expr) := withMainContext do
   let mut out := #[]
   for n in facts do
     let some decl := (← getLCtx).findFromUserName? n | throwError "refine_al: no hypothesis {n}"
     let ty ← instantiateMVars decl.type
-    if (ruleSides ty).any (!·.hasFVar) then out := out.push ty
-  for ty in ← dischargeAssumptions do
-    if !ty.hasFVar then out := out.push ty
-  pure out
+    out := out.push ty
+  pure (out ++ #[mkConst `assumed] ++ (← dischargeAssumptions) ++
+    #[mkConst `localLets] ++ (← localLetInputs))
 
 /-- The inputs that determine a normalization with prepared rules: the statement it
 simplifies (the goal, or hypothesis `hyp?`), the statements of its rewriting facts and the
@@ -266,7 +262,7 @@ def normalizationKey (s : SimpSet) (facts : List Name) (hyp? : Option Name) :
     | none => do instantiateMVars (← getMainTarget)
     | some h => do pure (mkApp (mkConst `hyp) (← statement h))
   pure (#[subject] ++ (← facts.toArray.mapM statement) ++ #[mkConst `assumed] ++
-    (← dischargeAssumptions))
+    (← dischargeAssumptions) ++ #[mkConst `localLets] ++ (← localLetInputs))
 
 /-- The hash of a normalization key. -/
 def keyHash (key : Array Expr) : UInt64 :=
