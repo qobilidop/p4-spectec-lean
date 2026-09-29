@@ -194,6 +194,12 @@ class CompletionTests(unittest.TestCase):
             self.assertEqual(completion.replay_verified(manifest, None),
                              {"replay:corpus:packet:positive/free-pass"})
 
+            def failing(lean):
+                raise SystemExit("mismatch")
+            Sessions.replay = staticmethod(failing)
+            with self.assertRaises(completion.CertificationError):
+                completion.replay_verified(manifest, None)
+
     def test_owned_n4_spans_core_and_target_but_not_release(self):
         missing = completion.outstanding(self.manifest, "target", owned="N4")
         stages = {o["stage"] for o in missing}

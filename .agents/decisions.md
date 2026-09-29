@@ -24,14 +24,14 @@ implementation of the Nano plan, then explicitly requested completion through N2
 then authorized N3 through its proof closure on 2026-09-29. N3-owned proofs are
 closed. The user authorized N4 reconnaissance and then the bounded promotion of
 the existing raw-receiver rejection theorem into reusable support, followed by
-the short-packet extract theorem under an explicit decoding premise. Broader N4–N6
-implementation still needs a new scope; full-P4 M3 remains paused.
+the short-packet extract theorem under an explicit decoding premise, and then all of N4
+on 2026-09-29, now implemented. N5 and N6 still need a new scope; full-P4 M3 remains paused.
 Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit
 ownership and one integrator. Confidence high in the milestone choice;
-N1 settled reverse-proof and runtime-representation feasibility. Broader core
-coverage and concrete target composition still determine the remaining schedule.
+N1 settled reverse-proof and runtime-representation feasibility; N3 and N4 closed core
+coverage and target composition, leaving the whole-program proof and release evidence.
 Revisit scope only through an explicit design
 decision, not by excluding difficult cases from coverage.
 
@@ -158,8 +158,7 @@ callback/state evidence separate from full target certification. Confidence high
 for this Nano profile. Revisit if a pin changes the callback result, subtype-check
 forms, or a new carrier needs a different runtime extension. N2 supplies all 162
 source codecs and the selected closure's call invariants; N3 has since closed
-the remaining owned proof obligations. Complete corpus evidence and target
-composition remain N4.
+the remaining owned proof obligations, and N4 the corpus evidence and target composition.
 
 ## Runtime-inclusive evaluation domain (2026-09-28)
 
@@ -241,10 +240,10 @@ Confidence high from pinned Lake's dependency implementation; revisit a
 separate native tactic artifact only if repeated measurements justify its build
 boundary and maintenance cost.
 
-`scripts/nano-certification.py --require-owned N3` requires every core-stage obligation
-owned by N0–N3. Core replay of the typing corpus is owned by N4 and printing
-observations are target-stage; they stay reported, not waived. Source identity is
-discharged by the completion CLI's own checks (pins, export digest, generated freshness,
+`scripts/nano-certification.py --require-owned NX` requires every core- and target-stage
+obligation owned by N0–NX (core only until 2026-09-29, see "N4 target evidence"); the gate
+uses N4, and release obligations stay reported, not waived. Source identity is discharged
+by the completion CLI's own checks (pins, export digest, generated freshness,
 `check-quotes`, `check-coverage`), recorded as `checkedBy`, never as a compiled claim.
 
 ## N4 target evidence (2026-09-29)

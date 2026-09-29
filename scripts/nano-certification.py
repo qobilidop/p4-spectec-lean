@@ -548,7 +548,7 @@ def replay_verified(manifest, corpus):
     run(ROOT, ["lake", "build", "check-nano-sessions"])
     try:
         matched = sessions.replay(ROOT / ".lake/build/bin/check-nano-sessions")
-    except SystemExit as error:
+    except (SystemExit, subprocess.TimeoutExpired) as error:
         raise CertificationError(f"session replay failed: {error}") from error
     verified |= {f"replay:{case}" for case in matched}
     return verified

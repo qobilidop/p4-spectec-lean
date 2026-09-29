@@ -46,7 +46,9 @@ theorem referenceWitness :
         Interp_al.Interp.Config).printHints = [] :=
   ⟨⟨rfl, rfl⟩, rfl⟩
 
-#audit_axioms referenceWitness
+/-- info: 'NanoP4Target.referenceWitness' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms referenceWitness
 
 /-- Extract's intermediate result: the same packet and related contexts. -/
 def ExtractRel (a : Core.Object.PacketIn.t × value)

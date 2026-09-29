@@ -61,7 +61,7 @@ counterexamples to identifying runtime subtype checks with this grammar.
 Call/producer certificates establish composition rather than assuming that
 membership supplies source validity. The declared objectState extern domain
 admits arbitrary JSON; the additional value.runtimeExtern carrier constructor
-is excluded from the source value grammar. General target composition remains N4.
+is excluded from the source value grammar. N4 later closed target composition.
 
 ## N3 proof closure (complete)
 
@@ -76,12 +76,9 @@ print-dependent theorems assume `cfg.printHints = []`.
 The evaluation domain uses the runtime-inclusive profile where the source-only
 profile is incomplete. The final four domain contracts (`ite`, `repeat_`,
 `empty_set`, `empty_map`) now compile under arbitrary legal parameter codecs.
-The completion CLI checks source identity separately. The inventory has 888
-obligations and 762 compiled claim bindings. The normal gate now requires
-`--require-owned N3` as well as bounded N2; later-owned core corpus, target and
-release obligations remain open. Of 126 unbound obligations, the CLI checks source
-identity, leaving 125 unresolved across stages, including 78 N4-owned core corpus
-items. This is N3-owned proof closure, not full core acceptance.
+At N3 closure (historical) the inventory had 888 obligations and 762 compiled claim
+bindings, and the gate required `--require-owned N3`, leaving 125 unresolved including 78
+N4-owned corpus items. N4 has since bound or verified all core and target obligations.
 
 The final implementation `67f67ae` adds exactly four sourceDomain claims, without
 changing or removing earlier claims. Empty-container input coverage is `True`;
@@ -237,8 +234,8 @@ remote CI must pass before declaring the milestone complete.
 
 ## Execution constraints
 
-Preserve all 78 typing programs and 39 STF sessions. Only three STF sessions have
-stored observations; missing observations are not successful replay.
+Preserve all 78 typing programs and 39 STF sessions; all now have upstream observations,
+and missing observations would not be successful replay.
 Full-P4 M3 stays paused. The dynamic NanoSwitch port and shared verify ABI limits
 remain in [nano-target.md](nano-target.md). Source identity, core semantic
 initialization, target composition, packet observations, whole-program proofs and

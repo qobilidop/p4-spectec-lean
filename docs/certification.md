@@ -20,8 +20,9 @@ processing. Both Lean paths match the pinned upstream verdicts, outputs and
 packet sessions on the entire corpus. The completion check verifies every core
 and target obligation of
 [Design, section 9](design.md#9-nano-p4-scope-and-acceptance); the release
-evidence of that section (a whole-program example, final review and release CI)
-remains open, so complete Nano-P4 certification is not yet claimed. Full-P4
+evidence of that section (a whole-program example, cross-layer distinguishing
+mutations, a final scope and contract review, and release CI) remains open, so
+complete Nano-P4 certification is not yet claimed. Full-P4
 support is not yet a usable generated library.
 The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.

@@ -65,7 +65,20 @@ All reviews were independent read-only AI reviews (Claude Opus subagents) withou
   Also adopted: initialization failure-kind comparison, a failing packet ending its
   session, gated upstream `pass` results, message-specific and dropped-packet mutations,
   README notes on canonical comparison and non-packet STF commands.
-- `09cb951`, `a0f7c79` (hardening, completion binding): see status for the verdict.
+- `09cb951`, `a0f7c79` (hardening, completion binding): one blocker, a 103-column line
+  in `Tools/CheckTarget.lean`, fixed in `1f9d6bd`. Should-fix findings, resolved in
+  `1f9d6bd`: target claims could pass vacuously if `Reference` were strengthened (added
+  `referenceWitness` as a checked claim); expected-type names could be captured by local
+  declarations (now fully qualified); the CLI could run a stale session binary (now built
+  first). Also adopted: `--require-owned` wording, error framing, selection tests, STF
+  comment parsing. The completion logic itself was found sound.
+- `1f9d6bd`, `713fef2` (fixes, documentation): blockers were documentation only, resolved
+  in the following checkpoint: this review record, stale "N4 open" statements in decisions
+  and notes, and the omitted mutation obligation in the certification guide. Adopted
+  suggestions: an axiom `#guard_msgs` for `referenceWitness`, timeout framing and a failing
+  session-replay test. Declined for now: root-anchoring expected-type names with `_root_`
+  (a `NanoP4Target.P4SpecTec` namespace does not exist; capture by ordinary local names is
+  closed).
 
 Earlier bounded-target reviews and fixtures (primitive, driver and verify observations,
 the four-session packet fixture) remain in the gate; their records are recoverable at

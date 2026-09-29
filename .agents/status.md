@@ -23,15 +23,18 @@ Full-P4 M3 remains paused.
 ## Commits on `n4-target`
 
 `e88e8a0` extern discharge; `ad1c4ab` sessions and corpus replay; `09cb951` replay
-hardening; `a0f7c79` completion binding; then review fixes and this checkpoint. Reviews are
-recorded in the [target note](notes/nano-target.md#n4-review-record).
+hardening; `a0f7c79` completion binding; `1f9d6bd` evidence tightening; `713fef2` and the
+following commit record the checkpoint. Four independent read-only AI reviews and their
+resolutions are in the [target note](notes/nano-target.md#n4-review-record).
 
 ## Validation
 
-Full gate on `a0f7c79` (`.artifacts/n4-gate-2.log`): 46 of 47 stages exit 0 in 167s;
-text hygiene failed on one over-long line in `Tools/CheckTarget.lean`, since fixed. The
-completion stage passed with 0 unresolved. The final full gate for the merged revision is
-recorded below when run.
+- `a0f7c79`: full gate 46 of 47 stages exit 0 (text hygiene failed on one line, fixed).
+- `713fef2`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0
+  in 154.85s, all 47 stages, no skips (`.artifacts/n4-gate-3.log`).
+- The final checkpoint commit changes documentation, `referenceWitness`'s axiom check,
+  CLI timeout framing and a test; its full gate result is recorded in the merge commit
+  message and below once run. Remote CI is pending until the push.
 
 ## Next steps
 
