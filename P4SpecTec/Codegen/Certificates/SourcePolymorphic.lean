@@ -20,8 +20,9 @@ structure Plan where
   /-- The projected pair component; absent for the Boolean-producing membership fragment. -/
   projection : Option Nat
 
-/-- Recognize the actual defined operation without matching a callable name. -/
-def plan (env : Env) (d : Lang.Al.def) : Except String Plan := do
+/-- Recognize the actual defined operation using checked nominal codecs. -/
+def planWithKnown (env : Env) (known : String → Option RepresentationFields.NominalContract)
+    (d : Lang.Al.def) : Except String Plan := do
   unless env.mode == .pure do throw "source polymorphic contracts require pure execution"
   let .FuncDecD _ parameters inputs result _ none _ := d.it
     | throw "source polymorphic contract needs a defined function"
@@ -39,9 +40,14 @@ def plan (env : Env) (d : Lang.Al.def) : Except String Plan := do
       | _ => throw "source projection result is not a parameter set"
     else throw "unsupported polymorphic source operation"
   let inputs ← inputs.mapM fun p => match p.it with
-    | .ExpP type => field env parameters type
+    | .ExpP type => fieldWithKnown env known parameters type
     | _ => throw "source polymorphic callback is unsupported"
-  return { parameters, inputs, output := ← field env parameters result, projection }
+  let output ← fieldWithKnown env known parameters result
+  return { parameters, inputs, output, projection }
+
+/-- Recognize a standalone defined operation, resolving named codecs recursively. -/
+def plan (env : Env) (d : Lang.Al.def) : Except String Plan := do
+  planWithKnown env (namedKnown env) d
 
 /-- Exact source coverage and successful-output contract for the selected defined operation. -/
 def theoremType (env : Env) (d : Lang.Al.def) : Except String String := do
@@ -56,9 +62,9 @@ def dependencies (env : Env) (d : Lang.Al.def) : Except String (List String) := 
 /-- Reusable proof dependencies, independent of generated source codec sidecars. -/
 def supportImports : List String := SourceBuiltinCertificates.supportImports
 
-/-- Emit actual coverage witnesses and a proof about the generated function's successful outputs. -/
-def declarations (env : Env) (d : Lang.Al.def) : Except String String := do
-  let p ← plan env d
+/-- Emit actual coverage witnesses and a proof about successful outputs from a resolved plan. -/
+private def declarationsOfPlan (env : Env) (d : Lang.Al.def) (p : Plan) :
+    Except String String := do
   let introLine := "intro " ++ " ".intercalate
     (p.inputs.zipIdx.flatMap fun (_, i) => [s!"p{i}", s!"hp{i}"]) ++ " result run\n"
   let encoding := "apply " ++ p.output.toContract.encodingProof
@@ -76,5 +82,17 @@ def declarations (env : Env) (d : Lang.Al.def) : Except String String := do
         "obtain ⟨entry, pairMember, rfl⟩ := List.mem_map.mp originalMember\n" ++
         "cases entry with | colon k v => exact (hp0 _ pairMember)" ++ projection)
   return domainDeclaration env d p.parameters p.inputs p.output (introLine ++ encoding ++ body)
+
+/-- Emit actual coverage witnesses and successful-output proof for a standalone operation. -/
+def declarations (env : Env) (d : Lang.Al.def) : Except String String := do
+  declarationsOfPlan env d (← plan env d)
+
+/-- Render proof, exact statement and dependencies from one catalog-backed operation plan. -/
+def complete (env : Env) (known : String → Option RepresentationFields.NominalContract)
+    (d : Lang.Al.def) : Except String (String × String × List String) := do
+  let p ← planWithKnown env known d
+  return (← declarationsOfPlan env d p,
+    domainType env d p.parameters p.inputs p.output,
+    ((p.inputs ++ [p.output]).flatMap (·.dependencies)).eraseDups)
 
 end P4SpecTec.Codegen.SourcePolymorphic

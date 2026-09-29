@@ -769,14 +769,9 @@ def plan (env : Env) (spec : Lang.Al.spec) :
           groupModule := groupModule.insert m.id name
           coveredIds := coveredIds ++ [m.id]
           reverseCoveredIds := reverseCoveredIds ++ [m.id]
-      let sourceDomain := if kind == "builtin" then do
-          pure (← SourceBuiltinCertificates.declarations env d,
-            ← SourceBuiltinCertificates.theoremType env d,
-            ← SourceBuiltinCertificates.dependencies env d)
-        else do
-          pure (← SourcePolymorphic.declarations env d,
-            ← SourcePolymorphic.theoremType env d,
-            ← SourcePolymorphic.dependencies env d)
+      let sourceDomain := if kind == "builtin" then
+          SourceBuiltinCertificates.complete env knownRepresentation d
+        else SourcePolymorphic.complete env knownRepresentation d
       match sourceDomain with
       | .error reason =>
         exclusions := exclusions ++ [{ kind := "sourceDomain", definition := m.id, reason }]

@@ -1,5 +1,6 @@
 import NanoP4Spec.Refinement.Spec
 import P4SpecTec.Codegen.Certificates.SourceBuiltin
+import P4SpecTec.Codegen.Certificates.SourcePolymorphic
 
 /-! Builtin source-domain selection preserves legal codecs and rejects signature drift. -/
 
@@ -41,5 +42,39 @@ private def findMap := builtins.find? (fun d => d.it.id.it == "find_map")
 #guard findMap.any fun d => (theoremType env d).toOption.any fun source =>
   (source.splitOn "Representation.Codec").length == 3 &&
     (source.splitOn "sourceDomain").length == 1
+
+-- A catalog lookup supplies a complex named codec directly. Its absence is a failure;
+-- the field resolver must not launch recursive representation planning as a fallback.
+private def valueType := Q.t (Q.varT "value" [])
+private def supplied (name : String) : Option RepresentationFields.NominalContract :=
+  if name == "value" then some ⟨"suppliedCodec", "suppliedAdmitted"⟩ else none
+#guard (fieldWithKnown env supplied [] valueType).toOption.any fun contract =>
+  contract.codec == "suppliedCodec" && contract.admitted == "suppliedAdmitted" &&
+    contract.dependencies == ["value"]
+#guard !(fieldWithKnown env (fun _ => none) [] valueType).isOk
+
+-- The single-plan API reproduces each part of the standalone builtin contract.
+private def sameComplete (actual expected : Except String (String × String × List String)) :
+    Bool :=
+  match actual, expected with
+  | .ok (proof, statement, dependencies), .ok (oldProof, oldStatement, oldDependencies) =>
+    proof == oldProof && statement == oldStatement && dependencies == oldDependencies
+  | _, _ => false
+
+private def selectedBuiltins := builtins.filter fun d =>
+  ["bits_to_int_unsigned", "find_map"].contains d.it.id.it
+#guard selectedBuiltins.length == 2
+#guard selectedBuiltins.all fun d =>
+  sameComplete (complete env (namedKnown env) d)
+    (do pure (← declarations env d, ← theoremType env d, ← dependencies env d))
+
+-- Pair projections and membership use the same once-resolved plan path.
+private def selectedPolymorphic := NanoP4Spec.spec.filter fun d =>
+  ["in_set", "dom_map", "codom_map"].contains d.it.id.it
+#guard selectedPolymorphic.length == 3
+#guard selectedPolymorphic.all fun d =>
+  sameComplete (SourcePolymorphic.complete env (namedKnown env) d)
+    (do pure (← SourcePolymorphic.declarations env d,
+      ← SourcePolymorphic.theoremType env d, ← SourcePolymorphic.dependencies env d))
 
 end P4SpecTecTest.Codegen.SourceBuiltin
