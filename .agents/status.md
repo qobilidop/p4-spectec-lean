@@ -32,14 +32,17 @@ resolutions are in the [target note](notes/nano-target.md#n4-review-record).
 - `a0f7c79`: full gate 46 of 47 stages exit 0 (text hygiene failed on one line, fixed).
 - `713fef2`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0
   in 154.85s, all 47 stages, no skips (`.artifacts/n4-gate-3.log`).
-- The final checkpoint commit changes documentation, `referenceWitness`'s axiom check,
-  CLI timeout framing and a test; its full gate result is recorded in the merge commit
-  message and below once run. Remote CI is pending until the push.
+- `22fc21c` (review resolution, code and documentation): full
+  `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in 156.45s, all
+  47 stages, no skips (`.artifacts/n4-gate-5.log`). An earlier attempt at that commit failed
+  one axiom `#guard_msgs` expectation and was amended before publication.
+- This evidence-only update reuses that gate (fresh text check). Remote CI for the pushed
+  revision is recorded at the next checkpoint; milestone completion requires it.
 
 ## Next steps
 
-1. Final full gate, merge `n4-target` into `main`, push, and confirm exact-revision CI
-   (milestone completion requires it).
+1. Confirm exact-revision CI for the pushed `main` (milestone completion requires it);
+   then delete the merged `n4-target` refs.
 2. N5 (whole-program theorem) needs a separate user scope. The candidate is
    `positive/src-addr-filter.p4`, whose session the replay already covers; build it on
    `NanoP4Target.initializedSessionCorrespondence`.
