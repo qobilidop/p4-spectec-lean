@@ -84,8 +84,9 @@ scripts/check-mirror.py     # mirrored modules have upstream's constructors in o
 lake env python3 scripts/check-library-boundaries.py  # libraries cannot import examples/tests
 scripts/gen-keywords.sh     # regenerate the keyword table from Lean's token table
 scripts/time-elab.sh <Lib>  # per-module build durations; see docs/performance.md
-scripts/replay-cert.py <Module> [--only thm] [--heartbeats N] [--trace]  # builds P4SpecTec, then
-                            # re-checks a copy against built imports; iteration aid, not evidence
+scripts/replay-cert.py <Module> [--only thm] [--heartbeats N] [--trace] [--native]
+                            # builds core, expands aggregates, checks copies against built imports
+                            # native is opt-in; iteration aid, not certification evidence
 lake exe p4spectec-gen <export> --lib <Lib> [--runtime-extern TYPE] [--update|--check]
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export

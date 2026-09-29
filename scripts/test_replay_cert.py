@@ -4,7 +4,9 @@
 import importlib.util
 import io
 from pathlib import Path
+import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -201,6 +203,53 @@ class ReplayTest(unittest.TestCase):
                 self.assertEqual(replay.main([str(aggregate), "--only", "refines",
                                               "--no-build", "--jobs", "1"]), 0)
             self.assertEqual(seen, [forward])
+
+    def test_native_query_preserves_load_order_and_no_build(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("batteries.dylib", "p4spectec.dylib"):
+                (root / name).touch()
+            output = '"batteries.dylib"\n"p4spectec.dylib"\n'
+            for no_build in (False, True):
+                with patch.object(replay, "ROOT", root), \
+                        patch.object(replay.subprocess, "run", return_value=
+                            subprocess.CompletedProcess([], 0, output, "")) as query:
+                    libraries = replay.native_libraries(no_build)
+                expected = ["lake"] + (["--no-build"] if no_build else []) + [
+                    "query", "--json", *replay.NATIVE_TARGETS]
+                self.assertEqual(query.call_args.args[0], expected)
+                self.assertEqual(libraries, [
+                    "--load-dynlib=" + str(root / "batteries.dylib"),
+                    "--load-dynlib=" + str(root / "p4spectec.dylib")])
+
+    def test_native_query_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "batteries.dylib").touch()
+            for code, output, error in ((1, "", "stale target"),
+                                        (0, '"batteries.dylib"\n', ""),
+                                        (0, '"batteries.dylib"\n"missing.dylib"\n', ""),
+                                        (0, "not JSON\n", "")):
+                with self.subTest(code=code, output=output), patch.object(replay, "ROOT", root), \
+                        patch.object(replay.subprocess, "run", return_value=
+                            subprocess.CompletedProcess([], code, output, error)):
+                    with self.assertRaises(RuntimeError):
+                        replay.native_libraries(True)
+
+    def test_replay_passes_native_flags_to_lean(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "Fixture.lean"
+            source.write_text(MODULE)
+            args = SimpleNamespace(only=[], heartbeats=None, trace=False, full_terms=False,
+                                   native_args=["--load-dynlib=/batteries", "--load-dynlib=/p4"])
+            with patch.object(replay, "ROOT", root), patch.object(replay, "OUT", root / "scratch"), \
+                    patch.object(replay.subprocess, "run", return_value=
+                        subprocess.CompletedProcess([], 0, "", "")) as lean:
+                _, code, _, _ = replay.replay(source, args)
+            self.assertEqual(code, 0)
+            self.assertEqual(lean.call_args.args[0][:5],
+                             ["lake", "env", "lean", *args.native_args])
 
     def test_imports_and_paths(self):
         self.assertEqual(replay.imports(MODULE),

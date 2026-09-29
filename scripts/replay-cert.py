@@ -21,6 +21,7 @@ such changes build the affected modules first. `lake build --wfail` and
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -30,6 +31,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / ".artifacts/replay"
+NATIVE_TARGETS = ("@batteries/Batteries:shared", "P4SpecTec:shared")
 DECLARATION = re.compile(r"^(?:private )?(?:theorem|def|instance) ([^\s:({\[]+)")
 AUDIT = re.compile(r"^#audit_axioms (\S+)")
 BUDGET = re.compile(r"^set_option maxHeartbeats \d+ in$")
@@ -188,6 +190,31 @@ def missing_imports(text):
     return missing
 
 
+def native_libraries(no_build):
+    """Ask Lake for the platform's native library paths in their required load order.
+
+    Lake's `--no-build` option rejects a stale or missing target, preserving this
+    script's `--no-build` promise even when native replay is selected.
+    """
+    command = ["lake"] + (["--no-build"] if no_build else []) + [
+        "query", "--json", *NATIVE_TARGETS]
+    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError("native library query failed: " +
+                           (result.stderr.strip() or result.stdout.strip()))
+    try:
+        paths = [json.loads(line) for line in result.stdout.splitlines()]
+        if len(paths) != len(NATIVE_TARGETS) or not all(isinstance(p, str) for p in paths):
+            raise ValueError("Lake did not return one path per native target")
+        paths = [Path(p) if Path(p).is_absolute() else ROOT / p for p in paths]
+    except (json.JSONDecodeError, ValueError) as error:
+        raise RuntimeError(f"invalid native library query output: {error}") from error
+    missing = [str(path) for path in paths if not path.is_file()]
+    if missing:
+        raise RuntimeError("native libraries are missing: " + ", ".join(missing))
+    return ["--load-dynlib=" + str(path) for path in paths]
+
+
 def replay(source, args):
     """Write the instrumented scratch copy of `source` and elaborate it; return the result."""
     text = source.read_text()
@@ -198,7 +225,7 @@ def replay(source, args):
     log = scratch.with_suffix(".log")
     started = time.monotonic()
     with log.open("w") as out:
-        code = subprocess.run(["lake", "env", "lean", str(scratch)], cwd=ROOT,
+        code = subprocess.run(["lake", "env", "lean", *args.native_args, str(scratch)], cwd=ROOT,
                               stdout=out, stderr=subprocess.STDOUT).returncode
     return source, code, time.monotonic() - started, log
 
@@ -217,6 +244,8 @@ def main(argv=None):
     parser.add_argument("--jobs", type=int, default=4, help="modules replayed in parallel")
     parser.add_argument("--no-build", action="store_true",
                         help="skip rebuilding the P4SpecTec library first")
+    parser.add_argument("--native", action="store_true",
+                        help="load Lake-built Batteries and P4SpecTec native libraries")
     args = parser.parse_args(argv)
     requested = [module_path(m) for m in args.modules]
     for source in requested:
@@ -244,6 +273,11 @@ def main(argv=None):
     if missing:
         print("[replay] missing object files; run: lake build " + " ".join(missing),
               file=sys.stderr)
+        return 1
+    try:
+        args.native_args = native_libraries(args.no_build) if args.native else []
+    except RuntimeError as error:
+        print(f"[replay] {error}", file=sys.stderr)
         return 1
     failed = 0
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:

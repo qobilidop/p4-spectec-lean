@@ -216,6 +216,15 @@ modules where no shared extern dependency reintroduces them. Statements, SCC
 boundaries and audits are unchanged. Replay expands aggregate names to the actual
 proof sources; timing an aggregate import alone does not measure proof work.
 
+Native tactic execution is opt-in for scratch replay (`--native`), resolving
+Batteries and core shared-library paths through Lake in dependency order.
+Do not attach the entire core shared library to Nano's library configuration:
+Lake includes native artifact hashes in every module's trace, so a Codegen edit
+would rebuild unchanged Nano proofs. This would penalize the remaining N3 domain
+work. Confidence high from pinned Lake's dependency implementation; revisit a
+separate native tactic artifact only if repeated measurements justify its build
+boundary and maintenance cost.
+
 `scripts/nano-certification.py --require-owned N3` requires every core-stage obligation
 owned by N0–N3. Core replay of the typing corpus is owned by N4 and printing
 observations are target-stage; they stay reported, not waived. Source identity is
