@@ -1,6 +1,7 @@
 import P4SpecTec.BackendSim.Core.Func
 import P4SpecTec.BackendSim.Core.Object
 import P4SpecTec.BackendSim.NanoSwitch.Pipe
+import P4SpecTec.BackendSim.NanoSwitch.PipeContract
 import P4SpecTec.BackendSim.SpecImpl.Func
 import P4SpecTec.BackendSim.SpecImpl.Unpack
 

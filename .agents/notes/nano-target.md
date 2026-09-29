@@ -1,6 +1,6 @@
 # Bounded Nano target
 
-Ready for a separately scoped implementation; N4 reconnaissance only is complete.
+The raw-receiver rejection contract is reusable; broader N4 implementation remains planned.
 Retained because it owns the current target exclusions that constrain claims
 under the approved certification plan. Updated 2026-09-29.
 Historical target/packet/driver/verify evidence remains
@@ -92,9 +92,31 @@ census definitions; the latest whole-repo validation belongs in status.
 
 ## Remaining integration obligations
 
+### Reusable raw-receiver contract
+
+Bounded implementation based on `e9c9b5e`: `PipeContract.lean` now owns
+`P4SpecTec.BackendSim.NanoSwitch.Pipe.rawReceiverHandlerError`. Its statement and
+`rfl` proof are moved from the representation test, with the same exact axiom audit
+(`propext`, `Classical.choice`, `Quot.sound`). The test keeps its original theorem
+and audit, consuming the library theorem. The core root imports the new module;
+the new module imports only `Pipe`, with no generated-model dependency.
+This changes proof ownership, not execution or certified scope. Short-packet extract,
+JSON round trips, the pure/state bridge and full extern/target contracts remain open.
+Targeted `lake build --wfail` of the contract and representation test returned exit 0.
+Independent read-only Codex GPT-6 Astra review against `e9c9b5e` found no issue:
+the exact universal statement, proof, audits and core import boundary are retained.
+This is AI review without reviewer builds. The full
+`nix develop -c /usr/bin/time -p /Users/qobilidop/my/work/p4-spectec-lean/scripts/check.sh`
+returned actual exit 0 in 161.97s, no skips (session 25315); log
+`.artifacts/n4-raw-receiver-gate.log`. Strict N3, oracle replay and mutations passed.
+Fresh text, whitespace and relative-link/heading checks also passed. Documentation
+review corrected the status link's ownership of earlier versus current checks.
+Remote CI for this new code checkpoint is separate and not yet established here.
+
 ### First bounded N4 task: extract without callbacks
 
-Reconnaissance at `fde887c`, not implemented or proved. Start with the short-packet
+Reconnaissance at `fde887c`; the short-packet branch is not implemented as a contract.
+Start with the short-packet
 branch of `Pipe.eval_extern_method_call`, checked against pinned upstream
 `p4spec/lib/backend-sim/nano_switch/pipe.ml`. For correctly shaped PACKET/extract/hdr
 arguments whose JSON decodes to `PacketIn pkt`, and `hostAdd pkt.idx 24 > pkt.len`,
@@ -103,15 +125,14 @@ prove the exact result for every context, callback and initial fresh counter:
 Here `rawExtern` abbreviates `Value.Make.extern (Pipe.varT "objectState")`.
 No callback premise is needed: this branch never calls one. Keep signed/inconsistent
 decoded records admitted and the actual wrapped `hostAdd` guard, not natural addition.
-Lift the existing `rawReceiverHandlerError` theorem from
-`P4SpecTecTest/Refine/NanoTargetRepresentation.lean` alongside it: raw-ExternV
+Use the now-reusable `Pipe.rawReceiverHandlerError` theorem alongside it: raw-ExternV
 receiver rejection gives hard `.err`, unchanged counter, for arbitrary callback
 and other arguments. This is a helper contract, not N4 closure.
 
 Suggested files and missing proof pieces:
 
-- Add reusable `P4SpecTec/BackendSim/NanoSwitch/PipeContract.lean`, importing `Pipe`;
-  register it in `P4SpecTec.lean`. It must not import generated Nano modules.
+- Extend `P4SpecTec/BackendSim/NanoSwitch/PipeContract.lean`, already registered
+  in `P4SpecTec.lean`. It must not import generated Nano modules.
 - Prove the short branch using `StateEval.runBind`, `runPure`, `runThrow`; reuse
   the existing raw-receiver theorem rather than duplicating its proof obligation.
   A branch lemma may assume successful JSON decoding; separately establish that
@@ -132,7 +153,7 @@ Suggested files and missing proof pieces:
 Acceptance: both universally quantified branch lemmas compile with exact axiom
 audits; packet round-trip premises are justified on their stated host domain;
 focused regressions and existing upstream fixture replay pass. Suggested commands,
-from the repository root, after adding the proposed module:
+from the repository root, after implementing the short-packet contract:
 
 ```sh
 nix develop -c lake build --wfail P4SpecTec.BackendSim.NanoSwitch.PipeContract P4SpecTecTest.BackendSim.NanoSwitch.Target

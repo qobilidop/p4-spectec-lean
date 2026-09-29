@@ -22,7 +22,9 @@ bounded language before expanding production full-P4 support. The user
 first authorized settling this scope and then explicitly approved autonomous
 implementation of the Nano plan, then explicitly requested completion through N2,
 then authorized N3 through its proof closure on 2026-09-29. N3-owned proofs are
-closed; N4–N6 remain planned and need a new scope. Broader full-P4 M3 remains paused.
+closed. The user authorized N4 reconnaissance and then the bounded promotion of
+the existing raw-receiver rejection theorem into reusable support. Broader N4–N6
+implementation still needs a new scope; full-P4 M3 remains paused.
 Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit

@@ -1,5 +1,5 @@
 import NanoP4Spec.«8.14-eval-convention»
-import P4SpecTec.BackendSim.NanoSwitch.Pipe
+import P4SpecTec.BackendSim.NanoSwitch.PipeContract
 import P4SpecTec.Interp.InterpAl.Interp
 import P4SpecTec.Refine.Value
 import P4SpecTec.Runtime.Value.Match
@@ -116,7 +116,7 @@ theorem rawReceiverHandlerError (call : BackendSim.NanoSwitch.Pipe.Call)
     StateEval.run (BackendSim.NanoSwitch.Pipe.eval_extern_method_call call
       [ctx, Runtime.Value.Make.extern note json, method, names]) state =
       some (.error .err, state) := by
-  rfl
+  exact BackendSim.NanoSwitch.Pipe.rawReceiverHandlerError call ctx method names note json state
 
 /-- info: 'P4SpecTecTest.NanoTargetRepresentation.rawReceiverHandlerError'
 depends on axioms: [propext,
