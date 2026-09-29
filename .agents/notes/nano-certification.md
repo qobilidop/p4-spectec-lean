@@ -1,11 +1,9 @@
 # Nano-P4 certification implementation plan
 
-Remaining plan and durable evidence, updated 2026-09-29. N0/N1/N2 are closed (N2
-closure `d85e82c`). N3-owned proof closure is complete at `67f67ae`, with passing
-local/remote gates and independent review; broader core acceptance still needs
-N4-owned corpus evidence. The earlier stabilization checkpoint `770e405`
-passed the full local gate and CI. N4–N6 remain planned, and full-P4 M3 remains
-paused.
+Remaining plan and durable evidence, updated 2026-09-29. N0–N3 are closed (N2 closure
+`d85e82c`, N3 proof closure `67f67ae`). N4 target composition is implemented on branch
+`n4-target` (see [N4](#n4-target-composition-complete)); the completion check verifies every
+core and target obligation. N5 and N6 remain planned, and full-P4 M3 remains paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered artifact guarantees,
 and [status](../status.md) owns the next immediate action.
@@ -180,31 +178,26 @@ recoverable at `d85e82c:.agents/notes/nano-certification.md`. Primary surfaces:
 `Codegen/Types.lean`, `Codegen/Funcs.lean`, `Codegen/Certificates/Forward.lean`,
 `Codegen/Emit.lean`, `Refine/`, `Tactic/` and `P4SpecTecTest/`.
 
-## N4. Discharge target contracts and compose packet execution
+## N4. Target composition (complete)
 
-N1–N3 have settled the representation and core proof prerequisites.
-Complete the typed Nano extern instance, packet operations, driver and semantic
-target initialization using the pinned upstream NanoSwitch as the oracle.
-Prove the contracts consumed by the core, including intermediate contexts,
-callback order, failures, fresh counters where used, and subsequent packets.
-Choose effects based on actual Nano requirements; do not reopen production
-full-P4 state integration merely because stateful test fixtures exist.
+User-authorized 2026-09-29. Each exit criterion and its evidence:
 
-Provide a documented runner accepting exported programs and packet/test data.
-Keep parsing/STF syntax upstream; make Lean perform semantic initialization
-and loading. Compare the generated path, Lean reference path and pinned
-upstream outcomes over the full applicable corpus. Preserve ordered packet
-bytes/ports and forwarding/drop results as well as persistent state.
+- Core extern assumptions discharged for the concrete target:
+  `NanoP4Target.externsContractHolds`, for every related input, global context satisfying
+  the specification and trampoline fuel. This needed the interpreter to pass its own
+  function evaluator as the trampoline, extern-callee freshness in the contract, and
+  canonical-text payload decoding (decisions, "N3 certificate shape"; design 5.3).
+- Checked two-way composition from initialization through packets:
+  `NanoP4Target.sessionCorrespondence`, instantiated at the initialized environment.
+- Every applicable corpus case matches the oracle: 78 typing programs on both legs (existing
+  replay) and all 39 STF sessions, 74 packets, on both paths at every step
+  (`check-nano-sessions`); no case is skipped, and exhaustion or decode failure fails it.
+- Strict target check: `--require-owned N4` and `--require-complete target` report 0
+  unresolved; target claims pass `check-target`, replay cases are verified per run.
 
-Exit: core extern assumptions are discharged for the concrete Nano target;
-initialization through packet processing has a checked two-way composition
-theorem. Every applicable corpus case matches the oracle; timeouts, missing
-data, harness errors and unsupported cases remain blockers. The strict target
-check passes without manufacturing success from a representation failure.
-
-Primary surfaces: `P4SpecTec/BackendSim/NanoSwitch/`, generated `Externs`,
-`P4SpecTecTest/Oracle/NanoSwitch/` and `P4SpecTecTest/Oracle/Nano/Replay/` and colocated runner tests.
-Historical target constraints remain in [nano-target.md](nano-target.md).
+Runner: `check-nano-sessions` initializes and drives sessions from exported programs and
+upstream-recorded packets; STF parsing stays upstream. Constraints and the review record are
+in [nano-target.md](nano-target.md).
 
 ## N5. Demonstrate a whole-program theorem
 
@@ -275,5 +268,7 @@ builds and validation, not summed subagent-hours or a calendar commitment.
 | N6: release evidence | 4–8 hours | Scope audit, mutations, performance and final validation |
 
 The forecast's base total was 36–72 hours, with 45–90 including contingency.
-Definition and obligation counts are not effort percentages. N4's typed target
-and packet observations remain a major semantic uncertainty.
+Definition and obligation counts are not effort percentages. N4's feared uncertainty
+(stateful callbacks against a pure extern interface) did not materialize: Nano has no fresh
+state. Its actual blockers were a fixed-fuel trampoline and compressed-text payload
+equality; N4 took one working session on 2026-09-29.

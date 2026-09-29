@@ -14,12 +14,15 @@ upstream OCaml or the intended P4 language.
 ## What is certified today?
 
 Nano-P4 generates a Lean model with two-way AL correspondence for every bodied
-definition, under the assumptions below, and bounded differential tests against
-the pinned upstream corpus. Complete corpus evidence and target composition remain
-open. The intended completion criteria for both
-core semantics and target composition are in
-[Design, section 9](design.md#9-nano-p4-scope-and-acceptance); neither stage is
-complete. Full-P4 support is not yet a usable generated library.
+definition, a concrete NanoSwitch target that discharges the core's extern
+contract, and a two-way theorem composing semantic initialization with packet
+processing. Both Lean paths match the pinned upstream verdicts, outputs and
+packet sessions on the entire corpus. The completion check verifies every core
+and target obligation of
+[Design, section 9](design.md#9-nano-p4-scope-and-acceptance); the release
+evidence of that section (a whole-program example, final review and release CI)
+remains open, so complete Nano-P4 certification is not yet claimed. Full-P4
+support is not yet a usable generated library.
 The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.
 
@@ -29,18 +32,20 @@ the user-facing account of current capabilities and their guarantees.
 | Generated builtin contracts | Canonical outcomes of actual dispatch and generated wrappers agree; both invocation directions are checked | All 26 builtins on related inputs, with explicit type arguments and empty print hints where required |
 | Field-update certificate | Both directions of executable correspondence, representation coverage and initialization; distinct-name update commutation transfers to reference executions | One helper on a declared scalar source domain, not arbitrary P4 assignments |
 | Generated relation soundness theorems | Successful generated execution implies the generated logical relation | Does not by itself connect that relation to AL or prove every relational witness executable |
+| [NanoSwitch extern discharge](../NanoP4Target/Contract.lean) | The typed extern instance and the registered reference target satisfy `externsContract` in both directions | Every related input, global context satisfying the specification and trampoline fuel; guards off |
+| [NanoSwitch session composition](../NanoP4Target/Session.lean) | From `NanoSwitch_init` on a program through every packet, per-packet transmissions, forward/drop, final context and failure kinds agree in both directions | Related programs and arbitrary packet sequences; the pinned empty print hints; STF parsing and expectation matching stay upstream |
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its [refinement
 index](../NanoP4Spec/Refinement.lean) record forward and reverse AL theorems for
 all 153 bodied definitions at the current Nano-P4 pin. Extern-dependent theorems
-assume the abstract `externsContract`; a theorem whose callable closure reaches
-`print_` also assumes `cfg.printHints = []`. Both reports come from the same
-generation plan. Separate source-domain certificates now also cover `ite`,
+assume the abstract `externsContract`, which `NanoP4Target.externsContractHolds`
+discharges for the concrete target; a theorem whose callable closure reaches
+`print_` also assumes `cfg.printHints = []`, the pinned hint table (the export
+declares no print hints). Both reports come from the same generation plan. Separate source-domain certificates now also cover `ite`,
 `repeat_`, `empty_set` and `empty_map`, under arbitrary legal parameter codecs
-and independent admission predicates. The gate requires every core obligation
-owned through N3. These counts are not a percentage of P4 language behavior
-certified: the broader core corpus, target composition and release checks remain
-incomplete.
+and independent admission predicates. The gate requires every core and target
+obligation owned through N4. These counts are not a percentage of P4 language
+behavior certified, and release checks remain open.
 
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
@@ -63,7 +68,8 @@ wrappers. It is deliberately distinct from permissive runtime subtype membership
 which can accept other raw shapes. Source input witnesses, successful output
 preservation and actual intermediate call admission are separate checked claims.
 The runtime-only raw extern alternative remains outside the declared `value`
-grammar; target callback composition is still a separate obligation.
+grammar; the target's callbacks and receiver results are covered by the extern
+discharge and session composition instead.
 
 ### Coverage metadata and checked evidence
 
@@ -97,8 +103,9 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 762 compiled claim bindings; 126 have no claim
-binding. The bounded N2 check additionally requires the selected 30-definition
+The current 888 obligations have 766 compiled claim bindings. Source identity and
+the 117 replay obligations are verified by the checker's own runs instead, and
+the four release-stage obligations (N5, N6) remain open. The bounded N2 check additionally requires the selected 30-definition
 closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
 primitive codecs and table initialization. It checks input coverage, output
 preservation and full intermediate call admission separately. These counts are neither behavioral
@@ -113,29 +120,35 @@ belongs to the core stage; packet replay additionally belongs to the target.
 
 The checker regenerates the inventory, checks source identities and the pinned
 corpus, and invokes the existing compiled coverage and quotation checks. There
-is no editable `checked` flag. The source-identity obligation is checked by this
-CLI, not bound to a compiled theorem claim. Other contract kinds without a
-statement/checker adapter remain unresolved. Review and release evidence are
+is no editable `checked` flag. Source identity and replay obligations are checked
+by this CLI, not bound to compiled claims: it runs both typing replay legs and the
+session replay and counts only the cases they verified. Target-stage obligations
+bind handwritten `NanoP4Target` theorems, which `check-target` elaborates against
+exact expected types and allowed axioms; the observations claim spells out its
+observation relation. Printing binds the `print_` dispatch contract together with
+the checked empty hint table of the pinned export. Review and release evidence are
 recorded obligations, not kernel theorems or metadata verdicts.
 
 The [corpus inventory](../P4SpecTecTest/Oracle/Nano/Certification/corpus.json) retains 78 programs
-and 39 STF sessions. Upstream observations exist for all typing cases and three
-STF sessions; 36 packet sessions still lack observations. Stored observations
-are inputs to replay, not proof that both Lean paths agree. The completion
-inventory keeps all 117 replay obligations open until checked evidence is wired
-to them; this does not negate the existing bounded replay tests.
+and 39 STF sessions. Upstream observations exist for every typing case and every
+[STF session](../P4SpecTecTest/Oracle/NanoSwitch/Sessions/README.md): initialization,
+then each packet's outcome, decision, transmissions and context. Stored observations
+are inputs to replay, not proof that both Lean paths agree; the replays compare
+them. All 78 programs and all 39 sessions (74 packets) match on both Lean paths.
+Upstream reports session failures only as a class, and no corpus session fails,
+so failure kinds are compared between the Lean paths, not against upstream.
 
 Normal checking accepts an accurately reported incomplete inventory. The full
-gate additionally requires `--require-n2 --require-owned N3`: it retains the
-bounded N2 checks and rejects missing core obligations owned by N0–N3. Later-owned
-core corpus obligations remain open, so this does not complete the broader core
-or target stage. Strict full-stage checking returns a nonzero exit while
-that stage has unresolved
-obligations (`target` includes core prerequisites; `all` includes release
-evidence). Neither stage is complete today:
+gate additionally requires `--require-n2 --require-owned N4`: it retains the
+bounded N2 checks and rejects any missing core or target obligation owned by
+N0–N4. Strict full-stage checking returns a nonzero exit while that stage has
+unresolved obligations (`target` includes core prerequisites; `all` includes
+release evidence). The core and target stages pass; `all` fails on the four
+release obligations:
 
 ```sh
-nix develop --command python3 scripts/nano-certification.py --require-n2 --require-owned N3
+nix develop --command python3 scripts/nano-certification.py --require-n2 --require-owned N4
+nix develop --command python3 scripts/nano-certification.py --require-complete target
 nix develop --command python3 scripts/nano-certification.py --require-complete all
 ```
 
@@ -161,9 +174,12 @@ These limitations describe the implementation, not the intended design:
 - Production stateful planning is rejected even though stateful interpreters,
   emitters and bounded proof fixtures exist. Fresh-state tests are not full-P4
   generation or certification.
-- Dynamic Nano packet and driver ports have bounded observation tests, not
-  a complete generated typed target, Lean boot/STF implementation or proof of
-  all packet behavior. The shared verify helper retains upstream's full-P4
+- The NanoSwitch target ports extract, initialization and the packet driver;
+  boot, STF parsing and expectation matching stay upstream, and a Lean session
+  starts from the exported parsed program. Extern payloads are decoded from their
+  compressed text, the identity runtime value equality uses (design section 5.3);
+  replay, not a parser proof, shows that target-serialized payloads decode back.
+  The shared verify helper retains upstream's full-P4
   calling convention, which does not establish Nano source-level support.
   Explicit `--runtime-extern value` generation adds a runtime-only alternative
   for raw extern callback results, preserving source quotations and membership.
@@ -174,7 +190,7 @@ These limitations describe the implementation, not the intended design:
   writes with the complete canonical reference context and exact fresh counters.
   Subsequent callee
   mismatch and the distinct direct-handler hard error remain observable; no PACKET
-  wrapper repairs the receiver. General target composition remains open.
+  wrapper repairs the receiver.
 - [Unhinted printing](../P4SpecTec/Refine/Print.lean) preserves output and errors
   under canonical equality, through actual pure builtin dispatch and global
   lookup under explicit guard-free, empty-hint and environment assumptions.
@@ -271,7 +287,7 @@ refinement support remain under `P4SpecTec.Refine`.
 | Lean proof checking | Kernel checking and audits permitting only `propext`, `Classical.choice` and `Quot.sound` | Correctness of the Lean kernel itself |
 | P4-SpecTec source to exported AL | Pinned upstream parser, elaborator, algorithmization and JSON exporter | Preservation of source-language meaning by those stages |
 | Exported AL to Lean quotation | Decoding and `check-quotes` comparisons | Universal correctness of the exporter, decoder or quoting implementation |
-| Lean reference semantics to upstream behavior | Side-by-side port review and differential tests, including bounded builtin and target observations | General equivalence of the OCaml and Lean interpreters, complete extern coverage or device fidelity |
+| Lean reference semantics to upstream behavior | Side-by-side port review and differential tests, including builtin observations and every corpus typing case and STF session | General equivalence of the OCaml and Lean interpreters, complete extern coverage or device fidelity |
 | Generated code to Lean reference | Checked correspondence proofs for the recorded fragment | Definitions and input domains outside the proved claims |
 
 The reference includes the runtime helpers and builtin implementations it

@@ -1,6 +1,7 @@
 # Roadmap
 
-Updated 2026-09-29. Nano work through N3 is authorized; other backlog remains deferred.
+Updated 2026-09-29. Nano work through N4 is authorized and N4 is implemented; other
+backlog remains deferred.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -44,7 +45,9 @@ checks. N2 implementation is validated at `76bed84`; closure is recorded at
 The user authorized N3 on 2026-09-27, starting from the Program_load/Expr_eval
 checkpoint. N3-owned proof closure is complete at `67f67ae`, with passing strict
 N3 checks, full local/main CI and independent review. [Status](status.md) records
-the exact evidence and remaining full-stage obligations. N4–N6 remain planned.
+the exact evidence and remaining full-stage obligations. The user authorized N4 on
+2026-09-29; it is implemented on `n4-target` with every core and target obligation verified.
+N5 and N6 remain planned.
 The plan owns the [historical effort estimate](notes/nano-certification.md#historical-effort-estimate);
 status owns the next concrete step.
 
@@ -58,10 +61,10 @@ consumer-guided wrappers, and measured maintenance across upstream changes.
 These other priorities are not newly authorized implementation.
 
 N3 now has both correspondence directions for all 153 bodied definitions and
-source-domain proofs for the four final polymorphic shapes. The normal gate
-requires all core obligations owned through N3. Target extern implementations,
-complete corpus evidence and composition remain N4; the proof checkpoint does not
-establish whole-program composition or broader full-stage acceptance.
+source-domain proofs for the four final polymorphic shapes. N4 discharges the extern
+contract, composes sessions and replays the whole corpus; the normal gate requires every
+core and target obligation owned through N4. The whole-program theorem (N5) and release
+evidence (N6) remain.
 
 Known runtime boundaries before broadening claims:
 `Match.sub_` and `Match.check'` retain legacy fallback behavior outside the

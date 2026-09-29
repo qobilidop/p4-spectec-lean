@@ -1,63 +1,48 @@
 # Status
 
-N3-owned proof milestone closed, 2026-09-29. Implementation `67f67ae` and final
-evidence checkpoint `6ca3a22` are on `main`; exact final
-[CI 36539336394](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36539336394)
-passed (rechecked during maintenance). The short-packet extract branch contract has
-passed local validation and review. No implementation is active; broader N4–N6
-implementation and full-P4 M3 remain paused.
+N4 target composition implemented, 2026-09-29, on branch `n4-target` (user-authorized the
+same day). The completion check now verifies every core and target obligation; the four
+release-stage obligations (N5 consumer proof, N6 sensitivity, review, release) remain.
+Full-P4 M3 remains paused.
 
 ## Verified state
 
-- All 153 bodied definitions have compiled forward and reverse correspondence;
-  all 77 relations have run-soundness. Extern-dependent claims assume
-  `externsContract`; print-dependent claims assume empty hints. Evaluation-domain
-  claims use the explicit runtime-inclusive profile where required.
-- Source-domain contracts now also cover `empty_set`, `empty_map`, `ite`, and
-  `repeat_`. Arbitrary legal parameter codecs and independent admission predicates
-  remain explicit; repetition proves successful-output preservation, not totality.
-- The completion inventory has 350 declarations, 888 obligations and 762 compiled
-  bindings. Of 126 unbound items, the CLI checks source identity; 125 remain across
-  stages, including 78 N4-owned core corpus items. Full core/Nano acceptance is
-  therefore still incomplete even when owned-through-N3 checks pass.
-- The normal gate now requires `--require-n2 --require-owned N3`, retaining bounded
-  N2 checks and rejecting regressions in N0–N3-owned core evidence.
+- The interpreter passes its own function evaluator, at the remaining fuel, to extern
+  relations; `NanoP4Target.externsContractHolds` discharges `NanoP4Spec.externsContract`
+  for the concrete NanoSwitch target in both directions for every related input.
+- `NanoP4Target.sessionCorrespondence` composes `NanoSwitch_init` with packet driving in both
+  directions; the initialized-environment corollary and `sessionObservations` are checked
+  by `check-target` with exact types, plus a witness that the reference configuration is
+  inhabited and that the pinned export declares no print hints.
+- All 78 typing programs match upstream on both legs; all 39 STF sessions (74 packets) match
+  upstream at every step on both Lean paths (`check-nano-sessions`, six mutations rejected).
+- `scripts/nano-certification.py --require-n2 --require-owned N4` and
+  `--require-complete target` report 888 obligations, 766 compiled claim bindings and 0
+  unresolved; replay cases are verified by the checker's own runs.
 
-## Validation and maintenance
+## Commits on `n4-target`
 
-The short-packet contract and target regression passed their focused `--wfail`
-build. Its full local `scripts/check.sh` returned actual exit 0 in 142.03s, no skips,
-including unchanged strict N3 inventory, oracle replay and mutation checks.
-Independent read-only AI review found no code issue. The
-[Nano plan](notes/nano-certification.md#n3-proof-closure-complete) retains earlier
-N3 milestone evidence; this bounded helper does not close an N4 inventory item.
-The [maintenance record](notes/repository-stewardship.md#current-maintenance-pass)
-owns that earlier maintenance pass's checks. Current contract validation belongs in
-the [target note](notes/nano-target.md#first-bounded-n4-task-extract-without-callbacks).
+`e88e8a0` extern discharge; `ad1c4ab` sessions and corpus replay; `09cb951` replay
+hardening; `a0f7c79` completion binding; then review fixes and this checkpoint. Reviews are
+recorded in the [target note](notes/nano-target.md#n4-review-record).
+
+## Validation
+
+Full gate on `a0f7c79` (`.artifacts/n4-gate-2.log`): 46 of 47 stages exit 0 in 167s;
+text hygiene failed on one over-long line in `Tools/CheckTarget.lean`, since fixed. The
+completion stage passed with 0 unresolved. The final full gate for the merged revision is
+recorded below when run.
 
 ## Next steps
 
-The next separately scoped work is target contracts/composition and complete
-corpus evidence, per the [Nano plan](notes/nano-certification.md#n4-discharge-target-contracts-and-compose-packet-execution).
-The authorized readiness pass selected [short-packet extract and raw-receiver
-rejection](notes/nano-target.md#first-bounded-n4-task-extract-without-callbacks)
-as the first proposed helper contract, with exact files, missing proof pieces and
-acceptance commands. Both branch theorems are now in reusable support; the short
-branch retains a successful-decoding premise. Host-domain JSON round trips are
-the next separately scoped task. Retain all 78 N4-owned core
-corpus obligations; metadata binding alone does
-not discharge replay. Do not describe N3-owned closure as full core acceptance.
+1. Final full gate, merge `n4-target` into `main`, push, and confirm exact-revision CI
+   (milestone completion requires it).
+2. N5 (whole-program theorem) needs a separate user scope. The candidate is
+   `positive/src-addr-filter.p4`, whose session the replay already covers; build it on
+   `NanoP4Target.initializedSessionCorrespondence`.
 
-## Performance and repository state
-
-The preceding performance work is complete: local full gate 1073.97s → 835.25s,
-proof stage 903s → 668s, warm full gate 118.93s, matched native replay 8.1% faster.
-[Measurements and limits](../docs/performance/n3-iteration-2026-09-28.md) retain the
-smaller observed Linux gain. Source-domain-only changes avoid the heavy execution
-proof dependencies. For tactic-only iteration use `scripts/replay-cert.py`;
-new statements/support require real target builds. One build per checkout.
+## Repository state
 
 Preserve local `n3-decl-load` (`82fbe2e`, non-ancestor WIP), unrelated
-`docs/repository-review`, and the dirty old `../p4-spectec-lean-replay` worktree.
-Those experiments are unrelated to this checkpoint. The expected four-file
-upstream exporter patch remains applied; no source pins changed.
+`docs/repository-review`, and the dirty old `../p4-spectec-lean-replay` worktree. The
+expected four-file upstream exporter patch remains applied; no source pins changed.
