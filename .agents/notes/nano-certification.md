@@ -1,7 +1,9 @@
 # Nano-P4 certification implementation plan
 
-Active plan and durable evidence, updated 2026-09-28. N0/N1/N2 are closed (N2
-closure `d85e82c`). N3 is in progress: stabilization checkpoint `770e405`
+Remaining plan and durable evidence, updated 2026-09-29. N0/N1/N2 are closed (N2
+closure `d85e82c`). N3-owned proof closure is complete at `67f67ae`, with passing
+local/remote gates and independent review; broader core acceptance still needs
+N4-owned corpus evidence. The earlier stabilization checkpoint `770e405`
 passed the full local gate and CI. N4–N6 remain planned, and full-P4 M3 remains
 paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
@@ -63,7 +65,7 @@ membership supplies source validity. The declared objectState extern domain
 admits arbitrary JSON; the additional value.runtimeExtern carrier constructor
 is excluded from the source value grammar. General target composition remains N4.
 
-## N3 progress (in progress)
+## N3 proof closure (complete)
 
 The first checkpoint on `main` reached 68 of 153 bodied definitions; its
 blockers and review are historical. At stabilization checkpoint `770e405`, all

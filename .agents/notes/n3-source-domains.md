@@ -1,7 +1,7 @@
 # N3 source-domain closure
 
-Active checkpoint, 2026-09-29, on `n3-source-domains` from passing `d927b77`
-(main CI 36535347308). The user requested quota-conscious N3 progress and a
+Durable proof/review evidence, closed 2026-09-29. Implementation `67f67ae` is on
+main with passing [CI 36538318591](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36538318591). The user requested quota-conscious N3 progress and a
 resumable handoff. N4 implementation is outside this step.
 
 ## Implementation
@@ -55,11 +55,16 @@ core-stage or whole-Nano acceptance. The normal gate now requires
   builds were run. GPT-6 Sol authored the first three shapes and tests; the parent
   authored repetition, the zero-input fix and integration. These are AI reviews.
 
-## Resume
+## Handoff
 
-Local validation and independent review are complete. Commit and integrate the
-coherent step, then require passing final main CI before declaring the N3-owned
-proof milestone closed. Remove the integrated feature ref after that pass.
-Do not start N4 implicitly. One build per checkout.
+Local validation, independent review, main integration and exact-implementation CI
+are complete. Main CI passed every gate and upstream pin check; the certificate
+stage took 10s. Log: `.artifacts/perf/n3-domain-ci.log`. The merged
+`n3-source-domains` ref was removed and branch listing verified removal. The final
+evidence-only checkpoint reuses unchanged executable inputs with fresh text/link
+checks and independent review. N3-owned proof closure is complete; the broader
+core stage remains open. A new N4 scope should start with the Nano plan and target
+note, preserving every corpus obligation. Do not start N4 implicitly.
+One build per checkout.
 The existing dirty replay worktree and non-ancestor `n3-decl-load` branch remain
 preserved unrelated experiments. The expected upstream exporter patch is unchanged.

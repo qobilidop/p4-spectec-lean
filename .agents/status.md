@@ -1,11 +1,12 @@
 # Status
 
-N3 proof closure checkpoint, 2026-09-29. Work is on `n3-source-domains` from
-passing main `d927b77`. All four final source-domain certificates compile; the
-strict inventory check reports zero unresolved core obligations owned through N3.
-The full gate passed in 124.00s, with no skipped checks. Publication and final main
-CI remain before declaring milestone completion.
-N4–N6 remain planned and full-P4 M3 remains paused; do not start N4 implicitly.
+N3-owned proof milestone closed, 2026-09-29. Implementation `67f67ae` is on
+`main` with passing [CI 36538318591](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36538318591).
+All four final source-domain certificates compile; the strict inventory reports
+zero unresolved core obligations owned through N3. The full local gate passed in
+124.00s, with no skips. This evidence-only checkpoint preserves those executable
+inputs. No implementation is active. N4–N6 remain planned, full-P4 M3 is paused,
+and N4 needs a separately authorized scope.
 
 ## Verified state
 
@@ -34,7 +35,8 @@ Both strict N3 checks passed with zero unresolved items. The corrected full gate
 124.00s, no skips. Log: `.artifacts/perf/n3-domain-gate-validated.log`.
 Fresh text, whitespace and 36 relative-link target checks passed. Final
 independent documentation review required a historical-estimate anchor correction,
-now resolved; publication and exact-revision main CI remain pending.
+now resolved. Main CI for `67f67ae` passed the full gate and upstream pin checks;
+its certificate stage took 10s. Log: `.artifacts/perf/n3-domain-ci.log`.
 
 Independent read-only Codex GPT-6 Astra review found a zero-input coverage bug,
 required its correction, and re-reviewed all four generated contracts, exact
@@ -45,11 +47,11 @@ the zero-input fix and integration. These are AI reviews, not human review.
 
 ## Next steps
 
-1. Commit and integrate the reviewed, locally validated step on main; require
-   passing final-revision CI and remove the integrated feature ref.
-2. Close the N3-owned proof milestone with exact evidence; stop before N4. The next
-   separately scoped work is target contracts/composition and complete corpus
-   evidence, per the [Nano plan](notes/nano-certification.md#n4-discharge-target-contracts-and-compose-packet-execution).
+The next separately scoped work is target contracts/composition and complete
+corpus evidence, per the [Nano plan](notes/nano-certification.md#n4-discharge-target-contracts-and-compose-packet-execution).
+Read that section and `notes/nano-target.md` before choosing the first bounded N4
+step. Retain all 78 N4-owned core corpus obligations; metadata binding alone does
+not discharge replay. Do not describe N3-owned closure as full core acceptance.
 
 ## Performance and repository state
 
@@ -62,5 +64,7 @@ new statements/support require real target builds. One build per checkout.
 
 Preserve local `n3-decl-load` (`82fbe2e`, non-ancestor WIP), unrelated
 `docs/repository-review`, and the dirty old `../p4-spectec-lean-replay` worktree.
-Those experiments are unrelated to this branch. The expected four-file upstream
+Those experiments are unrelated to this checkpoint. The merged local
+`n3-source-domains` branch was removed after passing main CI; branch listing
+verified removal. The expected four-file upstream
 exporter patch remains applied; no source pins changed.

@@ -42,8 +42,9 @@ checks. N2 implementation is validated at `76bed84`; closure is recorded at
 `d85e82c`, with independent review, all 44 local gate stages and successful
 [final CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
 The user authorized N3 on 2026-09-27, starting from the Program_load/Expr_eval
-checkpoint; the final four domain proofs now compile, with strict N3 validation
-and integration tracked in [status](status.md). N4–N6 remain planned.
+checkpoint. N3-owned proof closure is complete at `67f67ae`, with passing strict
+N3 checks, full local/main CI and independent review. [Status](status.md) records
+the exact evidence and remaining full-stage obligations. N4–N6 remain planned.
 The plan owns the [historical effort estimate](notes/nano-certification.md#historical-effort-estimate);
 status owns the next concrete step.
 
