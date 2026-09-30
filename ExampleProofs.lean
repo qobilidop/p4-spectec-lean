@@ -5,12 +5,18 @@ import ExampleProofs.NanoP4FieldUpdate.Correspondence
 import ExampleProofs.NanoP4FieldUpdate.Certificate
 import ExampleProofs.NanoP4FieldUpdate.Laws
 import ExampleProofs.NanoP4FieldUpdate.Example
+import ExampleProofs.NanoP4SrcAddrFilter.Program
+import ExampleProofs.NanoP4SrcAddrFilter.Evaluation
+import ExampleProofs.NanoP4SrcAddrFilter.Certificate
+import ExampleProofs.NanoP4SrcAddrFilter.Example
 
 /-!
 # Downstream verification examples
 
 Examples of using the reusable libraries and generated models for downstream
 verification. The Nano-P4 field-update example connects a bounded scalar slice
-to the Lean AL reference; it is not certification of all Nano-P4 or full P4.
+to the Lean AL reference; it is not certification of all Nano-P4 or full P4. The
+source-address filter example proves a whole exported Nano-P4 program's packet
+behavior with the concrete NanoSwitch target and transfers it to the reference.
 Build explicitly with `lake build ExampleProofs`; the full gate includes it.
 -/

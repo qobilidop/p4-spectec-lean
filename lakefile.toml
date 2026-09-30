@@ -59,6 +59,12 @@ name = "check-target"
 root = "Tools.CheckTarget"
 needs = ["NanoP4Target"]
 
+# The whole-program consumer certificate: identity, upstream observation and claim types.
+[[lean_exe]]
+name = "check-consumer"
+root = "Tools.CheckConsumer"
+needs = ["ExampleProofs"]
+
 # Typed quotation of an exported Nano program for whole-program statements.
 [[lean_exe]]
 name = "nano-program-quote"
