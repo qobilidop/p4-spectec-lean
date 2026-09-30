@@ -149,9 +149,6 @@ runStage "Field-update mutation runner contracts" python3 "$root/ExampleProofs/N
 runStage "Source-address filter mutation runner contracts" \
   python3 "$root/ExampleProofs/NanoP4SrcAddrFilter/test/test_runner.py" \
   || { say "source-address filter mutation runner contract tests failed"; fail=1; }
-runStage "Cross-layer mutation runner contracts" \
-  python3 "$root/P4SpecTecTest/Oracle/Nano/Certification/test_mutations.py" \
-  || { say "cross-layer mutation runner contract tests failed"; fail=1; }
 runStage "P4C restore shell syntax" bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
 runStage "P4C restore contracts" python3 "$root/scripts/test_fetch_p4c.py" || { say "p4c restore tests failed"; fail=1; }
 runStage "Full-P4 oracle contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_contract.py" \
@@ -176,6 +173,11 @@ for name in nano-p4 p4; do
   runStage "$name snapshot verification" python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }
 done
+# The cross-layer runner's contracts read the export extracted above; a warm checkout's copy
+# must never be their only input.
+runStage "Cross-layer mutation runner contracts" \
+  python3 "$root/P4SpecTecTest/Oracle/Nano/Certification/test_mutations.py" \
+  || { say "cross-layer mutation runner contract tests failed"; fail=1; }
 
 if command -v lake >/dev/null 2>&1; then
   runStage "Library layers and reachability" inRoot lake env python3 "$root/scripts/check-library-boundaries.py" \
