@@ -196,6 +196,23 @@ CONSUMER_CLAIMS = {f"ExampleProofs.NanoP4SrcAddrFilter.{name}" for name in (
 CONSUMER_CHECKS = ["check-consumer: export identity, upstream STF observation, "
                    "exact claim types and allowed axioms"]
 SESSION_BUNDLE = Path(".artifacts/nano-sessions/sessions-observed.json")
+# The mutation suites and the summary each must print: every baseline passes first and every
+# mutation is rejected at its named check (each runner fails closed otherwise).
+SENSITIVITY_SUITES = (
+    ("ExampleProofs/NanoP4FieldUpdate/test/run.py", None),
+    ("ExampleProofs/NanoP4SrcAddrFilter/test/run.py", "[src-addr-filter] 6 mutations rejected"),
+    ("P4SpecTecTest/Oracle/Nano/Certification/mutations.py", "[cross-layer] 5 mutations rejected"),
+)
+FIELD_UPDATE_CASES = {"baseline": "all", "behavior": "update_fieldValue.refines_group",
+                      "quotation": "compareSpecs", "representation": "Scalar.sourceRel"}
+SENSITIVITY_CHECKS = ["field-update, source-address filter and cross-layer mutation suites: "
+                      "each baseline passes and each mutation is rejected at its named check"]
+# Review and release are publication records about one tree, not proofs: the record names the
+# digest of every tracked file outside `.agents/`, so recording them changes no digest.
+RELEASE_RECORD = Path(".agents/notes/nano-release.json")
+REVIEW_CHECKS = ["recorded independent review of this tree digest"]
+RELEASE_CHECKS = ["recorded successful full gate and exact-revision CI for this tree digest"]
+PUBLICATION = ("review", "release")
 TYPING_REPLAY = ["nano-p4-run and nano-p4-interp match the upstream verdict and outputs"]
 SESSION_REPLAY = ["check-nano-sessions matches every upstream session step on both paths"]
 
@@ -387,10 +404,11 @@ def build_manifest(source, coverage, corpus_ids, identity):
         add(f"replay:{case}", "replay", case, "core" if typing else "target",
             ["profile:sourceIdentity"], checked_by=TYPING_REPLAY if typing else SESSION_REPLAY)
     add("profile:sensitivity", "sensitivity", "Nano-P4 milestone", "release",
-        ["profile:sourceIdentity", "profile:consumer"])
+        ["profile:sourceIdentity", "profile:consumer"], checked_by=SENSITIVITY_CHECKS)
     add("profile:review", "review", "Nano-P4 milestone", "release",
-        [o["id"] for o in obligations])
-    add("profile:release", "release", "Nano-P4 milestone", "release", ["profile:review"])
+        [o["id"] for o in obligations], checked_by=REVIEW_CHECKS)
+    add("profile:release", "release", "Nano-P4 milestone", "release", ["profile:review"],
+        checked_by=RELEASE_CHECKS)
     ids = {obligation["id"] for obligation in obligations}
     if len(ids) != len(obligations):
         raise CertificationError("duplicate completion obligation identity")
@@ -428,8 +446,8 @@ def outstanding(manifest, stage="all", verified=frozenset(), owned=None):
 
     def done(o):
         if o.get("checkedBy"):
-            return o["id"] in verified and (o["coverageClaim"] is not None
-                                            or o["requirement"] in ("sourceIdentity", "replay"))
+            return o["id"] in verified and (o["coverageClaim"] is not None or o["requirement"] in (
+                "sourceIdentity", "replay", "sensitivity") + PUBLICATION)
         return o["coverageClaim"] is not None
 
     return [o for o in manifest["obligations"]
@@ -561,6 +579,77 @@ def consumer_verified(manifest):
             if o.get("checkedBy") == CONSUMER_CHECKS and o["coverageClaim"] is not None}
 
 
+def sensitivity_verified(manifest):
+    """Run every mutation suite; the sensitivity obligation when all of them pass."""
+    run(ROOT, ["lake", "build", "ExampleProofs", "check-consumer", "nano-program-quote",
+               "check-quotes"])
+    for path, summary in SENSITIVITY_SUITES:
+        output = run(ROOT, ["lake", "env", "python3", path])
+        if summary is None:
+            try:
+                results = json.loads(output.splitlines()[-1])["results"]
+            except (IndexError, ValueError, KeyError, TypeError) as error:
+                raise CertificationError(f"{path}: unreadable result") from error
+            observed = {r.get("case"): (r.get("boundary"), r.get("accepted")) for r in results}
+            expected = {case: (boundary, case == "baseline")
+                        for case, boundary in FIELD_UPDATE_CASES.items()}
+            if len(results) != len(expected) or observed != expected:
+                raise CertificationError(f"{path}: unexpected mutation outcomes {observed}")
+        elif output.splitlines()[-1:] != [summary]:
+            raise CertificationError(f"{path}: expected {summary!r}")
+    return {o["id"] for o in manifest["obligations"]
+            if o.get("checkedBy") == SENSITIVITY_CHECKS}
+
+
+def tree_digest(root):
+    """SHA-256 over every tracked path outside `.agents/`: file bytes from the working tree,
+    link targets, and submodule commits from the index."""
+    listing = subprocess.run(["git", "ls-files", "-s", "-z"], cwd=root, capture_output=True,
+                             check=True).stdout.decode()
+    digest = hashlib.sha256()
+    for entry in sorted(filter(None, listing.split("\0")), key=lambda e: e.split("\t", 1)[1]):
+        meta, path = entry.split("\t", 1)
+        mode, blob, _ = meta.split()
+        if path.startswith(".agents/"):
+            continue
+        target = root / path
+        if mode == "160000":
+            content = blob.encode()
+        elif mode == "120000":
+            content = str(target.readlink()).encode()
+        else:
+            content = target.read_bytes()
+        digest.update(f"{mode} {path} {hashlib.sha256(content).hexdigest()}\n".encode())
+    return digest.hexdigest()
+
+
+def publication_verified(manifest, root=ROOT):
+    """The review and release obligations whose records describe exactly this tree.
+
+    Absent or stale records verify nothing; a record for this tree must be complete."""
+    path = root / RELEASE_RECORD
+    if not path.is_file():
+        return set(), "no review or release record"
+    record = read_json(path)
+    if record.get("tree") != tree_digest(root):
+        return set(), f"{RELEASE_RECORD} describes another tree"
+    review, release = record.get("review"), record.get("release")
+    fields = ("revision", "reviewer", "verdict", "record")
+    if not isinstance(review, dict) or any(not review.get(k) for k in fields) or (
+            review["verdict"] != "no unresolved findings"):
+        raise CertificationError(f"{RELEASE_RECORD}: incomplete review for this tree")
+    kinds = {"review"}
+    if release is not None:
+        gate, ci = release.get("gate", {}), release.get("ci", {})
+        if (release.get("revision") != review["revision"] or gate.get("exit") != 0
+                or not gate.get("command") or ci.get("conclusion") != "success"
+                or not ci.get("run") or ci.get("headSha") != review["revision"]):
+            raise CertificationError(f"{RELEASE_RECORD}: incomplete release for this tree")
+        kinds.add("release")
+    verified = {o["id"] for o in manifest["obligations"] if o["requirement"] in kinds}
+    return verified, " and ".join(sorted(kinds)) + " recorded for this tree"
+
+
 def replay_verified(manifest, corpus):
     """Run both typing replay legs and the session replay; every agreeing replay obligation."""
     replay = corpus_helper(ROOT / "P4SpecTecTest/Oracle/Nano/Replay/replay.py", "nano_replay")
@@ -602,9 +691,14 @@ def main(argv=None):
     parser.add_argument("--require-owned", choices=MILESTONES,
                         help="require every obligation owned by milestones up to this one; "
                         "later-owned obligations stay reported")
+    parser.add_argument("--allow-unpublished", action="store_true",
+                        help="let review and release records be absent or describe another "
+                        "tree; every proof, replay and sensitivity obligation stays required")
     parser.add_argument("--require-n2", action="store_true",
                         help="require the bounded N2 profile; broader stages stay independent")
     args = parser.parse_args(argv)
+    if args.allow_unpublished and not (args.require_complete or args.require_owned):
+        parser.error("--allow-unpublished qualifies a completion requirement")
     if args.update and (args.require_complete or args.require_n2 or args.require_owned):
         parser.error("--update cannot be combined with a completion requirement")
     if args.require_complete and args.require_owned:
@@ -631,9 +725,20 @@ def main(argv=None):
         if (MILESTONES.index(args.require_owned) >= MILESTONES.index("N5") if args.require_owned
                 else args.require_complete in (None, "all")):
             verified |= consumer_verified(manifest)
+        if (MILESTONES.index(args.require_owned) >= MILESTONES.index("N6") if args.require_owned
+                else args.require_complete in (None, "all")):
+            verified |= sensitivity_verified(manifest)
+            published, state = publication_verified(manifest)
+            verified |= published
+            print(f"[completion] publication: {state}")
         # Owned scope spans every stage; the owner filter excludes later milestones' work.
         stage = "all" if args.require_owned else args.require_complete or "all"
         missing = outstanding(manifest, stage, verified=verified, owned=args.require_owned)
+        if args.allow_unpublished:
+            pending = [o for o in missing if o["requirement"] in PUBLICATION]
+            missing = [o for o in missing if o["requirement"] not in PUBLICATION]
+            if pending:
+                print(f"[completion] {len(pending)} publication records pending, allowed")
         bound = sum(o["coverageClaim"] is not None for o in manifest["obligations"])
         print(f"[completion] {len(manifest['declarations'])} source declarations; "
               f"{len(manifest['obligations'])} obligations; {bound} compiled claim bindings; "

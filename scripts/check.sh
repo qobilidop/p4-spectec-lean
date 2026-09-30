@@ -18,9 +18,10 @@
 #    program (P4SpecTecTest/Oracle/Nano/Replay/replay.py, both legs).
 # 8. Quoted Nano-P4 AL matches the export, with typed VarD checked separately.
 # 9. The full P4 export decodes and its reconnaissance report is current.
-# 10. The bounded field-update certificate's mutations fail at the intended boundaries.
-# 11. The whole-program source-address filter: its quotation is current, check-consumer binds
-#     it to the export and the upstream session, and its mutations fail at their boundaries.
+# 10. The whole-program source-address filter's quotation is current.
+# 11. Combined completion (`--require-complete all`): every proof, replay, consumer and
+#     sensitivity obligation. It runs check-consumer and the field-update, source-address
+#     filter and cross-layer mutation suites; review and release records may be pending.
 # A missing lake is a failure, not a skip, unless P4SPECTEC_SKIP_LEAN=1 says
 # so explicitly.
 set -euo pipefail
@@ -56,6 +57,8 @@ for path in \
   NanoP4Spec/completion.json scripts/nano-certification.py \
   scripts/test_nano_certification.py P4SpecTecTest/Oracle/Nano/Certification/corpus.py \
   P4SpecTecTest/Oracle/Nano/Certification/corpus.json P4SpecTecTest/Oracle/Nano/Certification/test_corpus.py \
+  P4SpecTecTest/Oracle/Nano/Certification/mutations.py \
+  P4SpecTecTest/Oracle/Nano/Certification/test_mutations.py \
   P4SpecTec/Refine/Init.lean ExampleProofs/NanoP4FieldUpdate/Certificate.lean \
   ExampleProofs/NanoP4FieldUpdate/test/run.py ExampleProofs/NanoP4FieldUpdate/test/test_runner.py \
   ExampleProofs/NanoP4SrcAddrFilter/Certificate.lean ExampleProofs/NanoP4SrcAddrFilter/Program.lean \
@@ -146,6 +149,9 @@ runStage "Field-update mutation runner contracts" python3 "$root/ExampleProofs/N
 runStage "Source-address filter mutation runner contracts" \
   python3 "$root/ExampleProofs/NanoP4SrcAddrFilter/test/test_runner.py" \
   || { say "source-address filter mutation runner contract tests failed"; fail=1; }
+runStage "Cross-layer mutation runner contracts" \
+  python3 "$root/P4SpecTecTest/Oracle/Nano/Certification/test_mutations.py" \
+  || { say "cross-layer mutation runner contract tests failed"; fail=1; }
 runStage "P4C restore shell syntax" bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
 runStage "P4C restore contracts" python3 "$root/scripts/test_fetch_p4c.py" || { say "p4c restore tests failed"; fail=1; }
 runStage "Full-P4 oracle contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_contract.py" \
@@ -198,16 +204,12 @@ if command -v lake >/dev/null 2>&1; then
     exports/programs/nano-p4/positive/src-addr-filter.json ExampleProofs.NanoP4SrcAddrFilter \
     ExampleProofs/NanoP4SrcAddrFilter/Program.lean --check \
     || { say "the source-address filter quotation is stale"; fail=1; }
-  # Retain bounded N2 closure checks and require every obligation owned through N5: core and
-  # target, both replays, and the whole-program consumer. N6 obligations remain reported.
-  runStage "Completion inventory, coverage and quotation" python3 "$root/scripts/nano-certification.py" \
-    --require-n2 --require-owned N5 \
-    || { say "Nano completion inventory/coverage/quotation check failed"; fail=1; }
-  runStage "Field-update certificate mutations" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
-    || { say "field-update certificate sensitivity checks failed"; fail=1; }
-  runStage "Source-address filter certificate mutations" \
-    python3 "$root/ExampleProofs/NanoP4SrcAddrFilter/test/run.py" \
-    || { say "source-address filter certificate sensitivity checks failed"; fail=1; }
+  # Retain bounded N2 closure checks and require combined completion: core and target proofs,
+  # both replays, the whole-program consumer and every mutation suite. Review and release are
+  # records about one tree digest, written after this gate and CI pass, so they may be pending.
+  runStage "Combined completion and mutation suites" python3 "$root/scripts/nano-certification.py" \
+    --require-n2 --require-complete all --allow-unpublished \
+    || { say "Nano combined completion check failed"; fail=1; }
   runStage "Print oracle replay" inRoot lake exe check-print || { say "print oracle check failed"; fail=1; }
   runStage "Text builtin oracle replay" inRoot lake exe check-text-builtins \
     || { say "text builtin oracle check failed"; fail=1; }

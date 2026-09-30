@@ -14855,6 +14855,9 @@
       "subject": "corpus:packet:positive/table-with-action-arg"
     },
     {
+      "checkedBy": [
+        "field-update, source-address filter and cross-layer mutation suites: each baseline passes and each mutation is rejected at its named check"
+      ],
       "coverageClaim": null,
       "dependencies": [
         "profile:sourceIdentity",
@@ -14866,6 +14869,9 @@
       "subject": "Nano-P4 milestone"
     },
     {
+      "checkedBy": [
+        "recorded independent review of this tree digest"
+      ],
       "coverageClaim": null,
       "dependencies": [
         "variable:VarD:b",
@@ -15761,6 +15767,9 @@
       "subject": "Nano-P4 milestone"
     },
     {
+      "checkedBy": [
+        "recorded successful full gate and exact-revision CI for this tree digest"
+      ],
       "coverageClaim": null,
       "dependencies": [
         "profile:review"

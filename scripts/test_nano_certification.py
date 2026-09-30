@@ -238,6 +238,83 @@ class CompletionTests(unittest.TestCase):
                     with self.assertRaises(completion.CertificationError):
                         completion.consumer_verified(self.manifest)
 
+    def test_sensitivity_requires_every_suite(self):
+        sensitivity = next(o for o in self.manifest["obligations"]
+                           if o["id"] == "profile:sensitivity")
+        self.assertEqual(sensitivity["checkedBy"], completion.SENSITIVITY_CHECKS)
+        self.assertIn(sensitivity, completion.outstanding(self.manifest, "all", owned="N6"))
+        self.assertNotIn(sensitivity, completion.outstanding(
+            self.manifest, "all", verified={"profile:sensitivity"}, owned="N6"))
+        field = json.dumps({"schema": 1, "results": [
+            {"case": case, "boundary": boundary, "accepted": case == "baseline"}
+            for case, boundary in completion.FIELD_UPDATE_CASES.items()]})
+        outputs = {path: summary or field for path, summary in completion.SENSITIVITY_SUITES}
+
+        def runner(overrides):
+            def fake(root, args):
+                return overrides.get(args[-1], outputs.get(args[-1], ""))
+            return fake
+        with patch.object(completion, "run", runner({})):
+            self.assertEqual(completion.sensitivity_verified(self.manifest),
+                             {"profile:sensitivity"})
+        field_path, filter_path, cross_path = (p for p, _ in completion.SENSITIVITY_SUITES)
+        accepted = json.loads(field)
+        accepted["results"][1]["accepted"] = True
+        for overrides in ({filter_path: "[src-addr-filter] 5 mutations rejected"},
+                          {cross_path: outputs[cross_path] + "\nextra"},
+                          {field_path: json.dumps(accepted)}, {field_path: "not json"},
+                          {cross_path: ""}):
+            with patch.object(completion, "run", runner(overrides)):
+                with self.assertRaises(completion.CertificationError):
+                    completion.sensitivity_verified(self.manifest)
+
+    def test_publication_records_bind_one_tree(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            self.assertEqual(completion.publication_verified(self.manifest, root)[0], set())
+            record = root / completion.RELEASE_RECORD
+            record.parent.mkdir(parents=True)
+            review = {"revision": "abc", "reviewer": "r", "verdict": "no unresolved findings",
+                      "record": "x"}
+            release = {"revision": "abc", "gate": {"exit": 0, "command": "scripts/check.sh"},
+                       "ci": {"run": 1, "conclusion": "success", "headSha": "abc"}}
+            with patch.object(completion, "tree_digest", return_value="t"):
+                record.write_text(json.dumps({"tree": "other", "review": review}))
+                self.assertEqual(completion.publication_verified(self.manifest, root)[0], set())
+                record.write_text(json.dumps({"tree": "t", "review": review}))
+                self.assertEqual(completion.publication_verified(self.manifest, root)[0],
+                                 {"profile:review"})
+                record.write_text(json.dumps({"tree": "t", "review": review, "release": release}))
+                self.assertEqual(completion.publication_verified(self.manifest, root)[0],
+                                 {"profile:review", "profile:release"})
+                for bad in ({"review": dict(review, verdict="blocked")},
+                            {"review": dict(review, reviewer="")},
+                            {"release": dict(release, ci={**release["ci"], "conclusion": "failure"})},
+                            {"release": dict(release, ci={**release["ci"], "headSha": "def"})},
+                            {"release": dict(release, gate={"exit": 1, "command": "x"})},
+                            {"release": dict(release, revision="def")}):
+                    record.write_text(json.dumps({"tree": "t", "review": review,
+                                                  "release": release, **bad}))
+                    with self.assertRaises(completion.CertificationError):
+                        completion.publication_verified(self.manifest, root)
+
+    def test_tree_digest_ignores_working_state_only(self):
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            (root / ".agents").mkdir()
+            (root / ".agents/status.md").write_text("a")
+            (root / "code.lean").write_text("a")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            before = completion.tree_digest(root)
+            (root / ".agents/status.md").write_text("b")
+            self.assertEqual(completion.tree_digest(root), before)
+            (root / "code.lean").write_text("b")
+            self.assertNotEqual(completion.tree_digest(root), before)
+
     def test_owned_n5_adds_the_consumer_but_not_n6(self):
         missing = [o["id"] for o in completion.outstanding(self.manifest, "all", owned="N5")]
         self.assertIn("profile:consumer", missing)
