@@ -19,12 +19,14 @@ contract, and a two-way theorem composing semantic initialization with packet
 processing. Both Lean paths match the pinned upstream verdicts, outputs and
 packet sessions on the entire corpus. A whole-program certificate proves the packet
 behavior of one exported program, `src-addr-filter.p4`, for a stated family of
-packets, on both Lean paths. The combined completion check verifies every obligation of
+packets, on both Lean paths. The combined completion check verifies every proof,
+replay, consumer and sensitivity obligation of
 [Design, section 9](design.md#9-nano-p4-scope-and-acceptance): the core and target
 proofs, both replays, the whole-program example and distinguishing mutations across
-layers, each rejected by a named check. The Nano-P4 milestone release additionally
-records an independent review and exact-revision CI for one source tree; see
-[Nano completion inventory](#nano-completion-inventory). Full-P4
+layers, each rejected by a named check. The section's remaining requirements, an
+independent review and exact-revision CI, are publication records rather than checked
+evidence; the Nano-P4 milestone is complete for the one source tree whose record
+contains both (see [Nano completion inventory](#nano-completion-inventory)). Full-P4
 support is not yet a usable generated library.
 The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.
@@ -135,14 +137,15 @@ observation relation. Printing binds the `print_` dispatch contract together wit
 the checked empty hint table of the pinned export.
 
 Review and release are publication records, not kernel theorems or metadata verdicts.
-The milestone's record, kept with the repository's working state as
-`.agents/notes/nano-release.json`, names a SHA-256 digest over every tracked file outside
-`.agents/` (working-tree bytes, link targets and submodule commits), the reviewed
-revision, the reviewer and review verdict, and the successful full gate and remote CI
-run for that revision. The checker counts the review and release obligations only
-when the digest equals the current tree's, so any later change to code, proofs,
+The milestone's record, kept with the repository's working state for agents, names a
+SHA-256 digest over every tracked file outside that working-state directory
+(file bytes, link targets and submodule commits), the reviewed revision, the reviewer
+and review verdict, and the successful full gate and remote CI run for that revision.
+The checker counts the review and release obligations only when the current checkout
+and the recorded revision both have that digest, so any later change to code, proofs,
 documentation or pins leaves them pending until a new review and release are recorded.
-The CI conclusion is a recorded observation; the checker does not query GitHub.
+The review verdict and the CI conclusion are recorded observations; the checker does not
+query GitHub.
 
 The [corpus inventory](../P4SpecTecTest/Oracle/Nano/Certification/corpus.json) retains 78 programs
 and 39 STF sessions. Upstream observations exist for every typing case and every
@@ -342,8 +345,8 @@ other programs are outside this certificate.
 ## Distinguishing mutations
 
 Mutation suites check that the certification rejects selected wrong artifacts at the
-intended check, and that each mutation is observable, so a rejection is not mere
-proof-script brittleness. Each suite first passes unmutated, requires the named
+intended check. Each mutation of code is first shown to change a runtime result, so its
+rejection is not mere proof-script brittleness. Each suite first passes unmutated, requires the named
 diagnostic, and treats any other outcome, including a timeout, as a failure. The
 completion check runs all three.
 
@@ -352,11 +355,11 @@ completion check runs all three.
 | Generated code | The catch-all last alternative of `$expression_is_lvalue` tried first | Its generated forward refinement proof, replayed on the copy: the interpreter chooses an alternative the code does not |
 | Generated code | A failed guard of that function made an error instead of a mismatch | The same replayed proof: the interpreter's failure kind differs |
 | Generated code | `update_fieldValue` writes the old value | Its replayed refinement proof |
-| Generated quotation | `DROP` omitted from the quotation of `forwardingDecision` | Quotation comparison with the decoded export (`check-quotes`) |
-| Generated quotation | A premise of `$expression_is_lvalue`'s quotation changed, or `update_fieldValue`'s identifier | Quotation comparison; the refinement proofs, relative to the compiled quotation, cannot see it |
+| Generated quotation | `DROP` omitted from the quotation of `forwardingDecision` | `compareSpecs`, the comparison `check-quotes` runs, against the decoded export |
+| Generated quotation | A premise of `$expression_is_lvalue`'s quotation changed, or `update_fieldValue`'s identifier | `compareSpecs`; the refinement proofs, relative to the compiled quotation, cannot see it |
 | Export | A print hint added to a copy of the pinned export | `check-quotes`' empty print-hint check; quotation comparison erases hints by design and still passes |
 | Representation | A scalar encoded with the wrong tag | The field-update source-representation proof |
-| Program identity | A changed table entry in the source-address filter's quotation | `check-consumer`'s identity comparison and the quotation freshness check |
+| Program identity | A changed table entry in the source-address filter's quotation | A copy of `check-consumer`'s identity comparison, and `nano-program-quote --check` itself |
 | Target state | Extract writes the header bits reversed | The whole-program claim, by evaluation |
 | Target state | Extract returns the packet state with its cursor unadvanced | The extern contract; the parser discards the receiver, so the certificate's claims still hold |
 | Observation | A wrong branch or output port claimed; a recorded context replaced | Evaluation; `check-consumer`'s comparison with the upstream recording |
@@ -373,6 +376,8 @@ their subjects: [field update](../ExampleProofs/NanoP4FieldUpdate/test/run.py),
 |---|---|---|
 | Lean proof checking | Kernel checking and audits permitting only `propext`, `Classical.choice` and `Quot.sound` | Correctness of the Lean kernel itself |
 | P4-SpecTec source to exported AL | Pinned upstream parser, elaborator, algorithmization and JSON exporter | Preservation of source-language meaning by those stages |
+| P4 programs to exported AL values | The pinned upstream P4 frontend and program exporter; `check-consumer` compares the quotation with that export | That the export is the program's meaning |
+| Upstream observations | Pinned recordings of upstream typing verdicts and STF sessions, captured by repository scripts | That the capture faithfully records upstream behavior |
 | Exported AL to Lean quotation | Decoding and `check-quotes` comparisons | Universal correctness of the exporter, decoder or quoting implementation |
 | Lean reference semantics to upstream behavior | Side-by-side port review and differential tests, including builtin observations and every corpus typing case and STF session | General equivalence of the OCaml and Lean interpreters, complete extern coverage or device fidelity |
 | Generated code to Lean reference | Checked correspondence proofs for the recorded fragment | Definitions and input domains outside the proved claims |
@@ -390,7 +395,8 @@ port identifies extern payloads by that text, and Lean's JSON printer and parser
 theorem that runs extract, never an axiom.
 
 The Lean executable toolchain is also trusted when running differential
-tests. Passing tests is useful evidence about selected executions, not a
+tests, and the Python completion checker when it counts replay, sensitivity and
+publication obligations. Passing tests is useful evidence about selected executions, not a
 replacement for a theorem. Mutation tests check that selected incorrect
 artifacts are rejected; they do not prove detection of every possible bug.
 

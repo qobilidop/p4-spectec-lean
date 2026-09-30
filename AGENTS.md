@@ -31,7 +31,8 @@ Documentation is split by purpose and audience:
 | `docs/related-work.md` | related work on generated semantics, certification and P4 verification |
 | `.agents/notes/compiler-certification.md` | retained certification rationale and advisory design questions |
 | `.agents/notes/nano-certification.md` | Nano-P4 completion plan, dependencies and implementation exit checks |
-| `.agents/notes/nano-release.json` | Nano-P4 milestone review and release record, bound to a tree digest the completion check verifies |
+| `.agents/notes/nano-release.md` | N6 release evidence: mutations, scope audit, costs, review record |
+| `.agents/notes/nano-release.json` | Nano-P4 milestone review and release record, bound to a tree digest the completion check verifies (written after release CI) |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
 | `.agents/decisions.md` | current cross-cutting choices, reasons and revisit points |
 | `.agents/roadmap.md` | implementation milestones, paused work and backlog |

@@ -13,10 +13,11 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
   checked verification example, and a whole-program certificate proving an
   exported program's packet filtering on both Lean paths, under a named premise
   about Lean's JSON text round trip. Distinguishing mutations across layers are
-  each rejected by a named check, and the gate requires every obligation of
+  each rejected by a named check. The gate requires every proof, replay, consumer
+  and sensitivity obligation of
   [complete Nano-P4 support and certification](docs/design.md#9-nano-p4-scope-and-acceptance);
-  the milestone release records its review and CI. See
-  [what is certified and its limits](docs/certification.md).
+  the milestone is complete for the source tree whose review and CI are recorded.
+  See [what is certified and its limits](docs/certification.md).
 - Full P4 production generation remains incomplete.
 
 ## Rationale
