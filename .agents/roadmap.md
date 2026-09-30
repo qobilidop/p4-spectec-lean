@@ -1,7 +1,7 @@
 # Roadmap
 
-Updated 2026-09-29. Nano work through N4 is authorized and N4 is implemented; other
-backlog remains deferred.
+Updated 2026-09-29. Nano work through N4 was authorized and is complete; other backlog
+remains deferred.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -34,22 +34,12 @@ Broader full-P4 M3 remains paused.
 The plan proceeds from the complete obligation inventory (N0), through early
 reverse-proof/target/printing feasibility probes (N1), reusable contracts (N2),
 full core coverage (N3), target composition (N4), the whole-program proof (N5),
-and release evidence (N6). Target and consumer work begin alongside core work;
-their integration exits depend on checked core contracts. N0 is implemented
-and reviewed. N1 is closed in `ccb8859`, with independent review and successful
-full local/remote gates: recursive reverse execution, actual relation probes,
-printing dispatch and faithful runtime representation with contextual failure
-checks. N2 implementation is validated at `76bed84`; closure is recorded at
-`d85e82c`, with independent review, all 44 local gate stages and successful
-[final CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
-The user authorized N3 on 2026-09-27, starting from the Program_load/Expr_eval
-checkpoint. N3-owned proof closure is complete at `67f67ae`, with passing strict
-N3 checks, full local/main CI and independent review. [Status](status.md) records
-the exact evidence and remaining full-stage obligations. The user authorized N4 on
-2026-09-29; it is implemented on `n4-target` with every core and target obligation verified.
-N5 and N6 remain planned.
-The plan owns the [historical effort estimate](notes/nano-certification.md#historical-effort-estimate);
-status owns the next concrete step.
+and release evidence (N6). N0–N4 are complete, each with independent review and
+passing exact-revision CI (N1 implemented in `ccb8859`, closed at `56cf92c`; N2 closed
+at `d85e82c`; N3 at `67f67ae`; N4 at `4535868`); the
+[plan](notes/nano-certification.md#closed-stages) indexes their evidence and owns the
+[effort history](notes/nano-certification.md#effort-history). N5 and N6 need a user
+scope; status owns the next concrete step.
 
 ## Candidate next work
 

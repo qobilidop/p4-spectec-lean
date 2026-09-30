@@ -1,8 +1,11 @@
 # Bounded dynamic Nano target observations
 
-This is not a typed `NanoP4Spec.Externs` instance or a simulator/boot port.
-The target intentionally returns the pinned raw `ExternV objectState`.
-No `PACKET` repair or semantic JSON normalization is applied.
+These are bounded direct observations of the dynamic port's primitives and handlers.
+The typed `NanoP4Spec.Externs` instance, its contract proof and the complete corpus
+session replay live in `NanoP4Target/` and `../Sessions/`. The target intentionally
+returns the pinned raw `ExternV objectState`; no `PACKET` repair is applied. The handler
+decodes a receiver payload from its compressed JSON text, the identity runtime value
+equality uses (design section 5.3); the record decoders themselves do not normalize.
 
 `observed.json` holds 24 primitive and direct-handler observations. The
 callback checks cover names, order and selected semantic arguments,

@@ -1,271 +1,109 @@
 # Nano-P4 certification implementation plan
 
-Remaining plan and durable evidence, updated 2026-09-29. N0–N3 are closed (N2 closure
-`d85e82c`, N3 proof closure `67f67ae`). N4 target composition is implemented on branch
-`n4-target` (see [N4](#n4-target-composition-complete)); the completion check verifies every
-core and target obligation. N5 and N6 remain planned, and full-P4 M3 remains paused.
+Active plan, compacted 2026-09-29 after N4 closed. N0–N4 are complete; N5 and N6 remain
+and need a user scope. Full-P4 M3 stays paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
-[Certification](../../docs/certification.md) owns delivered artifact guarantees,
-and [status](../status.md) owns the next immediate action.
+[Certification](../../docs/certification.md) owns delivered guarantees, and
+[status](../status.md) owns the next immediate action.
 
-## Scope and baseline
+## Baseline
 
-The unchanged pins cover 350 source declarations: 162 types, eight schematic
-variables, 76 functions, 77 relations, 26 builtins and one extern relation.
-N0 established the complete obligation inventory and pinned corpus accounting.
-N1 closed at `56cf92c` with
-[CI 36290916636](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36290916636):
-reverse execution, recursive relation feasibility, unhinted printing and faithful
-runtime raw-extern representation on actual callback paths. N2 supplies the
-reusable source-domain and call contracts below. Full core and target
-composition remain separate acceptance stages.
+The pins cover 350 source declarations: 162 types, eight schematic variables, 76
+functions, 77 relations, 26 builtins and one extern relation. The completion inventory
+has 888 obligations; after N4 only the four release-stage ones (N5 consumer, N6
+sensitivity, review, release) are open. The corpus is 78 typing programs and 39 STF
+sessions (74 packets), all with upstream observations.
 
-## N2 evidence (closed; constraints still bind)
+## Closed stages
 
-- All 162 declarations have generated full-source codecs: encoding validity,
-  decoder soundness at arbitrary fuel, and stable sufficient decoding for each
-  source value. Recursive/nested families use source derivations and actual
-  carrier induction; parameter codecs and dictionaries remain explicit.
-- At N2 closure both correspondence directions covered 39 of 153 bodied declarations
-  (68 at the historical first N3 checkpoint, 153 at stabilization). The strict
-  N2 exit requires the original 18 plus Type_eq/ParameterType_eq, Type_ok and
-  Var_init, with their complete 30-definition dependency/SCC closure. It also
-  requires source input coverage, successful source outputs and every actual
-  intermediate call domain. Additional emitted claims do not shrink that scope.
-- All 26 builtins have exact dispatch and both invocation directions, plus full
-  source input coverage and universal admitted-input output preservation under
-  explicit legal parameter codecs. Defined in_set/dom_map/codom_map have separate
-  source-domain contracts; ValueBEq remains an execution-contract requirement.
-- Primitive/container codecs, eight source-order typed VarD omissions and actual
-  table initialization have separately checked schema-3 profile claims. VarD
-  are schematic declarations, not invented initialized runtime values.
-- Call arguments with wholly admitted carriers have universal codec-based
-  admission. Three restricted runtime-value cases need stronger source proofs:
-  updater suffixes; context maps/keys/payloads/intermediate key sets; and Var_init
-  call prefixes. The last requires only successful *earlier* calls, including
-  default, without assuming the current or final call succeeds.
-- Actual tuple results use exact two-field dictionaries; the right component is
-  one value even when a generic parameter is a product. Closed right products
-  whose ambient encoding would flatten are rejected. Unit covers zero-output
-  relations. No generic ambient product decoder is assumed.
-- Source substitution has a proved syntax bound. Type_eq/default use MixopSC;
-  Type_ok's RecurseSC sites are numeric Nat checks. The selected source paths
-  do not call the legacy total matcher/substitution fallbacks. Indexing/slicing
-  and other absent constructs remain explicit later-inventory obligations.
+Each is published on `main`; N1–N4 cite their passing exact-revision CI, while N0 was
+closed within later checkpoints and has no run of its own. Historical Git paths are
+recovery pointers for detailed records, not live links.
 
-The source domain follows the pinned constructor grammar, not broad runtime
-Match.sub acceptance. Make.nat/int preserve tags; elaboration inserts UpCastE and
-OptE; interpreter casts change numeric tags and optional iteration makes OptV.
-Cross-tag numeric membership and bare optional membership remain explicit
-counterexamples to identifying runtime subtype checks with this grammar.
-Call/producer certificates establish composition rather than assuming that
-membership supplies source validity. The declared objectState extern domain
-admits arbitrary JSON; the additional value.runtimeExtern carrier constructor
-is excluded from the source value grammar. N4 later closed target composition.
+| Stage | Delivered | Closure evidence | Detailed record |
+|---|---|---|---|
+| N0 | Complete obligation inventory and pinned corpus accounting | inventory CLI in the gate | `d85e82c:.agents/notes/nano-certification.md` |
+| N1 | Reverse execution, recursive relation feasibility, unhinted printing, raw-extern runtime representation | `56cf92c`, CI 36290916636 | same |
+| N2 | 162 source codecs, 26 builtin contracts, bounded 30-definition closure with call admission | `d85e82c`, CI 36316496027 | `d85e82c:.agents/notes/nano-certification-review.json` |
+| N3 | Forward and reverse theorems for all 153 bodied definitions, run-soundness for all 77 relations, final source domains | `67f67ae`/`6ca3a22`, CI 36539336394 | `6ca3a22:.agents/notes/n3-source-domains.md`, `bd7ed63:.agents/notes/nano-certification.md` |
+| N4 | Extern discharge, two-way session composition, whole-corpus replay, completion binding | `4535868`, CI 36592809255 | [nano-target.md](nano-target.md) |
 
-## N3 proof closure (complete)
+N4 exit evidence: `NanoP4Target.externsContractHolds` (every related input, global context
+satisfying the specification and trampoline fuel); `NanoP4Target.sessionCorrespondence` and
+its initialized-environment corollary; both typing legs and `check-nano-sessions` matching
+every corpus case (the gate runs the Lean executable `check-nano-sessions` through
+`P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py`); `--require-owned N4` and
+`--require-complete target` with 0 unresolved.
 
-The first checkpoint on `main` reached 68 of 153 bodied definitions; its
-blockers and review are historical. At stabilization checkpoint `770e405`, all
-153 bodied definitions have compiled forward and reverse theorems, including
-`Decl_load`, `bin_op`, `Expr_eval` and the six-member `Call_eval` group.
-Relation run-soundness covers all 77 relations. The full local gate and CI
-passed. Extern-dependent theorems assume the abstract `externsContract`;
-print-dependent theorems assume `cfg.printHints = []`.
+## Constraints that still bind
 
-The evaluation domain uses the runtime-inclusive profile where the source-only
-profile is incomplete. The final four domain contracts (`ite`, `repeat_`,
-`empty_set`, `empty_map`) now compile under arbitrary legal parameter codecs.
-At N3 closure (historical) the inventory had 888 obligations and 762 compiled claim
-bindings, and the gate required `--require-owned N3`, leaving 125 unresolved including 78
-N4-owned corpus items. N4 has since bound or verified all core and target obligations.
+- Source domains follow the pinned constructor grammar, not permissive runtime subtype
+  membership: numeric casts change tags, optional iteration makes `OptV`, and cross-tag or
+  bare optional membership remain counterexamples to identifying the two. Call and
+  producer certificates establish composition; membership never supplies source validity.
+- The evaluation domain is the runtime-inclusive profile wherever raw externs reach it
+  (decisions, "Runtime-inclusive evaluation domain"); the raw carrier stays outside the
+  source `value` grammar.
+- Parameter codecs, dictionaries and independent admission predicates stay explicit;
+  repetition proves successful-output preservation, not totality. Tuple results use exact
+  dictionaries; closed right products that ambient encoding would flatten are rejected.
+- Prove invariants at initialization and preserve them at every call; add no hypothesis an
+  actual caller cannot establish. Extend both directions together; keep ordered attempts,
+  negative premises and run-soundness; prove determinism only where needed.
+- Reachable legacy matching/substitution fallbacks must be replaced or proved unreachable
+  on admitted domains before certifying them.
+- Reusable support stays out of `ExampleProofs`; generated files are never hand-edited;
+  missing observations are never successful replay; nothing is skipped as unsupported.
+- Use the existing generator, libraries and colocated tests; add no parallel semantics or
+  name whitelist for proof selection (eligibility follows source structure); keep actual
+  counterexamples and trustworthy failure classifications.
+- Warm artifacts must never be the only evidence that a fixture's inputs are available (an
+  N2 remote gate once read an ignored raw export); profile proof costs before expanding
+  expensive recursive groups.
+- Extern-dependent claims assume the contract `NanoP4Target` discharges; print-dependent
+  claims assume the pinned empty print hints. Target constraints are in
+  [nano-target.md](nano-target.md).
 
-The final implementation `67f67ae` adds exactly four sourceDomain claims, without
-changing or removing earlier claims. Empty-container input coverage is `True`;
-choice returns an admitted input. Repetition preserves admitted outputs by induction
-on the actual natural count and successful recursive tail, without asserting totality.
-Recognition checks source structure, not callable names: repetition compares complete
-region-erased clauses with distinct actual binders and the recursive callee. Tests
-cover consistent renaming and malformed types, bodies, parameters, clause order and
-removed guards. The recursive equation unfolds once per induction case; unrestricted
-`simp` loops (see [Lean pitfalls](../../docs/lean-pitfalls.md)).
-
-Independent read-only Codex GPT-6 Astra review of the implementation diff found the
-zero-input coverage bug, required its correction, and re-reviewed all four theorem
-types, proofs, audits, exact inventory diffs and stronger gate flags with no remaining
-blocker. Scope wording and a historical-estimate link were also corrected. GPT-6 Sol
-authored the first three shapes; the parent authored repetition and integration.
-These were AI reviews, not human review; the reviewer ran no builds.
-
-All four actual source-domain targets and final focused generator tests passed with
-`--wfail` and axiom audits. Two initial full gates exited 1 on a test layout error;
-the final named-definition form fixed it. The corrected full
-`nix develop -c /usr/bin/time -l -p scripts/check.sh` exited 0 in 124.00s, no skips.
-Implementation [CI 36538318591](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36538318591)
-passed (certificate stage 10s), as did exact final documentation revision `6ca3a22`
-in [CI 36539336394](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36539336394).
-That documentation checkpoint reused unchanged executable inputs with fresh text/link
-checks and independent review. The merged `n3-source-domains` ref was removed only
-after passing main CI, verified by branch listing. The original detailed record is
-recoverable at historical Git path `6ca3a22:.agents/notes/n3-source-domains.md`;
-ignored `.artifacts/perf/n3-domain-*` logs are supplementary, not required to resume.
-
-Reusable support now covers relation output premises, recursive subtype bridges,
-numeric coercions, guarded cast unfolding, relation pattern iteration, membership
-conflicts, generated traversals, no-output calls and sliced inputs. The
-`scripts/replay-cert.py` tool speeds tactic iteration but is not certification
-evidence. Earlier WIP blockers and their reviews remain recoverable in Git history
-at `b6f1576`.
-
-## N2 closure verification (historical)
-
-The corrected full local `nix develop -c scripts/check.sh` returned actual exit 0
-(session 47761), all 44 stages with no skips. It includes exact compiled theorem
-types/axioms, strict N2, quotation/generation freshness, both replay legs and
-field-update mutations. Source checks cover 342 ordinary declarations and eight
-typed variables; compiled coverage checked 806 claims. The manifest then had
-888 obligations, 381 bindings and 507 unresolved, independently of the strict
-30-definition N2 closure.
-
-Implementation `76bed8485032a6bb2e95b248b37f99dcf0c45267` passed
-[CI 36314414521](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36314414521).
-Closure-only `d85e82c02a4d714bdcc7a78ee681cf64490aee78` passed
-[CI 36316496027](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36316496027).
-Both include the full gate and pin checks. The merged N2 branch is removed.
-Earlier CI at `9668c63` failed only because inventory tests read the ignored raw
-export before unpacking; the fixture now reads the committed gzip directly.
-All 36 tests passed with raw input temporarily absent (18940). Warm artifacts
-must not be the only evidence for a fixture's input availability.
-
-Independent AI-agent reviews used Astra (`organize_oracles`,
-`review_oracle_refactor`), Sol (`organize_lean_tests`) and root cross-review.
-Each excluded its own authored changes. Reviews were scoped to the recorded
-diffs; they are separate from kernel checking, full gates and upstream evidence,
-and are not human review or a fresh proof of the reference interpreter.
-No unresolved findings remain. Resolved findings included parameter
-shadowing (explicit scoped dictionaries), mutual output-column eligibility
-(single-self-SCC restriction), and empty-substitution traversal (fast path).
-Actual production codecs replaced the obsolete handwritten TypeIR encoding
-probe only after five replacement witnesses passed with axiom audits; unique
-negative and mutation tests were retained.
-
-The 54 original review records, exact file hashes, findings, resolutions and
-limits are recoverable at the historical Git path
-`d85e82c:.agents/notes/nano-certification-review.json`. The chronological gate
-history is in that revision's Nano note. Ignored logs are supplementary scratch,
-not required resume or release evidence. Reusable constraints remain above and
-in Decisions; strict N2 does not close broader core, target or release stages.
-
-Observed proof cost: the first expanded remote library/certificate build took
-1534s, including 938s for Type_eq; a local Type_eq build took 235s. These are
-uncontrolled observations, not comparable benchmarks or additive wall times.
-Profile the remaining proof costs before expanding expensive recursive groups.
-
-## Standing constraints (from N2, still binding)
-
-Prove invariants at initialization and preserve them at every call; do not add
-hypotheses that no actual caller can establish. Extend both proof directions
-together; implement ordered relation attempts, negative premises and recursive
-groups without requiring every logical relation to have an exact converse; preserve
-the run-soundness layer, and prove determinism only where a proof or client needs it. Reachable legacy
-matching/substitution fallbacks must be replaced or proved unreachable on the
-admitted domains before certifying them. Reusable support stays outside
-`ExampleProofs`; generated files are never patched by hand. The N2 plan text is
-recoverable at `d85e82c:.agents/notes/nano-certification.md`. Primary surfaces:
-`Codegen/Types.lean`, `Codegen/Funcs.lean`, `Codegen/Certificates/Forward.lean`,
-`Codegen/Emit.lean`, `Refine/`, `Tactic/` and `P4SpecTecTest/`.
-
-## N4. Target composition (complete)
-
-User-authorized 2026-09-29. Each exit criterion and its evidence:
-
-- Core extern assumptions discharged for the concrete target:
-  `NanoP4Target.externsContractHolds`, for every related input, global context satisfying
-  the specification and trampoline fuel. This needed the interpreter to pass its own
-  function evaluator as the trampoline, extern-callee freshness in the contract, and
-  canonical-text payload decoding (decisions, "N3 certificate shape"; design 5.3).
-- Checked two-way composition from initialization through packets:
-  `NanoP4Target.sessionCorrespondence`, instantiated at the initialized environment.
-- Every applicable corpus case matches the oracle: 78 typing programs on both legs (existing
-  replay) and all 39 STF sessions, 74 packets, on both paths at every step
-  (`check-nano-sessions`); no case is skipped, and exhaustion or decode failure fails it.
-- Strict target check: `--require-owned N4` and `--require-complete target` report 0
-  unresolved; target claims pass `check-target`, replay cases are verified per run.
-
-Runner: `check-nano-sessions` initializes and drives sessions from exported programs and
-upstream-recorded packets; STF parsing stays upstream. Constraints and the review record are
-in [nano-target.md](nano-target.md).
+Primary surfaces: `Codegen/`, `Refine/`, `Tactic/`, `BackendSim/`, `NanoP4Target/`,
+`P4SpecTecTest/` and `scripts/nano-certification.py`.
 
 ## N5. Demonstrate a whole-program theorem
 
-Select the program and property during N0; build the proof alongside N3/N4.
-Use a small Nano parser/control filter whose packet-field test determines
-forward versus drop, with actual extraction so target representation is
-exercised. Prefer an existing pinned source example if it expresses this
-property; otherwise add a minimal source fixture with upstream observations.
+Use a small Nano parser/control filter whose packet-field test decides forward versus
+drop, with actual extraction. The candidate is pinned `positive/src-addr-filter.p4`: the
+parser extracts the Nanonet header, a source-address table allows addresses 1 and 2,
+denies 3 and drops by default; its STF forwards `000100` unchanged and drops `000300`
+and `000A00`, and the session replay covers it.
 
-Prove the exact port/payload outcome for a stated family of valid packets and
-a rejection/drop family, starting from the exported program and real semantic
-initialization. Include the composed reference statement, not merely a theorem
-about generated values. If packet contents are unmodified upstream, state that
-fact rather than inventing an output-rewriting example. Keep intermediate and
-sequential-call evidence so discarded receiver corruption cannot pass unnoticed.
+Prove the exact port/payload outcome for a stated family of valid packets and a drop
+family, from the exported program and real initialization, including the composed
+reference statement (`initializedSessionCorrespondence`), not only generated values.
+Packets are unmodified upstream; state that rather than inventing rewriting. Keep
+intermediate and sequential-call evidence so discarded receiver corruption cannot pass.
 
-Exit: a checked consumer certificate with a walkthrough and distinguishing
-mutations of source identity, packet branch, extern result and output/state.
-The proof must consume library contracts; it cannot duplicate a handwritten
-semantics or silently assume the missing target/initialization obligations.
+Exit: a checked consumer certificate with a walkthrough and distinguishing mutations of
+source identity, packet branch, extern result and output/state, consuming library
+contracts without duplicating semantics or assuming missing obligations.
+Main risk: symbolic header bits through generated parser and table code; `native_decide`
+is not allowed, and deciding all 256 source values in the kernel may be too slow. Spike
+one concrete drop case end to end first.
 
 ## N6. Close release evidence
 
-Make strict combined completion a required passing part of `scripts/check.sh`.
-Audit the final manifest against the source, signatures and design criteria;
-verify scope has not narrowed during implementation. Keep partial-coverage
-diagnostics useful for later specifications without weakening Nano's gate.
-Add cross-layer mutations for alternative ordering, hard-error retry, omitted
-constructors, wrong quotations, incompatible print provenance and corrupted
-target state. Identify which check rejects each mutation.
+Make strict combined completion (`--require-complete all`) a required part of the gate.
+Audit the final manifest against source, signatures and design criteria; verify scope has
+not narrowed. Keep partial-coverage diagnostics useful without weakening Nano's gate. Add
+cross-layer mutations for alternative ordering, hard-error retry, omitted constructors,
+wrong quotations, incompatible print provenance and corrupted target state, naming the
+check that rejects each. Record generation, proof-checking and replay costs separately;
+resolve unexplained regressions without weakening statements. Update the guide and README
+only to delivered claims. Independent review, the full gate and exact-revision CI must
+pass before declaring the milestone complete.
 
-Record generation, elaboration/proof checking and replay costs separately.
-Resolve unexplained scaling regressions without weakening statements, domains
-or axiom audits. Update the certification guide and README only to the claims
-actually delivered. Independent review, the full local gate and exact-revision
-remote CI must pass before declaring the milestone complete.
+## Effort history
 
-## Execution constraints
-
-Preserve all 78 typing programs and 39 STF sessions; all now have upstream observations,
-and missing observations would not be successful replay.
-Full-P4 M3 stays paused. The dynamic NanoSwitch port and shared verify ABI limits
-remain in [nano-target.md](nano-target.md). Source identity, core semantic
-initialization, target composition, packet observations, whole-program proofs and
-release evidence cannot be inferred from the N2 representation/contract milestone.
-
-Use the existing generator, libraries and colocated tests. Avoid a new parallel
-semantics or name whitelist for ordinary proof selection. The strict N2 root list
-records agreed milestone scope; proof eligibility still follows source structure.
-Retain actual counterexamples and trustworthy failure classifications. Git history
-holds superseded experiments and chronological probes; this note holds current
-claims, constraints and the remaining plan.
-
-## Historical effort estimate
-
-Planning forecast discussed with the user on 2026-09-27; moderate-to-low
-confidence, superseded by the 153-definition stabilization checkpoint. The
-four final N3 domain contracts now compile; no current effort estimate
-is recorded here. The earlier forecast used elapsed working hours
-with the current lead and targeted specialists, including review, integration,
-builds and validation, not summed subagent-hours or a calendar commitment.
-
-| Milestone | Working estimate | Main uncertainty |
-|---|---:|---|
-| N3: complete core semantics | 16–32 hours; revised 30–45 | Remaining iteration/polymorphism, recursive groups and call/context invariants |
-| N4: target composition | 12–24 hours | Typed callbacks, intermediate state, initialization and full packet observations |
-| N5: whole-program theorem | 4–8 hours | Usability of completed N3/N4 contracts |
-| N6: release evidence | 4–8 hours | Scope audit, mutations, performance and final validation |
-
-The forecast's base total was 36–72 hours, with 45–90 including contingency.
-Definition and obligation counts are not effort percentages. N4's feared uncertainty
-(stateful callbacks against a pure extern interface) did not materialize: Nano has no fresh
-state. Its actual blockers were a fixed-fuel trampoline and compressed-text payload
-equality; N4 took one working session on 2026-09-29.
+A 2026-09-27 forecast estimated N3 16–32 hours (revised 30–45), N4 12–24, N5 4–8 and N6
+4–8, with moderate-to-low confidence. N4 took one working session: the feared mismatch
+between stateful callbacks and a pure extern interface did not arise, because Nano has no
+fresh state; the real blockers were a fixed-fuel trampoline and compressed-text payload
+equality. Counts of definitions or obligations are not effort percentages.

@@ -5,7 +5,7 @@ experiments and remaining constraints. The public
 [N3 performance snapshot](../../docs/performance/n3-iteration-2026-09-28.md)
 owns measured artifact behavior and reproduction. This note supersedes the
 working reports retained in Git history. N3 subsequently closed; the
-[Nano plan](nano-certification.md#n3-proof-closure-complete) owns that evidence.
+[Nano plan](nano-certification.md#closed-stages) indexes that evidence.
 
 ## Stabilization and inherited work
 

@@ -75,3 +75,10 @@ From proof-build performance (2026-09-28):
 From polymorphic source-domain proofs (2026-09-29):
 
 - Adding the recursive `repeat_` equation to `simp` unfolds calls on unknown predecessor counts without stopping at the induction hypothesis. Use `rw [repeat_] at run` once per induction case, then simplify only nonrecursive checks and numeric conversions before applying the hypothesis to the successful tail.
+
+From the NanoSwitch target proofs (2026-09-29):
+
+- `cases h : m.run` on `m : Eval α` does not rewrite a goal stated through `tryCatch` or bind on `m`: the goal mentions `ExceptT` operations, not `m.run`. First `change Option.bind m.run _ = _` (after unfolding `ExceptT.tryCatch`), then case on `m.run` (`Refine/Extern.lean`, `run_catchUnmatch`).
+- The atom type's derived `BEq` has no `LawfulBEq` instance, so `simp` leaves `Keyword "PACKET" == Keyword "PACKET"` unsolved; use `simp +decide` for such closed comparisons.
+- `Lean.Json.parse` does not reduce by `rfl` or `decide`. Keep proofs abstract over a decoding hypothesis and test concrete decoding with `#guard`.
+- Do not predict `#print axioms` output: even an `rfl` proof about a structure literal can depend on `propext`, `Classical.choice` and `Quot.sound` through its definitions. Build first, then copy the message into `#guard_msgs`.

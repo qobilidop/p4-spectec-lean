@@ -92,6 +92,8 @@ lake exe p4spectec-gen <export> --lib <Lib> [--runtime-extern TYPE] [--update|--
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
+lake exe check-target        # NanoP4Target claims: exact types, axioms, empty pinned print hints
+P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py  # every STF session, both Lean paths vs upstream
 lake exe check-print        # printer/builtin/interpreter vs pinned upstream observations
 lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json
 python3 scripts/spec-snapshot.py unpack exports/p4.al.json  # verified full-P4 extraction

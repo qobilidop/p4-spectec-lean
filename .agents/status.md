@@ -41,6 +41,14 @@ resolutions are in the [target note](notes/nano-target.md#n4-review-record).
   remote [CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255).
   The merged `n4-target` branch was local only and is deleted.
 
+## Maintenance
+
+A general tend-repo pass after N4 (documentation and working state only) compacted the
+Nano plan and roadmap, repaired anchors and corrected the target oracle README; see the
+[stewardship note](notes/repository-stewardship.md#current-maintenance-pass). It reuses
+`22fc21c`'s exit-0 full gate (executable inputs unchanged) with fresh text and link
+checks, and an independent read-only Claude Opus review whose findings were adopted.
+
 ## Next steps
 
 1. N5 (whole-program theorem) needs a separate user scope. The candidate is

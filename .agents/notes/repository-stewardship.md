@@ -75,33 +75,25 @@ unless stated otherwise. Historical Git paths are recovery pointers, not links.
   `ffc21e7:.agents/notes/repository-stewardship.md`. Current refs belong in status;
   this historical record did not establish a CI outcome for `ffc21e7` itself.
 
+- N3 closure maintenance (`fde887c`, on `6ca3a22`): documentation only,
+  consolidating the source-domain note into the Nano plan; reused `67f67ae`'s exit-0
+  full gate (124.00s) with fresh text, whitespace, boundary and 120-link checks;
+  independent Codex GPT-6 Astra review found no blockers (reviewed diff SHA-256
+  `f6a08fdafdfc3889abc44ccc6a61354558463c7747499afd5ce71f6b0faf567f`); AI review, not
+  human review, and the reviewer ran no builds. Its exact CI 36543103039 passed. Full record at
+  `bd7ed63:.agents/notes/repository-stewardship.md`.
+
 ## Current maintenance pass
 
-Requested general maintenance after N3 closure, based on `6ca3a22`. Its exact
-CI 36539336394 was freshly queried and passed. Documentation changes only:
-consolidated the completed source-domain note into the Nano plan, retired the
-completed N3 task list, shortened status, corrected stale scope and cache guidance,
-and documented canonical regeneration and controlled recursive unfolding.
-The removed note is recoverable at `6ca3a22:.agents/notes/n3-source-domains.md`.
-No skill/policy changes, pins, generated artifacts, branches or worktrees changed.
-
-Validation reuses `67f67ae`'s actual exit-0 full gate (124.00s, no skips), because
-all executable inputs are unchanged through `6ca3a22` and this diff. Fresh text
-hygiene, staged whitespace and library-boundary/reachability checks returned exit 0;
-120 relative Markdown links across 33 files passed target/heading-anchor checks.
-The first text check exited 1 because the deleted tracked note was still in the
-index; staging its removal resolved that, without changing the checker.
-The resulting note inventory was checked, including the historical recovery path.
-Independent read-only Codex GPT-6 Astra review passed with no blocking findings.
-Reviewed staged diff against `6ca3a22`, SHA-256
-`f6a08fdafdfc3889abc44ccc6a61354558463c7747499afd5ce71f6b0faf567f`:
-11 Markdown paths only. It checked retained obligations/evidence, cache guidance
-against `Normalize.lean`, public scope and recovery pointers. It ran no builds or
-fresh CI query; validation above is integrator evidence, not reviewer execution.
-This was AI review, not human review. The older unverified determinism-bookkeeping
-and empty-spec observations remain in their existing notes, outside this scope.
-This routine maintenance commit's remote CI is separate from the verified N3
-milestone run above.
+Requested general maintenance after N4 closure, based on `bd7ed63`, whose exact
+CI 36603339319 passed (freshly queried). Documentation and working state only: compacted the Nano plan to closed
+stage evidence, binding constraints and the N5/N6 plans (detailed N2/N3 narrative
+recoverable at `bd7ed63:.agents/notes/nano-certification.md`); shortened the roadmap
+milestone paragraph and corrected N1's implementation versus closure commits; repaired two
+anchors to removed headings; corrected the target oracle README, which still denied payload
+normalization; added the two N4 checks to the AGENTS command list; added four N4 traps to
+the Lean pitfalls. No pins, generated artifacts, code, branches or worktrees changed.
+Validation and review are recorded in the commit and status.
 
 ## Shared-skill layout reproduction
 
@@ -146,3 +138,7 @@ printf 'All six cases passed; fixtures remain at %s\n' "$root"
   gate covers both (`aa5865f`).
 - N3 iteration was dominated by rebuild latency after tactic changes; the fix
   is tooling (`scripts/replay-cert.py`) and a Lean pitfall entry, not policy.
+- N4 twice reached the full gate with defects a cheaper check would have caught: a new
+  untracked file escaped `check-text` (which lints tracked files; `git add -N` first),
+  and a hand-written axiom expectation (now a Lean pitfall). Both were caught by the gate
+  before publication; no new rule, since the gate is the intended backstop.
