@@ -3,7 +3,8 @@
 #
 # 1. Layout the design and AGENTS.md rely on; no CLAUDE.md; docs/ does not
 #    link into .agents/.
-# 2. Text hygiene (scripts/check-text.sh).
+# 2. Text hygiene (scripts/check-text.sh). Contract tests follow; the ignored extracted
+#    exports are removed first and recreated from the committed snapshots, as in CI.
 # 3. Module reachability from configured build roots, and one-way imports
 #    from consumers through generated models to the reusable core.
 # 4. Mirror checks: mirrored modules have upstream's constructors in
@@ -42,6 +43,12 @@ runStage() {
 
 # Lake and the replay runner resolve package-relative inputs from the repository root.
 inRoot() (cd "$root" && "$@")
+
+# CI starts without the ignored extracted exports; the snapshot stage below recreates them.
+# Remove local copies first so a stage that reads them too early fails here as it does in CI
+# (this hid a stage-order bug from local gates twice). Tools run in this checkout while a gate
+# is between here and the snapshot stage, or after an interrupted gate, find them absent.
+rm -f "$root/exports/nano-p4.al.json" "$root/exports/p4.al.json"
 
 layout_started=$SECONDS
 say "start: Repository layout"
