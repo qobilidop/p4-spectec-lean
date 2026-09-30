@@ -31,6 +31,7 @@ Documentation is split by purpose and audience:
 | `docs/related-work.md` | related work on generated semantics, certification and P4 verification |
 | `.agents/notes/compiler-certification.md` | retained certification rationale and advisory design questions |
 | `.agents/notes/nano-certification.md` | Nano-P4 completion plan, dependencies and implementation exit checks |
+| `.agents/notes/nano-release.json` | Nano-P4 milestone review and release record, bound to a tree digest the completion check verifies |
 | `.agents/status.md` | current state, last checked evidence, open threads, next step |
 | `.agents/decisions.md` | current cross-cutting choices, reasons and revisit points |
 | `.agents/roadmap.md` | implementation milestones, paused work and backlog |
@@ -98,6 +99,7 @@ lake exe check-target        # NanoP4Target claims: exact types, axioms, empty p
 lake exe check-consumer SESSIONS.json  # whole-program certificate: identity, upstream session, claims
 lake exe nano-program-quote <export> <namespace> <out.lean> (--update|--check)  # typed program quote
 P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py  # every STF session, both Lean paths vs upstream
+P4SpecTecTest/Oracle/Nano/Certification/mutations.py  # cross-layer mutations, each rejected by a named check
 lake exe check-print        # printer/builtin/interpreter vs pinned upstream observations
 lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json
 python3 scripts/spec-snapshot.py unpack exports/p4.al.json  # verified full-P4 extraction

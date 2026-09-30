@@ -19,11 +19,12 @@ contract, and a two-way theorem composing semantic initialization with packet
 processing. Both Lean paths match the pinned upstream verdicts, outputs and
 packet sessions on the entire corpus. A whole-program certificate proves the packet
 behavior of one exported program, `src-addr-filter.p4`, for a stated family of
-packets, on both Lean paths. The completion check verifies every core and target
-obligation of [Design, section 9](design.md#9-nano-p4-scope-and-acceptance) and the
-whole-program example; the remaining release evidence of that section (cross-layer
-distinguishing mutations, a final scope and contract review, and release CI) is
-open, so complete Nano-P4 certification is not yet claimed. Full-P4
+packets, on both Lean paths. The combined completion check verifies every obligation of
+[Design, section 9](design.md#9-nano-p4-scope-and-acceptance): the core and target
+proofs, both replays, the whole-program example and distinguishing mutations across
+layers, each rejected by a named check. The Nano-P4 milestone release additionally
+records an independent review and exact-revision CI for one source tree; see
+[Nano completion inventory](#nano-completion-inventory). Full-P4
 support is not yet a usable generated library.
 The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.
@@ -46,9 +47,9 @@ discharges for the concrete target; a theorem whose callable closure reaches
 `print_` also assumes `cfg.printHints = []`, the pinned hint table (the export
 declares no print hints). Both reports come from the same generation plan. Separate source-domain certificates now also cover `ite`,
 `repeat_`, `empty_set` and `empty_map`, under arbitrary legal parameter codecs
-and independent admission predicates. The gate requires every core and target
-obligation owned through N4. These counts are not a percentage of P4 language
-behavior certified, and release checks remain open.
+and independent admission predicates. The gate requires every core, target and
+sensitivity obligation. These counts are not a percentage of P4 language
+behavior certified.
 
 Full-P4 production generation remains incomplete. Bounded stateful emitter
 and proof fixtures do not constitute production full-P4 certification.
@@ -108,8 +109,9 @@ and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-a
 It references existing theorem claims rather than duplicating their statements.
 The current 888 obligations have 767 compiled claim bindings. Source identity and
 the 117 replay obligations are verified by the checker's own runs instead. The
-whole-program consumer obligation counts only after `check-consumer` succeeds; the
-three N6 release obligations (sensitivity, review, release) remain open. The bounded N2 check additionally requires the selected 30-definition
+whole-program consumer obligation counts only after `check-consumer` succeeds, and
+the sensitivity obligation only after every mutation suite passes (see
+[Distinguishing mutations](#distinguishing-mutations)). The bounded N2 check additionally requires the selected 30-definition
 closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
 primitive codecs and table initialization. It checks input coverage, output
 preservation and full intermediate call admission separately. These counts are neither behavioral
@@ -130,8 +132,17 @@ session replay and counts only the cases they verified. Target-stage obligations
 bind handwritten `NanoP4Target` theorems, which `check-target` elaborates against
 exact expected types and allowed axioms; the observations claim spells out its
 observation relation. Printing binds the `print_` dispatch contract together with
-the checked empty hint table of the pinned export. Review and release evidence are
-recorded obligations, not kernel theorems or metadata verdicts.
+the checked empty hint table of the pinned export.
+
+Review and release are publication records, not kernel theorems or metadata verdicts.
+The milestone's record, kept with the repository's working state as
+`.agents/notes/nano-release.json`, names a SHA-256 digest over every tracked file outside
+`.agents/` (working-tree bytes, link targets and submodule commits), the reviewed
+revision, the reviewer and review verdict, and the successful full gate and remote CI
+run for that revision. The checker counts the review and release obligations only
+when the digest equals the current tree's, so any later change to code, proofs,
+documentation or pins leaves them pending until a new review and release are recorded.
+The CI conclusion is a recorded observation; the checker does not query GitHub.
 
 The [corpus inventory](../P4SpecTecTest/Oracle/Nano/Certification/corpus.json) retains 78 programs
 and 39 STF sessions. Upstream observations exist for every typing case and every
@@ -143,15 +154,16 @@ Upstream reports session failures only as a class, and no corpus session fails,
 so failure kinds are compared between the Lean paths, not against upstream.
 
 Normal checking accepts an accurately reported incomplete inventory. The full
-gate additionally requires `--require-n2 --require-owned N4`: it retains the
-bounded N2 checks and rejects any missing core or target obligation owned by
-N0–N4. Strict full-stage checking returns a nonzero exit while that stage has
-unresolved obligations (`target` includes core prerequisites; `all` includes
-release evidence). The core and target stages pass; `all` fails on the four
-release obligations:
+gate requires `--require-n2 --require-complete all --allow-unpublished`: it retains
+the bounded N2 checks and rejects any missing obligation, except that review and
+release records may be absent or describe another tree, since they are written
+after a revision passes the gate and CI. Strict checking returns a nonzero exit
+while its stage has unresolved obligations (`target` includes core prerequisites;
+`all` includes the consumer, sensitivity, review and release). Without the
+allowance, `all` passes exactly on a tree whose release is recorded:
 
 ```sh
-nix develop --command python3 scripts/nano-certification.py --require-n2 --require-owned N4
+nix develop --command python3 scripts/nano-certification.py --require-n2 --require-complete all --allow-unpublished
 nix develop --command python3 scripts/nano-certification.py --require-complete target
 nix develop --command python3 scripts/nano-certification.py --require-complete all
 ```
@@ -312,9 +324,9 @@ The only assumption is `PacketStateText` (see [What remains trusted?](#what-rema
 `check-consumer` also checks that the proven trace of the program's STF session, the
 transmissions and the context after initialization and after every packet, equals the
 pinned upstream simulator's recording. Colocated mutation tests show that a changed table
-entry (the quotation freshness check and a copy of the identity comparison), a wrongly
-claimed branch, an extract writing reversed header bits, a wrong output port, and a
-changed recorded context are each rejected at their intended check.
+entry, a wrongly claimed branch, an extract writing reversed header bits, a wrong output
+port and a changed recorded context are each rejected at their intended check (see
+[Distinguishing mutations](#distinguishing-mutations)).
 
 The receiver that extract returns is discarded when the parser returns, because the
 parser only copies `packet_in` in; every corpus program extracts once, and a reused raw
@@ -326,6 +338,34 @@ and its trace, and is rejected by the extern contract.
 
 Packets longer than the header (a payload), STF commands other than packets, and
 other programs are outside this certificate.
+
+## Distinguishing mutations
+
+Mutation suites check that the certification rejects selected wrong artifacts at the
+intended check, and that each mutation is observable, so a rejection is not mere
+proof-script brittleness. Each suite first passes unmutated, requires the named
+diagnostic, and treats any other outcome, including a timeout, as a failure. The
+completion check runs all three.
+
+| Layer | Mutation | Rejected by |
+|---|---|---|
+| Generated code | The catch-all last alternative of `$expression_is_lvalue` tried first | Its generated forward refinement proof, replayed on the copy: the interpreter chooses an alternative the code does not |
+| Generated code | A failed guard of that function made an error instead of a mismatch | The same replayed proof: the interpreter's failure kind differs |
+| Generated code | `update_fieldValue` writes the old value | Its replayed refinement proof |
+| Generated quotation | `DROP` omitted from the quotation of `forwardingDecision` | Quotation comparison with the decoded export (`check-quotes`) |
+| Generated quotation | A premise of `$expression_is_lvalue`'s quotation changed, or `update_fieldValue`'s identifier | Quotation comparison; the refinement proofs, relative to the compiled quotation, cannot see it |
+| Export | A print hint added to a copy of the pinned export | `check-quotes`' empty print-hint check; quotation comparison erases hints by design and still passes |
+| Representation | A scalar encoded with the wrong tag | The field-update source-representation proof |
+| Program identity | A changed table entry in the source-address filter's quotation | `check-consumer`'s identity comparison and the quotation freshness check |
+| Target state | Extract writes the header bits reversed | The whole-program claim, by evaluation |
+| Target state | Extract returns the packet state with its cursor unadvanced | The extern contract; the parser discards the receiver, so the certificate's claims still hold |
+| Observation | A wrong branch or output port claimed; a recorded context replaced | Evaluation; `check-consumer`'s comparison with the upstream recording |
+
+The code mutations run copies of the generator's output text and of its generated
+proof in a scratch namespace, never hand-written variants. The suites live beside
+their subjects: [field update](../ExampleProofs/NanoP4FieldUpdate/test/run.py),
+[source-address filter](../ExampleProofs/NanoP4SrcAddrFilter/test/run.py) and
+[cross-layer](../P4SpecTecTest/Oracle/Nano/Certification/mutations.py).
 
 ## What remains trusted?
 
@@ -364,9 +404,9 @@ nix develop --command scripts/check.sh
 
 This is the same gate used by CI. It builds the Lean libraries and proofs,
 checks generated-source and coverage freshness, theorem types and axioms, compares quotations,
-runs differential tests, and replays the bounded example and its mutation
-checks. A passing gate means those recorded checks passed, not that every
-definition has an AL correspondence certificate.
+runs differential tests and every mutation suite, and requires combined completion. A
+passing gate means those recorded checks passed, not that every definition of full P4
+has an AL correspondence certificate.
 
 For a focused inspection, start at the generated refinement index or the
 field-update `Certificate` structure linked above. Follow the actual theorem

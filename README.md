@@ -12,13 +12,12 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
   processing, both Lean paths matching upstream on the whole corpus, a
   checked verification example, and a whole-program certificate proving an
   exported program's packet filtering on both Lean paths, under a named premise
-  about Lean's JSON text round trip. The remaining
-  release evidence is open; see [certification limits](docs/certification.md).
+  about Lean's JSON text round trip. Distinguishing mutations across layers are
+  each rejected by a named check, and the gate requires every obligation of
+  [complete Nano-P4 support and certification](docs/design.md#9-nano-p4-scope-and-acceptance);
+  the milestone release records its review and CI. See
+  [what is certified and its limits](docs/certification.md).
 - Full P4 production generation remains incomplete.
-
-The next major milestone is [complete Nano-P4 support and certification](docs/design.md#9-nano-p4-scope-and-acceptance):
-two-way correspondence for the full exported semantics, composed with a usable
-Nano packet-processing target and demonstrated by a whole-program proof.
 
 ## Rationale
 
