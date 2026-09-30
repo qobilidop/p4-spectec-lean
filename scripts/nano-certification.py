@@ -627,7 +627,10 @@ def main(argv=None):
                     if o.get("checkedBy") == IDENTITY_CHECKS}
         verified |= target_verified(manifest)
         verified |= replay_verified(manifest, corpus)
-        verified |= consumer_verified(manifest)
+        # The consumer is release-stage evidence; narrower scopes need not build the example.
+        if (MILESTONES.index(args.require_owned) >= MILESTONES.index("N5") if args.require_owned
+                else args.require_complete in (None, "all")):
+            verified |= consumer_verified(manifest)
         # Owned scope spans every stage; the owner filter excludes later milestones' work.
         stage = "all" if args.require_owned else args.require_complete or "all"
         missing = outstanding(manifest, stage, verified=verified, owned=args.require_owned)

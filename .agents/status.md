@@ -1,48 +1,42 @@
 # Status
 
-N5 (whole-program theorem) in progress on local branch `n5-consumer`, 2026-09-30; the user
-authorized completing the Nano-P4 milestone (N5 and N6) fully autonomously the same day. N4 is
-complete on `main` (`4535868`, [CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255)).
+N5 (whole-program theorem) implemented on local branch `n5-consumer`, 2026-09-30, and under
+review-fix validation; the user authorized completing the Nano-P4 milestone (N5 and N6) fully
+autonomously the same day. N4 is complete on `main` (`4535868`,
+[CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255)).
 Full-P4 M3 remains paused.
 
 ## Verified state (branch)
 
-- `lazy_eval` evaluates generated code with kernel-checked proofs: `partial_fixpoint` and
-  well-founded definitions are rewritten by their equations, definitional gaps abstract shared
-  fixpoints, free variables become temporary axioms, and `omega` decides stuck tests from facts
-  (decisions, "N5 whole-program evidence").
-- `ExampleProofs/NanoP4SrcAddrFilter/` proves, from the quoted export, that every three-byte
-  packet on every host-range port is forwarded unchanged exactly when its source address is 1
-  or 2 (other header fields symbolic), shorter packets are dropped, and the STF session's
-  outcome; `referenceFilter` transfers the property to the reference interpreter. The only
-  premise is `NanoP4Target.PacketStateText`. Certificate axioms: `propext`, `Classical.choice`,
-  `Quot.sound`.
-- `check-consumer` passes: the quotation is the decoded export, the proven initialization and
-  final STF contexts and transmissions equal the upstream recording, and 7 claims have their
-  exact types.
+- `lazy_eval` evaluates generated code with kernel-checked proofs (decisions, "N5 whole-program
+  evidence"); `ExampleProofs/NanoP4SrcAddrFilter/` proves that every three-byte packet on every
+  host-range port is forwarded unchanged exactly when its source address is 1 or 2, shorter
+  packets are dropped, and pins the STF session's trace; `referenceFilter` transfers the property
+  to the reference interpreter. The only premise is `NanoP4Target.PacketStateText`.
+- `check-consumer`: identity, the whole STF trace against upstream, literal values, 7 claims.
+- `--require-owned N5` completion: 888 obligations, 767 compiled claim bindings, 0 unresolved.
+- The mutation suite rejects six mutations; the receiver mutation is rejected by the extern
+  contract, since extract's receiver is discarded by the parser ([note](notes/nano-consumer.md)).
 
 ## Commits on `n5-consumer`
 
 `24d36aa` evaluator; `4c9dcb8` packet families and transmissions; `a8136b1` program quotation;
-`62f41b7` whole-program example and checker.
+`62f41b7` whole-program example and checker; `994659b` gate and completion binding; `d7fac98`
+documentation; the review-resolution commit follows.
 
 ## Validation
 
-At `62f41b7`'s tree: `lake build --wfail` (default targets), `lake test`,
-`lake build --wfail ExampleProofs check-consumer nano-program-quote`, `check-consumer` on the
-decompressed session bundle, the library boundary check and the text check all exit 0. The full
-gate has not run; the gate does not yet run the new checks.
+- `d7fac98`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in
+  189.86s, all 50 stages (`.artifacts/n5-gate-1.log`).
+- Review fixes (uncommitted at this writing): example, tool and test builds, `lake test`,
+  `check-consumer`, the runner (six rejections) and its contract tests, and the completion CLI
+  tests exit 0. The full gate must rerun on the resolution commit.
 
-## Remaining N5 obligations
+## Next steps
 
-1. Mutation tests at the intended boundaries: source identity, packet branch, extern result,
-   output and state (`ExampleProofs/NanoP4SrcAddrFilter/test/`).
-2. Gate integration: quotation freshness, `check-consumer`, the mutation runner.
-3. Completion binding of `profile:consumer` to `check-consumer`, with CLI tests.
-4. Documentation: certification guide, design section 9 status, example note, pitfalls.
-5. Independent review, full gate, merge, push and CI.
-
-Then N6 (plan, `notes/nano-certification.md#n6-close-release-evidence`).
+1. Commit the review resolutions, rerun the full gate, and have the reviewer confirm the fixes.
+2. Merge `n5-consumer` into `main`, push, record CI.
+3. N6 (plan, `notes/nano-certification.md#n6-close-release-evidence`).
 
 ## Repository state
 

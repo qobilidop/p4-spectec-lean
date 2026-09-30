@@ -69,6 +69,8 @@ structure Context where
   facts : Array Expr := #[]
   /-- The temporary axioms standing for free variables: symbolic atoms, never folded. -/
   atoms : Array Name := #[]
+  /-- The environment outside the evaluation, whose own environment is discarded. -/
+  outer : Option Environment := none
 
 /-- Evaluation state: caches and a step budget. -/
 structure State where
@@ -344,7 +346,11 @@ def closeByFacts (target : Expr) : EvalM (Option Expr) := do
          omega)
       | omega))
   let saved ← (saveState : Term.TermElabM Term.SavedState)
-  let before ← getEnv
+  let context ← read
+  -- kept after the evaluation: outer constants, symbolic atoms (mapped back to locals) and
+  -- unfolding equations (realized again); everything else the tactics added is inlined
+  let kept (c : Name) : Bool := (context.outer.any (·.contains c)) || context.atoms.contains c ||
+    (c.isStr && c.getString! == "eq_def")
   try
     let remaining ← Tactic.run goal.mvarId! (Tactic.evalTactic tac)
     unless remaining.isEmpty do
@@ -356,7 +362,7 @@ def closeByFacts (target : Expr) : EvalM (Option Expr) := do
     while changed do
       changed := false
       for c in proof.getUsedConstants do
-        if before.contains c then continue
+        if kept c then continue
         let info ← getConstInfo c
         let some v := info.value? (allowOpaque := true)
           | throwError "lazy_eval: no value for {c}"
@@ -584,6 +590,7 @@ def withEvaluation {α : Type} (e : Expr) (rules : Array Expr)
   let e ← instantiateMVars e
   let rules ← rules.mapM instantiateMVars
   let xs ← usedLocals (rules.push e)
+  let outer ← getEnv
   let result ← withoutModifyingEnv do
     let consts ← axiomatize xs
     let toConst (e : Expr) := e.replaceFVars xs consts
@@ -596,7 +603,7 @@ def withEvaluation {α : Type} (e : Expr) (rules : Array Expr)
       if ← isEquation r then rules' := rules'.push r else facts := facts.push r
     let heads ← rules'.mapM fun r => ruleHead r
     let atoms := consts.filterMap (·.constName?)
-    let ctx : Context := { rules := rules', ruleHeads := heads, facts, atoms }
+    let ctx : Context := { rules := rules', ruleHeads := heads, facts, atoms, outer := outer }
     let run : EvalM α := do
       -- symbolic arithmetic stays folded; Meta still evaluates these on literals
       for c in kernelNatOps do setReducibilityStatus c .irreducible

@@ -8,11 +8,13 @@ import ExampleProofs.NanoP4SrcAddrFilter.Evaluation
 Validation of the whole-program consumer certificate (`ExampleProofs.NanoP4SrcAddrFilter`):
 
 * source identity: the quoted typed program's encoding is canonically the decoded export;
-* observation: the proven initialization context and the proven STF session outcome (its
-  transmissions and final context, which holds the raw extern receiver of the last extract)
-  equal the pinned upstream simulator's recorded session;
+* observation: the proven initialization context and the proven STF trace (the transmissions
+  and the context after initialization and after every packet) equal the pinned upstream
+  simulator's recorded session;
+* values: the evaluated values compared are literals, mentioning no function of the model or
+  target that the compiled check could recompute;
 * claims: each named theorem exists with exactly the expected closed type and only the allowed
-  axioms, checked through Lean's ordinary frontend.
+  axioms, elaborated in the root namespace without opens, through Lean's ordinary frontend.
 
 The completion checker binds the consumer obligation to these claims only after all succeed.
 -/
@@ -46,15 +48,14 @@ def consumerClaims : List Claim :=
        "bs.length < 3 → NanoP4Target.Transmits " ++ program ++
        " [(port, NanoP4Target.hexText bs)] [[]]" },
    { name := "ExampleProofs.NanoP4SrcAddrFilter.stfSession", kind := "consumer"
-     direction := "stfOutcome"
-     expectedType := "NanoP4Target.PacketStateText → (NanoP4Target.session " ++ program ++
-       " ExampleProofs.NanoP4SrcAddrFilter.stfPackets).run = " ++
-       "ExampleProofs.NanoP4SrcAddrFilter.stfOutcome" },
+     direction := "stfTrace"
+     expectedType := "NanoP4Target.PacketStateText → (List.range 4).map (fun n => " ++
+       "(NanoP4Target.session " ++ program ++ " (List.take n " ++ stf ++ ")).run) = " ++
+       "ExampleProofs.NanoP4SrcAddrFilter.stfTrace" },
    { name := "ExampleProofs.NanoP4SrcAddrFilter.stfTransmits", kind := "consumer"
      direction := "stfTransmissions"
      expectedType := "NanoP4Target.PacketStateText → NanoP4Target.Transmits " ++ program ++
-       " [(0, NanoP4Target.hexText [0, 1, 0]), (0, NanoP4Target.hexText [0, 3, 0]), " ++
-       "(0, NanoP4Target.hexText [0, 10, 0])] [[(0, NanoP4Target.hexText [0, 1, 0])], [], []]" },
+       " " ++ stf ++ " [[(0, NanoP4Target.hexText [0, 1, 0])], [], []]" },
    { name := "ExampleProofs.NanoP4SrcAddrFilter.referenceFilter", kind := "consumer"
      direction := "referenceFilter"
      expectedType := "NanoP4Target.PacketStateText → " ++
@@ -70,6 +71,9 @@ def consumerClaims : List Claim :=
 where
   /-- The quoted program. -/
   program : String := "ExampleProofs.NanoP4SrcAddrFilter.program"
+  /-- The pinned STF file's packets. -/
+  stf : String := "[((0 : Int), NanoP4Target.hexText [0, 1, 0]), " ++
+    "((0 : Int), NanoP4Target.hexText [0, 3, 0]), ((0 : Int), NanoP4Target.hexText [0, 10, 0])]"
   /-- A host-range port and three header bytes. -/
   packet : String := "∀ (port : Int), P4SpecTec.BackendSim.Core.Object.hostInt port = true → " ++
     "∀ (b0 s d : UInt8), "
@@ -77,12 +81,44 @@ where
   filtered : String := "(if s.toNat = 1 ∨ s.toNat = 2 then " ++
     "[[(port, NanoP4Target.hexText [b0, s, d])]] else [[]])"
 
-/-- Check every consumer claim in the elaborated environment. -/
+/-- The evaluated values that the observation compares. -/
+def literalValues : List Name :=
+  [`ExampleProofs.NanoP4SrcAddrFilter.initialOutcome, `ExampleProofs.NanoP4SrcAddrFilter.stfTrace]
+
+/-- Numeral and ordering operations that literal values may mention. -/
+def literalOperations : List Name :=
+  [``OfNat.ofNat, ``instOfNatNat, ``HPow.hPow, ``instHPow, ``instPowNat, ``instNatPowNat,
+   ``Ord.compare, ``String.instOrd]
+
+/-- An evaluated value mentions only constructors, types, proofs, numerals and orderings: no
+function the compiled check could recompute instead of comparing the proven value. -/
+def checkLiteral (name : Name) : MetaM Unit := do
+  let some (.defnInfo d) := (← getEnv).find? name | throwError "{name} is not a definition"
+  for c in d.value.getUsedConstants do
+    match (← getEnv).find? c with
+    | some (.ctorInfo _) | some (.thmInfo _) | some (.inductInfo _) => pure ()
+    | some (.defnInfo cd) =>
+      unless literalOperations.contains c || (← Meta.isTypeFormerType cd.type) do
+        throwError "{name} is not an evaluated literal: it mentions {c}"
+    | _ => throwError "{name} is not an evaluated literal: it mentions {c}"
+
+/-- Check every consumer claim, in the root namespace without opens so that no declaration of
+the example's namespace can capture a name, and that the compared values are literals. -/
 def runClaimChecks (env : Environment) : IO Unit := do
-  Check.inEnvironment env "ExampleProofs.NanoP4SrcAddrFilter"
-    (consumerClaims.forM Check.checkClaim)
+  let context : Core.Context := {
+    fileName := "<consumer>"
+    fileMap := FileMap.ofString ""
+    options := ({} : Options).set `maxRecDepth (10000 : Nat) |>.set `maxHeartbeats (4000000 : Nat)
+  }
+  let action : TermElabM Unit := do
+    consumerClaims.forM Check.checkClaim
+    literalValues.forM fun n => liftM (checkLiteral n)
+  let (_, state) ← ((action.run').run').toIO context { env }
+  if state.messages.hasErrors then
+    throw <| IO.userError "consumer claim elaboration produced errors"
   for claim in consumerClaims do
     IO.println s!"[consumer] claim {claim.name}"
+  IO.println s!"[consumer] literal values: {literalValues}"
   IO.println s!"[consumer] {consumerClaims.length} claims checked"
 
 private def field (j : Json) (key : String) : Except String Json := j.getObjVal? key
@@ -117,18 +153,22 @@ def runRuntimeChecks (bundlePath : String) : ExceptT String IO Unit := do
     | throw "the proven initialization outcome is not a context"
   unless Runtime.Value.eq (Prelude.toValue ctx) initCtx do
     throw "the proven initialization context differs from upstream's"
-  -- the session's transmissions and final context
+  -- the trace: after initialization, then after each packet
   let drives ← ExceptT.mk (pure do (← field session "drives").getArr?)
   let recorded ← ExceptT.mk (pure (drives.toList.mapM fun d => field d "txs" >>= txs))
-  let some last := drives.back? | throw "the recorded session has no packets"
-  let finalCtx ← ExceptT.mk (pure (value last))
-  let .some (.ok (ctx, transmitted)) := ExampleProofs.NanoP4SrcAddrFilter.stfOutcome
-    | throw "the proven STF outcome is not a success"
-  unless transmitted == recorded do
-    throw "the proven STF transmissions differ from upstream's"
-  unless Runtime.Value.eq (Prelude.toValue ctx) finalCtx do
-    throw "the proven final STF context differs from upstream's"
-  IO.println s!"[consumer] observation: proven initialization and STF outcome equal {sessionId}"
+  let contexts ← ExceptT.mk (pure ((initCtx :: ·) <$> drives.toList.mapM value))
+  let trace := ExampleProofs.NanoP4SrcAddrFilter.stfTrace
+  unless trace.length == contexts.length do
+    throw s!"the proven STF trace has {trace.length} entries for {contexts.length} recorded"
+  for (entry, n) in trace.zipIdx do
+    let .some (.ok (ctx, transmitted)) := entry
+      | throw s!"the proven STF trace entry {n} is not a success"
+    unless transmitted == recorded.take n do
+      throw s!"the proven STF transmissions after {n} packets differ from upstream's"
+    let some expected := contexts[n]? | throw s!"no recorded context after {n} packets"
+    unless Runtime.Value.eq (Prelude.toValue ctx) expected do
+      throw s!"the proven STF context after {n} packets differs from upstream's"
+  IO.println s!"[consumer] observation: proven initialization and STF trace equal {sessionId}"
 
 end P4SpecTec.Tools.CheckConsumer
 

@@ -24,13 +24,13 @@ class RunnerTests(unittest.TestCase):
 
     def test_each_mutation_changes_its_probe(self):
         baseline = run.lean_probe("baseline", "nonce")
-        for case in ("branch", "extern", "output"):
+        for case in ("branch", "extern", "receiver", "output"):
             probe = run.lean_probe(case, "nonce")
             self.assertNotEqual(probe, baseline)
-            self.assertEqual(probe.count("theorem Probe."), 1)
+            self.assertEqual(probe.count("theorem Probe."), 2 if case == "receiver" else 1)
         self.assertIn("bits.toList.reverse", run.lean_probe("extern", "nonce"))
         self.assertNotIn("bits.toList.reverse", baseline)
-        self.assertEqual(baseline.count("theorem Probe."), 3)
+        self.assertEqual(baseline.count("theorem Probe."), 4)
         # the copied target drives the copied extern, never the library instance
         self.assertIn("@NanoP4Spec.NanoSwitch_drive.run Probe.externs", baseline)
 
@@ -49,6 +49,27 @@ class RunnerTests(unittest.TestCase):
                        completed(0, "PROBE_DONE:m"), completed(0, "warning: x\nPROBE_DONE:n")):
             with self.assertRaises(run.HarnessError):
                 run.validate_lean("baseline", "n", result, path)
+
+    def test_receiver_mutation_keeps_decisions_but_not_the_trace(self):
+        probe = run.lean_probe("receiver", "nonce")
+        self.assertIn("let (_, ctx) ← extract ctx pkt", probe)
+        self.assertIn("theorem Probe.receiverForward", probe)
+        self.assertIn("theorem Probe.trace", probe)
+        self.assertIn("theorem Probe.trace", run.lean_probe("baseline", "nonce"))
+
+    def test_rejection_must_come_from_the_named_theorem(self):
+        path = Path("/tmp/Probe.lean")
+        source = run.lean_probe("receiver", "n")
+        start, end = run.theorem_lines(source, "externsContractHolds")
+        inside = f"{path}:{start + 3}:2: error: Type mismatch\nPROBE_DONE:n\n"
+        run.validate_lean("receiver", "n", completed(1, inside), path, source)
+        for name in ("receiverForward", "trace"):
+            line, _ = run.theorem_lines(source, name)
+            outside = f"{path}:{line + 3}:2: error: lazy_eval: evaluated to\nPROBE_DONE:n\n"
+            with self.assertRaises(run.HarnessError):
+                run.validate_lean("receiver", "n", completed(1, outside), path, source)
+        # the contract copy drops only the library's axiom audits
+        self.assertNotIn("#guard_msgs", run.contract_copy())
 
     def test_rejection_requires_exactly_the_evaluation_failure(self):
         path = Path("/tmp/Probe.lean")

@@ -298,7 +298,11 @@ every three-byte packet (all header fields symbolic) and every shorter packet. P
 payload are excluded: their bit arrays have symbolic size, needing further rules for array
 extraction and the tree decoder. Recorded as the example's scope, not a claim; revisit when
 another consumer needs payloads. `check-consumer` binds the example to the export (identity) and
-to the pinned upstream session (the proven STF context and transmissions equal the recording).
+to the pinned upstream session (the proven STF trace, every context and the transmissions,
+equals the recording). Its generated `Program.lean` stays inside the example rather than in a
+library of its own: it is one example-local quotation whose freshness the gate checks, and a
+library for it would be a placeholder for programs no consumer uses yet. Revisit when a second
+program is quoted.
 
 ## Knowledge ownership (2026-09-26)
 

@@ -294,7 +294,7 @@ and otherwise runs no action. The program is not restated by hand. A generated
 is the input, and `check-consumer` checks it against the decoded export.
 
 For every host-range port and every three-byte packet as the STF driver receives it
-(hexadecimal text), the generated model with the concrete NanoSwitch target forwards
+(uppercase hexadecimal text), the generated model with the concrete NanoSwitch target forwards
 the packet unchanged on its port exactly when the source address is 1 or 2, and drops
 it otherwise; every shorter packet is dropped. The other header fields are arbitrary.
 `referenceFilter` carries the property to the reference AL interpreter with the
@@ -309,12 +309,20 @@ definitions by their equations, keeps the other header fields symbolic, and deci
 the unlisted source addresses with `omega` from facts about the byte's value.
 
 The only assumption is `PacketStateText` (see [What remains trusted?](#what-remains-trusted)).
-`check-consumer` also checks that the proven outcome of the program's STF session,
-including the final context that holds the raw extern receiver of the last extract,
-equals the pinned upstream simulator's recording. Colocated mutation tests show that a
-changed table entry, a wrongly claimed branch, an extract writing reversed header bits,
-a wrong output port, and a changed recorded context are each rejected at their
-intended check.
+`check-consumer` also checks that the proven trace of the program's STF session, the
+transmissions and the context after initialization and after every packet, equals the
+pinned upstream simulator's recording. Colocated mutation tests show that a changed table
+entry (the quotation freshness check and a copy of the identity comparison), a wrongly
+claimed branch, an extract writing reversed header bits, a wrong output port, and a
+changed recorded context are each rejected at their intended check.
+
+The receiver that extract returns is discarded when the parser returns, because the
+parser only copies `packet_in` in; every corpus program extracts once, and a reused raw
+receiver fails as a mismatch. No output or state of this program observes the receiver,
+so its correctness rests on the extern contract, which relates the returned receiver at
+every call, and on the target oracle's direct extract observations. A mutation whose
+extract returns the packet state unadvanced still passes every claim of this certificate
+and its trace, and is rejected by the extern contract.
 
 Packets longer than the header (a payload), STF commands other than packets, and
 other programs are outside this certificate.

@@ -97,4 +97,15 @@ theorem packetStateText (h : PacketStateText) (json : Lean.Json) (pkt : Core.Obj
     Pipe.extern_of_payload json = .ok (.PacketIn pkt) :=
   henc ▸ h pkt hidx hlen hsize
 
+/-- info: 'NanoP4Target.string_to_bits_hexText' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms string_to_bits_hexText
+
+/-- info: 'NanoP4Target.bits_to_int_unsigned_bytesBits' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in #print axioms bits_to_int_unsigned_bytesBits
+
+/-- info: 'NanoP4Target.packetStateText' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms packetStateText
+
 end NanoP4Target

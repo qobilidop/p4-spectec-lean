@@ -11,7 +11,8 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
   extern contract, two-way composition from initialization through packet
   processing, both Lean paths matching upstream on the whole corpus, a
   checked verification example, and a whole-program certificate proving an
-  exported program's packet filtering on both Lean paths. The remaining
+  exported program's packet filtering on both Lean paths, under a named premise
+  about Lean's JSON text round trip. The remaining
   release evidence is open; see [certification limits](docs/certification.md).
 - Full P4 production generation remains incomplete.
 

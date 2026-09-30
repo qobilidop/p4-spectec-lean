@@ -4,7 +4,8 @@ import ExampleProofs.NanoP4SrcAddrFilter.Certificate
 # A whole Nano-P4 program, proved from its export
 
 This checked walkthrough concerns the pinned upstream test program
-`nano-p4/testdata/positive/src-addr-filter.p4`:
+`nano-p4/testdata/positive/src-addr-filter.p4`, excerpted here (the `allow` and `deny` action
+declarations and the model include are omitted):
 
 ```p4
 parser Parser(packet_in pkt, out Header hdr) {
@@ -34,7 +35,8 @@ drives packets through `NanoSwitch_drive`, whose parser calls the concrete targe
 and whose control applies the table. The evaluation unfolds the generated `partial_fixpoint`
 definitions one equation at a time and every step is checked by the kernel.
 
-Packets are STF-style hexadecimal texts of bytes. Evaluation treats every byte as a symbolic
+Packets are uppercase hexadecimal texts of bytes, as the pinned STF files write them.
+Evaluation treats every byte as a symbolic
 value: the `drop`, `packetType` and `dst` header fields stay unevaluated terms throughout, so
 one theorem covers all of them. The source address is decided either by a concrete value
 (`forwardOne`, `forwardTwo`, `denyThree`) or, for the other 253 values, by `omega` from the
@@ -80,11 +82,12 @@ example (h : PacketStateText) {cfg : Interp_al.Interp.Config} (hcfg : Reference 
 ## Repeating the checks
 
 From the repository root, `nix develop --command scripts/check.sh` builds the certificate,
-runs `check-consumer` and the colocated mutation tests. For focused work:
+runs `check-consumer` and the colocated mutation tests. For focused work, after the gate or the
+mutation runner has decompressed the pinned session recording:
 
 ```sh
 nix develop --command lake build --wfail ExampleProofs.NanoP4SrcAddrFilter.Example
-nix develop --command lake exe check-consumer
+nix develop --command lake exe check-consumer .artifacts/nano-sessions/sessions-observed.json
 nix develop --command python3 ExampleProofs/NanoP4SrcAddrFilter/test/run.py
 ```
 -/

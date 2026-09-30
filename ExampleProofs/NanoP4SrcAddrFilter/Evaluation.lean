@@ -90,23 +90,69 @@ theorem dropEmpty (h : PacketStateText) (port : Int) (hport : Core.Object.hostIn
 def stfPackets : List Runtime.Sim.Io.rx :=
   [(0, hexText [0, 1, 0]), (0, hexText [0, 3, 0]), (0, hexText [0, 10, 0])]
 
-set_option maxHeartbeats 4000000 in
-/-- The outcome of the STF session, as evaluated. `check-consumer` compares its transmissions
-and final context, which holds the raw extern receiver of the last extract, with the pinned
-upstream simulator's recorded session. -/
-def stfOutcome :
-    Option (Except Prelude.Fail (NanoP4Spec.evalContext × List (List Runtime.Sim.Io.tx))) :=
-  lazy_eval% assuming (h : PacketStateText), (session program stfPackets).run
+/-- The outcomes of the STF session's prefixes: before any packet (initialization alone), then
+after each of the three packets. -/
+def stfPrefixes (program : NanoP4Spec.program) :
+    List (Option (Except Prelude.Fail (NanoP4Spec.evalContext × List (List Runtime.Sim.Io.tx)))) :=
+  (List.range 4).map fun n => (session program (stfPackets.take n)).run
+
+set_option maxHeartbeats 8000000 in
+/-- The STF session's trace, as evaluated. `check-consumer` compares every context in it (after
+initialization and after each packet) and the transmissions with the pinned upstream
+simulator's recorded session. -/
+def stfTrace :
+    List (Option (Except Prelude.Fail (NanoP4Spec.evalContext × List (List Runtime.Sim.Io.tx)))) :=
+  lazy_eval% assuming (h : PacketStateText), stfPrefixes program
     using [initialized, packetStateText h, string_to_bits_hexText]
 
-set_option maxHeartbeats 4000000 in
-/-- The STF session's outcome is `stfOutcome`, context threaded through all three packets. -/
-theorem stfSession (h : PacketStateText) : (session program stfPackets).run = stfOutcome := by
+set_option maxHeartbeats 8000000 in
+/-- The STF session's trace is `stfTrace`: the context is threaded through all three packets. -/
+theorem stfSession (h : PacketStateText) : stfPrefixes program = stfTrace := by
   lazy_eval [initialized, packetStateText h, string_to_bits_hexText]
 
 /-- The STF session forwards `000100` unchanged on port 0 and drops `000300` and `000A00`. -/
 theorem stfTransmits (h : PacketStateText) :
     Transmits program stfPackets [[(0, hexText [0, 1, 0])], [], []] :=
-  ⟨_, (stfSession h).trans rfl⟩
+  ⟨_, (congrArg (fun l => l.getLastD none) (stfSession h)).trans rfl⟩
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.initialized' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms initialized
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.forwardOne' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms forwardOne
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.forwardTwo' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms forwardTwo
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.denyThree' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms denyThree
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.dropUnlisted' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms dropUnlisted
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.dropTwoBytes' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms dropTwoBytes
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.dropOneByte' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms dropOneByte
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.dropEmpty' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms dropEmpty
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.stfSession' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms stfSession
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.stfTransmits' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms stfTransmits
 
 end ExampleProofs.NanoP4SrcAddrFilter

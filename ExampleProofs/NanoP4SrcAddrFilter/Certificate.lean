@@ -9,21 +9,27 @@ extracts the Nanonet header (`drop`, `packetType`, `src`, `dst`); its table admi
 addresses 1 and 2, denies 3 and otherwise runs no action; the switch forwards the received
 packet unchanged exactly when the table admitted it.
 
-The stated input domain is every host-range port with every three-byte packet (the whole
-header, each field arbitrary) and every packet shorter than the header, as the STF driver
-receives it in hexadecimal. The certificate proves the exact transmissions of the generated
-model with the concrete NanoSwitch target, from the quoted export through initialization,
-extract and the table, and transfers them to the reference AL interpreter with the registered
-NanoSwitch externs for every related program value (`referenceFilter`). Packets are
-unmodified upstream, so forwarding transmits the received bytes on the received port.
+The stated input domain is every host-range port with every three-byte packet (the whole header,
+each field arbitrary) and every packet shorter than the header, as the STF driver receives it in
+uppercase hexadecimal. The certificate proves the exact transmissions of the generated model
+with the concrete NanoSwitch target, from the quoted export through initialization, extract and
+the table, and transfers them to the reference AL interpreter with the registered NanoSwitch
+externs for every related program value (`referenceFilter`). Packets are unmodified upstream, so
+forwarding transmits the received bytes on the received port.
 
 The sole assumption is `PacketStateText`: Lean's `partial` JSON printer and parser round-trip
 the driver's packet state. `check-consumer` separately checks that the quoted program is the
-decoded export and that the STF session's proven outcome, including the final context with
-the raw extern receiver, equals the pinned upstream simulator's recording.
+decoded export and that the STF session's proven trace (the context after initialization and
+after every packet, and the transmissions) equals the pinned upstream simulator's recording.
+The receiver that extract returns is discarded when the parser returns, since `packet_in` is
+only copied in, so no output or state here observes it; the extern contract
+(`NanoP4Target.externsContractHolds`) relates it at every call, and a colocated mutation shows a
+corrupted receiver is rejected there while this certificate's claims still prove.
 
-Not certified: packets longer than the header (a payload), STF commands other than packets,
-and the upstream P4 frontend that produced the export.
+Packets are uppercase hexadecimal texts (`hexText`), as the pinned STF files write them; other
+spellings of the same bytes are outside the family. Not certified: packets longer than the
+header (a payload), STF commands other than packets, and the upstream P4 frontend that
+produced the export.
 -/
 
 namespace ExampleProofs.NanoP4SrcAddrFilter
@@ -73,9 +79,10 @@ structure Certificate : Prop where
   /-- Every packet shorter than the Nanonet header is dropped. -/
   short : ∀ port, Core.Object.hostInt port = true → ∀ bs : List UInt8, bs.length < 3 →
     Transmits program [(port, hexText bs)] [[]]
-  /-- The pinned STF session's outcome is the recorded `stfOutcome`, which forwards `000100`
-  and drops `000300` and `000A00`, threading the context through the three packets. -/
-  stf : (session program stfPackets).run = stfOutcome ∧
+  /-- The pinned STF session's trace (the outcome after initialization and after each packet)
+  is `stfTrace`; the session forwards `000100` and drops `000300` and `000A00`, threading the
+  context through the three packets. -/
+  stf : stfPrefixes program = stfTrace ∧
     Transmits program stfPackets [[(0, hexText [0, 1, 0])], [], []]
   /-- Every generated transmission is the reference interpreter's, at every sufficiently large
   fuel and at every terminating fuel, for every reference target configuration with the
@@ -105,6 +112,18 @@ theorem referenceFilter (h : PacketStateText) {cfg : Interp_al.Interp.Config} (h
 /-- The quoted program is related to its own encoding, the value the reference receives when
 `check-consumer` confirms that encoding is the decoded export. -/
 theorem programRel : Rel (toValue program) program := rfl
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.filterGenerated' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms filterGenerated
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.shortGenerated' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms shortGenerated
+
+/-- info: 'ExampleProofs.NanoP4SrcAddrFilter.programRel' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms programRel
 
 /-- info: 'ExampleProofs.NanoP4SrcAddrFilter.certificate' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/

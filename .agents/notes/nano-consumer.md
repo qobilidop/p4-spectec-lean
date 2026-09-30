@@ -16,10 +16,11 @@ evidence").
   `Transmits`, `ReferenceTransmits` and `referenceTransmits`.
 - `ExampleProofs/NanoP4SrcAddrFilter/`: the generated quotation, evaluation theorems
   (`forwardOne`, `forwardTwo`, `denyThree`, `dropUnlisted`, three short-packet drops, the STF
-  session with its outcome pinned as `stfOutcome`), the `Certificate` and `referenceFilter`.
-- `check-consumer` (identity, upstream observation, 7 exact claims) binds `profile:consumer`;
-  the gate requires `--require-owned N5` and runs the mutation suite (baseline plus five
-  rejections).
+  session with its trace pinned as `stfTrace`: the outcome after initialization and after each
+  packet), the `Certificate` and `referenceFilter`.
+- `check-consumer` (identity, upstream observation of the whole trace, literal values, 7 exact
+  claims elaborated in the root namespace) binds `profile:consumer`; the gate requires
+  `--require-owned N5` and runs the mutation suite (baseline plus six rejections).
 
 ## Constraints that bind later work
 
@@ -30,10 +31,15 @@ evidence").
   JSON round trip. Rules must be proved lemmas or this premise, never axioms.
 - The oracle decides only tests whose symbolic atoms all occur in the supplied facts; stuck
   bits of unconstrained header fields are left symbolic by design.
-- `lazy_eval` counts its work against `maxHeartbeats`; the multi-packet STF session needs a
-  4M budget. The budget is a resource limit, not a weakened statement.
+- `lazy_eval` counts its work against `maxHeartbeats`; the four-prefix STF trace needs an 8M
+  budget. The budget is a resource limit, not a weakened statement.
 - A mutation of the target is exercised on a copy in the probe namespace; the library
   instance is never edited by the runner.
+- Extract's returned receiver is discarded when the parser returns (`packet_in` is only copied
+  in), and every corpus program extracts once; no whole-program output or state observes it.
+  Receiver evidence is the extern contract (every call) and the target oracle's direct extract
+  observations; the `receiver` mutation shows the contract rejecting a corruption that every
+  claim of the certificate, including its trace, accepts. Do not claim contexts hold receivers.
 
 ## Costs (2026-09-30, local)
 
@@ -43,4 +49,19 @@ about 90 s; `--require-owned N5` completion took 70 s.
 
 ## Review record
 
-Pending: independent read-only review of `24d36aa`..HEAD.
+- `24d36aa`..`d7fac98`: independent read-only review (Claude Opus 5.5 subagent, no builds), no
+  blockers. Findings and resolutions:
+  - Receiver corruption untested and only the final STF context compared: the whole trace is now
+    pinned and compared, and a receiver mutation added. It showed the documentation's claim that
+    contexts hold extract's receiver was false (the parser discards it); the docs now say so and
+    the mutation is rejected by the extern contract instead.
+  - Claim names capturable in the example namespace: claims are elaborated in the root namespace
+    without opens.
+  - Compared values could be recomputations: `check-consumer` requires them to be literals.
+  - Walkthrough command lacked its argument; status stale; uppercase hexadecimal unstated;
+    library theorems lacked axiom audits; the completion checker always built the example;
+    aux-lemma inlining compared with the wrong environment; runner used `lake exe` in parallel
+    and a non-atomic write: all fixed.
+  - Identity mutation runs a copy of the identity comparison (plus the real freshness check):
+    documented. Generated `Program.lean` inside the example: recorded as an exception in
+    decisions.

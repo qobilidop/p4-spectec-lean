@@ -12,8 +12,15 @@ failure. These observations exercise checking boundaries; they are not additiona
 * branch: a deny-entry packet claimed forwarded is rejected by evaluation;
 * extern: an extract that writes the header bits reversed, in an otherwise identical copy of
   the target, makes the source-1 forward claim fail;
+* receiver: an extract that returns the packet state with its cursor unadvanced. The parser
+  discards the receiver (`packet_in` is copied in, never out), so the forward claim and the STF
+  trace still prove; the extern contract, which relates every returned receiver, rejects it;
 * output: a forwarded packet claimed on another port is rejected by evaluation;
-* state: a recorded final context replaced by the initial one is rejected by `check-consumer`.
+* state: the recorded context after the first packet replaced by the initial one is rejected by
+  `check-consumer`'s trace comparison.
+
+The identity case runs the quotation freshness check itself and a copy of `check-consumer`'s
+identity comparison on a patched program; the state case runs `check-consumer` itself.
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -26,9 +33,13 @@ import tempfile
 import uuid
 
 ROOT = Path(__file__).resolve().parents[3]
-CASES = ("baseline", "identity", "branch", "extern", "output", "state")
+CASES = ("baseline", "identity", "branch", "extern", "receiver", "output", "state")
 EXPORT = "exports/programs/nano-p4/positive/src-addr-filter.json"
 BUNDLE = ROOT / ".artifacts/nano-sessions/sessions-observed.json"
+# Built binaries, run through `lake env` (their Lean frontend needs the module path) so that
+# parallel cases never build or contend for Lake's build lock.
+CHECK_CONSUMER = ROOT / ".lake/build/bin/check-consumer"
+QUOTE_PROGRAM = ROOT / ".lake/build/bin/nano-program-quote"
 SESSION = "corpus:packet:positive/src-addr-filter"
 TIMEOUT_SECONDS = 900
 
@@ -51,7 +62,7 @@ def extract(text, start, end):
 
 PRELUDE = """import ExampleProofs.NanoP4SrcAddrFilter.Evaluation
 set_option linter.missingDocs false
-set_option maxHeartbeats 4000000
+set_option maxHeartbeats 8000000
 open P4SpecTec P4SpecTec.Prelude P4SpecTec.BackendSim P4SpecTec.BackendSim.NanoSwitch
 open NanoP4Target ExampleProofs.NanoP4SrcAddrFilter
 """
@@ -69,14 +80,19 @@ theorem Probe.{name} (h : PacketStateText) :
 """
 
 
-def target_copy(mutated):
-    """The target's extern instance, driver and sessions, copied into `Probe`; the extern
-    optionally writes the header bits reversed."""
+def target_copy(mutation=None):
+    """The target's extern instance, driver and sessions, copied into `Probe`. The extern
+    optionally writes the header bits reversed or returns the packet state unadvanced."""
     externs = (ROOT / "NanoP4Target/Externs.lean").read_text()
     body = extract(externs, "/-- A generated callee through the registered trampoline",
                    "end NanoP4Target")
-    if mutated:
+    if mutation == "extern":
         body = replace_once(body, "value_hdr bits.toList)", "value_hdr bits.toList.reverse)")
+    if mutation == "receiver":
+        body = replace_once(body, "let (pkt, ctx) ← extract ctx pkt", "let (_, ctx) ← extract ctx pkt")
+    # the copy takes precedence over the library instance wherever an instance is resolved
+    body = replace_once(body, "instance externs : NanoP4Spec.Externs where",
+                        "instance (priority := high) externs : NanoP4Spec.Externs where")
     session = (ROOT / "NanoP4Target/Session.lean").read_text()
     drive = extract(session, "/-- Drive one received packet through the generated model",
                     "/-- A generated session: `NanoSwitch_init` on the program, then the packets. -/")
@@ -87,35 +103,81 @@ def target_copy(mutated):
     return "namespace Probe\n" + body + drive + runner + "end Probe\n"
 
 
+def contract_copy():
+    """The extern contract and its proof, copied into `Probe` to check the copied extern."""
+    contract = (ROOT / "NanoP4Target/Contract.lean").read_text()
+    # from the module's opens, which its sections rely on, to its end
+    body = extract(contract, "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine",
+                   "end NanoP4Target")
+    # the copies' axiom audits would name `Probe`, not the library
+    body, audits = re.subn(r"/-- info: '[^']*'[^-]*-/\n#guard_msgs[^\n]*\n", "", body)
+    if audits != 2:
+        raise HarnessError(f"expected two contract axiom audits, found {audits}")
+    return "namespace Probe\n" + body + "end Probe\n"
+
+
+TRACE = f"""
+theorem Probe.trace (h : PacketStateText) :
+    (List.range 4).map (fun n => (Probe.session program (stfPackets.take n)).run) = stfTrace := by
+  lazy_eval {RULES}
+"""
+
+
 def lean_probe(case, nonce):
     """Scratch Lean source for a proof probe; baseline proves every claim that the mutation
-    cases change."""
+    cases change, on the library target and on the unmutated copy."""
     source = PRELUDE
-    if case in ("baseline", "extern"):
-        source += target_copy(mutated=case == "extern")
+    if case in ("baseline", "extern", "receiver"):
+        source += target_copy(None if case == "baseline" else case)
+    if case in ("baseline", "receiver"):
+        source += contract_copy()
+    forward = "[[(0, hexText [0, 1, 0])]]"
     if case == "baseline":
         source += claim("branch", "[0, 3, 0]", "[[]]")
-        source += claim("extern", "[0, 1, 0]", "[[(0, hexText [0, 1, 0])]]", "Probe.session")
-        source += claim("output", "[0, 1, 0]", "[[(0, hexText [0, 1, 0])]]")
+        source += claim("extern", "[0, 1, 0]", forward, "Probe.session")
+        source += claim("output", "[0, 1, 0]", forward)
+        source += TRACE
     if case == "branch":
         source += claim("branch", "[0, 3, 0]", "[[(0, hexText [0, 3, 0])]]")
     if case == "extern":
-        source += claim("extern", "[0, 1, 0]", "[[(0, hexText [0, 1, 0])]]", "Probe.session")
+        source += claim("extern", "[0, 1, 0]", forward, "Probe.session")
+    if case == "receiver":
+        # the discarded receiver keeps every decision and state: these still prove
+        source += claim("receiverForward", "[0, 1, 0]", forward, "Probe.session")
+        source += TRACE
     if case == "output":
         source += claim("output", "[0, 1, 0]", "[[(1, hexText [0, 1, 0])]]")
     return source + f'#eval IO.println "PROBE_DONE:{nonce}"\n'
 
 
-def validate_lean(case, nonce, result, path):
+def theorem_lines(source, name):
+    """The line range of theorem `name` (or `Probe.name`) in a probe source."""
+    lines = source.split("\n")
+    starts = [i + 1 for i, line in enumerate(lines) if line.startswith("theorem ")]
+    start = next((i + 1 for i, line in enumerate(lines)
+                  if line.startswith((f"theorem Probe.{name} ", f"theorem {name} "))), None)
+    if start is None:
+        raise HarnessError(f"missing probe theorem {name}")
+    end = min([s for s in starts if s > start], default=len(lines) + 1)
+    return start, end
+
+
+def validate_lean(case, nonce, result, path, source=""):
     if case == "baseline":
         if result.returncode or result.stderr.strip() or result.stdout.strip() != (
                 "PROBE_DONE:" + nonce):
             raise HarnessError(f"baseline proof failed\n{result.stdout}{result.stderr}")
         return
-    diagnostics = re.findall(re.escape(str(path)) + r":\d+:\d+: error: ([^\n]+)", result.stdout)
-    if (result.returncode != 1 or result.stderr.strip() or len(diagnostics) != 1 or
-            not diagnostics[0].startswith("lazy_eval: evaluated to") or
-            result.stdout.count("error:") != 1 or "warning:" in result.stdout or
+    diagnostics = re.findall(re.escape(str(path)) + r":(\d+):\d+: error: ([^\n]+)", result.stdout)
+    # the receiver is rejected inside the copied contract proof, by whatever step fails there;
+    # every other mutation by exactly one evaluation mismatch in its claim
+    target = "externsContractHolds" if case == "receiver" else case
+    start, end = theorem_lines(source, target) if source else (0, 1 << 30)
+    evaluation = all(message.startswith("lazy_eval: evaluated to") for _, message in diagnostics)
+    if (result.returncode != 1 or result.stderr.strip() or not diagnostics or
+            (case != "receiver" and (len(diagnostics) != 1 or not evaluation)) or
+            any(not start <= int(line) < end for line, _ in diagnostics) or
+            result.stdout.count("error:") != len(diagnostics) or "warning:" in result.stdout or
             result.stdout.count("PROBE_DONE:" + nonce) != 1):
         raise HarnessError(f"{case}: unrelated proof outcome\n{result.stdout}{result.stderr}")
 
@@ -145,7 +207,6 @@ ENTRY = "(NanoP4Spec.expression.W 8 1)"
 
 def run_identity(nonce, execute, scratch):
     program = (ROOT / "ExampleProofs/NanoP4SrcAddrFilter/Program.lean").read_text()
-    outcomes = []
     for label, text in (("baseline", program), ("mutant", replace_once(program, ENTRY,
                         ENTRY.replace("W 8 1", "W 8 5")))):
         path = scratch / f"Identity{label}.lean"
@@ -157,14 +218,13 @@ def run_identity(nonce, execute, scratch):
             raise HarnessError(f"identity {label}: invalid outcome\n{result.stdout}{result.stderr}")
         quoted = scratch / f"Program{label}.lean"
         quoted.write_text(text)
-        result = execute(["lake", "exe", "nano-program-quote", EXPORT,
+        result = execute(["lake", "env", str(QUOTE_PROGRAM), EXPORT,
                           "ExampleProofs.NanoP4SrcAddrFilter", str(quoted), "--check"],
                          cwd=ROOT, text=True, capture_output=True, timeout=TIMEOUT_SECONDS)
         fresh = result.returncode == 0 and "is current" in result.stdout
         stale = result.returncode == 1 and "is stale" in result.stderr
         if not (fresh if label == "baseline" else stale):
             raise HarnessError(f"identity {label}: quotation check\n{result.stdout}{result.stderr}")
-        outcomes.append(label)
     return "check-consumer identity comparison and nano-program-quote --check"
 
 
@@ -175,16 +235,16 @@ def run_state(execute, scratch):
         mutated = json.loads(json.dumps(bundle))
         target = next(s for s in mutated["sessions"] if s["id"] == SESSION)
         if label == "mutant":
-            target["drives"][-1]["ctx"] = session["init"]["ctx"]
+            target["drives"][0]["ctx"] = session["init"]["ctx"]
         path = scratch / f"sessions-{label}.json"
         path.write_text(json.dumps(mutated))
-        result = execute(["lake", "exe", "check-consumer", str(path)], cwd=ROOT, text=True,
+        result = execute(["lake", "env", str(CHECK_CONSUMER), str(path)], cwd=ROOT, text=True,
                          capture_output=True, timeout=TIMEOUT_SECONDS)
         if label == "baseline":
             if result.returncode or "[consumer] 7 claims checked" not in result.stdout:
                 raise HarnessError(f"state baseline failed\n{result.stdout}{result.stderr}")
-        elif (result.returncode != 1 or "the proven final STF context differs from upstream's"
-              not in result.stderr):
+        elif (result.returncode != 1 or
+              "the proven STF context after 1 packets differs from upstream's" not in result.stderr):
             raise HarnessError(f"state mutation not rejected\n{result.stdout}{result.stderr}")
     return "check-consumer upstream observation"
 
@@ -199,13 +259,16 @@ def run_case(case, execute=subprocess.run):
             if case == "state":
                 return case, run_state(execute, scratch)
             path = scratch / "Probe.lean"
-            path.write_text(lean_probe(case, nonce))
+            source = lean_probe(case, nonce)
+            path.write_text(source)
             result = execute(["lake", "env", "lean", str(path)], cwd=ROOT, text=True,
                              capture_output=True, timeout=TIMEOUT_SECONDS)
-            validate_lean(case, nonce, result, path)
+            validate_lean(case, nonce, result, path, source)
         except subprocess.TimeoutExpired as error:
             raise HarnessError(f"{case}: timed out after {TIMEOUT_SECONDS}s") from error
-    return case, "all probes" if case == "baseline" else f"lazy_eval in Probe.{case}"
+    boundary = ("the extern contract NanoP4Target.externsContractHolds (copied)"
+                if case == "receiver" else f"lazy_eval in Probe.{case}")
+    return case, "all probes" if case == "baseline" else boundary
 
 
 def write_bundle():
@@ -214,7 +277,9 @@ def write_bundle():
     import fixture  # noqa: E402
     _, data = fixture.read()
     BUNDLE.parent.mkdir(parents=True, exist_ok=True)
-    BUNDLE.write_bytes(data)
+    temporary = BUNDLE.with_name(f"{BUNDLE.name}.{uuid.uuid4().hex}")
+    temporary.write_bytes(data)
+    temporary.replace(BUNDLE)
 
 
 def main():
