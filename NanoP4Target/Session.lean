@@ -331,6 +331,54 @@ theorem sessionObservations {cfg : Interp_al.Interp.Config} (hcfg : Reference cf
       (session program rxs) :=
   initializedSessionCorrespondence hcfg hhints hprogram rxs
 
+/-! ## Transmissions -/
+
+/-- The generated session on `program` receives `rxs` and transmits `txs`, packet by packet,
+ending in some context. -/
+def Transmits (program : NanoP4Spec.program) (rxs : List Runtime.Sim.Io.rx)
+    (txs : List (List Runtime.Sim.Io.tx)) : Prop :=
+  ∃ ctx, (session program rxs).run = some (.ok (ctx, txs))
+
+/-- The reference session on the program value `vprogram`, in the initialized environment of
+the pinned specification, transmits `txs`: it does so at every sufficiently large fuel, and
+every terminating run at any fuel does so, with the initial architecture state. -/
+def ReferenceTransmits (cfg : Interp_al.Interp.Config) (vprogram : value)
+    (rxs : List Runtime.Sim.Io.rx) (txs : List (List Runtime.Sim.Io.tx)) : Prop :=
+  (∃ bound, ∀ fuel, bound ≤ fuel → ∃ vctx,
+    (referenceSession (relCall cfg NanoP4Spec.Environment.global fuel) vprogram rxs).run =
+      some (.ok (vctx, Pipe.init_arch_state, txs))) ∧
+  ∀ fuel r, (referenceSession (relCall cfg NanoP4Spec.Environment.global fuel) vprogram rxs).run =
+      some r → ∃ vctx, r = .ok (vctx, Pipe.init_arch_state, txs)
+
+/-- A generated transmission is the reference transmission, for every reference target
+configuration with the pinned empty print hints and every program value related to the
+program: by `initializedSessionCorrespondence`, in both directions. -/
+theorem referenceTransmits {cfg : Interp_al.Interp.Config} (hcfg : Reference cfg)
+    (hhints : cfg.printHints = []) {vprogram : value} {program : NanoP4Spec.program}
+    (hprogram : Rel vprogram program) {rxs : List Runtime.Sim.Io.rx}
+    {txs : List (List Runtime.Sim.Io.tx)} (h : Transmits program rxs txs) :
+    ReferenceTransmits cfg vprogram rxs txs := by
+  obtain ⟨ctx, hrun⟩ := h
+  obtain ⟨hforward, hreverse⟩ := initializedSessionCorrespondence hcfg hhints hprogram rxs
+  refine ⟨?_, fun fuel r hr => ?_⟩
+  · obtain ⟨r, ⟨bound, hbound⟩, hrel⟩ := hreverse _ hrun
+    refine ⟨bound, fun fuel hfuel => ?_⟩
+    match r, hrel with
+    | .ok (vctx, arch, txs'), ⟨_, harch, htxs⟩ =>
+      subst harch; subst htxs
+      exact ⟨vctx, hbound fuel hfuel⟩
+  · obtain ⟨r', hr', hrel⟩ := hforward fuel r hr
+    rw [hrun] at hr'
+    cases hr'
+    match r, hrel with
+    | .ok (vctx, arch, txs'), ⟨_, harch, htxs⟩ =>
+      subst harch; subst htxs
+      exact ⟨vctx, rfl⟩
+
+/-- info: 'NanoP4Target.referenceTransmits' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in #print axioms referenceTransmits
+
 /-- info: 'NanoP4Target.sessionObservations' depends on axioms:
 [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in #print axioms sessionObservations
