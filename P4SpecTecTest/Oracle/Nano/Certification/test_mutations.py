@@ -76,6 +76,9 @@ class MutationTests(unittest.TestCase):
         source, start, end = mutations.proof_probe("ordering", "n")
         self.assertIn("«$mutation_expression_is_lvalue».refines_group", source)
         self.assertIn("(ExceptT.mk (Scratch.«$expression_is_lvalue» p0))", source)
+        # the generated scoped budget precedes the copied theorem
+        self.assertIn("set_option maxHeartbeats 8000000 in\ntheorem _root_.NanoP4Spec."
+                      "«$mutation_expression_is_lvalue».refines_group", source)
         good = (f"{path}:{start + 5}:6: error: {mutations.REJECTION['ordering']}:case x\n"
                 "PROOF_DONE:n\n")
         mutations.validate_proof("ordering", "n", completed(1, good), path, start, end)

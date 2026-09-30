@@ -36,7 +36,7 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[4]
 CASES = ("baseline", "ordering", "failureKind", "constructor", "quotation", "printProvenance")
-# Replaying the refinement proof is the slow step; the heartbeat budget stays the generated one.
+# A wall-clock guard for each probe; the replayed proof keeps its generated heartbeat budget.
 TIMEOUT_SECONDS = 900
 CHECK_QUOTES = ROOT / ".lake/build/bin/check-quotes"
 EXPORT = ROOT / "exports/nano-p4.al.json"
@@ -113,16 +113,21 @@ def quotations(case):
 
 
 def refinement():
-    """The generated forward refinement proof, stated about the scratch copy."""
+    """The generated forward refinement proof with its scoped heartbeat budget, stated about
+    the scratch copy."""
     text = REFINEMENT.read_text()
+    budget = re.findall(rf"(set_option maxHeartbeats \d+ in)\ntheorem {re.escape(FUNCTION)}"
+                        r"\.refines_group", text)
+    if len(budget) != 1:
+        raise HarnessError("missing or ambiguous refinement heartbeat budget")
     body = extract(text, f"theorem {FUNCTION}.refines_group", f"theorem {FUNCTION}.refines\n")
     body, count = re.subn(r"\n\nset_option maxHeartbeats \d+ in\n$", "\n", body)
     if count != 1:
         raise HarnessError("missing or ambiguous refinement theorem boundary")
     body = replace_once(body, f"theorem {FUNCTION}.refines_group",
                         "theorem _root_.NanoP4Spec.«$mutation_expression_is_lvalue».refines_group")
-    return replace_once(body, f"(ExceptT.mk (NanoP4Spec.{FUNCTION} p0))",
-                        f"(ExceptT.mk (Scratch.{FUNCTION} p0))")
+    return budget[0] + "\n" + replace_once(body, f"(ExceptT.mk (NanoP4Spec.{FUNCTION} p0))",
+                                            f"(ExceptT.mk (Scratch.{FUNCTION} p0))")
 
 
 HEADER = """import NanoP4Spec.Refinement.Forward.expression_is_lvalue

@@ -276,10 +276,12 @@ class CompletionTests(unittest.TestCase):
             record = root / completion.RELEASE_RECORD
             record.parent.mkdir(parents=True)
             review = {"revision": "abc", "reviewer": "r", "verdict": "no unresolved findings",
-                      "record": "x"}
+                      "record": "review.md"}
+            (root / "review.md").write_text("findings")
             release = {"revision": "abc", "gate": {"exit": 0, "command": "scripts/check.sh"},
                        "ci": {"run": 1, "conclusion": "success", "headSha": "abc"}}
-            with patch.object(completion, "tree_digest", return_value="t"):
+            with patch.object(completion, "tree_digest", return_value="t"), \
+                    patch.object(completion, "revision_digest", return_value="t"):
                 record.write_text(json.dumps({"tree": "other", "review": review}))
                 self.assertEqual(completion.publication_verified(self.manifest, root)[0], set())
                 record.write_text(json.dumps({"tree": "t", "review": review}))
@@ -293,11 +295,55 @@ class CompletionTests(unittest.TestCase):
                             {"release": dict(release, ci={**release["ci"], "conclusion": "failure"})},
                             {"release": dict(release, ci={**release["ci"], "headSha": "def"})},
                             {"release": dict(release, gate={"exit": 1, "command": "x"})},
-                            {"release": dict(release, revision="def")}):
+                            {"release": dict(release, revision="def")},
+                            {"review": dict(review, record="missing.md")}):
                     record.write_text(json.dumps({"tree": "t", "review": review,
                                                   "release": release, **bad}))
                     with self.assertRaises(completion.CertificationError):
                         completion.publication_verified(self.manifest, root)
+
+    def test_recorded_revision_must_have_this_tree(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            record = root / completion.RELEASE_RECORD
+            record.parent.mkdir(parents=True)
+            (root / "review.md").write_text("findings")
+            review = {"revision": "abc", "reviewer": "r", "verdict": "no unresolved findings",
+                      "record": "review.md"}
+            record.write_text(json.dumps({"tree": "t", "review": review}))
+            # a digest carried forward to an unreviewed tree
+            with patch.object(completion, "tree_digest", return_value="t"), \
+                    patch.object(completion, "revision_digest", return_value="old"):
+                with self.assertRaisesRegex(completion.CertificationError, "is not this tree"):
+                    completion.publication_verified(self.manifest, root)
+
+    def test_revision_digest_matches_a_clean_checkout(self):
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as scratch:
+            root = Path(scratch)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            (root / "code.lean").write_text("a")
+            (root / "link").symlink_to("code.lean")
+            (root / ".agents").mkdir()
+            (root / ".agents/status.md").write_text("a")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm",
+                            "x"], cwd=root, check=True)
+            self.assertEqual(completion.revision_digest(root, "HEAD"),
+                             completion.tree_digest(root))
+            (root / "code.lean").write_text("b")
+            self.assertNotEqual(completion.revision_digest(root, "HEAD"),
+                                completion.tree_digest(root))
+            with self.assertRaises(completion.CertificationError):
+                completion.revision_digest(root, "0" * 40)
+
+    def test_allowance_excuses_only_publication(self):
+        missing = [o for o in self.manifest["obligations"] if o["stage"] == "release"]
+        kept, pending = completion.excuse_unpublished(missing)
+        self.assertEqual({o["requirement"] for o in pending}, {"review", "release"})
+        self.assertEqual({o["requirement"] for o in kept}, {"consumer", "sensitivity"})
 
     def test_tree_digest_ignores_working_state_only(self):
         import subprocess

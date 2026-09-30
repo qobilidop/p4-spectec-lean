@@ -579,6 +579,12 @@ def consumer_verified(manifest):
             if o.get("checkedBy") == CONSUMER_CHECKS and o["coverageClaim"] is not None}
 
 
+def excuse_unpublished(missing):
+    """Split out the review and release records; every other obligation stays missing."""
+    return ([o for o in missing if o["requirement"] not in PUBLICATION],
+            [o for o in missing if o["requirement"] in PUBLICATION])
+
+
 def sensitivity_verified(manifest):
     """Run every mutation suite; the sensitivity obligation when all of them pass."""
     run(ROOT, ["lake", "build", "ExampleProofs", "check-consumer", "nano-program-quote",
@@ -601,26 +607,53 @@ def sensitivity_verified(manifest):
             if o.get("checkedBy") == SENSITIVITY_CHECKS}
 
 
+def _digest(entries):
+    """SHA-256 over sorted (mode, path, content) entries outside `.agents/`."""
+    digest = hashlib.sha256()
+    for mode, path, content in sorted(entries, key=lambda e: e[1]):
+        if not path.startswith(".agents/"):
+            digest.update(f"{mode} {path} {hashlib.sha256(content).hexdigest()}\n".encode())
+    return digest.hexdigest()
+
+
 def tree_digest(root):
-    """SHA-256 over every tracked path outside `.agents/`: file bytes from the working tree,
-    link targets, and submodule commits from the index."""
+    """The digest of the checkout: every tracked path outside `.agents/`, with file bytes from
+    the working tree, link targets, and submodule commits from the index."""
     listing = subprocess.run(["git", "ls-files", "-s", "-z"], cwd=root, capture_output=True,
                              check=True).stdout.decode()
-    digest = hashlib.sha256()
-    for entry in sorted(filter(None, listing.split("\0")), key=lambda e: e.split("\t", 1)[1]):
+    entries = []
+    for entry in filter(None, listing.split("\0")):
         meta, path = entry.split("\t", 1)
         mode, blob, _ = meta.split()
-        if path.startswith(".agents/"):
-            continue
         target = root / path
-        if mode == "160000":
-            content = blob.encode()
-        elif mode == "120000":
-            content = str(target.readlink()).encode()
-        else:
-            content = target.read_bytes()
-        digest.update(f"{mode} {path} {hashlib.sha256(content).hexdigest()}\n".encode())
-    return digest.hexdigest()
+        content = (blob.encode() if mode == "160000" else
+                   str(target.readlink()).encode() if mode == "120000" else target.read_bytes())
+        entries.append((mode, path, content))
+    return _digest(entries)
+
+
+def revision_digest(root, revision):
+    """The same digest computed from a commit's own objects, independent of the checkout."""
+    listing = subprocess.run(["git", "ls-tree", "-r", "-z", revision], cwd=root,
+                             capture_output=True)
+    if listing.returncode:
+        raise CertificationError(f"unknown recorded revision {revision!r}")
+    rows = []
+    for entry in filter(None, listing.stdout.decode().split("\0")):
+        meta, path = entry.split("\t", 1)
+        mode, _, obj = meta.split()
+        rows.append((mode, path, obj))
+    blobs = [obj for mode, _, obj in rows if mode != "160000"]
+    output = subprocess.run(["git", "cat-file", "--batch"], cwd=root, capture_output=True,
+                            input="".join(f"{obj}\n" for obj in blobs).encode(), check=True).stdout
+    contents, offset = {}, 0
+    for obj in blobs:
+        header_end = output.index(b"\n", offset)
+        size = int(output[offset:header_end].split()[2])
+        contents[obj] = output[header_end + 1:header_end + 1 + size]
+        offset = header_end + 1 + size + 1
+    return _digest([(mode, path, obj.encode() if mode == "160000" else contents[obj])
+                    for mode, path, obj in rows])
 
 
 def publication_verified(manifest, root=ROOT):
@@ -636,8 +669,12 @@ def publication_verified(manifest, root=ROOT):
     review, release = record.get("review"), record.get("release")
     fields = ("revision", "reviewer", "verdict", "record")
     if not isinstance(review, dict) or any(not review.get(k) for k in fields) or (
-            review["verdict"] != "no unresolved findings"):
+            review["verdict"] != "no unresolved findings") or not (root / review["record"]).is_file():
         raise CertificationError(f"{RELEASE_RECORD}: incomplete review for this tree")
+    # The reviewed and released revision must itself have this content, so a record cannot be
+    # carried forward to a tree nobody reviewed or tested by editing its digest.
+    if revision_digest(root, review["revision"]) != record["tree"]:
+        raise CertificationError(f"{RELEASE_RECORD}: revision {review['revision']} is not this tree")
     kinds = {"review"}
     if release is not None:
         gate, ci = release.get("gate", {}), release.get("ci", {})
@@ -725,8 +762,9 @@ def main(argv=None):
         if (MILESTONES.index(args.require_owned) >= MILESTONES.index("N5") if args.require_owned
                 else args.require_complete in (None, "all")):
             verified |= consumer_verified(manifest)
+        # The mutation suites are slow; only a requirement that includes N6 runs them.
         if (MILESTONES.index(args.require_owned) >= MILESTONES.index("N6") if args.require_owned
-                else args.require_complete in (None, "all")):
+                else args.require_complete == "all"):
             verified |= sensitivity_verified(manifest)
             published, state = publication_verified(manifest)
             verified |= published
@@ -735,8 +773,7 @@ def main(argv=None):
         stage = "all" if args.require_owned else args.require_complete or "all"
         missing = outstanding(manifest, stage, verified=verified, owned=args.require_owned)
         if args.allow_unpublished:
-            pending = [o for o in missing if o["requirement"] in PUBLICATION]
-            missing = [o for o in missing if o["requirement"] not in PUBLICATION]
+            missing, pending = excuse_unpublished(missing)
             if pending:
                 print(f"[completion] {len(pending)} publication records pending, allowed")
         bound = sum(o["coverageClaim"] is not None for o in manifest["obligations"])
