@@ -17,12 +17,13 @@ Nano-P4 generates a Lean model with two-way AL correspondence for every bodied
 definition, a concrete NanoSwitch target that discharges the core's extern
 contract, and a two-way theorem composing semantic initialization with packet
 processing. Both Lean paths match the pinned upstream verdicts, outputs and
-packet sessions on the entire corpus. The completion check verifies every core
-and target obligation of
-[Design, section 9](design.md#9-nano-p4-scope-and-acceptance); the release
-evidence of that section (a whole-program example, cross-layer distinguishing
-mutations, a final scope and contract review, and release CI) remains open, so
-complete Nano-P4 certification is not yet claimed. Full-P4
+packet sessions on the entire corpus. A whole-program certificate proves the packet
+behavior of one exported program, `src-addr-filter.p4`, for a stated family of
+packets, on both Lean paths. The completion check verifies every core and target
+obligation of [Design, section 9](design.md#9-nano-p4-scope-and-acceptance) and the
+whole-program example; the remaining release evidence of that section (cross-layer
+distinguishing mutations, a final scope and contract review, and release CI) is
+open, so complete Nano-P4 certification is not yet claimed. Full-P4
 support is not yet a usable generated library.
 The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.
@@ -35,6 +36,7 @@ the user-facing account of current capabilities and their guarantees.
 | Generated relation soundness theorems | Successful generated execution implies the generated logical relation | Does not by itself connect that relation to AL or prove every relational witness executable |
 | [NanoSwitch extern discharge](../NanoP4Target/Contract.lean) | The typed extern instance and the registered reference target satisfy `externsContract` in both directions | Every related input, global context satisfying the specification and trampoline fuel; guards off |
 | [NanoSwitch session composition](../NanoP4Target/Session.lean) | From `NanoSwitch_init` on a program through every packet, per-packet transmissions, forward/drop, final context and failure kinds agree in both directions | Related programs and arbitrary packet sequences; the pinned empty print hints; STF parsing and expectation matching stay upstream |
+| [Source-address filter certificate](../ExampleProofs/NanoP4SrcAddrFilter/Certificate.lean) | Every three-byte packet on every host-range port is forwarded unchanged exactly when its source address is 1 or 2, shorter packets are dropped, on the generated model and the reference interpreter | One exported program; packets with a payload excluded; assumes `PacketStateText` |
 
 The [generated coverage report](../NanoP4Spec/coverage.json) and its [refinement
 index](../NanoP4Spec/Refinement.lean) record forward and reverse AL theorems for
@@ -104,9 +106,10 @@ The [completion inventory](../NanoP4Spec/completion.json) supplements callable
 coverage with all 350 source declarations, including types and variables,
 and the additional obligations in [Design section 9](design.md#9-nano-p4-scope-and-acceptance).
 It references existing theorem claims rather than duplicating their statements.
-The current 888 obligations have 766 compiled claim bindings. Source identity and
-the 117 replay obligations are verified by the checker's own runs instead, and
-the four release-stage obligations (N5, N6) remain open. The bounded N2 check additionally requires the selected 30-definition
+The current 888 obligations have 767 compiled claim bindings. Source identity and
+the 117 replay obligations are verified by the checker's own runs instead. The
+whole-program consumer obligation counts only after `check-consumer` succeeds; the
+three N6 release obligations (sensitivity, review, release) remain open. The bounded N2 check additionally requires the selected 30-definition
 closure, all 162 type codecs, eight typed variables, all 26 builtin contracts,
 primitive codecs and table initialization. It checks input coverage, output
 preservation and full intermediate call admission separately. These counts are neither behavioral
@@ -281,6 +284,41 @@ libraries cannot import example or test-only modules; the gate checks that
 boundary, including indirect local imports. Reusable initialization and
 refinement support remain under `P4SpecTec.Refine`.
 
+## A whole-program example
+
+The [source-address filter certificate](../ExampleProofs/NanoP4SrcAddrFilter/Certificate.lean)
+concerns the pinned upstream test program `positive/src-addr-filter.p4`: its parser
+extracts the Nanonet header, and its table admits source addresses 1 and 2, denies 3
+and otherwise runs no action. The program is not restated by hand. A generated
+[quotation](../ExampleProofs/NanoP4SrcAddrFilter/Program.lean) of the exported AL value
+is the input, and `check-consumer` checks it against the decoded export.
+
+For every host-range port and every three-byte packet as the STF driver receives it
+(hexadecimal text), the generated model with the concrete NanoSwitch target forwards
+the packet unchanged on its port exactly when the source address is 1 or 2, and drops
+it otherwise; every shorter packet is dropped. The other header fields are arbitrary.
+`referenceFilter` carries the property to the reference AL interpreter with the
+registered NanoSwitch externs: for every related program value, the reference
+transmits the same at every sufficiently large fuel, and no terminating run at any
+fuel transmits otherwise.
+
+The theorems run the actual generated code, from `NanoSwitch_init` (typing, loading,
+the evaluation context) through `extract` and the table. The `lazy_eval` tactic
+computes them with kernel-checked proofs: it rewrites the generated recursive
+definitions by their equations, keeps the other header fields symbolic, and decides
+the unlisted source addresses with `omega` from facts about the byte's value.
+
+The only assumption is `PacketStateText` (see [What remains trusted?](#what-remains-trusted)).
+`check-consumer` also checks that the proven outcome of the program's STF session,
+including the final context that holds the raw extern receiver of the last extract,
+equals the pinned upstream simulator's recording. Colocated mutation tests show that a
+changed table entry, a wrongly claimed branch, an extract writing reversed header bits,
+a wrong output port, and a changed recorded context are each rejected at their
+intended check.
+
+Packets longer than the header (a payload), STF commands other than packets, and
+other programs are outside this certificate.
+
 ## What remains trusted?
 
 | Boundary | What supports it | What is not proved |
@@ -290,11 +328,18 @@ refinement support remain under `P4SpecTec.Refine`.
 | Exported AL to Lean quotation | Decoding and `check-quotes` comparisons | Universal correctness of the exporter, decoder or quoting implementation |
 | Lean reference semantics to upstream behavior | Side-by-side port review and differential tests, including builtin observations and every corpus typing case and STF session | General equivalence of the OCaml and Lean interpreters, complete extern coverage or device fidelity |
 | Generated code to Lean reference | Checked correspondence proofs for the recorded fragment | Definitions and input domains outside the proved claims |
+| Packet-state text round trip (`PacketStateText`) | Tests on sample states and every replayed corpus packet | That Lean's `partial` JSON printer and parser round-trip the driver's packet state; whole-program theorems assume it |
 
 The reference includes the runtime helpers and builtin implementations it
 uses. A certificate is relative to that reference, not an independent
 verification of those implementations. Known port deviations are recorded
 in [Design, section 5.3](design.md#53-deviations-forced-by-lean).
+
+Whole-program theorems also assume `NanoP4Target.PacketStateText`. Extract decodes
+the driver's packet state through the compressed text of its JSON, as the target
+port identifies extern payloads by that text, and Lean's JSON printer and parser are
+`partial`: no proof can compute the round trip. The premise is a hypothesis of every
+theorem that runs extract, never an axiom.
 
 The Lean executable toolchain is also trusted when running differential
 tests. Passing tests is useful evidence about selected executions, not a
@@ -323,6 +368,7 @@ name. Targeted checks, after the normal build has prepared dependencies, are:
 ```sh
 nix develop --command lake build NanoP4Spec.Refinement
 nix develop --command lake build ExampleProofs.NanoP4FieldUpdate.Certificate
+nix develop --command lake build ExampleProofs.NanoP4SrcAddrFilter.Certificate
 nix develop --command lake exe check-quotes
 nix develop --command lake exe check-coverage
 nix develop --command lake exe check-coverage update_fieldValue

@@ -1,7 +1,8 @@
 # Nano-P4 certification implementation plan
 
-Active plan, compacted 2026-09-29 after N4 closed. N0–N4 are complete; N5 and N6 remain
-and need a user scope. Full-P4 M3 stays paused.
+Active plan, compacted 2026-09-29 after N4 closed. N0–N4 are complete. The user authorized
+N5 and N6 on 2026-09-30; N5 is implemented on `n5-consumer` ([consumer note](nano-consumer.md)).
+Full-P4 M3 stays paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered guarantees, and
 [status](../status.md) owns the next immediate action.
@@ -84,6 +85,11 @@ intermediate and sequential-call evidence so discarded receiver corruption canno
 Exit: a checked consumer certificate with a walkthrough and distinguishing mutations of
 source identity, packet branch, extern result and output/state, consuming library
 contracts without duplicating semantics or assuming missing obligations.
+
+Status 2026-09-30: implemented as `ExampleProofs/NanoP4SrcAddrFilter/` with `lazy_eval`; the
+family is every three-byte packet (forward exactly for sources 1 and 2) and every shorter
+packet, under the named `PacketStateText` premise. Payloads are outside the family. Review,
+full gate and CI pending ([consumer note](nano-consumer.md)).
 Main risk: symbolic header bits through generated parser and table code; `native_decide`
 is not allowed, and deciding all 256 source values in the kernel may be too slow. Spike
 one concrete drop case end to end first.

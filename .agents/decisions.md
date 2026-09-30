@@ -1,6 +1,6 @@
 # Decisions
 
-Current cross-cutting choices and reasons. Updated 2026-09-29.
+Current cross-cutting choices and reasons. Updated 2026-09-30.
 Rules belong in [AGENTS.md](../AGENTS.md), architecture in
 [Design](../docs/design.md), and detailed constraints in the linked topic
 notes. This register is not a chronological log.
@@ -25,7 +25,8 @@ then authorized N3 through its proof closure on 2026-09-29. N3-owned proofs are
 closed. The user authorized N4 reconnaissance and then the bounded promotion of
 the existing raw-receiver rejection theorem into reusable support, followed by
 the short-packet extract theorem under an explicit decoding premise, and then all of N4
-on 2026-09-29, now implemented. N5 and N6 still need a new scope; full-P4 M3 remains paused.
+on 2026-09-29, now implemented. On 2026-09-30 the user authorized completing the milestone
+(N5 and N6) fully autonomously; full-P4 M3 remains paused.
 Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit
@@ -264,6 +265,40 @@ completion check that rejects missing target and replay evidence; metadata canno
 itself. Upstream session observations store values once with cache identities zeroed, since
 comparison is canonical. Confidence high; revisit if a corpus session fails upstream (failure
 kinds are not recorded) or another target needs STF commands beyond `packet`/`expect`.
+
+## N5 whole-program evidence (2026-09-30)
+
+Whole-program statements are proved on the generated model by `lazy_eval`
+(`P4SpecTec/Tactic/LazyEval.lean`) and transferred to the reference by the N4 session
+correspondence (`NanoP4Target.referenceTransmits`), not by evaluating the reference. Reason:
+generated recursion is `partial_fixpoint` and the reference tables are hash maps, so neither
+path reduces in the kernel; only the generated code has unfolding equations. Rejected: fuel
+twins of every generated function (a second, unchecked copy of the semantics, and no symbolic
+inputs), `simp` evaluation (evaluates every branch eagerly and loops under binders), and
+enumerating packets (2^24 header values). The evaluator's kernel cost stays low because every
+definitional gap abstracts the fixpoint constants on both sides; without that, the kernel's
+lazy delta unfolds well-founded definitions through accessibility proofs (a test keeps the
+regression). Symbolic inputs are temporary axioms inside `withoutModifyingEnv`, so Meta still
+folds arithmetic and the proof holds with variables restored. Confidence high for this program
+(the certificate builds in about a minute); revisit if a larger program's evaluation needs
+caching across theorems or if Lean exposes reducible fixpoint unfolding.
+
+Extract decodes the driver's packet state through the compressed text of its JSON, as the
+target port must (design section 5.3), and `Lean.Json.compress`/`Lean.Json.parse` are `partial`.
+`NanoP4Target.PacketStateText` states the round trip for host-range packet states as a named
+premise of every theorem that runs extract, never an axiom; runtime tests and every replayed
+corpus packet exercise it. Rejected: replacing the runtime's text comparison with total JSON
+functions (changes every canonical-equality proof and the reference port's observations for
+one premise) and a universal JSON round-trip premise (broader than the driver's states).
+Revisit if the port adopts total JSON printing and parsing, which would let the premise be
+proved.
+
+The consumer example (`ExampleProofs/NanoP4SrcAddrFilter/`) states every host-range port with
+every three-byte packet (all header fields symbolic) and every shorter packet. Packets with a
+payload are excluded: their bit arrays have symbolic size, needing further rules for array
+extraction and the tree decoder. Recorded as the example's scope, not a claim; revisit when
+another consumer needs payloads. `check-consumer` binds the example to the export (identity) and
+to the pinned upstream session (the proven STF context and transmissions equal the recording).
 
 ## Knowledge ownership (2026-09-26)
 

@@ -82,3 +82,13 @@ From the NanoSwitch target proofs (2026-09-29):
 - The atom type's derived `BEq` has no `LawfulBEq` instance, so `simp` leaves `Keyword "PACKET" == Keyword "PACKET"` unsolved; use `simp +decide` for such closed comparisons.
 - `Lean.Json.parse` does not reduce by `rfl` or `decide`. Keep proofs abstract over a decoding hypothesis and test concrete decoding with `#guard`.
 - Do not predict `#print axioms` output: even an `rfl` proof about a structure literal can depend on `propext`, `Classical.choice` and `Quot.sound` through its definitions. Build first, then copy the message into `#guard_msgs`.
+
+From the whole-program evaluator (`P4SpecTec/Tactic/LazyEval.lean`, 2026-09-30):
+
+- `partial_fixpoint` definitions are irreducible and their value is `Lean.Order.fix`, which neither `decide`, `rfl` nor the kernel reduces; unfold them by their `eq_def` equation. `Lean.Json.parse` and `Lean.Json.compress` are `partial`: no proof computes them at all.
+- `Lean.Meta.mkEqTrans` returns the other proof when one side is `Eq.refl`, so it cannot anchor a definitional gap between two steps; build `Eq.trans` directly.
+- The kernel's lazy delta unfolds the side with the greater definitional height. Checking a gap between a low-height term (a bind, a recursor) and a well-founded fixpoint application unfolds the fixpoint through `WellFounded.fix` and its accessibility proofs, exponentially in the recursion depth: a 64-element `Array.mapM` timed out. Abstract the fixpoint constants shared by both sides of the gap into variables.
+- Meta folds natural-number arithmetic only on terms without free variables. With a free `x`, `decide ((#[x, false].size : Int) < 2 ^ 62)` recursed in unary until `maxRecDepth`, although the size is 2. Replace free variables by temporary axioms (inside `withoutModifyingEnv`): Meta treats constants as ground, and the kernel never unfolds an axiom.
+- `setReducibilityStatus` is global: marking `Nat.instMod` irreducible stalled every later `UInt8.ofNat`. Keep the kernel's native `Nat` operations reducible on literals. `withCanUnfoldPred` works per call but disables the `whnf` cache, which made evaluation impractically slow.
+- A tactic run inside `withoutModifyingEnv` (`omega`, `simp`) may add auxiliary lemmas that the restored environment discards; inline them into the proof first, reading them with `getConstInfo`, since `Environment.find?` may not see an asynchronously added lemma.
+- Output of `IO.println`/`IO.eprintln` during command elaboration is captured as messages and only appears at the end; for live progress, append to a file handle. `Expr.sizeWithoutSharing` is exponential on a shared proof DAG.

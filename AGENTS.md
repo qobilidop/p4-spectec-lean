@@ -43,6 +43,8 @@ Documentation is split by purpose and audience:
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
 | `NanoP4Target/` | concrete NanoSwitch target over the generated model: typed externs, extern-contract discharge, session composition |
 | `ExampleProofs/NanoP4FieldUpdate/` | bounded consumer proof, checked `Certificate.lean`, `Example.lean` walkthrough and colocated `test/` |
+| `ExampleProofs/NanoP4SrcAddrFilter/` | whole-program certificate for an exported Nano program: generated `Program.lean`, `lazy_eval` evaluations, `Certificate.lean`, walkthrough and mutation `test/` |
+| `.agents/notes/nano-consumer.md` | N5 whole-program certificate: design, evidence, review record |
 
 `.agents/` is a hidden directory; `rg` and `fd` skip it unless told to
 include hidden files. Git history is the archive; nothing is tagged.
@@ -93,6 +95,8 @@ P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relati
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
 lake exe check-target        # NanoP4Target claims: exact types, axioms, empty pinned print hints
+lake exe check-consumer SESSIONS.json  # whole-program certificate: identity, upstream session, claims
+lake exe nano-program-quote <export> <namespace> <out.lean> (--update|--check)  # typed program quote
 P4SpecTecTest/Oracle/NanoSwitch/Sessions/check.py  # every STF session, both Lean paths vs upstream
 lake exe check-print        # printer/builtin/interpreter vs pinned upstream observations
 lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json

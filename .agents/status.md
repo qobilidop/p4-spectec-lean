@@ -1,59 +1,48 @@
 # Status
 
-N4 target composition complete, 2026-09-29 (user-authorized the same day), merged to `main`
-at `4535868` with passing exact-revision
-[CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255). The completion check now verifies every core and target obligation; the four
-release-stage obligations (N5 consumer proof, N6 sensitivity, review, release) remain.
+N5 (whole-program theorem) in progress on local branch `n5-consumer`, 2026-09-30; the user
+authorized completing the Nano-P4 milestone (N5 and N6) fully autonomously the same day. N4 is
+complete on `main` (`4535868`, [CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255)).
 Full-P4 M3 remains paused.
 
-## Verified state
+## Verified state (branch)
 
-- The interpreter passes its own function evaluator, at the remaining fuel, to extern
-  relations; `NanoP4Target.externsContractHolds` discharges `NanoP4Spec.externsContract`
-  for the concrete NanoSwitch target in both directions for every related input.
-- `NanoP4Target.sessionCorrespondence` composes `NanoSwitch_init` with packet driving in both
-  directions; the initialized-environment corollary and `sessionObservations` are checked
-  by `check-target` with exact types, plus a witness that the reference configuration is
-  inhabited and that the pinned export declares no print hints.
-- All 78 typing programs match upstream on both legs; all 39 STF sessions (74 packets) match
-  upstream at every step on both Lean paths (`check-nano-sessions`, six mutations rejected).
-- `scripts/nano-certification.py --require-n2 --require-owned N4` and
-  `--require-complete target` report 888 obligations, 766 compiled claim bindings and 0
-  unresolved; replay cases are verified by the checker's own runs.
+- `lazy_eval` evaluates generated code with kernel-checked proofs: `partial_fixpoint` and
+  well-founded definitions are rewritten by their equations, definitional gaps abstract shared
+  fixpoints, free variables become temporary axioms, and `omega` decides stuck tests from facts
+  (decisions, "N5 whole-program evidence").
+- `ExampleProofs/NanoP4SrcAddrFilter/` proves, from the quoted export, that every three-byte
+  packet on every host-range port is forwarded unchanged exactly when its source address is 1
+  or 2 (other header fields symbolic), shorter packets are dropped, and the STF session's
+  outcome; `referenceFilter` transfers the property to the reference interpreter. The only
+  premise is `NanoP4Target.PacketStateText`. Certificate axioms: `propext`, `Classical.choice`,
+  `Quot.sound`.
+- `check-consumer` passes: the quotation is the decoded export, the proven initialization and
+  final STF contexts and transmissions equal the upstream recording, and 7 claims have their
+  exact types.
 
-## Commits on `n4-target`
+## Commits on `n5-consumer`
 
-`e88e8a0` extern discharge; `ad1c4ab` sessions and corpus replay; `09cb951` replay
-hardening; `a0f7c79` completion binding; `1f9d6bd` evidence tightening; `713fef2` and the
-following commit record the checkpoint. Four independent read-only AI reviews and their
-resolutions are in the [target note](notes/nano-target.md#n4-review-record).
+`24d36aa` evaluator; `4c9dcb8` packet families and transmissions; `a8136b1` program quotation;
+`62f41b7` whole-program example and checker.
 
 ## Validation
 
-- `a0f7c79`: full gate 46 of 47 stages exit 0 (text hygiene failed on one line, fixed).
-- `713fef2`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0
-  in 154.85s, all 47 stages, no skips (`.artifacts/n4-gate-3.log`).
-- `22fc21c` (review resolution, code and documentation): full
-  `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in 156.45s, all
-  47 stages, no skips (`.artifacts/n4-gate-5.log`). An earlier attempt at that commit failed
-  one axiom `#guard_msgs` expectation and was amended before publication.
-- `4535868` (final evidence commit, reusing that gate with a fresh text check) passed
-  remote [CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255).
-  The merged `n4-target` branch was local only and is deleted.
+At `62f41b7`'s tree: `lake build --wfail` (default targets), `lake test`,
+`lake build --wfail ExampleProofs check-consumer nano-program-quote`, `check-consumer` on the
+decompressed session bundle, the library boundary check and the text check all exit 0. The full
+gate has not run; the gate does not yet run the new checks.
 
-## Maintenance
+## Remaining N5 obligations
 
-A general tend-repo pass after N4 (documentation and working state only) compacted the
-Nano plan and roadmap, repaired anchors and corrected the target oracle README; see the
-[stewardship note](notes/repository-stewardship.md#current-maintenance-pass). It reuses
-`22fc21c`'s exit-0 full gate (executable inputs unchanged) with fresh text and link
-checks, and an independent read-only Claude Opus review whose findings were adopted.
+1. Mutation tests at the intended boundaries: source identity, packet branch, extern result,
+   output and state (`ExampleProofs/NanoP4SrcAddrFilter/test/`).
+2. Gate integration: quotation freshness, `check-consumer`, the mutation runner.
+3. Completion binding of `profile:consumer` to `check-consumer`, with CLI tests.
+4. Documentation: certification guide, design section 9 status, example note, pitfalls.
+5. Independent review, full gate, merge, push and CI.
 
-## Next steps
-
-1. N5 (whole-program theorem) needs a separate user scope. The candidate is
-   `positive/src-addr-filter.p4`, whose session the replay already covers; build it on
-   `NanoP4Target.initializedSessionCorrespondence`.
+Then N6 (plan, `notes/nano-certification.md#n6-close-release-evidence`).
 
 ## Repository state
 

@@ -9,9 +9,10 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
 - [Nano-P4](https://github.com/pacokwon/nano-p4-spec): two-way correspondence
   for all bodied definitions, a concrete NanoSwitch target discharging the
   extern contract, two-way composition from initialization through packet
-  processing, both Lean paths matching upstream on the whole corpus, and a
-  checked verification example. The whole-program proof and release evidence
-  remain open; see [certification limits](docs/certification.md).
+  processing, both Lean paths matching upstream on the whole corpus, a
+  checked verification example, and a whole-program certificate proving an
+  exported program's packet filtering on both Lean paths. The remaining
+  release evidence is open; see [certification limits](docs/certification.md).
 - Full P4 production generation remains incomplete.
 
 The next major milestone is [complete Nano-P4 support and certification](docs/design.md#9-nano-p4-scope-and-acceptance):
