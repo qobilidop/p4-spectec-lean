@@ -1,7 +1,8 @@
 # Nano-P4 certification implementation plan
 
 Active plan, compacted 2026-09-29 after N4 closed. N0–N4 are complete. The user authorized
-N5 and N6 on 2026-09-30; N5 is implemented on `n5-consumer` ([consumer note](nano-consumer.md)).
+N5 and N6 on 2026-09-30; N5 closed on `main` at `034a90b` ([consumer note](nano-consumer.md)),
+and N6 is implemented on `n6-release` ([release note](nano-release.md)).
 Full-P4 M3 stays paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered guarantees, and
@@ -101,6 +102,9 @@ one concrete drop case end to end first.
 
 ## N6. Close release evidence
 
+Implemented on `n6-release`; evidence, audit, costs and review in [nano-release.md](nano-release.md).
+The original plan follows.
+
 Make strict combined completion (`--require-complete all`) a required part of the gate.
 Audit the final manifest against source, signatures and design criteria; verify scope has
 not narrowed. Keep partial-coverage diagnostics useful without weakening Nano's gate. Add
@@ -117,4 +121,6 @@ A 2026-09-27 forecast estimated N3 16–32 hours (revised 30–45), N4 12–24, 
 4–8, with moderate-to-low confidence. N4 took one working session: the feared mismatch
 between stateful callbacks and a pure extern interface did not arise, because Nano has no
 fresh state; the real blockers were a fixed-fuel trampoline and compressed-text payload
-equality. Counts of definitions or obligations are not effort percentages.
+equality. N5 and N6 each took about one working session on 2026-09-30; N5's cost was
+the kernel-checked evaluator (gap abstraction against well-founded unfolding), not the
+program. Counts of definitions or obligations are not effort percentages.

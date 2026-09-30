@@ -1,7 +1,7 @@
 # Roadmap
 
-Updated 2026-09-30. Nano work through N4 is complete; the user authorized N5 and N6 on
-2026-09-30. Other backlog remains deferred.
+Updated 2026-09-30. Nano work through N5 is complete and N6 is implemented; the user
+authorized N5 and N6 on 2026-09-30. Other backlog remains deferred.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -38,8 +38,9 @@ and release evidence (N6). N0–N4 are complete, each with independent review an
 passing exact-revision CI (N1 implemented in `ccb8859`, closed at `56cf92c`; N2 closed
 at `d85e82c`; N3 at `67f67ae`; N4 at `4535868`); the
 [plan](notes/nano-certification.md#closed-stages) indexes their evidence and owns the
-[effort history](notes/nano-certification.md#effort-history). N5 and N6 are authorized
-and in progress; status owns the next concrete step.
+[effort history](notes/nano-certification.md#effort-history). N5 closed at `034a90b`
+(CI 36692276571); N6 is implemented on `n6-release` and closes with its recorded release;
+status owns the next concrete step.
 
 ## Candidate next work
 
@@ -52,9 +53,9 @@ These other priorities are not newly authorized implementation.
 
 N3 now has both correspondence directions for all 153 bodied definitions and
 source-domain proofs for the four final polymorphic shapes. N4 discharges the extern
-contract, composes sessions and replays the whole corpus. N5's whole-program certificate
-is implemented on its branch, and the gate there requires every obligation owned through
-N5. The release evidence (N6) remains.
+contract, composes sessions and replays the whole corpus. N5 proves a whole program. N6
+adds cross-layer mutations and review/release records, and the gate requires combined
+completion.
 
 Known runtime boundaries before broadening claims:
 `Match.sub_` and `Match.check'` retain legacy fallback behavior outside the

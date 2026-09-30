@@ -32,7 +32,7 @@ AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests
 strongest for difficult semantics/proofs and independent review), with explicit
 ownership and one integrator. Confidence high in the milestone choice;
 N1 settled reverse-proof and runtime-representation feasibility; N3 and N4 closed core
-coverage and target composition, leaving the whole-program proof and release evidence.
+coverage and target composition, N5 the whole-program proof, and N6 release evidence.
 Revisit scope only through an explicit design
 decision, not by excluding difficult cases from coverage.
 
@@ -241,9 +241,9 @@ Confidence high from pinned Lake's dependency implementation; revisit a
 separate native tactic artifact only if repeated measurements justify its build
 boundary and maintenance cost.
 
-`scripts/nano-certification.py --require-owned NX` requires every core- and target-stage
-obligation owned by N0–NX (core only until 2026-09-29, see "N4 target evidence"); the gate
-uses N4, and release obligations stay reported, not waived. Source identity is discharged
+`scripts/nano-certification.py --require-owned NX` requires every obligation owned by
+N0–NX (updated 2026-09-30); since N6 the gate instead requires `--require-complete all`,
+excusing only the review and release records (see "N6 release evidence"). Source identity is discharged
 by the completion CLI's own checks (pins, export digest, generated freshness,
 `check-quotes`, `check-coverage`), recorded as `checkedBy`, never as a compiled claim.
 
@@ -303,6 +303,26 @@ equals the recording). Its generated `Program.lean` stays inside the example rat
 library of its own: it is one example-local quotation whose freshness the gate checks, and a
 library for it would be a placeholder for programs no consumer uses yet. Revisit when a second
 program is quoted.
+
+## N6 release evidence (2026-09-30)
+
+Review and release are publication records, kept in `notes/nano-release.json` and keyed to a
+SHA-256 digest over every tracked file outside `.agents/` (working-tree bytes, link targets,
+submodule commits). The completion check counts them only when the checkout and the recorded
+revision's own objects both have that digest (so a digest cannot be carried forward to an
+unreviewed tree) and rejects a matching but incomplete record; the gate runs `--require-complete all --allow-unpublished`,
+which excuses only these two records. Reason: a revision cannot contain its own CI result, and
+excluding `.agents/` lets the evidence commit record them without changing what was reviewed and
+tested. Rejected: a digest of the commit tree (every evidence commit would invalidate it), an
+unconditional gate requirement (every later change would fail until re-released), and querying
+GitHub from the checker (network and credentials in the gate). The CI conclusion is therefore a
+recorded observation. Revisit if releases become frequent enough to automate the record.
+
+Cross-layer sensitivity uses `$expression_is_lvalue` for the ordering and failure-kind mutations
+because its catch-all last alternative makes order observable; `update_fieldValue`'s alternatives
+have mutually exclusive guards, so swapping them is behavior-preserving and a rejection would only
+show proof-script brittleness. Each code mutation must also change a runtime observation. The
+completion check runs all mutation suites itself, and the gate no longer runs them separately.
 
 ## Knowledge ownership (2026-09-26)
 
