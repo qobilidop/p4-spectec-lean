@@ -1,7 +1,7 @@
 # Status
 
-N5 (whole-program theorem) implemented on local branch `n5-consumer`, 2026-09-30, and under
-review-fix validation; the user authorized completing the Nano-P4 milestone (N5 and N6) fully
+N5 (whole-program theorem) implemented and reviewed on local branch `n5-consumer`, 2026-09-30,
+ready to merge; the user authorized completing the Nano-P4 milestone (N5 and N6) fully
 autonomously the same day. N4 is complete on `main` (`4535868`,
 [CI 36592809255](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36592809255)).
 Full-P4 M3 remains paused.
@@ -22,21 +22,20 @@ Full-P4 M3 remains paused.
 
 `24d36aa` evaluator; `4c9dcb8` packet families and transmissions; `a8136b1` program quotation;
 `62f41b7` whole-program example and checker; `994659b` gate and completion binding; `d7fac98`
-documentation; the review-resolution commit follows.
+documentation; `0b10557` review resolutions; the following commit records this evidence.
 
 ## Validation
 
 - `d7fac98`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in
   189.86s, all 50 stages (`.artifacts/n5-gate-1.log`).
-- Review fixes (uncommitted at this writing): example, tool and test builds, `lake test`,
-  `check-consumer`, the runner (six rejections) and its contract tests, and the completion CLI
-  tests exit 0. The full gate must rerun on the resolution commit.
+- `0b10557`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in
+  207.56s, all 50 stages (`.artifacts/n5-gate-2.log`): 0 unresolved N5-owned obligations and
+  six mutations rejected. The following evidence commit changes only `.agents/` and reuses it.
 
 ## Next steps
 
-1. Commit the review resolutions, rerun the full gate, and have the reviewer confirm the fixes.
-2. Merge `n5-consumer` into `main`, push, record CI.
-3. N6 (plan, `notes/nano-certification.md#n6-close-release-evidence`).
+1. Merge `n5-consumer` into `main`, push, record CI.
+2. N6 (plan, `notes/nano-certification.md#n6-close-release-evidence`).
 
 ## Repository state
 

@@ -43,9 +43,9 @@ evidence").
 
 ## Costs (2026-09-30, local)
 
-`ExampleProofs.NanoP4SrcAddrFilter.Evaluation` builds in about 64 s wall (170 s CPU); the
-certificate, walkthrough and `check-consumer` add a few seconds; the mutation suite takes
-about 90 s; `--require-owned N5` completion took 70 s.
+At `0b10557` (with the four-prefix trace): rebuilding `ExampleProofs` with the tools took 69 s
+wall (174 s CPU); the mutation suite took 22–43 s with warm builds; `--require-owned N5`
+completion took 66 s in the gate; the full gate took 207.56 s.
 
 ## Review record
 
@@ -65,3 +65,6 @@ about 90 s; `--require-owned N5` completion took 70 s.
   - Identity mutation runs a copy of the identity comparison (plus the real freshness check):
     documented. Generated `Program.lean` inside the example: recorded as an exception in
     decisions.
+- `0b10557`: the same reviewer confirmed all twelve findings resolved and the receiver
+  correction against the generated semantics (`NanoSwitch_setup`, `Copy_out_arg`). It asked for
+  the plan's receiver criterion to be restated (done) and fresh timings (done).

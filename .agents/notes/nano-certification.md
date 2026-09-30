@@ -88,8 +88,13 @@ contracts without duplicating semantics or assuming missing obligations.
 
 Status 2026-09-30: implemented as `ExampleProofs/NanoP4SrcAddrFilter/` with `lazy_eval`; the
 family is every three-byte packet (forward exactly for sources 1 and 2) and every shorter
-packet, under the named `PacketStateText` premise. Payloads are outside the family. Review,
-full gate and CI pending ([consumer note](nano-consumer.md)).
+packet, under the named `PacketStateText` premise. Payloads are outside the family. The
+receiver criterion is met by `NanoP4Target.externsContractHolds` (every call) and the target
+oracle's direct extract observations, not by the whole-program trace: the parser discards
+extract's receiver, so a corrupted receiver passes every claim of the certificate and its trace
+and is rejected only by the extern contract, as the `receiver` mutation shows. The trace still
+supplies the sequential-call evidence (the context threaded through three packets). Reviewed
+([consumer note](nano-consumer.md)).
 Main risk: symbolic header bits through generated parser and table code; `native_decide`
 is not allowed, and deciding all 256 source values in the kernel may be too slow. Spike
 one concrete drop case end to end first.
