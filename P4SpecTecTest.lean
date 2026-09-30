@@ -83,6 +83,7 @@ import P4SpecTecTest.Runtime.Type.SubstDepth
 import P4SpecTecTest.Tactic.CarrierInduction
 import P4SpecTecTest.Tactic.Encoding
 import P4SpecTecTest.Tactic.IterationColumns
+import P4SpecTecTest.Tactic.LazyEval
 import P4SpecTecTest.Tactic.OutcomeInduction
 import P4SpecTecTest.Tactic.RealizeTraversal
 import P4SpecTecTest.Tactic.Refine

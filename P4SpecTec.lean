@@ -173,6 +173,7 @@ import P4SpecTec.Tactic.CarrierInduction
 import P4SpecTec.Tactic.Det
 import P4SpecTec.Tactic.Encoding
 import P4SpecTec.Tactic.IterationColumns
+import P4SpecTec.Tactic.LazyEval
 import P4SpecTec.Tactic.Monotonicity
 import P4SpecTec.Tactic.OutcomeInduction
 import P4SpecTec.Tactic.Realize
