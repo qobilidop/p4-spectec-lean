@@ -9,8 +9,9 @@ for its tree digest. Full-P4 M3 remains paused. Ask the user for a scope before 
 ## Verified state
 
 - `scripts/nano-certification.py --require-n2 --require-complete all --allow-unpublished` (the
-  gate): 888 obligations, 0 unresolved. Without the allowance, `--require-complete all` passes
-  on this tree; any change outside `.agents/` leaves review and release pending until re-recorded.
+  gate): 888 obligations, 0 unresolved. Without the allowance, `--require-complete all` passed
+  on `42ffad6`'s tree (and its `.agents`-only evidence commit); any later change outside
+  `.agents/`, including the maintenance pass below, leaves review and release pending.
 - Evidence, audit, costs and reviews: [release note](notes/nano-release.md); N5 in the
   [consumer note](notes/nano-consumer.md); stage index in the
   [plan](notes/nano-certification.md#closed-stages).
@@ -21,10 +22,20 @@ for its tree digest. Full-P4 M3 remains paused. Ask the user for a scope before 
   removed first returned actual exit 0 in 219.95s, all 49 stages; exact-revision CI passed.
 - The evidence commit after it changes only `.agents/`; checked with
   `scripts/nano-certification.py --require-n2 --require-complete all` (no allowance).
+- `bd8be30` (the evidence commit) failed CI 36699254071: the shallow CI clone lacks
+  `42ffad6`, and the checker raised instead of counting nothing. Fixed in the maintenance
+  pass below; the release stands on `42ffad6`'s CI and the local strict check.
+- A 2026-09-30 maintenance pass then changed `scripts/check.sh` (the gate removes the ignored
+  extracted exports at its start). As designed, the release record still describes `42ffad6`'s
+  tree, so on later trees review and release report pending under the gate's allowance; the
+  milestone's release stands at `42ffad6`.
+- Maintenance pass: full `nix develop -c /usr/bin/time -p scripts/check.sh` on the final
+  working tree returned actual exit 0 in 216.66s, all 49 stages, 0 unresolved, review and
+  release pending as designed (`.artifacts/tend-gate-3.log`); independently reviewed.
 
 ## Repository state
 
-Branch `n6-release` is merged into `main`; delete it once the evidence commit's CI passes.
+`n6-release` was merged into `main` and deleted (it was never pushed).
 Preserve local `n3-decl-load` (`82fbe2e`, non-ancestor WIP), unrelated
 `docs/repository-review`, and the dirty old `../p4-spectec-lean-replay` worktree. The
 expected four-file upstream exporter patch remains applied; no source pins changed.

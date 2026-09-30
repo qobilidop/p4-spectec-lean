@@ -82,18 +82,42 @@ unless stated otherwise. Historical Git paths are recovery pointers, not links.
   `f6a08fdafdfc3889abc44ccc6a61354558463c7747499afd5ce71f6b0faf567f`); AI review, not
   human review, and the reviewer ran no builds. Its exact CI 36543103039 passed. Full record at
   `bd7ed63:.agents/notes/repository-stewardship.md`.
+- Post-N4 pass (2026-09-29), based on `bd7ed63`: CI 36603339319 passed (freshly
+  queried). Documentation and working state only: compacted the Nano plan to closed
+  stage evidence, binding constraints and the N5/N6 plans (detailed N2/N3 narrative
+  recoverable at `bd7ed63:.agents/notes/nano-certification.md`); shortened the roadmap
+  milestone paragraph and corrected N1's implementation versus closure commits; repaired
+  two anchors to removed headings; corrected the target oracle README, which still
+  denied payload normalization; added the two N4 checks to the AGENTS command list;
+  added four N4 traps to the Lean pitfalls. No pins, generated artifacts, code, branches
+  or worktrees changed. Validation and review are recorded in the commit and status.
 
 ## Current maintenance pass
 
-Requested general maintenance after N4 closure, based on `bd7ed63`, whose exact
-CI 36603339319 passed (freshly queried). Documentation and working state only: compacted the Nano plan to closed
-stage evidence, binding constraints and the N5/N6 plans (detailed N2/N3 narrative
-recoverable at `bd7ed63:.agents/notes/nano-certification.md`); shortened the roadmap
-milestone paragraph and corrected N1's implementation versus closure commits; repaired two
-anchors to removed headings; corrected the target oracle README, which still denied payload
-normalization; added the two N4 checks to the AGENTS command list; added four N4 traps to
-the Lean pitfalls. No pins, generated artifacts, code, branches or worktrees changed.
-Validation and review are recorded in the commit and status.
+Requested general maintenance after the Nano-P4 milestone closed, based on `bd8be30` (release
+`42ffad6`, CI 36697907550 passed; `bd8be30`'s own CI 36699254071 was still running when this
+pass began). Compacted the closed N5/N6 plan sections to the constraints that still bind
+(plans recoverable at `bd8be30:.agents/notes/nano-certification.md`); rewrote stale
+milestone, authorization and gate wording in status, decisions, roadmap, AGENTS and two
+notes; added the Nano follow-ups to the roadmap as unauthorized candidates. One executable
+change: the gate removes the ignored extracted exports at its start (lesson below). No pins,
+generated artifacts, Lean code, branches or worktrees changed. The release record now
+describes `42ffad6`'s tree only, so review and release are pending on later trees, by design.
+The evidence commit `bd8be30` then failed CI 36699254071: CI checks out shallowly, so the
+recorded commit `42ffad6` was absent and the checker raised instead of counting nothing. The
+checker now reports such a record as unverifiable in that clone (counting nothing); the
+release itself stands on its recorded local strict check and `42ffad6`'s CI. Validation is
+recorded in status. Independent Claude
+Opus 5.5 subagent review (read-only, no builds) found no blockers; its two should-fix
+findings (a status claim contradicted by this change, and stale plan wording in the roadmap
+and AGENTS) and the gate-comment, wording and duplication nits are resolved; the
+`spec-snapshot.py` docstring nit is left, since the extracted cache is always rebuildable.
+The resolution review's N0 claim, direction and scope nits are resolved. A separate independent
+review of the shallow-clone fix (Claude Opus 5.5 subagent, read-only) found no blockers; its
+findings (a malformed revision excused as absent, constant-mock tests) were resolved: only a
+missing object is excused, malformed or non-commit revisions raise, release fields are checked
+first, and a real-Git test covers each case. Its confirmation found no unresolved findings.
+Two earlier reviewer runs stalled while the machine slept; they reported nothing.
 
 ## Shared-skill layout reproduction
 
@@ -142,3 +166,8 @@ printf 'All six cases passed; fixtures remain at %s\n' "$root"
   untracked file escaped `check-text` (which lints tracked files; `git add -N` first),
   and a hand-written axiom expectation (now a Lean pitfall). Both were caught by the gate
   before publication; no new rule, since the gate is the intended backstop.
+- The same warm-export trap recurred at N6: release CI for `a65c265` failed because a
+  contract stage read the extracted export before the gate extracts it (`42ffad6`). A second
+  recurrence justified a mechanism rather than a rule: the gate now removes the ignored
+  extracted exports at its start, so local gates fail the same way CI does (2026-09-30
+  maintenance pass, above).

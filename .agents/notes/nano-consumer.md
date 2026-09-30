@@ -19,8 +19,9 @@ evidence").
   session with its trace pinned as `stfTrace`: the outcome after initialization and after each
   packet), the `Certificate` and `referenceFilter`.
 - `check-consumer` (identity, upstream observation of the whole trace, literal values, 7 exact
-  claims elaborated in the root namespace) binds `profile:consumer`; the gate requires
-  `--require-owned N5` and runs the mutation suite (baseline plus six rejections).
+  claims elaborated in the root namespace) binds `profile:consumer`. At N5 the gate required
+  `--require-owned N5` and ran the mutation suite (baseline plus six rejections); since N6 the
+  combined completion check covers the N5 obligations and runs the mutation suite.
 
 ## Constraints that bind later work
 

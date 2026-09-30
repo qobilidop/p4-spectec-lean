@@ -19,14 +19,9 @@ core semantics and target composition as separate required acceptance stages.
 [Design section 9](../docs/design.md#9-nano-p4-scope-and-acceptance) owns the
 scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
-first authorized settling this scope and then explicitly approved autonomous
-implementation of the Nano plan, then explicitly requested completion through N2,
-then authorized N3 through its proof closure on 2026-09-29. N3-owned proofs are
-closed. The user authorized N4 reconnaissance and then the bounded promotion of
-the existing raw-receiver rejection theorem into reusable support, followed by
-the short-packet extract theorem under an explicit decoding premise, and then all of N4
-on 2026-09-29, now implemented. On 2026-09-30 the user authorized completing the milestone
-(N5 and N6) fully autonomously; full-P4 M3 remains paused.
+authorized each stage in turn (the scope, then N0–N2, N3 and N4 on 2026-09-26 to 2026-09-29,
+and N5–N6 fully autonomously on 2026-09-30). The milestone closed on 2026-09-30 at `42ffad6`;
+no further Nano or full-P4 work is authorized, and full-P4 M3 remains paused.
 Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit

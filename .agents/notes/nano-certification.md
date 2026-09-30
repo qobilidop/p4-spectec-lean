@@ -62,7 +62,8 @@ every corpus case (the gate runs the Lean executable `check-nano-sessions` throu
   name whitelist for proof selection (eligibility follows source structure); keep actual
   counterexamples and trustworthy failure classifications.
 - Warm artifacts must never be the only evidence that a fixture's inputs are available (an
-  N2 remote gate once read an ignored raw export); profile proof costs before expanding
+  N2 remote gate and the first N6 release CI read an ignored extracted export too early; the
+  gate now removes the extracted exports at its start); profile proof costs before expanding
   expensive recursive groups.
 - Extern-dependent claims assume the contract `NanoP4Target` discharges; print-dependent
   claims assume the pinned empty print hints. Target constraints are in
@@ -71,51 +72,19 @@ every corpus case (the gate runs the Lean executable `check-nano-sessions` throu
 Primary surfaces: `Codegen/`, `Refine/`, `Tactic/`, `BackendSim/`, `NanoP4Target/`,
 `P4SpecTecTest/` and `scripts/nano-certification.py`.
 
-## N5. Demonstrate a whole-program theorem
+## N5 and N6 (closed)
 
-Use a small Nano parser/control filter whose packet-field test decides forward versus
-drop, with actual extraction. The candidate is pinned `positive/src-addr-filter.p4`: the
-parser extracts the Nanonet header, a source-address table allows addresses 1 and 2,
-denies 3 and drops by default; its STF forwards `000100` unchanged and drops `000300`
-and `000A00`, and the session replay covers it.
+The plans are recoverable at `bd8be30` in this file; evidence lives in the
+[consumer note](nano-consumer.md) and the [release note](nano-release.md). What still binds:
 
-Prove the exact port/payload outcome for a stated family of valid packets and a drop
-family, from the exported program and real initialization, including the composed
-reference statement (`initializedSessionCorrespondence`), not only generated values.
-Packets are unmodified upstream; state that rather than inventing rewriting. Keep
-intermediate and sequential-call evidence so discarded receiver corruption cannot pass.
-
-Exit: a checked consumer certificate with a walkthrough and distinguishing mutations of
-source identity, packet branch, extern result and output/state, consuming library
-contracts without duplicating semantics or assuming missing obligations.
-
-Status 2026-09-30: implemented as `ExampleProofs/NanoP4SrcAddrFilter/` with `lazy_eval`; the
-family is every three-byte packet (forward exactly for sources 1 and 2) and every shorter
-packet, under the named `PacketStateText` premise. Payloads are outside the family. The
-receiver criterion is met by `NanoP4Target.externsContractHolds` (every call) and the target
-oracle's direct extract observations, not by the whole-program trace: the parser discards
-extract's receiver, so a corrupted receiver passes every claim of the certificate and its trace
-and is rejected only by the extern contract, as the `receiver` mutation shows. The trace still
-supplies the sequential-call evidence (the context threaded through three packets). Reviewed
-([consumer note](nano-consumer.md)).
-Main risk: symbolic header bits through generated parser and table code; `native_decide`
-is not allowed, and deciding all 256 source values in the kernel may be too slow. Spike
-one concrete drop case end to end first.
-
-## N6. Close release evidence
-
-Closed at `42ffad6`; evidence, audit, costs and review in [nano-release.md](nano-release.md).
-The original plan follows.
-
-Make strict combined completion (`--require-complete all`) a required part of the gate.
-Audit the final manifest against source, signatures and design criteria; verify scope has
-not narrowed. Keep partial-coverage diagnostics useful without weakening Nano's gate. Add
-cross-layer mutations for alternative ordering, hard-error retry, omitted constructors,
-wrong quotations, incompatible print provenance and corrupted target state, naming the
-check that rejects each. Record generation, proof-checking and replay costs separately;
-resolve unexplained regressions without weakening statements. Update the guide and README
-only to delivered claims. Independent review, the full gate and exact-revision CI must
-pass before declaring the milestone complete.
+- The whole-program family is every three-byte packet (forwarded exactly for sources 1 and 2)
+  and every shorter packet, under the named `PacketStateText` premise; payloads are outside it.
+- The parser discards extract's receiver, so receiver correctness rests on
+  `NanoP4Target.externsContractHolds` and the target oracle, not on whole-program traces.
+- The planned "hard-error retry" mutation was replaced by `failureKind` (a retried mismatch made
+  an error): no convenient generated definition reaches an error in an earlier alternative.
+- `--require-complete all --allow-unpublished` is the gate; any change outside `.agents/` leaves
+  review and release pending until a new release is recorded.
 
 ## Effort history
 

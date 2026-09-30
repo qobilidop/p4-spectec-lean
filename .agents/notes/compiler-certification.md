@@ -68,8 +68,8 @@ a finite reverse witness. No novelty claim follows merely from using Lean.
 
 Documentation scope settled on 2026-09-26 at the user's request. The durable
 contract is [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance);
-implementation was deferred at that historical checkpoint. N0–N4 are now implemented;
-N5 and N6 remain planned. Both core semantics and target composition
+implementation was deferred at that historical checkpoint. N0–N6 are complete; the
+milestone closed on 2026-09-30 at `42ffad6`. Both core semantics and target composition
 are required to avoid calling a collection of helper certificates a complete
 Nano model. General logical converse is separate from the required two-way
 executable correspondence. Upstream parsing and test syntax may remain outside

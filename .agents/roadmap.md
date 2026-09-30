@@ -21,40 +21,31 @@ Broader full-P4 M3 remains paused.
   ([evidence](notes/field-update.md)). Broader client libraries and interfaces
   remain open. The example/library separation is complete, not a new milestone.
 
-## Nano-P4 completion milestone
+## Nano-P4 completion milestone (closed)
 
-The next major milestone is
-[complete Nano-P4 support and certification](../docs/design.md#9-nano-p4-scope-and-acceptance).
-The design owns acceptance criteria; the
-[implementation plan](notes/nano-certification.md) owns concrete deliverables,
-dependencies and exit checks. The user approved autonomous implementation,
-starting with N0/N1, then requested completion through N2. Both core semantics and target composition must close.
+[Complete Nano-P4 support and certification](../docs/design.md#9-nano-p4-scope-and-acceptance)
+closed on 2026-09-30 at `42ffad6`. The design owns the acceptance criteria; the
+[closed plan](notes/nano-certification.md) indexes each stage's evidence and the constraints
+that still bind; decisions ("Scope and product") record the authorizations.
 Broader full-P4 M3 remains paused.
 
-The plan proceeds from the complete obligation inventory (N0), through early
-reverse-proof/target/printing feasibility probes (N1), reusable contracts (N2),
-full core coverage (N3), target composition (N4), the whole-program proof (N5),
-and release evidence (N6). N0–N4 are complete, each with independent review and
-passing exact-revision CI (N1 implemented in `ccb8859`, closed at `56cf92c`; N2 closed
-at `d85e82c`; N3 at `67f67ae`; N4 at `4535868`); the
-[plan](notes/nano-certification.md#closed-stages) indexes their evidence and owns the
-[effort history](notes/nano-certification.md#effort-history). N5 closed at `034a90b`
-(CI 36692276571) and N6 at `42ffad6` (CI 36697907550), completing the milestone.
+Its stages were the obligation inventory (N0), feasibility probes (N1), reusable contracts
+(N2), full core coverage (N3), target composition (N4), the whole-program proof (N5) and
+release evidence (N6). N1–N6 each closed with independent review and exact-revision CI, N0
+within later checkpoints; the
+[plan's index](notes/nano-certification.md#closed-stages) lists the commits and runs.
 
 ## Candidate next work
 
 The [certification discussion](notes/compiler-certification.md) preserves
 advisory priorities. Machine-readable entry-point certificate coverage is
 complete; [Status](status.md) owns the current documentation checkpoint.
-Deferred priorities include broader representation adequacy, discriminating generator mutations,
-consumer-guided wrappers, and measured maintenance across upstream changes.
-These other priorities are not newly authorized implementation.
-
-N3 now has both correspondence directions for all 153 bodied definitions and
-source-domain proofs for the four final polymorphic shapes. N4 discharges the extern
-contract, composes sessions and replays the whole corpus. N5 proves a whole program. N6
-adds cross-layer mutations and review/release records, and the gate requires combined
-completion.
+Deferred priorities include broader representation adequacy, generator mutation campaigns
+beyond the selected N6 boundaries, consumer-guided wrappers, and measured maintenance across
+upstream changes. Nano follow-ups: whole-program packets with payloads (evaluator rules for
+symbolic array sizes, see [consumer note](notes/nano-consumer.md)) and proving the
+`PacketStateText` premise by adopting total JSON printing and parsing in the target port.
+None of these is authorized implementation.
 
 Known runtime boundaries before broadening claims:
 `Match.sub_` and `Match.check'` retain legacy fallback behavior outside the

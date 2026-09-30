@@ -79,4 +79,7 @@ unbound. Scope has not narrowed.
 `42ffad6`: full gate with the extracted exports removed first returned actual exit 0 in 219.95s,
 all 49 stages (`.artifacts/n6-gate-4.log`); exact-revision
 [CI 36697907550](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36697907550) passed.
-`nano-release.json` records both for tree digest `4432d6a5…`.
+`nano-release.json` records both for tree digest `4432d6a5…`. The evidence commit `bd8be30`
+passed the strict check locally but failed CI 36699254071: the shallow CI clone lacks
+`42ffad6`, and the checker raised. It now counts nothing when the recorded commit is absent
+(2026-09-30 maintenance pass).
