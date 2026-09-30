@@ -13320,7 +13320,10 @@
       "subject": "NanoSwitch"
     },
     {
-      "coverageClaim": null,
+      "checkedBy": [
+        "check-consumer: export identity, upstream STF observation, exact claim types and allowed axioms"
+      ],
+      "coverageClaim": "ExampleProofs.NanoP4SrcAddrFilter.referenceFilter",
       "dependencies": [
         "profile:composition",
         "profile:sourceIdentity"

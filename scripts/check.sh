@@ -19,6 +19,8 @@
 # 8. Quoted Nano-P4 AL matches the export, with typed VarD checked separately.
 # 9. The full P4 export decodes and its reconnaissance report is current.
 # 10. The bounded field-update certificate's mutations fail at the intended boundaries.
+# 11. The whole-program source-address filter: its quotation is current, check-consumer binds
+#     it to the export and the upstream session, and its mutations fail at their boundaries.
 # A missing lake is a failure, not a skip, unless P4SPECTEC_SKIP_LEAN=1 says
 # so explicitly.
 set -euo pipefail
@@ -56,6 +58,9 @@ for path in \
   P4SpecTecTest/Oracle/Nano/Certification/corpus.json P4SpecTecTest/Oracle/Nano/Certification/test_corpus.py \
   P4SpecTec/Refine/Init.lean ExampleProofs/NanoP4FieldUpdate/Certificate.lean \
   ExampleProofs/NanoP4FieldUpdate/test/run.py ExampleProofs/NanoP4FieldUpdate/test/test_runner.py \
+  ExampleProofs/NanoP4SrcAddrFilter/Certificate.lean ExampleProofs/NanoP4SrcAddrFilter/Program.lean \
+  ExampleProofs/NanoP4SrcAddrFilter/test/run.py ExampleProofs/NanoP4SrcAddrFilter/test/test_runner.py \
+  Tools/QuoteProgram.lean Tools/CheckConsumer.lean P4SpecTec/Tactic/LazyEval.lean \
   upstream/p4-spectec/README.md upstream/nano-p4-spec/README.md \
   upstream/patches/0001-json-export.patch \
   exports/nano-p4.al.json.gz exports/nano-p4.al.json.sha256 \
@@ -138,6 +143,9 @@ runStage "Spec snapshot contracts" python3 "$root/scripts/test_spec_snapshot.py"
 runStage "Certificate replay contracts" python3 "$root/scripts/test_replay_cert.py" || { say "replay tests failed"; fail=1; }
 runStage "Field-update mutation runner contracts" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/test_runner.py" \
   || { say "field-update mutation runner contract tests failed"; fail=1; }
+runStage "Source-address filter mutation runner contracts" \
+  python3 "$root/ExampleProofs/NanoP4SrcAddrFilter/test/test_runner.py" \
+  || { say "source-address filter mutation runner contract tests failed"; fail=1; }
 runStage "P4C restore shell syntax" bash -n "$root/scripts/fetch-p4c.sh" || { say "p4c restore script syntax failed"; fail=1; }
 runStage "P4C restore contracts" python3 "$root/scripts/test_fetch_p4c.py" || { say "p4c restore tests failed"; fail=1; }
 runStage "Full-P4 oracle contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Replay/test_contract.py" \
@@ -184,15 +192,22 @@ if command -v lake >/dev/null 2>&1; then
     check-quotes check-coverage check-print check-text-builtins \
     check-state-oracle p4spectec-census p4-interp-replay p4-corpus-worker \
     check-nano-target check-nano-packet check-nano-driver check-nano-verify check-nano-sessions \
-    check-target \
+    check-target check-consumer nano-program-quote \
     || { say "reconnaissance tools failed to build"; fail=1; }
-  # Retain bounded N2 closure checks and require every core and target obligation owned
-  # through N4, including both replays. Release obligations (N5, N6) remain reported.
+  runStage "Source-address filter quotation freshness" inRoot lake exe nano-program-quote \
+    exports/programs/nano-p4/positive/src-addr-filter.json ExampleProofs.NanoP4SrcAddrFilter \
+    ExampleProofs/NanoP4SrcAddrFilter/Program.lean --check \
+    || { say "the source-address filter quotation is stale"; fail=1; }
+  # Retain bounded N2 closure checks and require every obligation owned through N5: core and
+  # target, both replays, and the whole-program consumer. N6 obligations remain reported.
   runStage "Completion inventory, coverage and quotation" python3 "$root/scripts/nano-certification.py" \
-    --require-n2 --require-owned N4 \
+    --require-n2 --require-owned N5 \
     || { say "Nano completion inventory/coverage/quotation check failed"; fail=1; }
   runStage "Field-update certificate mutations" python3 "$root/ExampleProofs/NanoP4FieldUpdate/test/run.py" \
     || { say "field-update certificate sensitivity checks failed"; fail=1; }
+  runStage "Source-address filter certificate mutations" \
+    python3 "$root/ExampleProofs/NanoP4SrcAddrFilter/test/run.py" \
+    || { say "source-address filter certificate sensitivity checks failed"; fail=1; }
   runStage "Print oracle replay" inRoot lake exe check-print || { say "print oracle check failed"; fail=1; }
   runStage "Text builtin oracle replay" inRoot lake exe check-text-builtins \
     || { say "text builtin oracle check failed"; fail=1; }

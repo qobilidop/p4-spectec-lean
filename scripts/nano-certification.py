@@ -186,6 +186,16 @@ TARGET_WITNESSES = {"NanoP4Target.referenceWitness"}
 TARGET_CHECKS = ["check-target: exact NanoP4Target theorem types and allowed axioms"]
 PRINTING_CHECKS = ["check-coverage: print_ dispatch under the empty hint table",
                    "check-target: the pinned export declares no print hints"]
+# The whole-program consumer certificate; check-consumer verifies the quotation against the
+# decoded export, the proven STF outcome against the pinned upstream recording, and these
+# claims' exact types and axioms.
+CONSUMER_EVIDENCE = "ExampleProofs.NanoP4SrcAddrFilter.referenceFilter"
+CONSUMER_CLAIMS = {f"ExampleProofs.NanoP4SrcAddrFilter.{name}" for name in (
+    "initialized", "filterGenerated", "shortGenerated", "stfSession", "stfTransmits",
+    "referenceFilter", "programRel")}
+CONSUMER_CHECKS = ["check-consumer: export identity, upstream STF observation, "
+                   "exact claim types and allowed axioms"]
+SESSION_BUNDLE = Path(".artifacts/nano-sessions/sessions-observed.json")
 TYPING_REPLAY = ["nano-p4-run and nano-p4-interp match the upstream verdict and outputs"]
 SESSION_REPLAY = ["check-nano-sessions matches every upstream session step on both paths"]
 
@@ -366,7 +376,8 @@ def build_manifest(source, coverage, corpus_ids, identity):
         core_proofs + target_contracts + ["profile:initialization", "profile:observations"],
         evidence=TARGET_CLAIMS["profile:composition"], checked_by=TARGET_CHECKS)
     add("profile:consumer", "consumer", "Nano-P4 milestone", "release",
-        ["profile:composition", "profile:sourceIdentity"])
+        ["profile:composition", "profile:sourceIdentity"],
+        evidence=CONSUMER_EVIDENCE, checked_by=CONSUMER_CHECKS)
     if len(corpus_ids) != len(set(corpus_ids)):
         raise CertificationError("duplicate corpus obligation identity")
     for case in corpus_ids:
@@ -529,6 +540,27 @@ def target_verified(manifest):
             and o["coverageClaim"] is not None}
 
 
+def consumer_verified(manifest):
+    """Run check-consumer on the pinned session recording; the consumer obligations it
+    verified."""
+    fixture = corpus_helper(ROOT / "P4SpecTecTest/Oracle/NanoSwitch/Sessions/fixture.py",
+                            "nano_session_fixture")
+    _, data = fixture.read()
+    bundle = ROOT / SESSION_BUNDLE
+    bundle.parent.mkdir(parents=True, exist_ok=True)
+    corpus_helper(ROOT / "scripts/spec-snapshot.py", "spec_snapshot").atomic_write(bundle, data)
+    run(ROOT, ["lake", "build", "check-consumer"])
+    output = run(ROOT, ["lake", "exe", "check-consumer", str(SESSION_BUNDLE)])
+    claims = {line.removeprefix("[consumer] claim ").strip() for line in output.splitlines()
+              if line.startswith("[consumer] claim ")}
+    if (claims != CONSUMER_CLAIMS or "[consumer] identity:" not in output
+            or "[consumer] observation:" not in output):
+        raise CertificationError("check-consumer did not verify exactly the consumer claims, "
+                                 "the export identity and the upstream observation")
+    return {o["id"] for o in manifest["obligations"]
+            if o.get("checkedBy") == CONSUMER_CHECKS and o["coverageClaim"] is not None}
+
+
 def replay_verified(manifest, corpus):
     """Run both typing replay legs and the session replay; every agreeing replay obligation."""
     replay = corpus_helper(ROOT / "P4SpecTecTest/Oracle/Nano/Replay/replay.py", "nano_replay")
@@ -568,8 +600,8 @@ def main(argv=None):
     parser.add_argument("--update", action="store_true", help="regenerate metadata, not proof evidence")
     parser.add_argument("--require-complete", choices=("core", "target", "all"))
     parser.add_argument("--require-owned", choices=MILESTONES,
-                        help="require every core- and target-stage obligation owned by "
-                        "milestones up to this one; later-owned obligations stay reported")
+                        help="require every obligation owned by milestones up to this one; "
+                        "later-owned obligations stay reported")
     parser.add_argument("--require-n2", action="store_true",
                         help="require the bounded N2 profile; broader stages stay independent")
     args = parser.parse_args(argv)
@@ -595,8 +627,9 @@ def main(argv=None):
                     if o.get("checkedBy") == IDENTITY_CHECKS}
         verified |= target_verified(manifest)
         verified |= replay_verified(manifest, corpus)
-        # Owned scope spans the core and target stages; release evidence stays separate.
-        stage = "target" if args.require_owned else args.require_complete or "all"
+        verified |= consumer_verified(manifest)
+        # Owned scope spans every stage; the owner filter excludes later milestones' work.
+        stage = "all" if args.require_owned else args.require_complete or "all"
         missing = outstanding(manifest, stage, verified=verified, owned=args.require_owned)
         bound = sum(o["coverageClaim"] is not None for o in manifest["obligations"])
         print(f"[completion] {len(manifest['declarations'])} source declarations; "
@@ -615,7 +648,7 @@ def main(argv=None):
                 count = sum(o["requirement"] == kind for o in missing)
                 if count:
                     print(f"[completion] missing {kind}: {count}")
-            scope = args.require_complete or f"core and target ({args.require_owned}-owned)"
+            scope = args.require_complete or f"{args.require_owned}-owned"
             raise CertificationError(f"Nano {scope} certification is incomplete")
         return 0
     except (CertificationError, OSError, ValueError, KeyError) as error:

@@ -200,6 +200,50 @@ class CompletionTests(unittest.TestCase):
             with self.assertRaises(completion.CertificationError):
                 completion.replay_verified(manifest, None)
 
+    def test_consumer_binding_needs_its_check(self):
+        consumer = next(o for o in self.manifest["obligations"] if o["id"] == "profile:consumer")
+        self.assertEqual(consumer["coverageClaim"], completion.CONSUMER_EVIDENCE)
+        self.assertEqual(consumer["checkedBy"], completion.CONSUMER_CHECKS)
+        self.assertEqual(consumer["stage"], "release")
+        self.assertIn(consumer, completion.outstanding(self.manifest, "all", owned="N5"))
+        self.assertNotIn(consumer, completion.outstanding(
+            self.manifest, "all", verified={"profile:consumer"}, owned="N5"))
+
+    def test_consumer_verification_requires_exact_claims_and_observations(self):
+        good = ("[consumer] identity: the quoted program is the decoded export\n"
+                "[consumer] observation: proven initialization and STF outcome equal x\n" +
+                "".join(f"[consumer] claim {c}\n" for c in sorted(completion.CONSUMER_CLAIMS)) +
+                "[consumer] 7 claims checked")
+
+        class Fixture:
+            @staticmethod
+            def read():
+                return {}, b"{}"
+
+        class Snapshot:
+            @staticmethod
+            def atomic_write(path, data):
+                pass
+
+        helpers = {"nano_session_fixture": Fixture, "spec_snapshot": Snapshot}
+        with patch.object(completion, "corpus_helper", lambda path, name: helpers[name]):
+            with patch.object(completion, "run", return_value=good):
+                self.assertEqual(completion.consumer_verified(self.manifest), {"profile:consumer"})
+            first = sorted(completion.CONSUMER_CLAIMS)[0]
+            for output in (good.replace(f"[consumer] claim {first}\n", ""),
+                           good + "\n[consumer] claim ExampleProofs.Extra",
+                           good.replace("[consumer] identity:", "[consumer] identity"),
+                           good.replace("[consumer] observation:", "")):
+                with patch.object(completion, "run", return_value=output):
+                    with self.assertRaises(completion.CertificationError):
+                        completion.consumer_verified(self.manifest)
+
+    def test_owned_n5_adds_the_consumer_but_not_n6(self):
+        missing = [o["id"] for o in completion.outstanding(self.manifest, "all", owned="N5")]
+        self.assertIn("profile:consumer", missing)
+        for later in ("profile:sensitivity", "profile:review", "profile:release"):
+            self.assertNotIn(later, missing)
+
     def test_owned_n4_spans_core_and_target_but_not_release(self):
         missing = completion.outstanding(self.manifest, "target", owned="N4")
         stages = {o["stage"] for o in missing}
