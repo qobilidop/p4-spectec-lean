@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -633,7 +634,17 @@ def tree_digest(root):
 
 
 def revision_digest(root, revision):
-    """The same digest computed from a commit's own objects, independent of the checkout."""
+    """The same digest computed from a commit's own objects, independent of the checkout.
+
+    The revision must be a full commit id naming a commit: a symbolic ref such as `HEAD`, or a
+    tree id, would follow the checkout instead of naming what was reviewed."""
+    if not isinstance(revision, str) or re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+        raise CertificationError(f"recorded revision must be a full commit id: {revision!r}")
+    resolved = subprocess.run(["git", "rev-parse", "--verify", "--quiet", "--end-of-options",
+                               f"{revision}^{{commit}}"], cwd=root, capture_output=True,
+                              text=True)
+    if resolved.returncode or resolved.stdout.strip() != revision:
+        raise CertificationError(f"recorded revision is not a commit: {revision!r}")
     listing = subprocess.run(["git", "ls-tree", "-r", "-z", revision], cwd=root,
                              capture_output=True)
     if listing.returncode:

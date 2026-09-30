@@ -331,13 +331,19 @@ class CompletionTests(unittest.TestCase):
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm",
                             "x"], cwd=root, check=True)
-            self.assertEqual(completion.revision_digest(root, "HEAD"),
+            commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, check=True,
+                                    capture_output=True, text=True).stdout.strip()
+            tree = subprocess.run(["git", "rev-parse", "HEAD^{tree}"], cwd=root, check=True,
+                                  capture_output=True, text=True).stdout.strip()
+            self.assertEqual(completion.revision_digest(root, commit),
                              completion.tree_digest(root))
             (root / "code.lean").write_text("b")
-            self.assertNotEqual(completion.revision_digest(root, "HEAD"),
+            self.assertNotEqual(completion.revision_digest(root, commit),
                                 completion.tree_digest(root))
-            with self.assertRaises(completion.CertificationError):
-                completion.revision_digest(root, "0" * 40)
+            # only a full commit id names what was reviewed; refs and trees follow the checkout
+            for revision in ("0" * 40, "HEAD", "HEAD^{tree}", tree, commit[:12], "-h", None):
+                with self.assertRaises(completion.CertificationError):
+                    completion.revision_digest(root, revision)
 
     def test_allowance_excuses_only_publication(self):
         missing = [o for o in self.manifest["obligations"] if o["stage"] == "release"]
