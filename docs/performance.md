@@ -29,6 +29,10 @@ The [N3 iteration snapshot](performance/n3-iteration-2026-09-28.md) records the
 repaired baseline, independent proof dependency chains, domain-planning boundary,
 and optional native replay measurements.
 
+The [Nano-P4 release snapshot](performance/nano-release-2026-09-30.md) records
+generation, proof-checking and replay costs separately at the Nano-P4 milestone
+release, and compares the expensive generated modules with the N3 snapshot.
+
 ## Reproduce a measurement
 
 From the repository root, with the pinned toolchain available:
