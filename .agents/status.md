@@ -18,8 +18,8 @@ Full-P4 M3 remains paused.
 ## Commits on `n6-release`
 
 `3841877` cross-layer mutations; `4e2555a` combined completion in the gate; `551df89` docs;
-`a146d78`, `868cc81` review resolutions; `5ebec11` performance snapshot; the following commit
-records this working state.
+`a146d78`, `868cc81` review resolutions; `5ebec11` performance snapshot; `d5c4b17` working
+state; `5eefa3f`, `883ebca` delta-review resolutions; the following commit records them.
 
 ## Validation
 
@@ -28,7 +28,7 @@ records this working state.
 
 ## Next steps
 
-1. Delta review of the resolutions and the snapshot; full gate at the branch tip.
+1. Confirm the delta resolutions with the reviewer; full gate at the branch tip.
 2. Fast-forward `main`, push, wait for exact-revision CI.
 3. Evidence commit: `notes/nano-release.json` naming the reviewed revision, gate and CI; check
    `--require-complete all` passes without the allowance; push; compact `.agents/`.

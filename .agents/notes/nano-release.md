@@ -8,7 +8,8 @@ record format's rationale is in [decisions](../decisions.md) ("N6 release eviden
 ## What is established
 
 - `P4SpecTecTest/Oracle/Nano/Certification/mutations.py` (with `test_mutations.py`): five
-  cross-layer mutations, each observable and rejected by a named check (ordering and
+  cross-layer mutations, each rejected by a named check, the two code mutations after first
+  changing a runtime result (ordering and
   failure kind by the replayed forward proof of `$expression_is_lvalue`; an omitted
   constructor and a changed premise by quotation comparison; a print hint by `check-quotes`'
   empty-hint check). Corrupted target state is the source-address filter's `extern`,
@@ -62,3 +63,9 @@ unbound. Scope has not narrowed.
     executable bit, which the index records), the legacy corpus identity path (pre-existing,
     mapped by `source_path`), and `.agents/notes/p4-census.json` outside the digest (full-P4
     only).
+- `d5c4b17`: delta review by the same reviewer. It confirmed findings 2–5 and the nits
+  resolved or justified, and the snapshot figures against the artifacts. It found that the
+  recorded revision could be any tree-ish (`HEAD` would follow the checkout): now a
+  verified full commit id is required (`5eefa3f`). Nits resolved in `883ebca` (run order,
+  attributions) and here (the print mutation is not claimed observable). Missing objects in
+  `cat-file` output fail closed with a traceback; left unchanged.
