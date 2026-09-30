@@ -1,8 +1,8 @@
 # Nano-P4 certification implementation plan
 
-Active plan, compacted 2026-09-29 after N4 closed. N0–N4 are complete. The user authorized
-N5 and N6 on 2026-09-30; N5 closed on `main` at `034a90b` ([consumer note](nano-consumer.md)),
-and N6 is implemented on `n6-release` ([release note](nano-release.md)).
+Durable, closed 2026-09-30: the Nano-P4 milestone is complete at `42ffad6`. Retained for the
+closed-stage index and the constraints that bind later Nano work. N5 is recorded in the
+[consumer note](nano-consumer.md) and N6 in the [release note](nano-release.md).
 Full-P4 M3 stays paused.
 [Design section 9](../../docs/design.md#9-nano-p4-scope-and-acceptance) owns scope,
 [Certification](../../docs/certification.md) owns delivered guarantees, and
@@ -29,6 +29,8 @@ recovery pointers for detailed records, not live links.
 | N2 | 162 source codecs, 26 builtin contracts, bounded 30-definition closure with call admission | `d85e82c`, CI 36316496027 | `d85e82c:.agents/notes/nano-certification-review.json` |
 | N3 | Forward and reverse theorems for all 153 bodied definitions, run-soundness for all 77 relations, final source domains | `67f67ae`/`6ca3a22`, CI 36539336394 | `6ca3a22:.agents/notes/n3-source-domains.md`, `bd7ed63:.agents/notes/nano-certification.md` |
 | N4 | Extern discharge, two-way session composition, whole-corpus replay, completion binding | `4535868`, CI 36592809255 | [nano-target.md](nano-target.md) |
+| N5 | `lazy_eval`, whole-program source-address filter certificate, `check-consumer` | `034a90b`, CI 36692276571 | [nano-consumer.md](nano-consumer.md) |
+| N6 | Cross-layer mutations, combined completion in the gate, review/release record, costs | `42ffad6`, CI 36697907550 | [nano-release.md](nano-release.md) |
 
 N4 exit evidence: `NanoP4Target.externsContractHolds` (every related input, global context
 satisfying the specification and trampoline fuel); `NanoP4Target.sessionCorrespondence` and
@@ -102,7 +104,7 @@ one concrete drop case end to end first.
 
 ## N6. Close release evidence
 
-Implemented on `n6-release`; evidence, audit, costs and review in [nano-release.md](nano-release.md).
+Closed at `42ffad6`; evidence, audit, costs and review in [nano-release.md](nano-release.md).
 The original plan follows.
 
 Make strict combined completion (`--require-complete all`) a required part of the gate.

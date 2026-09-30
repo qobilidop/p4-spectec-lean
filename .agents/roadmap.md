@@ -1,7 +1,7 @@
 # Roadmap
 
-Updated 2026-09-30. Nano work through N5 is complete and N6 is implemented; the user
-authorized N5 and N6 on 2026-09-30. Other backlog remains deferred.
+Updated 2026-09-30. The Nano-P4 completion milestone closed on 2026-09-30 at `42ffad6`.
+Other backlog remains deferred; no next milestone is authorized.
 Broader full-P4 M3 remains paused.
 [Status](status.md) owns immediate obligations, not this backlog.
 
@@ -39,8 +39,7 @@ passing exact-revision CI (N1 implemented in `ccb8859`, closed at `56cf92c`; N2 
 at `d85e82c`; N3 at `67f67ae`; N4 at `4535868`); the
 [plan](notes/nano-certification.md#closed-stages) indexes their evidence and owns the
 [effort history](notes/nano-certification.md#effort-history). N5 closed at `034a90b`
-(CI 36692276571); N6 is implemented on `n6-release` and closes with its recorded release;
-status owns the next concrete step.
+(CI 36692276571) and N6 at `42ffad6` (CI 36697907550), completing the milestone.
 
 ## Candidate next work
 

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "milestone": "Nano-P4 support and certification (docs/design.md section 9)",
+  "tree": "4432d6a5238438e72fa7aa1f93e45cad2451a5eae1dd1c06c5e24444160bfd0a",
+  "review": {
+    "revision": "42ffad6a9f28cdb02834eea178b89d50ca723933",
+    "reviewer": "Claude Opus 5.5 subagent (independent, read-only)",
+    "verdict": "no unresolved findings",
+    "record": ".agents/notes/nano-release.md",
+    "scope": "release revision, scope adequacy, contract statements, trust assumptions"
+  },
+  "release": {
+    "revision": "42ffad6a9f28cdb02834eea178b89d50ca723933",
+    "gate": {
+      "command": "nix develop -c /usr/bin/time -p scripts/check.sh",
+      "exit": 0,
+      "seconds": 219.95,
+      "stages": 49,
+      "date": "2026-09-30",
+      "note": "extracted exports removed first"
+    },
+    "ci": {
+      "run": 36697907550,
+      "url": "https://github.com/qobilidop/p4-spectec-lean/actions/runs/36697907550",
+      "conclusion": "success",
+      "headSha": "42ffad6a9f28cdb02834eea178b89d50ca723933"
+    }
+  }
+}

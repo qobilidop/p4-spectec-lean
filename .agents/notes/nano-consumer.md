@@ -1,7 +1,7 @@
 # Nano whole-program consumer (N5)
 
-Active, 2026-09-30: owns the N5 whole-program certificate's working evidence, constraints and
-review record until the milestone closes. The user-facing account is in
+Durable, closed 2026-09-30: retains the N5 whole-program certificate's evidence, constraints
+that bind later consumers, and review record. The user-facing account is in
 [Certification](../../docs/certification.md#a-whole-program-example); the rationale for the
 evaluator and the packet-text premise is in [decisions](../decisions.md) ("N5 whole-program
 evidence").

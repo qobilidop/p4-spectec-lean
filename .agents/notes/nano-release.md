@@ -1,7 +1,7 @@
 # Nano-P4 release evidence (N6)
 
-Active, 2026-09-30: owns N6's evidence, scope audit, costs and review record until the
-milestone closes; afterwards compact it into the plan's closed-stage table. The user-facing
+Durable, closed 2026-09-30: retains N6's evidence, scope audit, costs and review record, which
+`nano-release.json` cites as the release's review record; supersede it with the next release. The user-facing
 account is in [Certification](../../docs/certification.md#distinguishing-mutations); the
 record format's rationale is in [decisions](../decisions.md) ("N6 release evidence").
 
@@ -69,3 +69,14 @@ unbound. Scope has not narrowed.
   verified full commit id is required (`5eefa3f`). Nits resolved in `883ebca` (run order,
   attributions) and here (the print mutation is not claimed observable). Missing objects in
   `cat-file` output fail closed with a traceback; left unchanged.
+- `42ffad6`: release CI 36696461554 for `a65c265` failed in one stage: the cross-layer
+  contract tests read the extracted export before the gate's snapshot stage creates it (a warm
+  local copy hid this). `42ffad6` runs that stage after extraction; the same reviewer found no
+  other warm-artifact dependency and no unresolved findings.
+
+## Release
+
+`42ffad6`: full gate with the extracted exports removed first returned actual exit 0 in 219.95s,
+all 49 stages (`.artifacts/n6-gate-4.log`); exact-revision
+[CI 36697907550](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36697907550) passed.
+`nano-release.json` records both for tree digest `4432d6a5…`.

@@ -1,40 +1,30 @@
 # Status
 
-N6 (release evidence) implemented and reviewed on branch `n6-release`, 2026-09-30; the user
-authorized completing the Nano-P4 milestone (N5 and N6) fully autonomously the same day. N5 is
-complete on `main` (`034a90b`,
-[CI 36692276571](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36692276571)).
-Full-P4 M3 remains paused.
+Nothing is active. The Nano-P4 completion milestone (design section 9) closed on 2026-09-30 at
+`42ffad6`: the gate requires every proof, replay, consumer and sensitivity obligation, and
+[`notes/nano-release.json`](notes/nano-release.json) records the independent review and the
+exact-revision [CI 36697907550](https://github.com/qobilidop/p4-spectec-lean/actions/runs/36697907550)
+for its tree digest. Full-P4 M3 remains paused. Ask the user for a scope before starting new work.
 
-## Verified state (branch)
+## Verified state
 
-- The gate requires `--require-n2 --require-complete all --allow-unpublished`: 888 obligations,
-  0 unresolved; only the review and release records may be pending
-  ([release note](notes/nano-release.md), decisions "N6 release evidence").
-- Sensitivity: the completion check runs the field-update, source-address filter and
-  cross-layer mutation suites; the cross-layer suite rejects five mutations at named checks.
-- Release costs: `docs/performance/nano-release-2026-09-30.md`.
-
-## Commits on `n6-release`
-
-`3841877` cross-layer mutations; `4e2555a` combined completion in the gate; `551df89` docs;
-`a146d78`, `868cc81` review resolutions; `5ebec11` performance snapshot; `d5c4b17` working
-state; `5eefa3f`, `883ebca` delta-review resolutions; the following commit records them.
+- `scripts/nano-certification.py --require-n2 --require-complete all --allow-unpublished` (the
+  gate): 888 obligations, 0 unresolved. Without the allowance, `--require-complete all` passes
+  on this tree; any change outside `.agents/` leaves review and release pending until re-recorded.
+- Evidence, audit, costs and reviews: [release note](notes/nano-release.md); N5 in the
+  [consumer note](notes/nano-consumer.md); stage index in the
+  [plan](notes/nano-certification.md#closed-stages).
 
 ## Validation
 
-- `868cc81`: full `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in
-  255.46s, all 49 stages (`.artifacts/n6-gate-1.log`). `5ebec11` adds only documentation.
-
-## Next steps
-
-1. Confirm the delta resolutions with the reviewer; full gate at the branch tip.
-2. Fast-forward `main`, push, wait for exact-revision CI.
-3. Evidence commit: `notes/nano-release.json` naming the reviewed revision, gate and CI; check
-   `--require-complete all` passes without the allowance; push; compact `.agents/`.
+- `42ffad6`: full `nix develop -c /usr/bin/time -p scripts/check.sh` with the extracted exports
+  removed first returned actual exit 0 in 219.95s, all 49 stages; exact-revision CI passed.
+- The evidence commit after it changes only `.agents/`; checked with
+  `scripts/nano-certification.py --require-n2 --require-complete all` (no allowance).
 
 ## Repository state
 
+Branch `n6-release` is merged into `main`; delete it once the evidence commit's CI passes.
 Preserve local `n3-decl-load` (`82fbe2e`, non-ancestor WIP), unrelated
 `docs/repository-review`, and the dirty old `../p4-spectec-lean-replay` worktree. The
 expected four-file upstream exporter patch remains applied; no source pins changed.
