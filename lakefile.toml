@@ -59,6 +59,12 @@ name = "check-target"
 root = "Tools.CheckTarget"
 needs = ["NanoP4Target"]
 
+# Typed quotation of an exported Nano program for whole-program statements.
+[[lean_exe]]
+name = "nano-program-quote"
+root = "Tools.QuoteProgram"
+needs = ["NanoP4Spec"]
+
 [[lean_exe]]
 name = "p4spectec-census"
 root = "Tools.Census"
