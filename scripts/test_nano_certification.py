@@ -275,13 +275,16 @@ class CompletionTests(unittest.TestCase):
             self.assertEqual(completion.publication_verified(self.manifest, root)[0], set())
             record = root / completion.RELEASE_RECORD
             record.parent.mkdir(parents=True)
-            review = {"revision": "abc", "reviewer": "r", "verdict": "no unresolved findings",
+            rev = "a" * 40
+            review = {"revision": rev, "reviewer": "r", "verdict": "no unresolved findings",
                       "record": "review.md"}
             (root / "review.md").write_text("findings")
-            release = {"revision": "abc", "gate": {"exit": 0, "command": "scripts/check.sh"},
-                       "ci": {"run": 1, "conclusion": "success", "headSha": "abc"}}
+            release = {"revision": rev, "gate": {"exit": 0, "command": "scripts/check.sh"},
+                       "ci": {"run": 1, "conclusion": "success", "headSha": rev}}
+            present = completion.subprocess.CompletedProcess([], 0)
             with patch.object(completion, "tree_digest", return_value="t"), \
-                    patch.object(completion, "revision_digest", return_value="t"):
+                    patch.object(completion, "revision_digest", return_value="t"), \
+                    patch.object(completion.subprocess, "run", return_value=present):
                 record.write_text(json.dumps({"tree": "other", "review": review}))
                 self.assertEqual(completion.publication_verified(self.manifest, root)[0], set())
                 record.write_text(json.dumps({"tree": "t", "review": review}))
@@ -293,9 +296,9 @@ class CompletionTests(unittest.TestCase):
                 for bad in ({"review": dict(review, verdict="blocked")},
                             {"review": dict(review, reviewer="")},
                             {"release": dict(release, ci={**release["ci"], "conclusion": "failure"})},
-                            {"release": dict(release, ci={**release["ci"], "headSha": "def"})},
+                            {"release": dict(release, ci={**release["ci"], "headSha": "b" * 40})},
                             {"release": dict(release, gate={"exit": 1, "command": "x"})},
-                            {"release": dict(release, revision="def")},
+                            {"release": dict(release, revision="b" * 40)},
                             {"review": dict(review, record="missing.md")}):
                     record.write_text(json.dumps({"tree": "t", "review": review,
                                                   "release": release, **bad}))
@@ -303,20 +306,44 @@ class CompletionTests(unittest.TestCase):
                         completion.publication_verified(self.manifest, root)
 
     def test_recorded_revision_must_have_this_tree(self):
+        import subprocess
         import tempfile
         with tempfile.TemporaryDirectory() as scratch:
             root = Path(scratch)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            (root / "code.lean").write_text("a")
+            (root / "review.md").write_text("findings")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm",
+                            "x"], cwd=root, check=True)
+
+            def rev(spec):
+                return subprocess.run(["git", "rev-parse", spec], cwd=root, check=True,
+                                      capture_output=True, text=True).stdout.strip()
+            commit, tree = rev("HEAD"), rev("HEAD^{tree}")
             record = root / completion.RELEASE_RECORD
             record.parent.mkdir(parents=True)
-            (root / "review.md").write_text("findings")
-            review = {"revision": "abc", "reviewer": "r", "verdict": "no unresolved findings",
-                      "record": "review.md"}
-            record.write_text(json.dumps({"tree": "t", "review": review}))
-            # a digest carried forward to an unreviewed tree
-            with patch.object(completion, "tree_digest", return_value="t"), \
-                    patch.object(completion, "revision_digest", return_value="old"):
+
+            def verify(revision, digest=None):
+                review = {"revision": revision, "reviewer": "r",
+                          "verdict": "no unresolved findings", "record": "review.md"}
+                record.write_text(json.dumps({"tree": digest or completion.tree_digest(root),
+                                              "review": review}))
+                return completion.publication_verified(self.manifest, root)
+            # the reviewed commit, present with this content, counts
+            self.assertEqual(verify(commit)[0], {"profile:review"})
+            # a commit missing from the clone (shallow CI) counts nothing and does not fail
+            verified, state = verify("0" * 40)
+            self.assertEqual(verified, set())
+            self.assertIn("absent from this clone", state)
+            # malformed or non-commit revisions are errors, never excused as absent
+            for revision in ("HEAD", commit[:12], None, tree):
+                with self.assertRaises(completion.CertificationError):
+                    verify(revision)
+            # a digest carried forward to a tree the recorded commit does not have
+            with patch.object(completion, "tree_digest", return_value="later"):
                 with self.assertRaisesRegex(completion.CertificationError, "is not this tree"):
-                    completion.publication_verified(self.manifest, root)
+                    verify(commit, "later")
 
     def test_revision_digest_matches_a_clean_checkout(self):
         import subprocess

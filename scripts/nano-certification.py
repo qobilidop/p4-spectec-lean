@@ -682,18 +682,28 @@ def publication_verified(manifest, root=ROOT):
     if not isinstance(review, dict) or any(not review.get(k) for k in fields) or (
             review["verdict"] != "no unresolved findings") or not (root / review["record"]).is_file():
         raise CertificationError(f"{RELEASE_RECORD}: incomplete review for this tree")
-    # The reviewed and released revision must itself have this content, so a record cannot be
-    # carried forward to a tree nobody reviewed or tested by editing its digest.
-    if revision_digest(root, review["revision"]) != record["tree"]:
-        raise CertificationError(f"{RELEASE_RECORD}: revision {review['revision']} is not this tree")
+    revision = review["revision"]
+    if not isinstance(revision, str) or re.fullmatch(r"[0-9a-f]{40}", revision) is None:
+        raise CertificationError(f"{RELEASE_RECORD}: revision must be a full commit id: "
+                                 f"{revision!r}")
     kinds = {"review"}
     if release is not None:
         gate, ci = release.get("gate", {}), release.get("ci", {})
-        if (release.get("revision") != review["revision"] or gate.get("exit") != 0
+        if (release.get("revision") != revision or gate.get("exit") != 0
                 or not gate.get("command") or ci.get("conclusion") != "success"
-                or not ci.get("run") or ci.get("headSha") != review["revision"]):
+                or not ci.get("run") or ci.get("headSha") != revision):
             raise CertificationError(f"{RELEASE_RECORD}: incomplete release for this tree")
         kinds.add("release")
+    # The reviewed and released revision must itself have this content, so a record cannot be
+    # carried forward to a tree nobody reviewed or tested by editing its digest. Only a missing
+    # object is excused: a clone without the commit (CI checks out shallowly) cannot check the
+    # record, so it counts nothing. An object that exists but is not a commit is an error.
+    missing = subprocess.run(["git", "cat-file", "-e", revision], cwd=root,
+                             capture_output=True).returncode != 0
+    if missing:
+        return set(), f"{RELEASE_RECORD} names commit {revision}, absent from this clone"
+    if revision_digest(root, revision) != record["tree"]:
+        raise CertificationError(f"{RELEASE_RECORD}: revision {revision} is not this tree")
     verified = {o["id"] for o in manifest["obligations"] if o["requirement"] in kinds}
     return verified, " and ".join(sorted(kinds)) + " recorded for this tree"
 

@@ -144,6 +144,8 @@ and review verdict, and the successful full gate and remote CI run for that revi
 The checker counts the review and release obligations only when the current checkout
 and the recorded revision both have that digest, so any later change to code, proofs,
 documentation or pins leaves them pending until a new review and release are recorded.
+A clone that lacks the recorded commit, such as CI's shallow checkout, cannot check the
+record and counts nothing; the strict check is run in a full clone.
 The review verdict and the CI conclusion are recorded observations; the checker does not
 query GitHub.
 
