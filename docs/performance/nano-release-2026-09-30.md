@@ -21,9 +21,9 @@ regenerating every module in memory and comparing it with the committed text:
 
 | Run | Elapsed |
 |---|---:|
-| 1 | 4.13s |
-| 2 | 4.10s |
-| 3 | 4.16s |
+| 1 | 4.16s |
+| 2 | 4.13s |
+| 3 | 4.10s |
 
 ## Proof checking
 
@@ -57,6 +57,7 @@ user CPU), all 49 stages. Its largest stages:
 | Typing replay, both legs, 78 programs | 6s |
 
 The completion stage includes its own typing and session replays, `check-consumer`
-and three mutation suites. Run separately with warm builds, the cross-layer suite took
-15.47s, of which each replayed forward proof took about 5s; earlier N5 runs measured the
-source-address filter suite at 22–43s and the field-update suite at 16s.
+and three mutation suites. During development, one warm run of the cross-layer suite
+took 15.47s, and one replay of its forward proof about 5s (session observations, not
+retained logs). The source-address filter suite took 22–43s in N5 runs, and the N3
+snapshot's certificate-mutation stage (then the field-update suite) took 16s.
