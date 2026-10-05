@@ -286,3 +286,49 @@ slightly older than the final tactic text; it did not rerun generation, Nano reg
 or the Nano proofs against the changed shared helpers (the gate does); the proof-building
 code was read for failure modes, not proved, and soundness rests on the kernel and the
 audit; the meaning of the logical relations was the earlier stage's subject.
+
+## Regression sweep stage (2026-10-05)
+
+Independent read-only review of the uncommitted `m3c-regression` tree against `main`
+(`00aa1c2`), by a fresh Claude Fable 5.1 subagent. It ran the offline sweep tests and the
+text check, read the code, `Check.lean`, upstream's rule and test harness, and the
+artifacts of the author's runs; it ran no Lake command and not the sweep. Verdict: no
+blockers.
+
+What it confirmed from the checkout and the observations: 37 candidates (13, 4, 20) with
+the recorded digest, in group then name order; the pin, and that the revision guard covers
+the enumerated tree; observation index and candidate correspond; the cache identity
+separates the two sets and a shared output directory is wiped, never mixed; what
+`Check.lean` compares (the counter before any classification; either Lean failure class
+against upstream's one); all thirteen `neg` observations are `unmatch` on both relations,
+exactly three with a nonzero counter; the exclusion-manifest counts quoted for
+`p4_16_errors`.
+
+Findings and resolutions, applied before the commit and checked by the author's reruns of
+the sweep and the gate, not re-reviewed:
+
+- "First corpus evidence about failure" was overstated: the bounded replay already has
+  `neg/issue-204.p4` on both legs. Reworded to what is new (twelve more rejections, three
+  after consumed identifiers).
+- For a rejected program `Program_inst` is not independent: its first premise is
+  `Program_ok`, and the two sessions have the same class and counter. The documents now
+  say every rejection is a typing failure and no instantiation failure is exercised.
+- `source` accepted empty and `.` path segments (`upstream//etc/passwd` resolved outside
+  the root; not reachable from either candidate source). Segments are now checked as the
+  inventory checks them, with the cases in the test.
+- The enumeration was non-recursive over three fixed groups while upstream collects
+  recursively, with nothing to detect a set that grew. It now fails on a nested directory
+  or any other entry of the regression directory.
+- The pass condition was weak (one matched rejection anywhere). It is now exact: every
+  candidate observed, every `neg` program a matched rejection and every other program
+  matched as accepted, on both relations and both legs. The summary also records the class
+  each leg returned (`unmatch` for all thirteen, upstream's class), which the first
+  version did not.
+- Notes: the AL mode of the probe against upstream's SL-only regression harness, the zero
+  counters, and the `AGENTS.md` comment. Added.
+- Not changed: the regression exit composition stays inline in `main`; the functions it
+  composes are tested.
+
+Limits the reviewer stated: it did not run the sweep, Lake or the gate; the p4c-corpus
+mode on the changed code was unexercised beyond unit tests; it did not review the Lean
+workers beyond `Check.lean` and the two entry points.

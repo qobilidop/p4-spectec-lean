@@ -18,34 +18,45 @@ review and exact-revision CI for that tree digest.
 - M3C, sweep (`f329af0`): the generated library and the reference interpreter both agree
   with upstream on 1,266 of the 1,267 corpus candidates, for typing and instantiation.
   [Corpus note](notes/full-p4/corpus.md) has the evidence and its limits.
-- M3C's durable campaign, M3D, M3E and M3F are open.
+- M3C, regression sweep (2026-10-05): both legs agree with upstream on its 37 regression
+  programs, 13 of them rejected (typing failures; twelve beyond the one the bounded replay
+  already had).
+- M3C's durable campaign and mutation suite, M3D, M3E and M3F are open.
 
 ## Verified state
 
-Evidence for the working tree of the commit that proves recursive groups:
+Evidence for the working tree of the commit that adds the regression sweep (Python
+harness and documents only; no Lean source changed since `00aa1c2`):
 
-- Full gate on the final code: `nix develop -c /usr/bin/time -p scripts/check.sh` returned
-  actual exit 0 in 1633.88 s, all 58 stages (`.artifacts/m3b/rec/gate-2.log`). The shared
-  rule closer and the audit command changed, so every Nano proof was rebuilt against them
-  (library and certificate build 699 s); the full-P4 library and tools took 406 s, of
-  which the 132 proof modules are new; `check-coverage --full-p4` checked 256 claims in
-  150 s. Nano completion 888 obligations, 0 unresolved, review and release pending under
-  the allowance as on every tree after `42ffad6`. Generated Nano output is byte-identical.
-  Only the review record and this file were edited after the gate started; the text check
-  was rerun on them.
-- Not rerun for this commit: the corpus sweep and the four-case replay (evidence is for
-  `f329af0`). The executable spec modules are unchanged per the manifest diff, which adds
-  118 modules under `Refinement/RunSound/` and changes only the two import roots
-  (`P4Spec.lean`, `Refinement.lean`) and `coverage.json`.
-- Independent review: [full-P4 review](notes/full-p4/review.md), "Recursive run-soundness
-  stage"; no blockers, findings resolved before the commit, not re-reviewed.
-- Remote CI: `e0e7863` passed (run 37337844078); not yet run on this commit.
+- Full gate on the final files: `nix develop -c /usr/bin/time -p scripts/check.sh`
+  returned actual exit 0 in 397.51 s, all 58 stages (`.artifacts/m3c/gate-2.log`), warm:
+  every Lean module was already built from the `00aa1c2` gate. Only this file was edited
+  afterwards; the text check was rerun.
+- Regression sweep on the final tool: exit 0, 37 of 37 on both legs, in about 40 s
+  (`.artifacts/m3c/regression-3.log`, summary under `.artifacts/p4-regression-sweep/`).
+- p4c corpus sweep rerun on the final tool, since its capture path changed: exit 0 in
+  1,240 s, 1,266 of 1,267 `matched,matched` on both legs, `switch_p4_16.p4` unobserved
+  (oversized), as before (`.artifacts/m3c/corpus-1.log`). This is also the first sweep of
+  the library generated at `00aa1c2`, whose executable modules are unchanged.
+- Not rerun: the four-case replay (evidence is for `f329af0`).
+- Independent review: [full-P4 review](notes/full-p4/review.md), "Regression sweep stage";
+  no blockers, findings resolved before the commit, not re-reviewed.
+- For `00aa1c2` (run-soundness for every relation): full gate exit 0 in 1633.88 s, 58
+  stages, cold for every proof (`.artifacts/m3b/rec/gate-2.log`); review "Recursive
+  run-soundness stage". Nano completion 888 obligations, 0 unresolved, review and release
+  pending under the allowance as on every tree after `42ffad6`.
+- Remote CI: `e0e7863` passed (run 37337844078). `00aa1c2` (run 37361228230) was still in
+  its gate step 41 minutes after the push; it builds the 132 new proof modules cold. Not
+  yet run on this commit. Check it before unrelated work: if the runner cannot build the
+  proofs within its limits, that takes priority.
 
 ## Open threads and next step
 
 1. Next: M3C's durable record. Extend the shard campaign to the generated worker and a
-   larger bound for a CLI-checked record; add rejected programs (negative regressions,
-   `p4_16_errors`); commit a generated-code mutation suite for the sweep.
+   larger bound for a CLI-checked record, and commit a generated-code mutation suite for
+   the sweeps (the regression set runs in 40 s and includes rejections, which makes it the
+   cheap target for mutations). p4c's `p4_16_errors` needs the restore and the inventory
+   extended to it and to upstream's 52 negative exclusion references.
 2. Generated `==` converts both operands to IL values (`valueEq`); on the largest programs
    the generated leg is about five times slower than the interpreter. Fix before any
    generated-leg target work (M3D); untried options are in the corpus note.

@@ -122,8 +122,10 @@ What the generated library still lacks, in dependency order:
      let Lean check them in parallel, untried.
 2. Corpus replay on both legs (M3C): the 2026-10-05 sweep has both legs agreeing with
    upstream on 1,266 of 1,267 candidates ([corpus](corpus.md)). No native stack overflow
-   or timeout occurred on the generated leg. Open: the durable campaign with CLI parity,
-   rejected programs, and the one candidate above the case bound.
+   or timeout occurred on the generated leg. Both legs also agree with upstream on its 37
+   regression programs, 13 of them rejected. Open: the durable campaign with CLI parity,
+   a committed mutation suite, p4c's own negative tests, and the one candidate above the
+   case bound.
 3. Refinement, representation and initialization certificates (M3E), all still stated
    for the pure ABI.
 4. Targets (M3D) and determinism (M3F), unchanged below.
@@ -229,8 +231,9 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
 2. M3C: account for an explicit full-P4 corpus and exclusions, compare typing
    and instantiation verdicts and exact outputs on both interpreter and
    generated legs, resolve unexplained differences, and detect interpreter
-   mutations. A both-leg sweep covers 1,266 of 1,267 candidates; see [corpus](corpus.md)
-   for what it leaves open. Type equivalence/substitution exhaustion and separate Type.Fresh
+   mutations. A both-leg sweep covers 1,266 of 1,267 candidates, and a second one
+   upstream's 37 regression programs with its 13 rejections; see [corpus](corpus.md)
+   for what they leave open. Type equivalence/substitution exhaustion and separate Type.Fresh
    effects constrain further coverage; current replay is bounded and guarded
    full-P4 coverage is not established.
 3. M3D: independently validate actual packet targets, starting from bounded

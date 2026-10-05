@@ -44,11 +44,45 @@ What it took to get there, and what it shows:
   the workers report as `unsupported-upstream-abort` without evaluating, and no candidate
   fails. The port's hard error there follows a reading of the OCaml only.
 
-Not established: the durable shard campaign with CLI parity on both legs; rejected
-programs (no candidate fails upstream; negative regressions and `p4_16_errors` are outside
-this denominator); internal failure kinds; `switch_p4_16.p4`; any packet target.
+Not established by this sweep: the durable shard campaign with CLI parity on both legs;
+rejected programs (no candidate fails upstream; see the regression sweep below;
+`p4_16_errors` stays outside every denominator); internal failure kinds;
+`switch_p4_16.p4`; any packet target.
 [Overview](overview.md) carries generation and milestone obligations;
 [review](review.md) identifies independent evidence and limitations.
+
+## Regression sweep: rejected programs (2026-10-05)
+
+`sweep.py --regression --jobs 8` on the working tree of the commit that introduced it
+(`.artifacts/m3c/regression-3.log`): exit 0 in about 40 s. The candidates are upstream's
+own regression programs at the pin (`8c8e0c6`), every `*.p4` under
+`testdata/regression/{neg,pos,sim}`: 13, 4 and 20, 37 in all, candidate digest
+`6ceb73e0…`. Both legs returned, per group: `neg` 13 of 13 `matched-public-failure` on
+both relations, each leg failing with class `unmatch`, which is upstream's class for all
+thirteen; `pos` 4 of 4 and `sim` 20 of 20 `matched` on both. These are the first
+rejections in a swept set: twelve beyond `neg/issue-204.p4`, which the bounded replay
+already covers on both legs, and the first three whose failure follows consumed fresh
+identifiers (`issue-227`, `issue-236`, `issue-243`: counters 6, 4, 6).
+
+The probe observes upstream's AL interpreter. Upstream's own regression harness runs these
+programs in SL only, `neg` on `Program_ok` and `pos` on `Program_inst`; its committed
+expectations (13 of 13 fail, 4 of 4 pass) agree with the AL classes observed here.
+
+Limits:
+
+- Every rejection is a typing failure. `Program_inst` has `Program_ok` as its first
+  premise, and for all thirteen both sessions have the same class and counter; no
+  instantiation failure after successful typing is exercised.
+- For ten of the thirteen the counter after the failed run is zero, so any failure before
+  the first fresh identifier matches; where a run fails is not compared, and a leg failing
+  in the other class would also match (none did).
+- The `sim` programs are used as accepted programs for typing and instantiation only;
+  their `.stf` packet tests belong to M3D.
+- No mutation was tried against this set. `p4_16_errors` (p4c's own negative tests) is
+  still not restored.
+- The p4c-corpus mode shares the changed capture code. It was rerun on the final tool
+  (the cache identity changed, so every candidate was captured again): exit 0 in 1,240 s,
+  1,266 of 1,267 `matched,matched` on both legs, `switch_p4_16.p4` oversized, as before.
 
 ## Inputs and canonical denominator
 

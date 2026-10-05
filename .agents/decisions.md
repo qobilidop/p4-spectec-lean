@@ -227,6 +227,19 @@ a second typed implementation. Reason: one mirrored implementation to audit agai
 `placeholder.ml`. Cost: the generated legs' externs are exercised through `toValue` and
 `ofValue`, which the replay already depends on.
 
+Rejected programs come from a second set of the same tool, `sweep.py --regression`:
+upstream's `testdata/regression/{neg,pos,sim}/*.p4`, enumerated from the checkout that the
+revision guard has matched to the pin, each with its digest in the cache identity and no
+committed manifest. Reason: 37 small files of the pinned submodule need no inventory of
+their own, unlike the p4c corpus with its exclusion manifests. In its place the sweep
+fails on any directory entry the enumeration would not follow, on an unobserved
+candidate, and on any status other than the one a program's group promises (`neg`
+rejected, the others accepted, on both relations and both legs), so the set can neither
+shrink nor turn pass-only unnoticed. Deferred, not rejected: p4c's `p4_16_errors`, the larger
+negative set, which needs the p4c restore and the inventory extended to it and to the 52
+negative references in upstream's exclusion manifests. Confidence high. Revisit if
+upstream's regression set grows a structure the glob does not follow.
+
 ## Pins and reproducibility (2026-09-25)
 
 P4-SpecTec is pinned at `8c8e0c6f` on `gsoc-nano-spec`, because Nano is

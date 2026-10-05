@@ -6,6 +6,11 @@ Every canonical candidate of the committed inventory is observed with the corpus
 the generated-library worker. A capture or worker that times out, crashes or exceeds a
 bound is recorded as that, never as a verdict.
 
+With `--regression` the candidates are instead upstream's own regression programs
+(`testdata/regression/{neg,pos,sim}/*.p4`), a separate denominator that includes programs
+upstream rejects; the p4c corpus has none. That sweep passes only when every candidate is
+observed, every `neg` program is rejected on both legs and every other one accepted.
+
 This is the fast feedback loop, not the durable campaign: observations (and failed captures)
 are cached under an identity of pins, probe, harness sources and limits, but nothing is fsynced, locked or resumable mid-case,
 and upstream's CLI is not cross-checked. `shard.py` keeps those guarantees for one leg.
@@ -97,11 +102,54 @@ class Worker:
                 pass
 
 
+REGRESSION = "testdata/regression"
+REGRESSION_GROUPS = ("neg", "pos", "sim")
+
+
+def regression_candidates(upstream):
+    """Upstream's regression programs at the pinned revision, by group then name: regular
+    files only, each with its digest. Upstream collects recursively, so a group or a nested
+    directory this enumeration does not follow is an error, not a smaller denominator."""
+    cases = []
+    base = upstream / REGRESSION
+    if base.is_symlink() or not base.is_dir():
+        raise ValueError("missing regression directory")
+    unknown = sorted(entry.name for entry in base.iterdir()
+                     if entry.name not in REGRESSION_GROUPS)
+    if unknown:
+        raise ValueError(f"unexpected regression entries: {unknown}")
+    for group in REGRESSION_GROUPS:
+        directory = base / group
+        if directory.is_symlink() or not directory.is_dir():
+            raise ValueError(f"missing regression group: {group}")
+        nested = sorted(entry.name for entry in directory.iterdir()
+                        if entry.is_dir() and not entry.is_symlink())
+        if nested:
+            raise ValueError(f"nested regression directories in {group}: {nested}")
+        for path in sorted(directory.glob("*.p4")):
+            if path.is_symlink() or not path.is_file():
+                raise ValueError(f"regression program is not a regular file: {path.name}")
+            cases.append({"path": f"upstream/{REGRESSION}/{group}/{path.name}",
+                          "sha256": campaign.file_digest(path)})
+    if not cases:
+        raise ValueError("no regression programs")
+    return cases
+
+
+def source(case, upstream, p4c):
+    """The program file of a candidate: under the p4c checkout or the upstream checkout."""
+    root, _, relative = case["path"].partition("/")
+    roots = {"p4c": p4c, "upstream": upstream}
+    if root not in roots or any(part in ("", ".", "..") for part in relative.split("/")):
+        raise ValueError(f"candidate outside the known roots: {case['path']}")
+    return roots[root] / relative
+
+
 def observe(case, adapter, executable, upstream, p4c, limit, timeout):
     """Two independent upstream sessions of one candidate, validated, as encoded bytes."""
-    program = p4c / case["path"].removeprefix("p4c/")
+    program = source(case, upstream, p4c)
     if campaign.file_digest(program) != case["sha256"]:
-        raise ValueError("case source differs from the inventory")
+        raise ValueError("case source differs from its recorded digest")
     runs = {}
     for relation in contract.RELATIONS:
         code, out, _, _ = campaign.bounded(
@@ -251,6 +299,54 @@ def summarize(candidates, unobserved, legs):
     return result
 
 
+def outcome(record):
+    """A record's exact outcome: each relation's status with the class the leg returned."""
+    if "relations" not in record:
+        return "failure:" + record["failure"]["kind"]
+    return ",".join(f"{record['relations'][name]['status']}"
+                    f"({record['relations'][name]['leanClass']})"
+                    for name in contract.RELATIONS)
+
+
+def groups(candidates, legs):
+    """Per leg and regression group, how many candidates have each exact outcome: the
+    evidence that rejected programs were exercised, and with which failure class."""
+    result = {}
+    for label, records in legs.items():
+        tally = collections.defaultdict(collections.Counter)
+        for index, record in records.items():
+            if "relations" in record and record["name"] != candidates[index]["path"]:
+                raise ValueError(f"{label}: record {index} is not its candidate")
+            tally[candidates[index]["path"].split("/")[-2]][outcome(record)] += 1
+        result[label] = {group: dict(sorted(counts.items()))
+                         for group, counts in sorted(tally.items())}
+    return result
+
+
+# What upstream's grouping promises: it rejects every `neg` program and accepts the others.
+EXPECTED = {"neg": "matched-public-failure", "pos": "matched", "sim": "matched"}
+
+
+def unexpected(candidates, unobserved, legs):
+    """Every way a regression sweep falls short of its set: a candidate not observed, a
+    leg without a record, or a status other than the one its group promises on either
+    relation. Agreement with upstream alone would pass a `neg` program upstream accepts."""
+    problems = [f"{item['name']}: unobserved ({item['kind']})" for item in unobserved]
+    for label, records in legs.items():
+        for index, case in enumerate(candidates):
+            record = records.get(index)
+            if record is None:
+                if not any(item["name"] == case["path"] for item in unobserved):
+                    problems.append(f"{label}: {case['path']}: no record")
+                continue
+            expected = EXPECTED[case["path"].split("/")[-2]]
+            if statuses(record) != (expected,) * len(contract.RELATIONS):
+                problems.append(f"{label}: {case['path']}: {describe(record)}")
+    if not legs:
+        problems.append("no leg")
+    return problems
+
+
 def verdict(summary, require_all):
     """Zero only when at least one case was evaluated, every evaluated case agrees on every
     leg, and every unobserved candidate merely reached a stated bound; with `require_all`,
@@ -262,10 +358,11 @@ def verdict(summary, require_all):
     return 0 if clean and evaluated and bounded and not (require_all and unobserved) else 1
 
 
-def identity(upstream, p4c, executable, limit, timeout):
+def identity(upstream, p4c, executable, limit, timeout, candidates):
     """What a cached observation depends on; a change discards the cache."""
     manifest = contract.strict_json(inventory.MANIFEST.read_bytes())
-    return {"schemaVersion": 1, "inventorySha256": manifest["inventorySha256"],
+    return {"schemaVersion": 2, "inventorySha256": manifest["inventorySha256"],
+            "candidatesSha256": inventory.digest(inventory.encode(candidates)),
             "upstreamRevision": manifest["upstreamRevision"],
             "p4cRevision": manifest["p4cRevision"],
             "probeSha256": campaign.file_digest(executable),
@@ -279,7 +376,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--upstream", type=Path, required=True)
     parser.add_argument("--p4c", type=Path, required=True)
-    parser.add_argument("--out", type=Path, default=ROOT / ".artifacts/p4-corpus-sweep")
+    parser.add_argument("--regression", action="store_true",
+                        help="sweep upstream's regression programs instead of the p4c corpus")
+    parser.add_argument("--out", type=Path,
+                        help="default .artifacts/p4-corpus-sweep, or p4-regression-sweep")
     parser.add_argument("--jobs", type=int, default=6)
     parser.add_argument("--max-case-bytes", type=int, default=1024 * 1024 * 1024)
     parser.add_argument("--capture-timeout", type=int, default=600)
@@ -292,6 +392,8 @@ def main():
     if not args.upstream.is_absolute() or not args.p4c.is_absolute():
         parser.error("--upstream and --p4c must be absolute")
     upstream, p4c = args.upstream.resolve(), args.p4c.resolve()
+    out = args.out or ROOT / ".artifacts" / (
+        "p4-regression-sweep" if args.regression else "p4-corpus-sweep")
     check = campaign.load("p4_check", ROOT / "P4SpecTecTest/Oracle/P4/Replay/check.py")
     adapter = check.load_export()
     adapter.revision_guard(upstream)
@@ -299,7 +401,8 @@ def main():
     manifest = inventory.build(p4c, upstream)
     if manifest != contract.strict_json(inventory.MANIFEST.read_bytes()):
         raise SystemExit("[p4-sweep] inventory differs from the pinned corpus")
-    candidates = inventory.shard(manifest, 0, 1)
+    candidates = (regression_candidates(upstream) if args.regression
+                  else inventory.shard(manifest, 0, 1))
     for command in (
             ["python3", str(ROOT / "scripts/spec-snapshot.py"), "unpack",
              str(ROOT / "exports/p4.al.json")],
@@ -310,10 +413,11 @@ def main():
         subprocess.run(command, cwd=ROOT, check=True)
     executable = adapter.compile_probe(upstream, probe=CORPUS / "probe.ml",
                                        scratch=ROOT / ".artifacts/p4-corpus-probe")
-    observations = args.out / "observations"
+    observations = out / "observations"
     observations.mkdir(parents=True, exist_ok=True)
-    expected = identity(upstream, p4c, executable, args.max_case_bytes, args.capture_timeout)
-    recorded = args.out / "identity.json"
+    expected = identity(upstream, p4c, executable, args.max_case_bytes, args.capture_timeout,
+                        candidates)
+    recorded = out / "identity.json"
     if not recorded.exists() or json.loads(recorded.read_text()) != expected:
         for stale in observations.iterdir():
             stale.unlink()
@@ -339,17 +443,25 @@ def main():
     if workers() != digests:
         raise SystemExit("[p4-sweep] a worker executable changed during the sweep")
     summary = summarize(candidates, unobserved, legs)
+    summary["set"] = "upstream-regression" if args.regression else "p4c-corpus"
+    problems = []
+    if args.regression:
+        summary["groups"] = groups(candidates, legs)
+        problems = unexpected(candidates, unobserved, legs)
+        summary["unexpected"] = problems
     summary["identity"] = {**expected, "workerTimeoutSeconds": args.worker_timeout,
                            "workers": digests, "jobs": args.jobs,
                            "maxWorkerCases": campaign.MAX_WORKER_CASES}
     summary["elapsedSeconds"] = round(time.monotonic() - started)
-    (args.out / "summary.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n")
+    (out / "summary.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n")
     for label, leg in summary["legs"].items():
         print(f"[p4-sweep] {label}: {leg['agreeing']} of {summary['candidates']} candidates "
               f"agree with upstream; {leg['statuses']}")
     print(f"[p4-sweep] unobserved: {len(unobserved)} "
           f"{[(item['name'], item['kind']) for item in unobserved]}")
-    return verdict(summary, args.require_all)
+    for problem in problems:
+        print(f"[p4-sweep] unexpected: {problem}")
+    return 1 if problems else verdict(summary, args.require_all)
 
 
 if __name__ == "__main__":

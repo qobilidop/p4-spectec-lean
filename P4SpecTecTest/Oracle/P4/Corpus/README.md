@@ -144,3 +144,17 @@ case (`--max-case-bytes`, passed to the workers; 81 candidates exceed the 32 MiB
 600 s per upstream session, 1800 s per worker response. It is a feedback loop, not the
 durable campaign: nothing is locked or fsynced, upstream's CLI is not cross-checked, and
 `shard.py` still drives the interpreter worker only.
+
+`--regression` sweeps a second, separate set instead: upstream's own regression programs,
+every `*.p4` under `testdata/regression/{neg,pos,sim}` of the pinned checkout (37 at this
+pin: 13, 4 and 20). It is the only swept set with programs upstream rejects. A directory
+entry the enumeration would not follow (a fourth group, a nested directory) is an error,
+since upstream collects recursively. Candidates carry their digests, and the summary goes
+to `.artifacts/p4-regression-sweep/` with, per leg and group, each exact outcome: both
+relations' statuses and the class the leg returned. The exit is zero only when every
+candidate was observed, every `neg` program is a matched rejection on both relations and
+every other program matched as accepted, on both legs. A rejection matches when the leg
+fails, in either failure class, with upstream's fresh-identifier counter after the failed
+run. Every rejection at this pin is a typing failure: `Program_inst` has `Program_ok` as
+its first premise and fails through it. The `sim` programs' `.stf` packet tests are not
+run.

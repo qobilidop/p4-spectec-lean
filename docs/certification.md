@@ -259,7 +259,8 @@ exact copies, so that a change to the generator shows as a readable diff.
 |---|---|---|
 | Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check; every logical relation is a well-formed inductive; the 256 run-soundness proofs check with the axiom audit | Any relation to AL; the converse of run-soundness; anything about a run that fails or does not terminate |
 | `check-p4-quotes` | The 1,672 compiled quotations equal the decoded export, as for Nano-P4; the 17 schematic variable declarations are not quoted | That the executable definitions follow their quotations |
-| Corpus sweep | On 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters, as the reference interpreter does | The remaining candidate (its observation exceeds the 1 GiB case bound), programs upstream's manifests exclude, rejected programs (every observed candidate passes upstream), and packet processing |
+| Corpus sweep | On 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters, as the reference interpreter does | The remaining candidate (its observation exceeds the 1 GiB case bound), programs upstream's manifests exclude, rejection (every observed candidate passes upstream), and packet processing |
+| Regression sweep | On upstream's own 37 regression programs, both legs agree with upstream on both relations: 24 accepted, with outputs and counters as above, and 13 rejected, where both legs fail, in upstream's failure class, with the fresh-identifier counter upstream has after the failed run | Where a run fails: for ten of the thirteen that counter is zero, so any failure before the first fresh identifier matches. Instantiation failures: every rejection is a typing failure, and `Program_inst` fails through its `Program_ok` premise. The simulator programs' packet tests are not run |
 | Bounded replay | The same comparison on three pinned programs, one of which upstream and both Lean legs reject | Upstream reports a rejection only as a class, so the kind of failure is not compared |
 
 No full-P4 definition has a correspondence or representation certificate, and
@@ -270,7 +271,7 @@ builtins and extern relations, rejected alternatives and negative premises are s
 facts about runs, so a relation whose rules only call functions has a theorem close to an
 unfolding of its definition.
 `check-coverage --full-p4` checks that each of the 256 claimed theorems has the claimed
-statement and only the allowed axioms. The sweep and the bounded replay are tests of
+statement and only the allowed axioms. The sweeps and the bounded replay are tests of
 selected executions, not proofs. They need the pinned upstream build and p4c sources, so
 they are run by hand, not by the gate:
 
@@ -278,6 +279,8 @@ they are run by hand, not by the gate:
 nix develop --command scripts/fetch-p4c.sh
 nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py \
   --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
+nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py \
+  --regression --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Replay/replay.py \
   --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 ```
