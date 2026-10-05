@@ -7,6 +7,8 @@ import P4SpecTec.Refine.Quote
 
 namespace P4SpecTecTest.Codegen.Types
 open P4SpecTec P4SpecTec.Refine P4SpecTec.Prelude P4SpecTec.Codegen
+-- Three cases with the same atoms, told apart only by their argument.
+private def wrappedCases : List Lang.Il.typ' := [.BoolT, .NumT .NatT, .TextT]
 private def declarations : Lang.Al.spec := [
   Q.d (.ExternTypD (Q.i "opaque") []),
   Q.d (.TypD (Q.i "state") [] (Q.dt (.PlainT (Q.t (Q.varT "opaque" [])))) []),
@@ -22,7 +24,13 @@ private def declarations : Lang.Al.spec := [
   Q.d (.TypD (Q.i "boxed") [] (Q.dt (.PlainT
     (Q.t (Q.varT "box" [Q.t (Q.varT "base" [])])))) []),
   Q.d (.TypD (Q.i "listed") [] (Q.dt (.PlainT
-    (Q.t (.IterT (Q.t (Q.varT "base" [])) .List)))) [])]
+    (Q.t (.IterT (Q.t (Q.varT "base" [])) .List)))) []),
+  Q.d (.TypD (Q.i "pair") [] (Q.dt (.PlainT
+    (Q.t (.TupleT [Q.t (Q.varT "base" []), Q.t .BoolT])))) []),
+  Q.d (.TypD (Q.i "triple") [] (Q.dt (.PlainT
+    (Q.t (.TupleT [Q.t .BoolT, Q.t (Q.varT "base" []), Q.t (.NumT .NatT)])))) []),
+  Q.d (.TypD (Q.i "wrapped") [] (Q.dt (.VariantT (wrappedCases.map fun t =>
+    Q.tc (.Brack (Q.a .LParen) (.Arg (Q.t t)) (Q.a .RParen)) "wrapped"))) [])]
 -- An unrelated local dictionary must not alter declared closed field decoders.
 local instance : OfValue ByteText := ⟨fun _ _ => none⟩
 local instance : ToValue ByteText := ⟨fun _ => Runtime.Value.Make.bool false⟩
@@ -66,6 +74,31 @@ run_cmd do
   | _ => false
 #guard boxed.ofValue 3 (boxed.toValue (box.lparen_rparen bytes)) ==
   some (box.lparen_rparen bytes)
+-- A tuple outside any recursive group decodes by arity and component: there is no product
+-- instance, and the nominal component keeps its declared decoder.
+private def tupleValue (vs : List Lang.Il.value) := Runtime.Value.Make.tuple .TextT vs
+private def text := Runtime.Value.Make.text bytes
+private def yes := Runtime.Value.Make.bool true
+#guard match pair.ofValue 2 (tupleValue [text, yes]) with
+  | some (b, flag) => b == bytes && flag
+  | none => false
+#guard (pair.ofValue 2 (tupleValue [text, yes, yes])).isNone
+#guard (pair.ofValue 2 (tupleValue [text])).isNone
+#guard (pair.ofValue 2 (tupleValue [yes, text])).isNone
+#guard match triple.ofValue 2 (tupleValue [yes, text, Runtime.Value.Make.nat 3]) with
+  | some (flag, b, n) => flag && b == bytes && n == 3
+  | none => false
+#guard (triple.ofValue 2 (tupleValue [yes, text])).isNone
+-- Every case with repeated atoms has its own constructor, counted from the second.
+#guard Types.ctorNames (wrappedCases.map fun t =>
+    Q.tc (.Brack (Q.a .LParen) (.Arg (Q.t t)) (Q.a .RParen)) "wrapped") ==
+  ["lparen_rparen", "lparen_rparen_2", "lparen_rparen_3"]
+#guard match wrapped.ofValue 2 (wrapped.toValue (.lparen_rparen_3 bytes)) with
+  | some (.lparen_rparen_3 b) => b == bytes
+  | _ => false
+#guard match wrapped.ofValue 2 (wrapped.toValue (.lparen_rparen_2 3)) with
+  | some (.lparen_rparen_2 n) => n == 3
+  | _ => false
 -- Declared externs keep the JSON dictionaries even under hostile ambient instances.
 private def externalValue := Runtime.Value.Make.extern (Q.varT "opaque" []) (.str "payload")
 #guard state.ofValue 1 externalValue == some (ExternValue.mk (.str "payload"))

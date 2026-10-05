@@ -157,12 +157,15 @@ def argNames (tparams : List String) (ts : List typ') : List String := Id.run do
     out := out ++ [Names.escape name]
   pure out
 
-/-- The constructor names of a variant, made distinct. -/
+/-- The constructor names of a variant, made distinct: the `k`-th case with the same atoms
+takes the suffix `_k`, counting from the second. -/
 def ctorNames (cases : List typcase) : List String := Id.run do
   let base := cases.map fun c => Names.ctorName c.nottyp.it
+  let mut seen : List String := []
   let mut out : List String := []
   for b in base do
-    let n := out.count b
+    let n := seen.count b
+    seen := seen ++ [b]
     out := out ++ [if n == 0 then b else b ++ "_" ++ toString (n + 1)]
   pure out
 
@@ -513,15 +516,15 @@ partial def ofValueTerm (env : Env) (members : List String) (t : typ') (v : Term
         .call "Option.map some" [ofValueTerm env members e.it (.atom "x")]),
       (Format.text "_", .atom "none")])
   | .TupleT ts =>
-    if mentions members t then
-      let names := (List.range ts.length).map fun i => s!"x{i}"
-      let decs := (ts.zip names).map fun (e, n) =>
-        Format.text "(← " ++ (ofValueTerm env members e.it (.atom n)).fmt ++ ")"
-      .paren (.matchOn (.proj v "it") [
-        (Format.text ".TupleV " ++ (Term.list (names.map Term.atom)).fmt,
-          .paren (.doBlock [Format.text "pure " ++ (Term.tuple (decs.map Term.raw)).fmt])),
-        (Format.text "_", .atom "none")])
-    else .call "OfValue.ofValue" [.atom "fuel", v]
+    -- by arity and component, also outside the group: there is no product instance, whose
+    -- right-nested form could not tell a trailing tuple component from further components
+    let names := (List.range ts.length).map fun i => s!"x{i}"
+    let decs := (ts.zip names).map fun (e, n) =>
+      Format.text "(← " ++ (ofValueTerm env members e.it (.atom n)).fmt ++ ")"
+    .paren (.matchOn (.proj v "it") [
+      (Format.text ".TupleV " ++ (Term.list (names.map Term.atom)).fmt,
+        .paren (.doBlock [Format.text "pure " ++ (Term.tuple (decs.map Term.raw)).fmt])),
+      (Format.text "_", .atom "none")])
   | .BoolT => .call "@OfValue.ofValue"
       [.atom "Bool", .atom "P4SpecTec.Prelude.instOfValueBool", .atom "fuel", v]
   | .NumT .NatT => .call "@OfValue.ofValue"
