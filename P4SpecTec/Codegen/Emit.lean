@@ -1,5 +1,6 @@
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Props
+import P4SpecTec.Codegen.StateProps
 import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Certificates.Builtin
 import P4SpecTec.Codegen.Certificates.Equality
@@ -87,6 +88,8 @@ structure RefGroup where
   deps : List String
   /-- A builtin family needs its contracts instead of symbolic-execution tactics. -/
   supportImports : Option (List String) := none
+  /-- What the module holds, when not refinement theorems. -/
+  what : Option String := none
 
 /-- Shared proof support before selecting a direction's tactic. -/
 private def commonProofImports : List String :=
@@ -271,8 +274,10 @@ def statefulReason : String :=
   "explicit-state specification: certificates are not generated yet"
 
 /-- Whether certificates are planned. An explicit-state specification gets its executable
-definitions and quotations only, and every certificate is recorded as an exclusion: the
-certificate emitters below are stated for the pure ABI. -/
+definitions, quotations and state-indexed logical relations, and every certificate is
+recorded as an exclusion: the certificate emitters below are stated for the pure ABI.
+The logical relations are definitions without a theorem: nothing yet connects them to the
+executable definitions. -/
 def certified (env : Env) : Bool := env.mode == .pure
 
 /-- Generate the plan for a spec. -/
@@ -534,6 +539,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let mut reverseCoveredIds : List String := []
   let mut detIds : List String := []
   let mut producerIds : List String := []
+  let mut relationModule : Std.HashMap String String := {}   -- relation → its Prop module
   if !externMembers.isEmpty then
     refGroups := refGroups ++ [{
       name := "Externs", decls := joinDecls (ExternCertificates.theorems env.lib externMembers)
@@ -613,14 +619,48 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       unitFile := unitFile.insert id file
       needsExt := needsExt.insert id ext
     if !certified then
+      -- The state-indexed logical relations of the group, in a module beside the chain of
+      -- spec modules: one mutual block per recursion group, after the relations it calls.
+      let isRel (id : String) : Bool := match defById.get? id with
+        | some d => match d.it with | .RelD .. => true | _ => false
+        | none => false
+      let rels := group.filter isRel
+      let mut relationReason : Option String := none
+      if let some first := rels.head? then
+        let callees := (rels.flatMap fun id =>
+          (calls id).filter fun c => isRel c && !group.contains c).eraseDups
+        let emitted : Except String (List StateProps.Inductives) := rels.mapM fun id => do
+          let some d := defById.get? id | throw s!"unknown definition {id}"
+          let .RelD i nottyp inputs groups eg _ := d.it | throw s!"{id} is not a relation"
+          StateProps.relInductives ctx ext i.it nottyp (inputs.map (·.toNat)) groups eg rels
+        match emitted, callees.find? (!relationModule.contains ·) with
+        | .error reason, _ => relationReason := some reason
+        | _, some callee =>
+          relationReason := some s!"premise relation {callee} has no logical relation"
+        | .ok inductives, none =>
+          let name := "Relation." ++ groupModuleName first
+          -- file systems that ignore case would overwrite one module with the other
+          if refGroups.any (·.name.toLower == name.toLower) then
+            throw s!"relation module name collision: {first}"
+          refGroups := refGroups ++ [{
+            name, decls := StateProps.Inductives.declarations inductives
+            deps := (callees.filterMap relationModule.get?).eraseDups
+            supportImports := some ["P4SpecTec.Prelude", "P4SpecTec.Refine.StateRules"]
+            what := some s!"state-indexed logical relations, group {first}" }]
+          for id in rels do relationModule := relationModule.insert id name
       for id in group do
         let some d := defById.get? id | throw s!"unknown coverage definition {id}"
+        let relationExclusion : List Coverage.Exclusion := match relationReason with
+          | some reason => if isRel id then
+              [{ kind := "logicalRelation", definition := id, reason }] else []
+          | none => []
         coverageEntries := coverageEntries ++ [{
           id, source := Env.fileOf d, group, recursive, dependencies := calls id
           kind := match d.it with
             | .RelD .. => "relation" | .TableDecD .. => "table" | .BuiltinDecD .. => "builtin"
             | _ => "function"
-          claims := [], exclusions := [{ definition := id, reason := statefulReason }] }]
+          claims := []
+          exclusions := [{ definition := id, reason := statefulReason }] ++ relationExclusion }]
       continue
     -- the refinement theorems of the group (rung 3): the group is covered
     -- when every member is in the fragment and every callee outside the
@@ -1034,14 +1074,15 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     "-- the quoted spec is one deep `::` chain\nset_option maxRecDepth 8192\n\n",
     "open P4SpecTec P4SpecTec.Prelude P4SpecTec.Refine\n\n",
     s!"namespace {lib}\n\n"]
+  let rung3 := "Rung 3, design section 5.1."
   let refModule (name what : String) (supportImports imports : List String)
-      (body : Format) : Output :=
+      (body : Format) (place : String := rung3) : Output :=
     { path := s!"{lib}/Refinement/{name.replace "." "/"}.lean",
       text := headerLine lib exportPath what ++ "\n" ++
         String.join (supportImports.map fun m => s!"import {m}\n") ++
         String.join (imports.map fun m => s!"import {lib}.{m}\n") ++ "\n" ++
         s!"/-! # {lib}.Refinement.{name}\n\n" ++ "Generated: " ++ what ++
-        ".\nRung 3, design section 5.1.\n-/\n\n" ++ refOptions ++
+        ".\n" ++ place ++ "\n-/\n\n" ++ refOptions ++
         "\n".intercalate (((render body).splitOn "\n").map (·.trimAsciiEnd.toString)) ++
         s!"\n\nend {lib}\n" }
   outs := outs ++ [refModule "Spec" "the quoted specification as a list" specSupportImports
@@ -1074,8 +1115,10 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
   for g in refinement.groups do
     let deps := ["Refinement.Spec"] ++ (if certified then ["Refinement.Equality"] else []) ++
       g.deps.map (s!"Refinement.{·}")
-    outs := outs ++ [refModule g.name s!"refinement theorems, group {g.name}"
-      (g.supportImports.getD proofSupportImports) deps g.decls]
+    let what := g.what.getD s!"refinement theorems, group {g.name}"
+    outs := outs ++ [refModule g.name what
+      (g.supportImports.getD proofSupportImports) deps g.decls
+      (if g.what.isSome then "Definitions without a theorem, design section 4.1." else rung3)]
     modules := modules ++ [s!"Refinement.{g.name}"]
   let refImports := String.join ((shared ++
     refinement.groups.map (s!"Refinement.{·.name}")).map fun m => s!"import {lib}.{m}\n")
@@ -1084,9 +1127,11 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
       s!"/-! # {lib}.Refinement\n\nThe refinement theorems of rung 3 (design section 5.1), ",
       "one module per\nrecursion group under `Refinement/`, and the definitions without ",
       "a theorem, with\nthe reason. Generated.\n-/\n\n"] else [
-      s!"/-! # {lib}.Refinement\n\nThe quoted specification. No certificate is generated ",
-      "for an explicit-state\nspecification: every definition is listed below without a ",
-      "theorem, with the reason.\nGenerated.\n-/\n\n"]) ++ render refinement.summary ++ "\n"
+      s!"/-! # {lib}.Refinement\n\nThe quoted specification and the state-indexed logical ",
+      "relations, one module per\nrecursion group under `Refinement/Relation/`. No ",
+      "certificate is generated for an\nexplicit-state specification: every definition is ",
+      "listed below without a theorem,\nwith the reason. Generated.\n-/\n\n"]) ++
+    render refinement.summary ++ "\n"
   outs := outs ++ [{ path := s!"{lib}/Refinement.lean", text := refText }]
   modules := modules ++ ["Refinement"]
   let root := headerLine lib exportPath "all files" ++ "\n" ++

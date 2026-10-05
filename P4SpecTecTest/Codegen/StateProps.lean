@@ -37,8 +37,15 @@ private def optTextT := Q.t (.IterT textT .Opt)
 private def optN := Q.e (.IterE n (.mk .Opt [Q.v "n" natT.it])) optNatT.it
 private def optM := Q.e (.IterE m (.mk .Opt [Q.v "m" natT.it])) optNatT.it
 private def optX := Q.e (.IterE x (.mk .Opt [Q.v "x" .TextT])) optTextT.it
+private def flag := Q.e (.VarE (Q.i "flag")) .BoolT
 private def spec : Lang.Al.spec := [
   Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] textT []),
+  -- A name bound to a constant stands for the constant: renaming the constant to the name
+  -- would leave `flag` unbound and turn every `true` of the rule into it.
+  Q.d (.RelD (Q.i "constantAlias") (Q.nt (.Arg textT)) []
+    [Q.rg "g" ([], [], [Q.pr (.LetPr flag (Q.e (.BoolE true) .BoolT))])
+      [Q.rp "reject" [Q.pr (.IfPr flag), save, no] [x],
+       Q.rp "accept" [Q.pr (.IfPr flag)] [fresh]]] none []),
   Q.d (.FuncDecD (Q.i "optional") [] [] optNatT
     [Q.cl [] (Q.e (.OptE (some (Q.e (.NumE (.Nat 3)) natT.it))) optNatT.it) []] none []),
   -- Both attempts start their temporary numbering at tmp_0, at different types.
@@ -130,11 +137,72 @@ run_cmd do
           (ins.map (·.toNat)) gs eg
         let sound ← Codegen.StateProps.runSound false (← Props.memberOf ctx d)
         let audit := Props.audit (env.q (Names.relName i.it ++ ".run_sound"))
-        pure [executable, mutualBlock structural, sound, audit]
+        -- each command is parsed on its own: the independent auxiliary predicates precede
+        -- the mutual block of the relation and the predicates tied to it
+        pure ([executable] ++ structural.attempts ++ structural.free ++
+          [mutualBlock (structural.relation :: structural.tied), sound, audit])
       match formats with
       | .error e => throwError e
       | .ok fs => for f in fs do emit f
     | _ => pure ()
+
+private def textResult' (r : Option (Except Fail ByteText × FreshState))
+    (text : String) (counter : Int) : Bool :=
+  match r with
+  | some (.ok v, s) => v == ByteText.ofString text && s.counter == counter
+  | _ => false
+
+-- Every complete attempt but the last is a named definition, which later constructors'
+-- rejected prefixes apply instead of restating its body.
+private def attemptCount (name : String) : Option Nat := do
+  let env := Env.ofSpec "P4SpecTecTest.StateProps" spec
+  let d ← spec.find? fun d => d.it.id.it == name
+  let .RelD i nt ins gs eg _ := d.it | none
+  let found ← (Codegen.StateProps.relInductives { env } false i.it nt (ins.map (·.toNat))
+    gs eg).toOption
+  let text := Codegen.render found.relation
+  guard ((text.splitOn "do").length == 1)
+  pure found.attempts.length
+#guard attemptCount "simple" == some 0
+#guard attemptCount "retry" == some 1
+-- The definition runs as the first alternative of the executable relation does.
+#guard match StateEval.run retry.«@attempt0» 4 with
+  | some (.error .unmatch, s) => s == 5
+  | _ => false
+
+-- Shared emitter rules that full P4 first exercised.
+#guard Names.ruleNames [("g", "a"), ("g", "a"), ("", ""), ("g", "g"), ("", "b"), ("g", "a")] ==
+  ["«g/a»", "«g/a_2»", "rule2", "g", "b", "«g/a_3»"]
+-- A name inside another variable's quoted name is not an occurrence; the whole quoted
+-- token, a projection base and a plain occurrence are; a namespace component is not.
+#guard Codegen.render (Props.substText "x" (Std.Format.text "Y")
+    "x «a<x>?» «x» f x.1 a.x «x*» (x)") == "Y «a<x>?» «Y» f Y.1 a.x «x*» (Y)"
+#guard Props.mentions "x" (Std.Format.text "«a<x>?»") == false
+#guard Props.mentions "x" (Std.Format.text "g «a<x>?» x")
+#guard textResult' (constantAlias.run 0) "FRESH__1" 2
+
+-- An auxiliary predicate joins the mutual block only when it mentions a relation of the
+-- recursion group, directly or through a nested predicate; independent ones are declared
+-- ahead of it, nested first.
+private def auxiliaries (name : String) (group : List String) : Option (List String × Nat) := do
+  let env := Env.ofSpec "P4SpecTecTest.StateProps" spec
+  let d ← spec.find? fun d => d.it.id.it == name
+  let .RelD i nt ins gs eg _ := d.it | none
+  let found ← (Codegen.StateProps.relInductives { env } false i.it nt (ins.map (·.toNat))
+    gs eg group).toOption
+  pure (found.free.map fun f => ((Codegen.render f).splitOn " :").head!, found.tied.length)
+#guard auxiliaries "simple" ["simple"] == some ([], 0)
+#guard auxiliaries "mapped" ["mapped"] == some (["inductive mapped.«@path0».«@iter0»"], 0)
+#guard auxiliaries "nestedMapped" ["nestedMapped"] == some
+  (["inductive nestedMapped.«@path0».«@iter1»", "inductive nestedMapped.«@path0».«@iter0»"], 0)
+#guard auxiliaries "optionalCalls" ["optionalCalls"] == some
+  (["inductive optionalCalls.«@path0».«@optional0»"], 0)
+-- Were `tagged` in the same recursion group, the predicates calling it would be tied,
+-- the outer one through the nested one.
+#guard auxiliaries "mapped" ["mapped", "tagged"] == some ([], 1)
+#guard auxiliaries "nestedMapped" ["nestedMapped", "tagged"] == some ([], 2)
+#guard auxiliaries "jointCaptured" ["jointCaptured", "tagged"] == some
+  (["inductive jointCaptured.«@path0».«@iter0»"], 0)
 
 private def textResult (r : Option (Except Fail ByteText × FreshState))
     (text : String) (counter : Int) : Bool :=

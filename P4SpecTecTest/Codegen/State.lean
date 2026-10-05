@@ -174,10 +174,13 @@ private def depEnv := Env.ofSpec "DependencyTest" depSpec
       let text := Codegen.render u.decls
       text.contains "mutual" && text.contains "«$source»" && text.contains "«$later»")
   | .error _ => false
--- The plan of an explicit-state specification has executable units and no certificate.
+-- The plan of an explicit-state specification has executable units, one logical-relation
+-- module per relation group, and no certificate.
 #guard match Emit.plan env spec with
   | .ok (units, _, refinement) =>
-    !units.isEmpty && refinement.groups.isEmpty && !refinement.coverage.isEmpty &&
+    !units.isEmpty && !refinement.coverage.isEmpty &&
+    refinement.groups.map (·.name) == ["fails", "holds", "shared"].map ("Relation." ++ ·) &&
+    refinement.groups.all (fun g => (Codegen.render g.decls).contains "inductive ") &&
     refinement.coverage.all fun e =>
       e.claims.isEmpty && e.exclusions.any fun x =>
         x.reason == if e.kind.startsWith "extern" then "extern" else Emit.statefulReason

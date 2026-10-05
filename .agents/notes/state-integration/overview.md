@@ -11,7 +11,8 @@ The explicit-state carrier, shared interpreter, executable emitter,
 structural fixtures and bounded function-refinement emitter are retained.
 Since 2026-10-04 production `Codegen/Emit.lean` plans a `freshState` specification
 without certificates (decisions, "Staged explicit-state generation"): the executable
-emitter covers the whole full-P4 export, and `StateProps`, `StateRunSound` and
+emitter covers the whole full-P4 export, and since 2026-10-05 so does `StateProps`
+(decisions, "Shape of explicit-state logical relations"); `StateRunSound` and
 `StateValidate` are still reachable only from test fixtures. Production
 `Validate` does not count those fixtures as full-P4 coverage, and there is no
 production full-P4 stateful certificate. Historical worktree instructions and

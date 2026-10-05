@@ -7,57 +7,55 @@ review and exact-revision CI for that tree digest.
 
 ## Where M3 stands
 
-- M3B, first stage (pushed as `6e57dcb`, CI 37270348930 passed in 33 min, the first cold
-  Linux build of `P4Spec`): the whole full-P4 export generates as the executable library
-  `P4Spec` (ignored sources, pinned by `P4Spec.manifest.json`), builds with `--wfail`, and
-  its 1,672 quotations match the export. No certificate of any kind exists for it.
+- M3B: the whole full-P4 export generates as the library `P4Spec` (ignored sources,
+  pinned by `P4Spec.manifest.json`): executable definitions, quotations matching the
+  export, and since 2026-10-05 a state-indexed logical relation for each of the 256
+  relations. Everything builds with `--wfail`. No certificate of any kind exists: M3B's
+  exit needs audited run-soundness, which no full-P4 relation has in committed code.
   [Full-P4 overview](notes/full-p4/overview.md) has the measurements and what is missing.
-- M3C, sweep: the generated library and the reference interpreter both agree with
-  upstream on 1,266 of the 1,267 corpus candidates, for typing and instantiation
-  (semantic outputs, exact fresh counters). One candidate is unobserved (above the 1 GiB
-  case bound). [Corpus note](notes/full-p4/corpus.md) has the evidence and its limits.
-- M3B's exit (logical relations with audited run-soundness), M3C's durable campaign,
-  M3D, M3E and M3F are open.
+- M3C, sweep (`f329af0`): the generated library and the reference interpreter both agree
+  with upstream on 1,266 of the 1,267 corpus candidates, for typing and instantiation.
+  [Corpus note](notes/full-p4/corpus.md) has the evidence and its limits.
+- M3C's durable campaign, M3D, M3E and M3F are open.
 
 ## Verified state
 
-Evidence for the working tree of the commit that adds the corpus sweep (the parent of the
-commit recording CI, if any):
+Evidence for the working tree of the commit that adds the logical relations:
 
-- Full gate: `nix develop -c /usr/bin/time -p scripts/check.sh` returned actual exit 0 in
-  248.63 s, all 55 stages (`.artifacts/m3c/gate-3.log`); Nano completion 888 obligations,
-  0 unresolved, review and release pending under the allowance as on every tree after
-  `42ffad6`. Generated Nano output is byte-identical; `P4Spec` matches its manifest.
-- Corpus sweep: `nix develop .#upstream -c python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py
-  --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c" --jobs 8` returned
-  actual exit 0 in 1,228.0 s (`.artifacts/m3c/sweep-committed-2.log`): 1,266 of 1,267
-  candidates `matched,matched` on both legs, one unobserved (`oversized`). The gate ran
-  after a comment-only edit that followed the sweep; both worker executables still have
-  the digests the sweep's summary records.
-- Four-case replay, both legs: `P4SpecTecTest/Oracle/P4/Replay/replay.py` returned actual
-  exit 0 (`.artifacts/m3c/replay-both-2.log`), before that same comment-only edit.
-- Independent review: [full-P4 review](notes/full-p4/review.md), "Corpus sweep stage";
-  one policy blocker and the should-fix items resolved before the commit, resolutions
-  not re-reviewed.
-- Remote CI: `6e57dcb` passed (run 37270348930, 33 min). Not yet run on this commit.
-- Not run: the shard campaign (`shard.py`); no committed mutation suite for the sweep.
+- Full gate, after the review resolutions: `nix develop -c /usr/bin/time -p
+  scripts/check.sh` returned actual exit 0 in 502.41 s, all 55 stages, 207 s of it
+  rebuilding the relation modules (`.artifacts/m3b/props/gate-2.log`); Nano completion 888
+  obligations, 0 unresolved, review and release pending under the allowance as on every
+  tree after `42ffad6`. Generated Nano output is byte-identical; `P4Spec` (204 files)
+  matches its manifest and its 132 relation modules build.
+- Not rerun for this commit: the corpus sweep and the four-case replay. Their evidence is
+  for `f329af0` (sweep exit 0 in 1,228.0 s; replay exit 0). This commit changes the
+  relation emitters, not the executable definitions: per the manifest diff the only
+  changed files are the root `P4Spec.lean` and `Refinement.lean` (new imports and
+  header) beside the 132 new relation modules. The generated legs' externs now import
+  the quoted-spec module instead of the library root, so the workers were rebuilt and
+  not re-swept.
+- Independent review: [full-P4 review](notes/full-p4/review.md), "Logical relations
+  stage"; no blockers, should-fix items resolved before the commit, not re-reviewed.
+- Remote CI: `f329af0` passed (run 37281546328, 12 min with a restored build cache;
+  `6e57dcb` took 33 min cold). Not yet run on this commit.
 
 ## Open threads and next step
 
-1. Next: M3B's exit, starting with its measured bottleneck. A scratch probe
-   ([overview](notes/full-p4/overview.md), "Executable generation") emitted logical
-   relations for all 256 relations; `Cast_impl`'s module (99 helper inductives in one
-   mutual block) does not elaborate in 13 minutes, and three emitter defects remain.
-   Fix elaboration cost first, then the defects, then run-soundness for the 14 relations
-   that need no recursive-group support, then the recursive motives.
+1. Next: run-soundness (M3B's exit). First the tactic gaps that stop two of the fourteen
+   relations needing no recursive support (`ConstructorType_ok`, `Constructor_inst`: a
+   single-constructor `let` pattern left as projections, a guard `none == some _` left
+   undecided), then emit those theorems in modules beside the relations, then the
+   recursive motives (`RecursivePrefix`, `StateRules`) for the 31 recursive groups,
+   measuring `Cast_impl` and `Expr_eval` early.
 2. M3C: extend the shard campaign to the generated worker and a larger bound for a
    durable, CLI-checked record; add rejected programs (negative regressions,
    `p4_16_errors`); commit a generated-code mutation suite for the sweep.
 3. Generated `==` converts both operands to IL values (`valueEq`); on the largest programs
    the generated leg is about five times slower than the interpreter. Fix before any
    generated-leg target work (M3D); untried options are in the corpus note.
-4. CI went from 9 to 33 minutes on the first cold `P4Spec` build; check the next run with a
-   restored `.lake` cache before deciding whether the full-P4 build needs its own cache key.
+4. `Expr_eval`'s relation module takes 195 s of the 203 s the relation modules add to a
+   cold build. Acceptable now; revisit if proofs over it are slow for the same reason.
 5. A warm `lake build` log shows `PANIC at Lean.Meta.whnfEasyCases ... loose bvar` replayed
    as an info message from `NanoP4Spec.Refinement.Reverse.TableEntry_ok` (line 36). The
    module builds and its audits pass; the message predates this work and is unexplained.

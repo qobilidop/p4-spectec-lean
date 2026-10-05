@@ -46,27 +46,29 @@ a claim of general superiority over verified compilation.
 rationale; [Related Work](../docs/related-work.md) owns sources.
 Confidence high; revisit with measured scale or consumer evidence.
 
-## Staged explicit-state generation (2026-10-04)
+## Staged explicit-state generation (2026-10-04, relations added 2026-10-05)
 
 A specification in explicit-state mode (one declaring `fresh_typeId`, so full P4) is planned
 without certificates: types with codecs, subtype bridges, the `Externs` class, executable
-functions, tables and relations, and quotations. Every definition and type is listed in
-`coverage.json` with the exclusion `Emit.statefulReason`; no logical relation, run-soundness,
-refinement, representation or initialization module is emitted. Reason: the certificate
-emitters are stated for the pure ABI, and the earlier all-or-nothing guard hid the fact that
-the executable half already elaborates for the whole export (about 235 s cold, with native
-compilation) and agrees
+functions, tables and relations, quotations, and since 2026-10-05 the logical relations as
+definitions (next entry). Every definition and type is listed in `coverage.json` with the
+exclusion `Emit.statefulReason`; no run-soundness, refinement, representation or
+initialization module is emitted. Reason: the certificate emitters are stated for the pure
+ABI, and the earlier all-or-nothing guard hid the fact that the executable half already
+elaborates for the whole export (about 235 s cold, with native compilation) and agrees
 with upstream on the pinned programs. Emitting the executable library first gives a second
 Lean leg for corpus replay (M3C) before any proof exists, and makes each certificate family a
-separately enabled stage. This is not M3B's exit: structural propositions and audited
-run-soundness remain required. Rejected: enabling the bounded `StateProps`/`StateValidate`
-emitters for whatever they accept (comment-only exclusions would look like coverage, and the
-retired `m3b-state-production` aggregate failed at exactly that integration). Confidence high.
-Revisit when state run-soundness is generated: its modules should sit beside, not inside, the
-serial chain of spec modules (see the full-P4 overview on build cost).
+separately enabled stage. This is not M3B's exit: audited run-soundness remains required.
+On 2026-10-04 this entry rejected enabling the bounded `StateProps`/`StateValidate`
+emitters "for whatever they accept", because comment-only exclusions would look like
+coverage and the retired `m3b-state-production` aggregate failed at that integration. For
+`StateProps` that objection no longer holds and the rejection is withdrawn: it accepts all
+256 relations, a relation it could not render would get a machine-readable
+`logicalRelation` exclusion, and no claim is recorded for a relation without a theorem.
+It still holds for `StateRunSound` and `StateValidate`. Confidence high.
 
 `P4Spec/` is generated, ignored and pinned by `P4Spec.manifest.json` (per-file SHA-256 and
-size) instead of being committed: it is about 25 MB and one module is 6.7 MB, above the 5 MiB
+size) instead of being committed: it is about 31 MB and one module is 6.7 MB, above the 5 MiB
 cap. The gate regenerates, checks the manifest, builds and compares quotations. Cost: a
 generator change shows as changed digests, not as a diff, so the commit message must say what
 changed. Rejected: committing compressed generated modules (Lake cannot build them, and Git
@@ -80,6 +82,32 @@ recursive type group was decoded through a product instance that does not exist.
 are now decoded by arity and component everywhere, and generation rejects the two tuple
 shapes a right-nested product cannot represent (a single component, a trailing tuple
 component); neither occurs at the pinned specifications.
+
+## Shape of explicit-state logical relations (2026-10-05)
+
+An explicit-state specification's logical relations are emitted one module per relation
+recursion group under `Refinement/Relation/`, importing the quoted spec and the modules
+of the relations they call. They are definitions without a theorem; coverage records no
+claim for them. Reason: all 256 full-P4 relations elaborate, so the gate now builds every
+emitted relation module (the manifest pins which exist; nothing separately asserts that
+none was excluded) and run-soundness has a fixed target, at a cost of about 200 s of cold
+build beside the chain.
+
+Two encoding choices follow from measurements on full P4, and both changed the fixtures'
+shape as well. An auxiliary predicate of an iterated or optional premise joins its
+relation's mutual block only when it mentions a relation of the recursion group, directly
+or through a nested predicate; otherwise it is declared on its own beforehand. Reason:
+Lean's automatic constructions for a mutual block of 101 types did not finish in 13
+minutes, and 83 of those were independent. Every complete attempt but the last is a named
+`@[reducible]` definition of the relation's inputs, and a constructor's rejected prefix
+applies those names. Reason: restating earlier attempts made the text quadratic in the
+rules (30 MB, 93 to 95% repetition in the large groups). The executable `R.run` still
+inlines its attempts, so a soundness proof relates the two by unfolding; the fixture
+proofs go through unchanged. Rejected: making `R.run` call the named attempts (the
+attempts would join every recursive `partial_fixpoint` group, multiplying its size).
+Confidence high for the partition; medium for named attempts until recursive
+run-soundness has been proved against them. Revisit if those proofs need the attempts
+inside the fixed point.
 
 ## Corpus sweep beside the shard campaign (2026-10-05)
 

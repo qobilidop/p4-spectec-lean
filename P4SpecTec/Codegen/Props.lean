@@ -50,7 +50,9 @@ def isIdChar (c : Char) : Bool := c.isAlphanum || c == '_' || c == '\'' || c == 
 
 /-- Replace every whole-identifier occurrence of `name` in `s` by `rep`,
 splitting the text around it. An occurrence preceded by an identifier
-character or a dot (a namespace or projection component) is left alone. -/
+character or a dot (a namespace or projection component) is left alone, and so is one
+inside a `«»` quotation unless it is the whole quoted token: a variable such as
+`«callResolution<typeIR>?»` contains other variables' names. -/
 partial def substText (name : String) (rep : Format) (s : String) : Format := Id.run do
   let cs := s.toList
   let n := name.toList
@@ -58,9 +60,10 @@ partial def substText (name : String) (rep : Format) (s : String) : Format := Id
   let mut acc : List Char := []
   let mut rest := cs
   let mut prev : Option Char := none
+  let mut quoted := false
   while !rest.isEmpty do
     let after := rest.drop n.length
-    let ok := rest.take n.length == n &&
+    let ok := rest.take n.length == n && (!quoted || prev == some '«') &&
       (match prev with
         | some '«' => after.head? == some '»'   -- inside «»: the whole token
         | some c => !(isIdChar c || c == '.')
@@ -77,6 +80,8 @@ partial def substText (name : String) (rep : Format) (s : String) : Format := Id
         acc := c :: acc
         rest := cs'
         prev := some c
+        if c == '«' then quoted := true
+        if c == '»' then quoted := false
       | [] => pure ()
   pure (out ++ Format.text (String.ofList acc.reverse))
 
@@ -231,11 +236,14 @@ partial def translate : List Stmt → PM Unit
   | .have_ x v :: rest => do
     match v with
     | ⟨.text s, true⟩ =>
-      -- an alias of a variable: rename the variable to the spec name
       match ← typeOfVar s with
-      | some ty => bindVar x ty
-      | none => pure ()
-      subst s (Format.text x)
+      | some ty =>
+        -- an alias of a variable: rename the variable to the spec name
+        bindVar x ty
+        subst s (Format.text x)
+      -- any other atom (a constant such as `cursor.BLOCK`, a literal, a projection, a name
+      -- already substituted away): the name stands for it, and the atom is not renamed
+      | none => subst x v.fmt
     | _ => subst x (Format.paren v.fmt)
     translate rest
   | .letPat _ patTerm vars v _ :: rest => do
@@ -349,11 +357,13 @@ def relCtors (ctx : Ctx) (id : String) (nottyp : nottyp) (inputs : List Nat)
   let args := (Mixfix.args nottyp.it).map (·.it)
   let (ins, _) := splitArgs inputs args
   let inTypes := ins.map (typTerm ctx.env [])
-  let path (k : Nat) (gid : String) (m : rulematch) (p : rulepath) : Except String Format := do
+  let names := Names.ruleNames
+    (groups.flatMap (fun g => g.it.2.2.map fun p => (g.it.1.it, p.1.it)) ++
+      elsegroup.toList.map fun e => (e.it.1.it, e.it.2.2.1.it))
+  let path (k : Nat) (m : rulematch) (p : rulepath) : Except String Format := do
     let (_, matchIns, prems) := m
-    let (pid, pprems, outs) := p
-    -- an unnamed rule (upstream allows it) is named by its position
-    let name := if gid.isEmpty && pid.it.isEmpty then s!"rule{k}" else Names.ruleName gid pid.it
+    let (_, pprems, outs) := p
+    let name := names.getD k s!"rule{k}"
     let ((stmts, outTerms)) ← Exp.run ctx do
       let ((), stmts) ← subBlock do
         for (e, n) in matchIns.zip (paramNames matchIns.length) do assign e (.atom n)
@@ -364,11 +374,11 @@ def relCtors (ctx : Ctx) (id : String) (nottyp : nottyp) (inputs : List Nat)
     pathCtor ctx id name ins.length inTypes stmts outTerms
   let mut ctors : List Format := []
   for g in groups do
-    let (gid, m, paths) := g.it
-    for p in paths do ctors := ctors ++ [← path ctors.length gid.it m p]
+    let (_, m, paths) := g.it
+    for p in paths do ctors := ctors ++ [← path ctors.length m p]
   if let some e := elsegroup then
-    let (gid, m, p) := e.it
-    ctors := ctors ++ [← path ctors.length gid.it m p]
+    let (_, m, p) := e.it
+    ctors := ctors ++ [← path ctors.length m p]
   pure ctors
 
 /-- The inductive of one relation (the body of a `mutual` block when the

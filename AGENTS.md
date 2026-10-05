@@ -191,15 +191,15 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   Both spec snapshots are committed as `exports/<name>.al.json.gz` plus
   a raw SHA-256; the gate verifies and extracts the ignored JSON files.
 - **Generated full-P4 Lean is not committed.** `P4Spec/` and `P4Spec.lean` are about
-  25 MB (one module exceeds the file-size cap) and are ignored. The gate regenerates
+  31 MB (one module exceeds the file-size cap) and are ignored. The gate regenerates
   them, requires the digests in the committed `P4Spec.manifest.json`, builds the
   library with `--wfail` and checks its quotations. A generator change that alters
   full-P4 output must update the manifest in the same commit
   (`scripts/generated-manifest.py --update`); say what changed, since a digest shows no
   diff. `P4Spec` is not a default target; only registered executables may import it,
   never a library root.
-  It has executable definitions and quotations only; the certificates it lacks are in
-  `.agents/notes/full-p4/overview.md`.
+  It has executable definitions, quotations and logical relations without theorems; the
+  certificates it lacks are in `.agents/notes/full-p4/overview.md`.
 - **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
   (a warning fails, and a `sorry` is a warning), `lake test`, every module
   reachable through imports from its library root or a registered executable

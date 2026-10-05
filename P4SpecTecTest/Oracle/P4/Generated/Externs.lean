@@ -1,5 +1,5 @@
 import P4SpecTec.BackendSim.Placeholder
-import P4Spec
+import P4Spec.Refinement.Spec
 
 /-!
 Not a mirror. The placeholder target as the generated full-P4 library's `Externs`

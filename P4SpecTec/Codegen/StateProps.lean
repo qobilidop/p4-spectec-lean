@@ -4,8 +4,13 @@ import P4SpecTec.Codegen.Rels
 /-!
 Structural successful rules for the explicit-state backend (not a mirror).
 Each selected complete attempt retains the mismatching prefix and its consumed
-state. Iteration uses auxiliary mutual predicates and ordered structural chains.
-Production selection remains disabled until recursive state run-soundness is proved.
+state. Iteration uses auxiliary predicates and ordered structural chains. An auxiliary
+predicate joins its relation's mutual block only when it mentions a relation of the
+recursion group, directly or through a nested auxiliary predicate: Lean's automatic
+constructions for a mutual block grow steeply with its number of types, and most iterated
+premises call relations defined earlier.
+Production planning emits these relations for an explicit-state specification as
+definitions; no run-soundness theorem is emitted for them.
 -/
 
 namespace P4SpecTec.Codegen.StateProps
@@ -26,10 +31,16 @@ structure PSt where
   helperPrefix : String := ""
   /-- Next auxiliary predicate number, shared with nested iterations. -/
   helperNext : Nat := 0
-  /-- Auxiliary inductives which must enter the enclosing mutual block. -/
-  helpers : List Format := []
+  /-- Auxiliary inductives, outer before nested, each with whether it is tied to the
+  recursion group and so must enter the enclosing mutual block. -/
+  helpers : List (Bool × Format) := []
   /-- Whether the enclosing declarations carry the generated extern interface. -/
   externs : Bool := false
+  /-- The relations of the recursion group being defined. -/
+  group : List String := []
+  /-- Whether a premise so far mentions a relation of the group, directly or through an
+  auxiliary predicate. -/
+  tied : Bool := false
 
 /-- Stateful structural translation; this is a compiler monad, not an evaluator. -/
 abbrev PM := ReaderT Ctx (StateT PSt (Except String))
@@ -139,7 +150,7 @@ partial def translate : List Stmt → PM Unit
       let ctx ← read
       let outs ← (Props.outsOf rid name).run ctx |>.run' {}
       hyp (← relApp rid ins outs s t)
-      modify fun st => { st with base.hasRel := true }
+      modify fun st => { st with base.hasRel := true, tied := st.tied || st.group.contains rid }
     translate rest
   | .notHold _ _ _ m :: rest => do
     let (s, t) ← advance
@@ -167,7 +178,7 @@ partial def translate : List Stmt → PM Unit
         binders := locals ++ elems ++ [("«@s0»", .atom "FreshState")]
         substs := captureSubsts outer caps (elems.map (·.1)) },
       current := "«@s0»", next := 1, helperPrefix := outer.helperPrefix,
-      helperNext := outer.helperNext + 1, externs := outer.externs }
+      helperNext := outer.helperNext + 1, externs := outer.externs, group := outer.group }
     let (_, inner) ← (translate body).run ctx |>.run init
     let conclusion := (Term.call qualified
       [inputTerm, .atom "«@s0»", result, .atom inner.current]).fmt
@@ -177,8 +188,8 @@ partial def translate : List Stmt → PM Unit
       Term.arrows [inputTy.arg, "FreshState", resTy.arg, "FreshState", "Prop"] ++
       " where" ++ Format.nest 2 (Term.hardLine ++ ctor)
     modify fun s => { s with
-      helperNext := inner.helperNext
-      helpers := s.helpers ++ [decl] ++ inner.helpers }
+      helperNext := inner.helperNext, tied := s.tied || inner.tied
+      helpers := s.helpers ++ [(inner.tied, decl)] ++ inner.helpers }
     bindVar x (.call "List" [resTy])
     let (s, t) ← advance
     let tagged := Term.call "List.map"
@@ -205,7 +216,7 @@ partial def translate : List Stmt → PM Unit
         binders := locals ++ elems ++ [("«@s0»", .atom "FreshState")]
         substs := captureSubsts outer caps (elems.map (·.1)) }
       current := "«@s0»", next := 1, helperPrefix := outer.helperPrefix,
-      helperNext := outer.helperNext + 1, externs := outer.externs }
+      helperNext := outer.helperNext + 1, externs := outer.externs, group := outer.group }
     let (_, inner) ← (translate body).run ctx |>.run init
     let someConclusion := (Term.call qualified
       [someInput, .atom "«@s0»", someResult, .atom inner.current]).fmt
@@ -218,8 +229,8 @@ partial def translate : List Stmt → PM Unit
       Term.arrows [inputTy.arg, "FreshState", ty.arg, "FreshState", "Prop"] ++
       " where" ++ Format.nest 2 (Term.hardLine ++ noneCtor ++ Term.hardLine ++ someCtor)
     modify fun s => { s with
-      helperNext := inner.helperNext
-      helpers := s.helpers ++ [decl] ++ inner.helpers }
+      helperNext := inner.helperNext, tied := s.tied || inner.tied
+      helpers := s.helpers ++ [(inner.tied, decl)] ++ inner.helpers }
     bindVar x ty
     let (s, t) ← advance
     hyp (Term.call qualified [.tuple [capTerm, .tuple options],
@@ -232,23 +243,21 @@ partial def translate : List Stmt → PM Unit
 
 /-- Render a named structural path constructor from its retained hypotheses. -/
 def constructor (ctx : Ctx) (relId name helperPrefix : String) (externs : Bool)
-    (inTypes : List Term)
+    (group : List String) (inTypes : List Term)
     (stmts : List Stmt) (outs : List Term) (rejected : List Term) (ret : Term) :
-    Except String (Format × List Format) := do
+    Except String (Format × List (Bool × Format)) := do
   let inputs := paramNames inTypes.length
   let init : PSt := { base := {
     binders := inputs.zip inTypes ++ [("«@s0»", .atom "FreshState"),
-      ("«@s1»", .atom "FreshState")] }, helperPrefix, externs }
+      ("«@s1»", .atom "FreshState")] }, helperPrefix, externs, group }
   let (_, st) ← (translate stmts).run ctx |>.run init
-  -- Earlier attempts have their own lexical scope. Substituting selected-path
-  -- temporaries into their rendered bodies would capture their bound locals.
+  -- Earlier attempts have their own lexical scope: each is a named definition of the
+  -- relation's inputs, applied here to the selected path's input patterns. Restating its
+  -- body in every later constructor would make a relation's text quadratic in its rules.
   let applySubsts (f : Format) :=
     st.base.substs.foldl (fun f (n, r) => Props.substFormat n r f) f
   let arguments := inputs.map fun n => Term.raw (applySubsts (Format.text n))
-  let closedAttempts := rejected.map fun attempt =>
-    let fn := (inputs.zip inTypes).foldr
-      (fun (n, ty) body => Term.lamF (Term.binder (Format.text n) ty.fmt) body) attempt
-    Term.app fn arguments
+  let closedAttempts := rejected.map fun attempt => Term.app attempt arguments
   let prefixTy := Term.call "List" [.call "StateEval" [ret]]
   let prefixTerm := Term.ascribe (.list closedAttempts) prefixTy
   let prefixHyp := (Term.call "RejectedPrefix" [prefixTerm, .atom "«@s0»", .atom "«@s1»"]).fmt
@@ -259,40 +268,78 @@ def constructor (ctx : Ctx) (relId name helperPrefix : String) (externs : Bool)
     |>.run' init
   pure (closeConstructor name st conclusion [prefixHyp] prefixUses, st.helpers)
 
-/-- State-indexed rules in the exact order of complete executable attempts. -/
+/-- The name of a relation's complete attempt, as a definition of its inputs. -/
+def attemptName (id : String) (k : Nat) : String := Names.relName id ++ s!".«@attempt{k}»"
+
+/-- A relation's structural predicates. -/
+structure Inductives where
+  /-- Every complete attempt but the last as a reducible definition of the relation's
+  inputs: the computation a later constructor's rejected prefix refers to. They call the
+  executable definitions only, so they precede every predicate. -/
+  attempts : List Format
+  /-- The relation itself, one constructor per complete attempt. -/
+  relation : Format
+  /-- Auxiliary predicates that mention a relation of the recursion group. -/
+  tied : List Format
+  /-- Auxiliary predicates that mention none, nested ones first: each is declared on its
+  own, ahead of the group's mutual block. -/
+  free : List Format
+
+/-- The declarations of a recursion group's relations: the independent auxiliary
+predicates, then one mutual block of the relations and the predicates tied to them. -/
+def Inductives.declarations (group : List Inductives) : Format :=
+  joinDecls (group.flatMap (·.attempts) ++ group.flatMap (·.free) ++
+    [mutualBlock (group.map (·.relation) ++ group.flatMap (·.tied))])
+
+/-- State-indexed rules in the exact order of complete executable attempts. `group` names
+the relations of the recursion group, the relation itself included. -/
 def relInductives (ctx : Ctx) (externs : Bool) (id : String) (nottyp : nottyp)
     (inputs : List Nat) (groups : List Lang.Al.rulegroup)
-    (elsegroup : Option Lang.Al.elsegroup) : Except String (List Format) := do
+    (elsegroup : Option Lang.Al.elsegroup) (group : List String := [id]) :
+    Except String Inductives := do
   if ctx.env.mode != .freshState then throw "StateProps requires the explicit-state backend"
   let args := (Mixfix.args nottyp.it).map (·.it)
   let (ins, outs) := splitArgs inputs args
   let inTypes := ins.map (typTerm ctx.env [])
   let ret := typTerm.prod (outs.map (typTerm ctx.env []))
   let mut earlier : List Term := []
+  let mut definitions : List Format := []
   let mut ctors : List Format := []
-  let mut helpers : List Format := []
-  for attempt in Attempt.ofRelation groups elsegroup do
+  let mut helpers : List (Bool × Format) := []
+  let ext := if externs then Format.text " [Externs]" else Format.nil
+  let inputBinders := Format.join (((paramNames inTypes.length).zip inTypes).map fun (n, ty) =>
+    Format.line ++ Format.paren (Format.text (n ++ " : ") ++ ty.fmt))
+  let attempts := Attempt.ofRelation groups elsegroup
+  let names := Names.ruleNames (attempts.map fun a => (a.groupId.it, a.pathId.it))
+  for attempt in attempts do
     let (stmts, outs) ← Exp.run ctx (Rels.attemptBlock attempt)
     let k := ctors.length
-    let name := if attempt.groupId.it.isEmpty && attempt.pathId.it.isEmpty then s!"rule{k}"
-      else Names.ruleName attempt.groupId.it attempt.pathId.it
+    let name := names.getD k s!"rule{k}"
     let helperPrefix := Names.relName id ++ s!".«@path{k}»"
-    let (ctor, extra) ← constructor ctx id name helperPrefix externs inTypes stmts outs earlier ret
+    let (ctor, extra) ←
+      constructor ctx id name helperPrefix externs group inTypes stmts outs earlier ret
     ctors := ctors ++ [ctor]
     helpers := helpers ++ extra
-    earlier := earlier ++ [doOfWith .freshState stmts (.tuple outs)]
-  let ext := if externs then Format.text " [Externs]" else Format.nil
+    if k + 1 < attempts.length then
+      definitions := definitions ++ [Format.text "@[reducible] def " ++ attemptName id k ++ ext ++
+        Format.group (Format.nest 4 inputBinders) ++ " : StateEval " ++ ret.arg ++ " :=" ++
+        Format.nest 2 (Format.line ++ (doOfWith .freshState stmts (.tuple outs)).fmt)]
+      earlier := earlier ++ [.atom (ctx.env.q (attemptName id k))]
   let sig := Term.arrows (args.map (fun t => (typTerm ctx.env [] t).arg) ++
     [Format.text "FreshState", Format.text "FreshState", Format.text "Prop"])
-  pure ((Format.text ("inductive " ++ Names.relName id) ++ ext ++ " : " ++ sig ++ " where" ++
-    Format.nest 2 (Format.join (ctors.map (Term.hardLine ++ ·)))) :: helpers)
+  let relation := Format.text ("inductive " ++ Names.relName id) ++ ext ++ " : " ++ sig ++
+    " where" ++ Format.nest 2 (Format.join (ctors.map (Term.hardLine ++ ·)))
+  -- an outer predicate precedes the ones nested in it: declare the independent ones in
+  -- reverse, so that each follows what it mentions
+  pure { attempts := definitions, relation, tied := (helpers.filter (·.1)).map (·.2)
+         free := ((helpers.filter (!·.1)).map (·.2)).reverse }
 
-/-- Compatibility entry point for a relation that needs no auxiliary mutual predicates. -/
+/-- Compatibility entry point for a relation that needs no auxiliary predicates. -/
 def relInductive (ctx : Ctx) (externs : Bool) (id : String) (nottyp : nottyp)
     (inputs : List Nat) (groups : List Lang.Al.rulegroup)
     (elsegroup : Option Lang.Al.elsegroup) : Except String Format := do
   match ← relInductives ctx externs id nottyp inputs groups elsegroup with
-  | [decl] => pure decl
-  | _ => throw "stateful structural iteration requires the relInductives mutual-block API"
+  | { attempts := [], relation, tied := [], free := [] } => pure relation
+  | _ => throw "stateful structural iteration requires the relInductives declarations API"
 
 end P4SpecTec.Codegen.StateProps

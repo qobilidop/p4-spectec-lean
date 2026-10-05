@@ -112,6 +112,21 @@ def varName (id : String) (iters : List iter) : String :=
 def ruleName (group path : String) : String :=
   escape (if group == path || group == "" then path else group ++ "/" ++ path)
 
+/-- The constructor names of a relation's rule paths, in order: an unnamed rule (upstream
+allows it) is named by its position, and the `k`-th rule with a repeated name takes the
+suffix `_k`, counting from the second, as variant cases do. A rule literally named like a
+suffixed one would still clash, and Lean rejects the inductive. -/
+def ruleNames (rules : List (String × String)) : List String := Id.run do
+  let mut seen : List String := []
+  let mut out : List String := []
+  for (group, path) in rules do
+    let base := if group.isEmpty && path.isEmpty then s!"rule{out.length}"
+      else if group == path || group == "" then path else group ++ "/" ++ path
+    let n := seen.count base
+    seen := seen ++ [base]
+    out := out ++ [escape (if n == 0 then base else base ++ "_" ++ toString (n + 1))]
+  pure out
+
 /-- The module components of a spec file relative to the spec root: the
 path components verbatim, without the `.watsup` extension, each quoted
 when it is not an identifier. -/

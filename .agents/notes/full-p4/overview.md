@@ -45,28 +45,37 @@ retired `m3b-state-production` failure concerned proofs, not this executable tex
 
 What the generated library still lacks, in dependency order:
 
-1. Logical relations (`StateProps`, 256 relations) and state run-soundness. The emitter
-   handles nonrecursive fixtures; recursive groups need the `RecursivePrefix`/`StateRules`
-   motives turned into a generator. These modules must not join the serial chain.
-   A scratch probe on 2026-10-05 (uncommitted driver; one module per relation group,
-   beside the chain, importing `P4Spec`) measured where this stands:
-   - `StateProps.relInductives` emits text for all 256 relations (132 groups, 30 MB;
-     `Expr_eval`'s group alone is 10.8 MB and 194,000 lines).
-   - 44 group modules elaborated (432 s summed) before the probe was stopped; three failed
-     on emitter defects: a substituted term spliced inside a quoted variable name
-     (`CallableType_ok`), two rule paths with the same constructor name
-     (`SelectCases_match` in `Expr_eval`'s group), and a captured variable left unbound
-     (`p_callee` in `Expr_inst`'s group).
-   - `Cast_impl`'s module (2 relations, 99 helper inductives for iterated and optional
-     premises in one mutual block, 1.0 MB) did not finish elaborating in 13 minutes at
-     7 GB, nor in 7 minutes with `genSizeOfSpec` and `genInjectivity` off. Everything
-     downstream of it was never reached. This is the bottleneck to remove first: the
-     retired aggregate also died at casting. Untested ideas: keep a helper out of the
-     mutual block when its body mentions no relation of the group; give each complete
-     attempt a named definition so constructors stop repeating earlier attempts' code.
-   - Run-soundness without recursive-group support is reachable for only 14 relations
-     (nonrecursive, and calling no recursive relation); 155 relations are recursive, in 31
-     groups of up to 50. The existing `state_run_sound` tactic was not run in the probe.
+1. State run-soundness for the 256 logical relations. The tactic handles nonrecursive
+   fixtures; recursive groups need the `RecursivePrefix`/`StateRules` motives turned into
+   a generator. Proof modules must not join the serial chain.
+   Since 2026-10-05 the library includes the logical relations, without theorems:
+   - `P4Spec/Refinement/Relation/` has one module per relation recursion group (132
+     modules, 256 relations, 6.2 MB), each importing the quoted spec and the modules of
+     the relations it calls, beside the serial chain. With them the library is 203 Lean
+     files, 31.3 MB, about 668,000 lines; `lake exe p4spectec-gen exports/p4.al.json --lib
+     P4Spec --update` takes 14.7 s.
+   - `lake build --wfail P4Spec` with the chain already built and no relation module
+     built: 202.8 s elapsed, 361.4 s user (this machine, the working tree of the commit
+     that added them). Per Lake's module times, `Expr_eval`'s 50-relation mutual block
+     takes 195 s, `Type_ok`'s 37 s, `Expr_inst`'s 26 s.
+   - Getting there took two changes to the emitter, both measured on a scratch probe
+     first. An auxiliary predicate for an iterated premise now joins the mutual block
+     only when it mentions a relation of the group: `Cast_impl`'s block went from 101
+     types to 18, and its module from not elaborating in 13 minutes at 7 GB (time in
+     Lean's recursor and `below` constructions) to 13 s. Each complete attempt is now a
+     named reducible definition that later constructors' rejected prefixes apply: before,
+     93 to 95% of the large modules restated earlier attempts, and the relation text was
+     30 MB taking 850 s of CPU.
+   - Three emitter defects surfaced and were fixed (Nano output unchanged): substitution
+     inside a quoted variable name, two rules of one relation with the same name
+     (`SelectCases_match/cons-head-match` occurs twice upstream), and a name bound to a
+     constant being treated as a variable alias.
+   - Run-soundness, measured on the scratch probe only (nothing committed): of the 14
+     relations that are nonrecursive and call no recursive relation, `state_run_sound`
+     proves 12 with the axiom audit. `ConstructorType_ok` and `Constructor_inst` fail in
+     the tactic: a single-constructor `let` pattern is left as projections instead of
+     being split, and a guard `none == some _` is not decided. The other 242 relations
+     need recursive-group support: 155 are recursive, in 31 groups of up to 50.
 2. Corpus replay on both legs (M3C): the 2026-10-05 sweep has both legs agreeing with
    upstream on 1,266 of 1,267 candidates ([corpus](corpus.md)). No native stack overflow
    or timeout occurred on the generated leg. Open: the durable campaign with CLI parity,
@@ -170,9 +179,9 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
 1. M3B: generate the unchanged export, resolve elaboration/casting/recursion
    failures, build every module with `--wfail` and audited run soundness,
    reproduce generation byte-for-byte, check full-P4 quotations and measure
-   module timing. Done as of 2026-10-04: generation, the `--wfail` build of the
-   executable library, the manifest, quotations and timing. Open: logical relations
-   and audited run soundness, without which M3B is not closed.
+   module timing. Done as of 2026-10-05: generation, the `--wfail` build of the
+   executable library and of every logical relation, the manifest, quotations and
+   timing. Open: audited run soundness, without which M3B is not closed.
 2. M3C: account for an explicit full-P4 corpus and exclusions, compare typing
    and instantiation verdicts and exact outputs on both interpreter and
    generated legs, resolve unexplained differences, and detect interpreter

@@ -193,9 +193,10 @@ changes otherwise identical files and triggers unnecessary proof rebuilds.
 These limitations describe the implementation, not the intended design:
 
 - A specification that declares the fresh-identifier builtin, as full P4 does, is
-  generated in the explicit-state form without certificates: no logical relations,
-  run-soundness or correspondence theorems. The stateful proof fixtures in the test
-  library cover bounded examples only and are not full-P4 certification.
+  generated in the explicit-state form without certificates: its logical relations are
+  definitions, with no run-soundness or correspondence theorem. The stateful proof
+  fixtures in the test library cover bounded examples only and are not full-P4
+  certification.
 - The NanoSwitch target ports extract, initialization and the packet driver;
   boot, STF parsing and expectation matching stay upstream, and a Lean session
   starts from the exported parsed program. Extern payloads are decoded from their
@@ -240,14 +241,16 @@ helper is covered by the translation proof.
 The full P4 specification (1,689 definitions at the pinned P4-SpecTec commit) is
 generated as `P4Spec`: every type with its value encoder and decoder, every subtype
 bridge, and every function, table and relation as an executable definition in the
-explicit-state form, each with its quoted AL definition. The library is about 25 MB of
+explicit-state form, each with its quoted AL definition. Each of the 256 relations also
+has a state-indexed logical relation, an inductive with one constructor per rule; no
+theorem yet connects these to the executable definitions. The library is about 31 MB of
 Lean, so its sources are not committed: the gate regenerates them, requires the SHA-256
 digests recorded in `P4Spec.manifest.json`, and builds every module with warnings as
 errors.
 
 | Check | What it establishes | What it does not |
 |---|---|---|
-| Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check | Any relation to AL |
+| Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check; every logical relation is a well-formed inductive | Any relation to AL, or between a logical relation and its executable definition |
 | `check-p4-quotes` | The 1,672 compiled quotations equal the decoded export, as for Nano-P4; the 17 schematic variable declarations are not quoted | That the executable definitions follow their quotations |
 | Corpus sweep | On 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters, as the reference interpreter does | The remaining candidate (its observation exceeds the 1 GiB case bound), programs upstream's manifests exclude, rejected programs (every observed candidate passes upstream), and packet processing |
 | Bounded replay | The same comparison on three pinned programs, one of which upstream and both Lean legs reject | Upstream reports a rejection only as a class, so the kind of failure is not compared |

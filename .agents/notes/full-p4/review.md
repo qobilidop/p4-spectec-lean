@@ -120,3 +120,42 @@ the gate and the sweep, not re-reviewed:
 
 Limits the reviewer stated: nothing was built or run beyond the unit test; codec
 correctness for `typingContext` rests on the two `static_assert` programs now matching.
+
+## Logical relations stage (2026-10-05)
+
+Independent read-only review of the uncommitted `m3b-relations` tree against `main`
+(`f329af0`), by a fresh Claude Fable 5.1 subagent that ran no build: it read the diff and
+ran read-only checks over the generated `P4Spec/` text, `coverage.json`, the export and
+the manifest. Verdict: no blockers; the new encoding is the same relation as the inline
+form, and the three shared fixes are right. What it checked over all 132 modules: the 880
+attempt definitions have the binders, `[Externs]` and return type of their `R.run`, and
+bodies equal to its alternatives in order; each of the 1,136 constructors has exactly one
+rejected prefix listing the earlier attempts in order; no independent auxiliary predicate
+(401) mentions a relation of its group or a later predicate, and every tied one (73)
+does; relation modules import exactly their callees' modules. It also traced which atoms
+reach the changed `have` branch and confirmed that the old behaviour there could only
+have produced text that fails to elaborate.
+
+Findings and resolutions, applied before the commit and checked by the author's rerun of
+the gate, not re-reviewed:
+
+- Four stale statements contradicted the change (Certification's implementation
+  boundary, the staged-generation decision, the `StateProps` module header, the
+  state-integration note; also roadmap and a Lake comment). Rewritten; the decision now
+  withdraws its earlier rejection for `StateProps` in place, with the reason.
+- The three shared fixes had no regression test outside the `P4Spec` build. Added:
+  `ruleNames` with repeats and an unnamed rule, `substText`/`mentions` around quoted
+  names, and a fixture relation binding a name to a constant under a rejected prefix.
+- The generated legs' externs imported the root `P4Spec` and so every relation module;
+  they import the quoted-spec module now.
+- "A gate-checked fact" overstated what the gate asserts; reworded.
+- Nits applied: relation modules no longer say "Rung 3"; attempt binders wrap; the
+  relation-module collision check ignores case; comments and docstrings corrected.
+- Not changed: a negative premise's relation still counts as a required module (a
+  spurious import, no semantic effect); a collision aborts generation instead of
+  recording an exclusion; attempt definitions are compiled; `Coverage.summary` does not
+  print `logicalRelation` exclusions (there are none).
+
+Limits the reviewer stated: nothing was elaborated, so the build, the fixture proofs
+and Nano's byte-identity rest on the author's gate; timings and scratch-probe results
+were not checked.
