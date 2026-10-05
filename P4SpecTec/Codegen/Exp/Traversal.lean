@@ -61,6 +61,16 @@ partial def expsOfPrem (p : prem) : List exp :=
   | .LetPr l r => [l, r]
   | .IterPr q _ => expsOfPrem q
 
+/-- The premises of a callable body, shared ones first. -/
+def premsOfDef (d : Lang.Al.def) : List prem :=
+  match d.it with
+  | .RelD _ _ _ gs eg _ =>
+    gs.flatMap (fun g => g.it.2.1.2.2 ++ g.it.2.2.flatMap (·.2.1)) ++
+      (eg.toList.flatMap fun g => g.it.2.1.2.2 ++ g.it.2.2.2.1)
+  | .FuncDecD _ _ _ _ cs ec _ => (cs ++ ec.toList).flatMap (·.it.2.2)
+  | .TableDecD _ _ _ rs _ => rs.flatMap (·.it.2.2.2)
+  | _ => []
+
 /-- The expressions of a definition. -/
 def expsOfDef (d : Lang.Al.def) : List exp :=
   match d.it with

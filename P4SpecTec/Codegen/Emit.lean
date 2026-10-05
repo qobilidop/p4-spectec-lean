@@ -193,6 +193,65 @@ def typesOfDef (d : Lang.Al.def) : List String :=
   let body := (expsOfDef d).flatMap fun e => Env.typeRefs e.note ++ castTypes e
   sig ++ body
 
+/-- Every type a definition states in full: declared bodies, signatures, expression notes,
+casts, type arguments and iteration variables. -/
+partial def statedTypes (d : Lang.Al.def) : List typ' :=
+  let ofParams (ps : List param) := paramTypes (ps.map (·.it))
+  let sig : List typ' := match d.it with
+    | .TypD _ _ dt _ => (match dt.it with
+      | .PlainT t => [t.it]
+      | .StructT fields => fields.map (·.2.it)
+      | .VariantT cases => cases.flatMap fun c => (Mixfix.args c.nottyp.it).map (·.it))
+    | .VarD _ t _ => [t.it]
+    | .ExternRelD _ n _ _ | .RelD _ n _ _ _ _ => (Mixfix.args n.it).map (·.it)
+    | .ExternDecD _ _ ps t _ | .BuiltinDecD _ _ ps t _ | .FuncDecD _ _ ps t _ _ _ =>
+      t.it :: ofParams ps
+    | .TableDecD _ ps t _ _ => t.it :: ofParams ps
+    | _ => []
+  sig ++ (expsOfDef d).flatMap ofExp ++ (premsOfDef d).flatMap ofPrem
+where
+  /-- The types an expression states, with its sub-expressions'. -/
+  ofExp (e : exp) : List typ' :=
+    e.note :: (match e.it with
+      | .UpCastE t _ | .DownCastE t _ | .SubE _ t _ => [t.it]
+      | .CallE _ targs _ => targs.map (·.it)
+      | .IterE _ (.mk _ vars) => vars.map varTyp
+      | _ => []) ++ (pairsOfExp.children e).flatMap ofExp
+  /-- The iteration variables of a premise, at every depth. -/
+  ofPrem (p : prem) : List typ' :=
+    match p.it with
+    | .IterPr q ip => (ip.vars_bound ++ ip.vars_bind).map varTyp ++ ofPrem q
+    | _ => []
+
+/-- A generated tuple is a right-nested product, encoded as one flat IL tuple. Two shapes have
+no such form: a single component, which is its component, and a last component that is itself
+a tuple, which the product merges into its parent. Neither occurs at the pinned specifications;
+reject them instead of emitting a carrier whose encoding differs from the source value.
+Types are checked as stated: a generic alias of a tuple instantiated at a tuple in its last
+position is not expanded here, and no pinned specification declares such an alias. -/
+partial def validateTuples (env : Env) (spec : Lang.Al.spec) :
+    Except String _root_.Unit := do
+  for d in spec do
+    for t in statedTypes d do
+      if let some reason := ambiguous t then
+        throw s!"{d.it.id.it}: {reason} has no right-nested product carrier"
+where
+  /-- The first tuple of a type whose product form is ambiguous. -/
+  ambiguous : typ' → Option String
+    | .TupleT ts =>
+      let nested := match ts.getLast? with
+        | some last => match env.resolve last.it with
+          | .TupleT (_ :: _) => true
+          | _ => false
+        | none => false
+      if ts.length == 1 then some "a single-component tuple"
+      else if nested then some "a tuple whose last component is a tuple"
+      else ts.findSome? fun t => ambiguous t.it
+    | .IterT t _ => ambiguous t.it
+    | .VarT _ ts => ts.findSome? fun t => ambiguous t.it
+    | .FuncT _ ts t => (ts ++ [t]).findSome? fun t => ambiguous t.it
+    | _ => none
+
 /-- The `print` hints of a definition, for the capability census. -/
 def printHints (d : Lang.Al.def) : List String :=
   let hintsOf (hs : List Lang.Il.hint) : List String :=
@@ -207,13 +266,22 @@ def printHints (d : Lang.Al.def) : List String :=
       | _ => [])
   | _ => []
 
+/-- Why an explicit-state specification's definitions carry no certificate yet. -/
+def statefulReason : String :=
+  "explicit-state specification: certificates are not generated yet"
+
+/-- Whether certificates are planned. An explicit-state specification gets its executable
+definitions and quotations only, and every certificate is recorded as an exclusion: the
+certificate emitters below are stated for the pure ABI. -/
+def certified (env : Env) : Bool := env.mode == .pure
+
 /-- Generate the plan for a spec. -/
 def plan (env : Env) (spec : Lang.Al.spec) :
     Except String (List Unit × List String × RefPlan) := do
-  if env.mode == .freshState then
-    throw "stateful generation requires structural propositions and run-soundness support"
+  let certified := certified env
   Types.validateRepresentation env
   Funcs.validateSignatures env
+  validateTuples env spec
   let printEnv ← P4.Unparse.hints_of_spec_al spec
   PrintHints.validate env spec printEnv
   let files := (spec.map Env.fileOf).eraseDups
@@ -248,12 +316,13 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let mut units : List Unit := []
   let mut refGroups : List RefGroup := []
   let mut representationEntries : List Coverage.Entry := []
-  let representations := RepresentationCertificates.catalog env
+  let representations := if certified then RepresentationCertificates.catalog env else {}
   let knownRepresentation := fun name => do
     (← (← representations[name]?).toOption).nominal
   -- Runtime-profile codecs of the runtime closure, in their own modules beside the source ones.
-  let runtimeRepresentations := RepresentationCertificates.runtimeCatalog env representations
-  let runtimeClosure := RepresentationCertificates.runtimeClosure env
+  let runtimeRepresentations :=
+    if certified then RepresentationCertificates.runtimeCatalog env representations else {}
+  let runtimeClosure := if certified then RepresentationCertificates.runtimeClosure env else []
   let runtimeModule := fun id => "Representation.Runtime." ++ groupModuleName id
   let runtimeDependency := fun id => match runtimeRepresentations[id]? with
     | some (.ok _) => runtimeModule id
@@ -325,6 +394,14 @@ def plan (env : Env) (spec : Lang.Al.spec) :
       let some d := typeDefById.get? id | throw s!"unknown representation type {id}"
       let mut claims : List Coverage.Claim := []
       let mut exclusions : List Coverage.Exclusion := []
+      if !certified then
+        representationEntries := representationEntries ++ [{
+          id, kind := match d.it with | .ExternTypD .. => "externType" | _ => "type"
+          source := Env.fileOf d, group, recursive, dependencies := typeDeps id
+          claims
+          exclusions := [{ kind := "representation", definition := id, reason := statefulReason }]
+          }]
+        continue
       match representations[id]?.getD (.error "source codec absent from catalog") with
       | .error reason =>
         exclusions := [{ kind := "representation", definition := id, reason }]
@@ -417,7 +494,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let mut needsExt : Std.HashMap String Bool := {}
   -- Extern relations have invocation certificates under the abstract extern contract;
   -- extern functions have no contract yet.
-  let externMembers := externDefs.filterMap (ExternCertificates.member env)
+  let externMembers := if certified then externDefs.filterMap (ExternCertificates.member env)
+    else []
   let externFunctionNames := externDefs.filterMap fun d => match d.it with
     | .ExternDecD i .. => some i.it
     | _ => none
@@ -447,7 +525,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
             expectedType := render (ExternCertificates.invocationType env.lib m) }] }
   -- Only checked builtin contracts enter the caller frontier. The print contract's
   -- empty-hint condition is stated by every caller whose closure reaches it.
-  let certifiedBuiltins := spec.filterMap fun d =>
+  let certifiedBuiltins := if !certified then [] else spec.filterMap fun d =>
     if (BuiltinCertificates.checkSupport env d).isOk then some d.it.id.it else none
   let mut groupModule : Std.HashMap String String := {}   -- covered id → its module
   let mut forwardModule : Std.HashMap String String := {}
@@ -502,6 +580,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
           relDecl ctx recursive ext i.it nottyp (inputs.map (·.toNat)) groups eg
         | _ => throw s!"unexpected definition kind for {id}"
       decls := decls ++ [f]
+      if !certified then continue
       if let .RelD i nottyp inputs groups eg _ := d.it then
         props := props ++
           [← Props.relInductive ctx ext i.it nottyp (inputs.map (·.toNat)) groups eg]
@@ -533,6 +612,16 @@ def plan (env : Env) (spec : Lang.Al.spec) :
     for id in group do
       unitFile := unitFile.insert id file
       needsExt := needsExt.insert id ext
+    if !certified then
+      for id in group do
+        let some d := defById.get? id | throw s!"unknown coverage definition {id}"
+        coverageEntries := coverageEntries ++ [{
+          id, source := Env.fileOf d, group, recursive, dependencies := calls id
+          kind := match d.it with
+            | .RelD .. => "relation" | .TableDecD .. => "table" | .BuiltinDecD .. => "builtin"
+            | _ => "function"
+          claims := [], exclusions := [{ definition := id, reason := statefulReason }] }]
+      continue
     -- the refinement theorems of the group (rung 3): the group is covered
     -- when every member is in the fragment and every callee outside the
     -- group is covered
@@ -896,13 +985,15 @@ def coverage (lib exportPath : String) (spec : Lang.Al.spec)
   let (_, _, refinement) ← plan env spec
   pure {
     library := lib, input := exportPath, definitions := refinement.coverage
-    representations := refinement.representations, profiles := profileClaims lib spec }
+    representations := refinement.representations
+    profiles := if certified env then profileClaims lib spec else [] }
 
 
 /-- Generate every output file of a library. -/
 def generate (lib exportPath : String) (spec : Lang.Al.spec)
     (representation : Representation := {}) : Except String (List Output) := do
   let env := { Env.ofSpec lib spec with representation }
+  let certified := certified env
   let (units, files, refinement) ← plan env spec
   let used := (units.map (·.file)).eraseDups.mergeSort (· ≤ ·)
   let specRoot := Names.specRoot files
@@ -920,8 +1011,11 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     let declarations := render (joinDecls (body.map (·.decls)))
     let monotonicityImport := if declarations.contains "codegen_monotonicity" then
       "import P4SpecTec.Tactic.Monotonicity\n" else ""
-    let imports := "import P4SpecTec.Prelude\nimport P4SpecTec.Tactic.RunSound\n" ++
-      "import P4SpecTec.Tactic.Audit\nimport P4SpecTec.Tactic.Det\n" ++
+    let proofImports := if certified then
+      "import P4SpecTec.Tactic.RunSound\nimport P4SpecTec.Tactic.Audit\n" ++
+        "import P4SpecTec.Tactic.Det\n"
+      else ""
+    let imports := "import P4SpecTec.Prelude\n" ++ proofImports ++
       "import P4SpecTec.Refine.Quote\n" ++ monotonicityImport ++ (match prev with
       | some p => s!"import {lib}.{p}\n"
       | none => "")
@@ -953,41 +1047,46 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
   outs := outs ++ [refModule "Spec" "the quoted specification as a list" specSupportImports
     prev.toList refinement.spec]
   modules := modules ++ ["Refinement.Spec"]
-  if refinement.groups.any (·.name == "Environment") then
-    throw "certificate group name Environment conflicts with the initialization module"
-  outs := outs ++ [refModule "Environment" "checked reference table initialization"
-    ["P4SpecTec.Refine.Environment", "P4SpecTec.Refine.Init"] ["Refinement.Spec"]
-    (Initialization.declarations lib spec)]
-  modules := modules ++ ["Refinement.Environment"]
-  if refinement.groups.any (·.name == "SourceProfile") then
-    throw "certificate group name SourceProfile conflicts with the source profile module"
-  outs := outs ++ [refModule "SourceProfile" "typed schematic source declarations"
-    SourceProfiles.supportImports ["Refinement.Spec"]
-    (SourceProfiles.declarations spec ++ Format.text "\n\n" ++
-      SourceProfiles.primitiveDeclarations lib)]
-  modules := modules ++ ["Refinement.SourceProfile"]
-  if refinement.groups.any (·.name == "Equality") then
-    throw "certificate group name Equality conflicts with the equality module"
-  let bridgeCanon := (pairsOfSpec env spec).map fun (s, t) => subtypeCanonTheorem env s t
-  outs := outs ++ [refModule "Equality" "canonical equality of generated type dictionaries"
-    ["P4SpecTec.Refine.Representation.Equality", "P4SpecTec.Refine.ValueShape",
-      "P4SpecTec.Tactic.Encoding"]
-    ["Refinement.Spec"] (joinDecls (EqualityCertificates.declarations env spec :: bridgeCanon))]
-  modules := modules ++ ["Refinement.Equality"]
+  -- the shared certificate modules every group imports
+  let mut shared : List String := ["Refinement.Spec"]
+  if certified then
+    if refinement.groups.any (·.name == "Environment") then
+      throw "certificate group name Environment conflicts with the initialization module"
+    outs := outs ++ [refModule "Environment" "checked reference table initialization"
+      ["P4SpecTec.Refine.Environment", "P4SpecTec.Refine.Init"] ["Refinement.Spec"]
+      (Initialization.declarations lib spec)]
+    if refinement.groups.any (·.name == "SourceProfile") then
+      throw "certificate group name SourceProfile conflicts with the source profile module"
+    outs := outs ++ [refModule "SourceProfile" "typed schematic source declarations"
+      SourceProfiles.supportImports ["Refinement.Spec"]
+      (SourceProfiles.declarations spec ++ Format.text "\n\n" ++
+        SourceProfiles.primitiveDeclarations lib)]
+    if refinement.groups.any (·.name == "Equality") then
+      throw "certificate group name Equality conflicts with the equality module"
+    let bridgeCanon := (pairsOfSpec env spec).map fun (s, t) => subtypeCanonTheorem env s t
+    outs := outs ++ [refModule "Equality" "canonical equality of generated type dictionaries"
+      ["P4SpecTec.Refine.Representation.Equality", "P4SpecTec.Refine.ValueShape",
+        "P4SpecTec.Tactic.Encoding"]
+      ["Refinement.Spec"] (joinDecls (EqualityCertificates.declarations env spec :: bridgeCanon))]
+    shared := shared ++ ["Refinement.Environment", "Refinement.SourceProfile",
+      "Refinement.Equality"]
+    modules := modules ++ shared.drop 1
   for g in refinement.groups do
-    let deps := ["Refinement.Spec", "Refinement.Equality"] ++
+    let deps := ["Refinement.Spec"] ++ (if certified then ["Refinement.Equality"] else []) ++
       g.deps.map (s!"Refinement.{·}")
     outs := outs ++ [refModule g.name s!"refinement theorems, group {g.name}"
       (g.supportImports.getD proofSupportImports) deps g.decls]
     modules := modules ++ [s!"Refinement.{g.name}"]
-  let refImports := String.join ((["Refinement.Spec", "Refinement.Environment",
-    "Refinement.SourceProfile", "Refinement.Equality"] ++
+  let refImports := String.join ((shared ++
     refinement.groups.map (s!"Refinement.{·.name}")).map fun m => s!"import {lib}.{m}\n")
   let refText := headerLine lib exportPath "every file (rung 3)" ++ "\n" ++ refImports ++ "\n" ++
-    String.join [
+    String.join (if certified then [
       s!"/-! # {lib}.Refinement\n\nThe refinement theorems of rung 3 (design section 5.1), ",
       "one module per\nrecursion group under `Refinement/`, and the definitions without ",
-      "a theorem, with\nthe reason. Generated.\n-/\n\n"] ++ render refinement.summary ++ "\n"
+      "a theorem, with\nthe reason. Generated.\n-/\n\n"] else [
+      s!"/-! # {lib}.Refinement\n\nThe quoted specification. No certificate is generated ",
+      "for an explicit-state\nspecification: every definition is listed below without a ",
+      "theorem, with the reason.\nGenerated.\n-/\n\n"]) ++ render refinement.summary ++ "\n"
   outs := outs ++ [{ path := s!"{lib}/Refinement.lean", text := refText }]
   modules := modules ++ ["Refinement"]
   let root := headerLine lib exportPath "all files" ++ "\n" ++
@@ -996,7 +1095,8 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     "one module\nper spec file, generated by `lake exe p4spectec-gen`. Never hand-edited.\n-/\n"
   let report : Coverage.Report :=
     { library := lib, input := exportPath, definitions := refinement.coverage
-      representations := refinement.representations, profiles := profileClaims lib spec }
+      representations := refinement.representations
+      profiles := if certified then profileClaims lib spec else [] }
   outs := outs ++ [{ path := s!"{lib}.lean", text := root },
     { path := s!"{lib}/coverage.json", text := report.render }]
   pure (outs.map fun o =>

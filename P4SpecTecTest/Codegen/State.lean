@@ -174,7 +174,21 @@ private def depEnv := Env.ofSpec "DependencyTest" depSpec
       let text := Codegen.render u.decls
       text.contains "mutual" && text.contains "«$source»" && text.contains "«$later»")
   | .error _ => false
-#guard !(Emit.plan env spec).isOk
+-- The plan of an explicit-state specification has executable units and no certificate.
+#guard match Emit.plan env spec with
+  | .ok (units, _, refinement) =>
+    !units.isEmpty && refinement.groups.isEmpty && !refinement.coverage.isEmpty &&
+    refinement.coverage.all fun e =>
+      e.claims.isEmpty && e.exclusions.any fun x =>
+        x.reason == if e.kind.startsWith "extern" then "extern" else Emit.statefulReason
+  | .error _ => false
+#guard match Emit.generate "P4SpecTecTest.StateCodegen" "fixture.al.json" spec with
+  | .ok outputs =>
+    outputs.any (·.path.endsWith "Refinement/Spec.lean") &&
+    outputs.all fun o =>
+      !o.path.endsWith "Refinement/Environment.lean" &&
+      !o.path.endsWith "Refinement/Equality.lean" && !o.text.contains "import P4SpecTec.Tactic"
+  | .error _ => false
 #guard match Emit.generate "DependencyTest" "fixture.al.json" depSpec with
   | .ok outputs => outputs.any fun o =>
     o.text.contains "import P4SpecTec.Tactic.Monotonicity\n" &&

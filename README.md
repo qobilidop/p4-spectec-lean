@@ -18,7 +18,10 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
   [complete Nano-P4 support and certification](docs/design.md#9-nano-p4-scope-and-acceptance);
   the milestone is complete for the source tree whose review and CI are recorded.
   See [what is certified and its limits](docs/certification.md).
-- Full P4 production generation remains incomplete.
+- Full P4: the whole specification generates an executable Lean library that builds,
+  with quotations matching the export. On three pinned programs its typing and
+  instantiation agree with upstream: two succeed with upstream's outputs, one is
+  rejected by both. It has [no certificates yet](docs/certification.md#full-p4).
 
 ## Rationale
 

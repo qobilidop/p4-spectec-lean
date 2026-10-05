@@ -50,3 +50,35 @@ temporary review scripts and secondary-worktree observations are not assumed
 recoverable; committed source/report history is. None of these checks closes
 the failed aggregate casting proof, full denominator, generated replay,
 guarded type-fresh semantics, targets or all-definition certification.
+
+## Executable generation stage (2026-10-04)
+
+Independent read-only review of the uncommitted `m3b-generation` tree against `main`
+(`cd6679e`), by a fresh Claude Fable 5.1 subagent that ran no build: it read the diff, the
+generated `P4Spec/` text and the recorded gate log, and ran only the manifest check.
+Verdict: no blockers. It confirmed by reading that pure-mode planning is unchanged, that
+the explicit-state plan skips no bookkeeping, that the tuple encoder and decoder are
+inverse for every admitted shape, that the replay refactor preserves the interpreter
+leg's checks, and that the generated leg's externs match the interpreter's placeholders.
+
+Findings and resolutions, all applied before the commit:
+
+- The replay claim counted the rejected program (`issue-204.p4`) as returning upstream's
+  outputs; any Lean failure matches there. Reworded in README, Certification, status and
+  the overview, and the generated legs now require the decoded program to encode back to
+  the booted value, so a rejection is about the same input.
+- AGENTS said no committed library may import `P4Spec`, while the checker constrained only
+  reusable libraries. Added a rule and test: a consumer library root must not reach
+  ignored generated sources; only registered executables may.
+- Stale "paused" and "no full-P4 quotation" sentences in three notes: rewritten.
+- Latent: certificate groups hard-coded an import of the equality module, which an
+  explicit-state library does not emit; now conditional. The generated `Refinement.lean`
+  header no longer speaks of refinement theorems for a library without any.
+- Not changed: `ctorNames` has no distinctness check (a clash with a real constructor
+  named like a suffixed one fails loudly at elaboration); `validateTuples` does not expand
+  generic tuple aliases (none exists at the pins; noted in its docstring).
+
+Limits the reviewer stated: the recorded gate was warm for `P4Spec`; byte-identical
+generation and a cold build on Linux are untested until CI runs; instance-resolution
+arguments were made by reading. The resolutions above were checked by the author's
+rerun of the full gate, not re-reviewed.

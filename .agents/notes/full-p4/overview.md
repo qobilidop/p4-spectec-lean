@@ -1,11 +1,59 @@
-# Full P4: paused scope and generation boundary
+# Full P4: generation state and remaining obligations
 
-Compacted 2026-09-26. Broader M3 remains incomplete and paused. The completed
-bounded Nano field-update consumer does not close full-P4 obligations, and
-no IL backend or broader redesign is scheduled. This note is a resume map,
-not authorization to restart generation, corpus execution or target work.
+Active since 2026-10-04, when the user resumed M3 (decisions, "Scope and product").
+M3 remains incomplete: the executable library is generated and builds, and nothing
+about it is certified. No IL backend or broader redesign is scheduled.
 [Corpus](corpus.md) owns input/replay constraints; [review](review.md) owns
-the bounded historical evidence and its limitations.
+the bounded historical evidence and its limitations. Sections below the first
+were compacted on 2026-09-26 and still hold unless the first says otherwise.
+
+## Executable generation (2026-10-04)
+
+`lake exe p4spectec-gen exports/p4.al.json --lib P4Spec --update` writes the whole
+library: 72 files, about 520,000 lines of Lean, 25.1 MB, of which quotations are 16.7 MB, executable
+definitions 5.6 MB and codecs 2.1 MB. It is ignored and pinned by `P4Spec.manifest.json`
+(decisions, "Staged explicit-state generation"). Measured on this machine (arm64 Darwin,
+Lean 4.34.1, working tree of the commit that introduced it):
+
+- Generation: 6.4 s, about 1 GiB peak resident memory.
+- `lake build --wfail P4Spec check-p4-quotes p4-gen-replay p4-interp-replay` from no
+  P4Spec artifacts: 234.7 s elapsed, 543.8 s user. Spec modules import one another in a
+  chain, so elaboration is serial: `8.02-evaluation-relation` 49 s (122,719 lines; the
+  50-member `Expr_eval` group pulls typing into the same module), `8.10.4-eval-call` 34 s,
+  `1-syntax` 31 s, `4.0-ir-syntax` 30 s. C compilation runs in parallel (8.02 alone 53 s).
+- With its quotations stripped, 8.02 elaborates in 20.6 s, `4.0-ir-syntax` in 19.3 s and
+  `1-syntax` in 25.4 s: quotations are roughly 40% of the chain. Moving them to modules
+  beside the chain is the known next reduction; not done, because 235 s cold (about 15 s
+  warm in the gate) is not yet a bottleneck and Nano's layout would have to move with it
+  or diverge.
+- `check-p4-quotes`: 1,672 compiled quotations equal the decoded export (1,689 minus the
+  17 `VarD`), 3.8 s.
+- `P4SpecTecTest/Oracle/P4/Replay/replay.py`: both Lean legs match the pinned upstream
+  observations for `Program_ok` and `Program_inst`: `basic_routing-bmv2.p4` and
+  `issue-212.p4` pass with upstream's semantic outputs and exact fresh counters (38 for
+  basic routing, 0 otherwise); `issue-204.p4` is rejected by upstream and both legs, where
+  any Lean failure matches. The generated leg also requires the decoded program to encode
+  back to the booted value. Nine observation mutations are rejected on each leg; on the
+  generated leg the exhaustion one uses a stub, since generated recursion has no fuel.
+  The generated leg takes 2.3 s for the bundle, the interpreter leg 3.3 s. Externs are
+  upstream's placeholders. This is six relation runs, not corpus coverage.
+
+Two defects blocked elaboration and were fixed in the generator (Nano output unchanged):
+repeated constructor atoms beyond the second, and tuple decoding outside a recursive type
+group. No casting, recursion or monotonicity failure occurred. The
+retired `m3b-state-production` failure concerned proofs, not this executable text.
+
+What the generated library still lacks, in dependency order:
+
+1. Logical relations (`StateProps`, 256 relations) and state run-soundness. The emitter
+   handles nonrecursive fixtures; recursive groups need the `RecursivePrefix`/`StateRules`
+   motives turned into a generator. These modules must not join the serial chain.
+2. A corpus campaign on both legs (M3C). The generated leg has no fuel: a diverging run
+   does not return, so the worker needs a wall-clock bound, and deep recursion runs on the
+   native stack.
+3. Refinement, representation and initialization certificates (M3E), all still stated
+   for the pure ABI.
+4. Targets (M3D) and determinism (M3F), unchanged below.
 
 ## Inputs and current capability
 
@@ -33,20 +81,19 @@ dependency analysis, classifier and individual emitters. The snapshot has
 functions, 47 builtins, 2 external functions, 52 table functions, 256 defined
 relations and 3 external relations. There are no raw callable-name collisions.
 
-Retained main rejects production full-P4 generation at the stateful planning
-guard; the `P4Spec` library will be introduced when generation is supported. Census component results are:
+The census is an emission probe, independent of the generated library above; its
+component results are unchanged:
 
-| Component | Retained main result |
+| Component | Census result |
 |---|---|
-| Executable callable text | 1,055 / 1,055 emitted |
-| Inductive relation text | 0 / 256; production stateful mode rejected |
-| Instantiated subtype bridges | 567 / 567 emitted |
+| Executable callable text | 1,055 / 1,055 emitted (and now built in `P4Spec`) |
+| Inductive relation text | 0 / 256: the census probes the pure `Props` emitter |
+| Instantiated subtype bridges | 567 / 567 emitted (and now built in `P4Spec`) |
 | Print hints | 190 occurrences / 67 types validated |
 | Production refinement eligibility | Zero full-P4 definitions |
 
-Component emission is not elaboration, a complete library build or a
-certificate. Diagnostics stop at each component's first failure; type sizing
-does not test adapters or module assembly. The old pure-mode estimate of
+Component emission is not a certificate. Diagnostics stop at each component's
+first failure. The old pure-mode estimate of
 138 / 1,008 bodied definitions was not a stateful proof. Bounded
 `StateValidate` fixtures are separate; Nano retains 18 eligible definitions.
 
@@ -95,18 +142,21 @@ export: it erases only regions/hints and source `VarD` entries, preserving
 notes, origins, input positions, constructor identity and order. It caught
 the type `id.al` quoting function `$id`; separate lookup fixed quotation and
 file placement. All 342 Nano definitions match and mutation checks reject
-structural changes. No full-P4 quotation exists until its library builds.
+structural changes. The same comparison covers the 1,672 full-P4 quotations
+(`check-p4-quotes`), without Nano's separate `VarD` and print-hint checks.
 
 ## Remaining exit obligations
 
 1. M3B: generate the unchanged export, resolve elaboration/casting/recursion
    failures, build every module with `--wfail` and audited run soundness,
    reproduce generation byte-for-byte, check full-P4 quotations and measure
-   module timing. Component successes above do not meet this exit.
+   module timing. Done as of 2026-10-04: generation, the `--wfail` build of the
+   executable library, the manifest, quotations and timing. Open: logical relations
+   and audited run soundness, without which M3B is not closed.
 2. M3C: account for an explicit full-P4 corpus and exclusions, compare typing
    and instantiation verdicts and exact outputs on both interpreter and
    generated legs, resolve unexplained differences, and detect interpreter
-   mutations. Type equivalence/substitution exhaustion and separate Type.Fresh
+   mutations. The generated leg exists for the four pinned cases only. Type equivalence/substitution exhaustion and separate Type.Fresh
    effects constrain further coverage; current replay is bounded and guarded
    full-P4 coverage is not established.
 3. M3D: independently validate actual packet targets, starting from bounded

@@ -1,7 +1,7 @@
 # Full-P4 corpus and replay boundary
 
-Broader execution is paused. This consolidates retained constraints and
-historical bounded checkpoints from 2026-09-25, not a fresh corpus run.
+Corpus execution resumes with M3 (2026-10-04); nothing below is a fresh corpus run.
+This consolidates retained constraints and historical bounded checkpoints from 2026-09-25.
 [Overview](overview.md) carries generation and milestone obligations;
 [review](review.md) identifies independent evidence and limitations.
 

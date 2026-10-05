@@ -145,14 +145,37 @@ def externFixture : Lang.Al.spec :=
   r.definitions.all (fun e => !e.hasForwardRefinement) &&
   (Codegen.Coverage.closure r "transitive").toOption.any (·.length == 3)
 
--- Production full-P4 generation remains gated even when metadata is requested.
+-- An explicit-state specification is planned without certificates: every definition and
+-- type is reported with the reason, and no profile claim is made.
 def stateful : Lang.Al.spec :=
-  [Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] (Q.t .TextT) [])]
+  [Q.d (.TypD (Q.i "name") [] (Q.dt (.PlainT (Q.t .TextT))) []),
+   Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] (Q.t .TextT) []),
+   func "allocate" (call "fresh_typeId")]
 
 #guard match Emit.coverage "Fixture" "test.json" stateful with
-  | .error e =>
-    e == "stateful generation requires structural propositions and run-soundness support"
-  | .ok _ => false
+  | .ok r =>
+    r.profiles.isEmpty && r.definitions.length == 2 && r.representations.length == 1 &&
+    (r.definitions ++ r.representations).all fun e =>
+      e.claims.isEmpty && e.exclusions.all (·.reason == Emit.statefulReason) &&
+        !e.exclusions.isEmpty
+  | .error _ => false
+
+-- A tuple is a right-nested product: a single component, or a last component that is itself
+-- a tuple (also through an alias), has no such carrier and is rejected.
+private def tupleSpec (t : Lang.Il.typ') : Lang.Al.spec :=
+  [Q.d (.TypD (Q.i "pair") [] (Q.dt (.PlainT (Q.t (.TupleT [Q.t .BoolT, Q.t .BoolT])))) []),
+   Q.d (.TypD (Q.i "subject") [] (Q.dt (.PlainT (Q.t t))) [])]
+private def tuplesValid (t : Lang.Il.typ') : Bool :=
+  (Emit.validateTuples (Env.ofSpec "Fixture" (tupleSpec t)) (tupleSpec t)).isOk
+private def pairT : Lang.Il.typ' := .TupleT [Q.t .BoolT, Q.t .BoolT]
+#guard tuplesValid (.TupleT [Q.t .BoolT, Q.t .BoolT, Q.t .BoolT])
+#guard tuplesValid (.TupleT [Q.t pairT, Q.t .BoolT])
+#guard tuplesValid (.TupleT [Q.t .BoolT, Q.t (.TupleT [])])
+#guard tuplesValid (.TupleT [Q.t .BoolT, Q.t (.IterT (Q.t pairT) .List)])
+#guard !tuplesValid (.TupleT [Q.t .BoolT])
+#guard !tuplesValid (.TupleT [Q.t .BoolT, Q.t pairT])
+#guard !tuplesValid (.TupleT [Q.t .BoolT, Q.t (Q.varT "pair" [])])
+#guard !tuplesValid (.IterT (Q.t (.TupleT [Q.t .BoolT, Q.t pairT])) .List)
 
 -- Long transitive blocker diagnostics remain comments within the generated line limit.
 #guard ((Codegen.Coverage.summary [{ reverseOnly with claims := [], exclusions := [{

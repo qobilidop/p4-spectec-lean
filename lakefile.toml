@@ -1,5 +1,5 @@
 # p4spectec: a compiler from P4-SpecTec's AL to Lean 4, its runtime prelude,
-# and the generated Nano-P4 specification. Add future libraries with their code.
+# and the generated Nano-P4 and full-P4 specifications. Add future libraries with their code.
 # See docs/design.md section 4.2 for the library dependency boundaries.
 name = "p4spectec"
 version = "0.0.1"
@@ -32,6 +32,12 @@ name = "NanoP4Spec"
 [[lean_lib]]
 name = "NanoP4Target"
 
+# The generated full-P4 model: executable definitions and quotations. Its sources are
+# generated into the ignored P4Spec/ and checked against P4Spec.manifest.json; the gate
+# builds it explicitly.
+[[lean_lib]]
+name = "P4Spec"
+
 [[lean_lib]]
 name = "ExampleProofs"
 
@@ -48,6 +54,10 @@ root = "Tools.Generate"
 [[lean_exe]]
 name = "check-quotes"
 root = "Tools.CheckQuotes"
+
+[[lean_exe]]
+name = "check-p4-quotes"
+root = "Tools.CheckP4Quotes"
 
 [[lean_exe]]
 name = "check-coverage"
@@ -119,10 +129,15 @@ root = "P4SpecTecTest.Oracle.NanoSwitch.Driver.Main"
 name = "check-nano-sessions"
 root = "P4SpecTecTest.Oracle.NanoSwitch.Sessions.Main"
 
-# Bounded full-P4 replay tool; the gate builds it and checks its harness contracts.
+# Bounded full-P4 replay tools, one per Lean leg; the gate builds them and checks their
+# harness contracts.
 [[lean_exe]]
 name = "p4-interp-replay"
 root = "P4SpecTecTest.Oracle.P4.Replay.Main"
+
+[[lean_exe]]
+name = "p4-gen-replay"
+root = "P4SpecTecTest.Oracle.P4.Generated.Main"
 
 # Corpus campaign worker; no corpus execution in the ordinary gate.
 [[lean_exe]]

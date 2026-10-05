@@ -13,6 +13,10 @@ import tomllib
 
 REUSABLE = frozenset({"P4SpecTec", "NanoP4Spec", "NanoP4Target"})
 CONSUMERS = frozenset({"ExampleProofs", "P4SpecTecTest"})
+# Generated models whose sources are ignored and regenerated before this check runs: never a
+# default target, and nothing a committed reusable library may depend on.
+GENERATED = frozenset({"P4Spec"})
+LIBRARIES = REUSABLE | CONSUMERS | GENERATED
 TOOLS = frozenset({"Tools"})
 HELPER = Path(__file__).with_name("library-imports.lean")
 
@@ -53,9 +57,9 @@ def check_config(root):
         raise BoundaryError("lean_lib must be an array of library tables")
     for library in libraries:
         name = library.get("name")
-        if not isinstance(name, str) or name not in REUSABLE | CONSUMERS:
+        if not isinstance(name, str) or name not in LIBRARIES:
             raise BoundaryError(f"lean_lib {name!r} needs an explicit boundary classification")
-    for name in sorted(REUSABLE | CONSUMERS):
+    for name in sorted(LIBRARIES):
         matches = [lib for lib in libraries if lib.get("name") == name]
         if len(matches) != 1:
             raise BoundaryError(f"{name} must be registered exactly once as a lean_lib")
@@ -106,7 +110,9 @@ def is_local(path, root):
 def require_source(path):
     """Reject missing, non-file and unreadable dependency sources."""
     if not path.is_file():
-        raise BoundaryError(f"missing source file: {path}")
+        generated = GENERATED & ({path.stem} | set(path.parts))
+        hint = " (ignored generated sources: regenerate the library first)" if generated else ""
+        raise BoundaryError(f"missing source file: {path}{hint}")
     with path.open("rb") as stream:
         stream.read(1)
 
@@ -114,7 +120,7 @@ def require_source(path):
 def source_inventory(root):
     """Include library and CLI sources, including new and deleted tracked modules."""
     sources = set()
-    for name in REUSABLE | CONSUMERS | TOOLS:
+    for name in LIBRARIES | TOOLS:
         if name not in TOOLS:
             sources.add(root / f"{name}.lean")
         directory = root / name
@@ -126,7 +132,7 @@ def source_inventory(root):
                                if filename.endswith(".lean"))
     tracked = run(["git", "-C", str(root), "ls-files", "-z", "--", "*.lean"])
     for filename in tracked.split("\0"):
-        if filename and namespace(root / filename, root) in REUSABLE | CONSUMERS | TOOLS:
+        if filename and namespace(root / filename, root) in LIBRARIES | TOOLS:
             sources.add(root / filename)
     for path in sources:
         require_source(path)
@@ -184,9 +190,18 @@ def check_graph(graph, starts, root):
             if namespace(source, root) in CONSUMERS | TOOLS:
                 display = " -> ".join(str(path.relative_to(root)) for path in chain)
                 raise BoundaryError(f"reusable library imports a consumer: {display}")
-            if namespace(start, root) == "P4SpecTec" and namespace(source, root) == "NanoP4Spec":
+            if (namespace(start, root) == "P4SpecTec"
+                    and namespace(source, root) in {"NanoP4Spec"} | GENERATED):
                 display = " -> ".join(str(path.relative_to(root)) for path in chain)
                 raise BoundaryError(f"core library imports a generated model: {display}")
+            if namespace(start, root) in REUSABLE and namespace(source, root) in GENERATED:
+                display = " -> ".join(str(path.relative_to(root)) for path in chain)
+                raise BoundaryError(f"committed library imports ignored generated sources: "
+                                    f"{display}")
+            if (namespace(start, root) in GENERATED
+                    and namespace(source, root) not in {"P4SpecTec"} | GENERATED):
+                display = " -> ".join(str(path.relative_to(root)) for path in chain)
+                raise BoundaryError(f"generated model imports beyond the core: {display}")
             if (namespace(start, root) in {"P4SpecTec", "NanoP4Spec"}
                     and namespace(source, root) == "NanoP4Target"):
                 display = " -> ".join(str(path.relative_to(root)) for path in chain)
@@ -195,6 +210,16 @@ def check_graph(graph, starts, root):
                 raise BoundaryError(f"missing parsed dependency input: {source}")
             pending.extend((dep, chain + [dep]) for dep in sorted(graph[source])
                            if is_local(dep, root))
+
+
+def check_consumer_roots(graph, root):
+    """A consumer library root builds from a clean checkout: only a registered executable
+    may depend on ignored generated sources."""
+    for name in sorted(CONSUMERS):
+        for source in sorted(reachable(graph, {root / f"{name}.lean"}, root)):
+            if namespace(source, root) in GENERATED:
+                raise BoundaryError(f"{name} library root reaches ignored generated sources: "
+                                    f"{source.relative_to(root)}")
 
 
 def reachable(graph, starts, root):
@@ -214,7 +239,7 @@ def reachable(graph, starts, root):
 
 def check_reachability(graph, sources, executable_roots, root):
     """Require library and CLI sources to be reachable from their configured build roots."""
-    for name in sorted(REUSABLE | CONSUMERS | TOOLS):
+    for name in sorted(LIBRARIES | TOOLS):
         starts = set() if name in TOOLS else {root / f"{name}.lean"}
         starts.update(path for path in executable_roots if namespace(path, root) == name)
         built = reachable(graph, starts, root)
@@ -239,7 +264,9 @@ def check(root, parser=parse_dependencies):
         graph.update(batch)
         pending = {dependency for dependencies in batch.values() for dependency in dependencies
                    if is_local(dependency, root) and dependency not in graph}
-    check_graph(graph, {path for path in sources if namespace(path, root) in REUSABLE}, root)
+    check_graph(graph, {path for path in sources
+                        if namespace(path, root) in REUSABLE | GENERATED}, root)
+    check_consumer_roots(graph, root)
     check_reachability(graph, sources, executable_roots, root)
 
 

@@ -25,7 +25,7 @@ def config_text():
     defaults = ", ".join(f'"{name}"' for name in sorted(BOUNDARIES.REUSABLE))
     libraries = "\n".join(
         f'[[lean_lib]]\nname = "{name}"'
-        for name in sorted(BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS)
+        for name in sorted(BOUNDARIES.LIBRARIES)
     )
     return f'defaultTargets = [{defaults}]\ntestDriver = "P4SpecTecTest"\n{libraries}\n'
 
@@ -38,7 +38,7 @@ class Fixture(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
         self.write("lakefile.toml", config_text())
-        for name in BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS:
+        for name in BOUNDARIES.LIBRARIES:
             self.write(f"{name}.lean", "prelude\n")
 
     def write(self, name, content):
@@ -181,7 +181,7 @@ class PolicyTests(Fixture):
     def test_full_closure_checks_disconnected_library_module(self):
         source = self.write("P4SpecTec/Unused.lean", "prelude\n")
         graph = {self.root / f"{name}.lean": set()
-                 for name in BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS}
+                 for name in BOUNDARIES.LIBRARIES}
         for forbidden in ("ExampleProofs.lean", "NanoP4Spec.lean"):
             with self.subTest(forbidden=forbidden):
                 graph[source] = {self.root / forbidden}
@@ -203,9 +203,44 @@ class PolicyTests(Fixture):
         graph = self.graph({"NanoP4Spec.lean": ["P4SpecTec.lean"], "P4SpecTec.lean": []})
         BOUNDARIES.check_graph(graph, {self.root / "NanoP4Spec.lean"}, self.root)
 
+    def test_ignored_generated_library_boundaries(self):
+        graph = self.graph({"P4Spec.lean": ["P4Spec/Model.lean"],
+                            "P4Spec/Model.lean": ["P4SpecTec.lean"], "P4SpecTec.lean": []})
+        BOUNDARIES.check_graph(graph, {self.root / "P4Spec.lean"}, self.root)
+        for start, edges, message in (
+                ("P4SpecTec.lean", {"P4SpecTec.lean": ["P4Spec.lean"], "P4Spec.lean": []},
+                 "imports a generated model"),
+                ("NanoP4Target.lean", {"NanoP4Target.lean": ["P4Spec/Model.lean"],
+                                       "P4Spec/Model.lean": []},
+                 "imports ignored generated sources"),
+                ("P4Spec.lean", {"P4Spec.lean": ["NanoP4Spec.lean"], "NanoP4Spec.lean": []},
+                 "imports beyond the core"),
+                ("P4Spec.lean", {"P4Spec.lean": ["P4SpecTecTest.lean"], "P4SpecTecTest.lean": []},
+                 "imports a consumer")):
+            with self.subTest(start=start, message=message):
+                with self.assertRaisesRegex(BOUNDARIES.BoundaryError, message):
+                    BOUNDARIES.check_graph(self.graph(edges), {self.root / start}, self.root)
+
+    def test_consumer_root_cannot_reach_ignored_generated_sources(self):
+        graph = self.graph({"P4SpecTecTest.lean": ["P4SpecTecTest/Unit.lean"],
+                            "P4SpecTecTest/Unit.lean": ["P4Spec.lean"], "P4Spec.lean": [],
+                            "ExampleProofs.lean": []})
+        with self.assertRaisesRegex(BOUNDARIES.BoundaryError, "reaches ignored generated"):
+            BOUNDARIES.check_consumer_roots(graph, self.root)
+        # A registered executable under the test namespace may; the library root may not.
+        graph[self.root / "P4SpecTecTest/Unit.lean"] = set()
+        graph[self.root / "P4SpecTecTest/Tool.lean"] = {self.root / "P4Spec.lean"}
+        BOUNDARIES.check_consumer_roots(graph, self.root)
+
+    def test_missing_generated_sources_named(self):
+        (self.root / "P4Spec.lean").unlink()
+        with patch.object(BOUNDARIES, "run", return_value=""):
+            with self.assertRaisesRegex(BOUNDARIES.BoundaryError, "regenerate the library first"):
+                BOUNDARIES.source_inventory(self.root)
+
     def test_transitive_root_reachability(self):
         sources = {self.root / f"{name}.lean"
-                   for name in BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS}
+                   for name in BOUNDARIES.LIBRARIES}
         graph = {source: set() for source in sources}
         helper = self.root / "P4SpecTec/Helper.lean"
         leaf = self.root / "P4SpecTec/Leaf.lean"
@@ -216,7 +251,7 @@ class PolicyTests(Fixture):
 
     def test_unregistered_main_is_not_exempt(self):
         sources = {self.root / f"{name}.lean"
-                   for name in BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS}
+                   for name in BOUNDARIES.LIBRARIES}
         graph = {source: set() for source in sources}
         main = self.root / "P4SpecTec/Unused/Main.lean"
         graph[main] = set()
@@ -225,7 +260,7 @@ class PolicyTests(Fixture):
 
     def test_registered_executable_and_helpers_are_reachable(self):
         sources = {self.root / f"{name}.lean"
-                   for name in BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS}
+                   for name in BOUNDARIES.LIBRARIES}
         graph = {source: set() for source in sources}
         executable = self.root / "P4SpecTec/Driver.lean"
         helper = self.root / "P4SpecTec/Driver/Helper.lean"
@@ -308,7 +343,7 @@ class LeanParserTests(Fixture):
     def check_fixture(self):
         sources = {path for path in self.root.rglob("*.lean")
                    if BOUNDARIES.namespace(path, self.root)
-                   in BOUNDARIES.REUSABLE | BOUNDARIES.CONSUMERS | BOUNDARIES.TOOLS}
+                   in BOUNDARIES.LIBRARIES | BOUNDARIES.TOOLS}
         with patch.object(BOUNDARIES, "source_inventory", return_value=sources):
             BOUNDARIES.check(self.root)
 

@@ -1,18 +1,18 @@
 # Decisions
 
-Current cross-cutting choices and reasons. Updated 2026-09-30.
+Current cross-cutting choices and reasons. Updated 2026-10-04.
 Rules belong in [AGENTS.md](../AGENTS.md), architecture in
 [Design](../docs/design.md), and detailed constraints in the linked topic
 notes. This register is not a chronological log.
 
-## Scope and product (2026-09-26)
+## Scope and product (2026-09-26, M3 resumed 2026-10-04)
 
 Keep AL as input, the handwritten Lean AL reference, and the generated model.
-The bounded field-update consumer is complete; broader M3 is incomplete and
-paused. The earlier blanket authorization to complete M3 is superseded by the
-user's pause and subsequent bounded requests. New feature work needs a newly
-agreed scope. Reason: demonstrate a complete usable source connection without
-mistaking isolated generated/proof fixtures for full-P4 support.
+The bounded field-update consumer is complete; broader M3 is incomplete. The user
+paused it on 2026-09-26 in favor of bounded requests and resumed it on 2026-10-04
+(below). Work outside M3 still needs a newly agreed scope. Reason: demonstrate a
+complete usable source connection without mistaking isolated generated/proof
+fixtures for full-P4 support.
 
 The next major milestone is complete Nano-P4 support and certification, with
 core semantics and target composition as separate required acceptance stages.
@@ -21,7 +21,7 @@ scope and definition of done. Reason: demonstrate the full architecture on a
 bounded language before expanding production full-P4 support. The user
 authorized each stage in turn (the scope, then N0–N2, N3 and N4 on 2026-09-26 to 2026-09-29,
 and N5–N6 fully autonomously on 2026-09-30). The milestone closed on 2026-09-30 at `42ffad6`;
-no further Nano or full-P4 work is authorized, and full-P4 M3 remains paused.
+no further Nano work is authorized.
 Use the model tiers in
 AGENTS (small for bounded inventories, mid-tier for bounded implementation/tests,
 strongest for difficult semantics/proofs and independent review), with explicit
@@ -31,6 +31,13 @@ coverage and target composition, N5 the whole-program proof, and N6 release evid
 Revisit scope only through an explicit design
 decision, not by excluding difficult cases from coverage.
 
+On 2026-10-04 the user resumed full-P4 M3 and authorized pushing it as far as possible
+autonomously, with one standing instruction: on a performance bottleneck, pause and improve
+performance first. The M3 exit obligations
+in the [full-P4 overview](notes/full-p4/overview.md) are unchanged, and each stage still needs
+its checks, independent review and recorded evidence. Consequential choices made without the
+user are recorded here for later review.
+
 The goal is a certifying compiler, technically a proof-producing semantics
 translation, not a universally verified generator. Reusable models amortize
 per-artifact checking and allow generator evolution. This is a tradeoff, not
@@ -38,6 +45,41 @@ a claim of general superiority over verified compilation.
 [Discussion](notes/compiler-certification.md) retains the user-requested
 rationale; [Related Work](../docs/related-work.md) owns sources.
 Confidence high; revisit with measured scale or consumer evidence.
+
+## Staged explicit-state generation (2026-10-04)
+
+A specification in explicit-state mode (one declaring `fresh_typeId`, so full P4) is planned
+without certificates: types with codecs, subtype bridges, the `Externs` class, executable
+functions, tables and relations, and quotations. Every definition and type is listed in
+`coverage.json` with the exclusion `Emit.statefulReason`; no logical relation, run-soundness,
+refinement, representation or initialization module is emitted. Reason: the certificate
+emitters are stated for the pure ABI, and the earlier all-or-nothing guard hid the fact that
+the executable half already elaborates for the whole export (about 235 s cold, with native
+compilation) and agrees
+with upstream on the pinned programs. Emitting the executable library first gives a second
+Lean leg for corpus replay (M3C) before any proof exists, and makes each certificate family a
+separately enabled stage. This is not M3B's exit: structural propositions and audited
+run-soundness remain required. Rejected: enabling the bounded `StateProps`/`StateValidate`
+emitters for whatever they accept (comment-only exclusions would look like coverage, and the
+retired `m3b-state-production` aggregate failed at exactly that integration). Confidence high.
+Revisit when state run-soundness is generated: its modules should sit beside, not inside, the
+serial chain of spec modules (see the full-P4 overview on build cost).
+
+`P4Spec/` is generated, ignored and pinned by `P4Spec.manifest.json` (per-file SHA-256 and
+size) instead of being committed: it is about 25 MB and one module is 6.7 MB, above the 5 MiB
+cap. The gate regenerates, checks the manifest, builds and compares quotations. Cost: a
+generator change shows as changed digests, not as a diff, so the commit message must say what
+changed. Rejected: committing compressed generated modules (Lake cannot build them, and Git
+history would grow by megabytes per generator change) and an exception to the size cap.
+Revisit if review of full-P4 output changes needs real diffs (a scratch regeneration of the
+previous revision gives one) or if the library is split into smaller modules.
+
+Two generator defects surfaced by full P4 were fixed in place, with Nano output unchanged:
+a third variant case with the same atoms reused the suffix `_2`, and a tuple outside a
+recursive type group was decoded through a product instance that does not exist. Tuples
+are now decoded by arity and component everywhere, and generation rejects the two tuple
+shapes a right-nested product cannot represent (a single component, a trailing tuple
+component); neither occurs at the pinned specifications.
 
 ## Pins and reproducibility (2026-09-25)
 

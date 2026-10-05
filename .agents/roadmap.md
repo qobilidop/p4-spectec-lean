@@ -1,8 +1,7 @@
 # Roadmap
 
-Updated 2026-09-30. The Nano-P4 completion milestone closed on 2026-09-30 at `42ffad6`.
-Other backlog remains deferred; no next milestone is authorized.
-Broader full-P4 M3 remains paused.
+Updated 2026-10-04. The Nano-P4 completion milestone closed on 2026-09-30 at `42ffad6`.
+Full-P4 M3 is the active milestone, resumed on 2026-10-04; other backlog remains deferred.
 [Status](status.md) owns immediate obligations, not this backlog.
 
 ## Milestones and entry points
@@ -10,8 +9,9 @@ Broader full-P4 M3 remains paused.
 - M1: Nano generation, kernel checking, export and differential replay closed.
 - M2: logical relations, forward AL certificates and reusable support closed
   as a bounded fragment, not complete Nano certification.
-- M3: full-P4 export/census closed; production generation, effect integration,
-  broader correspondence and targets remain incomplete.
+- M3 (active): full-P4 export/census closed; the executable library generates and
+  builds (2026-10-04). Logical relations and run-soundness, corpus replay,
+  correspondence certificates and targets remain incomplete.
   [Full-P4 overview](notes/full-p4/overview.md) owns remaining phases,
   [corpus](notes/full-p4/corpus.md) the bounded replay/resume constraints,
   [state integration](notes/state-integration/overview.md) the retained versus
@@ -27,7 +27,6 @@ Broader full-P4 M3 remains paused.
 closed on 2026-09-30 at `42ffad6`. The design owns the acceptance criteria; the
 [closed plan](notes/nano-certification.md) indexes each stage's evidence and the constraints
 that still bind; decisions ("Scope and product") record the authorizations.
-Broader full-P4 M3 remains paused.
 
 Its stages were the obligation inventory (N0), feasibility probes (N1), reusable contracts
 (N2), full core coverage (N3), target composition (N4), the whole-program proof (N5) and

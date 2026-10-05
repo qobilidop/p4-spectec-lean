@@ -13,6 +13,10 @@ result
 /exports/nano-p4.al.json
 /exports/p4.al.json
 
+# The generated full-P4 library: regenerated from the export, pinned by P4Spec.manifest.json.
+/P4Spec/
+/P4Spec.lean
+
 # Python
 *.pyc
 .venv/

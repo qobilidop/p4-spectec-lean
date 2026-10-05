@@ -40,7 +40,8 @@ Documentation is split by purpose and audience:
 | `.agents/notes/archive.md` | retired experimental history, artifacts and recovery instructions |
 | `.agents/skills/tend-repo/` | on-demand consistency, working-state compaction and learning workflow |
 | `.claude/skills` | symlink so Claude Code finds the skills in `.agents/skills/` |
-| `.agents/notes/full-p4/overview.md` | full-P4 census findings and remaining obligations |
+| `.agents/notes/full-p4/overview.md` | full-P4 generation state, census findings and remaining obligations |
+| `P4Spec.manifest.json` | SHA-256 digests pinning the generated full-P4 library, whose sources (`P4Spec/`, `P4Spec.lean`) are ignored |
 | `.agents/notes/state-integration/overview.md` | bounded state support versus paused production integration |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
 | `NanoP4Target/` | concrete NanoSwitch target over the generated model: typed externs, extern-contract discharge, session composition |
@@ -93,6 +94,11 @@ scripts/replay-cert.py <Module> [--only thm] [--heartbeats N] [--trace] [--nativ
                             # builds core, expands aggregates, checks copies against built imports
                             # native is opt-in; iteration aid, not certification evidence
 lake exe p4spectec-gen <export> --lib <Lib> [--runtime-extern TYPE] [--update|--check]
+scripts/generated-manifest.py (--check|--update) P4Spec P4Spec.manifest.json
+                            # after `p4spectec-gen exports/p4.al.json --lib P4Spec --update`
+lake exe check-p4-quotes    # compiled full-P4 quotation vs current decoded export
+P4SpecTecTest/Oracle/P4/Replay/replay.py --upstream ABS --p4c ABS
+                            # four pinned full-P4 cases, both Lean legs (upstream shell)
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
@@ -182,10 +188,16 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   runtime-only extern alternative; source quotations and source types stay unchanged.
   Both spec snapshots are committed as `exports/<name>.al.json.gz` plus
   a raw SHA-256; the gate verifies and extracts the ignored JSON files.
-  The intended full-P4 output is `P4Spec/`, which has no library target until
-  production generation is supported. Full-P4 generation remains
-  blocked on the constructs in `.agents/notes/full-p4/overview.md`, and the
-  gate checks its decoded capability census until generation is supported.
+- **Generated full-P4 Lean is not committed.** `P4Spec/` and `P4Spec.lean` are about
+  25 MB (one module exceeds the file-size cap) and are ignored. The gate regenerates
+  them, requires the digests in the committed `P4Spec.manifest.json`, builds the
+  library with `--wfail` and checks its quotations. A generator change that alters
+  full-P4 output must update the manifest in the same commit
+  (`scripts/generated-manifest.py --update`); say what changed, since a digest shows no
+  diff. `P4Spec` is not a default target; only registered executables may import it,
+  never a library root.
+  It has executable definitions and quotations only; the certificates it lacks are in
+  `.agents/notes/full-p4/overview.md`.
 - **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
   (a warning fails, and a `sorry` is a warning), `lake test`, every module
   reachable through imports from its library root or a registered executable

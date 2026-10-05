@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Replay the four pinned full-P4 AL observations through the Lean interpreter."""
+"""Replay the four pinned full-P4 AL observations through both Lean legs.
+
+The reference interpreter and the generated library (`P4Spec/`, generated beforehand) each
+check the same upstream observations: semantic outputs and exact fresh counters.
+"""
 
 import argparse
 import importlib.util
@@ -78,18 +82,19 @@ def main():
     check = load_check()
     try:
         bundle = collect(check, upstream, p4c)
-        with tempfile.TemporaryDirectory(prefix="p4-interp-replay-") as scratch:
+        with tempfile.TemporaryDirectory(prefix="p4-replay-") as scratch:
             path = Path(scratch) / "bundle.json"
             path.write_text(json.dumps(bundle, ensure_ascii=True,
                                        separators=(",", ":")), encoding="utf-8")
-            completed = subprocess.run(
-                ["lake", "exe", "p4-interp-replay", str(path), "--sensitivity"], cwd=ROOT,
-                check=False,
-            )
-            if completed.returncode:
-                raise SystemExit(completed.returncode)
+            for executable in ("p4-interp-replay", "p4-gen-replay"):
+                completed = subprocess.run(
+                    ["lake", "exe", executable, str(path), "--sensitivity"], cwd=ROOT,
+                    check=False,
+                )
+                if completed.returncode:
+                    raise SystemExit(completed.returncode)
     except (ValueError, json.JSONDecodeError) as error:
-        raise SystemExit(f"[p4-interp] {error}") from error
+        raise SystemExit(f"[p4-replay] {error}") from error
 
 
 if __name__ == "__main__":

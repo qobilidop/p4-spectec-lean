@@ -28,16 +28,6 @@ def callable (d : Lang.Al.def) : Bool :=
   | .FuncDecD .. | .BuiltinDecD .. | .TableDecD .. | .RelD .. => true
   | _ => false
 
-/-- Collect premises from callable bodies. -/
-def premsOf (d : Lang.Al.def) : List prem :=
-  match d.it with
-  | .RelD _ _ _ gs eg _ =>
-    gs.flatMap (fun g => g.it.2.1.2.2 ++ g.it.2.2.flatMap (·.2.1)) ++
-      (eg.toList.flatMap fun g => g.it.2.1.2.2 ++ g.it.2.2.2.1)
-  | .FuncDecD _ _ _ _ cs ec _ => (cs ++ ec.toList).flatMap (·.it.2.2)
-  | .TableDecD _ _ _ rs _ => rs.flatMap (·.it.2.2.2)
-  | _ => []
-
 /-- Describe premise features relevant to emission support. -/
 partial def premFeatures (p : prem) : List String :=
   match p.it with
@@ -67,7 +57,7 @@ def features (env : Env) (externs : List String) (d : Lang.Al.def) : List String
       (if cs.isEmpty && ec.isNone then ["no clauses"] else [])
     | .RelD _ _ _ _ (some _) _ => ["else group"]
     | _ => []
-  (sig ++ (Exp.expsOfDef d).flatMap expFeatures ++ (premsOf d).flatMap premFeatures ++
+  (sig ++ (Exp.expsOfDef d).flatMap expFeatures ++ (Exp.premsOfDef d).flatMap premFeatures ++
     (if calls.any externs.contains then ["calls an extern"] else []) ++
     (if calls.any (fun c => (env.funcs.get? c).any (·.kind == .builtin))
       then ["calls a builtin"] else [])).eraseDups

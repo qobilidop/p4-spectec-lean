@@ -36,7 +36,7 @@ are maintained in Related Work rather than copied here.
 The independent critique reviewed baseline
 `c215d102758c00b829a50085e1e271185a176613` on 2026-09-25.
 Its approved first consumer milestone is now complete
-([field-update evidence](field-update.md)); broader M3 remains paused.
+([field-update evidence](field-update.md)); broader M3 resumed on 2026-10-04.
 Machine-readable source/claim/dependency inventories and full Nano source codecs
 have since landed through N3; [Certification](../../docs/certification.md) owns
 their current coverage and assumptions. Remaining proposals are advisory:

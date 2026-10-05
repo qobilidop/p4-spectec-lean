@@ -26,8 +26,9 @@ proofs, both replays, the whole-program example and distinguishing mutations acr
 layers, each rejected by a named check. The section's remaining requirements, an
 independent review and exact-revision CI, are publication records rather than checked
 evidence; the Nano-P4 milestone is complete for the one source tree whose record
-contains both (see [Nano completion inventory](#nano-completion-inventory)). Full-P4
-support is not yet a usable generated library.
+contains both (see [Nano completion inventory](#nano-completion-inventory)). The full P4
+specification generates an executable library without certificates
+(see [Full P4](#full-p4)).
 The README gives the short project status; this guide is
 the user-facing account of current capabilities and their guarantees.
 
@@ -53,8 +54,6 @@ and independent admission predicates. The gate requires every core, target and
 sensitivity obligation. These counts are not a percentage of P4 language
 behavior certified.
 
-Full-P4 production generation remains incomplete. Bounded stateful emitter
-and proof fixtures do not constitute production full-P4 certification.
 Generated reverse certificates construct finite reference executions using
 outcome induction for recursive functions, including failures. They assume
 related inputs and do not establish total termination. Separate generated
@@ -98,8 +97,9 @@ does not independently prove that the generator chose the right contract.
 Source identity still needs the separate freshness and quotation checks below.
 
 The machinery belongs to `P4SpecTec`; the report belongs to the generated
-library. Full-P4 will use the same machinery when production generation is
-supported. Its capability census is an emission probe, not certificate coverage.
+library. The full-P4 library's report lists every definition and type as excluded,
+with the reason; its separate capability census is an emission probe, not
+certificate coverage.
 The stronger handwritten field-update certificate remains a separate consumer
 artifact and does not increase the generated forward or reverse coverage.
 
@@ -192,9 +192,10 @@ changes otherwise identical files and triggers unnecessary proof rebuilds.
 
 These limitations describe the implementation, not the intended design:
 
-- Production stateful planning is rejected even though stateful interpreters,
-  emitters and bounded proof fixtures exist. Fresh-state tests are not full-P4
-  generation or certification.
+- A specification that declares the fresh-identifier builtin, as full P4 does, is
+  generated in the explicit-state form without certificates: no logical relations,
+  run-soundness or correspondence theorems. The stateful proof fixtures in the test
+  library cover bounded examples only and are not full-P4 certification.
 - The NanoSwitch target ports extract, initialization and the packet driver;
   boot, STF parsing and expectation matching stay upstream, and a Lean session
   starts from the exported parsed program. Extern payloads are decoded from their
@@ -233,6 +234,36 @@ These limitations describe the implementation, not the intended design:
 These exclusions prevent an end-to-end full-P4 claim. A consumer must use the
 actual certificate's admitted domain and contracts, not assume that a callable
 helper is covered by the translation proof.
+
+## Full P4
+
+The full P4 specification (1,689 definitions at the pinned P4-SpecTec commit) is
+generated as `P4Spec`: every type with its value encoder and decoder, every subtype
+bridge, and every function, table and relation as an executable definition in the
+explicit-state form, each with its quoted AL definition. The library is about 25 MB of
+Lean, so its sources are not committed: the gate regenerates them, requires the SHA-256
+digests recorded in `P4Spec.manifest.json`, and builds every module with warnings as
+errors.
+
+| Check | What it establishes | What it does not |
+|---|---|---|
+| Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check | Any relation to AL |
+| `check-p4-quotes` | The 1,672 compiled quotations equal the decoded export, as for Nano-P4; the 17 schematic variable declarations are not quoted | That the executable definitions follow their quotations |
+| Bounded replay | On two pinned programs the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters; a third is rejected by upstream and by the generated relations. The reference interpreter agrees on all three | Other programs or packet processing. Upstream reports a rejection only as a class, so the kind of failure is not compared |
+
+No full-P4 definition has a correspondence, run-soundness or representation certificate,
+and `P4Spec/coverage.json` says so for each. The bounded replay needs the pinned upstream
+build and p4c sources, so it is run by hand, not by the gate:
+
+```sh
+nix develop --command scripts/fetch-p4c.sh
+nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Replay/replay.py \
+  --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
+```
+
+Extern operations in that replay are upstream's placeholders: the two state initializers
+return a null value and every other extern is a hard error. No packet target exists for
+full P4.
 
 ## Reading a generated certificate
 
@@ -412,8 +443,9 @@ nix develop --command scripts/check.sh
 
 This is the same gate used by CI. It builds the Lean libraries and proofs,
 checks generated-source and coverage freshness, theorem types and axioms, compares quotations,
-runs differential tests and every mutation suite, and requires combined completion. A
-passing gate means those recorded checks passed, not that every definition of full P4
+runs differential tests and every mutation suite, and requires combined completion. It also
+regenerates and builds the full-P4 library and compares its quotations. A
+passing gate means those recorded checks passed, not that any definition of full P4
 has an AL correspondence certificate.
 
 For a focused inspection, start at the generated refinement index or the

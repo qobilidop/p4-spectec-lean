@@ -7,13 +7,15 @@ and reports are recoverable at Git commit `968ad65` under their former paths.
 
 ## Current boundary
 
-The explicit-state carrier, shared interpreter, bounded executable emitter,
+The explicit-state carrier, shared interpreter, executable emitter,
 structural fixtures and bounded function-refinement emitter are retained.
-Production `Codegen/Emit.lean` still rejects `freshState`; production
-`Validate` does not count the bounded `StateValidate` fixtures as full-P4
-coverage. The main census has no production full-P4 stateful certificates.
-Broader M3 is paused. Historical worktree instructions and publication TODOs
-are checkpoint history, not instructions to revive removed worktrees.
+Since 2026-10-04 production `Codegen/Emit.lean` plans a `freshState` specification
+without certificates (decisions, "Staged explicit-state generation"): the executable
+emitter covers the whole full-P4 export, and `StateProps`, `StateRunSound` and
+`StateValidate` are still reachable only from test fixtures. Production
+`Validate` does not count those fixtures as full-P4 coverage, and there is no
+production full-P4 stateful certificate. Historical worktree instructions and
+publication TODOs are checkpoint history, not instructions to revive removed worktrees.
 
 The broader production aggregate `925fdbf` (source integration `1b2ac70`)
 is retired, not completed: its second full-P4 casting proof still failed at
