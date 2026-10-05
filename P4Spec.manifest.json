@@ -1,8 +1,8 @@
 {
  "files": {
   "P4Spec.lean": {
-   "bytes": 10930,
-   "sha256": "f1a7bc68e9325adfc859e33857b007533d840052af8e55659b135e454cc0bd1c"
+   "bytes": 11638,
+   "sha256": "1f9be779b89d85d6802c5f0366176c7fc494ba31cecbb605b59ecf274e65e562"
   },
   "P4Spec/0-aux/0.0-stdlib.lean": {
    "bytes": 172165,
@@ -277,8 +277,8 @@
    "sha256": "b560f4997498e1282f20ec0a9912534c71136055cfe48c2685d411ac5dc87f86"
   },
   "P4Spec/Refinement.lean": {
-   "bytes": 137219,
-   "sha256": "e9f4caa676470f96a6ffb96463193fe821bfb4e60f75f52ead17253e4cb56f65"
+   "bytes": 138064,
+   "sha256": "b554d17be0e2f51cd272483db8ed6444f7195c251da8ebf65763a6874d7f8692"
   },
   "P4Spec/Refinement/Relation/ActionDecl_inst.lean": {
    "bytes": 2164,
@@ -808,13 +808,69 @@
    "bytes": 1561,
    "sha256": "1facca377f86d77ffca4967a8c3eb8a070345767cf5b12a141c86b38ce4d75c7"
   },
+  "P4Spec/Refinement/RunSound/ActionDecl_inst.lean": {
+   "bytes": 1136,
+   "sha256": "a8b93d9cf89f52bc409a90680877fc11e8a6ebdfa3df39253d30cf678a1befc7"
+  },
+  "P4Spec/Refinement/RunSound/ConstDecl_eval.lean": {
+   "bytes": 1130,
+   "sha256": "db22ef258eb55e185a5d2df1d77489020d56f4dc6e470dcc81a4830ba198f35b"
+  },
+  "P4Spec/Refinement/RunSound/ConstDecl_inst.lean": {
+   "bytes": 1130,
+   "sha256": "2c0b9353ff86066bd7d52e38e4c17fe79d615c8821f7336cd9d0c68792ab1a96"
+  },
+  "P4Spec/Refinement/RunSound/ConstructorType_ok.lean": {
+   "bytes": 1300,
+   "sha256": "c1b128128961de405df5df9a5263e3e3db7d00007c8ab2ae1b3a82e64ef7418d"
+  },
+  "P4Spec/Refinement/RunSound/Constructor_inst.lean": {
+   "bytes": 1325,
+   "sha256": "4b840b0dcb35a71103ca0be53a6af9574d38d82e325f3eb91571d3685da61fbf"
+  },
+  "P4Spec/Refinement/RunSound/Copy_in_default.lean": {
+   "bytes": 1132,
+   "sha256": "534ff45668323772726a5cb3783f6c4226ed4bc7253ad71098b1fac5aabc246b"
+  },
+  "P4Spec/Refinement/RunSound/EBPF_init_globals.lean": {
+   "bytes": 1149,
+   "sha256": "88447c37fa411a27760bb5b61232528924096e04b6b07c3e438f81fa37156a77"
+  },
+  "P4Spec/Refinement/RunSound/ExternMethod_inst.lean": {
+   "bytes": 1125,
+   "sha256": "748738467f11f3040dfd5365ecad62e3a4257dbef07f8a6943772e51768423f3"
+  },
+  "P4Spec/Refinement/RunSound/FuncDecl_inst.lean": {
+   "bytes": 1122,
+   "sha256": "5e46317995dfac6a8e15e42f156082119b0088d342d347a250db04209b1f549c"
+  },
+  "P4Spec/Refinement/RunSound/SwitchLabel_table_ok.lean": {
+   "bytes": 1172,
+   "sha256": "a86a374bdc71a649dd2bdb89c224e48a07a9bfd7b1f9eee44d660730da86608a"
+  },
+  "P4Spec/Refinement/RunSound/TableAction_inst.lean": {
+   "bytes": 1161,
+   "sha256": "bb1dd9c2639c8a9250773fb47845a6347178ce25a4bd1f4802eea21bac4d64a1"
+  },
+  "P4Spec/Refinement/RunSound/TableType_ok.lean": {
+   "bytes": 1130,
+   "sha256": "ae9678d70e9d3c2f2e697f588df6a1c39c105bd2d8ba90584d3277b6b814037b"
+  },
+  "P4Spec/Refinement/RunSound/TypeParameterListOpt_ok.lean": {
+   "bytes": 1235,
+   "sha256": "745c032f38bd38fed5dcc89a6c7ce7e30597c82aed675df6b8cff858f644dcc3"
+  },
+  "P4Spec/Refinement/RunSound/Var_init.lean": {
+   "bytes": 1067,
+   "sha256": "41ed719eaa24d35a48ff587323fb988051f445fddbfb9e403abf097c52b2a696"
+  },
   "P4Spec/Refinement/Spec.lean": {
    "bytes": 66761,
    "sha256": "ef91cfd3b5267663f9a7c97f580c8b8ae160748239b5a1163c0d6121dcaa81b1"
   },
   "P4Spec/coverage.json": {
-   "bytes": 954640,
-   "sha256": "12a1bbe46e1731d4e3d994af8d17de1d4c9bb33f44a02a269d60752d10cd00af"
+   "bytes": 1004183,
+   "sha256": "afdcdcfdee2e7176f2891ba90638f5babe0717af739c0ede0461b9a79af08859"
   }
  },
  "library": "P4Spec"

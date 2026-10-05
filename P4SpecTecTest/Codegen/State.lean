@@ -174,23 +174,48 @@ private def depEnv := Env.ofSpec "DependencyTest" depSpec
       let text := Codegen.render u.decls
       text.contains "mutual" && text.contains "«$source»" && text.contains "«$later»")
   | .error _ => false
--- The plan of an explicit-state specification has executable units, one logical-relation
--- module per relation group, and no certificate.
+-- The plan of an explicit-state specification has executable units and, per relation group,
+-- a logical-relation module followed by a run-soundness module where one is generated. The
+-- only claims are those theorems; every other certificate is an exclusion.
 #guard match Emit.plan env spec with
   | .ok (units, _, refinement) =>
     !units.isEmpty && !refinement.coverage.isEmpty &&
-    refinement.groups.map (·.name) == ["fails", "holds", "shared"].map ("Relation." ++ ·) &&
-    refinement.groups.all (fun g => (Codegen.render g.decls).contains "inductive ") &&
+    refinement.groups.map (·.name) == ["fails", "holds", "shared"].flatMap
+      (fun r => ["Relation." ++ r, "RunSound." ++ r]) &&
+    refinement.groups.all (fun g => (Codegen.render g.decls).contains
+      (if g.name.startsWith "Relation." then "inductive " else "by state_run_sound")) &&
     refinement.coverage.all fun e =>
-      e.claims.isEmpty && e.exclusions.any fun x =>
+      e.claims.all (·.kind == "runSoundness") &&
+      (e.claims.length == if ["fails", "holds", "shared"].contains e.id then 1 else 0) &&
+      e.exclusions.any fun x =>
         x.reason == if e.kind.startsWith "extern" then "extern" else Emit.statefulReason
   | .error _ => false
 #guard match Emit.generate "P4SpecTecTest.StateCodegen" "fixture.al.json" spec with
   | .ok outputs =>
     outputs.any (·.path.endsWith "Refinement/Spec.lean") &&
+    outputs.any (·.path.endsWith "Refinement/RunSound/shared.lean") &&
     outputs.all fun o =>
       !o.path.endsWith "Refinement/Environment.lean" &&
-      !o.path.endsWith "Refinement/Equality.lean" && !o.text.contains "import P4SpecTec.Tactic"
+      !o.path.endsWith "Refinement/Equality.lean" &&
+      (o.text.contains "import P4SpecTec.Tactic" == decide
+        ((o.path.splitOn "/RunSound/").length > 1))
+  | .error _ => false
+-- A recursive relation has its logical relation and no run-soundness theorem yet, and the
+-- lack propagates to the relations that call it, each with its reason.
+private def recursionSpec : Lang.Al.spec := [
+  Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] textT []),
+  relation "loop" [Q.pr (.RulePr (Q.i "loop") (.Seq []) [])],
+  relation "caller" [Q.pr (.RulePr (Q.i "loop") (.Seq []) [])],
+  relation "leaf" [save]]
+#guard match Emit.plan (Env.ofSpec "RecursionFixture" recursionSpec) recursionSpec with
+  | .ok (_, _, refinement) =>
+    refinement.groups.map (·.name) ==
+      ["Relation.loop", "Relation.caller", "Relation.leaf", "RunSound.leaf"] &&
+    (refinement.coverage.filterMap fun e =>
+      (e.exclusions.find? (·.kind == "runSoundness")).map fun x =>
+        (e.id, x.reason, x.dependency)) ==
+      [("loop", "recursive group: state run-soundness is not generated yet", none),
+       ("caller", "calls loop, which has no state run-soundness theorem", some "loop")]
   | .error _ => false
 #guard match Emit.generate "DependencyTest" "fixture.al.json" depSpec with
   | .ok outputs => outputs.any fun o =>

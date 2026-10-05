@@ -130,12 +130,18 @@ def projCases : TacticM Unit := do
       let ty := (← instantiateMVars decl.type).consumeMData
       if let some (_, lhs, rhs) := ty.eq? then
         for side in [lhs.consumeMData, rhs.consumeMData] do
-          -- a primitive projection, or a structure's projection function
+          -- a primitive projection, or a structure's projection function applied to the
+          -- structure; a class method (`==`) is a projection of its instance, not of its
+          -- operands
           let x? : Option Expr := match side with
             | .proj _ _ x => some x
-            | .app f x =>
-              match f.getAppFn.consumeMData with
-              | .const c _ => if (env.getProjectionFnInfo? c).isSome then some x else none
+            | .app .. =>
+              match side.getAppFn.consumeMData with
+              | .const c _ => match env.getProjectionFnInfo? c with
+                | some info =>
+                  if info.fromClass || side.getAppNumArgs != info.numParams + 1 then none
+                  else some side.appArg!
+                | none => none
               | _ => none
             | _ => none
           if let some x := x? then

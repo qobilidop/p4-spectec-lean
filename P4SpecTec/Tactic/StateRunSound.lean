@@ -78,11 +78,15 @@ partial def execute (work : List Name) : TacticM Unit := do
           for g in goals do
             setGoals [g]
             projCases
-            let _ ← tryTac (evalTactic (← `(tactic| simp_all only [Prod.mk.injEq])))
-            evalTactic (← `(tactic| subst_vars))
-            if (← getGoals).isEmpty then continue
-            execute (h :: rest)
-            out := out ++ (← openGoals (← getGoals)).toArray
+            -- destructuring may leave several goals: each is normalized and continues the
+            -- same work list
+            for g' in ← getGoals do
+              setGoals [g']
+              let _ ← tryTac (evalTactic (← `(tactic| simp_all only [Prod.mk.injEq])))
+              if (← getGoals).isEmpty then continue
+              evalTactic (← `(tactic| subst_vars))
+              execute (h :: rest)
+              out := out ++ (← openGoals (← getGoals)).toArray
           setGoals out.toList
         else execute rest
       else if lhs.getAppFn.consumeMData.isConst && isSomeOk rhs then

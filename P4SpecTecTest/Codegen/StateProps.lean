@@ -1,5 +1,6 @@
 import Lean.Elab.Command
 import P4SpecTec.Codegen.Certificates.StateRunSound
+import P4SpecTec.Codegen.Coverage.Check
 import P4SpecTec.Tactic.StateRunSound
 import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
@@ -38,8 +39,17 @@ private def optN := Q.e (.IterE n (.mk .Opt [Q.v "n" natT.it])) optNatT.it
 private def optM := Q.e (.IterE m (.mk .Opt [Q.v "m" natT.it])) optNatT.it
 private def optX := Q.e (.IterE x (.mk .Opt [Q.v "x" .TextT])) optTextT.it
 private def flag := Q.e (.VarE (Q.i "flag")) .BoolT
+private def o := Q.e (.VarE (Q.i "o")) optNatT.it
+private def optionalCall := Q.e (.CallE (Q.i "optional") [] []) optNatT.it
 private def spec : Lang.Al.spec := [
   Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] textT []),
+  -- An extern relation premise is a run equation of the `Externs` instance, and the
+  -- relation, its attempts and its theorem all take that instance.
+  Q.d (.ExternRelD (Q.i "externalRel") (Q.nt (.Arg textT)) [] []),
+  Q.d (.RelD (Q.i "viaExtern") (Q.nt (.Arg textT)) []
+    [Q.rg "g" ([], [], [])
+      [Q.rp "reject" [Q.pr (.RulePr (Q.i "externalRel") (.Arg x) []), no] [x],
+       Q.rp "accept" [Q.pr (.RulePr (Q.i "externalRel") (.Arg x) [])] [x]]] none []),
   -- A name bound to a constant stands for the constant: renaming the constant to the name
   -- would leave `flag` unbound and turn every `true` of the rule into it.
   Q.d (.RelD (Q.i "constantAlias") (Q.nt (.Arg textT)) []
@@ -48,6 +58,13 @@ private def spec : Lang.Al.spec := [
        Q.rp "accept" [Q.pr (.IfPr flag)] [fresh]]] none []),
   Q.d (.FuncDecD (Q.i "optional") [] [] optNatT
     [Q.cl [] (Q.e (.OptE (some (Q.e (.NumE (.Nat 3)) natT.it))) optNatT.it) []] none []),
+  -- A guard comparing with `none` applies a class method, not a projection of its operand:
+  -- the operand is not destructured, and every branch of the later pattern is executed.
+  Q.d (.RelD (Q.i "guardedOption") (Q.nt (.Arg natT)) []
+    [Q.rg "g" ([], [], [])
+      [Q.rp "p" [Q.pr (.LetPr o optionalCall),
+        Q.pr (.IfPr (Q.e (.CmpE .EqOp .BoolT (Q.e (.OptE none) optNatT.it) o) .BoolT)),
+        Q.pr (.LetPr (Q.e (.OptE (some n)) optNatT.it) optionalCall)] [n]]] none []),
   -- Both attempts start their temporary numbering at tmp_0, at different types.
   -- The selected some-pattern must never rewrite the earlier fresh call's binder.
   Q.d (.RelD (Q.i "capture") (Q.nt (.Arg natT)) []
@@ -113,13 +130,15 @@ private def spec : Lang.Al.spec := [
 
 run_cmd do
   let env := Env.ofSpec "P4SpecTecTest.StateProps" spec
-  let ctx : Exp.Ctx := { env }
+  let externs := spec.filter fun d => match d.it with | .ExternRelD .. => true | _ => false
+  let ctx : Exp.Ctx := { env, externs := externs.map (·.it.id.it) }
   let emit (f : Std.Format) : Lean.Elab.Command.CommandElabM Unit := do
     let source := Codegen.render f
     let stx ← match Lean.Parser.runParserCategory (← Lean.getEnv) `command source with
       | .ok stx => pure stx
       | .error e => throwError "state proof source did not parse:\n{source}\n{e}"
     Lean.Elab.Command.elabCommand stx
+  emit (Funcs.externsClass env externs)
   for d in spec do
     match d.it with
     | .BuiltinDecD i ts ps t _ =>
@@ -131,19 +150,28 @@ run_cmd do
       | .ok f => emit f
       | .error e => throwError e
     | .RelD i nt ins gs eg _ =>
-      let formats : Except String (List Std.Format) := do
-        let executable ← Rels.relDecl ctx false false i.it nt (ins.map (·.toNat)) gs eg
-        let structural ← Codegen.StateProps.relInductives ctx false i.it nt
+      let ext := (Exp.callsOfDef d).any ctx.externs.contains
+      let formats : Except String (List Std.Format × Coverage.Claim) := do
+        let executable ← Rels.relDecl ctx false ext i.it nt (ins.map (·.toNat)) gs eg
+        let structural ← Codegen.StateProps.relInductives ctx ext i.it nt
           (ins.map (·.toNat)) gs eg
-        let sound ← Codegen.StateProps.runSound false (← Props.memberOf ctx d)
-        let audit := Props.audit (env.q (Names.relName i.it ++ ".run_sound"))
+        let member := { ← Props.memberOf ctx d with externs := ext }
+        let sound ← Codegen.StateProps.runSound ext member
+        let audit := Props.audit (env.q (Codegen.StateProps.runSoundName member))
         -- each command is parsed on its own: the independent auxiliary predicates precede
         -- the mutual block of the relation and the predicates tied to it
         pure ([executable] ++ structural.attempts ++ structural.free ++
-          [mutualBlock (structural.relation :: structural.tied), sound, audit])
+          [mutualBlock (structural.relation :: structural.tied), sound, audit],
+          { name := env.q (Codegen.StateProps.runSoundName member), kind := "runSoundness"
+            direction := "generatedSuccessToRelation"
+            expectedType := Codegen.render (← Codegen.StateProps.runSoundType ext member) })
       match formats with
       | .error e => throwError e
-      | .ok fs => for f in fs do emit f
+      | .ok (fs, claim) =>
+        for f in fs do emit f
+        -- the coverage claim's type is the compiled theorem's, for every statement form:
+        -- no output, one, several, and with the extern instance
+        Lean.Elab.Command.liftTermElabM (Coverage.Check.checkClaim claim)
     | _ => pure ()
 
 private def textResult' (r : Option (Except Fail ByteText × FreshState))
@@ -170,6 +198,25 @@ private def attemptCount (name : String) : Option Nat := do
   | some (.error .unmatch, s) => s == 5
   | _ => false
 
+-- A class method is not a projection of its operand: `x` stays a variable in one goal.
+example (x : Option Nat) (h : (none == x) = true) : (none == x) = true := by
+  run_tac do
+    P4SpecTec.Tactic.projCases
+    unless (← Lean.Elab.Tactic.getGoals).length == 1 do
+      throwError "a class-method operand was destructured into several goals"
+    (← Lean.Elab.Tactic.getMainGoal).withContext do
+      unless ((← Lean.getLCtx).findFromUserName? `x).isSome do
+        throwError "a class-method operand was destructured"
+  exact h
+-- A structure projection of a variable still destructures it, so the projection reduces.
+example (p : Nat × Nat) (h : p.1 = 3) : p.1 = 3 := by
+  run_tac do
+    P4SpecTec.Tactic.projCases
+    (← Lean.Elab.Tactic.getMainGoal).withContext do
+      if ((← Lean.getLCtx).findFromUserName? `p).isSome then
+        throwError "a projected variable was not destructured"
+  assumption
+
 -- Shared emitter rules that full P4 first exercised.
 #guard Names.ruleNames [("g", "a"), ("g", "a"), ("", ""), ("g", "g"), ("", "b"), ("g", "a")] ==
   ["«g/a»", "«g/a_2»", "rule2", "g", "b", "«g/a_3»"]
@@ -180,6 +227,9 @@ private def attemptCount (name : String) : Option Nat := do
 #guard Props.mentions "x" (Std.Format.text "«a<x>?»") == false
 #guard Props.mentions "x" (Std.Format.text "g «a<x>?» x")
 #guard textResult' (constantAlias.run 0) "FRESH__1" 2
+#guard match guardedOption.run 7 with
+  | some (.error .unmatch, s) => s == 7
+  | _ => false
 
 -- An auxiliary predicate joins the mutual block only when it mentions a relation of the
 -- recursion group, directly or through a nested predicate; independent ones are declared

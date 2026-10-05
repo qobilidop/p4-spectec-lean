@@ -20,7 +20,8 @@
 # 8. Quoted Nano-P4 AL matches the export, with typed VarD checked separately.
 # 9. The full P4 export decodes and its reconnaissance report is current. Its generated
 #    library (ignored sources, regenerated here) matches P4Spec.manifest.json and the
-#    committed golden samples, builds with `--wfail`, and its quotations match the export.
+#    committed golden samples, builds with `--wfail`, its quotations match the export, and
+#    every theorem its coverage report claims has the claimed type and only allowed axioms.
 # 10. The whole-program source-address filter's quotation is current.
 # 11. Combined completion (`--require-complete all`): every proof, replay, consumer and
 #     sensitivity obligation. It runs check-consumer and the field-update, source-address
@@ -260,6 +261,8 @@ if command -v lake >/dev/null 2>&1; then
     || { say "P4Spec build failed"; fail=1; }
   runStage "Full-P4 quotation check" inRoot lake exe check-p4-quotes \
     || { say "full-P4 quotations differ from the export"; fail=1; }
+  runStage "Full-P4 coverage claims" inRoot lake exe check-coverage --full-p4 \
+    || { say "full-P4 coverage report is stale or a claimed theorem does not check"; fail=1; }
 elif [ "${P4SPECTEC_SKIP_LEAN:-0}" = "1" ]; then
   say "lake not on PATH; Lean gate SKIPPED by P4SPECTEC_SKIP_LEAN=1 (not a pass)"
 else

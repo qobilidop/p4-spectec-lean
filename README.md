@@ -22,7 +22,8 @@ from [P4-SpecTec](https://github.com/kaist-plrg/p4-spectec)’s algorithmic lang
   with quotations matching the export. Its typing and instantiation return upstream's
   results on 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, as
   the Lean reference interpreter does. It has
-  [no certificates yet](docs/certification.md#full-p4).
+  [no AL correspondence certificate yet](docs/certification.md#full-p4); 14 of its 256
+  relations have a run-soundness theorem.
 
 ## Rationale
 

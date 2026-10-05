@@ -105,7 +105,7 @@ P4SpecTecTest/Oracle/P4/Corpus/sweep.py --upstream ABS --p4c ABS [--jobs N]
                             # whole p4c corpus, both Lean legs; about 20 minutes
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
-lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
+lake exe check-coverage [--full-p4] [AL-id]  # fresh inventory vs compiled types/axioms
 lake exe check-target        # NanoP4Target claims: exact types, axioms, empty pinned print hints
 lake exe check-consumer SESSIONS.json  # whole-program certificate: identity, upstream session, claims
 lake exe nano-program-quote <export> <namespace> <out.lean> (--update|--check)  # typed program quote
@@ -202,8 +202,9 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   generated construct: read their diff, and say what changed elsewhere, since a digest
   shows none. Add a sample when a new construct kind is generated; never edit one by
   hand (the text gate exempts them from the line-length rule only). `P4Spec` has
-  executable definitions, quotations and logical relations without theorems; the
-  certificates it lacks are in `.agents/notes/full-p4/overview.md`. It is not a default
+  executable definitions, quotations, logical relations and run-soundness theorems for
+  the few relations that reach no recursive relation; the certificates it lacks are in
+  `.agents/notes/full-p4/overview.md`. It is not a default
   target; only registered executables may import it, never a library root. When a
   downstream package needs to import it, publish the generated sources in a separate
   repository updated by CI (decisions, "Staged explicit-state generation").

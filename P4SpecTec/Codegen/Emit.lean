@@ -1,6 +1,7 @@
 import P4SpecTec.Codegen.Rels
 import P4SpecTec.Codegen.Props
 import P4SpecTec.Codegen.StateProps
+import P4SpecTec.Codegen.Certificates.StateRunSound
 import P4SpecTec.Codegen.Reify
 import P4SpecTec.Codegen.Certificates.Builtin
 import P4SpecTec.Codegen.Certificates.Equality
@@ -273,11 +274,11 @@ def printHints (d : Lang.Al.def) : List String :=
 def statefulReason : String :=
   "explicit-state specification: certificates are not generated yet"
 
-/-- Whether certificates are planned. An explicit-state specification gets its executable
-definitions, quotations and state-indexed logical relations, and every certificate is
-recorded as an exclusion: the certificate emitters below are stated for the pure ABI.
-The logical relations are definitions without a theorem: nothing yet connects them to the
-executable definitions. -/
+/-- Whether the pure-mode certificates are planned. An explicit-state specification gets
+its executable definitions, quotations and state-indexed logical relations, with a state
+run-soundness theorem for each relation that reaches no recursive relation through its
+premises; every other certificate is recorded as an exclusion, because the certificate
+emitters below are stated for the pure ABI. -/
 def certified (env : Env) : Bool := env.mode == .pure
 
 /-- Generate the plan for a spec. -/
@@ -540,6 +541,7 @@ def plan (env : Env) (spec : Lang.Al.spec) :
   let mut detIds : List String := []
   let mut producerIds : List String := []
   let mut relationModule : Std.HashMap String String := {}   -- relation → its Prop module
+  let mut soundModule : Std.HashMap String String := {}      -- relation → its soundness module
   if !externMembers.isEmpty then
     refGroups := refGroups ++ [{
       name := "Externs", decls := joinDecls (ExternCertificates.theorems env.lib externMembers)
@@ -626,6 +628,8 @@ def plan (env : Env) (spec : Lang.Al.spec) :
         | none => false
       let rels := group.filter isRel
       let mut relationReason : Option String := none
+      let mut soundClaims : List (String × Coverage.Claim) := []
+      let mut soundReason : Option (String × Option String) := none
       if let some first := rels.head? then
         let callees := (rels.flatMap fun id =>
           (calls id).filter fun c => isRel c && !group.contains c).eraseDups
@@ -648,18 +652,49 @@ def plan (env : Env) (spec : Lang.Al.spec) :
             supportImports := some ["P4SpecTec.Prelude", "P4SpecTec.Refine.StateRules"]
             what := some s!"state-indexed logical relations, group {first}" }]
           for id in rels do relationModule := relationModule.insert id name
+          -- Run-soundness, where symbolic execution of the run suffices: a relation outside
+          -- every recursion group whose premises call only relations that have the theorem.
+          if recursive then
+            soundReason := some
+              ("recursive group: state run-soundness is not generated yet", none)
+          else if let some callee := callees.find? (!soundModule.contains ·) then
+            soundReason := some
+              (s!"calls {callee}, which has no state run-soundness theorem", some callee)
+          else
+            let sound : Except String (Format × Coverage.Claim) := do
+              let some d := defById.get? first | throw s!"unknown definition {first}"
+              let m := { ← Props.memberOf ctx d with externs := ext }
+              pure (joinDecls [← StateProps.runSound ext m,
+                  Props.audit (env.q (StateProps.runSoundName m))],
+                { name := env.q (StateProps.runSoundName m), kind := "runSoundness"
+                  direction := "generatedSuccessToRelation"
+                  expectedType := render (← StateProps.runSoundType ext m) })
+            match sound with
+            | .error reason => soundReason := some (reason, none)
+            | .ok (proof, claim) =>
+              let soundName := "RunSound." ++ groupModuleName first
+              refGroups := refGroups ++ [{
+                name := soundName, decls := proof
+                deps := name :: (callees.filterMap soundModule.get?).eraseDups
+                supportImports := some ["P4SpecTec.Prelude", "P4SpecTec.Tactic.StateRunSound",
+                  "P4SpecTec.Tactic.Audit"]
+                what := some s!"state run-soundness, relation {first}" }]
+              soundModule := soundModule.insert first soundName
+              soundClaims := [(first, claim)]
       for id in group do
         let some d := defById.get? id | throw s!"unknown coverage definition {id}"
-        let relationExclusion : List Coverage.Exclusion := match relationReason with
-          | some reason => if isRel id then
-              [{ kind := "logicalRelation", definition := id, reason }] else []
-          | none => []
+        let relationExclusion : List Coverage.Exclusion := if !isRel id then [] else
+          match relationReason, soundReason with
+          | some reason, _ => [{ kind := "logicalRelation", definition := id, reason }]
+          | none, some (reason, dependency) =>
+            [{ kind := "runSoundness", definition := id, reason, dependency }]
+          | none, none => []
         coverageEntries := coverageEntries ++ [{
           id, source := Env.fileOf d, group, recursive, dependencies := calls id
           kind := match d.it with
             | .RelD .. => "relation" | .TableDecD .. => "table" | .BuiltinDecD .. => "builtin"
             | _ => "function"
-          claims := []
+          claims := (soundClaims.filter (·.1 == id)).map (·.2)
           exclusions := [{ definition := id, reason := statefulReason }] ++ relationExclusion }]
       continue
     -- the refinement theorems of the group (rung 3): the group is covered
@@ -1118,7 +1153,9 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
     let what := g.what.getD s!"refinement theorems, group {g.name}"
     outs := outs ++ [refModule g.name what
       (g.supportImports.getD proofSupportImports) deps g.decls
-      (if g.what.isSome then "Definitions without a theorem, design section 4.1." else rung3)]
+      (if g.name.startsWith "Relation." then "Definitions without a theorem, design section 4.1."
+        else if g.name.startsWith "RunSound." then "Design section 4.1."
+        else rung3)]
     modules := modules ++ [s!"Refinement.{g.name}"]
   let refImports := String.join ((shared ++
     refinement.groups.map (s!"Refinement.{·.name}")).map fun m => s!"import {lib}.{m}\n")
@@ -1127,10 +1164,12 @@ def generate (lib exportPath : String) (spec : Lang.Al.spec)
       s!"/-! # {lib}.Refinement\n\nThe refinement theorems of rung 3 (design section 5.1), ",
       "one module per\nrecursion group under `Refinement/`, and the definitions without ",
       "a theorem, with\nthe reason. Generated.\n-/\n\n"] else [
-      s!"/-! # {lib}.Refinement\n\nThe quoted specification and the state-indexed logical ",
-      "relations, one module per\nrecursion group under `Refinement/Relation/`. No ",
-      "certificate is generated for an\nexplicit-state specification: every definition is ",
-      "listed below without a theorem,\nwith the reason. Generated.\n-/\n\n"]) ++
+      s!"/-! # {lib}.Refinement\n\nThe quoted specification, the state-indexed logical ",
+      "relations (one module per\nrecursion group under `Refinement/Relation/`) and the ",
+      "state run-soundness theorems\nunder `Refinement/RunSound/`. No AL correspondence ",
+      "theorem is generated for an\nexplicit-state specification: every definition is ",
+      "listed below without one, with the\nreason; `coverage.json` records the ",
+      "run-soundness claims and exclusions. Generated.\n-/\n\n"]) ++
     render refinement.summary ++ "\n"
   outs := outs ++ [{ path := s!"{lib}/Refinement.lean", text := refText }]
   modules := modules ++ ["Refinement"]

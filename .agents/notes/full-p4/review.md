@@ -186,3 +186,40 @@ author's rerun of the gate, not re-reviewed:
 - Not changed: every file under the samples directory counts as a sample (a stray file
   fails closed); the set itself is not pinned; the check stage runs in the Lake part of
   the gate.
+
+## Run-soundness stage (2026-10-05)
+
+Independent read-only review of the uncommitted `m3b-run-sound` tree against `main`
+(`916c7ba`), by a fresh Claude Fable 5.1 subagent that ran no build and read the diff, the
+generated modules and `P4Spec/coverage.json`. Verdict: no blockers. It confirmed that the
+emitted statement quantifies inputs, the output tuple and both states, with outputs
+projected into the positions the constructors use; that claim and theorem share one
+statement and `checkClaim` compares an independently elaborated type; that the eligibility
+rule yields exactly the 14 modules on disk, with one `runSoundness` exclusion on each of
+the other 242 relations and accurate reasons; and that the `projCases` condition is right
+for primitive projections, structure projections and class methods.
+
+Findings and resolutions, applied before the commit and checked by the author's rerun of
+the gate, not re-reviewed:
+
+- "Outside every recursive dependency" was false: ten of the 14 call recursive functions,
+  and the rule is about relation premises, transitively. Reworded everywhere, and
+  Certification now says that function, builtin and extern calls are run equations too,
+  so some of these theorems are close to an unfolding.
+- Stale "without a theorem" statements in the planner docstring, the generated
+  `Refinement.lean` header, the `StateProps` header, a Lake comment, two decision entries
+  and the overview. Rewritten in place.
+- "Calls X" exclusions did not set `dependency`. Set, and asserted in the fixture.
+- `guardedOption` did not isolate the `projCases` condition. Added direct `run_tac`
+  examples: a class-method operand stays one variable in one goal; a projected variable
+  is still destructured.
+- The per-branch loop normalized only the first goal. Normalization moved inside it.
+- The zero-output and `[Externs]` statement forms were never checked as claims. The
+  fixture now runs `checkClaim` on every emitted theorem and includes a relation with an
+  extern premise under a rejected prefix, which proves.
+- Not changed: eligibility is syntactic, so a future eligible relation the tactic cannot
+  close fails the build (as in pure mode); the 14 claimed entries keep the general
+  "certificates are not generated yet" exclusion; `explain` reports AL status only.
+
+Limits the reviewer stated: nothing was built; the gate, the Nano proofs and the scratch
+evidence in the planned-shape decision rest on the author.

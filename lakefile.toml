@@ -32,9 +32,9 @@ name = "NanoP4Spec"
 [[lean_lib]]
 name = "NanoP4Target"
 
-# The generated full-P4 model: executable definitions, quotations and logical relations
-# without theorems. Its sources are generated into the ignored P4Spec/ and checked against
-# P4Spec.manifest.json; the gate builds it explicitly.
+# The generated full-P4 model: executable definitions, quotations, logical relations and
+# the run-soundness theorems generated so far. Its sources are generated into the ignored
+# P4Spec/ and checked against P4Spec.manifest.json; the gate builds it explicitly.
 [[lean_lib]]
 name = "P4Spec"
 

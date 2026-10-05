@@ -9,8 +9,9 @@ predicate joins its relation's mutual block only when it mentions a relation of 
 recursion group, directly or through a nested auxiliary predicate: Lean's automatic
 constructions for a mutual block grow steeply with its number of types, and most iterated
 premises call relations defined earlier.
-Production planning emits these relations for an explicit-state specification as
-definitions; no run-soundness theorem is emitted for them.
+Production planning emits these relations for an explicit-state specification, with a
+run-soundness theorem (`Certificates/StateRunSound.lean`) only for a relation that
+reaches no recursive relation through its premises.
 -/
 
 namespace P4SpecTec.Codegen.StateProps

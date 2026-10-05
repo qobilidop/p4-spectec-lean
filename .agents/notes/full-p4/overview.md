@@ -45,10 +45,10 @@ retired `m3b-state-production` failure concerned proofs, not this executable tex
 
 What the generated library still lacks, in dependency order:
 
-1. State run-soundness for the 256 logical relations. The tactic handles nonrecursive
-   fixtures; recursive groups need the `RecursivePrefix`/`StateRules` motives turned into
-   a generator. Proof modules must not join the serial chain.
-   Since 2026-10-05 the library includes the logical relations, without theorems:
+1. State run-soundness for the 242 logical relations that depend on a recursive group
+   (14 have it). Recursive groups need the `RecursivePrefix` motive turned into a
+   generator. Proof modules must not join the serial chain.
+   Since 2026-10-05 the library includes the logical relations:
    - `P4Spec/Refinement/Relation/` has one module per relation recursion group (132
      modules, 256 relations, 6.2 MB), each importing the quoted spec and the modules of
      the relations it calls, beside the serial chain. With them the library is 203 Lean
@@ -70,12 +70,20 @@ What the generated library still lacks, in dependency order:
      inside a quoted variable name, two rules of one relation with the same name
      (`SelectCases_match/cons-head-match` occurs twice upstream), and a name bound to a
      constant being treated as a variable alias.
-   - Run-soundness, measured on the scratch probe only (nothing committed): of the 14
-     relations that are nonrecursive and call no recursive relation, `state_run_sound`
-     proves 12 with the axiom audit. `ConstructorType_ok` and `Constructor_inst` fail in
-     the tactic: a single-constructor `let` pattern is left as projections instead of
-     being split, and a guard `none == some _` is not decided. The other 242 relations
-     need recursive-group support: 155 are recursive, in 31 groups of up to 50.
+   - Run-soundness (2026-10-05): the 14 relations that are nonrecursive and reach no
+     recursive relation through relation premises each have a `run_sound` theorem in
+     `Refinement/RunSound/`, proved by `state_run_sound` with the axiom audit, recorded as
+     coverage claims and checked by `check-coverage --full-p4` (113 s in the gate, most of
+     it replanning the export in the interpreter). Ten of them call recursive functions,
+     whose calls are run equations in the relation; none needs `[Externs]`. Two first
+     failed on a defect in the shared helper `projCases`: it took a class method such as
+     `==` for a structure projection and destructured the wrong variable, after which the
+     state tactic continued only in the first resulting goal. The helper is fixed for
+     both tactics and every Nano proof still checks; the per-branch continuation is
+     changed in the state tactic only.
+   - The other 242 relations each carry a `runSoundness` exclusion naming the recursive
+     group or the callee without a theorem: 155 are recursive, in 31 groups of up to 50.
+     The planned proof shape is in decisions, "Recursive state run-soundness".
 2. Corpus replay on both legs (M3C): the 2026-10-05 sweep has both legs agreeing with
    upstream on 1,266 of 1,267 candidates ([corpus](corpus.md)). No native stack overflow
    or timeout occurred on the generated leg. Open: the durable campaign with CLI parity,
@@ -181,7 +189,8 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
    reproduce generation byte-for-byte, check full-P4 quotations and measure
    module timing. Done as of 2026-10-05: generation, the `--wfail` build of the
    executable library and of every logical relation, the manifest, quotations and
-   timing. Open: audited run soundness, without which M3B is not closed.
+   timing, and audited run soundness for 14 relations. Open: audited run soundness for
+   the other 242, without which M3B is not closed.
 2. M3C: account for an explicit full-P4 corpus and exclusions, compare typing
    and instantiation verdicts and exact outputs on both interpreter and
    generated legs, resolve unexplained differences, and detect interpreter
