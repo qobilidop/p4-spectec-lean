@@ -180,6 +180,7 @@ import P4SpecTec.Tactic.OutcomeInduction
 import P4SpecTec.Tactic.Realize
 import P4SpecTec.Tactic.Refine
 import P4SpecTec.Tactic.RunSound
+import P4SpecTec.Tactic.StateGroupSound
 import P4SpecTec.Tactic.StateRefine
 import P4SpecTec.Tactic.StateRunSound
 

@@ -45,15 +45,15 @@ retired `m3b-state-production` failure concerned proofs, not this executable tex
 
 What the generated library still lacks, in dependency order:
 
-1. State run-soundness for the 242 logical relations that depend on a recursive group
-   (14 have it). Recursive groups need the `RecursivePrefix` motive turned into a
-   generator. Proof modules must not join the serial chain.
+1. Nothing more for M3B: every relation has its logical relation and an audited
+   run-soundness theorem (below). Proof modules do not join the serial chain.
    Since 2026-10-05 the library includes the logical relations:
    - `P4Spec/Refinement/Relation/` has one module per relation recursion group (132
      modules, 256 relations, 6.2 MB), each importing the quoted spec and the modules of
      the relations it calls, beside the serial chain. With them the library is 203 Lean
      files, 31.3 MB, about 668,000 lines; `lake exe p4spectec-gen exports/p4.al.json --lib
-     P4Spec --update` takes 14.7 s.
+     P4Spec --update` takes 14.7 s. (These figures predate the run-soundness modules;
+     current ones are under "Run-soundness for every relation".)
    - `lake build --wfail P4Spec` with the chain already built and no relation module
      built: 202.8 s elapsed, 361.4 s user (this machine, the working tree of the commit
      that added them). Per Lake's module times, `Expr_eval`'s 50-relation mutual block
@@ -81,9 +81,45 @@ What the generated library still lacks, in dependency order:
      state tactic continued only in the first resulting goal. The helper is fixed for
      both tactics and every Nano proof still checks; the per-branch continuation is
      changed in the state tactic only.
-   - The other 242 relations each carry a `runSoundness` exclusion naming the recursive
-     group or the callee without a theorem: 155 are recursive, in 31 groups of up to 50.
-     The planned proof shape is in decisions, "Recursive state run-soundness".
+   - Run-soundness for every relation (2026-10-05, later the same day): the 155 relations
+     of the 31 recursion groups (sizes 1 to 50) are proved by `state_run_sound_group`, one
+     induction over each group's least fixed point (decisions, "Recursive state
+     run-soundness by fixed-point induction"), and with them the 87 relations that had
+     been waiting on a recursive callee. `Refinement/RunSound/` has 132 modules, one per
+     relation group, 0.5 MB; the library is 335 Lean files, 31.8 MB, about 680,000 lines.
+     All 256 theorems are coverage claims; no relation carries a `runSoundness` exclusion.
+   - Cost: with every other module built, `lake build P4Spec` took 401 s elapsed, 795 s
+     user for the 132 proof modules (this machine). `Expr_eval` (50 relations, 321 rules)
+     takes 185 s, `Type_ok` 52 s, `Expr_inst` 39 s, `Expr_eval_lctk` 21 s, every other
+     module under 15 s. In `Expr_eval` 123 s is symbolic execution (79 s of it `simp`),
+     16 s moving rejected attempts to the final functions, 5 s closing rules. The group's
+     joint theorem has a heartbeat budget of 4,000,000 per relation. The proof modules'
+     build products are about 387 MB, 161 MB of it `Expr_eval.olean`, which the CI `.lake`
+     cache now carries.
+   - What it took, in the order met. Each was first a failure or a timeout on a real
+     group, and each is a rule of the tactics now:
+     - Lean cannot derive `partial_correctness` for `Copy_out_inner` and the `Expr_inst`
+       group (instance resolution on a long function type), so the induction is
+       `fix_induct` on the group's fixed point with instances read off it.
+     - `simp_all` erased facts obtained from an induction hypothesis and rewrote retained
+       rejected attempts; `simp` on `<|>` rewrote inside rejected attempts.
+     - Constructor search tried every earlier rule and compared every retained failure
+       with every attempt: `Lvalue_read` went from a timeout past 140 s to 4 s once the
+       path's rule is tried first and each attempt of the relation is a local definition
+       named up front, against which a rejected alternative is compared once.
+     - Unifying an attempt applied to metavariables with a rejected alternative took up
+       to 121 s for one alternative (`TableEntry_keyset_simple_ok`, 134 s to 3 s after).
+     - `assumption` on a function-call premise took a minute against another function's
+       run equation (`V1Model_deparse`, 132 s to 1.5 s with a head-symbol filter; eleven
+       architecture relations had timed out).
+     - One `#audit_axioms` per theorem re-traversed the joint proof for each of a group's
+       corollaries: `Expr_eval` went from 688 s to 185 s with one audit per group.
+     - A relation without outputs binds a `Unit` result that no premise determines
+       (`ConstructorType_wf`); it is assigned its one value.
+   - Not done: the proofs say nothing about failing or diverging runs, and there is no
+     converse. `Expr_eval`'s 185 s follows its 195 s relation module on the critical path
+     of a cold build; splitting the step per relation into separate declarations would
+     let Lean check them in parallel, untried.
 2. Corpus replay on both legs (M3C): the 2026-10-05 sweep has both legs agreeing with
    upstream on 1,266 of 1,267 candidates ([corpus](corpus.md)). No native stack overflow
    or timeout occurred on the generated leg. Open: the durable campaign with CLI parity,
@@ -188,9 +224,8 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
    failures, build every module with `--wfail` and audited run soundness,
    reproduce generation byte-for-byte, check full-P4 quotations and measure
    module timing. Done as of 2026-10-05: generation, the `--wfail` build of the
-   executable library and of every logical relation, the manifest, quotations and
-   timing, and audited run soundness for 14 relations. Open: audited run soundness for
-   the other 242, without which M3B is not closed.
+   executable library and of every logical relation, the manifest, quotations,
+   timing, and audited run soundness for all 256 relations.
 2. M3C: account for an explicit full-P4 corpus and exclusions, compare typing
    and instantiation verdicts and exact outputs on both interpreter and
    generated legs, resolve unexplained differences, and detect interpreter

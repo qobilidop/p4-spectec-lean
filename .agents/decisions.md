@@ -66,15 +66,17 @@ coverage and the retired `m3b-state-production` aggregate failed at that integra
 256 relations, a relation it could not render would get a machine-readable
 `logicalRelation` exclusion, and no claim is recorded for a relation without a theorem.
 On 2026-10-05 `StateRunSound` followed, on a rule the planner can decide: a relation gets a
-`run_sound` theorem when it is outside every recursion group and every relation its
-premises call has one (functions it calls may be recursive: their calls are run
-equations); every other relation gets a `runSoundness` exclusion naming the recursive
-group or the callee. All 14 such full-P4 relations prove, each theorem is a
-coverage claim, and `check-coverage --full-p4` checks the claims in the gate. The
-objection still holds for `StateValidate`. Confidence high.
+`run_sound` theorem when every relation its premises call outside its recursion group has
+one (functions it calls may be recursive: their calls are run equations), by symbolic
+execution alone outside recursion and inside the group's fixed-point induction otherwise
+("Recursive state run-soundness by fixed-point induction"). A group with a
+type-parameterized member, and every relation that calls a relation without the theorem,
+gets a `runSoundness` exclusion with its reason. All 256 full-P4 relations prove, each
+theorem is a coverage claim, and `check-coverage --full-p4` checks the claims in the gate.
+The objection still holds for `StateValidate`. Confidence high.
 
 `P4Spec/` is generated, ignored and pinned by `P4Spec.manifest.json` (per-file SHA-256 and
-size) instead of being committed: it is about 31 MB and one module is 6.7 MB, above the 5 MiB
+size) instead of being committed: it is about 32 MB and one module is 6.7 MB, above the 5 MiB
 cap. The gate regenerates, checks the manifest, builds and compares quotations. Cost: a
 generator change shows as changed digests, not as a diff, so the commit message must say what
 changed. Rejected: committing compressed generated modules (Lake cannot build them, and Git
@@ -142,26 +144,59 @@ Confidence high for the partition; medium for named attempts until recursive
 run-soundness has been proved against them. Revisit if those proofs need the attempts
 inside the fixed point.
 
-## Recursive state run-soundness: planned shape (2026-10-05)
+## Recursive state run-soundness by fixed-point induction (2026-10-05)
 
-Not implemented; recorded so the next step does not repeat the retired approach. The
-retired aggregate proved, per recursive definition, that every terminating outcome of an
-approximant is an outcome of the final function, by a symbolic `StateRefines` congruence
-over the whole body, and exceeded the heartbeat budget at `Cast_impl`. Lean already holds
-that fact: a `partial_fixpoint` group `f.mutual` is `Lean.Order.fix F hmono`, and `hmono`
-can be read from the definition's value. With `x ⊑ fix F → F x ⊑ fix F` (monotonicity and
-the fixed-point equation) and the flat order on `Option`, the realization half of the
-motive used by `walkSound` in `P4SpecTecTest/Refine/RecursivePrefix.lean` follows in a few
-generic lines; a scratch proof for that fixture's mutual pair, not in the tree, checked
-with the standard axioms, as did Lean's solver (`repeat' monotonicity`) on one of its
-sub-computations abstracted over an approximant. A further simplification to try first:
-`Lean.Order.fix_induct` on the packed fixed point gives every member of a group in one
-induction, with the motive "below the fixed point, and sound". What remains per relation is the structural half (symbolic execution with the
-induction hypotheses in place of callee theorems) and transporting each rejected attempt
-and negative premise from approximants to the final functions, for which the plan is
-Lean's own `monotonicity` solver on the attempt abstracted over the group, not a custom
-congruence. Confidence medium: the generic step is checked on a two-function fixture
-only. Revisit after a small recursive full-P4 group has been proved this way.
+A recursive group's theorem is one induction over the group's least fixed point
+(`state_run_sound_group`, `P4SpecTec/Tactic/StateGroupSound.lean`): a `partial_fixpoint`
+group is `Lean.Order.fix F hmono`, read from the definitions' values, and
+`Lean.Order.fix_induct` runs with the motive "below the fixed point, and every relation
+sound". The joint statement is the conjunction of the relations' ordinary state
+run-soundness statements; each relation's theorem is a projection, so recursive and
+non-recursive relations have the same claim. Reasons for each part:
+
+- **Not Lean's derived `partial_correctness`.** Its derivation fails ("please report this
+  issue") for a definition with a long parameter list (`Copy_out_inner`, eight
+  parameters; the `Expr_inst` group): instance resolution does not find the pointwise
+  order of the function type. The tactic never resolves these instances; it reads them
+  off the fixed point's own instance argument. Revisit if a toolchain bump fixes the
+  derivation and the direct proof becomes a maintenance cost.
+- **Only the extern instance is abstracted from a fixed point.** The tactic supports a
+  fixed point whose leading arguments are in the theorem's context, which is what the
+  generator produces: every parameter is rebound with `have`, so Lean finds no fixed
+  parameter but the instance. A definition that passed a parameter on directly would have
+  it abstracted, and the tactic rejects that shape by name.
+- **"Below the fixed point" in the motive.** A rule states a rejected attempt, a negative
+  premise or a function call over the final definitions, while a step sees approximants.
+  Monotonicity of `F`, which Lean proved when it accepted the definitions, keeps one
+  unfolding below the fixed point (`Refine/Fixpoint.lean`), and in the flat order a defined
+  outcome below another is that outcome. A retained run equation moves to the final
+  functions by the monotonicity solver the definitions were accepted with
+  (`solveGeneratedMonotonicity`), once, when it is retained. The retired aggregate proved
+  this per definition by a symbolic `StateRefines` congruence over the whole body and
+  exceeded the heartbeat budget at `Cast_impl`.
+- **Terms, not unification, where a type is as large as the group.** Admissibility, the
+  split of the step and the componentwise order facts are built as explicit terms; their
+  types differ from what an elaborator would compare only by unfolding the group's
+  definitions. Elaborating them took minutes on a two-relation group.
+- **The tuple order is Lean's.** A definition's position in the group's tuple is read
+  from the projections in its value; it is not the source order.
+
+Three rules of the symbolic execution that recursion and scale forced, each a correctness
+matter as well as a cost:
+
+- Alternatives are split by applying the rule lemma, not by `simp`: `simp` rewrote inside
+  each rejected attempt (inlining `have`s), after which every comparison with the attempt
+  a rule names was a structural unification of two different terms.
+- A retained failure's computation sits behind a local definition, and an induction
+  hypothesis behind `Refine.Kept`: the steps that simplify with every hypothesis otherwise
+  rewrite a rejected attempt with facts of the selected path, or use the hypothesis as a
+  rewrite rule and erase the facts obtained from it.
+- A rejected-prefix premise is closed from the retained failures in order, each chosen by
+  the state it starts at; a constructor search compared every failure with every attempt.
+
+Confidence high for the method (fixtures for self-recursion, mutual recursion, a function
+member, iterated and negative premises, the extern instance; and the full-P4 groups
+recorded in status). Evidence and measurements are in `.agents/notes/full-p4/overview.md`.
 
 ## Corpus sweep beside the shard campaign (2026-10-05)
 

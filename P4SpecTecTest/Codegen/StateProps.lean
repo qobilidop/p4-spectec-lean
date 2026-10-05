@@ -2,6 +2,7 @@ import Lean.Elab.Command
 import P4SpecTec.Codegen.Certificates.StateRunSound
 import P4SpecTec.Codegen.Coverage.Check
 import P4SpecTec.Tactic.StateRunSound
+import P4SpecTec.Tactic.StateGroupSound
 import P4SpecTec.Tactic.Audit
 import P4SpecTec.Refine.Quote
 import P4SpecTec.Prelude
@@ -137,7 +138,14 @@ run_cmd do
     let stx ← match Lean.Parser.runParserCategory (← Lean.getEnv) `command source with
       | .ok stx => pure stx
       | .error e => throwError "state proof source did not parse:\n{source}\n{e}"
-    Lean.Elab.Command.elabCommand stx
+    -- A proof elaborated in a task reports its failure outside this command's message
+    -- log, and later commands would see the theorem as declared: elaborate here, and stop
+    -- at the first error.
+    Lean.Elab.Command.withScope
+      (fun scope => { scope with opts := Lean.Elab.async.set scope.opts false })
+      (Lean.Elab.Command.elabCommand stx)
+    if (← get).messages.hasErrors then
+      throwError "state proof declaration failed:\n{source}"
   emit (Funcs.externsClass env externs)
   for d in spec do
     match d.it with
@@ -329,5 +337,210 @@ theorem extensionRollback : True ∧ True := by
 -- The emitted positive premise is structural, not just a callee run equation.
 example (x : ByteText) (s t : FreshState) (h : simple x s t) : calls x s t :=
   calls.«g/p» (.nil _) h
+
+/-! ## Recursive groups
+
+A group is proved by one induction over its least fixed point. The fixtures are a relation
+calling itself, with a rejected attempt that recurses and consumes state; two relations
+calling each other; a function inside a group; an iterated and a negative premise over
+relations of the group; a group that takes the extern instance; and a relation of seven
+inputs, for which Lean cannot derive `partial_correctness` (instance resolution fails on
+the long function type), so that the order instances must be read off the fixed point. -/
+
+private def inputList := Q.e (.VarE (Q.i "l")) listNatT.it
+private def inputTail := Q.e (.VarE (Q.i "rest")) listNatT.it
+private def collected := Q.e (.VarE (Q.i "collected")) listTextT.it
+private def ignored := Q.e (.VarE (Q.i "ignored")) listTextT.it
+private def isNil := Q.pr (.IfPr (Q.e (.MatchE inputList (.ListP .Nil)) .BoolT))
+private def isCons := Q.pr (.IfPr (Q.e (.MatchE inputList (.ListP .Cons)) .BoolT))
+private def uncons := Q.pr (.LetPr (Q.e (.ConsE n inputTail) listNatT.it) inputList)
+private def onNil : rulematch := ([], [inputList], [isNil])
+private def onCons : rulematch := ([], [inputList], [isCons, uncons])
+private def listCall (name : String) (input output : exp) :=
+  Q.pr (.RulePr (Q.i name) (.Seq [.Arg input, .Arg output]) [0])
+private def noTexts := Q.e (.ListE []) listTextT.it
+private def consText := Q.e (.ConsE x collected) listTextT.it
+private def listRelation (name : String) (groups : List Lang.Al.rulegroup) : Lang.Al.def :=
+  Q.d (.RelD (Q.i name) (Q.nt (.Seq [.Arg listNatT, .Arg listTextT])) [0] groups none [])
+private def zero := Q.e (.NumE (.Nat 0)) natT.it
+private def isZero := Q.pr (.IfPr (Q.e (.CmpE .EqOp .BoolT n zero) .BoolT))
+private def positive := Q.pr (.IfPr (Q.e (.CmpE .LtOp .NatT zero n) .BoolT))
+private def taggedCount (input : exp) :=
+  Q.pr (.RulePr (Q.i "count") (.Seq [.Arg tag, .Arg input, .Arg collected]) [0, 1])
+
+private def wideInputs : List exp :=
+  (["a", "b", "c", "d", "e", "f"].map fun name => Q.e (.VarE (Q.i name)) natT.it) ++ [inputList]
+private def wideCall :=
+  Q.pr (.RulePr (Q.i "wide")
+    (.Seq ((wideInputs.dropLast ++ [inputTail, collected]).map .Arg)) [0, 1, 2, 3, 4, 5, 6])
+
+private def recursiveSpec : Lang.Al.spec := [
+  Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] textT []),
+  Q.d (.ExternRelD (Q.i "externalRel") (Q.nt (.Arg textT)) [] []),
+  Q.d (.RelD (Q.i "count") (Q.nt (.Seq [.Arg natT, .Arg listNatT, .Arg listTextT])) [0, 1]
+    [Q.rg "retry" ([], [tag, inputList], [isCons, uncons])
+      [Q.rp "reject" [save, taggedCount inputTail, no] [collected]],
+     Q.rg "nil" ([], [tag, inputList], [isNil]) [Q.rp "stop" [] [noTexts]],
+     Q.rg "cons" ([], [tag, inputList], [isCons, uncons])
+      [Q.rp "step" [save, taggedCount inputTail] [consText]]] none []),
+  listRelation "ping" [
+    Q.rg "nil" onNil [Q.rp "stop" [] [noTexts]],
+    Q.rg "cons" onCons [Q.rp "step" [save, listCall "pong" inputTail collected] [consText]]],
+  listRelation "pong" [
+    Q.rg "retry" onCons
+      [Q.rp "reject" [listCall "ping" inputTail collected, save, no] [collected]],
+    Q.rg "nil" onNil [Q.rp "stop" [save] [Q.e (.ListE [x]) listTextT.it]],
+    Q.rg "cons" onCons [Q.rp "step" [listCall "ping" inputTail collected] [collected]]],
+  listRelation "viaFunction" [
+    Q.rg "nil" onNil [Q.rp "stop" [] [noTexts]],
+    Q.rg "cons" onCons [Q.rp "step" [save, Q.pr (.LetPr collected
+      (Q.e (.CallE (Q.i "tailOf") [] [Q.ar (.ExpA inputTail)]) listTextT.it))] [consText]]],
+  Q.d (.FuncDecD (Q.i "tailOf") [] [Q.pm (.ExpP listNatT)] listTextT
+    [Q.cl [Q.ar (.ExpA inputList)] collected [listCall "viaFunction" inputList collected]]
+    none []),
+  Q.d (.RelD (Q.i "each") (Q.nt (.Seq [.Arg listNatT, .Arg listTextT])) [0]
+    [Q.rg "g" ([], [ns], []) [Q.rp "p" [Q.pr (.IterPr
+      (Q.pr (.RulePr (Q.i "item") (.Seq [.Arg n, .Arg x]) [0]))
+      (.mk .List [Q.v "n" natT.it] [Q.v "x" .TextT]))] [xs]]] none []),
+  Q.d (.RelD (Q.i "item") (Q.nt (.Seq [.Arg natT, .Arg textT])) [0]
+    [Q.rg "g" ([], [n], [])
+      [Q.rp "absent" [isZero, Q.pr (.IfNotHoldPr (Q.i "never") (.Arg n)), save] [x],
+       Q.rp "deep" [listCall "each" (Q.e (.ListE []) listNatT.it) ignored, save] [x]]]
+    none []),
+  Q.d (.RelD (Q.i "never") (Q.nt (.Arg natT)) [0]
+    [Q.rg "g" ([], [n], [])
+      [Q.rp "p" [positive, Q.pr (.RulePr (Q.i "item") (.Seq [.Arg n, .Arg x]) [0])] []]]
+    none []),
+  listRelation "echo" [
+    Q.rg "nil" onNil
+      [Q.rp "stop" [Q.pr (.RulePr (Q.i "externalRel") (.Arg x) [])]
+        [Q.e (.ListE [x]) listTextT.it]],
+    Q.rg "cons" onCons [Q.rp "step" [listCall "echo" inputTail collected] [collected]]],
+  Q.d (.RelD (Q.i "wide")
+    (Q.nt (.Seq ((List.replicate 6 (.Arg natT)) ++ [.Arg listNatT, .Arg listTextT])))
+    [0, 1, 2, 3, 4, 5, 6]
+    [Q.rg "nil" ([], wideInputs, [isNil]) [Q.rp "stop" [] [noTexts]],
+     Q.rg "cons" ([], wideInputs, [isCons, uncons])
+      [Q.rp "step" [save, wideCall] [consText]]] none [])]
+
+private def recursiveGroups : List (List String) :=
+  [["count"], ["ping", "pong"], ["viaFunction", "tailOf"], ["each", "item", "never"], ["echo"],
+   ["wide"]]
+
+/-- The declarations of a recursive group in elaboration order, and its claims. -/
+private def recursiveGroup (group : List String) :
+    Except String (List Std.Format × List Coverage.Claim) := do
+  let env := Env.ofSpec "P4SpecTecTest.StateProps" recursiveSpec
+  let externs := recursiveSpec.filter fun d => match d.it with | .ExternRelD .. => true | _ => false
+  let ctx : Exp.Ctx := { env, externs := externs.map (·.it.id.it) }
+  let defs := recursiveSpec.filter fun d => group.contains d.it.id.it
+  let ext := defs.any fun d => (Exp.callsOfDef d).any ctx.externs.contains
+  let relations := (defs.filter fun d => match d.it with | .RelD .. => true | _ => false).map
+    (·.it.id.it)
+  let executable ← defs.mapM fun d => match d.it with
+    | .RelD i nt ins gs eg _ => Rels.relDecl ctx true ext i.it nt (ins.map (·.toNat)) gs eg
+    | .FuncDecD i ts ps t cs ec _ =>
+      Funcs.funcDecl ctx true ext i.it (ts.map (·.it)) (ps.map (·.it)) t.it cs ec
+    | _ => throw "not a group member"
+  let structural ← defs.filterMapM fun d => match d.it with
+    | .RelD i nt ins gs eg _ => do
+      pure (some (← Codegen.StateProps.relInductives ctx ext i.it nt (ins.map (·.toNat)) gs eg
+        relations))
+    | _ => pure none
+  let members ← defs.mapM fun d => do pure { ← Props.memberOf ctx d with externs := ext }
+  let consumers := (group.flatMap (Funcs.monotonicityConsumers env)).eraseDups
+  let sound ← Codegen.StateProps.groupRunSound ext env.q consumers members
+  let claims ← (members.filter (·.isRel)).mapM fun member => do
+    pure ({ name := env.q (Codegen.StateProps.runSoundName member), kind := "runSoundness"
+            direction := "generatedSuccessToRelation"
+            expectedType := Codegen.render (← Codegen.StateProps.runSoundType ext member) } :
+      Coverage.Claim)
+  pure ([mutualBlock executable] ++ structural.flatMap (·.attempts) ++
+    structural.flatMap (·.free) ++
+    [mutualBlock (structural.map (·.relation) ++ structural.flatMap (·.tied))] ++ sound, claims)
+
+run_cmd do
+  for group in recursiveGroups do
+    match recursiveGroup group with
+    | .error e => throwError e
+    | .ok (declarations, claims) =>
+      for declaration in declarations do
+        let source := Codegen.render declaration
+        let stx ← match Lean.Parser.runParserCategory (← Lean.getEnv) `command source with
+          | .ok stx => pure stx
+          | .error e => throwError "recursive group source did not parse:\n{source}\n{e}"
+        -- As above: elaborate here, and stop at the first error.
+        Lean.Elab.Command.withScope
+          (fun scope => { scope with opts := Lean.Elab.async.set scope.opts false })
+          (Lean.Elab.Command.elabCommand stx)
+        if (← get).messages.hasErrors then
+          throwError "recursive group declaration failed:\n{source}"
+      for claim in claims do
+        Lean.Elab.Command.liftTermElabM (Coverage.Check.checkClaim claim)
+
+-- The joint statement names every definition of the group, the function included, and is
+-- the conjunction of the relations' theorems alone.
+#guard match recursiveGroup ["viaFunction", "tailOf"] with
+  | .ok (declarations, claims) =>
+    let text := "\n".intercalate (declarations.map Codegen.render)
+    text.contains ("state_run_sound_group [P4SpecTecTest.StateProps.viaFunction.run, " ++
+      "P4SpecTecTest.StateProps.«$tailOf»] []") &&
+    claims.map (·.name) == ["P4SpecTecTest.StateProps.viaFunction.run_sound"]
+  | .error _ => false
+#guard match recursiveGroup ["each", "item", "never"] with
+  | .ok (_, claims) => claims.length == 3
+  | .error _ => false
+
+/-- info: 'P4SpecTecTest.StateProps.count.run_sound' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms count.run_sound
+
+/-- info: 'P4SpecTecTest.StateProps.pong.run_sound' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms pong.run_sound
+
+/-- info: 'P4SpecTecTest.StateProps.never.run_sound' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms never.run_sound
+
+/-- info: 'P4SpecTecTest.StateProps.echo.run_sound' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms echo.run_sound
+
+/-- info: 'P4SpecTecTest.StateProps.wide.run_sound' depends on axioms:
+[propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms wide.run_sound
+
+-- A statement the definitions do not satisfy is rejected, not proved: here `count` is
+-- claimed to return no texts for every input.
+run_cmd do
+  let source := "theorem wrongCount (p0 : Nat) (p1 : List Nat) (o : List P4SpecTec.ByteText)
+      (s t : P4SpecTec.Prelude.FreshState) :
+      P4SpecTecTest.StateProps.count.run p0 p1 s = some (.ok o, t) →
+      P4SpecTecTest.StateProps.count p0 p1 [] s t := by
+    state_run_sound_group [P4SpecTecTest.StateProps.count.run] []"
+  let stx ← match Lean.Parser.runParserCategory (← Lean.getEnv) `command source with
+    | .ok stx => pure stx
+    | .error e => throwError "wrong statement did not parse: {e}"
+  let saved ← get
+  Lean.Elab.Command.withScope
+    (fun scope => { scope with opts := Lean.Elab.async.set scope.opts false })
+    (Lean.Elab.Command.elabCommand stx)
+  let rejected := (← get).messages.hasErrors
+  set saved
+  unless rejected do throwError "a false group statement was accepted"
+
+private def texts (r : Option (Except Fail (List ByteText) × FreshState))
+    (expected : List String) (state : Int) : Bool :=
+  match r with
+  | some (.ok found, s) => found == expected.map ByteText.ofString && s == FreshState.ofInt state
+  | _ => false
+
+-- The rejected attempt of `count` recurses first: every level consumes state twice.
+#guard texts (count.run 7 [1, 2] 0) ["FRESH__3", "FRESH__5"] 6
+#guard texts (ping.run [1, 2, 3] 0) ["FRESH__0", "FRESH__4", "FRESH__5"] 6
+#guard texts (viaFunction.run [1, 2] 0) ["FRESH__0", "FRESH__1"] 2
+#guard texts (each.run [0, 5] 0) ["FRESH__0", "FRESH__1"] 2
+#guard texts (wide.run 1 2 3 4 5 6 [7, 8] 0) ["FRESH__0", "FRESH__1"] 2
 
 end P4SpecTecTest.StateProps

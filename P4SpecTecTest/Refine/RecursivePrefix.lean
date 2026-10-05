@@ -3,7 +3,9 @@ import P4SpecTec.Refine.StateCalc
 /-!
 A bounded mutually recursive proof experiment. A rejected attempt calls
 the same SCC and consumes fresh state before the selected structural rule.
-The successful relation is not the run graph. No generator support is claimed.
+The successful relation is not the run graph. Kept as a test of this motive over Lean's
+derived `partial_correctness`; generated groups are proved by induction over the fixed
+point instead (`Tactic/StateGroupSound.lean`).
 -/
 
 namespace P4SpecTecTest.RecursivePrefix

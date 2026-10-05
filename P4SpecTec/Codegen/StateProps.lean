@@ -10,8 +10,8 @@ recursion group, directly or through a nested auxiliary predicate: Lean's automa
 constructions for a mutual block grow steeply with its number of types, and most iterated
 premises call relations defined earlier.
 Production planning emits these relations for an explicit-state specification, with a
-run-soundness theorem (`Certificates/StateRunSound.lean`) only for a relation that
-reaches no recursive relation through its premises.
+run-soundness theorem (`Certificates/StateRunSound.lean`) for every relation, a recursion
+group jointly.
 -/
 
 namespace P4SpecTec.Codegen.StateProps

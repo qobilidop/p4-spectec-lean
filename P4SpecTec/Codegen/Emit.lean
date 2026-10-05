@@ -276,9 +276,9 @@ def statefulReason : String :=
 
 /-- Whether the pure-mode certificates are planned. An explicit-state specification gets
 its executable definitions, quotations and state-indexed logical relations, with a state
-run-soundness theorem for each relation that reaches no recursive relation through its
-premises; every other certificate is recorded as an exclusion, because the certificate
-emitters below are stated for the pure ABI. -/
+run-soundness theorem for every relation (a recursion group jointly,
+`StateProps.groupRunSound`); every other certificate is recorded as an exclusion, because
+the certificate emitters below are stated for the pure ABI. -/
 def certified (env : Env) : Bool := env.mode == .pure
 
 /-- Generate the plan for a spec. -/
@@ -652,14 +652,37 @@ def plan (env : Env) (spec : Lang.Al.spec) :
             supportImports := some ["P4SpecTec.Prelude", "P4SpecTec.Refine.StateRules"]
             what := some s!"state-indexed logical relations, group {first}" }]
           for id in rels do relationModule := relationModule.insert id name
-          -- Run-soundness, where symbolic execution of the run suffices: a relation outside
-          -- every recursion group whose premises call only relations that have the theorem.
-          if recursive then
-            soundReason := some
-              ("recursive group: state run-soundness is not generated yet", none)
-          else if let some callee := callees.find? (!soundModule.contains ·) then
+          -- Run-soundness, once every relation a premise calls outside the group has the
+          -- theorem: by symbolic execution of the run, inside the induction over the fixed
+          -- point for a recursion group.
+          if let some callee := callees.find? (!soundModule.contains ·) then
             soundReason := some
               (s!"calls {callee}, which has no state run-soundness theorem", some callee)
+          else if recursive then
+            let sound : Except String (Format × List (String × Coverage.Claim)) := do
+              let members ← group.mapM fun id => do
+                let some d := defById.get? id | throw s!"unknown definition {id}"
+                pure { ← Props.memberOf ctx d with externs := ext }
+              let consumers := (group.flatMap (Funcs.monotonicityConsumers env)).eraseDups
+              let proofs ← StateProps.groupRunSound ext env.q consumers members
+              let claims ← (members.filter (·.isRel)).mapM fun m => do
+                pure (m.id, ({ name := env.q (StateProps.runSoundName m), kind := "runSoundness"
+                               direction := "generatedSuccessToRelation"
+                               expectedType := render (← StateProps.runSoundType ext m) } :
+                  Coverage.Claim))
+              pure (joinDecls proofs, claims)
+            match sound with
+            | .error reason => soundReason := some (reason, none)
+            | .ok (proof, claims) =>
+              let soundName := "RunSound." ++ groupModuleName first
+              refGroups := refGroups ++ [{
+                name := soundName, decls := proof
+                deps := name :: (callees.filterMap soundModule.get?).eraseDups
+                supportImports := some ["P4SpecTec.Prelude", "P4SpecTec.Tactic.StateGroupSound",
+                  "P4SpecTec.Tactic.Audit"]
+                what := some s!"state run-soundness, recursive group {first}" }]
+              for id in rels do soundModule := soundModule.insert id soundName
+              soundClaims := claims
           else
             let sound : Except String (Format × Coverage.Claim) := do
               let some d := defById.get? first | throw s!"unknown definition {first}"

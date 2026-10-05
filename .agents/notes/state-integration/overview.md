@@ -12,9 +12,9 @@ structural fixtures and bounded function-refinement emitter are retained.
 Since 2026-10-04 production `Codegen/Emit.lean` plans a `freshState` specification
 without certificates (decisions, "Staged explicit-state generation"): the executable
 emitter covers the whole full-P4 export, and since 2026-10-05 so does `StateProps`
-(decisions, "Shape of explicit-state logical relations"), and `StateRunSound` is planned
-for relations that reach no recursive relation through their premises; `StateValidate`
-is still reachable
+(decisions, "Shape of explicit-state logical relations"), and `StateRunSound` for every
+relation, recursive groups included (decisions, "Recursive state run-soundness by
+fixed-point induction"); `StateValidate` is still reachable
 only from test fixtures. Production
 `Validate` does not count those fixtures as full-P4 coverage, and there is no
 production full-P4 stateful certificate. Historical worktree instructions and
@@ -135,7 +135,9 @@ substitution; private iterator captures prevent temporary-name capture.
 Constructor search restores assignments and goals on failure/exception or
 unfinished success. These are bounded nonrecursive generated fixtures.
 
-The recursive `RecursivePrefix` and `StateRules` experiments prove feasibility
+Generated recursive groups are not proved this way (decisions, "Recursive state
+run-soundness by fixed-point induction"). The recursive `RecursivePrefix` and `StateRules`
+experiments, kept as tests, prove feasibility
 of stronger partial-correctness motives: every terminating approximant
 outcome/post-state is realized by the final function, with a separate
 structural success component. This transports recursive mismatches into

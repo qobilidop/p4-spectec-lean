@@ -223,3 +223,66 @@ the gate, not re-reviewed:
 
 Limits the reviewer stated: nothing was built; the gate, the Nano proofs and the scratch
 evidence in the planned-shape decision rest on the author.
+
+## Recursive run-soundness stage (2026-10-05)
+
+Independent read-only review of the uncommitted `m3b-recursive` tree against `main`
+(`e0e7863`), by a fresh Claude Fable 5.1 subagent. It ran no Lake build and no gate; it
+read the diff, the generated modules and `P4Spec/coverage.json`, used the tree's existing
+build products, and ran scratch files with `lake env lean`. Verdict: no blockers; it found
+no way for `#audit_axioms` or the test harness to pass an unproved theorem.
+
+What it confirmed:
+
+- `sharedAxioms` reads the same kernel environment and makes the same case analysis as
+  `Lean.collectAxioms`, and delegates imported constants to it. Twelve scratch cases gave
+  no instance where the audit passes and `#print axioms` shows a forbidden axiom: a private
+  `sorry` lemma, an axiom in a constructor type, `opaque`, `native_decide`, a
+  kernel-rejected proof and its user, an asynchronous elaboration failure, a realized
+  equation lemma, structure defaults, multi-name orderings, an imported axiom. Its own scan
+  with Lean's collector over the built products: 256 `run_sound` and 31 `run_sound_group`
+  theorems, none with an axiom outside the allowed three.
+- Corollaries, non-recursive theorems and coverage claims share `runSoundStatement`; the
+  projection paths are right for one, two and three relations and for a group with a
+  function member, which has no conjunct.
+- With `Elab.async` off in scope, an elaboration error, a kernel rejection, a tactic
+  failure and the budget wrapper each make the harness throw; a `sorry` is caught by the
+  generated audit, itself elaborated through the harness.
+- The counts in the documents (256 relations, 155 in 31 recursion groups of 1 to 50, 132
+  modules, 87 formerly waiting, no `runSoundness` exclusion), the manifest and the samples.
+- Every relation has one constructor more than it has named attempts, so the rule index
+  from rejected attempts is right; a wrong index only reorders the search.
+- Lean's `partial_correctness` does fail on `Copy_out_inner` and on a scratch definition
+  of eight parameters, with the instance-resolution message.
+
+Findings and resolutions, applied before the commit and checked by the author's rerun of
+the gate, not re-reviewed:
+
+- A fixture comment claimed Lean's derivation fails for a parameter passed on unchanged.
+  It does not (the generator rebinds parameters, and the fixture's principle derives);
+  what fails is a long parameter list, which no fixture had. Comment corrected; added the
+  relation `wide` with seven inputs, which proves.
+- A fixed point abstracted over a parameter of the statement was unsupported with
+  misleading errors (no generated definition has one: all 155 recursive `run` definitions
+  abstract only the instance). The tactic now rejects that shape by name, and the
+  dependence on the generator's rebinding is recorded in decisions.
+- Stale docstrings (planner, `StateProps` header), a wrong file pointer in decisions,
+  "outcome induction" wording for what is now fixed-point induction, the singular audit
+  docstring, the `RecursivePrefix` header, and "agree on successful runs" in
+  Certification, which read as an equivalence. All rewritten.
+- The pitfalls entry and harness comments merged two cases of a failed asynchronous
+  proof (elaboration failure shows `sorryAx`; a kernel rejection is an axiom under its own
+  name). Separated.
+- No sample of a recursive group with the extern instance: added `Decls_inst`. The plan
+  test did not assert module dependencies or imports: asserted. No negative fixture for
+  the group tactic: a false statement about `count` is now checked to be rejected.
+- Proof build products are about 387 MB (161 MB for `Expr_eval`), absent from the cost
+  record: added to the overview.
+- Not changed: `headAssumption` still falls back to `assumption` when no hypothesis of
+  the same head closes the goal, at the old cost (now stated in its docstring).
+
+Limits the reviewer stated: timing figures were not verified; its scan used build products
+slightly older than the final tactic text; it did not rerun generation, Nano regeneration
+or the Nano proofs against the changed shared helpers (the gate does); the proof-building
+code was read for failure modes, not proved, and soundness rests on the kernel and the
+audit; the meaning of the logical relations was the earlier stage's subject.

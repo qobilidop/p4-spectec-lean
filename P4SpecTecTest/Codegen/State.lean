@@ -200,22 +200,42 @@ private def depEnv := Env.ofSpec "DependencyTest" depSpec
       (o.text.contains "import P4SpecTec.Tactic" == decide
         ((o.path.splitOn "/RunSound/").length > 1))
   | .error _ => false
--- A recursive relation has its logical relation and no run-soundness theorem yet, and the
--- lack propagates to the relations that call it, each with its reason.
+-- A recursive group has one run-soundness module holding the joint theorem and each
+-- relation's own. A group with a type-parameterized member has none, and the lack
+-- propagates to the relations that call it, each with its reason.
 private def recursionSpec : Lang.Al.spec := [
   Q.d (.BuiltinDecD (Q.i "fresh_typeId") [] [] textT []),
   relation "loop" [Q.pr (.RulePr (Q.i "loop") (.Seq []) [])],
   relation "caller" [Q.pr (.RulePr (Q.i "loop") (.Seq []) [])],
-  relation "leaf" [save]]
+  relation "leaf" [save],
+  relation "generic" [Q.pr (.LetPr (varE "x")
+    (Q.e (.CallE (Q.i "poly") [textT] []) .TextT))],
+  Q.d (.FuncDecD (Q.i "poly") [Q.i "T"] [] textT
+    [Q.cl [] fresh [Q.pr (.RulePr (Q.i "generic") (.Seq []) [])]] none []),
+  relation "user" [Q.pr (.RulePr (Q.i "generic") (.Seq []) [])]]
 #guard match Emit.plan (Env.ofSpec "RecursionFixture" recursionSpec) recursionSpec with
   | .ok (_, _, refinement) =>
-    refinement.groups.map (·.name) ==
-      ["Relation.loop", "Relation.caller", "Relation.leaf", "RunSound.leaf"] &&
-    (refinement.coverage.filterMap fun e =>
+    refinement.groups.map (fun (g : Emit.RefGroup) => g.name) ==
+      ["Relation.loop", "RunSound.loop", "Relation.caller", "RunSound.caller",
+       "Relation.leaf", "RunSound.leaf", "Relation.generic", "Relation.user"] &&
+    (refinement.groups.any fun (g : Emit.RefGroup) => g.name == "RunSound.loop" &&
+      g.deps == ["Relation.loop"] &&
+      g.supportImports == some ["P4SpecTec.Prelude", "P4SpecTec.Tactic.StateGroupSound",
+        "P4SpecTec.Tactic.Audit"] &&
+      (Codegen.render g.decls).contains
+        "state_run_sound_group [RecursionFixture.loop.run] []") &&
+    (refinement.groups.any fun (g : Emit.RefGroup) => g.name == "RunSound.caller" &&
+      g.deps == ["Relation.caller", "RunSound.loop"]) &&
+    (refinement.coverage.filterMap fun (e : Coverage.Entry) =>
+      (e.claims.find? (·.kind == "runSoundness")).map fun c => (e.id, c.name)) ==
+      [("loop", "RecursionFixture.loop.run_sound"),
+       ("caller", "RecursionFixture.caller.run_sound"),
+       ("leaf", "RecursionFixture.leaf.run_sound")] &&
+    (refinement.coverage.filterMap fun (e : Coverage.Entry) =>
       (e.exclusions.find? (·.kind == "runSoundness")).map fun x =>
         (e.id, x.reason, x.dependency)) ==
-      [("loop", "recursive group: state run-soundness is not generated yet", none),
-       ("caller", "calls loop, which has no state run-soundness theorem", some "loop")]
+      [("generic", "recursive group member poly has type parameters", none),
+       ("user", "calls generic, which has no state run-soundness theorem", some "generic")]
   | .error _ => false
 #guard match Emit.generate "DependencyTest" "fixture.al.json" depSpec with
   | .ok outputs => outputs.any fun o =>

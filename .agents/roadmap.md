@@ -10,10 +10,10 @@ Full-P4 M3 is the active milestone, resumed on 2026-10-04; other backlog remains
 - M2: logical relations, forward AL certificates and reusable support closed
   as a bounded fragment, not complete Nano certification.
 - M3 (active): full-P4 export/census closed; the library generates and builds with
-  executable definitions (2026-10-04) and logical relations (2026-10-05), and a both-leg
-  corpus sweep agrees with upstream. Run-soundness beyond the 14 relations that reach no
-  recursive relation, the durable corpus campaign, correspondence certificates and
-  targets remain incomplete.
+  executable definitions (2026-10-04), logical relations and an audited run-soundness
+  theorem for each of the 256 relations (2026-10-05), which closes M3B, and a both-leg
+  corpus sweep agrees with upstream. The durable corpus campaign, correspondence
+  certificates and targets remain incomplete.
   [Full-P4 overview](notes/full-p4/overview.md) owns remaining phases,
   [corpus](notes/full-p4/corpus.md) the bounded replay/resume constraints,
   [state integration](notes/state-integration/overview.md) the retained versus

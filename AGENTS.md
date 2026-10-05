@@ -193,7 +193,7 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   Both spec snapshots are committed as `exports/<name>.al.json.gz` plus
   a raw SHA-256; the gate verifies and extracts the ignored JSON files.
 - **Generated full-P4 Lean is not committed.** `P4Spec/` and `P4Spec.lean` are about
-  31 MB (one module exceeds the file-size cap) and are ignored. The gate regenerates
+  32 MB (one module exceeds the file-size cap) and are ignored. The gate regenerates
   them, requires the digests in the committed `P4Spec.manifest.json`, builds the
   library with `--wfail` and checks its quotations. A generator change that alters
   full-P4 output must update the manifest and the golden samples in the same commit
@@ -202,8 +202,8 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   generated construct: read their diff, and say what changed elsewhere, since a digest
   shows none. Add a sample when a new construct kind is generated; never edit one by
   hand (the text gate exempts them from the line-length rule only). `P4Spec` has
-  executable definitions, quotations, logical relations and run-soundness theorems for
-  the few relations that reach no recursive relation; the certificates it lacks are in
+  executable definitions, quotations, logical relations and a run-soundness theorem for
+  every relation; the certificates it lacks are in
   `.agents/notes/full-p4/overview.md`. It is not a default
   target; only registered executables may import it, never a library root. When a
   downstream package needs to import it, publish the generated sources in a separate

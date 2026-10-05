@@ -311,6 +311,33 @@ partial def useMembership : TacticM Unit := do
         execute [h']
         mapMFacts
 
+/-- Close the goal by a hypothesis with the same head: for an equation, the head of its
+left-hand side. `assumption` compares the goal with every hypothesis, and a comparison of
+two different definitions applied to arguments unfolds them before it fails; a premise
+`f args = some _` took a minute against the run equation of another function. A goal no
+hypothesis of the same head closes still goes to `assumption`, at that cost. -/
+def headAssumption : TacticM Bool := do
+  let goal ← getMainGoal
+  goal.withContext do
+    let head (type : Expr) : Option (Bool × Expr) :=
+      let type := type.consumeMData
+      let (equation, subject) := match type.eq? with
+        | some (_, lhs, _) => (true, lhs.consumeMData)
+        | none => (false, type)
+      let f := subject.getAppFn.consumeMData
+      if f.isConst || f.isFVar then some (equation, f) else none
+    let target ← instantiateMVars (← goal.getType)
+    let some key := head target | return false
+    for decl in (← getLCtx).decls.toList.reverse.filterMap id do
+      if decl.isImplementationDetail then continue
+      let type ← instantiateMVars decl.type
+      if head type == some key then
+        if ← isDefEq type target then
+          goal.assign decl.toExpr
+          setGoals ((← getGoals).filter (· != goal))
+          return true
+    return false
+
 /-- Try an extension transactionally: only closing every current goal counts.
 A false result, an exception, or any remaining goal restores the entire state. -/
 def tryCloseExtension (extra : TacticM Bool) : TacticM Bool := do
@@ -323,8 +350,11 @@ def tryCloseExtension (extra : TacticM Bool) : TacticM Bool := do
 
 /-- Close by the standard terminal steps, with an optional transactional rule.
 The extension runs after trivial/assumption, before structural decomposition,
-and is reused inside constructor subgoals. False/no-progress restores state. -/
-partial def closeGoalWith (extra : TacticM Bool) : TacticM Unit := do
+and is reused inside constructor subgoals. False/no-progress restores state.
+`first` may name, for an inductive relation, the index of the constructor to try before
+the others; the search over the rest is unchanged. -/
+partial def closeGoalWith (extra : TacticM Bool)
+    (first : Name → TacticM (Option Nat) := fun _ => pure none) : TacticM Unit := do
   setGoals (← openGoals (← getGoals))
   if (← getGoals).isEmpty then return
   let goal ← getMainGoal
@@ -339,6 +369,8 @@ where
     let ty := (← goal.withContext (whnfR (← instantiateMVars (← goal.getType)))).consumeMData
     if ty.isConstOf ``True then
       evalTactic (← `(tactic| trivial))
+    else if ← headAssumption then
+      pure ()
     else if ← tryTac (evalTactic (← `(tactic| assumption))) then
       pure ()
     else if ← tryCloseExtension extra then
@@ -352,7 +384,7 @@ where
       let mut out := #[]
       for g in goals do
         setGoals [g]
-        closeGoalWith extra
+        closeGoalWith extra first
         out := out ++ (← openGoals (← getGoals)).toArray
       setGoals out.toList
     else if ty.isAppOfArity ``Exists 2 then
@@ -363,7 +395,7 @@ where
         if ← g.isAssigned then continue
         if ← g.withContext do isProp (← instantiateMVars (← g.getType)) then
           setGoals [g]
-          closeGoalWith extra
+          closeGoalWith extra first
       for g in goals do
         unless ← g.isAssigned do throwError "run_sound: witness not determined"
       setGoals []
@@ -373,7 +405,7 @@ where
       let mut out := #[]
       for g in goals do
         setGoals [g]
-        closeGoalWith extra
+        closeGoalWith extra first
         out := out ++ (← openGoals (← getGoals)).toArray
       setGoals out.toList
     else if ty.eq?.isSome then
@@ -388,7 +420,13 @@ where
       match (← getEnv).find? name with
       | some (.inductInfo info) =>
         let mut last : MessageData := ""
-        for c in info.ctors do
+        let ctors ← match ← first name with
+          | some index =>
+            if index < info.ctors.length then
+              pure (info.ctors[index]! :: info.ctors.eraseIdx index)
+            else pure info.ctors
+          | none => pure info.ctors
+        for c in ctors do
           let s ← saveState
           try
             let e ← elabTermForApply (mkIdent c)
@@ -404,12 +442,18 @@ where
             for g in props do
               if ← g.isAssigned then continue
               setGoals [g]
-              closeGoalWith extra
+              closeGoalWith extra first
               unless (← openGoals (← getGoals)).isEmpty do
                 throwError "goal left open:{Lean.MessageData.ofGoal (← getMainGoal)}"
             for g in goals do
               unless ← g.isAssigned do
-                throwError "argument not determined:{Lean.MessageData.ofGoal g}"
+                -- a relation without outputs binds a `Unit` result no hypothesis mentions
+                -- by itself: it has one value
+                let type ← g.withContext do whnfR (← instantiateMVars (← g.getType))
+                -- `Unit` abbreviates `PUnit`
+                if type.isConstOf ``PUnit then
+                  g.assign (mkConst ``PUnit.unit type.constLevels!)
+                else throwError "argument not determined:{Lean.MessageData.ofGoal g}"
             setGoals []
             return
           catch e =>

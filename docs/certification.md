@@ -193,11 +193,11 @@ changes otherwise identical files and triggers unnecessary proof rebuilds.
 These limitations describe the implementation, not the intended design:
 
 - A specification that declares the fresh-identifier builtin, as full P4 does, is
-  generated in the explicit-state form without correspondence certificates. Its logical
-  relations have a run-soundness theorem only where the relation reaches no recursive
-  relation through its premises (14 of the 256 full-P4 relations). The stateful refinement
-  fixtures in the test library cover bounded examples only and are not full-P4
-  certification.
+  generated in the explicit-state form without correspondence certificates. Each relation
+  has a run-soundness theorem against its generated logical relation, which is itself
+  generated and not yet connected to AL. A recursion group with a type-parameterized
+  member gets no theorem (full P4 has none). The stateful refinement fixtures in the test
+  library cover bounded examples only and are not full-P4 certification.
 - The NanoSwitch target ports extract, initialization and the packet driver;
   boot, STF parsing and expectation matching stay upstream, and a Lean session
   starts from the exported parsed program. Extern payloads are decoded from their
@@ -243,12 +243,13 @@ The full P4 specification (1,689 definitions at the pinned P4-SpecTec commit) is
 generated as `P4Spec`: every type with its value encoder and decoder, every subtype
 bridge, and every function, table and relation as an executable definition in the
 explicit-state form, each with its quoted AL definition. Each of the 256 relations also
-has a state-indexed logical relation, an inductive with one constructor per rule. For 14
-of them a run-soundness theorem connects the two: a successful run of the executable
-relation from one fresh-identifier state to another implies the logical relation at those
-states. These are the relations that are not recursive and reach no recursive relation
-through their relation premises, directly or through other relations; the other 242 have
-no theorem. The library is about 31 MB of
+has a state-indexed logical relation, an inductive with one constructor per rule, and a
+run-soundness theorem connecting the two: a successful run of the executable relation from
+one fresh-identifier state to another implies the logical relation at those states. The
+155 relations in the 31 recursion groups are proved group by group, by induction over the
+least fixed point that defines the group. Both sides of each theorem are generated: it
+says every successful run of the executable definition is a derivation in the rule-shaped
+relation, not that either follows the AL definition. The library is about 32 MB of
 Lean, so its sources are not committed: the gate regenerates them, requires the SHA-256
 digests recorded in `P4Spec.manifest.json`, and builds every module with warnings as
 errors. A few small generated modules are also committed under `P4Spec.samples/` as
@@ -256,7 +257,7 @@ exact copies, so that a change to the generator shows as a readable diff.
 
 | Check | What it establishes | What it does not |
 |---|---|---|
-| Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check; every logical relation is a well-formed inductive; the 14 run-soundness proofs check with the axiom audit | Any relation to AL, or between the other 242 logical relations and their executable definitions |
+| Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check; every logical relation is a well-formed inductive; the 256 run-soundness proofs check with the axiom audit | Any relation to AL; the converse of run-soundness; anything about a run that fails or does not terminate |
 | `check-p4-quotes` | The 1,672 compiled quotations equal the decoded export, as for Nano-P4; the 17 schematic variable declarations are not quoted | That the executable definitions follow their quotations |
 | Corpus sweep | On 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters, as the reference interpreter does | The remaining candidate (its observation exceeds the 1 GiB case bound), programs upstream's manifests exclude, rejected programs (every observed candidate passes upstream), and packet processing |
 | Bounded replay | The same comparison on three pinned programs, one of which upstream and both Lean legs reject | Upstream reports a rejection only as a class, so the kind of failure is not compared |
@@ -268,7 +269,7 @@ relation only premises on other defined relations are structural; calls of funct
 builtins and extern relations, rejected alternatives and negative premises are stated as
 facts about runs, so a relation whose rules only call functions has a theorem close to an
 unfolding of its definition.
-`check-coverage --full-p4` checks that each of the 14 claimed theorems has the claimed
+`check-coverage --full-p4` checks that each of the 256 claimed theorems has the claimed
 statement and only the allowed axioms. The sweep and the bounded replay are tests of
 selected executions, not proofs. They need the pinned upstream build and p4c sources, so
 they are run by hand, not by the gate:
