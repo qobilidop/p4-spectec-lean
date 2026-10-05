@@ -8,6 +8,9 @@ import subprocess
 
 
 SUFFIXES = {".lean", ".md", ".sh", ".toml", ".nix", ".yml", ".yaml", ".py"}
+# Exact copies of generated modules whose library is not tracked: their line breaks are the
+# generator's, and a copy may not be edited to fit. Whitespace and newline rules still apply.
+GENERATED_COPIES = ("P4Spec.samples/",)
 
 
 def check(root):
@@ -34,6 +37,8 @@ def check(root):
             if line and line[-1].isspace():
                 errors.append(f"trailing whitespace: {location}")
             if path.suffix != ".lean":
+                continue
+            if name.startswith(GENERATED_COPIES):
                 continue
             if len(line) > 100 and not re.search(r"https?://", line):
                 errors.append(f"line over 100 characters: {location}")

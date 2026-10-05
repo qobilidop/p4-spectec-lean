@@ -37,8 +37,14 @@ Evidence for the working tree of the commit that adds the logical relations:
   not re-swept.
 - Independent review: [full-P4 review](notes/full-p4/review.md), "Logical relations
   stage"; no blockers, should-fix items resolved before the commit, not re-reviewed.
-- Remote CI: `f329af0` passed (run 37281546328, 12 min with a restored build cache;
-  `6e57dcb` took 33 min cold). Not yet run on this commit.
+- Remote CI: `c7ed36f` passed (run 37288431358, 19 min); `f329af0` passed in 12 min with
+  a restored build cache; `6e57dcb` took 33 min cold.
+- Golden samples (the commit after `c7ed36f`): `P4Spec.samples/` holds copies of ten
+  generated modules, checked by a new gate stage. Full gate on that commit's working
+  tree, after the review resolutions: actual exit 0 in 243.69 s, all 57 stages
+  (`.artifacts/m3b/samples-gate-2.log`). Independent review:
+  [full-P4 review](notes/full-p4/review.md), "Golden samples". The user confirmed keeping
+  `P4Spec` out of the repository (decisions, "Staged explicit-state generation").
 
 ## Open threads and next step
 

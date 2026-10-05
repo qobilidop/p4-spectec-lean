@@ -19,8 +19,8 @@
 #    program (P4SpecTecTest/Oracle/Nano/Replay/replay.py, both legs).
 # 8. Quoted Nano-P4 AL matches the export, with typed VarD checked separately.
 # 9. The full P4 export decodes and its reconnaissance report is current. Its generated
-#    library (ignored sources, regenerated here) matches P4Spec.manifest.json, builds with
-#    `--wfail`, and its quotations match the export.
+#    library (ignored sources, regenerated here) matches P4Spec.manifest.json and the
+#    committed golden samples, builds with `--wfail`, and its quotations match the export.
 # 10. The whole-program source-address filter's quotation is current.
 # 11. Combined completion (`--require-complete all`): every proof, replay, consumer and
 #     sensitivity obligation. It runs check-consumer and the field-update, source-address
@@ -85,6 +85,7 @@ for path in \
   .agents/notes/p4-census.json Tools/CheckQuotes.lean Tools/Census.lean \
   P4Spec.manifest.json Tools/CheckP4Quotes.lean \
   scripts/generated-manifest.py scripts/test_generated_manifest.py \
+  P4Spec.samples scripts/golden-samples.py scripts/test_golden_samples.py \
   P4SpecTecTest/Oracle/Print/observed.json P4SpecTecTest/Oracle/Print/capture.py P4SpecTecTest/Oracle/Print/probe.ml \
   P4SpecTecTest/Oracle/Print/Main.lean P4SpecTecTest/Oracle/Text/Main.lean \
   P4SpecTecTest/Oracle/Text/observed.json P4SpecTecTest/Oracle/Text/capture.py P4SpecTecTest/Oracle/Text/probe.ml \
@@ -157,6 +158,7 @@ runStage "Nano corpus inventory contracts" python3 "$root/P4SpecTecTest/Oracle/N
 runStage "Tracked file sizes" python3 "$root/scripts/check-file-sizes.py" || fail=1
 runStage "File-size checker contracts" python3 "$root/scripts/test_file_sizes.py" || fail=1
 runStage "Generated manifest contracts" python3 "$root/scripts/test_generated_manifest.py" || fail=1
+runStage "Golden sample contracts" python3 "$root/scripts/test_golden_samples.py" || fail=1
 runStage "Upstream constructor mirrors" python3 "$root/scripts/check-mirror.py" || { say "mirror check failed"; fail=1; }
 runStage "Spec snapshot contracts" python3 "$root/scripts/test_spec_snapshot.py" || { say "snapshot tests failed"; fail=1; }
 runStage "Certificate replay contracts" python3 "$root/scripts/test_replay_cert.py" || { say "replay tests failed"; fail=1; }
@@ -204,6 +206,8 @@ if command -v lake >/dev/null 2>&1; then
     || { say "full-P4 generation failed"; fail=1; }
   runStage "Generated full-P4 freshness" python3 "$root/scripts/generated-manifest.py" --check P4Spec "$root/P4Spec.manifest.json" \
     || { say "P4Spec/ differs from P4Spec.manifest.json; if intended: scripts/generated-manifest.py --update P4Spec P4Spec.manifest.json"; fail=1; }
+  runStage "Generated full-P4 golden samples" python3 "$root/scripts/golden-samples.py" --check "$root/P4Spec" "$root/P4Spec.samples" \
+    || { say "P4Spec.samples/ differs from P4Spec/; if intended: scripts/golden-samples.py --update P4Spec P4Spec.samples"; fail=1; }
   runStage "Library layers and reachability" inRoot lake env python3 "$root/scripts/check-library-boundaries.py" \
     || { say "library boundary check failed"; fail=1; }
   runStage "Library boundary contracts" inRoot lake env python3 "$root/scripts/test_library_boundaries.py" --lean \

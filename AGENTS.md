@@ -42,6 +42,7 @@ Documentation is split by purpose and audience:
 | `.claude/skills` | symlink so Claude Code finds the skills in `.agents/skills/` |
 | `.agents/notes/full-p4/overview.md` | full-P4 generation state, census findings and remaining obligations |
 | `P4Spec.manifest.json` | SHA-256 digests pinning the generated full-P4 library, whose sources (`P4Spec/`, `P4Spec.lean`) are ignored |
+| `P4Spec.samples/` | committed byte-for-byte copies of a few generated full-P4 modules, so generator changes show as diffs |
 | `.agents/notes/state-integration/overview.md` | bounded state support versus paused production integration |
 | `.agents/notes/p4-census.json` | reproducible machine-readable capability census |
 | `NanoP4Target/` | concrete NanoSwitch target over the generated model: typed externs, extern-contract discharge, session composition |
@@ -96,6 +97,7 @@ scripts/replay-cert.py <Module> [--only thm] [--heartbeats N] [--trace] [--nativ
 lake exe p4spectec-gen <export> --lib <Lib> [--runtime-extern TYPE] [--update|--check]
 scripts/generated-manifest.py (--check|--update) P4Spec P4Spec.manifest.json
                             # after `p4spectec-gen exports/p4.al.json --lib P4Spec --update`
+scripts/golden-samples.py (--check|--update) P4Spec P4Spec.samples [RELATIVE ...]
 lake exe check-p4-quotes    # compiled full-P4 quotation vs current decoded export
 P4SpecTecTest/Oracle/P4/Replay/replay.py --upstream ABS --p4c ABS
                             # four pinned full-P4 cases, both Lean legs (upstream shell)
@@ -194,12 +196,17 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   31 MB (one module exceeds the file-size cap) and are ignored. The gate regenerates
   them, requires the digests in the committed `P4Spec.manifest.json`, builds the
   library with `--wfail` and checks its quotations. A generator change that alters
-  full-P4 output must update the manifest in the same commit
-  (`scripts/generated-manifest.py --update`); say what changed, since a digest shows no
-  diff. `P4Spec` is not a default target; only registered executables may import it,
-  never a library root.
-  It has executable definitions, quotations and logical relations without theorems; the
-  certificates it lacks are in `.agents/notes/full-p4/overview.md`.
+  full-P4 output must update the manifest and the golden samples in the same commit
+  (`scripts/generated-manifest.py --update`, `scripts/golden-samples.py --update`).
+  `P4Spec.samples/` holds copies of a few small modules covering the main kinds of
+  generated construct: read their diff, and say what changed elsewhere, since a digest
+  shows none. Add a sample when a new construct kind is generated; never edit one by
+  hand (the text gate exempts them from the line-length rule only). `P4Spec` has
+  executable definitions, quotations and logical relations without theorems; the
+  certificates it lacks are in `.agents/notes/full-p4/overview.md`. It is not a default
+  target; only registered executables may import it, never a library root. When a
+  downstream package needs to import it, publish the generated sources in a separate
+  repository updated by CI (decisions, "Staged explicit-state generation").
 - **Build hygiene.** `scripts/check.sh` is the gate: `lake build --wfail`
   (a warning fails, and a `sorry` is a warning), `lake test`, every module
   reachable through imports from its library root or a registered executable

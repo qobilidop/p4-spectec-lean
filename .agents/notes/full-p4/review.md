@@ -159,3 +159,30 @@ the gate, not re-reviewed:
 Limits the reviewer stated: nothing was elaborated, so the build, the fixture proofs
 and Nano's byte-identity rest on the author's gate; timings and scratch-probe results
 were not checked.
+
+## Golden samples (2026-10-05)
+
+Independent read-only review of the uncommitted tree against `c7ed36f`, by a fresh Claude
+Fable 5.1 subagent that ran the Python tests and the text, size and sample checks, and no
+build. Verdict: no blockers; `--check` cannot pass when a sample differs from or lacks its
+generated file. Findings and resolutions, applied before the commit and checked by the
+author's rerun of the gate, not re-reviewed:
+
+- The sample set had no executable relation although the decision claimed one (two chosen
+  modules held only a table and a type). Added `9-arch/9.0-eval-arch.lean` (three
+  relations) and a builtin wrapper module; the decision now lists what is and is not
+  covered.
+- Samples are tracked `.lean` files, and 41 generated modules have lines over 100
+  characters, so a sample could later fail the text gate with no remedy. The text gate
+  now exempts `P4Spec.samples/` from the line-length rule only, with a test.
+- Prior-art statements were stronger than what the repositories show (pinning attributed
+  to sail-riscv-lean, Lean 4's repository size attributed to `stage0`). Reworded as dated
+  observations with their limits.
+- Seven of fourteen mutants of the tool survived its tests; the tool depended on the
+  working directory and created its directory before validating. It now resolves against
+  the repository, validates every source before writing, rejects links at any path
+  component, and the tests pin each guard.
+- Status deferred the gate record to a commit message. Recorded in status.
+- Not changed: every file under the samples directory counts as a sample (a stray file
+  fails closed); the set itself is not pinned; the check stage runs in the Lake part of
+  the gate.

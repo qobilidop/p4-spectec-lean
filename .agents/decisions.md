@@ -73,8 +73,35 @@ cap. The gate regenerates, checks the manifest, builds and compares quotations. 
 generator change shows as changed digests, not as a diff, so the commit message must say what
 changed. Rejected: committing compressed generated modules (Lake cannot build them, and Git
 history would grow by megabytes per generator change) and an exception to the size cap.
-Revisit if review of full-P4 output changes needs real diffs (a scratch regeneration of the
-previous revision gives one) or if the library is split into smaller modules.
+The user confirmed this on 2026-10-05 after a survey of prior art, with two refinements.
+First, `P4Spec.samples/` commits byte-for-byte copies of a few small generated modules,
+checked by the gate, so a generator change yields a readable diff. The set covers alias,
+inductive and structure types with codecs and subtype bridges; recursive functions and a
+table; a builtin wrapper; executable relations; and logical relations with named
+attempts, an iterated premise, a negative premise and a mutual group. Not covered, because
+the smallest module holding them is too large or absent: the `Externs` class, auxiliary
+predicates inside a mutual block, and mutual executable groups. Second, when a downstream
+Lake package needs to import `P4Spec` through a Git requirement, the generated sources go
+to a separate repository updated by CI from a pinned commit of this one: Lake builds such
+a dependency from its Git sources, so ignored files cannot be required.
+
+What was observed in other repositories, through GitHub on 2026-10-05, and nothing more:
+`riscv/sail-riscv` has a commit "Remove prover_snapshots" dated 2025-03-10;
+`opencompl/sail-riscv-lean` is a separate repository holding generated Lean, updated by a
+scheduled workflow (from unpinned upstream checkouts; pinning is our addition);
+`hacl-star/hacl-star` has a tracked `dist/` with bot commits "[CI] regenerate hints and
+dist"; `mit-plv/fiat-crypto` tracks `fiat-c`, `fiat-rust` and similar directories;
+`rems-project/sail-arm` tracks `snapshots/`; `Wasm-DSL/spectec` tracks `TEST.md` golden
+outputs of 0.7 to 2.6 MB under `spectec/test-*`; `leanprover/lean4` tracks `stage0/`, and
+GitHub reports about 7.1 GB for that repository as a whole (the share of `stage0` was not
+measured). Measured here on the same day: one snapshot of the 31 MB library is 1.7 MB as
+an aggressively repacked Git pack in a scratch repository, and the blobs of the 37 commits
+touching `NanoP4Spec/` occupy 2.9 MB of this repository's packs, so size alone would allow
+committing. The reasons not to are unreadable 31 MB diffs, a module above the cap, growth
+with certificates, and no consumer. A scratch regeneration of the previous revision still
+gives a full diff for the modules no sample covers. Revisit at the first downstream
+consumer, if the library is split into smaller modules, or if the samples stop catching
+what reviews need.
 
 Two generator defects surfaced by full P4 were fixed in place, with Nano output unchanged:
 a third variant case with the same atoms reused the suffix `_2`, and a tuple outside a

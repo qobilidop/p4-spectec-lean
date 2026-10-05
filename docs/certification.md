@@ -246,7 +246,8 @@ has a state-indexed logical relation, an inductive with one constructor per rule
 theorem yet connects these to the executable definitions. The library is about 31 MB of
 Lean, so its sources are not committed: the gate regenerates them, requires the SHA-256
 digests recorded in `P4Spec.manifest.json`, and builds every module with warnings as
-errors.
+errors. A few small generated modules are also committed under `P4Spec.samples/` as
+exact copies, so that a change to the generator shows as a readable diff.
 
 | Check | What it establishes | What it does not |
 |---|---|---|

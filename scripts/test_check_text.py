@@ -80,6 +80,18 @@ class TextGateTests(unittest.TestCase):
         self.assertTrue(any("line over 100" in error for error in errors))
         self.assertTrue(any("bare 'import Lean'" in error for error in errors))
 
+    def test_generated_copies_keep_their_line_breaks_only(self):
+        self.tracked("P4Spec.samples/Long.lean", ("x" * 101 + "\n").encode())
+        self.assertEqual(MODULE.check(self.root), [])
+        self.tracked("P4Spec.samples/Space.lean", b"def a := 1 \n")
+        self.tracked("P4Spec.samples/End.lean", b"def a := 1")
+        self.tracked("P4Spec.samplesX.lean", ("x" * 101 + "\n").encode())
+        errors = MODULE.check(self.root)
+        self.assertEqual(len(errors), 3)
+        self.assertTrue(any("trailing whitespace" in error for error in errors))
+        self.assertTrue(any("no final newline" in error for error in errors))
+        self.assertTrue(any("line over 100" in error and "samplesX" in error for error in errors))
+
     def test_cli_fails_when_enumeration_fails(self):
         with tempfile.TemporaryDirectory(prefix="text-gate-nongit-") as directory:
             script = Path(directory) / "scripts" / SCRIPT.name
