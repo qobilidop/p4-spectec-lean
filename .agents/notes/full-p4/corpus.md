@@ -1,7 +1,52 @@
 # Full-P4 corpus and replay boundary
 
-Corpus execution resumes with M3 (2026-10-04); nothing below is a fresh corpus run.
-This consolidates retained constraints and historical bounded checkpoints from 2026-09-25.
+Active with M3 since 2026-10-04. The first section is the current corpus evidence; the
+rest consolidates retained constraints and historical bounded checkpoints from 2026-09-25.
+
+## Both-leg sweep (2026-10-05)
+
+`P4SpecTecTest/Oracle/P4/Corpus/sweep.py --jobs 8` on the working tree of the commit that
+introduced it (log and elapsed time in [status](../../status.md), summary under
+`.artifacts/p4-corpus-sweep/`): exit 0. Of the 1,267 canonical
+candidates, 1,266 were observed and both legs returned `matched,matched` for every one:
+semantic outputs and exact builtin counters of `Program_ok` and `Program_inst`, upstream
+class `pass` throughout, Type.Fresh ticks zero throughout. `switch_p4_16.p4` is unobserved:
+one upstream session's output exceeds the 1 GiB bound (it exceeded 4 GiB in a scratch run).
+
+What it took to get there, and what it shows:
+
+- The first sweep had both legs disagreeing with upstream on the same two programs
+  (`issue3531.p4`, `issue5231-const-int-concat.p4`), both through `static_assert`: the
+  workers' placeholder externs made every extern relation a hard error, while upstream's
+  `backend-sim/placeholder.ml` implements the compile-time `static_assert`. Ported as
+  `P4SpecTec/BackendSim/Placeholder.lean` with `Core.Func.static_assert` and
+  `find_var_value_t`; both legs use it (the generated leg through value codecs around the
+  generated `$find_var_value_t`). No generator or interpreter defect was found.
+- 81 candidates exceed the old 32 MiB case bound: 76 are at most 80 MiB, `fabric.p4`
+  339 MiB, `up4.p4` 393 MiB, the two `dash` pipelines 866 and 926 MiB. The workers take the bound as
+  `--max-case-bytes`; the sweep states 1 GiB. The shard campaign's reviewed 32 MiB limit
+  is unchanged.
+- Sensitivity: with `+ 1` changed to `+ 2` in the generated bit-slice width of
+  `Lvalue_ok.run` (one line of `8.02-evaluation-relation`), 39 of the 1,186 programs under
+  32 MiB disagreed on the generated leg (27 counter, 7 output, 5 outcome). The library was then regenerated; the rebuilt
+  generated worker has the digest the sweep recorded. This was a manual check, not a
+  committed mutation suite.
+- Cost: capture dominates. In scratch runs before the committed tool, capture took about
+  590 s for the 1,186 small cases at 8 jobs and 560 s for the 80 large ones at 6, and
+  summed worker time was 1,132 s for the interpreter and 1,585 s for the generated leg,
+  which is slower only on the largest programs (dash: 263 s against 46 s). A sample of
+  `fabric.p4` shows the time in `valueEq`: generated `==` converts both operands to IL
+  values on every comparison, here inside `$find_overloadeds_named`. Not a bottleneck for
+  the sweep; it is one for any generated-leg target work. Options, none tried: a
+  structural `BEq` proved equal to `valueEq` and installed with `@[csimp]`; comparing
+  without materializing both values; caching the encoding of large immutable operands.
+- The failed branch of `static_assert` has no upstream evidence: upstream aborts, which
+  the workers report as `unsupported-upstream-abort` without evaluating, and no candidate
+  fails. The port's hard error there follows a reading of the OCaml only.
+
+Not established: the durable shard campaign with CLI parity on both legs; rejected
+programs (no candidate fails upstream; negative regressions and `p4_16_errors` are outside
+this denominator); internal failure kinds; `switch_p4_16.p4`; any packet target.
 [Overview](overview.md) carries generation and milestone obligations;
 [review](review.md) identifies independent evidence and limitations.
 

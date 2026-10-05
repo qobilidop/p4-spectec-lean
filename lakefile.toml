@@ -139,7 +139,11 @@ root = "P4SpecTecTest.Oracle.P4.Replay.Main"
 name = "p4-gen-replay"
 root = "P4SpecTecTest.Oracle.P4.Generated.Main"
 
-# Corpus campaign worker; no corpus execution in the ordinary gate.
+# Corpus campaign workers, one per Lean leg; no corpus execution in the ordinary gate.
 [[lean_exe]]
 name = "p4-corpus-worker"
 root = "P4SpecTecTest.Oracle.P4.Corpus.Main"
+
+[[lean_exe]]
+name = "p4-corpus-worker-gen"
+root = "P4SpecTecTest.Oracle.P4.Corpus.Generated.Main"

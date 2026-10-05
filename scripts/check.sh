@@ -100,7 +100,10 @@ for path in \
   P4SpecTecTest/Oracle/Type/probe.ml P4SpecTecTest/Oracle/Type/capture.py P4SpecTecTest/Oracle/Type/test_contract.py \
   P4SpecTecTest/Oracle/P4/Replay/replay.py P4SpecTecTest/Oracle/P4/Replay/test_replay_contract.py \
   P4SpecTecTest/Oracle/P4/Replay/Main.lean P4SpecTecTest/Oracle/P4/Replay/Check.lean \
-  P4SpecTecTest/Oracle/P4/Generated/Main.lean \
+  P4SpecTecTest/Oracle/P4/Generated/Main.lean P4SpecTecTest/Oracle/P4/Generated/Externs.lean \
+  P4SpecTec/BackendSim/Placeholder.lean P4SpecTecTest/BackendSim/Placeholder.lean \
+  P4SpecTecTest/Oracle/P4/Corpus/Check.lean P4SpecTecTest/Oracle/P4/Corpus/Generated/Main.lean \
+  P4SpecTecTest/Oracle/P4/Corpus/sweep.py P4SpecTecTest/Oracle/P4/Corpus/test_sweep.py \
   P4SpecTec/BackendSim/Core/Object.lean P4SpecTec/BackendSim/NanoSwitch/Pipe.lean \
   P4SpecTecTest/BackendSim/NanoSwitch/Target.lean P4SpecTecTest/Oracle/NanoSwitch/Target/Main.lean \
   P4SpecTecTest/Oracle/NanoSwitch/Packets/Main.lean P4SpecTecTest/Oracle/NanoSwitch/Target/requests.json \
@@ -182,6 +185,8 @@ runStage "Full-P4 corpus worker contracts" python3 "$root/P4SpecTecTest/Oracle/P
   || { say "P4 corpus v2 contract tests failed"; fail=1; }
 runStage "Full-P4 corpus resume contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_shard.py" \
   || { say "P4 corpus shard/resume contract tests failed"; fail=1; }
+runStage "Full-P4 corpus sweep contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_sweep.py" \
+  || { say "P4 corpus sweep contract tests failed"; fail=1; }
 for name in nano-p4 p4; do
   runStage "$name snapshot verification" python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }
@@ -247,6 +252,7 @@ if command -v lake >/dev/null 2>&1; then
   runStage "Full-P4 capability census" inRoot lake exe p4spectec-census exports/p4.al.json --check .agents/notes/p4-census.json \
     || { say "P4 census is stale or the export does not decode"; fail=1; }
   runStage "Full-P4 library and tool build" inRoot lake build --wfail P4Spec check-p4-quotes p4-gen-replay \
+    p4-corpus-worker-gen \
     || { say "P4Spec build failed"; fail=1; }
   runStage "Full-P4 quotation check" inRoot lake exe check-p4-quotes \
     || { say "full-P4 quotations differ from the export"; fail=1; }

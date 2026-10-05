@@ -11,7 +11,8 @@ as a failure that `invoke_extern_rel` treats as a mismatch. A failed callback th
 the whole extern call a retryable mismatch, whichever kind the callee produced. The Lean
 `Fail` does not separate a nested target abort from AL `Err`, so a callback whose closure
 reaches an extern would also collapse such an abort. NanoSwitch registers only callbacks
-whose closures reach no extern (`find_var_e`, `write_value_from_bits`, `update_var_e`).
+whose closures reach no extern (`find_var_e`, `write_value_from_bits`, `update_var_e`), and
+the placeholder target only `find_var_value_t`, which reaches none either.
 -/
 
 namespace P4SpecTec.BackendSim.Make

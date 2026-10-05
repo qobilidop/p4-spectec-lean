@@ -82,3 +82,41 @@ Limits the reviewer stated: the recorded gate was warm for `P4Spec`; byte-identi
 generation and a cold build on Linux are untested until CI runs; instance-resolution
 arguments were made by reading. The resolutions above were checked by the author's
 rerun of the full gate, not re-reviewed.
+
+## Corpus sweep stage (2026-10-05)
+
+Independent read-only review of the uncommitted `m3c-corpus` tree against `main`
+(`6e57dcb`), by a fresh Claude Fable 5.1 subagent that ran no build: it read the diff and
+the pinned OCaml, ran `test_sweep.py`, and checked the logs and summary. Verdict: no
+defect producing false agreement and no faithfulness defect in the placeholder port. It
+traced upstream's failure paths (`error_no_region` to an abort that nothing in the
+interpreter catches; a failed callback to a mismatch through `call_func`) and confirmed
+the port's `Fail.err`/`Fail.unmatch` choices, the trampoline wrapping in both upstream
+runners, value shapes and evaluation order, and that `Corpus/Check.lean` preserves every
+check of the old worker.
+
+Findings and resolutions, applied before the commit and checked by the author's rerun of
+the gate and the sweep, not re-reviewed:
+
+- Blocker (policy): status had dangling evidence references and no gate, replay or review
+  record. Rewritten.
+- The generated externs decoded callback arguments inside the wrapper that turns callee
+  failures into mismatches, so a codec failure would have looked like a semantic
+  mismatch. Decoding is now outside it and stays a hard error.
+- `sweep.py` could exit 0 with capture failures that were not bounds, or with nothing
+  evaluated; its cache identity omitted the harness sources; an unexpected exception in a
+  worker thread lost the record and left the worker running. Fixed, with fake-worker
+  tests for crash, timeout, wrong name, error line, malformed answer and recycling, and
+  `--retry-unobserved` for sticky failed captures.
+- The public mutation sentence read as a standing property. It now says one manual run,
+  generated leg, 1,186 programs, no committed suite. The failed branch of
+  `static_assert` is stated to have no upstream evidence.
+- Nits applied: MiB units, the placeholder header and `Make.lean` sentence, a repeated
+  `--max-case-bytes` is rejected, worker digests are taken before the legs and rechecked,
+  jobs and the recycle bound are recorded.
+- Not changed: `shard.py` and `campaign.py` source digests still name `Corpus/Main.lean`
+  only (the worker executable digest covers `Check.lean`); `--max-case-bytes` has no
+  upper bound (an absurd value fails closed at the size check).
+
+Limits the reviewer stated: nothing was built or run beyond the unit test; codec
+correctness for `typingContext` rests on the two `static_assert` programs now matching.

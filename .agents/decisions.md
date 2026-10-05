@@ -81,6 +81,35 @@ are now decoded by arity and component everywhere, and generation rejects the tw
 shapes a right-nested product cannot represent (a single component, a trailing tuple
 component); neither occurs at the pinned specifications.
 
+## Corpus sweep beside the shard campaign (2026-10-05)
+
+Full-P4 corpus evidence on both Lean legs comes from `Corpus/sweep.py`: parallel capture and
+two protocol-identical workers, a summary accounting for every candidate, no durability
+machinery. The shard campaign (`shard.py`: locks, fsync, resume, CLI parity, one leg, one
+case at a time, 32 MiB) is kept unchanged as the stricter harness. Reason: the campaign's
+serial design made a full run cost hours and had only ever covered four candidates; a
+sweep that finishes in 20 minutes found the one real discrepancy (the missing
+`static_assert` port) in its first run and can be rerun after every generator change.
+Cached observations are keyed by pins, probe and limits; verdicts are never cached.
+Rejected: parallelizing `shard.py` first (each process rebuilds upstream and Lake targets
+in preflight, and its identity model assumes concurrency one), and treating agreement
+between the two Lean legs as evidence (they share builtins and the placeholder port).
+Confidence high for use as a feedback loop. Revisit by extending the shard campaign to
+the generated worker and a larger bound when a durable, CLI-checked record is needed for
+M3C's exit.
+
+The sweep's case bound is 1 GiB, stated to the workers with `--max-case-bytes`; the worker
+default stays 32 MiB. Reason: 81 candidates are larger only because the IL value JSON
+repeats regions and notes on every node; four are 339 to 926 MiB. One candidate remains
+above the bound and is reported as unobserved, never as agreeing.
+
+The placeholder target is ported once (`P4SpecTec/BackendSim/Placeholder.lean`) and used by
+all four full-P4 replay tools. The generated legs call it through value codecs around the
+generated `$find_var_value_t`, as the NanoSwitch port's dynamic interface does, instead of
+a second typed implementation. Reason: one mirrored implementation to audit against
+`placeholder.ml`. Cost: the generated legs' externs are exercised through `toValue` and
+`ofValue`, which the replay already depends on.
+
 ## Pins and reproducibility (2026-09-25)
 
 P4-SpecTec is pinned at `8c8e0c6f` on `gsoc-nano-spec`, because Nano is

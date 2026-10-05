@@ -111,3 +111,36 @@ not per-case memory or a hard limit. Completed harness/run failures are not
 automatically retried under the same identity. SHA-256 identifies accidental
 corruption/provenance changes, not adversarial coordinated rewriting.
 The four-case result is not whole-corpus, packet-target or generated coverage.
+
+## Parallel sweep on both Lean legs
+
+`sweep.py` observes every canonical candidate with the same v2 probe and checks each
+observation with two workers speaking the same protocol: `p4-corpus-worker` (reference
+interpreter) and `p4-corpus-worker-gen` (the generated `P4Spec` library; it decodes the
+booted program into the generated `p4program` type, requires it to encode back, and runs
+the generated relations). Both use the ported placeholder target, including
+`static_assert`. The generated leg has no fuel: its bound is the worker response deadline,
+and a timeout is a failure record, not a verdict. A booted program outside the generated
+type is the status `unrepresentable-input`.
+
+```sh
+nix develop --command scripts/fetch-p4c.sh
+nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py \
+  --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c" --jobs 8
+```
+
+The sweep regenerates and checks `P4Spec`, builds both workers, and writes
+`.artifacts/p4-corpus-sweep/summary.json`: every candidate is either unobserved within the
+bounds or has one record per leg, grouped by exact status pair, with the pins, probe and
+worker digests and limits it ran under. It exits 0 only when at least one case was
+evaluated, every evaluated case agrees with upstream on both legs (an unsupported or
+not-evaluated status is not agreement), and every unobserved candidate merely reached a
+stated bound; `--require-all` also fails on any unobserved candidate. Observations and
+failed captures are cached under an identity of pins, probe, harness sources and limits;
+`--retry-unobserved` captures the failed ones again. Verdicts are always recomputed.
+
+Its bounds differ from the shard campaign's, and are stated in the summary: 1 GiB per
+case (`--max-case-bytes`, passed to the workers; 81 candidates exceed the 32 MiB default),
+600 s per upstream session, 1800 s per worker response. It is a feedback loop, not the
+durable campaign: nothing is locked or fsynced, upstream's CLI is not cross-checked, and
+`shard.py` still drives the interpreter worker only.

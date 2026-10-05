@@ -48,9 +48,29 @@ What the generated library still lacks, in dependency order:
 1. Logical relations (`StateProps`, 256 relations) and state run-soundness. The emitter
    handles nonrecursive fixtures; recursive groups need the `RecursivePrefix`/`StateRules`
    motives turned into a generator. These modules must not join the serial chain.
-2. A corpus campaign on both legs (M3C). The generated leg has no fuel: a diverging run
-   does not return, so the worker needs a wall-clock bound, and deep recursion runs on the
-   native stack.
+   A scratch probe on 2026-10-05 (uncommitted driver; one module per relation group,
+   beside the chain, importing `P4Spec`) measured where this stands:
+   - `StateProps.relInductives` emits text for all 256 relations (132 groups, 30 MB;
+     `Expr_eval`'s group alone is 10.8 MB and 194,000 lines).
+   - 44 group modules elaborated (432 s summed) before the probe was stopped; three failed
+     on emitter defects: a substituted term spliced inside a quoted variable name
+     (`CallableType_ok`), two rule paths with the same constructor name
+     (`SelectCases_match` in `Expr_eval`'s group), and a captured variable left unbound
+     (`p_callee` in `Expr_inst`'s group).
+   - `Cast_impl`'s module (2 relations, 99 helper inductives for iterated and optional
+     premises in one mutual block, 1.0 MB) did not finish elaborating in 13 minutes at
+     7 GB, nor in 7 minutes with `genSizeOfSpec` and `genInjectivity` off. Everything
+     downstream of it was never reached. This is the bottleneck to remove first: the
+     retired aggregate also died at casting. Untested ideas: keep a helper out of the
+     mutual block when its body mentions no relation of the group; give each complete
+     attempt a named definition so constructors stop repeating earlier attempts' code.
+   - Run-soundness without recursive-group support is reachable for only 14 relations
+     (nonrecursive, and calling no recursive relation); 155 relations are recursive, in 31
+     groups of up to 50. The existing `state_run_sound` tactic was not run in the probe.
+2. Corpus replay on both legs (M3C): the 2026-10-05 sweep has both legs agreeing with
+   upstream on 1,266 of 1,267 candidates ([corpus](corpus.md)). No native stack overflow
+   or timeout occurred on the generated leg. Open: the durable campaign with CLI parity,
+   rejected programs, and the one candidate above the case bound.
 3. Refinement, representation and initialization certificates (M3E), all still stated
    for the pure ABI.
 4. Targets (M3D) and determinism (M3F), unchanged below.
@@ -156,7 +176,8 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
 2. M3C: account for an explicit full-P4 corpus and exclusions, compare typing
    and instantiation verdicts and exact outputs on both interpreter and
    generated legs, resolve unexplained differences, and detect interpreter
-   mutations. The generated leg exists for the four pinned cases only. Type equivalence/substitution exhaustion and separate Type.Fresh
+   mutations. A both-leg sweep covers 1,266 of 1,267 candidates; see [corpus](corpus.md)
+   for what it leaves open. Type equivalence/substitution exhaustion and separate Type.Fresh
    effects constrain further coverage; current replay is bounded and guarded
    full-P4 coverage is not established.
 3. M3D: independently validate actual packet targets, starting from bounded

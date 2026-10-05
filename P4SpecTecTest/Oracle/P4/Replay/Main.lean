@@ -1,5 +1,6 @@
 import P4SpecTec.Lang.Al.Json
 import P4SpecTec.Interp.InterpAl.Interp
+import P4SpecTec.BackendSim.Placeholder
 import P4SpecTecTest.Oracle.P4.Replay.Check
 
 /-!
@@ -16,20 +17,6 @@ open P4SpecTec P4SpecTec.Prelude P4SpecTec.Interp_al
 
 /-- A bounded interpreter fuel, distinct from an upstream mismatch. -/
 def fuel : Nat := 10000000
-
-/-! The pinned `backend-sim/placeholder.ml` externs used by AL validation.
-Other extern operations stay hard failures; this is not a P4 simulator. -/
-private def placeholderExtern : Interp.Extern StateEval where
-  eval_extern_rel := fun _ _ _ => throw .err
-  eval_extern_func := fun name _ _ =>
-    let typName := match name with
-      | "init_objectState" => some "objectState"
-      | "init_archState" => some "archState"
-      | _ => none
-    match typName with
-    | some typ => pure (Runtime.Value.Make.extern
-        (.VarT (P4SpecTec.Util.Source.mkPhrase typ) []) Lean.Json.null)
-    | none => throw .err
 
 /-- The reference interpreter as a leg, at a fuel bound. -/
 def leg (fuelLimit : Nat) (cfg : Interp.Config StateEval) (g : Ctx.global) : P4Replay.Leg :=
@@ -49,7 +36,7 @@ def main (args : List String) : IO UInt32 := do
     let spec ← P4SpecTec.Lang.Al.Json.readSpec "exports/p4.al.json"
     let debug := (← IO.getEnv "P4SPECTEC_INTERP_DEBUG").isSome
     let .ok cfg := P4SpecTec.Interp_al.Interp.Config.withPrintHints
-      ({ guard := false, debug, extern := P4SpecTecTest.Diff.P4Interp.placeholderExtern } :
+      ({ guard := false, debug, extern := P4SpecTec.BackendSim.Placeholder.externInterface } :
         P4SpecTec.Interp_al.Interp.Config
         P4SpecTec.Prelude.StateEval) spec
       | IO.eprintln "[p4-interp] invalid print hints"; return 1

@@ -154,7 +154,8 @@ def verdict(value, name):
             or set(value["relations"]) != set(contract.RELATIONS)):
         raise ValueError("malformed worker verdict")
     allowed = {"matched", "matched-public-failure", "syntax-only", "unsupported-type-fresh",
-               "unsupported-upstream-abort", "exhausted", "counter-disagreement",
+               "unsupported-upstream-abort", "unrepresentable-input", "exhausted",
+               "counter-disagreement",
                "output-disagreement", "outcome-disagreement"}
     for relation in value["relations"].values():
         if (not isinstance(relation, dict) or set(relation) != {"status", "leanClass", "message"}
@@ -165,7 +166,8 @@ def verdict(value, name):
         consistent = {
             "matched": {"pass"}, "matched-public-failure": {"hard-error", "unmatch"},
             "syntax-only": {"not-evaluated"}, "unsupported-type-fresh": {"not-evaluated"},
-            "unsupported-upstream-abort": {"not-evaluated"}, "exhausted": {"exhausted"},
+            "unsupported-upstream-abort": {"not-evaluated"},
+            "unrepresentable-input": {"not-evaluated"}, "exhausted": {"exhausted"},
             "output-disagreement": {"pass"},
             "counter-disagreement": {"pass", "hard-error", "unmatch"},
             "outcome-disagreement": {"pass", "hard-error", "unmatch"},

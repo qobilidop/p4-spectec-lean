@@ -1,5 +1,5 @@
 import P4SpecTecTest.Oracle.P4.Replay.Check
-import P4Spec
+import P4SpecTecTest.Oracle.P4.Generated.Externs
 
 /-!
 Replay the four pinned full-P4 oracle cases through the generated library: the
@@ -13,19 +13,6 @@ so a run that does not terminate does not return.
 namespace P4SpecTecTest.Diff.P4Generated
 
 open P4SpecTec P4SpecTec.Prelude
-
-/-- Fuel for the value decoders: enough for any program of the bundle. -/
-def decodeFuel : Nat := 1000000
-
-/-- The pinned `backend-sim/placeholder.ml` externs, as the interpreter leg has them:
-the two state initializers return a null extern value, every other operation is a hard
-error. -/
-instance placeholderExterns : P4Spec.Externs where
-  ExternFunctionCall_eval_lctk := fun _ _ _ => StateEval.run (throw .err)
-  «$init_objectState» := fun _ _ _ _ => StateEval.run (pure ExternValue.null)
-  «$init_archState» := StateEval.run (pure ExternValue.null)
-  ExternFunctionCall_eval := fun _ _ _ _ => StateEval.run (throw .err)
-  ExternMethodCall_eval := fun _ _ _ _ _ => StateEval.run (throw .err)
 
 /-- The generated library as a leg. The decoded program must encode back to the booted
 value, so that agreement on a rejected program is not agreement about another input. -/

@@ -249,21 +249,33 @@ errors.
 |---|---|---|
 | Build | Every generated definition elaborates and compiles; recursive groups pass Lean's monotonicity check | Any relation to AL |
 | `check-p4-quotes` | The 1,672 compiled quotations equal the decoded export, as for Nano-P4; the 17 schematic variable declarations are not quoted | That the executable definitions follow their quotations |
-| Bounded replay | On two pinned programs the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters; a third is rejected by upstream and by the generated relations. The reference interpreter agrees on all three | Other programs or packet processing. Upstream reports a rejection only as a class, so the kind of failure is not compared |
+| Corpus sweep | On 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters, as the reference interpreter does | The remaining candidate (its observation exceeds the 1 GiB case bound), programs upstream's manifests exclude, rejected programs (every observed candidate passes upstream), and packet processing |
+| Bounded replay | The same comparison on three pinned programs, one of which upstream and both Lean legs reject | Upstream reports a rejection only as a class, so the kind of failure is not compared |
 
 No full-P4 definition has a correspondence, run-soundness or representation certificate,
-and `P4Spec/coverage.json` says so for each. The bounded replay needs the pinned upstream
-build and p4c sources, so it is run by hand, not by the gate:
+and `P4Spec/coverage.json` says so for each. The sweep and the bounded replay are tests of
+selected executions, not proofs. They need the pinned upstream build and p4c sources, so
+they are run by hand, not by the gate:
 
 ```sh
 nix develop --command scripts/fetch-p4c.sh
+nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py \
+  --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Replay/replay.py \
   --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 ```
 
-Extern operations in that replay are upstream's placeholders: the two state initializers
-return a null value and every other extern is a hard error. No packet target exists for
-full P4.
+Both run upstream's placeholder target, ported to Lean: its two state initializers return
+a null value, the compile-time extern call implements `static_assert`, and every runtime
+extern call is a hard error. Upstream aborts on a failed `static_assert`, which the
+comparison does not evaluate, so only the successful branch of that port is compared.
+The two Lean legs share the port and the builtin implementations, so their agreement
+with each other is weaker evidence than their agreement with upstream. No packet target
+exists for full P4.
+
+The sweep has no committed mutation suite. In one manual run, changing `+ 1` to `+ 2` in
+the generated typing rule for bit-slice l-values made 39 of the 1,186 programs under
+32 MiB disagree on the generated leg.
 
 ## Reading a generated certificate
 

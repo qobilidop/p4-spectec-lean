@@ -99,6 +99,8 @@ scripts/generated-manifest.py (--check|--update) P4Spec P4Spec.manifest.json
 lake exe check-p4-quotes    # compiled full-P4 quotation vs current decoded export
 P4SpecTecTest/Oracle/P4/Replay/replay.py --upstream ABS --p4c ABS
                             # four pinned full-P4 cases, both Lean legs (upstream shell)
+P4SpecTecTest/Oracle/P4/Corpus/sweep.py --upstream ABS --p4c ABS [--jobs N]
+                            # whole p4c corpus, both Lean legs; about 20 minutes
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [AL-id]  # fresh inventory vs compiled types/axioms; optional closure
