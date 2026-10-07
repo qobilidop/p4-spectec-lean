@@ -1013,8 +1013,8 @@ def match_rule : Nat → Ctx.t → region → rulematch → List value → backt
     let ctx ← assign_exps fuel ctx exps_input values_input
     pure (ctx, prems_input)
 
-/-- Mirrors `invoke_rel`, without the cache and hooks; `internal` says
-whether the inputs are already known to be well-typed. -/
+/-- Mirrors `invoke_rel`, without the hooks and with the cache as the carrier's
+`Effects.memoRel`; `internal` says whether the inputs are already known to be well-typed. -/
 def invoke_rel : Nat → Config m → Bool → Ctx.t → Lang.Il.id → List value → m (List value)
   | 0, _, _, _, _, _ => do Eval.diverge
   | fuel + 1, cfg, internal, ctx, i, values_input => do traced cfg s!"relation {i.it}" do
@@ -1023,7 +1023,8 @@ def invoke_rel : Nat → Config m → Bool → Ctx.t → Lang.Il.id → List val
     match rel with
     | .Extern nottyp inputs => invoke_extern_rel fuel cfg ctx i nottyp inputs values_input
     | .Defined _ _ rulegroups elsegroup_opt =>
-      invoke_defined_rel fuel cfg ctx i rulegroups elsegroup_opt values_input
+      Effects.memoRel i.it fuel values_input
+        (invoke_defined_rel fuel cfg ctx i rulegroups elsegroup_opt values_input)
 
 /-- Mirrors `invoke_extern_rel`. -/
 def invoke_extern_rel : Nat → Config m → Ctx.t → Lang.Il.id → nottyp → Lang.Il.Hints.Input.t →

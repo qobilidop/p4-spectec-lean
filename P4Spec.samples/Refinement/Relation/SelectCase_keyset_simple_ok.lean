@@ -39,7 +39,11 @@ namespace P4Spec
          StateEval.liftEval
            (Eval.err? (P4Spec.simpleKeysetExpression.of_expression simpleKeysetExpression))
      have expression := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression)
+     let tmp_1 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression))
      have typedExpressionIR := tmp_1
      let tmp_2 ← ExceptT.mk (P4Spec.«$type_of_typedExpressionIR» typedExpressionIR)
      have typeIR := tmp_2
@@ -48,7 +52,11 @@ namespace P4Spec
      let _ ← StateEval.liftEval (Eval.check (P4Spec.typeIR.is_setTypeIR typeIR'))
      let tmp_4 ← StateEval.liftEval (Eval.err? (P4Spec.typeIR.of_setTypeIR typeIR'))
      let .SET_langle_rangle typeIR_base := tmp_4
-     let _ ← ExceptT.mk (P4Spec.Type_alpha.run typeIR_base typeIR_key)
+     let _ ←
+         memoRun
+           "Type_alpha"
+           [MemoKey.of typeIR_base, MemoKey.of typeIR_key]
+           (ExceptT.mk (P4Spec.Type_alpha.run typeIR_base typeIR_key))
      pure (P4Spec.typedExpressionIR.to_simpleKeysetExpressionIR typedExpressionIR))
 
 @[reducible] def SelectCase_keyset_simple_ok.«@attempt1» [Externs]
@@ -66,7 +74,11 @@ namespace P4Spec
          StateEval.liftEval
            (Eval.err? (P4Spec.simpleKeysetExpression.of_expression simpleKeysetExpression))
      have expression := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression)
+     let tmp_1 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression))
      have typedExpressionIR := tmp_1
      let tmp_2 ← ExceptT.mk (P4Spec.«$type_of_typedExpressionIR» typedExpressionIR)
      have typeIR := tmp_2
@@ -75,8 +87,17 @@ namespace P4Spec
      let _ ← StateEval.liftEval (Eval.check (P4Spec.typeIR.is_setTypeIR typeIR'))
      let tmp_4 ← StateEval.liftEval (Eval.err? (P4Spec.typeIR.of_setTypeIR typeIR'))
      let .SET_langle_rangle typeIR_base := tmp_4
-     let _ ← StateEval.notHold (ExceptT.mk (P4Spec.Type_alpha.run typeIR_base typeIR_key))
-     let tmp_5 ← ExceptT.mk (P4Spec.Cast_impl.run typeIR_base typeIR_key)
+     let _ ←
+         StateEval.notHold
+           (memoRun
+              "Type_alpha"
+              [MemoKey.of typeIR_base, MemoKey.of typeIR_key]
+              (ExceptT.mk (P4Spec.Type_alpha.run typeIR_base typeIR_key)))
+     let tmp_5 ←
+         memoRun
+           "Cast_impl"
+           [MemoKey.of typeIR_base, MemoKey.of typeIR_key]
+           (ExceptT.mk (P4Spec.Cast_impl.run typeIR_base typeIR_key))
      have castResult := tmp_5
      let _ ←
          StateEval.liftEval
@@ -108,14 +129,22 @@ namespace P4Spec
          StateEval.liftEval
            (Eval.err? (P4Spec.simpleKeysetExpression.of_expression simpleKeysetExpression))
      have expression := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression)
+     let tmp_1 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression))
      have typedExpressionIR := tmp_1
      let tmp_2 ← ExceptT.mk (P4Spec.«$type_of_typedExpressionIR» typedExpressionIR)
      have typeIR := tmp_2
      let tmp_3 ← ExceptT.mk (P4Spec.«$unroll_typeIR» typeIR)
      have typeIR_unroll := tmp_3
      let _ ← StateEval.liftEval (Eval.check (!(P4Spec.typeIR.is_setTypeIR typeIR_unroll)))
-     let tmp_4 ← ExceptT.mk (P4Spec.Cast_impl.run typeIR typeIR_key)
+     let tmp_4 ←
+         memoRun
+           "Cast_impl"
+           [MemoKey.of typeIR, MemoKey.of typeIR_key]
+           (ExceptT.mk (P4Spec.Cast_impl.run typeIR typeIR_key))
      have castResult := tmp_4
      let _ ←
          StateEval.liftEval
@@ -147,9 +176,17 @@ namespace P4Spec
                  | P4Spec.simpleKeysetExpression.ampampamp _ _ => true
                  | _ => false))
      let .ampampamp expression_l expression_r := simpleKeysetExpression | throw Fail.err
-     let tmp_0 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_l)
+     let tmp_0 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression_l]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_l))
      have typedExpressionIR_l := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_r)
+     let tmp_1 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression_r]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_r))
      have typedExpressionIR_r := tmp_1
      let tmp_2 ← ExceptT.mk (P4Spec.«$cast_binary» typedExpressionIR_l typedExpressionIR_r)
      have «(typedExpressionIR, typedExpressionIR)?» := tmp_2
@@ -197,9 +234,17 @@ namespace P4Spec
                  | P4Spec.simpleKeysetExpression.dotdot _ _ => true
                  | _ => false))
      let .dotdot expression_l expression_r := simpleKeysetExpression | throw Fail.err
-     let tmp_0 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_l)
+     let tmp_0 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression_l]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_l))
      have typedExpressionIR_l := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_r)
+     let tmp_1 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression_r]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_r))
      have typedExpressionIR_r := tmp_1
      let tmp_2 ← ExceptT.mk (P4Spec.«$cast_binary» typedExpressionIR_l typedExpressionIR_r)
      have «(typedExpressionIR, typedExpressionIR)?» := tmp_2
@@ -319,7 +364,12 @@ inductive SelectCase_keyset_simple_ok [Externs] : P4Spec.typingContext →
         ((P4Spec.typeIR.is_setTypeIR typeIR' : Bool) = true) →
         (P4Spec.typeIR.of_setTypeIR typeIR' =
            some (P4Spec.setTypeIR.SET_langle_rangle typeIR_base)) →
-        (StateEval.run (ExceptT.mk (P4Spec.Type_alpha.run typeIR_base typeIR_key)) «@s4» =
+        (StateEval.run
+             (memoRun
+                "Type_alpha"
+                [MemoKey.of typeIR_base, MemoKey.of typeIR_key]
+                (ExceptT.mk (P4Spec.Type_alpha.run typeIR_base typeIR_key)))
+             «@s4» =
            some (.error Fail.unmatch, «@s5»)) →
         (P4Spec.Cast_impl typeIR_base typeIR_key (P4Spec.castResult.OK «_typeIR*») «@s5» «@s6») →
         (((match (P4Spec.castResult.OK «_typeIR*») with

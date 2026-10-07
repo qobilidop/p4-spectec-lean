@@ -121,29 +121,46 @@ def Extern_init.run [Externs]
               BLOCK := EC.BLOCK,
               LOCAL := EC.LOCAL, } : P4Spec.instContext)
        let tmp_0 ←
-           ExceptT.mk
-             (P4Spec.Constructor_inst.run
-                P4Spec.cursor.GLOBAL
-                IC
-                (P4Spec.prefixedNameIR._BARE nameIR_extern)
-                ([] : List P4Spec.typeArgumentIR)
-                ([] : List P4Spec.argumentIR))
+           memoRun
+             "Constructor_inst"
+             [MemoKey.of P4Spec.cursor.GLOBAL,
+              MemoKey.of IC,
+              MemoKey.of (P4Spec.prefixedNameIR._BARE nameIR_extern),
+              MemoKey.of ([] : List P4Spec.typeArgumentIR),
+              MemoKey.of ([] : List P4Spec.argumentIR)]
+             (ExceptT.mk
+                (P4Spec.Constructor_inst.run
+                   P4Spec.cursor.GLOBAL
+                   IC
+                   (P4Spec.prefixedNameIR._BARE nameIR_extern)
+                   ([] : List P4Spec.typeArgumentIR)
+                   ([] : List P4Spec.argumentIR)))
        let (constructorDef, «typeArgumentIR*», «id*», «id'*») := tmp_0
        let _ ← StateEval.liftEval (Eval.check (List.isEmpty «typeArgumentIR*»))
        let _ ← StateEval.liftEval (Eval.check (List.isEmpty «id*»))
        let _ ← StateEval.liftEval (Eval.check (List.isEmpty «id'*»))
        have STO := ARCH_0.STORE
        let tmp_1 ←
-           ExceptT.mk
-             (P4Spec.Constructor_call.run
-                P4Spec.cursor.GLOBAL
-                IC
-                STO
-                constructorDef
-                ([] : List P4Spec.typeArgumentIR)
-                ([] : List P4Spec.argumentIR)
-                ([] : List P4Spec.id)
-                ([] : List P4Spec.id))
+           memoRun
+             "Constructor_call"
+             [MemoKey.of P4Spec.cursor.GLOBAL,
+              MemoKey.of IC,
+              MemoKey.of STO,
+              MemoKey.of constructorDef,
+              MemoKey.of ([] : List P4Spec.typeArgumentIR),
+              MemoKey.of ([] : List P4Spec.argumentIR),
+              MemoKey.of ([] : List P4Spec.id),
+              MemoKey.of ([] : List P4Spec.id)]
+             (ExceptT.mk
+                (P4Spec.Constructor_call.run
+                   P4Spec.cursor.GLOBAL
+                   IC
+                   STO
+                   constructorDef
+                   ([] : List P4Spec.typeArgumentIR)
+                   ([] : List P4Spec.argumentIR)
+                   ([] : List P4Spec.id)
+                   ([] : List P4Spec.id)))
        let (STO_1, object) := tmp_1
        have ARCH_1 :=
            { ARCH_0 with
@@ -400,7 +417,11 @@ def Program_init.run [Externs] (p0 : P4Spec.p4program) (state : FreshState)
   StateEval.run
     (do
        have p4program := p0
-       let tmp_0 ← ExceptT.mk (P4Spec.Program_inst.run p4program)
+       let tmp_0 ←
+           memoRun
+             "Program_inst"
+             [MemoKey.of p4program]
+             (ExceptT.mk (P4Spec.Program_inst.run p4program))
        let (globalEvalLayer, STO) := tmp_0
        let tmp_1 ← ExceptT.mk P4Spec.«$empty_theta»
        let tmp_2 ← ExceptT.mk P4Spec.«$empty_callableDefEnv»

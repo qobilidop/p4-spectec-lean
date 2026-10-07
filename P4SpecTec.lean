@@ -103,6 +103,7 @@ import P4SpecTec.Prelude
 import P4SpecTec.Prelude.Eval
 import P4SpecTec.Prelude.Extern
 import P4SpecTec.Prelude.Iter
+import P4SpecTec.Prelude.Memo
 import P4SpecTec.Prelude.Num
 import P4SpecTec.Prelude.StateEval
 import P4SpecTec.Prelude.Value

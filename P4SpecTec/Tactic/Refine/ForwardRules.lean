@@ -105,7 +105,7 @@ def helperFunctions : List Name := [
 /-- The lemmas of the calculus and the library that normalise both sides. -/
 def calcLemmas : List Name := [
   ``P4SpecTec.Interp_al.Effects.liftPure, ``P4SpecTec.Interp_al.Effects.orElsePure,
-  ``P4SpecTec.Interp_al.Effects.notHoldPure,
+  ``P4SpecTec.Interp_al.Effects.notHoldPure, ``P4SpecTec.Interp_al.Effects.memoRelPure,
   ``Q.p_it, ``Q.i_it, ``Q.a_it, ``Q.t_it, ``Q.e_it, ``Q.e_note, ``Q.pa_it, ``Q.pa_note, ``Q.pr_it,
   ``Q.ar_it, ``Q.pm_it, ``Q.nt_it, ``Q.dt_it, ``Q.cl_it, ``Q.rg_it, ``Q.eg_it, ``Q.tr_it, ``Q.d_it,
   ``Q.rp_eq, ``Q.v_eq, ``traced_eq, ``check_rel_inputs_off, ``check_rel_outputs_off,

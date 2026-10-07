@@ -515,7 +515,12 @@ def relCall (id : String) (ins : List Term) : CgM (Term × Bool) := do
   let extern := ctx.externs.contains id
   let f := if extern then ctx.env.q ("Externs." ++ Names.relName id)
     else ctx.env.q (Names.relName id ++ ".run")
-  pure (.call "ExceptT.mk" [.call f ins], extern)
+  let call := Term.call "ExceptT.mk" [.call f ins]
+  -- An explicit-state relation call is memoized as upstream's cache mode memoizes it;
+  -- `memoRun` is the call by definition (`Prelude/Memo.lean`).
+  if extern || ctx.env.mode != .freshState then pure (call, extern)
+  else pure (.call "memoRun" [.strLit id, .list (ins.map fun t => .call "MemoKey.of" [t]), call],
+    extern)
 
 /-- Split a relation's arguments into inputs and outputs by the hint. -/
 def splitArgs {α : Type} (inputs : List Nat) (args : List α) : List α × List α :=

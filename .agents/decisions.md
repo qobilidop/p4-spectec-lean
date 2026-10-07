@@ -246,6 +246,39 @@ allocate, which are accepted) rather than listed, so a pin change does not silen
 invalidate them. Confidence high. Revisit if a mutation needs a module early in the
 generated chain, where the rebuild would dominate.
 
+## Memoized relation runs as upstream's cache mode (2026-10-07)
+
+In the explicit-state profile every generated relation call and every defined-relation
+invocation of the interpreter's stateful carrier goes through `Prelude.memoRun`, which is
+the call by definition and whose compiled implementation memoizes it: the key is the
+identity of each live input object (the entry keeps the objects, so an address names one
+value; for the interpreter's IL values the object is the value's payload container, which
+`Runtime.Value.eq` identifies and which pattern binding shares where the value wrapper is
+rebuilt) and the initial counter, and an entry is written only for a successful run that
+moved the counter nothing, so a hit is what the run would have returned (for the
+interpreter up to `eq` on notes and regions, as upstream's cache; its entries also record
+the fuel, and a hit needs at least that fuel, since a run that succeeded under a bound
+succeeds identically under a larger one). The table is a persistent hash map in a
+module-initialized cell: the runtime never treats an object in such a cell as exclusive,
+so a flat map would copy its buckets on every insertion; it is process-wide and keyed by
+name, so the interpreter prefixes its names and a process runs one extern implementation
+and one spec. Reason: upstream's
+test configuration runs with its result cache on, and without one a rule group whose
+earlier rules evaluate a recursive premise and fail late (`TableKeys_eval`, three rules
+over a key list) costs time exponential in the list, which made 19 of the 219 v1model
+sessions exceed an hour on both legs (`issue983-bmv2`, one packet, 13 keys, did not finish
+in 12 minutes on either leg). Rejected: sharing the common prefix of consecutive attempts in
+the generated code (changes counters when the prefix allocates, and every run-soundness
+proof reads the complete-attempt shape); keying by value (hashing or comparing a context of
+megabytes per invocation); a generator-level fixed-point restructuring (the group tactic
+reads the fixed point from the definitions' values). The pure profile is untouched, so the
+Nano certificates see no wrapper; the stateful tactics erase it by its defining equation.
+Cost: a trusted `implemented_by` implementation, recorded in the certification trust table;
+a process-wide table cleared at 256K entries, where upstream's evicts by a clock.
+Confidence high in the transparency argument; revisit if a process must run two extern
+implementations or two specs (key on their identity then), if a target keeps mutable state
+outside the carrier, or if the pure profile needs it.
+
 ## Pins and reproducibility (2026-09-25)
 
 P4-SpecTec is pinned at `8c8e0c6f` on `gsoc-nano-spec`, because Nano is

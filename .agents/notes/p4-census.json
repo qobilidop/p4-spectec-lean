@@ -7403,7 +7403,7 @@
    "features": ["upcast", "iterated expression", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/2-static-runtime/2.6-type-alpha.watsup:5.1",
-   "runEmission": {"lines": 840, "bytes": 48520},
+   "runEmission": {"lines": 916, "bytes": 52579},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Type_alpha",
@@ -7416,7 +7416,7 @@
     "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/2-static-runtime/2.6-type-alpha.watsup:11.1",
-   "runEmission": {"lines": 10, "bytes": 537},
+   "runEmission": {"lines": 14, "bytes": 653},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParameterType_alpha",
@@ -7424,7 +7424,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/2-static-runtime/2.6-type-alpha.watsup:17.1",
-   "runEmission": {"lines": 75, "bytes": 3585},
+   "runEmission": {"lines": 91, "bytes": 4199},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ExternMethodType_alpha",
@@ -7432,7 +7432,7 @@
    "features": ["iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/2-static-runtime/2.6-type-alpha.watsup:23.1",
-   "runEmission": {"lines": 117, "bytes": 5386},
+   "runEmission": {"lines": 120, "bytes": 5548},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ExternMethodTypeDef_alpha",
@@ -9909,7 +9909,7 @@
    "features": ["upcast", "subtype check", "downcast", "iterated expression"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:5.1",
-   "runEmission": {"lines": 579, "bytes": 31756},
+   "runEmission": {"lines": 669, "bytes": 36254},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Type_wf",
@@ -9924,7 +9924,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:17.1",
-   "runEmission": {"lines": 51, "bytes": 2584},
+   "runEmission": {"lines": 59, "bytes": 2800},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParameterType_wf",
@@ -9932,7 +9932,7 @@
    "features": ["subtype check", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:23.1",
-   "runEmission": {"lines": 17, "bytes": 723},
+   "runEmission": {"lines": 21, "bytes": 831},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ReturnType_wf",
@@ -9940,7 +9940,7 @@
    "features": ["upcast", "subtype check"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:29.1",
-   "runEmission": {"lines": 388, "bytes": 18237},
+   "runEmission": {"lines": 432, "bytes": 20047},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "CallableType_wf",
@@ -9948,7 +9948,7 @@
    "features": ["upcast", "subtype check", "downcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:35.1",
-   "runEmission": {"lines": 23, "bytes": 1151},
+   "runEmission": {"lines": 27, "bytes": 1282},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "CallableTypeDef_wf",
@@ -9956,7 +9956,7 @@
    "features": ["call with type arguments", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:11.1",
-   "runEmission": {"lines": 22, "bytes": 1044},
+   "runEmission": {"lines": 26, "bytes": 1159},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TypeDef_wf",
@@ -9964,7 +9964,7 @@
    "features": ["call with type arguments", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:41.1",
-   "runEmission": {"lines": 18, "bytes": 671},
+   "runEmission": {"lines": 22, "bytes": 800},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ConstructorParameterType_wf",
@@ -10000,7 +10000,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:47.1",
-   "runEmission": {"lines": 183, "bytes": 9180},
+   "runEmission": {"lines": 219, "bytes": 10539},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ConstructorType_wf",
@@ -10015,7 +10015,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.03-typing-wellformed.watsup:53.1",
-   "runEmission": {"lines": 34, "bytes": 1382},
+   "runEmission": {"lines": 41, "bytes": 1658},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ConstructorTypeDef_wf",
@@ -10023,7 +10023,7 @@
    "features": ["call with type arguments", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:552.1",
-   "runEmission": {"lines": 641, "bytes": 36107},
+   "runEmission": {"lines": 648, "bytes": 36458},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "CallableType_ok",
@@ -10038,7 +10038,7 @@
     "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:13.1",
-   "runEmission": {"lines": 1538, "bytes": 101206},
+   "runEmission": {"lines": 1739, "bytes": 112799},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Expr_eval_lctk",
@@ -10056,7 +10056,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:20.1",
-   "runEmission": {"lines": 35, "bytes": 5303},
+   "runEmission": {"lines": 43, "bytes": 5585},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Argument_eval_lctk",
@@ -10136,7 +10136,7 @@
    "features": ["iterated expression", "upcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:79.1",
-   "runEmission": {"lines": 25, "bytes": 1165},
+   "runEmission": {"lines": 37, "bytes": 1581},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Cast_impl",
@@ -10144,7 +10144,7 @@
    "features": ["negative premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:83.1",
-   "runEmission": {"lines": 1848, "bytes": 107024},
+   "runEmission": {"lines": 1917, "bytes": 111015},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Cast_impl_neq",
@@ -10174,7 +10174,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.05.2-typing-casting.watsup:718.1",
-   "runEmission": {"lines": 118, "bytes": 5616},
+   "runEmission": {"lines": 146, "bytes": 6497},
    "propEmission": null,
    "name": "cast_binary",
    "kind": "FuncDecD",
@@ -10252,7 +10252,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:70.1",
-   "runEmission": {"lines": 25, "bytes": 1150},
+   "runEmission": {"lines": 37, "bytes": 1566},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Cast_expl",
@@ -10260,7 +10260,7 @@
    "features": ["negative premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:74.1",
-   "runEmission": {"lines": 2186, "bytes": 143170},
+   "runEmission": {"lines": 2257, "bytes": 147949},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Cast_expl_neq",
@@ -10325,7 +10325,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.05.2-typing-casting.watsup:704.1",
-   "runEmission": {"lines": 24, "bytes": 1065},
+   "runEmission": {"lines": 28, "bytes": 1183},
    "propEmission": null,
    "name": "cast_unary",
    "kind": "FuncDecD",
@@ -10346,7 +10346,7 @@
    "features": ["iterated expression"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.15.2-typing-call-inference.watsup:39.1",
-   "runEmission": {"lines": 295, "bytes": 11750},
+   "runEmission": {"lines": 307, "bytes": 12170},
    "propEmission": null,
    "name": "merge_constraint'",
    "kind": "FuncDecD",
@@ -10562,7 +10562,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:32.1",
-   "runEmission": {"lines": 477, "bytes": 36946},
+   "runEmission": {"lines": 544, "bytes": 40272},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Type_ok",
@@ -10570,7 +10570,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:44.1",
-   "runEmission": {"lines": 61, "bytes": 12490},
+   "runEmission": {"lines": 69, "bytes": 12827},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TypeArgument_ok",
@@ -10578,7 +10578,7 @@
    "features": ["subtype check", "downcast", "upcast", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:50.1",
-   "runEmission": {"lines": 27, "bytes": 11213},
+   "runEmission": {"lines": 35, "bytes": 11497},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TypeArguments_ok",
@@ -10586,7 +10586,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:56.1",
-   "runEmission": {"lines": 17, "bytes": 10585},
+   "runEmission": {"lines": 21, "bytes": 10724},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TypeArgumentList_ok",
@@ -10594,7 +10594,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:92.1",
-   "runEmission": {"lines": 4668, "bytes": 351950},
+   "runEmission": {"lines": 5214, "bytes": 391799},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Expr_ok",
@@ -10611,7 +10611,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:102.1",
-   "runEmission": {"lines": 57, "bytes": 12061},
+   "runEmission": {"lines": 65, "bytes": 12319},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Argument_ok",
@@ -10619,7 +10619,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:108.1",
-   "runEmission": {"lines": 24, "bytes": 10702},
+   "runEmission": {"lines": 28, "bytes": 10875},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ArgumentList_ok",
@@ -10627,7 +10627,7 @@
    "features": ["iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:118.1",
-   "runEmission": {"lines": 582, "bytes": 41428},
+   "runEmission": {"lines": 673, "bytes": 45249},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Lvalue_ok",
@@ -10641,7 +10641,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:492.1",
-   "runEmission": {"lines": 87, "bytes": 14086},
+   "runEmission": {"lines": 95, "bytes": 14349},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_convention_expr_ok",
@@ -10649,7 +10649,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:500.1",
-   "runEmission": {"lines": 82, "bytes": 13070},
+   "runEmission": {"lines": 96, "bytes": 13567},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_convention_arg_ok",
@@ -10657,7 +10657,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:508.1",
-   "runEmission": {"lines": 38, "bytes": 11598},
+   "runEmission": {"lines": 54, "bytes": 12114},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_convention_ok",
@@ -10665,7 +10665,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:540.1",
-   "runEmission": {"lines": 97, "bytes": 14144},
+   "runEmission": {"lines": 105, "bytes": 14437},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "CallableTarget_ok",
@@ -10673,7 +10673,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:566.1",
-   "runEmission": {"lines": 552, "bytes": 34926},
+   "runEmission": {"lines": 628, "bytes": 38323},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_ok",
@@ -10681,7 +10681,7 @@
    "features": ["upcast", "subtype check", "downcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:600.1",
-   "runEmission": {"lines": 166, "bytes": 16983},
+   "runEmission": {"lines": 188, "bytes": 17870},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Inst_ok",
@@ -10697,7 +10697,7 @@
    "features": ["iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:546.1",
-   "runEmission": {"lines": 15, "bytes": 574},
+   "runEmission": {"lines": 19, "bytes": 707},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "CallableTarget_lvalue_ok",
@@ -10705,7 +10705,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:436.1",
-   "runEmission": {"lines": 43, "bytes": 2084},
+   "runEmission": {"lines": 59, "bytes": 2620},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ConstDecl_ok",
@@ -10713,7 +10713,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:429.1",
-   "runEmission": {"lines": 83, "bytes": 3736},
+   "runEmission": {"lines": 103, "bytes": 4396},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "VarDecl_ok",
@@ -10728,7 +10728,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:448.1",
-   "runEmission": {"lines": 112, "bytes": 6161},
+   "runEmission": {"lines": 144, "bytes": 7295},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForCollectionExpr_ok",
@@ -10758,7 +10758,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:719.1",
-   "runEmission": {"lines": 41, "bytes": 1945},
+   "runEmission": {"lines": 45, "bytes": 2096},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchLabel_general_ok",
@@ -10766,7 +10766,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:128.1",
-   "runEmission": {"lines": 944, "bytes": 60771},
+   "runEmission": {"lines": 1158, "bytes": 70504},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Stmt_ok",
@@ -10781,7 +10781,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:135.1",
-   "runEmission": {"lines": 56, "bytes": 13160},
+   "runEmission": {"lines": 67, "bytes": 13622},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmt_ok",
@@ -10789,7 +10789,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:142.1",
-   "runEmission": {"lines": 17, "bytes": 11340},
+   "runEmission": {"lines": 21, "bytes": 11480},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmtList_ok",
@@ -10797,7 +10797,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:149.1",
-   "runEmission": {"lines": 15, "bytes": 11274},
+   "runEmission": {"lines": 19, "bytes": 11416},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Block_ok",
@@ -10805,7 +10805,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:275.1",
-   "runEmission": {"lines": 95, "bytes": 14861},
+   "runEmission": {"lines": 119, "bytes": 15916},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForUpdateStmt_ok",
@@ -10813,7 +10813,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:313.1",
-   "runEmission": {"lines": 22, "bytes": 11522},
+   "runEmission": {"lines": 26, "bytes": 11696},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForUpdateStmtList_ok",
@@ -10821,7 +10821,7 @@
    "features": ["iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:328.1",
-   "runEmission": {"lines": 121, "bytes": 15856},
+   "runEmission": {"lines": 147, "bytes": 16759},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForInitStmt_ok",
@@ -10829,7 +10829,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:377.1",
-   "runEmission": {"lines": 27, "bytes": 11875},
+   "runEmission": {"lines": 35, "bytes": 12141},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForInitStmts_ok",
@@ -10837,7 +10837,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:398.1",
-   "runEmission": {"lines": 15, "bytes": 11269},
+   "runEmission": {"lines": 19, "bytes": 11399},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForInitStmtList_ok",
@@ -10845,7 +10845,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:623.1",
-   "runEmission": {"lines": 42, "bytes": 12330},
+   "runEmission": {"lines": 54, "bytes": 12758},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCase_table_ok",
@@ -10853,7 +10853,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:659.1",
-   "runEmission": {"lines": 28, "bytes": 11866},
+   "runEmission": {"lines": 36, "bytes": 12180},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCases_table_ok",
@@ -10861,7 +10861,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:681.1",
-   "runEmission": {"lines": 17, "bytes": 11295},
+   "runEmission": {"lines": 21, "bytes": 11449},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCaseList_table_ok",
@@ -10869,7 +10869,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:697.1",
-   "runEmission": {"lines": 20, "bytes": 11449},
+   "runEmission": {"lines": 24, "bytes": 11605},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Switch_table_ok",
@@ -10877,7 +10877,7 @@
    "features": ["calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:749.1",
-   "runEmission": {"lines": 42, "bytes": 12340},
+   "runEmission": {"lines": 54, "bytes": 12774},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCase_general_ok",
@@ -10885,7 +10885,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:786.1",
-   "runEmission": {"lines": 27, "bytes": 11844},
+   "runEmission": {"lines": 34, "bytes": 12152},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCases_general_ok",
@@ -10893,7 +10893,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:810.1",
-   "runEmission": {"lines": 17, "bytes": 11301},
+   "runEmission": {"lines": 21, "bytes": 11458},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCaseList_general_ok",
@@ -10901,7 +10901,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:836.1",
-   "runEmission": {"lines": 20, "bytes": 11471},
+   "runEmission": {"lines": 23, "bytes": 11619},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Switch_general_ok",
@@ -10909,7 +10909,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.10-typing-statement.watsup:936.1",
-   "runEmission": {"lines": 29, "bytes": 12002},
+   "runEmission": {"lines": 37, "bytes": 12288},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmts_ok",
@@ -10917,7 +10917,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:161.1",
-   "runEmission": {"lines": 122, "bytes": 5898},
+   "runEmission": {"lines": 158, "bytes": 7112},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Parameter_ok",
@@ -10930,7 +10930,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.09-typing-parameter.watsup:81.1",
-   "runEmission": {"lines": 28, "bytes": 11203},
+   "runEmission": {"lines": 36, "bytes": 11475},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Parameters_ok",
@@ -10938,7 +10938,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:168.1",
-   "runEmission": {"lines": 18, "bytes": 812},
+   "runEmission": {"lines": 22, "bytes": 947},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParameterList_ok",
@@ -10946,7 +10946,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:175.1",
-   "runEmission": {"lines": 20, "bytes": 981},
+   "runEmission": {"lines": 24, "bytes": 1150},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ConstructorParameterListOpt_ok",
@@ -10975,7 +10975,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:230.1",
-   "runEmission": {"lines": 111, "bytes": 5230},
+   "runEmission": {"lines": 141, "bytes": 6574},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ExternMethod_ok",
@@ -10983,7 +10983,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:237.1",
-   "runEmission": {"lines": 58, "bytes": 2781},
+   "runEmission": {"lines": 66, "bytes": 3117},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ExternConstructor_ok",
@@ -10998,7 +10998,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.13.1-typing-parser-statement.watsup:9.1",
-   "runEmission": {"lines": 221, "bytes": 12065},
+   "runEmission": {"lines": 266, "bytes": 13689},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SelectCase_keyset_simple_ok",
@@ -11006,7 +11006,7 @@
    "features": ["upcast", "subtype check", "downcast", "negative premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.13.1-typing-parser-statement.watsup:134.1",
-   "runEmission": {"lines": 468, "bytes": 24166},
+   "runEmission": {"lines": 553, "bytes": 28748},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SelectCase_keyset_ok",
@@ -11014,7 +11014,7 @@
    "features": ["subtype check", "downcast", "upcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.13.1-typing-parser-statement.watsup:260.1",
-   "runEmission": {"lines": 18, "bytes": 809},
+   "runEmission": {"lines": 22, "bytes": 965},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SelectCase_ok",
@@ -11022,7 +11022,7 @@
    "features": ["membership"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:248.1",
-   "runEmission": {"lines": 77, "bytes": 3370},
+   "runEmission": {"lines": 94, "bytes": 4203},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserSelect_ok",
@@ -11030,7 +11030,7 @@
    "features": ["upcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:254.1",
-   "runEmission": {"lines": 63, "bytes": 2865},
+   "runEmission": {"lines": 67, "bytes": 3028},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserTransition_ok",
@@ -11038,7 +11038,7 @@
    "features": ["membership", "subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:260.1",
-   "runEmission": {"lines": 198, "bytes": 20289},
+   "runEmission": {"lines": 243, "bytes": 22176},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserStmt_ok",
@@ -11046,7 +11046,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:266.1",
-   "runEmission": {"lines": 66, "bytes": 13578},
+   "runEmission": {"lines": 77, "bytes": 14020},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmt_ok",
@@ -11054,7 +11054,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:273.1",
-   "runEmission": {"lines": 19, "bytes": 11483},
+   "runEmission": {"lines": 23, "bytes": 11640},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmtList_ok",
@@ -11062,7 +11062,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:280.1",
-   "runEmission": {"lines": 19, "bytes": 11443},
+   "runEmission": {"lines": 22, "bytes": 11589},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlock_ok",
@@ -11070,7 +11070,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.13.1-typing-parser-statement.watsup:451.1",
-   "runEmission": {"lines": 32, "bytes": 12228},
+   "runEmission": {"lines": 39, "bytes": 12531},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmts_ok",
@@ -11078,7 +11078,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:287.1",
-   "runEmission": {"lines": 36, "bytes": 1384},
+   "runEmission": {"lines": 42, "bytes": 1681},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserState_ok",
@@ -11086,7 +11086,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:293.1",
-   "runEmission": {"lines": 62, "bytes": 2751},
+   "runEmission": {"lines": 66, "bytes": 2956},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserStateList_ok",
@@ -11098,7 +11098,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:90.1",
-   "runEmission": {"lines": 76, "bytes": 3213},
+   "runEmission": {"lines": 101, "bytes": 4145},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "InstDecl_non_objectInitializer_ok",
@@ -11106,7 +11106,7 @@
    "features": ["iterated expression", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:255.1",
-   "runEmission": {"lines": 92, "bytes": 4359},
+   "runEmission": {"lines": 95, "bytes": 4533},
    "propEmission": null,
    "name": "subst_externMethodTypeDefEnv",
    "kind": "FuncDecD",
@@ -11114,7 +11114,7 @@
    ["iterated expression", "call with type arguments", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:443.1",
-   "runEmission": {"lines": 124, "bytes": 16154},
+   "runEmission": {"lines": 162, "bytes": 17771},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "InstDecl_ok",
@@ -11122,7 +11122,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:133.1",
-   "runEmission": {"lines": 135, "bytes": 16750},
+   "runEmission": {"lines": 158, "bytes": 17679},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ObjectDecl_ok",
@@ -11135,7 +11135,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:205.1",
-   "runEmission": {"lines": 55, "bytes": 13281},
+   "runEmission": {"lines": 69, "bytes": 13825},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ObjectDecls_ok",
@@ -11143,7 +11143,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:236.1",
-   "runEmission": {"lines": 26, "bytes": 12180},
+   "runEmission": {"lines": 36, "bytes": 12643},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ObjectDeclList_ok",
@@ -11151,7 +11151,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:292.1",
-   "runEmission": {"lines": 111, "bytes": 15918},
+   "runEmission": {"lines": 140, "bytes": 16996},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "InstDecl_objectInitializer_ok",
@@ -11159,7 +11159,7 @@
    "features": ["iterated expression", "upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:299.1",
-   "runEmission": {"lines": 105, "bytes": 4848},
+   "runEmission": {"lines": 129, "bytes": 5905},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDecl_ok",
@@ -11167,7 +11167,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.13.3-typing-parser-declaration.watsup:60.1",
-   "runEmission": {"lines": 29, "bytes": 12483},
+   "runEmission": {"lines": 37, "bytes": 12769},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDecls_ok",
@@ -11175,7 +11175,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:306.1",
-   "runEmission": {"lines": 15, "bytes": 733},
+   "runEmission": {"lines": 19, "bytes": 873},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDeclList_ok",
@@ -11204,7 +11204,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:317.1",
-   "runEmission": {"lines": 50, "bytes": 2232},
+   "runEmission": {"lines": 58, "bytes": 2559},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableKey_ok",
@@ -11212,7 +11212,7 @@
    "features": ["upcast", "call with type arguments", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:323.1",
-   "runEmission": {"lines": 28, "bytes": 11347},
+   "runEmission": {"lines": 36, "bytes": 11625},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableKeys_ok",
@@ -11234,7 +11234,7 @@
    "features": ["subtype check"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:329.1",
-   "runEmission": {"lines": 37, "bytes": 1676},
+   "runEmission": {"lines": 44, "bytes": 1964},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_action_partial_ok",
@@ -11242,7 +11242,7 @@
    "features": ["iterated expression"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:337.1",
-   "runEmission": {"lines": 113, "bytes": 5700},
+   "runEmission": {"lines": 127, "bytes": 6244},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableAction_ok",
@@ -11250,7 +11250,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:343.1",
-   "runEmission": {"lines": 28, "bytes": 11661},
+   "runEmission": {"lines": 36, "bytes": 11951},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableActions_ok",
@@ -11258,7 +11258,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:349.1",
-   "runEmission": {"lines": 34, "bytes": 1527},
+   "runEmission": {"lines": 41, "bytes": 1810},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_action_default_ok",
@@ -11266,7 +11266,7 @@
    "features": ["iterated expression"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:357.1",
-   "runEmission": {"lines": 90, "bytes": 4389},
+   "runEmission": {"lines": 98, "bytes": 4718},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableDefaultAction_ok",
@@ -11281,7 +11281,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.14.1-typing-control-table.watsup:285.1",
-   "runEmission": {"lines": 395, "bytes": 20214},
+   "runEmission": {"lines": 448, "bytes": 22218},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableEntry_keyset_simple_ok",
@@ -11289,7 +11289,7 @@
    "features": ["upcast", "subtype check", "downcast", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.14.1-typing-control-table.watsup:484.1",
-   "runEmission": {"lines": 53, "bytes": 12404},
+   "runEmission": {"lines": 70, "bytes": 12990},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableEntry_keysets_simple_ok",
@@ -11297,7 +11297,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:363.1",
-   "runEmission": {"lines": 381, "bytes": 18477},
+   "runEmission": {"lines": 423, "bytes": 20608},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableEntry_keyset_ok",
@@ -11305,7 +11305,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:369.1",
-   "runEmission": {"lines": 86, "bytes": 4056},
+   "runEmission": {"lines": 94, "bytes": 4385},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableEntry_action_ok",
@@ -11313,7 +11313,7 @@
    "features": ["subtype check", "downcast", "slicing", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:375.1",
-   "runEmission": {"lines": 43, "bytes": 2200},
+   "runEmission": {"lines": 51, "bytes": 2504},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableEntry_priority_ok",
@@ -11321,7 +11321,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:381.1",
-   "runEmission": {"lines": 68, "bytes": 2858},
+   "runEmission": {"lines": 88, "bytes": 3598},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableEntry_ok",
@@ -11329,7 +11329,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:387.1",
-   "runEmission": {"lines": 294, "bytes": 14833},
+   "runEmission": {"lines": 332, "bytes": 16459},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableProperty_ok",
@@ -11337,7 +11337,7 @@
    "features": ["upcast", "subtype check", "downcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:393.1",
-   "runEmission": {"lines": 29, "bytes": 12855},
+   "runEmission": {"lines": 37, "bytes": 13154},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableProperties_ok",
@@ -11381,7 +11381,7 @@
    ["subtype check", "downcast", "membership", "upcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:399.1",
-   "runEmission": {"lines": 115, "bytes": 5837},
+   "runEmission": {"lines": 123, "bytes": 6139},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Table_ok",
@@ -11397,7 +11397,7 @@
    "features": ["iterated expression", "upcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:457.1",
-   "runEmission": {"lines": 49, "bytes": 2106},
+   "runEmission": {"lines": 61, "bytes": 2560},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ActionDecl_ok",
@@ -11405,7 +11405,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:411.1",
-   "runEmission": {"lines": 110, "bytes": 5159},
+   "runEmission": {"lines": 131, "bytes": 6055},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDecl_ok",
@@ -11413,7 +11413,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.14.2-typing-control-declaration.watsup:66.1",
-   "runEmission": {"lines": 30, "bytes": 14444},
+   "runEmission": {"lines": 38, "bytes": 14734},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDecls_ok",
@@ -11421,7 +11421,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:418.1",
-   "runEmission": {"lines": 15, "bytes": 744},
+   "runEmission": {"lines": 19, "bytes": 886},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDeclList_ok",
@@ -11429,7 +11429,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:450.1",
-   "runEmission": {"lines": 71, "bytes": 3101},
+   "runEmission": {"lines": 91, "bytes": 3896},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "FuncDecl_ok",
@@ -11455,7 +11455,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:788.1",
-   "runEmission": {"lines": 30, "bytes": 1544},
+   "runEmission": {"lines": 38, "bytes": 1854},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Enum_serializable_field_ok",
@@ -11463,7 +11463,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:811.1",
-   "runEmission": {"lines": 38, "bytes": 11458},
+   "runEmission": {"lines": 54, "bytes": 11984},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Enum_serializable_fields_ok",
@@ -11471,7 +11471,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.11-typing-declaration.watsup:834.1",
-   "runEmission": {"lines": 19, "bytes": 811},
+   "runEmission": {"lines": 25, "bytes": 1029},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Enum_serializable_fieldList_ok",
@@ -11479,7 +11479,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:464.1",
-   "runEmission": {"lines": 1623, "bytes": 102328},
+   "runEmission": {"lines": 1886, "bytes": 116080},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Decl_ok",
@@ -11494,7 +11494,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:470.1",
-   "runEmission": {"lines": 25, "bytes": 15089},
+   "runEmission": {"lines": 33, "bytes": 15331},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Decls_ok",
@@ -11502,7 +11502,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/5-typing/5.04-typing-relation.watsup:476.1",
-   "runEmission": {"lines": 12, "bytes": 577},
+   "runEmission": {"lines": 16, "bytes": 695},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Program_ok",
@@ -11799,7 +11799,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:85.1",
-   "runEmission": {"lines": 28, "bytes": 1212},
+   "runEmission": {"lines": 36, "bytes": 1498},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ExternMethods_inst",
@@ -11863,7 +11863,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:178.1",
-   "runEmission": {"lines": 28, "bytes": 1293},
+   "runEmission": {"lines": 36, "bytes": 1589},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableActions_inst",
@@ -11904,7 +11904,7 @@
     "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:5.1",
-   "runEmission": {"lines": 1382, "bytes": 89307},
+   "runEmission": {"lines": 1665, "bytes": 104252},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Expr_inst",
@@ -11920,7 +11920,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:12.1",
-   "runEmission": {"lines": 33, "bytes": 5508},
+   "runEmission": {"lines": 41, "bytes": 5826},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Exprs_inst",
@@ -11928,7 +11928,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:23.1",
-   "runEmission": {"lines": 38, "bytes": 5582},
+   "runEmission": {"lines": 46, "bytes": 5890},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Argument_inst",
@@ -11936,7 +11936,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:34.1",
-   "runEmission": {"lines": 72, "bytes": 7146},
+   "runEmission": {"lines": 89, "bytes": 7828},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "DirectApplicationStmt_inst",
@@ -11944,7 +11944,7 @@
    "features": ["upcast", "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:42.1",
-   "runEmission": {"lines": 357, "bytes": 21087},
+   "runEmission": {"lines": 401, "bytes": 23058},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Stmt_inst",
@@ -11952,7 +11952,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:50.1",
-   "runEmission": {"lines": 69, "bytes": 6986},
+   "runEmission": {"lines": 80, "bytes": 7376},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmt_inst",
@@ -11960,7 +11960,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:59.1",
-   "runEmission": {"lines": 40, "bytes": 5870},
+   "runEmission": {"lines": 46, "bytes": 6182},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmtList_inst",
@@ -11968,7 +11968,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:68.1",
-   "runEmission": {"lines": 21, "bytes": 4928},
+   "runEmission": {"lines": 25, "bytes": 5097},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Block_inst",
@@ -11976,7 +11976,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:95.1",
-   "runEmission": {"lines": 204, "bytes": 13574},
+   "runEmission": {"lines": 244, "bytes": 15333},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserStmt_inst",
@@ -11984,7 +11984,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:104.1",
-   "runEmission": {"lines": 77, "bytes": 7314},
+   "runEmission": {"lines": 85, "bytes": 7636},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmt_inst",
@@ -11992,7 +11992,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:113.1",
-   "runEmission": {"lines": 45, "bytes": 6085},
+   "runEmission": {"lines": 54, "bytes": 6493},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmtList_inst",
@@ -12000,7 +12000,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:122.1",
-   "runEmission": {"lines": 25, "bytes": 5043},
+   "runEmission": {"lines": 28, "bytes": 5220},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlock_inst",
@@ -12008,7 +12008,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:131.1",
-   "runEmission": {"lines": 34, "bytes": 5350},
+   "runEmission": {"lines": 37, "bytes": 5527},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserState_inst",
@@ -12016,7 +12016,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:140.1",
-   "runEmission": {"lines": 31, "bytes": 5389},
+   "runEmission": {"lines": 39, "bytes": 5689},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserStates_inst",
@@ -12024,7 +12024,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:149.1",
-   "runEmission": {"lines": 123, "bytes": 9369},
+   "runEmission": {"lines": 141, "bytes": 10013},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDecl_inst",
@@ -12032,7 +12032,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:158.1",
-   "runEmission": {"lines": 39, "bytes": 5867},
+   "runEmission": {"lines": 46, "bytes": 6190},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDecls_inst",
@@ -12040,7 +12040,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:186.1",
-   "runEmission": {"lines": 127, "bytes": 9945},
+   "runEmission": {"lines": 137, "bytes": 10335},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableProperty_inst",
@@ -12048,7 +12048,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:194.1",
-   "runEmission": {"lines": 30, "bytes": 5516},
+   "runEmission": {"lines": 38, "bytes": 5821},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableProperties_inst",
@@ -12056,7 +12056,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:202.1",
-   "runEmission": {"lines": 212, "bytes": 13944},
+   "runEmission": {"lines": 233, "bytes": 14846},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDecl_inst",
@@ -12064,7 +12064,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:211.1",
-   "runEmission": {"lines": 61, "bytes": 7192},
+   "runEmission": {"lines": 75, "bytes": 7866},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDecls_inst",
@@ -12072,7 +12072,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:231.1",
-   "runEmission": {"lines": 138, "bytes": 9918},
+   "runEmission": {"lines": 186, "bytes": 11586},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "InstDecl_inst",
@@ -12080,7 +12080,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:281.1",
-   "runEmission": {"lines": 27, "bytes": 5134},
+   "runEmission": {"lines": 34, "bytes": 5343},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_in_arg_inst",
@@ -12088,7 +12088,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:290.1",
-   "runEmission": {"lines": 64, "bytes": 6341},
+   "runEmission": {"lines": 82, "bytes": 7015},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_in_inst",
@@ -12096,7 +12096,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:299.1",
-   "runEmission": {"lines": 60, "bytes": 6792},
+   "runEmission": {"lines": 66, "bytes": 6999},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_in_arg_inst_default",
@@ -12104,7 +12104,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:308.1",
-   "runEmission": {"lines": 55, "bytes": 5991},
+   "runEmission": {"lines": 71, "bytes": 6608},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_in_inst_default",
@@ -12112,7 +12112,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:333.1",
-   "runEmission": {"lines": 564, "bytes": 28432},
+   "runEmission": {"lines": 666, "bytes": 32186},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Constructor_call",
@@ -12128,7 +12128,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.06-inst-statement.watsup:183.1",
-   "runEmission": {"lines": 51, "bytes": 6079},
+   "runEmission": {"lines": 57, "bytes": 6321},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCase_inst",
@@ -12136,7 +12136,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.06-inst-statement.watsup:210.1",
-   "runEmission": {"lines": 31, "bytes": 5481},
+   "runEmission": {"lines": 39, "bytes": 5801},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCases_inst",
@@ -12144,7 +12144,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.07-inst-declaration.watsup:60.1",
-   "runEmission": {"lines": 43, "bytes": 5872},
+   "runEmission": {"lines": 53, "bytes": 6251},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ObjectDecl_inst",
@@ -12152,7 +12152,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.07-inst-declaration.watsup:82.1",
-   "runEmission": {"lines": 33, "bytes": 5489},
+   "runEmission": {"lines": 41, "bytes": 5799},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ObjectDecls_inst",
@@ -12181,7 +12181,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:253.1",
-   "runEmission": {"lines": 1093, "bytes": 62177},
+   "runEmission": {"lines": 1126, "bytes": 63729},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Decl_inst",
@@ -12196,7 +12196,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:261.1",
-   "runEmission": {"lines": 31, "bytes": 5756},
+   "runEmission": {"lines": 39, "bytes": 6042},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Decls_inst",
@@ -12204,7 +12204,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/7-instantiation/7.03-inst-relation.watsup:269.1",
-   "runEmission": {"lines": 14, "bytes": 654},
+   "runEmission": {"lines": 22, "bytes": 890},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Program_inst",
@@ -12372,7 +12372,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:94.1",
-   "runEmission": {"lines": 437, "bytes": 23403},
+   "runEmission": {"lines": 494, "bytes": 25814},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Lvalue_read",
@@ -12404,7 +12404,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:100.1",
-   "runEmission": {"lines": 518, "bytes": 26768},
+   "runEmission": {"lines": 655, "bytes": 32738},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Lvalue_write",
@@ -12440,7 +12440,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:763.1",
-   "runEmission": {"lines": 130, "bytes": 6929},
+   "runEmission": {"lines": 138, "bytes": 7227},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCases_table_eval",
@@ -12455,7 +12455,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:395.1",
-   "runEmission": {"lines": 65, "bytes": 2637},
+   "runEmission": {"lines": 73, "bytes": 2899},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_out_argument",
@@ -12463,7 +12463,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.10.3-eval-call-copyout.watsup:46.1",
-   "runEmission": {"lines": 63, "bytes": 2327},
+   "runEmission": {"lines": 81, "bytes": 3034},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_out_inner",
@@ -12471,7 +12471,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:406.1",
-   "runEmission": {"lines": 34, "bytes": 1095},
+   "runEmission": {"lines": 43, "bytes": 1438},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_out",
@@ -12529,7 +12529,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:36.1",
-   "runEmission": {"lines": 2749, "bytes": 198721},
+   "runEmission": {"lines": 3105, "bytes": 221028},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Expr_eval",
@@ -12545,7 +12545,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:47.1",
-   "runEmission": {"lines": 116, "bytes": 9991},
+   "runEmission": {"lines": 142, "bytes": 10936},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Exprs_eval",
@@ -12553,7 +12553,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:58.1",
-   "runEmission": {"lines": 19, "bytes": 5471},
+   "runEmission": {"lines": 22, "bytes": 5620},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Eval_keyset",
@@ -12561,7 +12561,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:69.1",
-   "runEmission": {"lines": 39, "bytes": 6246},
+   "runEmission": {"lines": 47, "bytes": 6560},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Argument_eval",
@@ -12569,7 +12569,7 @@
    "features": ["subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:78.1",
-   "runEmission": {"lines": 82, "bytes": 8165},
+   "runEmission": {"lines": 90, "bytes": 8479},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Argument_eval_lvalue",
@@ -12577,7 +12577,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:87.1",
-   "runEmission": {"lines": 523, "bytes": 32451},
+   "runEmission": {"lines": 630, "bytes": 37059},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Lvalue_eval",
@@ -12585,7 +12585,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:127.1",
-   "runEmission": {"lines": 1227, "bytes": 72527},
+   "runEmission": {"lines": 1488, "bytes": 85156},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Stmt_eval",
@@ -12593,7 +12593,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:135.1",
-   "runEmission": {"lines": 68, "bytes": 7578},
+   "runEmission": {"lines": 85, "bytes": 8193},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmt_eval",
@@ -12601,7 +12601,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:144.1",
-   "runEmission": {"lines": 70, "bytes": 7801},
+   "runEmission": {"lines": 79, "bytes": 8275},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "BlockElementStmtList_eval",
@@ -12609,7 +12609,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:153.1",
-   "runEmission": {"lines": 17, "bytes": 5348},
+   "runEmission": {"lines": 21, "bytes": 5518},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Block_eval",
@@ -12617,7 +12617,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:170.1",
-   "runEmission": {"lines": 434, "bytes": 25413},
+   "runEmission": {"lines": 525, "bytes": 29427},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserStmt_eval",
@@ -12625,7 +12625,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:179.1",
-   "runEmission": {"lines": 118, "bytes": 9831},
+   "runEmission": {"lines": 138, "bytes": 10612},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmt_eval",
@@ -12633,7 +12633,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:188.1",
-   "runEmission": {"lines": 80, "bytes": 8193},
+   "runEmission": {"lines": 95, "bytes": 8844},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlockElementStmtList_eval",
@@ -12641,7 +12641,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:197.1",
-   "runEmission": {"lines": 21, "bytes": 5457},
+   "runEmission": {"lines": 24, "bytes": 5635},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserBlock_eval",
@@ -12649,7 +12649,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:211.1",
-   "runEmission": {"lines": 155, "bytes": 11619},
+   "runEmission": {"lines": 206, "bytes": 13539},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserSelect_eval",
@@ -12657,7 +12657,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:220.1",
-   "runEmission": {"lines": 88, "bytes": 8306},
+   "runEmission": {"lines": 92, "bytes": 8466},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserTransition_eval",
@@ -12665,7 +12665,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:229.1",
-   "runEmission": {"lines": 78, "bytes": 7699},
+   "runEmission": {"lines": 88, "bytes": 8220},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserState_eval",
@@ -12673,7 +12673,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:238.1",
-   "runEmission": {"lines": 73, "bytes": 8138},
+   "runEmission": {"lines": 89, "bytes": 8733},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserState_trans",
@@ -12681,7 +12681,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:249.1",
-   "runEmission": {"lines": 92, "bytes": 8474},
+   "runEmission": {"lines": 108, "bytes": 9092},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDecl_eval",
@@ -12689,7 +12689,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:258.1",
-   "runEmission": {"lines": 74, "bytes": 8021},
+   "runEmission": {"lines": 83, "bytes": 8491},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ParserLocalDecls_eval",
@@ -12697,7 +12697,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:275.1",
-   "runEmission": {"lines": 192, "bytes": 13993},
+   "runEmission": {"lines": 249, "bytes": 16391},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Table_eval",
@@ -12705,7 +12705,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:284.1",
-   "runEmission": {"lines": 58, "bytes": 7205},
+   "runEmission": {"lines": 70, "bytes": 7633},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlBody_eval",
@@ -12713,7 +12713,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:297.1",
-   "runEmission": {"lines": 94, "bytes": 8574},
+   "runEmission": {"lines": 110, "bytes": 9192},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDecl_eval",
@@ -12721,7 +12721,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:305.1",
-   "runEmission": {"lines": 83, "bytes": 8433},
+   "runEmission": {"lines": 94, "bytes": 8945},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ControlLocalDecls_eval",
@@ -12729,7 +12729,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:321.1",
-   "runEmission": {"lines": 77, "bytes": 8101},
+   "runEmission": {"lines": 85, "bytes": 8433},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "VarDecl_eval",
@@ -12737,7 +12737,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:343.1",
-   "runEmission": {"lines": 1161, "bytes": 69440},
+   "runEmission": {"lines": 1291, "bytes": 75542},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Callee_eval",
@@ -12750,7 +12750,7 @@
     "call with type arguments"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:355.1",
-   "runEmission": {"lines": 216, "bytes": 14107},
+   "runEmission": {"lines": 264, "bytes": 15754},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_in_arg",
@@ -12758,7 +12758,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:373.1",
-   "runEmission": {"lines": 200, "bytes": 12974},
+   "runEmission": {"lines": 247, "bytes": 14854},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Copy_in",
@@ -12766,7 +12766,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.02-evaluation-relation.watsup:417.1",
-   "runEmission": {"lines": 2905, "bytes": 171604},
+   "runEmission": {"lines": 3532, "bytes": 206083},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Call_eval",
@@ -12783,7 +12783,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.03.2-eval-keyset-expression.watsup:47.1",
-   "runEmission": {"lines": 337, "bytes": 20918},
+   "runEmission": {"lines": 417, "bytes": 24068},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Eval_keyset_simple",
@@ -12791,7 +12791,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.03.2-eval-keyset-expression.watsup:163.1",
-   "runEmission": {"lines": 123, "bytes": 10653},
+   "runEmission": {"lines": 140, "bytes": 11475},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Eval_keysets_simple",
@@ -12799,7 +12799,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:250.1",
-   "runEmission": {"lines": 57, "bytes": 7000},
+   "runEmission": {"lines": 79, "bytes": 7918},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForUpdateStmt_eval",
@@ -12807,7 +12807,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:281.1",
-   "runEmission": {"lines": 66, "bytes": 7833},
+   "runEmission": {"lines": 77, "bytes": 8309},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForUpdateStmts_eval",
@@ -12815,7 +12815,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:313.1",
-   "runEmission": {"lines": 125, "bytes": 10045},
+   "runEmission": {"lines": 141, "bytes": 10658},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForInitStmt_eval",
@@ -12823,7 +12823,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:366.1",
-   "runEmission": {"lines": 65, "bytes": 7688},
+   "runEmission": {"lines": 77, "bytes": 8165},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForInitStmts_eval",
@@ -12831,7 +12831,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:400.1",
-   "runEmission": {"lines": 219, "bytes": 15287},
+   "runEmission": {"lines": 313, "bytes": 18809},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForThreeClauseStmt_eval",
@@ -12839,7 +12839,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:530.1",
-   "runEmission": {"lines": 248, "bytes": 16284},
+   "runEmission": {"lines": 304, "bytes": 18400},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForCollectionExpr_eval",
@@ -12847,7 +12847,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:626.1",
-   "runEmission": {"lines": 147, "bytes": 10944},
+   "runEmission": {"lines": 181, "bytes": 12103},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ForInStmt_eval",
@@ -12855,7 +12855,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:742.1",
-   "runEmission": {"lines": 39, "bytes": 6264},
+   "runEmission": {"lines": 53, "bytes": 6807},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Switch_table_eval",
@@ -12863,7 +12863,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:855.1",
-   "runEmission": {"lines": 53, "bytes": 6581},
+   "runEmission": {"lines": 73, "bytes": 7392},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Switch_general_eval",
@@ -12871,7 +12871,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:864.1",
-   "runEmission": {"lines": 50, "bytes": 6548},
+   "runEmission": {"lines": 56, "bytes": 6756},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchLabel_general_eval",
@@ -12879,7 +12879,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.06-eval-statement.watsup:895.1",
-   "runEmission": {"lines": 286, "bytes": 17418},
+   "runEmission": {"lines": 334, "bytes": 19348},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SwitchCases_general_eval",
@@ -12891,7 +12891,7 @@
     "iterated expression"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.08.1-eval-parser-statement.watsup:11.1",
-   "runEmission": {"lines": 77, "bytes": 8080},
+   "runEmission": {"lines": 89, "bytes": 8526},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SelectCase_match",
@@ -12899,7 +12899,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.08.1-eval-parser-statement.watsup:50.1",
-   "runEmission": {"lines": 101, "bytes": 9260},
+   "runEmission": {"lines": 126, "bytes": 10155},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "SelectCases_match",
@@ -12907,7 +12907,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.09.1-eval-control-table.watsup:11.1",
-   "runEmission": {"lines": 44, "bytes": 6699},
+   "runEmission": {"lines": 56, "bytes": 7115},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableKey_eval",
@@ -12915,7 +12915,7 @@
    "features": ["subtype check", "downcast", "upcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.09.1-eval-control-table.watsup:41.1",
-   "runEmission": {"lines": 109, "bytes": 9899},
+   "runEmission": {"lines": 129, "bytes": 10657},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableKeys_eval",
@@ -12923,7 +12923,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.09.1-eval-control-table.watsup:98.1",
-   "runEmission": {"lines": 120, "bytes": 9948},
+   "runEmission": {"lines": 132, "bytes": 10394},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableMatch_eval",
@@ -12931,7 +12931,7 @@
    "features": ["subtype check", "downcast", "upcast", "iterated premise"]},
   {"source":
    "upstream/p4-spectec/spec/8-dynamic/8.09.1-eval-control-table.watsup:162.1",
-   "runEmission": {"lines": 126, "bytes": 10557},
+   "runEmission": {"lines": 158, "bytes": 11719},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "TableMatches_eval",
@@ -12939,14 +12939,14 @@
    "features":
    ["upcast", "subtype check", "downcast", "call with type arguments"]},
   {"source": "upstream/p4-spectec/spec/8-dynamic/8.10.4-eval-call.watsup:15.1",
-   "runEmission": {"lines": 58, "bytes": 7205},
+   "runEmission": {"lines": 70, "bytes": 7642},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "ActionBody_eval",
    "kind": "RelD",
    "features": ["subtype check", "downcast", "upcast"]},
   {"source": "upstream/p4-spectec/spec/8-dynamic/8.10.4-eval-call.watsup:150.1",
-   "runEmission": {"lines": 55, "bytes": 7211},
+   "runEmission": {"lines": 67, "bytes": 7648},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "DefinedFunctionBody_eval",
@@ -12960,14 +12960,14 @@
    "kind": "RelD",
    "features": []},
   {"source": "upstream/p4-spectec/spec/9-arch/9.0-eval-arch.watsup:28.1",
-   "runEmission": {"lines": 50, "bytes": 1856},
+   "runEmission": {"lines": 67, "bytes": 2632},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Extern_init",
    "kind": "RelD",
    "features": []},
   {"source": "upstream/p4-spectec/spec/9-arch/9.0-eval-arch.watsup:58.1",
-   "runEmission": {"lines": 29, "bytes": 1197},
+   "runEmission": {"lines": 33, "bytes": 1295},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "Program_init",
@@ -13123,28 +13123,28 @@
    "kind": "FuncDecD",
    "features": []},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:5.1",
-   "runEmission": {"lines": 13, "bytes": 511},
+   "runEmission": {"lines": 17, "bytes": 609},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_init",
    "kind": "RelD",
    "features": ["calls an extern"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:23.1",
-   "runEmission": {"lines": 52, "bytes": 2189},
+   "runEmission": {"lines": 58, "bytes": 2454},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_init_packet_in",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:42.1",
-   "runEmission": {"lines": 52, "bytes": 2202},
+   "runEmission": {"lines": 58, "bytes": 2469},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_init_packet_out",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:61.1",
-   "runEmission": {"lines": 79, "bytes": 3354},
+   "runEmission": {"lines": 102, "bytes": 4197},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_init_globals",
@@ -13273,42 +13273,42 @@
     "upcast",
     "calls a builtin"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:271.1",
-   "runEmission": {"lines": 92, "bytes": 4544},
+   "runEmission": {"lines": 114, "bytes": 5522},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_parser",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:331.1",
-   "runEmission": {"lines": 78, "bytes": 3851},
+   "runEmission": {"lines": 100, "bytes": 4829},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_verify",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:379.1",
-   "runEmission": {"lines": 82, "bytes": 4206},
+   "runEmission": {"lines": 104, "bytes": 5184},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_ingress",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:432.1",
-   "runEmission": {"lines": 82, "bytes": 4203},
+   "runEmission": {"lines": 104, "bytes": 5181},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_egress",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:486.1",
-   "runEmission": {"lines": 78, "bytes": 3848},
+   "runEmission": {"lines": 100, "bytes": 4826},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_check",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:534.1",
-   "runEmission": {"lines": 82, "bytes": 3946},
+   "runEmission": {"lines": 104, "bytes": 4924},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_deparse",
@@ -13350,14 +13350,14 @@
     "iterated expression",
     "calls a builtin"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:629.1",
-   "runEmission": {"lines": 40, "bytes": 1578},
+   "runEmission": {"lines": 61, "bytes": 2309},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_copy_meta_fields",
    "kind": "RelD",
    "features": ["upcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.A-v1model.watsup:650.1",
-   "runEmission": {"lines": 35, "bytes": 1668},
+   "runEmission": {"lines": 45, "bytes": 2032},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "V1Model_setup_preserved_meta_fields",
@@ -13368,21 +13368,21 @@
     "call with type arguments",
     "calls a builtin"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.B-ebpf.watsup:5.1",
-   "runEmission": {"lines": 13, "bytes": 508},
+   "runEmission": {"lines": 17, "bytes": 606},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "EBPF_init",
    "kind": "RelD",
    "features": ["calls an extern"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.B-ebpf.watsup:24.1",
-   "runEmission": {"lines": 52, "bytes": 2186},
+   "runEmission": {"lines": 58, "bytes": 2451},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "EBPF_init_packet_in",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.B-ebpf.watsup:43.1",
-   "runEmission": {"lines": 35, "bytes": 1560},
+   "runEmission": {"lines": 45, "bytes": 1982},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "EBPF_init_globals",
@@ -13444,21 +13444,21 @@
     "upcast",
     "calls a builtin"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.B-ebpf.watsup:138.1",
-   "runEmission": {"lines": 86, "bytes": 3948},
+   "runEmission": {"lines": 108, "bytes": 4926},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "EBPF_parse",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.B-ebpf.watsup:186.1",
-   "runEmission": {"lines": 94, "bytes": 4558},
+   "runEmission": {"lines": 116, "bytes": 5536},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "EBPF_filter",
    "kind": "RelD",
    "features": ["upcast", "subtype check", "downcast"]},
   {"source": "upstream/p4-spectec/spec/9-arch/9.C.1-psa.watsup:5.1",
-   "runEmission": {"lines": 13, "bytes": 507},
+   "runEmission": {"lines": 17, "bytes": 605},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_init",
@@ -13532,7 +13532,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:5.1",
-   "runEmission": {"lines": 54, "bytes": 2268},
+   "runEmission": {"lines": 60, "bytes": 2541},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_packet_in",
@@ -13540,7 +13540,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:23.1",
-   "runEmission": {"lines": 54, "bytes": 2281},
+   "runEmission": {"lines": 60, "bytes": 2556},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_packet_out",
@@ -13548,7 +13548,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:46.1",
-   "runEmission": {"lines": 47, "bytes": 1839},
+   "runEmission": {"lines": 61, "bytes": 2391},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_parser_input_metadata",
@@ -13556,7 +13556,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:65.1",
-   "runEmission": {"lines": 65, "bytes": 2546},
+   "runEmission": {"lines": 86, "bytes": 3369},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_input_metadata",
@@ -13564,7 +13564,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:92.1",
-   "runEmission": {"lines": 91, "bytes": 3683},
+   "runEmission": {"lines": 126, "bytes": 5045},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_output_metadata",
@@ -13572,7 +13572,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:129.1",
-   "runEmission": {"lines": 20, "bytes": 761},
+   "runEmission": {"lines": 32, "bytes": 1237},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_metadata",
@@ -13580,7 +13580,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:142.1",
-   "runEmission": {"lines": 194, "bytes": 7711},
+   "runEmission": {"lines": 245, "bytes": 9896},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_init_globals",
@@ -13699,7 +13699,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:373.1",
-   "runEmission": {"lines": 128, "bytes": 6006},
+   "runEmission": {"lines": 150, "bytes": 6984},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_parser",
@@ -13707,7 +13707,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:453.1",
-   "runEmission": {"lines": 104, "bytes": 5126},
+   "runEmission": {"lines": 126, "bytes": 6104},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress",
@@ -13715,7 +13715,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.2-psa-ingress-pipeline.watsup:522.1",
-   "runEmission": {"lines": 130, "bytes": 6291},
+   "runEmission": {"lines": 152, "bytes": 7269},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_ingress_deparser",
@@ -13723,7 +13723,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:5.1",
-   "runEmission": {"lines": 54, "bytes": 2262},
+   "runEmission": {"lines": 60, "bytes": 2534},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_packet_in",
@@ -13731,7 +13731,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:23.1",
-   "runEmission": {"lines": 54, "bytes": 2275},
+   "runEmission": {"lines": 60, "bytes": 2549},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_packet_out",
@@ -13739,7 +13739,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:45.1",
-   "runEmission": {"lines": 47, "bytes": 1835},
+   "runEmission": {"lines": 61, "bytes": 2387},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_parser_input_metadata",
@@ -13747,7 +13747,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:64.1",
-   "runEmission": {"lines": 97, "bytes": 3908},
+   "runEmission": {"lines": 132, "bytes": 5275},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_input_metadata",
@@ -13755,7 +13755,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:102.1",
-   "runEmission": {"lines": 41, "bytes": 1585},
+   "runEmission": {"lines": 55, "bytes": 2127},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_output_metadata",
@@ -13763,7 +13763,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:121.1",
-   "runEmission": {"lines": 27, "bytes": 1033},
+   "runEmission": {"lines": 34, "bytes": 1311},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_deparser_input_metadata",
@@ -13771,7 +13771,7 @@
    "features": ["upcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:134.1",
-   "runEmission": {"lines": 28, "bytes": 1009},
+   "runEmission": {"lines": 47, "bytes": 1721},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_metadata",
@@ -13779,7 +13779,7 @@
    "features": []},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:149.1",
-   "runEmission": {"lines": 182, "bytes": 7636},
+   "runEmission": {"lines": 232, "bytes": 9746},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_init_globals",
@@ -13906,7 +13906,7 @@
     "calls a builtin"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:398.1",
-   "runEmission": {"lines": 134, "bytes": 6321},
+   "runEmission": {"lines": 156, "bytes": 7299},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_parser",
@@ -13914,7 +13914,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:484.1",
-   "runEmission": {"lines": 104, "bytes": 5109},
+   "runEmission": {"lines": 126, "bytes": 6087},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress",
@@ -13922,7 +13922,7 @@
    "features": ["upcast", "subtype check", "downcast"]},
   {"source":
    "upstream/p4-spectec/spec/9-arch/9.C.3-psa-egress-pipeline.watsup:553.1",
-   "runEmission": {"lines": 130, "bytes": 6374},
+   "runEmission": {"lines": 152, "bytes": 7352},
    "propEmission":
    {"error": "state-indexed structural propositions are not implemented"},
    "name": "PSA_egress_deparser",

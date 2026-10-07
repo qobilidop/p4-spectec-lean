@@ -22,7 +22,8 @@ def refinement : TacticM (Expr × Expr × Expr) := do
 /-- Extend shared scalar normalization with state-preserving equations. -/
 def stateSimpSet : TacticM SimpSet := do
   let s ← simpSet
-  pure { s with lemmas := s.lemmas ++ #[``liftState, ``liftStatePure, ``liftStateThrow,
+  pure { s with lemmas := s.lemmas ++ #[``Effects.memoRelState, ``memoRun_eq, ``memoRunBounded_eq,
+    ``liftState, ``liftStatePure, ``liftStateThrow,
     ``liftStateBind, ``orElseState, ``hOrElseState, ``stateDivergeBind, ``stateThrowBind,
     ``stateOrElseUnmatch, ``stateOrElseUnmatchRight, ``stateMkRun, ``stateRunEta,
     ``tracedStateEq, ``checkFuncInputsStateOff,

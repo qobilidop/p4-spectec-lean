@@ -69,7 +69,11 @@ namespace P4Spec
      let _ ← StateEval.liftEval (Eval.check (decide ((List.length tmp_11) ≤ (1 : Nat))))
      let tmp_12 ← ExceptT.mk P4Spec.«$empty_tableContext»
      have TBLC_0 := tmp_12
-     let tmp_13 ← ExceptT.mk (P4Spec.TableProperties_ok.run TC TBLC_0 «tableProperty*»)
+     let tmp_13 ←
+         memoRun
+           "TableProperties_ok"
+           [MemoKey.of TC, MemoKey.of TBLC_0, MemoKey.of «tableProperty*»]
+           (ExceptT.mk (P4Spec.TableProperties_ok.run TC TBLC_0 «tableProperty*»))
      let (TBLC_1, «tablePropertyIR*») := tmp_13
      have tablePropertyIR_default_action :=
          P4Spec.tableDefaultActionPropertyIR.to_tablePropertyIR

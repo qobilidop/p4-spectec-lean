@@ -239,10 +239,18 @@ the claimed observations; new differences require an explicit entry.
   makes either failure kind of a callee a mismatch of the extern call; Lean's
   failure data cannot separate a nested target abort from AL `Err`, which
   matters only for callbacks whose closures reach an extern (none in Nano).
-- **Execution profile:** sequential, cache-free interpretation omits cache
-  registration, hooks, backtraces and deterministic checking. These modes are
-  not interchangeable
-  when extra evaluation consumes state.
+- **Execution profile:** sequential interpretation omits cache registration,
+  hooks, backtraces and deterministic checking. These modes are not
+  interchangeable when extra evaluation consumes state. Upstream's cache of
+  relation results is mirrored only as an executable optimization: in the
+  explicit-state profile a defined relation's run is memoized by the identity of
+  its input objects (for the interpreter's IL values, of their payload
+  containers, which runtime value equality identifies, and with the fuel it
+  had) and its initial counter, and only when it succeeded without allocating,
+  so a hit returns what the run would have returned (for the interpreter, up to
+  that equality on notes and regions, as upstream's cache does); by definition
+  the memoized run is the run itself (`Prelude/Memo.lean`), so every statement
+  and proof is about the uncached semantics.
 - **Diagnostics:** debug expressions evaluate without printing; traces and
   source regions are outside baseline observations.
 - **State and contexts:** immutable tables, explicit environments and signed

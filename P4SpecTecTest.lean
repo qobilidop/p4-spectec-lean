@@ -53,6 +53,7 @@ import P4SpecTecTest.Lang.Hints.Alter
 import P4SpecTecTest.NanoP4Target.Externs
 import P4SpecTecTest.NanoP4Target.Packet
 
+import P4SpecTecTest.Prelude.Memo
 import P4SpecTecTest.Prelude.StateEval
 
 import P4SpecTecTest.Refine.Builtin.List

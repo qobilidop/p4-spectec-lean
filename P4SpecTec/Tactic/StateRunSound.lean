@@ -44,7 +44,9 @@ def isSomeOk (e : Expr) : Bool :=
 /-- Reduce one successful stateful run without discarding failed-prefix equations. -/
 def simpAt (h : Name) : TacticM Unit := do
   let i := mkIdent h
-  evalTactic (← `(tactic| simp only [P4SpecTec.Refine.stateRunHOrElseOk,
+  evalTactic (← `(tactic| simp only [P4SpecTec.Prelude.memoRun_eq,
+    P4SpecTec.Prelude.memoRunBounded_eq,
+    P4SpecTec.Refine.stateRunHOrElseOk,
     P4SpecTec.Refine.stateRunOrElseOk, P4SpecTec.Prelude.StateEval.runBindOk,
     P4SpecTec.Prelude.StateEval.runPure, P4SpecTec.Prelude.StateEval.runThrow,
     P4SpecTec.Refine.stateRunNotHoldOk, P4SpecTec.Refine.stateRunLiftOk,

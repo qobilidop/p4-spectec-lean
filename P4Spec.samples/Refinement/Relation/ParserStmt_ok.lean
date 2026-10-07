@@ -37,11 +37,16 @@ namespace P4Spec
          StateEval.liftEval (Eval.err? (P4Spec.parserStatement.of_emptyStatement parserStatement))
      have emptyStatement := tmp_0
      let tmp_1 ←
-         ExceptT.mk
-           (P4Spec.Stmt_ok.run
-              P4Spec.cursor.LOCAL
-              TC
-              (P4Spec.emptyStatement.to_statement emptyStatement))
+         memoRun
+           "Stmt_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL,
+            MemoKey.of TC,
+            MemoKey.of (P4Spec.emptyStatement.to_statement emptyStatement)]
+           (ExceptT.mk
+              (P4Spec.Stmt_ok.run
+                 P4Spec.cursor.LOCAL
+                 TC
+                 (P4Spec.emptyStatement.to_statement emptyStatement)))
      let (TC', statementIR) := tmp_1
      let _ ← StateEval.liftEval (Eval.check (TC' == TC))
      let _ ← StateEval.liftEval (Eval.check (P4Spec.statementIR.is_emptyStatement statementIR))
@@ -63,11 +68,16 @@ namespace P4Spec
            (Eval.err? (P4Spec.parserStatement.of_assignmentStatement parserStatement))
      have assignmentStatement := tmp_0
      let tmp_1 ←
-         ExceptT.mk
-           (P4Spec.Stmt_ok.run
-              P4Spec.cursor.LOCAL
-              TC_0
-              (P4Spec.assignmentStatement.to_statement assignmentStatement))
+         memoRun
+           "Stmt_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL,
+            MemoKey.of TC_0,
+            MemoKey.of (P4Spec.assignmentStatement.to_statement assignmentStatement)]
+           (ExceptT.mk
+              (P4Spec.Stmt_ok.run
+                 P4Spec.cursor.LOCAL
+                 TC_0
+                 (P4Spec.assignmentStatement.to_statement assignmentStatement)))
      let (TC_1, statementIR) := tmp_1
      let _ ←
          StateEval.liftEval (Eval.check (P4Spec.statementIR.is_assignmentStatementIR statementIR))
@@ -88,11 +98,16 @@ namespace P4Spec
          StateEval.liftEval (Eval.err? (P4Spec.parserStatement.of_callStatement parserStatement))
      have callStatement := tmp_0
      let tmp_1 ←
-         ExceptT.mk
-           (P4Spec.Stmt_ok.run
-              P4Spec.cursor.LOCAL
-              TC_0
-              (P4Spec.callStatement.to_statement callStatement))
+         memoRun
+           "Stmt_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL,
+            MemoKey.of TC_0,
+            MemoKey.of (P4Spec.callStatement.to_statement callStatement)]
+           (ExceptT.mk
+              (P4Spec.Stmt_ok.run
+                 P4Spec.cursor.LOCAL
+                 TC_0
+                 (P4Spec.callStatement.to_statement callStatement)))
      let (TC_1, statementIR) := tmp_1
      let _ ← StateEval.liftEval (Eval.check (P4Spec.statementIR.is_callStatementIR statementIR))
      let tmp_2 ← StateEval.liftEval (Eval.err? (P4Spec.statementIR.of_callStatementIR statementIR))
@@ -113,11 +128,16 @@ namespace P4Spec
            (Eval.err? (P4Spec.parserStatement.of_directApplicationStatement parserStatement))
      have directApplicationStatement := tmp_0
      let tmp_1 ←
-         ExceptT.mk
-           (P4Spec.Stmt_ok.run
-              P4Spec.cursor.LOCAL
-              TC_0
-              (P4Spec.directApplicationStatement.to_statement directApplicationStatement))
+         memoRun
+           "Stmt_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL,
+            MemoKey.of TC_0,
+            MemoKey.of (P4Spec.directApplicationStatement.to_statement directApplicationStatement)]
+           (ExceptT.mk
+              (P4Spec.Stmt_ok.run
+                 P4Spec.cursor.LOCAL
+                 TC_0
+                 (P4Spec.directApplicationStatement.to_statement directApplicationStatement)))
      let (TC_1, statementIR) := tmp_1
      let _ ←
          StateEval.liftEval
@@ -144,7 +164,11 @@ namespace P4Spec
      have parserBlockStatement := tmp_0
      let tmp_1 ← ExceptT.mk (P4Spec.«$enter_t» TC_0)
      have TC_1 := tmp_1
-     let tmp_2 ← ExceptT.mk (P4Spec.ParserBlock_ok.run TC_1 parserBlockStatement)
+     let tmp_2 ←
+         memoRun
+           "ParserBlock_ok"
+           [MemoKey.of TC_1, MemoKey.of parserBlockStatement]
+           (ExceptT.mk (P4Spec.ParserBlock_ok.run TC_1 parserBlockStatement))
      let (TC_2, parserBlockStatementIR) := tmp_2
      let tmp_3 ← ExceptT.mk (P4Spec.«$exit_t» TC_2)
      have TC_3 := tmp_3
@@ -172,7 +196,11 @@ namespace P4Spec
                  | _ => false))
      let .IF_lparen_rparen expression_cond parserStatement_then :=
          parserConditionalStatement' | throw Fail.err
-     let tmp_1 ← ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_cond)
+     let tmp_1 ←
+         memoRun
+           "Expr_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC, MemoKey.of expression_cond]
+           (ExceptT.mk (P4Spec.Expr_ok.run P4Spec.cursor.LOCAL TC expression_cond))
      have typedExpressionIR_cond := tmp_1
      let tmp_2 ← ExceptT.mk (P4Spec.«$type_of_typedExpressionIR» typedExpressionIR_cond)
      have typeIR_cond := tmp_2
@@ -180,7 +208,11 @@ namespace P4Spec
      let _ ←
          StateEval.liftEval
            (Eval.check ((P4Spec.boolTypeIR.to_typeIR P4Spec.boolTypeIR.BOOL) == tmp_3))
-     let tmp_4 ← ExceptT.mk (P4Spec.ParserStmt_ok.run TC parserStatement_then)
+     let tmp_4 ←
+         memoRun
+           "ParserStmt_ok"
+           [MemoKey.of TC, MemoKey.of parserStatement_then]
+           (ExceptT.mk (P4Spec.ParserStmt_ok.run TC parserStatement_then))
      let (TC_then, parserStatementIR_then) := tmp_4
      pure (TC,
       P4Spec.parserConditionalStatementIR.to_parserStatementIR
@@ -207,7 +239,11 @@ namespace P4Spec
               (P4Spec.parserBlockElementStatement.of_constantDeclaration
                  parserBlockElementStatement'))
      have constantDeclaration := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.ConstDecl_ok.run P4Spec.cursor.LOCAL TC_0 constantDeclaration)
+     let tmp_1 ←
+         memoRun
+           "ConstDecl_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC_0, MemoKey.of constantDeclaration]
+           (ExceptT.mk (P4Spec.ConstDecl_ok.run P4Spec.cursor.LOCAL TC_0 constantDeclaration))
      let (TC_1, constantDeclarationIR) := tmp_1
      pure (TC_1,
       P4Spec.constantDeclarationIR.to_parserBlockElementStatementIR constantDeclarationIR))
@@ -231,7 +267,11 @@ namespace P4Spec
               (P4Spec.parserBlockElementStatement.of_variableDeclaration
                  parserBlockElementStatement'))
      have variableDeclaration := tmp_0
-     let tmp_1 ← ExceptT.mk (P4Spec.VarDecl_ok.run P4Spec.cursor.LOCAL TC_0 variableDeclaration)
+     let tmp_1 ←
+         memoRun
+           "VarDecl_ok"
+           [MemoKey.of P4Spec.cursor.LOCAL, MemoKey.of TC_0, MemoKey.of variableDeclaration]
+           (ExceptT.mk (P4Spec.VarDecl_ok.run P4Spec.cursor.LOCAL TC_0 variableDeclaration))
      let (TC_1, variableDeclarationIR) := tmp_1
      pure (TC_1,
       P4Spec.variableDeclarationIR.to_parserBlockElementStatementIR variableDeclarationIR))
