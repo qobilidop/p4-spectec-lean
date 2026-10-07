@@ -105,6 +105,8 @@ P4SpecTecTest/Oracle/P4/Corpus/sweep.py --upstream ABS --p4c ABS [--jobs N] [--r
                             # both Lean legs: whole p4c corpus (about 20 minutes), upstream's
                             # 37 regression programs (under a minute) or p4c's 535 error tests
 P4SpecTecTest/Oracle/P4/Corpus/mutations.py  # six sweep mutations, each rejected by a named status
+P4SpecTecTest/Oracle/P4/Sessions/sessions.py --upstream ABS --p4c ABS [--arch v1model|ebpf] [--jobs N]
+                            # one target's STF sessions, both Lean legs vs upstream's simulator (upstream shell)
 P4SpecTecTest/Oracle/Nano/Replay/replay.py            # rung 2: generated relation and interpreter port vs upstream's verdicts
 lake exe check-quotes       # compiled Nano-P4 quotation vs current decoded export
 lake exe check-coverage [--full-p4] [AL-id]  # fresh inventory vs compiled types/axioms

@@ -3,9 +3,9 @@ import P4SpecTec.BackendSim.Placeholder
 /-!
 The placeholder target's extern dispatch and `static_assert`, against a recording
 callback: lookup order, the returned value, and which failures are errors or mismatches.
-Agreement with upstream is the corpus replay's obligation, and it covers the successful
-branch only: a failed `static_assert` is an upstream abort, which the replay does not
-evaluate, so that branch follows a reading of `placeholder.ml` and `core/func.ml`.
+Agreement with upstream is the corpus replay's obligation: the successful branch on the
+p4c samples, the failed branch (an upstream abort, matched by the port's hard error at the
+same counter) on the one p4c error test that exercises it.
 -/
 
 namespace P4SpecTecTest.PlaceholderTarget

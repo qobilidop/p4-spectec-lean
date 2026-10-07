@@ -174,17 +174,37 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
    raisable bounds. Open: the one candidate above the case bound. Type
    equivalence/substitution exhaustion and separate Type.Fresh effects constrain further
    coverage; guarded full-P4 coverage is not established.
-3. M3D: independently validate actual packet targets, starting from bounded
-   NanoSwitch work then v1model/eBPF STF cases. PSA syntax alone is no target.
+3. M3D: closed 2026-10-07. Lean ports of upstream's v1model and eBPF simulators,
+   generic in the spec they call back into, run on both Lean legs against upstream's
+   own simulator on the STF sessions of its p4c-sample and regression sets: 219 v1model
+   sessions (204 p4c pairs less 5 excludes, plus the 20 regression programs) and 15 eBPF
+   sessions, every event at the architecture's boundary matching ([corpus](corpus.md),
+   "Packet targets"); upstream's five custom v1model sessions and its p4testgen sets
+   are not swept. Getting there required mirroring upstream's result cache as a
+   semantics-transparent memoization (decisions, "Memoized relation runs"). Not
+   ported: PSA (no STF pairs at the pin under upstream's selection rules); not
+   covered: p4testgen's STF files and the statements no session exercises.
 4. M3E: expand audited refinement in dependency-driven slices (builtins,
    parameters, iteration, casts/subtypes, indexing/slicing/membership/externs),
    bring a real relation into coverage and benchmark the full environment.
    Mutation rejection and explicitly claimed scope are required; the
    all-definition claim stays open while any definition is excluded. The
-   explicit-state certificates are not emitted (above).
+   explicit-state certificates are not emitted (above). Assessed on 2026-10-07
+   against the current full-P4 export: the explicit-state refinement fragment
+   (`Codegen/Certificates/StateForward`, `StateValidate.unsupported`) admits none
+   of the 747 functions and builtins. By first rejection: 482 return a non-scalar
+   result, 132 call another builtin, 59 take a non-scalar parameter, 47 call a
+   builtin other than the zero-argument `fresh_typeId`, 16 have type parameters,
+   10 use an expression outside the initial scalar fragment, 1 binds a non-variable
+   `let` pattern. A real slice therefore needs the fragment extended to non-scalar
+   results and parameters first (the two largest classes, 541 of 747), which is
+   tactic and encoding work on the scale of M3B's run-soundness, not a session's
+   increment; M3D's targets did not change this. No certificate is claimed.
 5. M3F: discharge rule overlap/disjointness for determinism and distinguish
    counterexamples from unresolved obligations. Reverse realization and exact
-   logical relations do not follow from run soundness or determinism.
+   logical relations do not follow from run soundness or determinism. Open; it
+   depends on the converse direction M3E would supply, and nothing in M3D's
+   evidence bears on it beyond the agreement of both legs on every session.
    The bounded consumer is complete; broader clients and P4Lib remain M4.
 
 The retired aggregate `m3b-state-production` at `925fdbf` (source integration

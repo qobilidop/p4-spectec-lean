@@ -1,11 +1,29 @@
 import P4SpecTec.BackendSim.Core.Func
 import P4SpecTec.BackendSim.Core.Object
+import P4SpecTec.BackendSim.Ebpf.Object
+import P4SpecTec.BackendSim.Ebpf.Pipe
+import P4SpecTec.BackendSim.Ebpf.Stf
+import P4SpecTec.BackendSim.Hash
 import P4SpecTec.BackendSim.Make
 import P4SpecTec.BackendSim.NanoSwitch.Pipe
 import P4SpecTec.BackendSim.NanoSwitch.PipeContract
 import P4SpecTec.BackendSim.Placeholder
 import P4SpecTec.BackendSim.SpecImpl.Func
+import P4SpecTec.BackendSim.SpecImpl.Pack
+import P4SpecTec.BackendSim.SpecImpl.Rel
 import P4SpecTec.BackendSim.SpecImpl.Unpack
+import P4SpecTec.BackendSim.State
+import P4SpecTec.BackendSim.Stf.Ast
+import P4SpecTec.BackendSim.Stf.Run
+import P4SpecTec.BackendSim.Stf.Transform
+import P4SpecTec.BackendSim.Table
+import P4SpecTec.BackendSim.V1Model.Arch
+import P4SpecTec.BackendSim.V1Model.Func
+import P4SpecTec.BackendSim.V1Model.Multicast
+import P4SpecTec.BackendSim.V1Model.Object
+import P4SpecTec.BackendSim.V1Model.Packet
+import P4SpecTec.BackendSim.V1Model.Pipe
+import P4SpecTec.BackendSim.V1Model.Stf
 
 import P4SpecTec.Codegen.Attempt
 import P4SpecTec.Codegen.Census
@@ -95,6 +113,7 @@ import P4SpecTec.Lang.Hints.Alter
 import P4SpecTec.Lang.Hints.AlterJson
 import P4SpecTec.Lang.Hints.Input
 import P4SpecTec.Lang.Il.Ast
+import P4SpecTec.Lang.Il.Encode
 import P4SpecTec.Lang.Il.Json
 import P4SpecTec.Lang.Xl.Bool
 import P4SpecTec.Lang.Xl.Num

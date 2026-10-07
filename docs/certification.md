@@ -263,6 +263,8 @@ exact copies, so that a change to the generator shows as a readable diff.
 | Regression sweep | On upstream's own 37 regression programs, both legs agree with upstream on both relations: 24 accepted, with outputs and counters as above, and 13 rejected, where both legs fail, in upstream's failure class, with the fresh-identifier counter upstream has after the failed run | Where a run fails: for ten of the thirteen that counter is zero, so any failure before the first fresh identifier matches. Instantiation failures: every rejection is a typing failure, and `Program_inst` fails through its `Program_ok` premise. The simulator programs' packet tests are not run |
 | Error-test sweep | On the 535 of p4c's 584 `p4_16_errors` programs that upstream's manifests do not exclude, both legs reject every one as upstream does: 500 by typing, in upstream's failure class with its counter; 34 already rejected by upstream's parser, which boots no program; one by upstream's target aborting on a failed `static_assert`, where both legs fail with a hard error at the same counter | The 49 excluded programs; where a run fails; the 34 parser rejections exercise no Lean code. A hard error does not say whether the port aborted or erred: Lean's failure data does not separate the two |
 | Sweep mutations | Six mutations of the regression sweep's inputs and code are each rejected by exactly the expected programs and statuses: a changed observed counter, output or class on both legs; the generated record-expression distinctness check skipped (the duplicate-field program becomes accepted on the generated leg); the interpreter's list concatenation reversed and its fresh allocation doubled (every accepted or allocating program disagrees on the interpreter leg) | Mutations elsewhere; the mutations are chosen, not sampled |
+| v1model sessions | On the 219 v1model STF sessions of upstream's p4c-sample and regression sets (204 p4c pairs less 5 upstream excludes, plus its 20 regression simulator programs), both Lean legs drive the ported v1model simulator through the same statements as upstream's and reproduce every event at the architecture's boundary: initialization, each packet's context, architecture state, transmissions and fresh-identifier counters, and each control-plane change | Upstream's five custom sessions and its p4testgen STF files; upstream's expectation matching (its own verdict is recorded and required to be a pass); statements after a session's last packet; the mirror-to-multicast, register and counter-check interfaces, which no session exercises; IL values inside a target's extern payloads are compared without notes and regions |
+| eBPF sessions | The same on the 15 eBPF STF sessions of upstream's p4c-sample set (17 pairs less 2 excludes): parse, filter, accept or drop, and the counter array | As above; upstream runs no regression program for eBPF |
 | Bounded replay | The same comparison on three pinned programs, one of which upstream and both Lean legs reject | Upstream reports a rejection only as a class, so the kind of failure is not compared |
 
 No full-P4 definition has a correspondence or representation certificate, and
@@ -287,20 +289,26 @@ nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Replay/replay.p
   --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 ```
 
-Both run upstream's placeholder target, ported to Lean: its two state initializers return
-a null value, the compile-time extern call implements `static_assert`, and every runtime
-extern call is a hard error. Upstream aborts on a failed `static_assert`; one error test
-exercises it, and both legs fail there with a hard error at upstream's counter. The two
-Lean legs share the port and the builtin implementations, so their agreement with each
-other is weaker evidence than their agreement with upstream. No packet target exists for
-full P4.
+The typing sweeps run upstream's placeholder target, ported to Lean: its two state
+initializers return a null value, the compile-time extern call implements
+`static_assert`, and every runtime extern call is a hard error. Upstream aborts on a
+failed `static_assert`; one error test exercises it, and both legs fail there with a hard
+error at upstream's counter. The session sweeps run Lean ports of upstream's v1model and
+eBPF simulators (`P4SpecTec/BackendSim/`), generic in the spec they call back into: the
+reference leg registers a port as the interpreter's externs, the generated leg runs the
+same port over the generated library through value codecs, and its typed `Externs`
+instance is that dispatch. The two Lean legs share each port and the builtin
+implementations, so their agreement with each other is weaker evidence than their
+agreement with upstream. The PSA target is not ported.
 
-The error tests and the mutation suite run the same way:
+The error tests, the mutation suite and the session sweeps run the same way:
 
 ```sh
 nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py \
   --errors --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 nix develop --command python3 P4SpecTecTest/Oracle/P4/Corpus/mutations.py
+nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Sessions/sessions.py \
+  --arch v1model --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
 ```
 
 The mutation suite needs the regression sweep's cached observations and rebuilds the

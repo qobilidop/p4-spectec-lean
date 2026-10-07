@@ -1,12 +1,15 @@
 import Lean.Data.Json.FromToJson.Basic
 import P4SpecTec.Util.ByteText
+import P4SpecTec.BackendSim.Make
+import P4SpecTec.BackendSim.SpecImpl.Unpack
 
 /-!
-Partial port of `p4spec/lib/backend-sim/core/object.ml`: bit conversions and
-the data-only PacketIn/PacketOut operations. Spec-dependent methods in the
-upstream Make functor are not implemented here. OCaml assertions, array
-exceptions and JSON errors are explicit; malformed data is never made empty.
-The integer boundary is the pinned 64-bit OCaml signed 63-bit representation.
+Port of `p4spec/lib/backend-sim/core/object.ml`: bit conversions, the data-only
+PacketIn/PacketOut operations, and the spec-dependent packet methods of the upstream
+Make functor (`extract`, `extract_varsize`, `lookahead`, `advance`, `length`, `emit`),
+over explicit function and relation trampolines. OCaml assertions, array exceptions and
+JSON errors are explicit; malformed data is never made empty. The integer boundary is
+the pinned 64-bit OCaml signed 63-bit representation.
 -/
 
 namespace P4SpecTec.BackendSim.Core.Object
@@ -156,4 +159,121 @@ structure t where
 def init : t := { bits := #[] }
 
 end PacketOut
+
+/-! ## Spec-dependent methods (the upstream `Make` functor) -/
+
+namespace Spec
+
+open P4SpecTec.Lang.Il P4SpecTec.Runtime P4SpecTec.Prelude P4SpecTec.Util.Source
+open P4SpecTec.BackendSim.SpecImpl
+
+variable {m : Type → Type} [Monad m] [MonadExceptOf Fail m]
+
+/-- Target-local malformed values are hard errors, never retryable mismatches. -/
+def checked {ε α : Type} (result : Except ε α) : m α :=
+  match result with | .ok x => pure x | .error _ => throw .err
+
+/-- The outcome of a packet method: the object, the context, the architecture and the call
+result, as upstream returns them. -/
+abbrev Outcome (α : Type) := α × value × value × value
+
+/-- The size in bits of the local type parameter `T`, substituted in the context. -/
+def sizeOfT (spec : Make.Spec m) (value_ctx : value) : m (value × Int) := do
+  let value_typ ← Func.find_type_e_local spec.func value_ctx (ByteText.ofString "T")
+  let size ← Func.sizeof_maxSizeInBits' spec.func
+    (← Func.subst_type_e_local spec.func value_ctx value_typ)
+  pure (value_typ, size)
+
+/-- Mirrors `PacketIn.extract`: `void extract<T>(out T hdr)`. -/
+def extract (spec : Make.Spec m) (value_ctx value_arch : value) (pkt : PacketIn.t) :
+    m (Outcome PacketIn.t) := do
+  let (_, size) ← sizeOfT spec value_ctx
+  if hostAdd pkt.idx size > pkt.len then
+    pure (pkt, value_ctx, value_arch, Pack.rejectError "PacketTooShort")
+  else
+    let (pkt, bits) ← checked (PacketIn.parse pkt size)
+    let value_hdr ← Func.find_var_e_local spec.func value_ctx "hdr"
+    let value_hdr ← Func.write_value_from_bits spec.func value_hdr 0 bits
+    let value_ctx ← Rel.lvalue_write_var_local spec.rel value_ctx value_arch
+      (ByteText.ofString "hdr") value_hdr
+    pure (pkt, value_ctx, value_arch, Pack.returnVoid)
+
+/-- Mirrors `PacketIn.extract_varsize`:
+`void extract<T>(out T variableSizeHeader, in bit<32> variableFieldSizeInBits)`. -/
+def extract_varsize (spec : Make.Spec m) (value_ctx value_arch : value) (pkt : PacketIn.t) :
+    m (Outcome PacketIn.t) := do
+  let value_typ ← Func.find_type_e_local spec.func value_ctx (ByteText.ofString "T")
+  let value_typ_subst ← Func.subst_type_e_local spec.func value_ctx value_typ
+  let size_min ← Func.sizeof_minSizeInBits' spec.func value_typ_subst
+  let size_max ← Func.sizeof_maxSizeInBits' spec.func value_typ_subst
+  let value_variableFieldSizeInBits ← Func.find_var_e_local spec.func value_ctx
+    "variableFieldSizeInBits"
+  let alignment ← Func.bitacc_range_op spec.func value_variableFieldSizeInBits
+    (Pack.pack_p4_arbitraryInt 2) (Pack.pack_p4_arbitraryInt 0)
+  let alignment ← Func.required ((Unpack.unpack_p4_fixedBit alignment).map (·.2))
+  -- Upstream reads the second mixfix argument of the value as its number.
+  let size_varsize ← do
+    let c ← Func.required (Value.Get.case value_variableFieldSizeInBits)
+    let n ← Func.required ((Domain.Mixfix.args c)[1]?)
+    Func.integer n
+  let size := size_min + size_varsize
+  if alignment != 0 then
+    pure (pkt, value_ctx, value_arch, Pack.rejectError "ParserInvalidArgument")
+  else if hostAdd pkt.idx size > pkt.len then
+    pure (pkt, value_ctx, value_arch, Pack.rejectError "PacketTooShort")
+  else if size > size_max then
+    pure (pkt, value_ctx, value_arch, Pack.rejectError "HeaderTooShort")
+  else
+    let (pkt, bits) ← checked (PacketIn.parse pkt size)
+    let value_hdr ← Func.find_var_e_local spec.func value_ctx "variableSizeHeader"
+    unless hostInt size_varsize && size_varsize ≥ 0 do throw .err
+    let value_hdr ← Func.write_value_from_bits spec.func value_hdr size_varsize.toNat bits
+    let value_ctx ← Rel.lvalue_write_var_local spec.rel value_ctx value_arch
+      (ByteText.ofString "variableSizeHeader") value_hdr
+    pure (pkt, value_ctx, value_arch, Pack.returnVoid)
+
+/-- Mirrors `PacketIn.lookahead`: `T lookahead<T>()`. -/
+def lookahead (spec : Make.Spec m) (value_ctx value_arch : value) (pkt : PacketIn.t) :
+    m (Outcome PacketIn.t) := do
+  let (value_typ, size) ← sizeOfT spec value_ctx
+  let value_hdr ← Func.default spec.func value_typ
+  if hostAdd pkt.idx size > pkt.len then
+    pure (pkt, value_ctx, value_arch, Pack.rejectError "PacketTooShort")
+  else
+    let (_, bits) ← checked (PacketIn.parse pkt size)
+    let value_hdr ← Func.write_value_from_bits spec.func value_hdr 0 bits
+    pure (pkt, value_ctx, value_arch, Pack.returnValue value_hdr)
+
+/-- Mirrors `PacketIn.advance`: `void advance(in bit<32> sizeInBits)`. -/
+def advance (spec : Make.Spec m) (value_ctx value_arch : value) (pkt : PacketIn.t) :
+    m (Outcome PacketIn.t) := do
+  let value_sizeInBits ← Func.find_var_e_local spec.func value_ctx "sizeInBits"
+  let size ← Func.required ((Unpack.unpack_p4_fixedBit value_sizeInBits).map (·.2))
+  if hostAdd pkt.idx size > pkt.len then
+    pure (pkt, value_ctx, value_arch, Pack.rejectError "PacketTooShort")
+  else
+    pure ({ pkt with idx := hostAdd pkt.idx size }, value_ctx, value_arch, Pack.returnVoid)
+
+/-- Mirrors `PacketIn.length`: `bit<32> length()`, in whole bytes rounded up. -/
+def length (value_ctx value_arch : value) (pkt : PacketIn.t) : m (Outcome PacketIn.t) := do
+  let len := pkt.len
+  let length := if len % 8 == 0 then len / 8 else len / 8 + 1
+  pure (pkt, value_ctx, value_arch, Pack.returnValue (Pack.pack_p4_fixedBit 32 length))
+
+/-- Mirrors `PacketOut.emit`: `void emit<T>(in T hdr)`. -/
+def emit (spec : Make.Spec m) (value_ctx value_arch : value) (pkt : PacketOut.t) :
+    m (Outcome PacketOut.t) := do
+  let value_hdr ← Func.find_var_e_local spec.func value_ctx "hdr"
+  let bits ← Func.write_bits_from_value spec.func value_hdr
+  let bits ← Func.required ((← Func.required (Value.Get.list bits)).mapM Value.Get.bool)
+  pure ({ bits := pkt.bits ++ bits.toArray }, value_ctx, value_arch, Pack.returnVoid)
+
+/-- Mirrors `Packet.pp`: the output bits followed by the input's remaining payload, as
+uppercase hexadecimal. -/
+def packet (pkt_in : PacketIn.t) (pkt_out : PacketOut.t) : Except Error ByteText := do
+  let payload ← arraySub pkt_in.bits pkt_in.idx (hostAdd pkt_in.len (-pkt_in.idx))
+  pure (bits_to_string (pkt_out.bits ++ payload))
+
+end Spec
+
 end P4SpecTec.BackendSim.Core.Object

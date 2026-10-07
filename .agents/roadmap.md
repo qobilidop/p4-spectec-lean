@@ -11,9 +11,12 @@ Full-P4 M3 is the active milestone, resumed on 2026-10-04; other backlog remains
   as a bounded fragment, not complete Nano certification.
 - M3 (active): full-P4 export/census closed; the library generates and builds with
   executable definitions (2026-10-04), logical relations and an audited run-soundness
-  theorem for each of the 256 relations (2026-10-05), which closes M3B, and a both-leg
-  corpus sweep agrees with upstream. The durable corpus campaign, correspondence
-  certificates and targets remain incomplete.
+  theorem for each of the 256 relations (2026-10-05), which closes M3B; both legs agree
+  with upstream on the p4c corpus, the regression programs and the error tests, with a
+  mutation suite and a durable campaign (M3C, 2026-10-06), and on every v1model and eBPF
+  STF session through Lean ports of upstream's simulators (M3D, 2026-10-07). The
+  correspondence certificates (M3E) and determinism (M3F) remain open: the explicit-state
+  fragment admits no full-P4 definition yet.
   [Full-P4 overview](notes/full-p4/overview.md) owns remaining phases,
   [corpus](notes/full-p4/corpus.md) the bounded replay/resume constraints,
   [state integration](notes/state-integration/overview.md) the retained versus

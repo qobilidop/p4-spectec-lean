@@ -137,6 +137,96 @@ okay, 40 relation matches each with CLI parity on every case, no harness failure
 durable record therefore now has both legs, CLI parity and a bound above every
 candidate but the four largest; the whole corpus still rests on the sweep.
 
+## Packet targets: v1model and eBPF sessions on both legs (2026-10-07)
+
+`P4SpecTecTest/Oracle/P4/Sessions/sessions.py --arch v1model|ebpf` replays upstream's
+STF sessions of one target through both Lean legs against upstream's own simulator. The
+targets are Lean ports of upstream's `backend-sim` simulators (`P4SpecTec/BackendSim/`:
+the shared `Core`, `SpecImpl`, `Hash`, `State`, `Table` and `Stf` modules, then
+`V1Model/` and `Ebpf/`), generic in the effect carrier and in the spec they call back
+into through explicit trampolines (`Make.Spec`): the reference leg registers a port as the
+AL interpreter's externs with the interpreter's own evaluators as the trampolines, and the
+generated leg runs the same port over the generated library's functions and relations
+through value codecs, its typed `Externs` instance being that same dispatch. One target
+implementation therefore serves both legs, as the placeholder target does. The probe
+(`probe.ml`) runs upstream's `run_stf_test` with an observing pipe and records every event
+at the architecture's boundary (initialization, each packet with the states before and
+after it, its transmissions and counters, each control-plane change); the worker
+(`p4-sessions-check --arch`) replays the statements with the ported runner and compares
+every event by class, context, architecture, transmissions and counter. Values are
+compared as the corpus compares them (`Runtime.Value.eq`) after the IL values a target
+keeps inside an extern payload (a register, a scheduled packet) lose their notes and
+regions, as they would outside one (`Check.lean`, `canonPayload`). Upstream's expectation
+matching is not ported; every candidate is required to pass upstream, as its expectation
+files say.
+
+Candidates mirror upstream's simulator tests (`p4spec/test/sim/dune`,
+`Util.Test.collect_test_pairs`): the p4c samples including the target's model, paired
+with their STF files, less upstream's static and dynamic exclusions, plus upstream's 20
+regression simulator programs (all v1model). Observations are cached under
+`.artifacts/p4-sessions-sweep/<arch>/` by an identity of pins, probe, harness and bounds.
+
+Results on the final tool, both legs matching upstream on every candidate:
+
+| Target | Candidates | Matched | Run | Log |
+|---|---|---|---|---|
+| v1model | 219 (204 p4c pairs, 5 excluded; 20 regression) | 219 on both legs | 664 s, 8 jobs, exit 0 | `.artifacts/m3c/sessions-v1model-5.log`, summary under `.artifacts/p4-sessions-sweep/v1model/` |
+| eBPF | 15 (17 p4c pairs, 2 excluded; no regression program) | 15 on both legs | 56 s, exit 0 | `.artifacts/m3c/sessions-ebpf-5.log`, `.artifacts/p4-sessions-sweep/ebpf/` |
+
+The typing sweeps rerun on the memoizing workers are unchanged: regression 37 of 37
+(`regression-7.log`), error tests 535 of 535 (`errors-4.log`), p4c corpus 1,266 of 1,267
+with `switch_p4_16.p4` oversized (`corpus-4.log`), each exit 0 on both legs.
+
+Two v1model sessions first failed as `invalid-artifact`: a control-plane event
+(`mc_mgrp_create`, `mirroring_add`) records the architecture alone, and the replay
+required a context too; it now compares the architecture and keeps the context, which
+such a statement does not touch. The eBPF port (`Ebpf/Object.lean`, `Ebpf/Pipe.lean`,
+`Ebpf/Stf.lean`: the counter array, the parse-filter-accept pipeline, and the `pipe` to
+`main.filt` statement rewriting) reuses the statement runner, which `Stf/Run.lean` ports
+once over a target's architecture operations, as upstream's `make.ml` runs it over its
+`ARCH` functor argument; the probe is a functor over either pipe and the worker selects the
+target by `--arch`. Not covered: PSA (no port; upstream's own PSA test selects no runnable
+pair at the pin), upstream's five custom v1model sessions (`testdata/custom`) and its
+p4testgen STF sets, statements after a session's last packet, upstream's expectation
+matching, the mirror-to-multicast, register and counter-check statements (no session
+reaches them; the port rejects them as upstream's `error_stf` does), and anything a
+session does not exercise. Known naming deviation, not enforced by `check-mirror.py`
+(whose roots exclude `BackendSim`): `V1Model/` for upstream's `v1model/`, `Stf/Ast.lean`
+and `Stf/Transform.lean` under `BackendSim/` for `p4spec/lib/stf/`, and the per-target
+`Stf.lean` modules, whose `transform_stf_stmt` upstream keeps in each `pipe.ml`.
+
+The first full v1model run did not finish: at least 19 sessions on both legs exceeded an
+hour, and `issue983-bmv2` (one packet, a table with 13 exact keys) did not finish in
+twelve minutes on either leg while upstream's simulator takes 1.6 s. The cause is
+upstream's rule-group evaluation without its result cache: `TableKeys_eval` has three
+rules over a key list, the second evaluates the recursive tail and then fails on the
+head's result, and the third evaluates the tail again, so a list of n keys costs 2^n
+evaluations of its suffixes; upstream's test configuration (`cache=true`) memoizes every
+relation and function result by its inputs, filled only when the builtin counter did not
+move. The fix mirrors that cache as a semantics-transparent optimization
+(`P4SpecTec/Prelude/Memo.lean`; decisions, "Memoized relation runs as upstream's cache
+mode"): every generated relation call in the explicit-state profile and the interpreter's
+defined-relation invocation on the stateful carrier go through `memoRun`, the call by
+definition, whose compiled implementation keys an entry by the identity of the live input
+objects and the initial counter and fills it only for a successful run that allocated
+nothing. The pure profile and the Nano library are unchanged (its regeneration check
+passed); the full-P4 manifest and the golden samples changed for the wrapped calls; the
+run-soundness and refinement tactics erase the wrapper by its defining equation. Two
+implementation facts cost a second iteration: the Lean runtime never treats an object
+stored in a module-initialized cell as exclusive, so a flat hash map in the cache cell
+copied its bucket array on every insertion (quadratic: 16K insertions in 1.3 s, 64K in
+28 s), which a persistent hash map replaces (linear, 256K in 2 s); and the interpreter
+re-wraps a list's tail in a new `ListV` when it binds a pattern, so keys by the identity
+of the value object missed on every recursive premise, where keys by the identity of the
+value's payload container (which `Runtime.Value.eq` identifies, as upstream's cache keys
+by `eq`) hit. With both, `issue983-bmv2` matches on both legs in seconds, and a synthetic
+three-rule list relation is flat in the list's length (`MemoExp.lean`, scratch). Lessons
+recorded on the way: a background build's wrapper exit is not the build's (the first memo
+build had failed inside `partial_fixpoint`, which cannot see through an `implemented_by`
+wrapper without a registered monotonicity lemma, and the session timing that followed ran
+a stale worker); one Dune build at a time (a regression sweep and a session sweep each
+rebuild upstream, and the second aborts).
+
 ## Inputs and canonical denominator
 
 `scripts/fetch-p4c.sh` derives p4c commit

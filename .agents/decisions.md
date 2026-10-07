@@ -246,6 +246,52 @@ allocate, which are accepted) rather than listed, so a pin change does not silen
 invalidate them. Confidence high. Revisit if a mutation needs a module early in the
 generated chain, where the rebuild would dominate.
 
+## Packet target ports, v1model and eBPF, and the session oracle (2026-10-07)
+
+The first full-P4 packet target is a Lean port of upstream's v1model simulator under
+`P4SpecTec/BackendSim/` (`V1Model/`, with `Hash`, `State`, `Table`, `Stf/` and the extended
+`SpecImpl/` and `Core/Object`), generic in the effect carrier and in the spec it calls back
+into through an explicit `Make.Spec` of function and relation trampolines, exactly as the
+placeholder and NanoSwitch ports are. Both Lean legs run this one port: the reference leg
+registers it as the interpreter's externs, the generated leg dispatches its callbacks by
+name to the generated definitions through value codecs and makes its typed `Externs`
+instance from the same dispatch. Reason: one mirrored implementation to audit against the
+OCaml, and the two legs then differ only in the semantics they call back into. Rejected: a
+second, typed implementation of the target for the generated leg (the NanoSwitch pattern,
+whose contract proof is Nano's; two implementations to keep aligned with upstream) and
+generating the target (it is OCaml, not AL). Cost: every callback on the generated leg
+crosses the codecs, and the known `valueEq` slowness applies.
+
+The reference leg's relation trampoline is tied as upstream ties its registered `call_rel`:
+a `partial` definition in the oracle whose configuration registers the externs over the
+very evaluator it defines. Reason: the interpreter's extern interface passes only a function
+evaluator at each call (`Interp.Extern`), and widening it would change every extern-contract
+lemma the Nano certificates state; the knot lives in test code and is fuel-bounded.
+
+Sessions are observed by a probe that runs upstream's own `run_stf_test` with an observing
+pipe and records events at the architecture's boundary, including the state before each
+packet; the Lean replay runs the ported statement runner and compares every event, with
+the serialized target state canonicalized (IL values inside extern payloads lose notes and
+regions) before `Runtime.Value.eq`. Reason: upstream's statement runner is inside its
+simulator functor and not observable statement by statement, while every state change it
+makes is visible at the next packet; and a register holds IL values whose cache identities
+and source regions are no more semantics inside a payload than outside one. Rejected:
+reimplementing the statement loop in the probe (a copy of upstream's harness to keep
+aligned) and comparing payloads as raw text (a false disagreement on every register
+write). Limits recorded in the session README. Confidence high for the comparison; revisit
+if a target keeps anything but IL values inside its payloads.
+
+The eBPF simulator is ported the same way (`Ebpf/`), and the statement runner of
+upstream's `make.ml` is ported once (`Stf/Run.lean`) over a record of a target's
+architecture operations, upstream's `ARCH` functor argument; the probe is a functor over
+either pipe, and the worker and sweep select the target by `--arch`. Reason: upstream has
+one runner over three architectures, and a second copy would be the deviation. The PSA
+target is not ported: upstream's own PSA simulator test selects no runnable pair at the
+pin (its expectation file records 0 of 0, one excluded), so a port would have no
+upstream evidence. Not covered either: upstream's five custom v1model sessions
+(`testdata/custom`) and its p4testgen STF sets. Both sweeps match on every candidate
+(219 v1model, 15 eBPF; corpus note, "Packet targets").
+
 ## Memoized relation runs as upstream's cache mode (2026-10-07)
 
 In the explicit-state profile every generated relation call and every defined-relation

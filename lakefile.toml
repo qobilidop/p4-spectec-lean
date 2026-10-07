@@ -147,3 +147,8 @@ root = "P4SpecTecTest.Oracle.P4.Corpus.Main"
 [[lean_exe]]
 name = "p4-corpus-worker-gen"
 root = "P4SpecTecTest.Oracle.P4.Corpus.Generated.Main"
+
+# STF sessions of a packet target through both Lean legs; the Python driver captures them.
+[[lean_exe]]
+name = "p4-sessions-check"
+root = "P4SpecTecTest.Oracle.P4.Sessions.Main"

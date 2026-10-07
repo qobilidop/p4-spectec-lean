@@ -268,7 +268,11 @@ the claimed observations; new differences require an explicit entry.
   packet replay check that payloads the target serializes itself decode back
   unchanged; no parser proof is claimed. Lean's JSON printer and parser are
   `partial`, so a theorem that runs extract states this round trip as a
-  premise (`NanoP4Target.PacketStateText`).
+  premise (`NanoP4Target.PacketStateText`). The full-P4 session comparison
+  canonicalizes the IL values a target keeps inside a payload (a register's
+  values, a scheduled packet's context) by dropping their notes and regions
+  before comparing, as runtime-value comparison ignores them outside a
+  payload; upstream's cache identities and source regions are not semantics.
 - **Text and transport:** semantic text uses bytes, identifiers use strings.
   JSON ingress rejects invalid UTF-8 and unpaired surrogates; this transport
   restriction is not a lossless encoding of every OCaml string.

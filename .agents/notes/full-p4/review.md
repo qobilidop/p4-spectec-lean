@@ -259,3 +259,65 @@ Limits the reviewer stated: no Lake, gate or sweep run; it could not diff the un
 suite against the revision that produced the earlier log; it inspected one of the 535 error
 observations and the shard evidence at summary level; it did not re-derive the 49
 exclusions by hand; it did not check Lean warnings on the changed modules.
+
+## M3D packet targets and memoization stage (2026-10-07)
+
+Independent read-only review of the uncommitted M3D tree (the memoization mirroring
+upstream's result cache; the v1model and eBPF simulator ports; the session oracle) against
+`main` (`78b5be0`), by a fresh Claude Opus subagent. It read the Lean, OCaml and Python
+code against upstream's `interp.ml` cache use, `caches.ml`, `backend-sim/{ebpf,v1model}`,
+`make.ml`, `stf/transform.ml`, `util/test.ml` and `test/sim/dune`, and the documents; it
+ran no Lake command, no gate and no sweep, and it could not diff the untracked `V1Model/`
+refactor onto `Stf/Run.lean` (the post-refactor sweeps are its evidence). Verdict: one
+blocker (the text gate reads tracked files only, and twelve new lines exceeded 100
+characters), six should-fix items, seven nits.
+
+What it confirmed: the store condition (success and unchanged counter, which is the whole
+`FreshState`); liveness and aliasing of the identity keys; reentrancy between `lookup` and
+`store`; that the tag scheme of `memoKeys` keeps every pair of `eq`-distinct values apart;
+that only non-extern explicit-state calls are wrapped and Nano's generation is unchanged;
+the eBPF port's dispatch, counter array, pipeline and transform order against upstream;
+`Stf/Run.lean` against `run_stf_stmt`; the ported packet methods; the harness's candidate
+selection against the dune rules (v1model with its patch directory, eBPF without, both
+exclusion sets), with counts matching upstream's expectation files; the probe's functor
+generalization; the gate and Lake wiring.
+
+Findings and resolutions, applied before the commit and checked by the author's rerun of
+the full chain (build, both session sweeps, the three corpus sweeps, the gate), not
+re-reviewed:
+
+1. Blocker, twelve over-long lines in untracked Lean files: wrapped; the author now checks
+   untracked files too before a commit.
+2. The interpreter's key left out fuel, so a hit could answer a call whose own fuel would
+   have been exhausted: entries record the fuel (`memoRunBounded`), a hit needs at least
+   it, and the claim is stated with that premise (fuel is monotone for a successful run).
+3. The process-wide table keyed only by the AL name, so the interpreter and the generated
+   library, or two extern implementations, could share entries: the interpreter prefixes
+   its names, and the invariant (one extern implementation and one spec per process, which
+   every oracle keeps) is stated in `Memo.lean`, the trust table and the decision, with the
+   revisit trigger corrected.
+4. `memoKeys` ignores notes and regions, so a hit's outputs are equal to the run's up to
+   `Runtime.Value.eq`, as upstream's cached outputs are: stated in the design deviation,
+   the trust table and the decision; not keyed on notes, which would lose the hits.
+5. The certification row and the overview said every session upstream selects; upstream
+   also runs five custom v1model sessions and p4testgen's sets: scoped to the p4c-sample
+   and regression sets everywhere, with the two other sets named as not covered.
+6. The PSA reason was wrong (its test is in upstream's fast set): corrected to upstream's
+   own expectation of no runnable pair at the pin.
+7. `status.md` stale: rewritten at this checkpoint.
+8. `checkAfter` accepted an `init` or `packet` event without a context: restricted to
+   control-plane kinds.
+9. `Expect` skipped upstream's port parse: parsed, as a malformed port fails upstream.
+10. Dead code in `rewrite_valid`: removed.
+11. Stale text (sweep and probe docstrings, Lake comment, `invoke_rel` docstring, the
+    `lookup` docstring, the eviction claim): corrected; the cache clears when full where
+    upstream's evicts by a clock.
+12. Naming: `V1Model/` for `v1model/`, `Stf/{Ast,Transform}.lean` under `BackendSim/` for
+    `p4spec/lib/stf/`, per-target `Stf.lean` modules: accepted and recorded in the corpus
+    note as a known deviation outside `check-mirror.py`'s roots; renaming is a follow-up.
+13. `sessions.py`: the regression set now runs for v1model only, checks its programs
+    against the patch directory as upstream's rule passes it, and the summary counts the
+    regression candidates directly (correct under `--only`).
+14. Test gaps: the eBPF selection now ignores the v1model patch directory in a test; the
+    memo unit test still cannot tell a hit from a miss (no observable effect in `#guard`),
+    and `Check.lean`'s control-plane branch is exercised by the sweep only.
