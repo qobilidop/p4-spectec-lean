@@ -3,8 +3,8 @@
 Durable, closed 2026-09-30: retains the N5 whole-program certificate's evidence, constraints
 that bind later consumers, and review record. The user-facing account is in
 [Certification](../../docs/certification.md#a-whole-program-example); the rationale for the
-evaluator and the packet-text premise is in [decisions](../decisions.md) ("N5 whole-program
-evidence").
+evaluator and the packet-text premise is in [decisions](../decisions.md) ("Nano certificate
+shape and evidence").
 
 ## What is established
 

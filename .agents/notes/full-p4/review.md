@@ -51,178 +51,23 @@ recoverable; committed source/report history is. None of these checks closes
 the failed aggregate casting proof, full denominator, generated replay,
 guarded type-fresh semantics, targets or all-definition certification.
 
-## Executable generation stage (2026-10-04)
+## M3 stages reviewed on 2026-10-04 and 2026-10-05 (compacted 2026-10-06)
 
-Independent read-only review of the uncommitted `m3b-generation` tree against `main`
-(`cd6679e`), by a fresh Claude Fable 5.1 subagent that ran no build: it read the diff, the
-generated `P4Spec/` text and the recorded gate log, and ran only the manifest check.
-Verdict: no blockers. It confirmed by reading that pure-mode planning is unchanged, that
-the explicit-state plan skips no bookkeeping, that the tuple encoder and decoder are
-inverse for every admitted shape, that the replay refactor preserves the interpreter
-leg's checks, and that the generated leg's externs match the interpreter's placeholders.
+Each stage was reviewed read-only by a fresh Claude Fable 5.1 subagent before its commit,
+on the uncommitted branch against the `main` revision named; none built the tree (the
+golden-samples reviewer ran the Python tests and the text, size and sample checks), and
+the resolutions were checked by the author's rerun of the gate (and the sweep where it
+changed), not re-reviewed. No blocking defect in a shipped artifact was found; one policy
+blocker (status without evidence) was fixed before its commit. Prose records are at
+`0d78b6e:.agents/notes/full-p4/review.md`.
 
-Findings and resolutions, all applied before the commit:
-
-- The replay claim counted the rejected program (`issue-204.p4`) as returning upstream's
-  outputs; any Lean failure matches there. Reworded in README, Certification, status and
-  the overview, and the generated legs now require the decoded program to encode back to
-  the booted value, so a rejection is about the same input.
-- AGENTS said no committed library may import `P4Spec`, while the checker constrained only
-  reusable libraries. Added a rule and test: a consumer library root must not reach
-  ignored generated sources; only registered executables may.
-- Stale "paused" and "no full-P4 quotation" sentences in three notes: rewritten.
-- Latent: certificate groups hard-coded an import of the equality module, which an
-  explicit-state library does not emit; now conditional. The generated `Refinement.lean`
-  header no longer speaks of refinement theorems for a library without any.
-- Not changed: `ctorNames` has no distinctness check (a clash with a real constructor
-  named like a suffixed one fails loudly at elaboration); `validateTuples` does not expand
-  generic tuple aliases (none exists at the pins; noted in its docstring).
-
-Limits the reviewer stated: the recorded gate was warm for `P4Spec`; byte-identical
-generation and a cold build on Linux are untested until CI runs; instance-resolution
-arguments were made by reading. The resolutions above were checked by the author's
-rerun of the full gate, not re-reviewed.
-
-## Corpus sweep stage (2026-10-05)
-
-Independent read-only review of the uncommitted `m3c-corpus` tree against `main`
-(`6e57dcb`), by a fresh Claude Fable 5.1 subagent that ran no build: it read the diff and
-the pinned OCaml, ran `test_sweep.py`, and checked the logs and summary. Verdict: no
-defect producing false agreement and no faithfulness defect in the placeholder port. It
-traced upstream's failure paths (`error_no_region` to an abort that nothing in the
-interpreter catches; a failed callback to a mismatch through `call_func`) and confirmed
-the port's `Fail.err`/`Fail.unmatch` choices, the trampoline wrapping in both upstream
-runners, value shapes and evaluation order, and that `Corpus/Check.lean` preserves every
-check of the old worker.
-
-Findings and resolutions, applied before the commit and checked by the author's rerun of
-the gate and the sweep, not re-reviewed:
-
-- Blocker (policy): status had dangling evidence references and no gate, replay or review
-  record. Rewritten.
-- The generated externs decoded callback arguments inside the wrapper that turns callee
-  failures into mismatches, so a codec failure would have looked like a semantic
-  mismatch. Decoding is now outside it and stays a hard error.
-- `sweep.py` could exit 0 with capture failures that were not bounds, or with nothing
-  evaluated; its cache identity omitted the harness sources; an unexpected exception in a
-  worker thread lost the record and left the worker running. Fixed, with fake-worker
-  tests for crash, timeout, wrong name, error line, malformed answer and recycling, and
-  `--retry-unobserved` for sticky failed captures.
-- The public mutation sentence read as a standing property. It now says one manual run,
-  generated leg, 1,186 programs, no committed suite. The failed branch of
-  `static_assert` is stated to have no upstream evidence.
-- Nits applied: MiB units, the placeholder header and `Make.lean` sentence, a repeated
-  `--max-case-bytes` is rejected, worker digests are taken before the legs and rechecked,
-  jobs and the recycle bound are recorded.
-- Not changed: `shard.py` and `campaign.py` source digests still name `Corpus/Main.lean`
-  only (the worker executable digest covers `Check.lean`); `--max-case-bytes` has no
-  upper bound (an absurd value fails closed at the size check).
-
-Limits the reviewer stated: nothing was built or run beyond the unit test; codec
-correctness for `typingContext` rests on the two `static_assert` programs now matching.
-
-## Logical relations stage (2026-10-05)
-
-Independent read-only review of the uncommitted `m3b-relations` tree against `main`
-(`f329af0`), by a fresh Claude Fable 5.1 subagent that ran no build: it read the diff and
-ran read-only checks over the generated `P4Spec/` text, `coverage.json`, the export and
-the manifest. Verdict: no blockers; the new encoding is the same relation as the inline
-form, and the three shared fixes are right. What it checked over all 132 modules: the 880
-attempt definitions have the binders, `[Externs]` and return type of their `R.run`, and
-bodies equal to its alternatives in order; each of the 1,136 constructors has exactly one
-rejected prefix listing the earlier attempts in order; no independent auxiliary predicate
-(401) mentions a relation of its group or a later predicate, and every tied one (73)
-does; relation modules import exactly their callees' modules. It also traced which atoms
-reach the changed `have` branch and confirmed that the old behaviour there could only
-have produced text that fails to elaborate.
-
-Findings and resolutions, applied before the commit and checked by the author's rerun of
-the gate, not re-reviewed:
-
-- Four stale statements contradicted the change (Certification's implementation
-  boundary, the staged-generation decision, the `StateProps` module header, the
-  state-integration note; also roadmap and a Lake comment). Rewritten; the decision now
-  withdraws its earlier rejection for `StateProps` in place, with the reason.
-- The three shared fixes had no regression test outside the `P4Spec` build. Added:
-  `ruleNames` with repeats and an unnamed rule, `substText`/`mentions` around quoted
-  names, and a fixture relation binding a name to a constant under a rejected prefix.
-- The generated legs' externs imported the root `P4Spec` and so every relation module;
-  they import the quoted-spec module now.
-- "A gate-checked fact" overstated what the gate asserts; reworded.
-- Nits applied: relation modules no longer say "Rung 3"; attempt binders wrap; the
-  relation-module collision check ignores case; comments and docstrings corrected.
-- Not changed: a negative premise's relation still counts as a required module (a
-  spurious import, no semantic effect); a collision aborts generation instead of
-  recording an exclusion; attempt definitions are compiled; `Coverage.summary` does not
-  print `logicalRelation` exclusions (there are none).
-
-Limits the reviewer stated: nothing was elaborated, so the build, the fixture proofs
-and Nano's byte-identity rest on the author's gate; timings and scratch-probe results
-were not checked.
-
-## Golden samples (2026-10-05)
-
-Independent read-only review of the uncommitted tree against `c7ed36f`, by a fresh Claude
-Fable 5.1 subagent that ran the Python tests and the text, size and sample checks, and no
-build. Verdict: no blockers; `--check` cannot pass when a sample differs from or lacks its
-generated file. Findings and resolutions, applied before the commit and checked by the
-author's rerun of the gate, not re-reviewed:
-
-- The sample set had no executable relation although the decision claimed one (two chosen
-  modules held only a table and a type). Added `9-arch/9.0-eval-arch.lean` (three
-  relations) and a builtin wrapper module; the decision now lists what is and is not
-  covered.
-- Samples are tracked `.lean` files, and 41 generated modules have lines over 100
-  characters, so a sample could later fail the text gate with no remedy. The text gate
-  now exempts `P4Spec.samples/` from the line-length rule only, with a test.
-- Prior-art statements were stronger than what the repositories show (pinning attributed
-  to sail-riscv-lean, Lean 4's repository size attributed to `stage0`). Reworded as dated
-  observations with their limits.
-- Seven of fourteen mutants of the tool survived its tests; the tool depended on the
-  working directory and created its directory before validating. It now resolves against
-  the repository, validates every source before writing, rejects links at any path
-  component, and the tests pin each guard.
-- Status deferred the gate record to a commit message. Recorded in status.
-- Not changed: every file under the samples directory counts as a sample (a stray file
-  fails closed); the set itself is not pinned; the check stage runs in the Lake part of
-  the gate.
-
-## Run-soundness stage (2026-10-05)
-
-Independent read-only review of the uncommitted `m3b-run-sound` tree against `main`
-(`916c7ba`), by a fresh Claude Fable 5.1 subagent that ran no build and read the diff, the
-generated modules and `P4Spec/coverage.json`. Verdict: no blockers. It confirmed that the
-emitted statement quantifies inputs, the output tuple and both states, with outputs
-projected into the positions the constructors use; that claim and theorem share one
-statement and `checkClaim` compares an independently elaborated type; that the eligibility
-rule yields exactly the 14 modules on disk, with one `runSoundness` exclusion on each of
-the other 242 relations and accurate reasons; and that the `projCases` condition is right
-for primitive projections, structure projections and class methods.
-
-Findings and resolutions, applied before the commit and checked by the author's rerun of
-the gate, not re-reviewed:
-
-- "Outside every recursive dependency" was false: ten of the 14 call recursive functions,
-  and the rule is about relation premises, transitively. Reworded everywhere, and
-  Certification now says that function, builtin and extern calls are run equations too,
-  so some of these theorems are close to an unfolding.
-- Stale "without a theorem" statements in the planner docstring, the generated
-  `Refinement.lean` header, the `StateProps` header, a Lake comment, two decision entries
-  and the overview. Rewritten in place.
-- "Calls X" exclusions did not set `dependency`. Set, and asserted in the fixture.
-- `guardedOption` did not isolate the `projCases` condition. Added direct `run_tac`
-  examples: a class-method operand stays one variable in one goal; a projected variable
-  is still destructured.
-- The per-branch loop normalized only the first goal. Normalization moved inside it.
-- The zero-output and `[Externs]` statement forms were never checked as claims. The
-  fixture now runs `checkClaim` on every emitted theorem and includes a relation with an
-  extern premise under a rejected prefix, which proves.
-- Not changed: eligibility is syntactic, so a future eligible relation the tactic cannot
-  close fails the build (as in pure mode); the 14 claimed entries keep the general
-  "certificates are not generated yet" exclusion; `explain` reports AL status only.
-
-Limits the reviewer stated: nothing was built; the gate, the Nano proofs and the scratch
-evidence in the planned-shape decision rest on the author.
+| Stage, base | What the reviewer confirmed | Findings resolved | Not changed / limits |
+|---|---|---|---|
+| Executable generation (`cd6679e`) | Pure-mode planning unchanged; tuple codec inverse for every admitted shape; replay refactor preserves the interpreter leg; generated externs match the placeholders | Replay claim counted the rejected program as returning outputs (reworded; generated legs now require the decoded program to encode back); consumer-root boundary rule and test; stale "paused" sentences; conditional equality import | `ctorNames` has no distinctness check (a clash fails loudly); `validateTuples` does not expand tuple aliases (none at the pins). Warm gate; cold Linux build left to CI; instance-resolution arguments made by reading |
+| Corpus sweep (`6e57dcb`) | Upstream failure paths traced to the port's `Fail.err`/`Fail.unmatch`; trampoline wrapping, value shapes and evaluation order; `Corpus/Check.lean` keeps every old check | Policy blocker: status without evidence (rewritten); generated externs decoded inside the mismatch wrapper (now a hard error outside it); sweep could exit 0 with non-bound capture failures or nothing evaluated, omitted harness sources from the cache identity, lost a record on a thread exception (fixed, fake-worker tests, `--retry-unobserved`); mutation sentence read as a standing property | `shard.py`/`campaign.py` digests name `Corpus/Main.lean` only; `--max-case-bytes` unbounded (fails closed). Codec correctness for `typingContext` rests on two programs |
+| Logical relations (`f329af0`) | Over all 132 modules: 880 attempt definitions have their `R.run`'s binders and bodies equal to its alternatives in order; 1,136 constructors each have one rejected prefix in order; 401 free predicates mention no group relation, 73 tied ones do; imports equal callees | Four stale statements; regression tests for the three shared emitter fixes; generated externs import the quoted spec, not the root; "gate-checked fact" overstated | A negative premise's relation counts as a required module (spurious import); a collision aborts generation; `Coverage.summary` does not print `logicalRelation` exclusions (none). Nothing elaborated; timings and the scratch-probe measurements behind the encoding choices (101 types in 13 minutes; 30 MB, 93 to 95% repetition) were not checked and are author evidence |
+| Golden samples (`c7ed36f`) | `--check` cannot pass when a sample differs or lacks its file | Sample set lacked an executable relation (added `9.0-eval-arch`, a builtin wrapper); samples could fail the line-length gate (exempt, with test); prior-art claims stronger than observed (dated observations); seven of fourteen tool mutants survived (tool resolves against the repository, validates before writing, rejects links) | Any file under the directory is a sample (fails closed); the set is not pinned |
+| Run-soundness, 14 relations (`916c7ba`) | Statement quantifies inputs, output tuple and both states with outputs projected as the constructors use; claim and theorem share one statement, `checkClaim` compares an independently elaborated type; eligibility rule yields exactly the 14 modules with accurate exclusions; `projCases` right for projections and class methods | "Outside every recursive dependency" was false (ten call recursive functions; rule is about relation premises); stale "without a theorem" statements; `dependency` unset on "calls X" exclusions; direct `projCases` examples; per-branch normalization; zero-output and `[Externs]` statement forms checked as claims | Eligibility is syntactic (an eligible relation the tactic cannot close fails the build); claimed entries keep the general exclusion; `explain` reports AL status only. The Nano proofs and the scratch evidence of the then-planned recursive shape rested on the author |
 
 ## Recursive run-soundness stage (2026-10-05)
 
@@ -332,3 +177,22 @@ the sweep and the gate, not re-reviewed:
 Limits the reviewer stated: it did not run the sweep, Lake or the gate; the p4c-corpus
 mode on the changed code was unexercised beyond unit tests; it did not review the Lean
 workers beyond `Check.lean` and the two entry points.
+
+## Working-state compaction (2026-10-06)
+
+Independent read-only review of the uncommitted `tend-2026-10-06` tree against `main`
+(`0d78b6e`), by a fresh Claude Fable 5.1 subagent that diffed every rewritten passage
+against the old text and the tree and ran only the text check. Verdict: no lost obligation
+or constraint absent from every owner, no blocking claim change. Findings, all applied
+before the commit and not re-reviewed: three figures in the overview had drifted
+(generation time, the 444 s gate's conditions, "seven groups" for seven traps); the merged
+Nano entry had dropped the reasons behind several rejected alternatives and revisit
+triggers (`PacketStateText`, the evaluator, the release digest, the heartbeat budget, the
+audit layout, native tactics, the field-update mutation choice, the extern freshness
+hypothesis, the shared-prefix history), now restored; one consumer note still named a
+merged heading; the review table had dropped three reviewer limits; the profiling guidance
+named a phase that is not timed and summed nested phases; the AGENTS sentence blamed the
+text check for a late failure the build stage causes. Proposals not taken up: merging the
+four 2026-09-26 to -28 Nano entries and moving the sweep entry's third paragraph into the
+corpus note; compacting `notes/ci-performance.md` and `notes/proof-build-performance.md`
+into `docs/performance/`. Limits: read-only; timings taken on trust from status.

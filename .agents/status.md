@@ -25,8 +25,13 @@ review and exact-revision CI for that tree digest.
 
 ## Verified state
 
-Evidence for the working tree of the commit that adds the regression sweep (Python
-harness and documents only; no Lean source changed since `00aa1c2`):
+The compaction commit of 2026-10-06 changes documents and working state only (no
+executable input): it reuses the gate recorded for `0d78b6e` below, with the text check
+(exit 0) and a relative-link check of every edited document rerun, and its own review
+("Working-state compaction" in the review note).
+
+Evidence for `0d78b6e`, the commit that adds the regression sweep (Python harness and
+documents only; no Lean source changed since `00aa1c2`):
 
 - Full gate on the final files: `nix develop -c /usr/bin/time -p scripts/check.sh`
   returned actual exit 0 in 397.51 s, all 58 stages (`.artifacts/m3c/gate-2.log`), warm:
@@ -45,10 +50,9 @@ harness and documents only; no Lean source changed since `00aa1c2`):
   stages, cold for every proof (`.artifacts/m3b/rec/gate-2.log`); review "Recursive
   run-soundness stage". Nano completion 888 obligations, 0 unresolved, review and release
   pending under the allowance as on every tree after `42ffad6`.
-- Remote CI: `e0e7863` passed (run 37337844078). `00aa1c2` (run 37361228230) was still in
-  its gate step 41 minutes after the push; it builds the 132 new proof modules cold. Not
-  yet run on this commit. Check it before unrelated work: if the runner cannot build the
-  proofs within its limits, that takes priority.
+- Remote CI: `0d78b6e` passed (run 37365938053), building the 132 proof modules on the
+  runner; the `00aa1c2` run was cancelled as superseded. Not yet run on the compaction
+  commit.
 
 ## Open threads and next step
 
@@ -72,6 +76,17 @@ harness and documents only; no Lean source changed since `00aa1c2`):
 5. A warm `lake build` log shows `PANIC at Lean.Meta.whnfEasyCases ... loose bvar` replayed
    as an info message from `NanoP4Spec.Refinement.Reverse.TableEntry_ok` (line 36). The
    module builds and its audits pass; the message predates this work and is unexplained.
+
+## Working-state compaction (2026-10-06)
+
+A tend-repo pass after M3B's close: the decisions register's full-P4 entries were
+rewritten to what is true now and the closed Nano entries merged into one; the full-P4
+overview records M3B as a closed stage with its measurements; the five earlier M3 stage
+reviews are tabulated with their revisions, findings and limits (prose at `0d78b6e`). An
+independent review of the pass found no lost obligation; three figures that had drifted
+and the rejected alternatives it found missing were restored before the commit. Learned: a pre-gate `check-text`/`--wfail` rule in AGENTS, and proof
+profiling guidance in `docs/performance.md`. Resume read is about 1,160 lines, mostly
+`docs/design.md` and the register.
 
 ## Repository state
 

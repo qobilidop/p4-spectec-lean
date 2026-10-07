@@ -59,5 +59,28 @@ parallelism. Measure wall-clock duration separately; do not infer it by
 summing the module table. A runtime comparison additionally needs matched
 inputs, execution modes and observable results for both implementations.
 
+## Profile a slow generated proof
+
+A generated proof module that takes minutes is usually one phase of its tactic, not the
+kernel. Copy the module to an ignored scratch file and add, before its namespace:
+
+```lean
+set_option p4spectec.stateRunSound.timing true   -- phases of state_run_sound(_group)
+set_option profiler true
+set_option profiler.threshold 500                -- milliseconds
+```
+
+then run `nix develop --command lake env lean <scratch file>`. The timing option prints
+one `state_run_sound: <phase> <n> ms` message per phase: `execution` (the symbolic
+execution of one relation's run, within which `transport` moves a retained failure to
+the final functions and `fold` restates it as its named attempt) and `rule` (closing one
+rule, within which `prefix` closes its rejected prefix); the group tactic also reports
+`<member> unfolding`. Sum only the top-level phases (`execution`, `rule`, `unfolding`)
+and compare with the elapsed time: whatever is unaccounted for is in the commands around
+the proof, such as the audits, not in the proof. The profiler's cumulative table then
+says how much of the tactic time is `simp` and how much of the total is type checking.
+Record before/after figures with the module and the machine when a change is made for
+speed.
+
 For the module-splitting and proof-cost design choices, see
 [Scale](design.md#7-scale).

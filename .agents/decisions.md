@@ -1,6 +1,6 @@
 # Decisions
 
-Current cross-cutting choices and reasons. Updated 2026-10-04.
+Current cross-cutting choices and reasons. Updated 2026-10-06.
 Rules belong in [AGENTS.md](../AGENTS.md), architecture in
 [Design](../docs/design.md), and detailed constraints in the linked topic
 notes. This register is not a chronological log.
@@ -46,34 +46,31 @@ a claim of general superiority over verified compilation.
 rationale; [Related Work](../docs/related-work.md) owns sources.
 Confidence high; revisit with measured scale or consumer evidence.
 
-## Staged explicit-state generation (2026-10-04, relations added 2026-10-05)
+## Staged explicit-state generation (2026-10-04, completed for relations 2026-10-05)
 
 A specification in explicit-state mode (one declaring `fresh_typeId`, so full P4) is planned
 without the pure-mode certificates: types with codecs, subtype bridges, the `Externs` class,
-executable functions, tables and relations, quotations, and since 2026-10-05 the logical
-relations (next entry) with run-soundness where the rule below allows it. Every definition
-and type is listed in `coverage.json` with the exclusion `Emit.statefulReason`; no
-refinement, representation or initialization module is emitted. Reason: the certificate emitters are stated for the pure
-ABI, and the earlier all-or-nothing guard hid the fact that the executable half already
-elaborates for the whole export (about 235 s cold, with native compilation) and agrees
-with upstream on the pinned programs. Emitting the executable library first gives a second
-Lean leg for corpus replay (M3C) before any proof exists, and makes each certificate family a
-separately enabled stage. This is not M3B's exit: audited run-soundness remains required.
-On 2026-10-04 this entry rejected enabling the bounded `StateProps`/`StateValidate`
-emitters "for whatever they accept", because comment-only exclusions would look like
-coverage and the retired `m3b-state-production` aggregate failed at that integration. For
-`StateProps` that objection no longer holds and the rejection is withdrawn: it accepts all
-256 relations, a relation it could not render would get a machine-readable
-`logicalRelation` exclusion, and no claim is recorded for a relation without a theorem.
-On 2026-10-05 `StateRunSound` followed, on a rule the planner can decide: a relation gets a
-`run_sound` theorem when every relation its premises call outside its recursion group has
-one (functions it calls may be recursive: their calls are run equations), by symbolic
-execution alone outside recursion and inside the group's fixed-point induction otherwise
-("Recursive state run-soundness by fixed-point induction"). A group with a
-type-parameterized member, and every relation that calls a relation without the theorem,
-gets a `runSoundness` exclusion with its reason. All 256 full-P4 relations prove, each
-theorem is a coverage claim, and `check-coverage --full-p4` checks the claims in the gate.
-The objection still holds for `StateValidate`. Confidence high.
+executable functions, tables and relations, quotations, the logical relations (next entry)
+and a run-soundness theorem for every relation. Every definition and type is listed in
+`coverage.json` with the exclusion `Emit.statefulReason`; no refinement, representation or
+initialization module is emitted. Reason: the certificate emitters are stated for the pure
+ABI, and an all-or-nothing guard had hidden that the executable half elaborates for the
+whole export (about 235 s cold, with native compilation) and agrees with upstream. Emitting
+the executable library first gave a second Lean leg for corpus replay (M3C), and each
+certificate family is a separately enabled stage with machine-readable exclusions.
+
+The run-soundness rule the planner decides: a relation gets a `run_sound` theorem when every
+relation its premises call outside its recursion group has one (functions it calls may be
+recursive: their calls are run equations), by symbolic execution alone outside recursion and
+inside the group's fixed-point induction otherwise ("Recursive state run-soundness by
+fixed-point induction"). A group with a type-parameterized member, and every relation that
+calls a relation without the theorem, gets a `runSoundness` exclusion with its reason; a
+relation `StateProps` could not render would get a `logicalRelation` exclusion. No claim is
+recorded for a relation without a theorem. All 256 full-P4 relations prove, each theorem is
+a coverage claim, and `check-coverage --full-p4` checks the claims in the gate. The 2026-10-04
+objection to "enabling bounded emitters for whatever they accept" (comment-only exclusions
+would look like coverage) is withdrawn for `StateProps` and `StateRunSound`, which accept
+everything, and still holds for `StateValidate`. Confidence high.
 
 `P4Spec/` is generated, ignored and pinned by `P4Spec.manifest.json` (per-file SHA-256 and
 size) instead of being committed: it is about 32 MB and one module is 6.7 MB, above the 5 MiB
@@ -85,64 +82,51 @@ The user confirmed this on 2026-10-05 after a survey of prior art, with two refi
 First, `P4Spec.samples/` commits byte-for-byte copies of a few small generated modules,
 checked by the gate, so a generator change yields a readable diff. The set covers alias,
 inductive and structure types with codecs and subtype bridges; recursive functions and a
-table; a builtin wrapper; executable relations; and logical relations with named
-attempts, an iterated premise, a negative premise and a mutual group. Not covered, because
-the smallest module holding them is too large or absent: the `Externs` class, auxiliary
+table; a builtin wrapper; executable relations; logical relations with named attempts, an
+iterated premise, a negative premise and a mutual group; and run-soundness of a single
+relation, a mutual group and a group with the extern instance. Not covered, because the
+smallest module holding them is too large or absent: the `Externs` class, auxiliary
 predicates inside a mutual block, and mutual executable groups. Second, when a downstream
 Lake package needs to import `P4Spec` through a Git requirement, the generated sources go
 to a separate repository updated by CI from a pinned commit of this one: Lake builds such
 a dependency from its Git sources, so ignored files cannot be required.
 
-What was observed in other repositories, through GitHub on 2026-10-05, and nothing more:
-`riscv/sail-riscv` has a commit "Remove prover_snapshots" dated 2025-03-10;
-`opencompl/sail-riscv-lean` is a separate repository holding generated Lean, updated by a
-scheduled workflow (from unpinned upstream checkouts; pinning is our addition);
-`hacl-star/hacl-star` has a tracked `dist/` with bot commits "[CI] regenerate hints and
-dist"; `mit-plv/fiat-crypto` tracks `fiat-c`, `fiat-rust` and similar directories;
-`rems-project/sail-arm` tracks `snapshots/`; `Wasm-DSL/spectec` tracks `TEST.md` golden
-outputs of 0.7 to 2.6 MB under `spectec/test-*`; `leanprover/lean4` tracks `stage0/`, and
-GitHub reports about 7.1 GB for that repository as a whole (the share of `stage0` was not
-measured). Measured here on the same day: one snapshot of the 31 MB library is 1.7 MB as
-an aggressively repacked Git pack in a scratch repository, and the blobs of the 37 commits
-touching `NanoP4Spec/` occupy 2.9 MB of this repository's packs, so size alone would allow
-committing. The reasons not to are unreadable 31 MB diffs, a module above the cap, growth
-with certificates, and no consumer. A scratch regeneration of the previous revision still
-gives a full diff for the modules no sample covers. Revisit at the first downstream
-consumer, if the library is split into smaller modules, or if the samples stop catching
-what reviews need.
-
-Two generator defects surfaced by full P4 were fixed in place, with Nano output unchanged:
-a third variant case with the same atoms reused the suffix `_2`, and a tuple outside a
-recursive type group was decoded through a product instance that does not exist. Tuples
-are now decoded by arity and component everywhere, and generation rejects the two tuple
-shapes a right-nested product cannot represent (a single component, a trailing tuple
-component); neither occurs at the pinned specifications.
+Prior art observed through GitHub on 2026-10-05, nothing more: `riscv/sail-riscv` removed
+its prover snapshots (2025-03-10) and `opencompl/sail-riscv-lean` holds the generated Lean
+in a separate repository updated by a scheduled workflow (from unpinned checkouts; pinning
+is our addition); `hacl-star`, `fiat-crypto`, `sail-arm`, `Wasm-DSL/spectec` and
+`leanprover/lean4` track generated output in-tree (`dist/`, `fiat-*`, `snapshots/`, golden
+`TEST.md` files of up to 2.6 MB, `stage0/`). Measured here: one snapshot of the library is
+1.7 MB as a repacked Git pack and the 37 commits touching `NanoP4Spec/` occupy 2.9 MB of
+this repository's packs, so size alone would allow committing; the reasons not to are
+unreadable 31 MB diffs, a module above the cap, growth with certificates, and no consumer.
+Revisit at the first downstream consumer, if the library is split into smaller modules, or
+if the samples stop catching what reviews need.
 
 ## Shape of explicit-state logical relations (2026-10-05)
 
 An explicit-state specification's logical relations are emitted one module per relation
-recursion group under `Refinement/Relation/`, importing the quoted spec and the modules
-of the relations they call. A relation module holds definitions only; the run-soundness
-theorems and their coverage claims are separate (previous entry). Reason: all 256 full-P4 relations elaborate, so the gate now builds every
-emitted relation module (the manifest pins which exist; nothing separately asserts that
-none was excluded) and run-soundness has a fixed target, at a cost of about 200 s of cold
-build beside the chain.
+recursion group under `Refinement/Relation/`, importing the quoted spec and the modules of
+the relations they call; the run-soundness theorems and their coverage claims are separate
+modules under `Refinement/RunSound/` with the same grouping. A relation module holds
+definitions only. Reason: all 256 full-P4 relations elaborate, so the gate builds every
+emitted module (the manifest pins which exist; nothing separately asserts that none was
+excluded), at a cost of about 200 s of cold build beside the chain for the relations and
+400 s for the proofs.
 
-Two encoding choices follow from measurements on full P4, and both changed the fixtures'
-shape as well. An auxiliary predicate of an iterated or optional premise joins its
-relation's mutual block only when it mentions a relation of the recursion group, directly
-or through a nested predicate; otherwise it is declared on its own beforehand. Reason:
-Lean's automatic constructions for a mutual block of 101 types did not finish in 13
-minutes, and 83 of those were independent. Every complete attempt but the last is a named
-`@[reducible]` definition of the relation's inputs, and a constructor's rejected prefix
-applies those names. Reason: restating earlier attempts made the text quadratic in the
-rules (30 MB, 93 to 95% repetition in the large groups). The executable `R.run` still
-inlines its attempts, so a soundness proof relates the two by unfolding; the fixture
-proofs go through unchanged. Rejected: making `R.run` call the named attempts (the
-attempts would join every recursive `partial_fixpoint` group, multiplying its size).
-Confidence high for the partition; medium for named attempts until recursive
-run-soundness has been proved against them. Revisit if those proofs need the attempts
-inside the fixed point.
+Two encoding choices follow from measurements on full P4. An auxiliary predicate of an
+iterated or optional premise joins its relation's mutual block only when it mentions a
+relation of the recursion group, directly or through a nested predicate; otherwise it is
+declared on its own beforehand. Reason: Lean's automatic constructions for a mutual block of
+101 types did not finish in 13 minutes, and 83 of those were independent. Every complete
+attempt but the last is a named `@[reducible]` definition of the relation's inputs, and a
+constructor's rejected prefix applies those names. Reason: restating earlier attempts made
+the text quadratic in the rules (30 MB, 93 to 95% repetition in the large groups). The
+executable `R.run` still inlines its attempts; the soundness proofs name each attempt once
+and compare a rejected alternative with it by unfolding. Rejected: making `R.run` call the
+named attempts (the attempts would join every recursive `partial_fixpoint` group,
+multiplying its size). Confidence high for both, now that every recursive group is proved
+against the named attempts.
 
 ## Recursive state run-soundness by fixed-point induction (2026-10-05)
 
@@ -376,149 +360,110 @@ grammar lemma), owning the obligation in N4 (the core call closure does not depe
 the target). Confidence medium-high; revisit if a pin changes the callback result
 shape or another carrier needs a runtime alternative.
 
-## N3 certificate shape (2026-09-28)
+## Nano certificate shape and evidence (2026-09-28 to 2026-09-30)
 
-Generated relations try complete rule-path attempts in the reference's flattened order:
-each attempt repeats its group's input match and shared premises, as
-`invoke_defined_rel` flattens the paths of all groups into one sequence. The earlier
-shared-prefix form was observationally equal but needed distribution through
-destructuring matches in every proof. Reason: correct by construction; alternatives pair
-one to one. Cost: shared premises run once per attempted path, as upstream does.
-Revisit only with a proved distribution lemma for every prefix form.
+The Nano milestone is closed (`42ffad6`); these choices still bind its artifacts and any
+pure-mode generation. Detailed evidence: [nano certification](notes/nano-certification.md),
+[nano release](notes/nano-release.md), [nano consumer](notes/nano-consumer.md).
 
-Certificates of definitions whose callable closure reaches an extern relation quantify
-the generated `Externs` instance and assume `externsContract cfg`: for every global
-context satisfying the specification with every defined function's type parameters
-fresh, every trampoline fuel and related inputs, every configured callback outcome has a
-related generated outcome and conversely, with failure kinds preserved. The extern
-relation's invocation certificates follow from it, and the completion manifest binds the
-`extern` obligation to their combined claim. Reason: design section 9.2 allows
-extern-dependent results under explicit contracts; one contract keeps every caller's
-assumption identical. Revisit when the target exposes output invariants a caller needs.
-
-Updated 2026-09-29 (N4): the extern callback receives the interpreter's function
-evaluator at the remaining fuel instead of a fixed trampoline, and the contract quantifies
-global contexts and type-parameter freshness. Reason: a callback fixed in the configuration
-has fixed fuel, so reverse correspondence (an eventual reference witness) was unprovable for
-any target that calls back; and the target's callees (`update_var_e`) need the same type-table
-freshness their callers already carry. The trampoline may call any defined function, so the
-freshness list is every defined function's type parameters (`X`, `K`, `V`); callers of an
-extern gained the `X` hypothesis, discharged by the initialized environment.
-`NanoP4Target.externsContractHolds` discharges the contract for the concrete target.
-Confidence high; revisit if a target needs builtin registration or a callback-free ABI.
-
-A certificate module keeps the 4M heartbeat default; a group theorem adds 1M per source
-rule path or clause of its members. Symbolic execution cost grows with the paths
-explored; a fixed budget either fails large definitions (`bin_op`, 26 clauses) or leaves
-small ones loose. The budget is a resource limit, not a weakened statement. Revisit
-with measurements or if a budget masks a runaway tactic.
-
-Generated `#audit_axioms` commands sit at the end of their namespace or section (ahead
-of any `mutual` block), not after each theorem (`Emit.hoistAudits`, 2026-09-28, validated
-in `770e405`). An audit waits for its theorem's proof, so placed after it, it serialized a
-module's proofs, which Lean otherwise elaborates in parallel. The audits and their exact
-axiom rule are unchanged. Tools that pair audits with theorems (`replay-cert.py`, the
-field-update mutation runner) must follow this layout. Revisit if Lean exposes
-per-declaration async audits.
-
-Forward and reverse certificates now have independent per-group dependency chains,
-with the old module names retained as import-only aggregates. This lets a caller
-wait on its own direction and keeps reverse-tactic edits out of forward-only
-modules where no shared extern dependency reintroduces them. Statements, SCC
-boundaries and audits are unchanged. Replay expands aggregate names to the actual
-proof sources; timing an aggregate import alone does not measure proof work.
-
-Native tactic execution is opt-in for scratch replay (`--native`), resolving
-Batteries and core shared-library paths through Lake in dependency order.
-Do not attach the entire core shared library to Nano's library configuration:
-Lake includes native artifact hashes in every module's trace, so a Codegen edit
-would rebuild unchanged Nano proofs and penalize generator-only iteration.
-Confidence high from pinned Lake's dependency implementation; revisit a
-separate native tactic artifact only if repeated measurements justify its build
-boundary and maintenance cost.
-
-`scripts/nano-certification.py --require-owned NX` requires every obligation owned by
-N0–NX (updated 2026-09-30); since N6 the gate instead requires `--require-complete all`,
-excusing only the review and release records (see "N6 release evidence"). Source identity is discharged
-by the completion CLI's own checks (pins, export digest, generated freshness,
-`check-quotes`, `check-coverage`), recorded as `checkedBy`, never as a compiled claim.
-
-## N4 target evidence (2026-09-29)
-
-The concrete target lives in the reusable `NanoP4Target` library, over the generated model;
-neither `P4SpecTec` nor `NanoP4Spec` may import it. Completion binds target-stage obligations
-to handwritten theorems only through `check-target`, which elaborates their exact expected
-types (fully qualified names) and audits axioms: the extern discharge, a witness that the
-assumed reference configuration is inhabited, initialized two-way session composition, and
-session observations with the observation relation spelled out. The handwritten
-`referenceSession`/`session` definitions are pinned by name and by the corpus replay, not by
-their statement. Printing binds the existing `print_` dispatch contract plus the checked fact
-that the pinned export declares no print hints. Replay obligations are verified per case by
-the completion CLI itself, running both typing legs and the session replay; an obligation
-with `checkedBy` counts only when that run verified it. `--require-owned` now spans the core
-and target stages, and the gate requires N4. Reason: design section 9.4 requires a
-completion check that rejects missing target and replay evidence; metadata cannot certify
-itself. Upstream session observations store values once with cache identities zeroed, since
-comparison is canonical. Confidence high; revisit if a corpus session fails upstream (failure
-kinds are not recorded) or another target needs STF commands beyond `packet`/`expect`.
-
-## N5 whole-program evidence (2026-09-30)
-
-Whole-program statements are proved on the generated model by `lazy_eval`
-(`P4SpecTec/Tactic/LazyEval.lean`) and transferred to the reference by the N4 session
-correspondence (`NanoP4Target.referenceTransmits`), not by evaluating the reference. Reason:
-generated recursion is `partial_fixpoint` and the reference tables are hash maps, so neither
-path reduces in the kernel; only the generated code has unfolding equations. Rejected: fuel
-twins of every generated function (a second, unchecked copy of the semantics, and no symbolic
-inputs), `simp` evaluation (evaluates every branch eagerly and loops under binders), and
-enumerating packets (2^24 header values). The evaluator's kernel cost stays low because every
-definitional gap abstracts the fixpoint constants on both sides; without that, the kernel's
-lazy delta unfolds well-founded definitions through accessibility proofs (a test keeps the
-regression). Symbolic inputs are temporary axioms inside `withoutModifyingEnv`, so Meta still
-folds arithmetic and the proof holds with variables restored. Confidence high for this program
-(the certificate builds in about a minute); revisit if a larger program's evaluation needs
-caching across theorems or if Lean exposes reducible fixpoint unfolding.
-
-Extract decodes the driver's packet state through the compressed text of its JSON, as the
-target port must (design section 5.3), and `Lean.Json.compress`/`Lean.Json.parse` are `partial`.
-`NanoP4Target.PacketStateText` states the round trip for host-range packet states as a named
-premise of every theorem that runs extract, never an axiom; runtime tests and every replayed
-corpus packet exercise it. Rejected: replacing the runtime's text comparison with total JSON
-functions (changes every canonical-equality proof and the reference port's observations for
-one premise) and a universal JSON round-trip premise (broader than the driver's states).
-Revisit if the port adopts total JSON printing and parsing, which would let the premise be
-proved.
-
-The consumer example (`ExampleProofs/NanoP4SrcAddrFilter/`) states every host-range port with
-every three-byte packet (all header fields symbolic) and every shorter packet. Packets with a
-payload are excluded: their bit arrays have symbolic size, needing further rules for array
-extraction and the tree decoder. Recorded as the example's scope, not a claim; revisit when
-another consumer needs payloads. `check-consumer` binds the example to the export (identity) and
-to the pinned upstream session (the proven STF trace, every context and the transmissions,
-equals the recording). Its generated `Program.lean` stays inside the example rather than in a
-library of its own: it is one example-local quotation whose freshness the gate checks, and a
-library for it would be a placeholder for programs no consumer uses yet. Revisit when a second
-program is quoted.
-
-## N6 release evidence (2026-09-30)
-
-Review and release are publication records, kept in `notes/nano-release.json` and keyed to a
-SHA-256 digest over every tracked file outside `.agents/` (working-tree bytes, link targets,
-submodule commits). The completion check counts them only when the checkout and the recorded
-revision's own objects both have that digest (so a digest cannot be carried forward to an
-unreviewed tree) and rejects a matching but incomplete record; the gate runs `--require-complete all --allow-unpublished`,
-which excuses only these two records. Reason: a revision cannot contain its own CI result, and
-excluding `.agents/` lets the evidence commit record them without changing what was reviewed and
-tested. Rejected: a digest of the commit tree (every evidence commit would invalidate it), an
-unconditional gate requirement (every later change would fail until re-released), and querying
-GitHub from the checker (network and credentials in the gate). The CI conclusion is therefore a
-recorded observation. Revisit if releases become frequent enough to automate the record.
-
-Cross-layer sensitivity uses `$expression_is_lvalue` for the ordering and failure-kind mutations
-because its catch-all last alternative makes order observable; `update_fieldValue`'s alternatives
-have mutually exclusive guards, so swapping them is behavior-preserving and a rejection would only
-show proof-script brittleness. Each code mutation must also change a runtime observation. The
-completion check runs all mutation suites itself, and the gate no longer runs them separately.
+- Generated relations try complete rule-path attempts in the reference's flattened order,
+  each repeating its group's input match and shared premises, as `invoke_defined_rel`
+  does. Reason: correct by construction; alternatives pair one to one. The earlier
+  shared-prefix form was observationally equal but needed distribution through
+  destructuring matches in every proof. Cost: shared premises run once per attempted
+  path. Revisit only with a proved distribution lemma for every prefix form.
+- Certificates of definitions whose callable closure reaches an extern relation quantify
+  the generated `Externs` instance and assume one contract, `externsContract cfg`: for
+  every global context satisfying the specification with every defined function's type
+  parameters fresh, every fuel and related inputs, every configured callback outcome has a
+  related generated outcome and conversely, with failure kinds preserved. The callback
+  receives the interpreter's function evaluator at the remaining fuel, not a fixed
+  trampoline (a fixed one made reverse correspondence unprovable for a target that calls
+  back), and the target's callees need the same type-table freshness their callers
+  carry, so callers of an extern gained the `X` hypothesis, discharged by the initialized
+  environment. `NanoP4Target.externsContractHolds` discharges it for the concrete target.
+  Revisit if a target needs builtin registration, a callback-free ABI, or output
+  invariants a caller needs.
+- A certificate module keeps the 4M heartbeat default; a group theorem adds 1M per source
+  rule path or clause of its members (and, in explicit-state mode, a joint theorem has 4M
+  per relation). Reason: cost grows with the paths explored, and a fixed budget either
+  fails large definitions (`bin_op`, 26 clauses) or leaves small ones loose. A budget is a
+  resource limit, not a weakened statement. Revisit with measurements or if a budget masks
+  a runaway tactic.
+- Generated `#audit_axioms` commands sit at the end of their namespace or section, ahead
+  of any `mutual` block (`Emit.hoistAudits`, validated in `770e405`): an audit placed
+  after its theorem waits for the proof and serialized a module Lean otherwise elaborates
+  in parallel. Since 2026-10-05 one command may audit several theorems with one
+  traversal; the single-name layout is unchanged for Nano. Tools that pair audits with
+  theorems (`replay-cert.py`, the field-update mutation runner) follow this layout.
+  Revisit if Lean exposes per-declaration asynchronous audits.
+- Forward and reverse certificates have independent per-group dependency chains, with
+  the old module names as import-only aggregates, so a caller waits on its own direction.
+  Replay expands aggregates to the proof sources; timing an aggregate measures no proof.
+- Native tactic execution is opt-in for scratch replay (`--native`); the core shared
+  library is not attached to Nano's library configuration, because Lake puts native
+  artifact hashes in every module's trace and a Codegen edit would rebuild every proof.
+  Revisit a separate native tactic artifact only if repeated measurements justify its
+  build boundary and maintenance cost.
+- Completion: the gate requires `scripts/nano-certification.py --require-complete all
+  --allow-unpublished`, which excuses only the review and release records. Source identity
+  is discharged by the CLI's own checks (pins, export digest, generated freshness,
+  `check-quotes`, `check-coverage`), recorded as `checkedBy`, never as a compiled claim.
+- Target: `NanoP4Target` is a reusable library over the generated model that neither
+  `P4SpecTec` nor `NanoP4Spec` may import. Completion binds target obligations to
+  handwritten theorems only through `check-target` (exact expected types, axiom audit),
+  because design section 9.4 requires a completion check that rejects missing target and
+  replay evidence and metadata cannot certify itself:
+  the extern discharge, an inhabitation witness for the assumed reference configuration,
+  initialized two-way session composition, and session observations with the observation
+  relation spelled out. Printing binds the `print_` dispatch contract plus the checked
+  fact that the pinned export declares no print hints. `referenceSession`/`session` are
+  pinned by name and by the corpus replay; replay obligations count only when the CLI's
+  own run verified them. Session
+  observations store values once with cache identities zeroed. Revisit if a corpus session
+  fails upstream (failure kinds are not recorded) or a target needs STF commands beyond
+  `packet`/`expect`.
+- Whole-program statements are proved on the generated model by `lazy_eval`
+  (`Tactic/LazyEval.lean`) and transferred to the reference by the session
+  correspondence, never by evaluating the reference (its tables are hash maps and the
+  generated recursion is `partial_fixpoint`; only the generated code has unfolding
+  equations). Rejected: fuel twins of every generated function (a second, unchecked copy
+  of the semantics, and no symbolic inputs), `simp` evaluation (evaluates every branch
+  eagerly and loops under binders), and enumerating packets (2^24 header values). Every
+  definitional gap abstracts the fixpoint constants on both sides (a test keeps the
+  regression); symbolic inputs are temporary axioms inside `withoutModifyingEnv`. Revisit
+  if a larger program needs caching across theorems or Lean exposes reducible fixpoint
+  unfolding.
+- Extract decodes the driver's packet state through the compressed text of its JSON, and
+  `Lean.Json.compress`/`parse` are `partial`; `NanoP4Target.PacketStateText` states the
+  round trip for host-range packet states as a named premise, never an axiom; runtime
+  tests and every replayed corpus packet exercise it. Rejected: replacing the runtime's
+  text comparison with total JSON functions (changes every canonical-equality proof and
+  the reference port's observations for one premise) and a universal JSON round-trip
+  premise (broader than the driver's states). Revisit if the port adopts total JSON
+  printing and parsing, which would let the premise be proved.
+- The consumer example (`ExampleProofs/NanoP4SrcAddrFilter/`) covers every host-range
+  port with every three-byte packet and every shorter packet; packets with a payload are
+  its stated scope limit (symbolic bit-array sizes). `check-consumer` binds it to the
+  export and the pinned upstream session. Its `Program.lean` stays inside the example
+  until a second program is quoted.
+- Review and release are publication records in `notes/nano-release.json`, keyed to a
+  SHA-256 digest over every tracked file outside `.agents/`; the completion check counts
+  them only when the checkout and the recorded revision both have that digest (a digest
+  cannot be carried forward to an unreviewed tree) and rejects a matching but incomplete
+  record. Reason: a revision cannot contain its own CI result, and excluding `.agents/`
+  lets the evidence commit record them without changing what was reviewed and tested; the
+  CI conclusion is a recorded observation. Rejected: a commit-tree digest (every evidence
+  commit would invalidate it), an unconditional gate requirement (every later change
+  would fail until re-released), and querying GitHub from the checker (network and
+  credentials in the gate). Revisit if releases become frequent enough to automate the
+  record.
+- Cross-layer sensitivity uses `$expression_is_lvalue` for ordering and failure-kind
+  mutations (its catch-all last alternative makes order observable); `update_fieldValue`
+  carries no ordering mutation because its alternatives have mutually exclusive guards,
+  so swapping them is behavior-preserving and a rejection would only show proof-script
+  brittleness. Each code mutation must also change a runtime observation; the completion
+  check runs every mutation suite, and the gate no longer runs them separately.
 
 ## Knowledge ownership (2026-09-26)
 

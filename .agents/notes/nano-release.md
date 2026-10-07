@@ -3,7 +3,8 @@
 Durable, closed 2026-09-30: retains N6's evidence, scope audit, costs and review record, which
 `nano-release.json` cites as the release's review record; supersede it with the next release. The user-facing
 account is in [Certification](../../docs/certification.md#distinguishing-mutations); the
-record format's rationale is in [decisions](../decisions.md) ("N6 release evidence").
+record format's rationale is in [decisions](../decisions.md) ("Nano certificate shape and
+evidence").
 
 ## What is established
 

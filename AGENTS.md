@@ -297,9 +297,12 @@ own submodule (`upstream/nano-p4-spec`) with the same procedure.
   promise unattended monitoring after ending a turn.
 - **Local validation is proportional to the change.** Code, tests, build or
   dependency configuration, generated artifacts and gate behavior require a
-  passing full `scripts/check.sh` before pushing. Documentation, comments and
-  working-state-only edits may reuse a recorded passing full gate for unchanged
-  executable inputs, with fresh text/link checks and independent review. Record
+  passing full `scripts/check.sh` before pushing. Before starting the gate, run
+  `scripts/check-text.py` and `lake build --wfail` on the changed modules: a
+  warning surfaces only when its module compiles, minutes into the build, and
+  costs a rerun. Documentation, comments and working-state-only edits may reuse
+  a recorded passing full gate for unchanged executable inputs, with fresh
+  text/link checks and independent review. Record
   the reused revision and the reason; a prior pass does not cover changed code.
   Final evidence-only edits need their relevant checks, not another full build.
 - **Preserve meaningful commits when integrating a feature branch.**
