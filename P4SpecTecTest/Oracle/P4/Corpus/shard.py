@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Bounded, fail-closed corpus shards with durable per-case resume records."""
+"""Bounded, fail-closed corpus shards with durable per-case resume records.
+
+One Lean leg per run (`--leg interpreter`, the default, or `--leg generated`), one case at a
+time, with upstream's CLI cross-checked on every case. The case byte bound and the
+per-process deadline are part of the run identity; raising them is a different run.
+"""
 
 import argparse
 import contextlib
@@ -38,7 +43,13 @@ SOURCE_PATHS = (
     "upstream/patches/0001-json-export.patch", "lean-toolchain", "lake-manifest.json",
     "lakefile.toml", "flake.lock", "scripts/oracle_build.py", "scripts/oracle_paths.py",
     "P4SpecTecTest/Oracle/P4/Replay/capture.py",
+    "P4SpecTecTest/Oracle/P4/Corpus/Check.lean", "P4SpecTec/BackendSim/Placeholder.lean",
 )
+# What the generated leg additionally depends on: its worker, its adapter and the pinned
+# digests of the generated library it was built from.
+GENERATED_PATHS = ("P4SpecTecTest/Oracle/P4/Corpus/Generated/Main.lean",
+                   "P4SpecTecTest/Oracle/P4/Generated/Externs.lean", "P4Spec.manifest.json")
+LEGS = ("interpreter", "generated")
 FAILURES = {
     "timeout", "oversized", "oracle-crash", "cli-parity", "worker-timeout",
     "worker-oversized", "worker-crash", "worker-protocol", "worker-limit",
@@ -392,14 +403,14 @@ def validate_statuses(verdict, observation):
                 continue
         if upstream == "syntax":
             require(status == "syntax-only", "syntax record advertises AL execution")
-        elif upstream == "abort":
-            require(status == "unsupported-upstream-abort", "abort record advertises supported execution")
         else:
-            require(status not in {"syntax-only", "unsupported-upstream-abort", "unsupported-type-fresh"},
+            require(status not in {"syntax-only", "unsupported-type-fresh"},
                     "unexpected unsupported/syntax status")
             require(status != "matched" or upstream == "pass", "failure advertises pass agreement")
             require(status != "matched-public-failure" or upstream == "unmatch",
                     "pass advertises failure agreement")
+            require(status != "matched-abort" or upstream == "abort",
+                    "non-abort advertises abort agreement")
 
 
 def summary(store, records):
@@ -432,7 +443,7 @@ def summary(store, records):
             and isinstance(run_failure["message"], str) and bool(run_failure["message"])
             and run_failure["complete"] is False, "malformed run failure")
     okay = complete and not failures and run_failure is None and not (set(statuses) - {
-        "matched", "matched-public-failure", "syntax-only"})
+        "matched", "matched-public-failure", "matched-abort", "syntax-only"})
     return {"schemaVersion": SCHEMA, "identitySha256": store.sha,
             "canonicalCounts": store.identity["canonicalCounts"],
             "selectedCandidates": len(store.selection), "terminalAttempts": len(records),
@@ -568,8 +579,9 @@ def run_cases(store, executable, upstream, p4c, spec, worker_factory=run.Worker)
     return result
 
 
-def preflight(upstream, p4c, index, total):
+def preflight(upstream, p4c, index, total, leg="interpreter"):
     """Rebuild pinned sources; content-key the compile workspace under a lock."""
+    require(leg in LEGS, f"unknown Lean leg: {leg}")
     check = run.load("shard_check", ROOT / "P4SpecTecTest/Oracle/P4/Replay/check.py")
     adapter = check.load_export()
     revision = adapter.revision_guard(upstream)
@@ -582,7 +594,13 @@ def preflight(upstream, p4c, index, total):
     require(bool(selected), "empty shard selection")
     subprocess.run(["python3", str(ROOT / "scripts/spec-snapshot.py"), "unpack",
                     str(ROOT / "exports/p4.al.json")], cwd=ROOT, check=True)
-    subprocess.run(["lake", "build", "--wfail", "p4-corpus-worker"], cwd=ROOT, check=True)
+    if leg == "generated":
+        subprocess.run(["lake", "exe", "p4spectec-gen", "exports/p4.al.json", "--lib", "P4Spec",
+                        "--update"], cwd=ROOT, check=True)
+        subprocess.run(["python3", str(ROOT / "scripts/generated-manifest.py"), "--check",
+                        "P4Spec", str(ROOT / "P4Spec.manifest.json")], cwd=ROOT, check=True)
+    worker = run.worker_command(leg, ROOT / "exports/p4.al.json")[0]
+    subprocess.run(["lake", "build", "--wfail", Path(worker).name], cwd=ROOT, check=True)
     build_fd = secure_directory(ROOT / ".artifacts/p4-corpus-probe")
     try:
         with lock(build_fd, "build.lock"):
@@ -624,8 +642,10 @@ def preflight(upstream, p4c, index, total):
                            "fuel": 10000000, "maxWorkerCases": run.MAX_WORKER_CASES, "concurrency": 1},
                 "configuration": {"mode": "AL", "cache": True, "det": False, "guard": False,
                                   "relations": list(contract.RELATIONS), "typeFreshPolicy": "zero-only"},
-                "sourceDigests": {path: run.file_digest(repo_source_path(ROOT, path)) for path in SOURCE_PATHS},
-                "workerSha256": run.file_digest(ROOT / ".lake/build/bin/p4-corpus-worker"),
+                "leg": leg,
+                "sourceDigests": {path: run.file_digest(repo_source_path(ROOT, path)) for path in
+                                  SOURCE_PATHS + (GENERATED_PATHS if leg == "generated" else ())},
+                "workerSha256": run.file_digest(Path(worker)),
                 "probeSha256": run.file_digest(executable), "probeRecipe": recipe,
                 "probeWorkspaceKey": workspace_key}
     return identity, adapter, executable
@@ -637,13 +657,22 @@ def main():
     parser.add_argument("--p4c", required=True, type=Path)
     parser.add_argument("--shard", type=int, default=0)
     parser.add_argument("--shards", type=int, default=317)
+    parser.add_argument("--leg", choices=LEGS, default="interpreter")
+    parser.add_argument("--max-case-bytes", type=int, default=run.MAX_BYTES,
+                        help="per-case byte bound for oracle output, artifacts and the worker")
+    parser.add_argument("--timeout", type=int, default=run.TIMEOUT,
+                        help="seconds per upstream session, CLI run or worker response")
     args = parser.parse_args()
     require(args.upstream.is_absolute() and args.p4c.is_absolute(), "checkout roots must be absolute")
+    require(args.max_case_bytes >= run.MAX_BYTES and args.timeout >= run.TIMEOUT,
+            "bounds can only be raised above the reviewed defaults")
+    run.MAX_BYTES, run.TIMEOUT = args.max_case_bytes, args.timeout
     upstream, p4c = args.upstream.resolve(), args.p4c.resolve()
-    identity, adapter, executable = preflight(upstream, p4c, args.shard, args.shards)
+    identity, adapter, executable = preflight(upstream, p4c, args.shard, args.shards, args.leg)
     store = Store(ROOT / ".artifacts/p4-corpus-shards", identity, adapter)
     try:
-        result = run_cases(store, executable, upstream, p4c, ROOT / "exports/p4.al.json")
+        result = run_cases(store, executable, upstream, p4c, ROOT / "exports/p4.al.json",
+                           worker_factory=lambda spec: run.Worker(spec, leg=args.leg))
         print(f"[p4-shard] summary: {store.path / 'summary.json'}", flush=True)
         raise SystemExit(0 if result["okay"] else 1)
     finally:

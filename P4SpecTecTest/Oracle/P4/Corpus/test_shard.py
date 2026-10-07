@@ -52,6 +52,51 @@ def record(store, reference=None, kind="semantic"):
             "resources": {"phases": {}, "childrenMaxRssPlatformUnits": 0}}
 
 
+class LegTests(unittest.TestCase):
+    """Each leg's worker is told the case bound; an unknown leg is refused."""
+
+    def test_worker_commands(self):
+        interpreter = run.worker_command("interpreter", Path("/spec"), fuel=5)
+        self.assertEqual(interpreter[1:], ["/spec", "--fuel", "5", "--max-case-bytes",
+                                           str(run.MAX_BYTES)])
+        self.assertTrue(interpreter[0].endswith("/p4-corpus-worker"))
+        generated = run.worker_command("generated", Path("/spec"), limit=7)
+        self.assertEqual(generated[1:], ["--max-case-bytes", "7"])
+        self.assertTrue(generated[0].endswith("/p4-corpus-worker-gen"))
+        with self.assertRaises(ValueError):
+            run.worker_command("other", Path("/spec"))
+        with self.assertRaises(ValueError):
+            shard.preflight(Path("/u"), Path("/c"), 0, 1, leg="other")
+
+    def test_abort_matches_only_a_hard_error_at_upstream_abort(self):
+        def obs(cls):
+            value = observation()
+            for run in value["relations"].values():
+                run["result"] = ({"class": "pass", "outputs": []} if cls == "pass"
+                                 else {"class": cls, "diagnostic": {}})
+            return value
+
+        def verdict_with(status, lean):
+            return {"name": NAME, "relations": {key: {"status": status, "leanClass": lean,
+                                                      "message": ""} for key in contract.RELATIONS}}
+
+        shard.validate_statuses(verdict_with("matched-abort", "hard-error"), obs("abort"))
+        run.verdict(verdict_with("matched-abort", "hard-error"), NAME)
+        for status, lean, cls in (("matched-abort", "hard-error", "unmatch"),
+                                  ("matched", "pass", "abort"),
+                                  ("matched-public-failure", "unmatch", "abort")):
+            with self.subTest(status=status, upstream=cls), self.assertRaises(ValueError):
+                shard.validate_statuses(verdict_with(status, lean), obs(cls))
+        with self.assertRaises(ValueError):  # an abort match with a mismatch class
+            run.verdict(verdict_with("matched-abort", "unmatch"), NAME)
+
+    def test_raised_bounds_are_read_at_the_call(self):
+        with mock.patch.object(run, "TIMEOUT", 0.0):
+            with self.assertRaises(run.HarnessFailure) as caught:
+                run.bounded(["sleep", "1"])
+        self.assertEqual(caught.exception.kind, "timeout")
+
+
 class ShardTests(unittest.TestCase):
     def setUp(self):
         self.scratch = tempfile.TemporaryDirectory()

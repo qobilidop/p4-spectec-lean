@@ -49,8 +49,11 @@ def terminate(process):
     process.wait(timeout=10)
 
 
-def bounded(command, timeout=TIMEOUT, limit=MAX_BYTES):
-    """File-backed bounded subprocess output; crashes/timeouts are never verdicts."""
+def bounded(command, timeout=None, limit=None):
+    """File-backed bounded subprocess output; crashes/timeouts are never verdicts. The
+    defaults are read at the call, so a driver that raises the module bounds is obeyed."""
+    timeout = TIMEOUT if timeout is None else timeout
+    limit = MAX_BYTES if limit is None else limit
     start = time.monotonic()
     with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
         process = subprocess.Popen(command, cwd=ROOT, stdout=out, stderr=err,
@@ -86,13 +89,24 @@ def file_digest(path):
     return result.hexdigest()
 
 
+def worker_command(leg, spec, fuel=10000000, limit=None):
+    """The corpus-v2 worker of a Lean leg: the reference interpreter on the verified spec
+    at a fuel bound, or the generated library; both are told the case byte bound."""
+    if leg == "interpreter":
+        command = [str(ROOT / ".lake/build/bin/p4-corpus-worker"), str(spec), "--fuel", str(fuel)]
+    elif leg == "generated":
+        command = [str(ROOT / ".lake/build/bin/p4-corpus-worker-gen")]
+    else:
+        raise ValueError(f"unknown Lean leg: {leg}")
+    return command + ["--max-case-bytes", str(MAX_BYTES if limit is None else limit)]
+
+
 class Worker:
-    def __init__(self, spec, fuel=10000000):
+    def __init__(self, spec, fuel=10000000, leg="interpreter"):
         self.stderr = tempfile.TemporaryFile()
         self.process = subprocess.Popen(
-            [str(ROOT / ".lake/build/bin/p4-corpus-worker"), str(spec), "--fuel", str(fuel)],
-            cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.stderr,
-            start_new_session=True,
+            worker_command(leg, spec, fuel), cwd=ROOT, stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=self.stderr, start_new_session=True,
         )
         self.buffer = b""
         self.cases = 0
@@ -153,10 +167,9 @@ def verdict(value, name):
             or value["name"] != name or not isinstance(value["relations"], dict)
             or set(value["relations"]) != set(contract.RELATIONS)):
         raise ValueError("malformed worker verdict")
-    allowed = {"matched", "matched-public-failure", "syntax-only", "unsupported-type-fresh",
-               "unsupported-upstream-abort", "unrepresentable-input", "exhausted",
-               "counter-disagreement",
-               "output-disagreement", "outcome-disagreement"}
+    allowed = {"matched", "matched-public-failure", "matched-abort", "syntax-only",
+               "unsupported-type-fresh", "unrepresentable-input", "exhausted",
+               "counter-disagreement", "output-disagreement", "outcome-disagreement"}
     for relation in value["relations"].values():
         if (not isinstance(relation, dict) or set(relation) != {"status", "leanClass", "message"}
                 or relation["status"] not in allowed
@@ -165,8 +178,8 @@ def verdict(value, name):
             raise ValueError("malformed relation verdict")
         consistent = {
             "matched": {"pass"}, "matched-public-failure": {"hard-error", "unmatch"},
+            "matched-abort": {"hard-error"},
             "syntax-only": {"not-evaluated"}, "unsupported-type-fresh": {"not-evaluated"},
-            "unsupported-upstream-abort": {"not-evaluated"},
             "unrepresentable-input": {"not-evaluated"}, "exhausted": {"exhausted"},
             "output-disagreement": {"pass"},
             "counter-disagreement": {"pass", "hard-error", "unmatch"},

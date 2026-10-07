@@ -7,60 +7,60 @@ review and exact-revision CI for that tree digest.
 
 ## Where M3 stands
 
-- M3B is closed, pending remote CI for its last commit: the whole full-P4 export generates
-  as the library `P4Spec` (ignored sources, pinned by `P4Spec.manifest.json`, sampled in
-  `P4Spec.samples/`) with executable definitions, quotations matching the export, a
-  state-indexed logical relation for each of the 256 relations, and since 2026-10-05 an
-  audited run-soundness theorem for every one of them, the 31 recursion groups included.
-  [Full-P4 overview](notes/full-p4/overview.md) has the measurements and what the
-  theorems do not say; decisions, "Recursive state run-soundness by fixed-point
-  induction", has the method.
-- M3C, sweep (`f329af0`): the generated library and the reference interpreter both agree
-  with upstream on 1,266 of the 1,267 corpus candidates, for typing and instantiation.
-  [Corpus note](notes/full-p4/corpus.md) has the evidence and its limits.
-- M3C, regression sweep (2026-10-05): both legs agree with upstream on its 37 regression
-  programs, 13 of them rejected (typing failures; twelve beyond the one the bounded replay
-  already had).
-- M3C's durable campaign and mutation suite, M3D, M3E and M3F are open.
+- M3B is closed: the whole full-P4 export generates as the library `P4Spec` (ignored
+  sources, pinned by `P4Spec.manifest.json`, sampled in `P4Spec.samples/`) with executable
+  definitions, quotations matching the export, a state-indexed logical relation for each of
+  the 256 relations, and an audited run-soundness theorem for every one of them, the 31
+  recursion groups included. [Full-P4 overview](notes/full-p4/overview.md) has the
+  measurements and what the theorems do not say; decisions, "Recursive state run-soundness
+  by fixed-point induction", has the method.
+- M3C closed on 2026-10-06 with its durable record ([corpus note](notes/full-p4/corpus.md),
+  first three sections): both Lean legs agree with upstream on 1,266 of the 1,267 p4c
+  candidates, on upstream's 37 regression programs (13 rejected) and on p4c's 535
+  non-excluded error tests (500 typing rejections, 34 parser rejections, one target abort
+  on a failed `static_assert`, the first upstream evidence for that branch of the port);
+  the regression sweep has a committed six-mutation suite, each mutation rejected by exactly
+  the expected programs and statuses; and the shard campaign drives both legs with raised
+  bounds and CLI parity (one shard of 64 per leg on the final tool). The one candidate above
+  the 1 GiB case bound stays unobserved.
+- M3D is in progress: a Lean port of upstream's v1model simulator
+  (`P4SpecTec/BackendSim/V1Model/`, with the shared `Hash`, `State`, `Table`, `Stf` and
+  `SpecImpl` modules it needs) over explicit spec trampolines, usable by both Lean legs, and
+  a session oracle (`P4SpecTecTest/Oracle/P4/Sessions/`) replaying upstream's 199
+  non-excluded v1model STF pairs and its 20 regression simulator programs through both
+  legs against the pinned upstream simulator. The first session matched on both legs; the
+  full run is pending. M3E and M3F are open.
 
 ## Verified state
 
-Latest executable validation, for `0d78b6e` (regression sweep; Python harness and
-documents only, no Lean source changed since `00aa1c2`):
+Latest executable validation, for the M3C checkpoint commit (this one; the M3D sources
+in progress are not part of it):
 
-- Full gate: `nix develop -c /usr/bin/time -p scripts/check.sh` exit 0 in 397.51 s, all
-  58 stages, warm (`.artifacts/m3c/gate-2.log`). For `00aa1c2`, the same gate cold for
-  every proof module: exit 0 in 1633.88 s (`.artifacts/m3b/rec/gate-2.log`). Nano
-  completion 888 obligations, 0 unresolved, review and release pending under the
+- Full gate: `nix develop -c /usr/bin/time -p scripts/check.sh` exit 0 in 457.78 s, all
+  59 stages, warm (`.artifacts/m3c/gate-5.log`), on the reviewed text. An earlier run of
+  the same tree (`gate-4.log`) passed every stage and then failed with a bash syntax error
+  because the gate script was edited while it was running: never edit a shell script a
+  running shell is still reading.
+- Sweeps on the final tool (every log under `.artifacts/m3c/`): error tests
+  (`errors-2.log`) exit 0 in 86 s, 535 of 535 on both legs; regression (`regression-4.log`)
+  exit 0, 37 of 37; mutation suite on the reviewed text (`mutations-4.log`) exit 0, six
+  mutations rejected; p4c corpus (`corpus-2.log`) exit 0, 1,266 of 1,267 on both legs,
+  `switch_p4_16.p4` oversized; shard 0 of 64 on each leg (`shard-*-1.log`) exit 0, 20
+  candidates, 40 matches, CLI parity. Not rerun: the four-case replay (evidence is for
+  `f329af0`).
+- Independent review: [full-P4 review](notes/full-p4/review.md), "M3C durable record
+  stage"; no blocker, findings resolved before the commit.
+- Nano completion 888 obligations, 0 unresolved, review and release pending under the
   allowance as on every tree after `42ffad6`.
-- Sweeps on the final tool: regression, exit 0, 37 of 37 on both legs
-  (`.artifacts/m3c/regression-3.log`); p4c corpus, exit 0 in 1,240 s, 1,266 of 1,267 on
-  both legs, `switch_p4_16.p4` oversized (`.artifacts/m3c/corpus-1.log`). Not rerun: the
-  four-case replay (evidence is for `f329af0`).
-- Independent reviews: [full-P4 review](notes/full-p4/review.md), "Recursive
-  run-soundness stage" and "Regression sweep stage"; no blockers, findings resolved
-  before the commits.
-- Remote CI: `0d78b6e` passed (run 37365938053), building the 132 proof modules on the
-  runner.
-
-The two tend-repo commits of 2026-10-06 change documents, working state and one comment
-in `scripts/nano-certification.py`. CI for the first (`0e4b521`, run 37573527725)
-passed. The second's full gate, run because it touches a
-script: `nix develop -c /usr/bin/time -p scripts/check.sh` exit 0 in 417.73 s, all 58
-stages, warm (`.artifacts/tend/gate-1.log`); only documents and the skill were edited
-afterwards, with the text and link checks rerun. Review: "Working-state compaction" in
-the review note (both passes).
 
 ## Open threads and next step
 
-1. Next: M3C's durable record. Extend the shard campaign to the generated worker and a
-   larger bound for a CLI-checked record, and commit a generated-code mutation suite for
-   the sweeps (the regression set runs in 40 s and includes rejections, which makes it the
-   cheap target for mutations). p4c's `p4_16_errors` needs the restore and the inventory
-   extended to it and to upstream's 52 negative exclusion references.
+1. Next: M3D. Finish the v1model session sweep on both legs, resolve every disagreement,
+   then record it (corpus note, certification table), review, gate and commit; then
+   eBPF (upstream's second p4c target, 34 pairs) if the v1model port generalizes cheaply.
 2. Generated `==` converts both operands to IL values (`valueEq`); on the largest programs
    the generated leg is about five times slower than the interpreter. Fix before any
-   generated-leg target work (M3D); untried options are in the corpus note.
+   generated-leg target work at scale; untried options are in the corpus note.
 3. Gate cost roughly doubled on a cold build. On the critical path `Expr_eval`'s relation
    module (195 s) is now followed by its proof module (185 s, 123 s of it symbolic
    execution); the proof build products are about 387 MB, 161 MB for that module, and the

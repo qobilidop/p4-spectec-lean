@@ -261,6 +261,8 @@ exact copies, so that a change to the generator shows as a readable diff.
 | `check-p4-quotes` | The 1,672 compiled quotations equal the decoded export, as for Nano-P4; the 17 schematic variable declarations are not quoted | That the executable definitions follow their quotations |
 | Corpus sweep | On 1,266 of the 1,267 candidate programs of the pinned p4c sample corpus, the generated typing and instantiation relations return upstream's outputs and exact fresh-identifier counters, as the reference interpreter does | The remaining candidate (its observation exceeds the 1 GiB case bound), programs upstream's manifests exclude, rejection (every observed candidate passes upstream), and packet processing |
 | Regression sweep | On upstream's own 37 regression programs, both legs agree with upstream on both relations: 24 accepted, with outputs and counters as above, and 13 rejected, where both legs fail, in upstream's failure class, with the fresh-identifier counter upstream has after the failed run | Where a run fails: for ten of the thirteen that counter is zero, so any failure before the first fresh identifier matches. Instantiation failures: every rejection is a typing failure, and `Program_inst` fails through its `Program_ok` premise. The simulator programs' packet tests are not run |
+| Error-test sweep | On the 535 of p4c's 584 `p4_16_errors` programs that upstream's manifests do not exclude, both legs reject every one as upstream does: 500 by typing, in upstream's failure class with its counter; 34 already rejected by upstream's parser, which boots no program; one by upstream's target aborting on a failed `static_assert`, where both legs fail with a hard error at the same counter | The 49 excluded programs; where a run fails; the 34 parser rejections exercise no Lean code. A hard error does not say whether the port aborted or erred: Lean's failure data does not separate the two |
+| Sweep mutations | Six mutations of the regression sweep's inputs and code are each rejected by exactly the expected programs and statuses: a changed observed counter, output or class on both legs; the generated record-expression distinctness check skipped (the duplicate-field program becomes accepted on the generated leg); the interpreter's list concatenation reversed and its fresh allocation doubled (every accepted or allocating program disagrees on the interpreter leg) | Mutations elsewhere; the mutations are chosen, not sampled |
 | Bounded replay | The same comparison on three pinned programs, one of which upstream and both Lean legs reject | Upstream reports a rejection only as a class, so the kind of failure is not compared |
 
 No full-P4 definition has a correspondence or representation certificate, and
@@ -287,15 +289,24 @@ nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Replay/replay.p
 
 Both run upstream's placeholder target, ported to Lean: its two state initializers return
 a null value, the compile-time extern call implements `static_assert`, and every runtime
-extern call is a hard error. Upstream aborts on a failed `static_assert`, which the
-comparison does not evaluate, so only the successful branch of that port is compared.
-The two Lean legs share the port and the builtin implementations, so their agreement
-with each other is weaker evidence than their agreement with upstream. No packet target
-exists for full P4.
+extern call is a hard error. Upstream aborts on a failed `static_assert`; one error test
+exercises it, and both legs fail there with a hard error at upstream's counter. The two
+Lean legs share the port and the builtin implementations, so their agreement with each
+other is weaker evidence than their agreement with upstream. No packet target exists for
+full P4.
 
-The sweep has no committed mutation suite. In one manual run, changing `+ 1` to `+ 2` in
-the generated typing rule for bit-slice l-values made 39 of the 1,186 programs under
-32 MiB disagree on the generated leg.
+The error tests and the mutation suite run the same way:
+
+```sh
+nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/sweep.py \
+  --errors --upstream "$PWD/upstream/p4-spectec" --p4c "$PWD/.artifacts/p4c"
+nix develop --command python3 P4SpecTecTest/Oracle/P4/Corpus/mutations.py
+```
+
+The mutation suite needs the regression sweep's cached observations and rebuilds the
+mutated leg's worker in place, restoring it afterwards to its recorded digest. In an
+earlier manual run, changing `+ 1` to `+ 2` in the generated typing rule for bit-slice
+l-values made 39 of the 1,186 p4c programs under 32 MiB disagree on the generated leg.
 
 ## Reading a generated certificate
 

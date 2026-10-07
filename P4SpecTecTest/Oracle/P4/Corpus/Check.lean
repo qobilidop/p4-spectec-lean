@@ -7,7 +7,9 @@ observation, then one verdict per relation from a leg's outcome. A leg runs one 
 on a booted program from a supplied fresh state; the reference interpreter and the
 generated library each provide one. Nonzero Type.Fresh state is unsupported, not
 alpha-normalized away. Verdicts retain Lean failure tags even where public upstream
-collapses them.
+collapses them. An upstream `abort` is any target-side error (at this pin, the
+placeholder's failed `static_assert`); a leg matches it only with a hard error at the same
+counter, since the port's `Fail.err` does not separate a target abort from an AL error.
 -/
 
 namespace P4SpecTecTest.Diff.P4Corpus
@@ -190,7 +192,6 @@ private def relation (leg : Leg) (boot : Lang.Il.value) (name : String) (j : Jso
   let result ← field j "result"
   let cls ← resultShape result
   if unsupported then return verdict "unsupported-type-fresh"
-  if cls == "abort" then return verdict "unsupported-upstream-abort"
   if cls == "syntax" then throw "syntax result with nonnull boot"
   let (actual, state) ← match leg name boot (FreshState.ofInt afterBoot) with
     | .error message => return verdict "unrepresentable-input" "not-evaluated" message
@@ -210,6 +211,7 @@ private def relation (leg : Leg) (boot : Lang.Il.value) (name : String) (j : Jso
         return verdict "matched" leanClass
       return verdict "output-disagreement" leanClass
   | "unmatch", .error _ => return verdict "matched-public-failure" leanClass
+  | "abort", .error .err => return verdict "matched-abort" leanClass
   | _, _ => return verdict "outcome-disagreement" leanClass
 
 /-- Validate both sessions before evaluation, then return separate relation verdicts. -/

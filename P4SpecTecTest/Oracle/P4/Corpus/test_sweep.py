@@ -26,9 +26,9 @@ class SweepAccountingTest(unittest.TestCase):
     def test_agreement_requires_both_relations(self):
         self.assertTrue(sweep.agrees(record("matched", "matched")))
         self.assertTrue(sweep.agrees(record("matched-public-failure", "syntax-only")))
+        self.assertTrue(sweep.agrees(record("matched-abort", "matched-abort", "hard-error")))
         for status in ("output-disagreement", "counter-disagreement", "outcome-disagreement",
-                       "exhausted", "unrepresentable-input", "unsupported-type-fresh",
-                       "unsupported-upstream-abort"):
+                       "exhausted", "unrepresentable-input", "unsupported-type-fresh"):
             with self.subTest(status=status):
                 self.assertFalse(sweep.agrees(record("matched", status)))
                 self.assertFalse(sweep.agrees(record(status, "matched")))
@@ -182,6 +182,30 @@ class RegressionSetTest(unittest.TestCase):
             self.assertTrue(any(p.startswith("interpreter: " + paths[index]) for p in problems))
         self.assertEqual(sweep.groups(candidates, legs)["interpreter"]["sim"],
                          {"failure:worker-timeout": 1})
+
+    def test_error_tests_are_rejected_by_typing_or_parsing(self):
+        prefix = "p4c/testdata/p4_16_errors/"
+        paths = [prefix + name for name in ("a.p4", "b.p4", "c.p4")]
+        candidates = [{"path": path} for path in paths]
+        rejected = "matched-public-failure"
+        legs = {"generated": {0: self.named(paths[0], rejected, rejected, "unmatch"),
+                              1: self.named(paths[1], "syntax-only", "syntax-only",
+                                            "not-evaluated"),
+                              2: self.named(paths[2], "matched-abort", "matched-abort",
+                                            "hard-error")}}
+        self.assertEqual(sweep.unexpected(candidates, [], legs), [])
+        self.assertEqual(sweep.groups(candidates, legs)["generated"]["p4_16_errors"], {
+            f"{rejected}(unmatch),{rejected}(unmatch)": 1,
+            "matched-abort(hard-error),matched-abort(hard-error)": 1,
+            "syntax-only(not-evaluated),syntax-only(not-evaluated)": 1})
+        # an error test a leg accepts, or one it cannot evaluate, is not a rejection
+        for statuses in (("matched", rejected), (rejected, "unsupported-type-fresh"),
+                         ("exhausted", rejected), (rejected, "unrepresentable-input")):
+            with self.subTest(statuses=statuses):
+                legs["generated"][0] = self.named(paths[0], *statuses, "unmatch")
+                problems = sweep.unexpected(candidates, [], legs)
+                self.assertEqual(len(problems), 1)
+                self.assertTrue(problems[0].startswith("generated: " + paths[0]))
 
     def test_unobserved_or_missing_candidates_are_unexpected(self):
         prefix = f"upstream/{sweep.REGRESSION}/"

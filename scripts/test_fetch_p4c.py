@@ -11,7 +11,8 @@ import unittest
 
 SCRIPT = Path(__file__).resolve().parent / "fetch-p4c.sh"
 URL = "https://example.invalid/p4c"
-SPARSE_PATHS = ("p4include", "testdata/p4_16_samples", "backends/ubpf/tests/testdata")
+SPARSE_PATHS = ("p4include", "testdata/p4_16_samples", "testdata/p4_16_errors",
+                "backends/ubpf/tests/testdata")
 
 
 class FetchP4cTest(unittest.TestCase):
@@ -42,6 +43,7 @@ class FetchP4cTest(unittest.TestCase):
         self.git("init", "-q", str(self.dest))
         self.write(self.dest / "p4include/core.p4", "// core\n")
         self.write(self.dest / "testdata/p4_16_samples/good.p4", "#include <core.p4>\n")
+        self.write(self.dest / "testdata/p4_16_errors/bad.p4", "#include <core.p4>\n")
         self.write(self.dest / "backends/ubpf/tests/testdata/target.p4", "// target\n")
         self.link = self.dest / "testdata/p4_16_samples/link.p4"
         self.link.symlink_to("../../backends/ubpf/tests/testdata/target.p4")
@@ -94,7 +96,7 @@ class FetchP4cTest(unittest.TestCase):
         for _ in range(2):
             result = self.fetch()
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn(f"2 samples at {self.pin}", result.stdout)
+            self.assertIn(f"2 samples, 1 error tests at {self.pin}", result.stdout)
         actual = self.git("-C", str(self.dest), "rev-parse", "HEAD").stdout.strip()
         self.assertEqual(actual, self.pin)
         self.assertEqual(self.git("-C", str(self.dest), "status", "--porcelain").stdout, "")

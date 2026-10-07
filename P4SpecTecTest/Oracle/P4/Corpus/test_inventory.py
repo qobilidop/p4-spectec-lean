@@ -73,6 +73,48 @@ class InventoryTests(unittest.TestCase):
             with self.subTest(index=index), self.assertRaises(ValueError):
                 inventory.validate_manifest(value)
 
+    def test_error_inventory(self):
+        cases = [{"path": inventory.ERRORS_PREFIX + name + ".p4", "sha256": "a" * 64,
+                  "exclusions": []} for name in ("a", "b", "c")]
+        cases[1]["exclusions"] = [{"manifest": "excludes/static/p4c/a.exclude", "line": 2}]
+        stale = [{"path": inventory.ERRORS_PREFIX + "gone.p4",
+                  "exclusions": [{"manifest": "excludes/static/p4c/a.exclude", "line": 3}]}]
+        value = {"schemaVersion": 1, "upstreamRevision": "1" * 40, "p4cRevision": "2" * 40,
+                 "snapshotSha256": "3" * 64, "cases": cases,
+                 "exclusionFiles": [{"path": "excludes/static/p4c/a.exclude", "sha256": "b" * 64}],
+                 "staleExclusions": stale, "counts": inventory.error_counts(cases, stale)}
+        value["inventorySha256"] = inventory.digest(inventory.encode(value))
+        inventory.validate_errors(value)
+        self.assertEqual(value["counts"], {"paths": 3, "excluded": 1, "candidates": 2,
+                                           "negativeReferences": 2, "staleReferences": 1})
+        self.assertEqual([c["path"] for c in inventory.error_candidates(value)],
+                         [inventory.ERRORS_PREFIX + "a.p4", inventory.ERRORS_PREFIX + "c.p4"])
+        mutations = [lambda v: v["counts"].update(candidates=3),
+                     lambda v: v.update(inventorySha256="0" * 64),
+                     lambda v: v["cases"].reverse(),
+                     lambda v: v["cases"][0].update(path=inventory.PREFIX + "a.p4"),
+                     lambda v: v["cases"][0].update(path=inventory.ERRORS_PREFIX + "d/a.p4"),
+                     lambda v: v["cases"][0].update(symlink=None),
+                     lambda v: v["staleExclusions"][0].update(path=cases[0]["path"]),
+                     lambda v: v.update(cases=[])]
+        for index, mutate in enumerate(mutations):
+            mutated = copy.deepcopy(value)
+            mutate(mutated)
+            with self.subTest(index=index), self.assertRaises(ValueError):
+                inventory.validate_errors(mutated)
+        with self.assertRaises(ValueError):
+            inventory.validate_manifest(value)
+
+    def test_committed_error_manifest(self):
+        value = json.loads(inventory.ERRORS_MANIFEST.read_text())
+        inventory.validate_errors(value)
+        self.assertEqual(value["counts"], {"paths": 584, "excluded": 49, "candidates": 535,
+                                           "negativeReferences": 52, "staleReferences": 1})
+        self.assertEqual(value["staleExclusions"][0]["path"],
+                         inventory.ERRORS_PREFIX + "issue3233.p4")
+        self.assertEqual(value["exclusionFiles"],
+                         json.loads(inventory.MANIFEST.read_text())["exclusionFiles"])
+
     def test_committed_manifest(self):
         value = json.loads(inventory.MANIFEST.read_text())
         inventory.validate_manifest(value)

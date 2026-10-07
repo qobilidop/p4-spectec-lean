@@ -40,14 +40,12 @@ What it took to get there, and what it shows:
   the sweep; it is one for any generated-leg target work. Options, none tried: a
   structural `BEq` proved equal to `valueEq` and installed with `@[csimp]`; comparing
   without materializing both values; caching the encoding of large immutable operands.
-- The failed branch of `static_assert` has no upstream evidence: upstream aborts, which
-  the workers report as `unsupported-upstream-abort` without evaluating, and no candidate
-  fails. The port's hard error there follows a reading of the OCaml only.
+- The failed branch of `static_assert` had no upstream evidence in this set: upstream
+  aborts, and no p4c sample fails. One error test exercises it (below).
 
-Not established by this sweep: the durable shard campaign with CLI parity on both legs;
-rejected programs (no candidate fails upstream; see the regression sweep below;
-`p4_16_errors` stays outside every denominator); internal failure kinds;
-`switch_p4_16.p4`; any packet target.
+Not established by this sweep: rejected programs (no candidate fails upstream; see the
+regression and error-test sweeps below); internal failure kinds; `switch_p4_16.p4`; any
+packet target.
 [Overview](overview.md) carries generation and milestone obligations;
 [review](review.md) identifies independent evidence and limitations.
 
@@ -78,11 +76,66 @@ Limits:
   in the other class would also match (none did).
 - The `sim` programs are used as accepted programs for typing and instantiation only;
   their `.stf` packet tests belong to M3D.
-- No mutation was tried against this set. `p4_16_errors` (p4c's own negative tests) is
-  still not restored.
+- The mutation suite below runs against this set.
 - The p4c-corpus mode shares the changed capture code. It was rerun on the final tool
   (the cache identity changed, so every candidate was captured again): exit 0 in 1,240 s,
   1,266 of 1,267 `matched,matched` on both legs, `switch_p4_16.p4` oversized, as before.
+
+## Error tests, sweep mutations and the generated-leg campaign (2026-10-06)
+
+`sweep.py --errors` sweeps p4c's own negative tests, `testdata/p4_16_errors`, inventoried
+in `errors.json` as the p4c samples are (584 programs; 49 excluded by 52 negative
+references in upstream's static manifests, one of them stale; 535 candidates), which
+upstream runs with `-neg` expecting every one to fail (its expectation file: 49 excluded,
+535 failed, none passed). On the final tool (`.artifacts/m3c/errors-2.log`): exit 0 in
+86 s, 535 of 535 observed, both legs agreeing on both relations:
+
+| Outcome | Programs | What the legs did |
+|---|---|---|
+| `matched-public-failure` | 500 | failed typing in upstream's `unmatch` class at its counter |
+| `syntax-only` | 34 | upstream's parser rejected the program; no boot, nothing evaluated |
+| `matched-abort` | 1 | `issue3188.p4`: upstream's placeholder target aborted on a failed `static_assert` (counter 4); both legs fail with a hard error at that counter |
+
+The abort case is the first upstream evidence for the failed branch of the ported
+`static_assert`, which until now followed a reading of the OCaml only. Upstream's `abort`
+class (any target-side error, here that one) was previously reported as
+`unsupported-upstream-abort` without evaluating; the workers now evaluate it and match it
+only with a Lean hard error at the same counter (`matched-abort`), since the port's
+`Fail.err` does not separate a target abort from an AL error. The shard campaign accepts the same status. Limits: the 34 parser rejections
+exercise no Lean code; where a run fails is still not compared; the 49 exclusions are
+upstream's, not ours.
+
+`mutations.py` is the committed mutation suite of the regression sweep (the Corpus README
+has the table). It runs on the cached regression observations, requires the baseline to
+pass exactly as the sweep does, and then requires each of six mutations to change the
+outcome of exactly the expected programs to the expected statuses on the expected leg:
+three mutated observations (counter incremented, outputs emptied, class turned into a
+rejection, each on one accepted program, each caught on both legs), the generated
+record-expression distinctness premise skipped (`neg/issue-207.p4`, the duplicate-field
+program, becomes accepted on the generated leg: `outcome-disagreement` on both relations),
+the interpreter's list concatenation reversed (every allocating program disagrees by
+counter and every other accepted program by outcome, 27 of 37; the expectation is derived
+from the observations, with the rule stated in the suite) and its fresh allocation
+doubled (`counter-disagreement` on all 23 allocating programs). A code mutation is applied
+in place, the worker rebuilt and run, the source written back byte for byte and the worker
+rebuilt, which must restore its baseline digest; a build failure or an unrestored worker
+is a harness failure. One run takes about six minutes (376 s), most of it the two rebuilds of
+the generated module (`8.02-evaluation-relation`, which holds `Expr_ok`) and their
+downstream chain. Not covered: mutations of the probe or of the p4c-corpus mode, and the
+earlier manual bit-slice mutation, which the 37 regression programs do not exercise.
+
+`shard.py --leg generated` extends the durable campaign to the generated worker: its
+preflight regenerates and checks `P4Spec`, and the identity records the leg, the worker's
+digest and the generated leg's adapter sources and library manifest. `--max-case-bytes`
+and `--timeout` raise the reviewed 32 MiB and 120 s bounds (never lower them) and are
+part of the identity. Both legs' bounds are read at the call, so the raised values reach
+the oracle sessions, the artifacts and the workers. Run on the final tool
+(`.artifacts/m3c/shard-{interpreter,generated}-1.log`): shard 0 of 64 (20 candidates,
+indices 0, 64, ..., 1216) at 128 MiB and 600 s on each leg, exit 0, both complete and
+okay, 40 relation matches each with CLI parity on every case, no harness failure
+(identities `7190ca98…` and `a56659a8…` under `.artifacts/p4-corpus-shards/`). The
+durable record therefore now has both legs, CLI parity and a bound above every
+candidate but the four largest; the whole corpus still rests on the sweep.
 
 ## Inputs and canonical denominator
 
@@ -113,7 +166,7 @@ All 60 exclusion files contain 120 static references (68 positive, 52 negative)
 and 56 dynamic references (10 p4c, 46 p4c-specific); these are references,
 not additive sample counts. Exclusions remain grounded in manifests.
 
-Other denominators stay separate: `p4_16_errors` was not restored; upstream
+Other denominators stay separate: `p4_16_errors` has its own manifest (above); upstream
 regression has 4 positive, 13 negative, 20 simulator programs; p4testgen has
 2,126 STF files but no P4 source; Nano has 78 programs / 39 STF files.
 All literal includes resolved in the bounded restored sample tree, which does

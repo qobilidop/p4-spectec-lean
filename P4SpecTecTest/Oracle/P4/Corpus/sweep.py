@@ -10,6 +10,10 @@ With `--regression` the candidates are instead upstream's own regression program
 (`testdata/regression/{neg,pos,sim}/*.p4`), a separate denominator that includes programs
 upstream rejects; the p4c corpus has none. That sweep passes only when every candidate is
 observed, every `neg` program is rejected on both legs and every other one accepted.
+With `--errors` they are p4c's error tests that upstream does not exclude (`errors.json`),
+which upstream runs expecting every one to be rejected; that sweep passes only when every
+candidate is observed and rejected on both legs: by typing, by the target aborting (a failed
+`static_assert`, which a leg matches with a hard error) or already by upstream's parser.
 
 This is the fast feedback loop, not the durable campaign: observations (and failed captures)
 are cached under an identity of pins, probe, harness sources and limits, but nothing is fsynced, locked or resumable mid-case,
@@ -39,7 +43,7 @@ ROOT = inventory.ROOT
 CORPUS = ROOT / "P4SpecTecTest/Oracle/P4/Corpus"
 LEGS = {"interpreter": ["p4-corpus-worker", str(ROOT / "exports/p4.al.json")],
         "generated": ["p4-corpus-worker-gen"]}
-AGREEING = {"matched", "matched-public-failure", "syntax-only"}
+AGREEING = {"matched", "matched-public-failure", "matched-abort", "syntax-only"}
 # Capture failures that only say a stated bound was reached; any other kind is a defect.
 BOUNDS = {"oversized", "timeout"}
 # What a cached observation's bytes depend on, besides pins, probe and limits.
@@ -323,14 +327,18 @@ def groups(candidates, legs):
     return result
 
 
-# What upstream's grouping promises: it rejects every `neg` program and accepts the others.
-EXPECTED = {"neg": "matched-public-failure", "pos": "matched", "sim": "matched"}
+# What upstream's grouping promises: it rejects every `neg` program and accepts the others;
+# an error test is rejected, by typing, by its target aborting or already by its parser (a
+# syntax observation has no booted program for the legs to evaluate).
+EXPECTED = {"neg": {"matched-public-failure"}, "pos": {"matched"}, "sim": {"matched"},
+            "p4_16_errors": {"matched-public-failure", "matched-abort", "syntax-only"}}
 
 
 def unexpected(candidates, unobserved, legs):
-    """Every way a regression sweep falls short of its set: a candidate not observed, a
-    leg without a record, or a status other than the one its group promises on either
-    relation. Agreement with upstream alone would pass a `neg` program upstream accepts."""
+    """Every way a regression or error sweep falls short of its set: a candidate not
+    observed, a leg without a record, or a status other than the ones its group promises on
+    either relation. Agreement with upstream alone would pass a `neg` program upstream
+    accepts, or an error test it accepts."""
     problems = [f"{item['name']}: unobserved ({item['kind']})" for item in unobserved]
     for label, records in legs.items():
         for index, case in enumerate(candidates):
@@ -340,7 +348,8 @@ def unexpected(candidates, unobserved, legs):
                     problems.append(f"{label}: {case['path']}: no record")
                 continue
             expected = EXPECTED[case["path"].split("/")[-2]]
-            if statuses(record) != (expected,) * len(contract.RELATIONS):
+            found = statuses(record)
+            if found is None or any(status not in expected for status in found):
                 problems.append(f"{label}: {case['path']}: {describe(record)}")
     if not legs:
         problems.append("no leg")
@@ -378,8 +387,11 @@ def main():
     parser.add_argument("--p4c", type=Path, required=True)
     parser.add_argument("--regression", action="store_true",
                         help="sweep upstream's regression programs instead of the p4c corpus")
+    parser.add_argument("--errors", action="store_true",
+                        help="sweep p4c's error tests instead of the p4c corpus")
     parser.add_argument("--out", type=Path,
-                        help="default .artifacts/p4-corpus-sweep, or p4-regression-sweep")
+                        help="default .artifacts/p4-corpus-sweep, p4-regression-sweep or "
+                             "p4-errors-sweep")
     parser.add_argument("--jobs", type=int, default=6)
     parser.add_argument("--max-case-bytes", type=int, default=1024 * 1024 * 1024)
     parser.add_argument("--capture-timeout", type=int, default=600)
@@ -391,9 +403,13 @@ def main():
     args = parser.parse_args()
     if not args.upstream.is_absolute() or not args.p4c.is_absolute():
         parser.error("--upstream and --p4c must be absolute")
+    if args.regression and args.errors:
+        parser.error("--regression and --errors are separate sets")
     upstream, p4c = args.upstream.resolve(), args.p4c.resolve()
+    grouped = args.regression or args.errors
     out = args.out or ROOT / ".artifacts" / (
-        "p4-regression-sweep" if args.regression else "p4-corpus-sweep")
+        "p4-regression-sweep" if args.regression else
+        "p4-errors-sweep" if args.errors else "p4-corpus-sweep")
     check = campaign.load("p4_check", ROOT / "P4SpecTecTest/Oracle/P4/Replay/check.py")
     adapter = check.load_export()
     adapter.revision_guard(upstream)
@@ -401,8 +417,15 @@ def main():
     manifest = inventory.build(p4c, upstream)
     if manifest != contract.strict_json(inventory.MANIFEST.read_bytes()):
         raise SystemExit("[p4-sweep] inventory differs from the pinned corpus")
-    candidates = (regression_candidates(upstream) if args.regression
-                  else inventory.shard(manifest, 0, 1))
+    if args.errors:
+        errors = inventory.build_errors(p4c, upstream)
+        if errors != contract.strict_json(inventory.ERRORS_MANIFEST.read_bytes()):
+            raise SystemExit("[p4-sweep] error inventory differs from the pinned tests")
+        candidates = inventory.error_candidates(errors)
+    elif args.regression:
+        candidates = regression_candidates(upstream)
+    else:
+        candidates = inventory.shard(manifest, 0, 1)
     for command in (
             ["python3", str(ROOT / "scripts/spec-snapshot.py"), "unpack",
              str(ROOT / "exports/p4.al.json")],
@@ -443,9 +466,10 @@ def main():
     if workers() != digests:
         raise SystemExit("[p4-sweep] a worker executable changed during the sweep")
     summary = summarize(candidates, unobserved, legs)
-    summary["set"] = "upstream-regression" if args.regression else "p4c-corpus"
+    summary["set"] = ("upstream-regression" if args.regression else
+                      "p4c-errors" if args.errors else "p4c-corpus")
     problems = []
-    if args.regression:
+    if grouped:
         summary["groups"] = groups(candidates, legs)
         problems = unexpected(candidates, unobserved, legs)
         summary["unexpected"] = problems

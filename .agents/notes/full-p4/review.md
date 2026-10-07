@@ -210,3 +210,52 @@ rather than as pending. Proposals not taken up: trimming the Nano certificate en
 evidence pointers and moving implementation detail of two full-P4 entries into the
 design; `repository-stewardship.md` and `corpus.md` as next candidates. Limits:
 read-only; timings taken from the recorded text.
+
+## M3C durable record stage (2026-10-06)
+
+Independent read-only review of the uncommitted M3C tree (the error-test sweep, the
+regression mutation suite, the `matched-abort` verdict and the generated-leg shard campaign)
+against `main` (`4e36cb3`), by a fresh Claude Fable 5.1 subagent. It ran the offline Python
+tests and the text check, read the Lean and Python code, upstream's negative-test harness
+and expectation file, and every log and summary under `.artifacts/m3c/`,
+`.artifacts/p4-*-sweep/` and `.artifacts/p4-corpus-shards/`; it ran no Lake command, no
+gate and no sweep. Verdict: no blocker.
+
+What it confirmed: the `Check.lean` verdict order (counter before class) makes an upstream
+abort match only a Lean hard error at upstream's counter, and the Python verdict tables,
+the shard validation, `okay`, and the sweep's agreement and expectation sets are mutually
+consistent; the mutation suite cannot pass vacuously (exact program-to-status maps, every
+program reported, a mutated worker digest that must differ and must restore, build failures
+as harness errors, derived expectations requiring at least two programs); every number in
+the documents against the logs and summaries, including the shard identities and limits;
+the error inventory against upstream's collector, exclusion predicate and expectation file
+(584, 49, 535, 0 passed, no crash counted as a rejection); every policy item it checked.
+
+Findings and resolutions, applied before the commit and checked by the author's reruns of
+the mutation suite and the gate, not re-reviewed:
+
+- The mutation evidence had been produced by a version of the suite from before a cosmetic
+  edit of one print line; the suite was rerun on the final text (`mutations-4.log`).
+- `errors.json` was missing from the gate's required-path list; added.
+- The status pointed at the corpus note's "first two sections" for M3C (it is three) and
+  carried a placeholder for the gate; corrected.
+- `load_cache` compared only the harness digests; it now also requires the cache's upstream
+  revision, p4c revision and inventory digest to be the committed manifest's.
+- No test covered the `matched-abort` rows of `validate_statuses` and `campaign.verdict`;
+  added (accepted with a hard error under upstream abort; rejected under `unmatch`, for a
+  `matched` or `matched-public-failure` status under abort, and with a mismatch class).
+- The documents described upstream's `abort` as the placeholder's failed `static_assert`
+  only; it is any target-side error, which the port also reports as `Fail.err`, so the
+  verdict rule was right and the wording is now the wider class.
+- The mutation's source write ran before its restoring `try`; moved inside.
+- Two durations drifted from the summaries (86 s, 376 s); harmonized.
+
+Not changed: the conflation of a Lean hard error from an unrelated AL error with a target
+abort at the same counter, the same conflation the documents already record for
+`matched-public-failure`; the one abort case has counter 4 on both relations, so the match
+is not vacuous.
+
+Limits the reviewer stated: no Lake, gate or sweep run; it could not diff the untracked
+suite against the revision that produced the earlier log; it inspected one of the 535 error
+observations and the shard evidence at summary level; it did not re-derive the 49
+exclusions by hand; it did not check Lean warnings on the changed modules.

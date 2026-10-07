@@ -167,11 +167,13 @@ structural changes. The same comparison covers the 1,672 full-P4 quotations
    mutations. The 2026-10-05 sweeps have both legs agreeing with upstream on 1,266
    of 1,267 p4c candidates and on upstream's 37 regression programs, 13 of them
    rejected ([corpus](corpus.md)); no native stack overflow or timeout occurred on the
-   generated leg. Open: the durable campaign with CLI parity on the generated leg, a
-   committed mutation suite for the sweeps, p4c's own negative tests, and the one
-   candidate above the case bound. Type equivalence/substitution exhaustion and
-   separate Type.Fresh effects constrain further coverage; guarded full-P4 coverage is
-   not established.
+   generated leg. On 2026-10-06 the third set, p4c's 535 non-excluded error tests, agrees
+   on both legs (500 typing rejections, 34 parser rejections, one target abort, the
+   first evidence for the failed `static_assert` branch), the regression sweep has a
+   committed six-mutation suite, and the shard campaign drives the generated worker with
+   raisable bounds. Open: the one candidate above the case bound. Type
+   equivalence/substitution exhaustion and separate Type.Fresh effects constrain further
+   coverage; guarded full-P4 coverage is not established.
 3. M3D: independently validate actual packet targets, starting from bounded
    NanoSwitch work then v1model/eBPF STF cases. PSA syntax alone is no target.
 4. M3E: expand audited refinement in dependency-driven slices (builtins,

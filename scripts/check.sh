@@ -106,6 +106,7 @@ for path in \
   P4SpecTec/BackendSim/Placeholder.lean P4SpecTecTest/BackendSim/Placeholder.lean \
   P4SpecTecTest/Oracle/P4/Corpus/Check.lean P4SpecTecTest/Oracle/P4/Corpus/Generated/Main.lean \
   P4SpecTecTest/Oracle/P4/Corpus/sweep.py P4SpecTecTest/Oracle/P4/Corpus/test_sweep.py \
+  P4SpecTecTest/Oracle/P4/Corpus/mutations.py P4SpecTecTest/Oracle/P4/Corpus/test_mutations.py \
   P4SpecTec/BackendSim/Core/Object.lean P4SpecTec/BackendSim/NanoSwitch/Pipe.lean \
   P4SpecTecTest/BackendSim/NanoSwitch/Target.lean P4SpecTecTest/Oracle/NanoSwitch/Target/Main.lean \
   P4SpecTecTest/Oracle/NanoSwitch/Packets/Main.lean P4SpecTecTest/Oracle/NanoSwitch/Target/requests.json \
@@ -123,6 +124,7 @@ for path in \
   scripts/check-spec-pin.py scripts/test_spec_pin.py \
   P4SpecTecTest/Oracle/P4/Corpus/Main.lean P4SpecTecTest/Oracle/P4/Corpus/README.md \
   P4SpecTecTest/Oracle/P4/Corpus/inventory.py P4SpecTecTest/Oracle/P4/Corpus/manifest.json P4SpecTecTest/Oracle/P4/Corpus/test_inventory.py \
+  P4SpecTecTest/Oracle/P4/Corpus/errors.json \
   P4SpecTecTest/Oracle/P4/Corpus/probe.ml P4SpecTecTest/Oracle/P4/Corpus/contract.py P4SpecTecTest/Oracle/P4/Corpus/campaign.py \
   P4SpecTecTest/Oracle/P4/Corpus/test_contract.py P4SpecTecTest/Oracle/P4/Corpus/shard.py P4SpecTecTest/Oracle/P4/Corpus/test_shard.py \
   scripts/check-mirror.py scripts/gen-keywords.sh scripts/time-elab.sh \
@@ -190,6 +192,8 @@ runStage "Full-P4 corpus resume contracts" python3 "$root/P4SpecTecTest/Oracle/P
   || { say "P4 corpus shard/resume contract tests failed"; fail=1; }
 runStage "Full-P4 corpus sweep contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_sweep.py" \
   || { say "P4 corpus sweep contract tests failed"; fail=1; }
+runStage "Full-P4 sweep mutation contracts" python3 "$root/P4SpecTecTest/Oracle/P4/Corpus/test_mutations.py" \
+  || { say "P4 sweep mutation contract tests failed"; fail=1; }
 for name in nano-p4 p4; do
   runStage "$name snapshot verification" python3 "$root/scripts/spec-snapshot.py" unpack "$root/exports/$name.al.json" \
     || { say "$name snapshot verification failed"; exit 1; }

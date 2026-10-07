@@ -5,7 +5,8 @@ import P4SpecTec.BackendSim.SpecImpl.Unpack
 Partial port of `p4spec/lib/backend-sim/core/func.ml`: verify and static_assert.
 Lookups precede Boolean unpacking, even when check is true or malformed.
 Explicit callbacks preserve all outcomes and any carrier state; context and
-architecture values are returned unchanged. A failed static_assert is a hard error:
+architecture values are returned unchanged. A failed static_assert is a hard error, as
+upstream's target abort is (one p4c error test exercises it on both legs):
 `Fail` carries no message, so the message is looked up, as upstream does before testing
 the check, but not unpacked.
 -/

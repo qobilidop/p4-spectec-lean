@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Restore only p4c's P4 1.6 sample, include and sample symlink-target
-# trees at P4-SpecTec's nested gitlink. Run in the default Nix shell
+# Restore only p4c's P4 1.6 sample and error-test trees, its includes and the
+# sample symlink targets at P4-SpecTec's nested gitlink. Run in the default Nix shell
 # after initializing the containing upstream/p4-spectec submodule
 # (without --recursive).
 set -euo pipefail
@@ -53,16 +53,17 @@ else
   git -C "$dest" remote add origin "$url"
   # Set the sparse paths before checkout so unrelated p4c blobs stay absent.
   git -C "$dest" sparse-checkout set p4include testdata/p4_16_samples \
-    backends/ubpf/tests/testdata
+    testdata/p4_16_errors backends/ubpf/tests/testdata
   git -C "$dest" fetch --depth=1 --filter=blob:none origin "$pin"
   git -C "$dest" checkout --detach "$pin"
 fi
 
 git -C "$dest" sparse-checkout set p4include testdata/p4_16_samples \
-  backends/ubpf/tests/testdata
+  testdata/p4_16_errors backends/ubpf/tests/testdata
 [[ "$(git -C "$dest" rev-parse HEAD)" == "$pin" ]] || fail 'p4c HEAD moved from pin'
 [[ -f "$dest/p4include/core.p4" ]] || fail 'p4include/core.p4 is missing'
 [[ -d "$dest/testdata/p4_16_samples" ]] || fail 'p4_16_samples is missing'
+[[ -d "$dest/testdata/p4_16_errors" ]] || fail 'p4_16_errors is missing'
 broken_links="$(find -L "$dest/testdata/p4_16_samples" -type l -print)" \
   || fail 'could not inspect p4c sample symlinks'
 [[ -z "$broken_links" ]] || fail 'a p4c sample symlink has no restored target'
@@ -72,4 +73,7 @@ broken_links="$(find -L "$dest/testdata/p4_16_samples" -type l -print)" \
 count="$(find -L "$dest/testdata/p4_16_samples" -type f -name '*.p4' -print | wc -l)" \
   || fail 'could not count p4c samples'
 [[ "$count" -gt 0 ]] || fail 'no p4c samples were restored'
-printf '[fetch-p4c] %s: %s samples at %s\n' "$dest" "$count" "$pin"
+errors="$(find "$dest/testdata/p4_16_errors" -type f -name '*.p4' -print | wc -l)" \
+  || fail 'could not count p4c error tests'
+[[ "$errors" -gt 0 ]] || fail 'no p4c error tests were restored'
+printf '[fetch-p4c] %s: %s samples, %s error tests at %s\n' "$dest" "$count" "$errors" "$pin"

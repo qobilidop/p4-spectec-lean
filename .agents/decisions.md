@@ -219,10 +219,32 @@ their own, unlike the p4c corpus with its exclusion manifests. In its place the 
 fails on any directory entry the enumeration would not follow, on an unobserved
 candidate, and on any status other than the one a program's group promises (`neg`
 rejected, the others accepted, on both relations and both legs), so the set can neither
-shrink nor turn pass-only unnoticed. Deferred, not rejected: p4c's `p4_16_errors`, the larger
-negative set, which needs the p4c restore and the inventory extended to it and to the 52
-negative references in upstream's exclusion manifests. Confidence high. Revisit if
-upstream's regression set grows a structure the glob does not follow.
+shrink nor turn pass-only unnoticed. Confidence high. Revisit if upstream's regression
+set grows a structure the glob does not follow.
+
+p4c's error tests (2026-10-06) are a third set of the same tool, `sweep.py --errors`, with
+their own manifest (`errors.json`, built and checked by `inventory.py` beside the positive
+one) so that the positive inventory's identity, and every cache and campaign record keyed
+by it, is unchanged. Reason: the negative set has its own exclusion references and its
+own expectation (upstream runs it with `-neg`), and a combined manifest would have
+invalidated the shard identities for no gain. An upstream `abort` (any target-side error;
+at this pin a failed `static_assert`) is now evaluated and matched only by a Lean hard
+error at the same counter (`matched-abort`), not skipped as unsupported: the one error test
+that aborts is the only upstream evidence for that branch of the port. Cost: a hard error cannot say
+whether the port aborted or erred, which the status name records.
+
+The regression sweep's mutation suite (`mutations.py`, 2026-10-06) mutates committed
+sources and the regenerated generated module in place, rebuilds the one worker, and
+restores the source byte for byte, requiring the rebuilt worker's baseline digest back.
+Reason: a mutation of the generated code must reach the real worker through the real
+build, and Lake's content-hashed artifacts make the restore cheap (one module and the
+link). Rejected: scratch copies of the mutated definitions (the entry relations call the
+originals by name, so only the entry could be mutated) and a second worktree with its own
+build (a second cold build per run). Expectations are exact sets of programs and
+statuses; two are derived from the observations by a stated rule (which programs
+allocate, which are accepted) rather than listed, so a pin change does not silently
+invalidate them. Confidence high. Revisit if a mutation needs a module early in the
+generated chain, where the rebuild would dominate.
 
 ## Pins and reproducibility (2026-09-25)
 

@@ -18,6 +18,11 @@ checksum-verifying gate's job; this inventory does not decode the snapshot.
 The complete accounting is 1,352 raw paths: eighteen include-directory
 helpers omitted by upstream's collector, 67 static exclusions, and 1,267
 canonical attempt candidates. All identities remain in the manifest.
+A second manifest, `errors.json`, inventories p4c's `testdata/p4_16_errors`
+the same way (584 programs, 49 excluded by 52 negative references, one of
+them stale, 535 candidates); it is separate so that the positive identity,
+and every cache and campaign record keyed by it, stays unchanged. The
+restore script fetches both trees.
 One of 68 positive exclusion references is stale. Manifest ordering is
 lexicographic by complete canonical path after collection, independent of
 upstream's directory traversal ordering; shard assignment uses canonical
@@ -94,6 +99,12 @@ nix develop --command python3 P4SpecTecTest/Oracle/P4/Corpus/test_shard.py
 nix develop .#upstream --command python3 P4SpecTecTest/Oracle/P4/Corpus/shard.py --upstream <absolute-patched-upstream> --p4c <absolute-clean-pinned-p4c> --shard 0 --shards 317
 ```
 
+`--leg generated` drives the generated library's worker instead of the interpreter's (the
+preflight then also regenerates and checks `P4Spec`, and the identity records the generated
+leg's adapter sources and the library manifest). `--max-case-bytes` and `--timeout` raise
+the 32 MiB case bound and the 120 s per-process deadline, never lower them; both are part
+of the identity, so a raised bound is a different run.
+
 The same command resumes only the exact execution identity. A single-writer
 lock protects descriptor-relative, known-name artifact access. Symlinks,
 hardlinks, unknown paths and references outside the run directory are rejected.
@@ -158,3 +169,28 @@ fails, in either failure class, with upstream's fresh-identifier counter after t
 run. Every rejection at this pin is a typing failure: `Program_inst` has `Program_ok` as
 its first premise and fails through it. The `sim` programs' `.stf` packet tests are not
 run.
+
+`--errors` sweeps the third set, p4c's error tests that upstream does not exclude (the 535
+candidates of `errors.json`), with the summary under `.artifacts/p4-errors-sweep/`. Upstream
+runs them with `-neg`, expecting every one to fail; the exit is zero only when every
+candidate was observed and both legs reject every one on both relations: by typing, by the
+target aborting (`matched-abort`: upstream's placeholder target aborted on a failed
+`static_assert`, and the leg fails with a hard error at the same counter) or already by
+upstream's parser (a `syntax` observation boots no program, so the legs report `syntax-only`
+rather than evaluating). The per-group outcome counts say how many were rejected each way.
+
+## Mutations of the regression sweep
+
+`mutations.py` runs on the cached regression observations (no upstream shell) and needs
+`lake` for worker rebuilds. The baseline must pass as the sweep requires; then each of six
+mutations must change the outcome of exactly the named programs to the named statuses on
+the named leg: three mutated observations (counter, output, class) against both legs, the
+generated record-expression distinctness check skipped (the duplicate-field program
+accepted), and two interpreter mutations (reversed list concatenation, doubled fresh
+allocation). A code mutation is applied in place, the worker rebuilt and rerun, the source
+written back and the worker rebuilt to its baseline digest; any other outcome is a harness
+failure. Its summary goes to `.artifacts/p4-regression-sweep/mutations/`.
+
+```sh
+nix develop --command python3 P4SpecTecTest/Oracle/P4/Corpus/mutations.py
+```
