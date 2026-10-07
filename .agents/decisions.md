@@ -292,73 +292,60 @@ These topic constraints remain binding when their work resumes:
 - [Nano target](notes/nano-target.md): preserve raw ExternV and shared verify
   ABI mismatches; do not invent typed target or boot/STF coverage.
 
-## Nominal codec dictionary binding (2026-09-27)
+## Nano value domains and codecs (2026-09-26 to 2026-09-28)
 
-Generated closed nominal fields bind their source declaration's encoder and
-decoder with explicit parameter dictionaries. Primitive and list/option fields use the same
-explicit selection recursively. Local source type parameters shadow global
-names. Reducible Lean aliases must not let unrelated later instances change a
-field's codec or add accidental fuel layers. Production recursive syntax exposed
-opaque encoder alias capture in initializer/selectCase fields; explicit source
-encoder binding removes that accidental instance dependency. A declared alias retains one
-frame; its old incidental minimum fuel is not preserved. Contextual tuples now have exact empty/two-field codecs with explicit dictionaries;
-closed right products that would flatten and unsupported arities fail closed.
-Function-type dictionaries remain unchanged pending separate support.
-Confidence: high, supported by hostile-instance and bound-name regressions and
-actual source-codec proofs. Revisit when tuple/function field support expands.
+Four choices about what the generated carrier holds and how source values are encoded.
+The first and third concern the runtime-only alternative (`--runtime-extern`), which only
+Nano uses; the codec and extern-domain choices bind every generated library.
 
-## Declared source extern domains (2026-09-27)
-
-Opaque source declarations use the independent `ExternV` shape with arbitrary
-JSON, matching pinned upstream `runtime/value/match.ml` and the checked Lean
-membership rule. `Source.Valid.external` still requires an actual external
-source declaration. Generated source codecs share this domain consistently;
-using `False` would incorrectly remove `objectState` and the PACKET alternative
-from the full Nano source domain. The separate runtime-only `value` alternative
-remains excluded from source admission. Opaque fields bind canonical extern
-encoder/decoder dictionaries explicitly, including under reducible aliases.
-
-Confidence: high; checked membership equivalence, actual objectState codec,
-raw-extern rejection for the defined value family and hostile-instance regressions
-pass. Revisit if upstream changes opaque type membership. Additional target-state
-invariants remain target contracts, not an unrecorded restriction of core syntax.
-
-## Nano runtime representation (2026-09-26)
-
-Preserve extract's raw `ExternV` result through an explicitly configured
-runtime-only alternative in the generated `value` carrier. Keep source AL
-quotations, `packetValue` and `objectValue` unchanged; do not wrap the result in
-PACKET. Follow the actual supplied subtype-check mode: SkipSC remains true,
-MixopSC matches source constructors, and unsupported extension-sensitive checks
-reject generation. Same-static-type casts preserve the raw value.
-
-Reason: the pinned guard-free semantics writes this value into the receiver;
-changing its shape would repair upstream behavior and change subsequent calls.
-The chosen interface uses ordinary codecs and contextual contracts, with exact
-callback/state evidence separate from full target certification. Confidence high
-for this Nano profile. Revisit if a pin changes the callback result, subtype-check
-forms, or a new carrier needs a different runtime extension. N2 supplies all 162
-source codecs and the selected closure's call invariants; N3 has since closed
-the remaining owned proof obligations, and N4 the corpus evidence and target composition.
-
-## Runtime-inclusive evaluation domain (2026-09-28)
-
-`Source.Valid` takes a domain with two parts: the opaque external-type domain and the
-runtime-only alternatives of declared types. The source profile (`externDomain`) has
-none, so its grammar, codecs and statements are unchanged. The runtime profile
-(`runtimeDomain ["value"]`, from `--runtime-extern value`) admits exactly a raw
-`ExternV` at `value`, the shape extract writes into a receiver. Evaluation-side domain
-claims (entry, producer, call admission) are stated over the runtime profile for
-callables whose domain involves the `value` closure. Reason: after an extern callback
-the actual contexts hold raw extern values, so source-domain preservation is false for
-the evaluation relations; a runtime profile states the actual domain without assuming
-the target avoids raw values, which NanoSwitch does not. Types whose declared closure
-avoids `value` have the same values in both profiles (`Valid.runtimeIff`, from one
-checked closure certificate), so their source codecs lift. Alternatives rejected: a
-carrier-image domain (vacuous), a separate `RuntimeValid` inductive (duplicates every
-grammar lemma), owning the obligation in N4 (the core call closure does not depend on
-the target). Confidence medium-high; revisit if a pin changes the callback result
-shape or another carrier needs a runtime alternative.
+- **Runtime representation.** Extract's raw `ExternV` result is preserved through an
+  explicitly configured runtime-only alternative in the generated `value` carrier
+  (`--runtime-extern value`); source quotations, `packetValue` and `objectValue` are
+  unchanged, and the result is not wrapped in PACKET. The supplied subtype-check mode is
+  followed as is: SkipSC is true, MixopSC matches source constructors, unsupported
+  extension-sensitive checks reject generation; same-static-type casts preserve the raw
+  value. Reason: the pinned guard-free semantics writes this value into the receiver;
+  changing its shape would repair upstream behavior and change subsequent calls. The
+  interface uses ordinary codecs and contextual contracts, with exact callback and state
+  evidence separate from full target certification. Confidence high for this Nano
+  profile. Revisit if a pin changes the callback result or subtype-check forms, or a new
+  carrier needs a different runtime extension.
+- **Declared source extern domains.** Opaque source declarations use the independent
+  `ExternV` shape with arbitrary JSON, matching pinned upstream `runtime/value/match.ml`
+  and the checked Lean membership rule; `Source.Valid.external` still requires an actual
+  external source declaration. Using `False` would wrongly remove `objectState` and the
+  PACKET alternative from the source domain. The runtime-only `value` alternative stays
+  excluded from source admission. Opaque fields bind canonical extern codec dictionaries
+  explicitly, also under reducible aliases. Confidence high (checked membership
+  equivalence, the `objectState` codec, raw-extern rejection, hostile-instance
+  regressions). Revisit if upstream changes opaque type membership; target-state
+  invariants remain target contracts, not restrictions of core syntax.
+- **Runtime-inclusive evaluation domain.** `Source.Valid` takes a domain of two parts,
+  the opaque external-type domain and the runtime-only alternatives of declared types.
+  The source profile (`externDomain`) has none, so grammar, codecs and statements are
+  unchanged; the runtime profile (`runtimeDomain ["value"]`) admits exactly a raw `ExternV`
+  at `value`. Evaluation-side claims (entry, producer, call admission) are stated over the
+  runtime profile for callables whose domain involves the `value` closure, because after
+  an extern callback the contexts hold raw values and source-domain preservation is false
+  there; the runtime profile states the actual domain without assuming the target avoids
+  raw values, which NanoSwitch does not. Types whose declared closure avoids `value` have
+  the same values in both profiles (`Valid.runtimeIff`, from one checked closure
+  certificate), so their source codecs lift. Rejected: a carrier-image domain
+  (vacuous), a separate `RuntimeValid` inductive (duplicates every grammar lemma), owning
+  the obligation in the target stage (the core call closure does not depend on the
+  target). Confidence medium-high; revisit if a pin changes the callback result shape or
+  another carrier needs a runtime alternative.
+- **Nominal codec dictionary binding.** Closed nominal fields bind their source
+  declaration's encoder and decoder with explicit parameter dictionaries, recursively
+  through primitive, list and option fields; local type parameters shadow global names.
+  Reason: reducible Lean aliases let unrelated later instances change a field's codec or
+  add fuel layers (production recursive syntax exposed opaque encoder alias capture in
+  initializer and selectCase fields). A declared alias retains one frame, not its old
+  incidental minimum fuel. Contextual tuples have exact empty/two-field codecs; closed
+  right products that would flatten, and unsupported arities, fail closed. Function-type
+  dictionaries are unchanged pending separate support. Confidence high (hostile-instance
+  and bound-name regressions, source-codec proofs). Revisit when tuple or function field
+  support expands.
 
 ## Nano certificate shape and evidence (2026-09-28 to 2026-09-30)
 

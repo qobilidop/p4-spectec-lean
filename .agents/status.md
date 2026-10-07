@@ -25,34 +25,31 @@ review and exact-revision CI for that tree digest.
 
 ## Verified state
 
-The compaction commit of 2026-10-06 changes documents and working state only (no
-executable input): it reuses the gate recorded for `0d78b6e` below, with the text check
-(exit 0) and a relative-link check of every edited document rerun, and its own review
-("Working-state compaction" in the review note).
+Latest executable validation, for `0d78b6e` (regression sweep; Python harness and
+documents only, no Lean source changed since `00aa1c2`):
 
-Evidence for `0d78b6e`, the commit that adds the regression sweep (Python harness and
-documents only; no Lean source changed since `00aa1c2`):
-
-- Full gate on the final files: `nix develop -c /usr/bin/time -p scripts/check.sh`
-  returned actual exit 0 in 397.51 s, all 58 stages (`.artifacts/m3c/gate-2.log`), warm:
-  every Lean module was already built from the `00aa1c2` gate. Only this file was edited
-  afterwards; the text check was rerun.
-- Regression sweep on the final tool: exit 0, 37 of 37 on both legs, in about 40 s
-  (`.artifacts/m3c/regression-3.log`, summary under `.artifacts/p4-regression-sweep/`).
-- p4c corpus sweep rerun on the final tool, since its capture path changed: exit 0 in
-  1,240 s, 1,266 of 1,267 `matched,matched` on both legs, `switch_p4_16.p4` unobserved
-  (oversized), as before (`.artifacts/m3c/corpus-1.log`). This is also the first sweep of
-  the library generated at `00aa1c2`, whose executable modules are unchanged.
-- Not rerun: the four-case replay (evidence is for `f329af0`).
-- Independent review: [full-P4 review](notes/full-p4/review.md), "Regression sweep stage";
-  no blockers, findings resolved before the commit, not re-reviewed.
-- For `00aa1c2` (run-soundness for every relation): full gate exit 0 in 1633.88 s, 58
-  stages, cold for every proof (`.artifacts/m3b/rec/gate-2.log`); review "Recursive
-  run-soundness stage". Nano completion 888 obligations, 0 unresolved, review and release
-  pending under the allowance as on every tree after `42ffad6`.
+- Full gate: `nix develop -c /usr/bin/time -p scripts/check.sh` exit 0 in 397.51 s, all
+  58 stages, warm (`.artifacts/m3c/gate-2.log`). For `00aa1c2`, the same gate cold for
+  every proof module: exit 0 in 1633.88 s (`.artifacts/m3b/rec/gate-2.log`). Nano
+  completion 888 obligations, 0 unresolved, review and release pending under the
+  allowance as on every tree after `42ffad6`.
+- Sweeps on the final tool: regression, exit 0, 37 of 37 on both legs
+  (`.artifacts/m3c/regression-3.log`); p4c corpus, exit 0 in 1,240 s, 1,266 of 1,267 on
+  both legs, `switch_p4_16.p4` oversized (`.artifacts/m3c/corpus-1.log`). Not rerun: the
+  four-case replay (evidence is for `f329af0`).
+- Independent reviews: [full-P4 review](notes/full-p4/review.md), "Recursive
+  run-soundness stage" and "Regression sweep stage"; no blockers, findings resolved
+  before the commits.
 - Remote CI: `0d78b6e` passed (run 37365938053), building the 132 proof modules on the
-  runner; the `00aa1c2` run was cancelled as superseded. Not yet run on the compaction
-  commit.
+  runner.
+
+The two tend-repo commits of 2026-10-06 change documents, working state and one comment
+in `scripts/nano-certification.py`. CI for the first (`0e4b521`, run 37573527725)
+passed. The second's full gate, run because it touches a
+script: `nix develop -c /usr/bin/time -p scripts/check.sh` exit 0 in 417.73 s, all 58
+stages, warm (`.artifacts/tend/gate-1.log`); only documents and the skill were edited
+afterwards, with the text and link checks rerun. Review: "Working-state compaction" in
+the review note (both passes).
 
 ## Open threads and next step
 
@@ -79,14 +76,14 @@ documents only; no Lean source changed since `00aa1c2`):
 
 ## Working-state compaction (2026-10-06)
 
-A tend-repo pass after M3B's close: the decisions register's full-P4 entries were
-rewritten to what is true now and the closed Nano entries merged into one; the full-P4
-overview records M3B as a closed stage with its measurements; the five earlier M3 stage
-reviews are tabulated with their revisions, findings and limits (prose at `0d78b6e`). An
-independent review of the pass found no lost obligation; three figures that had drifted
-and the rejected alternatives it found missing were restored before the commit. Learned: a pre-gate `check-text`/`--wfail` rule in AGENTS, and proof
-profiling guidance in `docs/performance.md`. Resume read is about 1,160 lines, mostly
-`docs/design.md` and the register.
+Two tend-repo passes after M3B's close rewrote the decisions register to what holds now
+(full-P4 entries; the closed Nano entries merged into two), recorded M3B in the full-P4
+overview as a closed stage, tabulated the five earlier stage reviews, and replaced the two
+closed performance notes by `notes/performance-history.md`; prose of all of them is at
+`0e4b521` and before. Learned, where it applies: a pre-gate text and warning check
+(AGENTS), proof profiling (`docs/performance.md`), and two weaknesses of the procedure
+itself (the skill). Resume read: status, decisions, design and pitfalls, about 1,180
+lines, of which `docs/design.md` is 491.
 
 ## Repository state
 

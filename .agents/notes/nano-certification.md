@@ -46,7 +46,7 @@ every corpus case (the gate runs the Lean executable `check-nano-sessions` throu
   bare optional membership remain counterexamples to identifying the two. Call and
   producer certificates establish composition; membership never supplies source validity.
 - The evaluation domain is the runtime-inclusive profile wherever raw externs reach it
-  (decisions, "Runtime-inclusive evaluation domain"); the raw carrier stays outside the
+  (decisions, "Nano value domains and codecs"); the raw carrier stays outside the
   source `value` grammar.
 - Parameter codecs, dictionaries and independent admission predicates stay explicit;
   repetition proves successful-output preservation, not totality. Tuple results use exact

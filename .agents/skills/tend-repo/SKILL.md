@@ -79,6 +79,18 @@ identity to distinguish local checks, remote CI, partial coverage and
 resource failures without relying on ignored logs or session transcripts.
 Do not relabel an archived or timed-out experiment as completed work.
 
+When merging or rewriting entries, account mechanically for what the old text
+asserted before trusting the new one: list the old text's reasons, rejected
+alternatives with their reasons, revisit triggers, confidence statements,
+review provenance (who reviewed what, independence, what was not run),
+numbers and dates, and find each in the new text or in another owner. A
+2026-10-06 merge of four closed entries kept every constraint but dropped the
+reasons behind nine rejected alternatives and revisit triggers, and restated
+three figures from memory (a generation time, a gate's cache state, a count);
+a second pass the same day dropped review provenance. Independent review
+caught both, the author's diff reading did not. Take a figure from its
+recorded source or say it was not remeasured.
+
 ## Learn and improve
 
 Use recent diffs, review findings, failures and available user corrections
@@ -98,6 +110,9 @@ as evidence. Prefer the smallest lasting improvement:
 Do not create an ever-growing lessons journal or copy rules between these
 owners. A single incident may justify a regression test without justifying
 a universal policy. Keep useful uncertainty instead of inventing a lesson.
+Check a lesson's stated cause against the recorded evidence before writing
+it: a rule drafted from memory blamed the pre-build text check for a failure
+that a later build stage caused, and would have sent readers to the wrong fix.
 
 Change this skill only when experience or the user supports the change.
 Explain the evidence and expected improvement in the diff/review, remove

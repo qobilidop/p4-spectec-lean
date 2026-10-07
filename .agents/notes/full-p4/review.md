@@ -196,3 +196,17 @@ text check for a late failure the build stage causes. Proposals not taken up: me
 four 2026-09-26 to -28 Nano entries and moving the sweep entry's third paragraph into the
 corpus note; compacting `notes/ci-performance.md` and `notes/proof-build-performance.md`
 into `docs/performance/`. Limits: read-only; timings taken on trust from status.
+
+A second pass the same day (performance notes compacted into `performance-history.md`;
+the four Nano domain entries merged; skill lessons) was reviewed the same way by another
+fresh subagent. Verdict: no blocker, no lost constraint, no changed claim. Resolved
+before the commit: review provenance the new performance note had dropped (three
+reviews, authorship of the stabilization and tactic work, a reviewer's scope), a
+rejected-design constraint (imported-constant inventories per environment), a
+measurement rule (report ranges, not a factor) and two limits, the discarded
+experiments' figures, a reason clause and a wrong "pure-mode" scoping in the merged
+Nano entry, two unverifiable figures in the skill's lesson, and CI reported as a run id
+rather than as pending. Proposals not taken up: trimming the Nano certificate entry's
+evidence pointers and moving implementation detail of two full-P4 entries into the
+design; `repository-stewardship.md` and `corpus.md` as next candidates. Limits:
+read-only; timings taken from the recorded text.

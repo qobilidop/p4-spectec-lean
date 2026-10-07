@@ -220,7 +220,7 @@ SESSION_REPLAY = ["check-nano-sessions matches every upstream session step on bo
 MONOMORPHIC_DOMAIN = (("sourceEntry", "sourceInputsToTwoWay"),
                       ("producer", "sourceInputsToSourceOutput"))
 # The runtime profile's grammar contains the source grammar and adds only the configured
-# runtime-only raw extern (decisions, "Runtime-inclusive evaluation domain"); complete
+# runtime-only raw extern (decisions, "Nano value domains and codecs"); complete
 # runtime evidence therefore covers the source domain as well as actual runtime values.
 RUNTIME_DOMAIN = (("sourceEntry", "runtimeInputsToTwoWay"),
                   ("producer", "runtimeInputsToRuntimeOutput"))
