@@ -60,7 +60,9 @@ Latest executable validation, for the M3D checkpoint (this tree):
 
 ## Open threads and next step
 
-1. Next: M3E, as a first slice that can be stated and audited: emit representation
+1. Next: M3E, as a first slice that can be stated and audited (the representation
+   catalog census over the 612 full-P4 types was started on 2026-10-07 and not finished;
+   rerun it compiled, not interpreted, before deciding): emit representation
    certificates for the full-P4 types the pure emitter already handles, then admit the
    first-order functions with non-scalar parameters and results whose bodies the fragment
    accepts (11 today), and measure `state_refine_al` on them before widening to clause
@@ -93,7 +95,8 @@ a module-initialized cell is never exclusive to the runtime (pitfalls).
 
 ## Repository state
 
-M3 work is committed directly on `main`. Preserve local `n3-decl-load`
+M3 work is committed directly on `main`; M3D is `69017a9` and `bf0f0c3`, pushed on
+2026-10-07; CI run 37672257167 passed for `bf0f0c3`. Preserve local `n3-decl-load`
 (`82fbe2e`, non-ancestor WIP), unrelated `docs/repository-review`, and the dirty old
 `../p4-spectec-lean-replay` worktree. The expected four-file upstream exporter patch
 remains applied; no source pins changed. `.artifacts/p4c` holds the pinned p4c samples;
